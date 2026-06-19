@@ -1,0 +1,22 @@
+{
+  "name": "cfc-royal-site",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Site instituțional — Clubul Federal Chinologic Royal (Astro static, RO/EN)",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "postbuild": "pagefind --site dist"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.2.1",
+    "astro": "^5.7.0"
+  },
+  "devDependencies": {
+    "pagefind": "^1.3.0"
+  }
+}

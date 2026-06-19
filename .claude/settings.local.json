@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($ErrorActionPreference='SilentlyContinue'; \"node: \" + \\(& node --version\\); \"npm: \" + \\(& npm --version\\); \"where node: \" + \\(\\(Get-Command node\\).Source\\))",
+      "Bash(mkdir -p src/content src/styles src/components src/layouts src/i18n src/data src/pages/ro src/pages/en src/pages/ro/juridic src/pages/en/legal docs public/fonts public/images)",
+      "Bash(mkdir -p src/content/expozitii src/content/arbitri src/content/canise src/content/standarde-rasa src/content/comunicate src/content/evenimente src/content/organizatii-afiliate src/content/membri-onoare src/content/cursuri src/content/documente src/content/articole)",
+      "Bash(git mv *)",
+      "Bash(mv content.config.ts src/content.config.ts)",
+      "Bash(mv tokens.css src/styles/tokens.css)",
+      "Bash(curl -sSL -o test.woff2 \"https://cdn.jsdelivr.net/fontsource/fonts/source-sans-3@latest/latin-400-normal.woff2\")",
+      "Bash(xxd)"
+    ]
+  }
+}
