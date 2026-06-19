@@ -1,10 +1,11 @@
 ---
-// BaseLayout.astro — învelișul comun al tuturor paginilor.
-// M1: Seo + skip-link + slot. Header/Footer reale vin la M2 (acum placeholdere minime).
+// BaseLayout.astro — învelișul comun al tuturor paginilor (Header + Footer + CookieBanner).
 import "../styles/global.css";
 import Seo from "../components/Seo.astro";
-import { SITE } from "../data/site";
-import { useTranslations, switchLangPath, getAltLang, languages } from "../i18n/utils";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import CookieBanner from "../components/CookieBanner.astro";
+import { useTranslations } from "../i18n/utils";
 import type { Lang } from "../i18n/ui";
 
 interface Props {
@@ -19,10 +20,6 @@ interface Props {
 
 const { title, description, lang, image, type, noindex, jsonLd } = Astro.props;
 const t = useTranslations(lang);
-const altLang = getAltLang(lang);
-const altUrl = switchLangPath(Astro.url, altLang);
-const homeUrl = `/${lang}/`;
-const year = new Date().getFullYear();
 ---
 
 <!doctype html>
@@ -44,60 +41,11 @@ const year = new Date().getFullYear();
   </head>
   <body>
     <a class="skip-link" href="#main">{t("a11y.skipToContent")}</a>
-
-    {/* ───── Placeholder M1 — înlocuit de <Header /> la M2 ───── */}
-    <header class="ph-header">
-      <div class="container ph-header__inner">
-        <a class="ph-brand" href={homeUrl}>{SITE.name[lang]}</a>
-        <a class="ph-lang" href={altUrl} hreflang={altLang} lang={altLang}>
-          {languages[altLang]}
-        </a>
-      </div>
-    </header>
-
+    <Header lang={lang} />
     <main id="main">
       <slot />
     </main>
-
-    {/* ───── Placeholder M1 — înlocuit de <Footer /> la M2 ───── */}
-    <footer class="ph-footer">
-      <div class="container">
-        <p>© {year} {SITE.name[lang]}. {t("footer.rights")}</p>
-      </div>
-    </footer>
+    <Footer lang={lang} />
+    <CookieBanner lang={lang} />
   </body>
 </html>
-
-<style>
-  /* Stiluri placeholder (M1) — vor fi scoase la M2 odată cu Header/Footer reale. */
-  .ph-header {
-    border-bottom: 1px solid var(--color-border);
-    background: var(--color-surface);
-  }
-  .ph-header__inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding-block: 1rem;
-  }
-  .ph-brand {
-    font-family: var(--font-serif);
-    font-weight: 700;
-    font-size: var(--fs-500);
-    color: var(--color-primary);
-    text-decoration: none;
-  }
-  .ph-lang {
-    font-size: var(--fs-300);
-    color: var(--color-text-muted);
-  }
-  .ph-footer {
-    margin-top: 4rem;
-    padding-block: 2rem;
-    border-top: 1px solid var(--color-border);
-    background: var(--color-surface-alt);
-    color: var(--color-text-muted);
-    font-size: var(--fs-300);
-  }
-</style>

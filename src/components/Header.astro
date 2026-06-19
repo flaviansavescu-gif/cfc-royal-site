@@ -1,0 +1,176 @@
+---
+// Header.astro — bară superioară + meniu principal cu submeniuri + meniu mobil.
+import LangSwitcher from "./LangSwitcher.astro";
+import { SITE } from "../data/site";
+import { mainNav } from "../data/nav";
+import { useTranslations, localizePath, type Lang } from "../i18n/utils";
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const here = Astro.url.pathname;
+const homeUrl = localizePath("", lang);
+
+function isActive(slug: string): boolean {
+  const path = localizePath(slug, lang);
+  return slug === "" ? here === path : here.startsWith(path);
+}
+---
+<header class="site-header">
+  <!-- Bara superioară -->
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <LangSwitcher lang={lang} />
+      <nav class="topbar__links" aria-label={t("a11y.mainNav")}>
+        <a href={localizePath("cautare", lang)}>{t("topbar.search")}</a>
+        <a href={localizePath("magazin", lang)}>{t("topbar.shop")}</a>
+        <a href={localizePath("membri/cont", lang)}>{t("topbar.account")}</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Bara principală -->
+  <div class="mainbar">
+    <div class="container mainbar__inner">
+      <a class="brand" href={homeUrl}>
+        <img src="/favicon.svg" alt="" width="36" height="36" aria-hidden="true" />
+        <span class="brand__text">
+          <span class="brand__name">{SITE.name[lang]}</span>
+          <span class="brand__tag">{SITE.tagline[lang]}</span>
+        </span>
+      </a>
+
+      <button
+        class="nav-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="main-nav"
+        aria-label={t("a11y.openMenu")}
+      >
+        <span class="nav-toggle__bar" aria-hidden="true"></span>
+      </button>
+
+      <nav id="main-nav" class="mainnav" aria-label={t("a11y.mainNav")}>
+        <ul class="mainnav__list" role="list">
+          {mainNav.map((item) => (
+            <li class={`mainnav__item${item.children ? " has-children" : ""}`}>
+              <a
+                class="mainnav__link"
+                href={localizePath(item.slug, lang)}
+                aria-current={isActive(item.slug) ? "page" : undefined}
+              >{item.label[lang]}</a>
+              {item.children && (
+                <ul class="submenu" role="list">
+                  {item.children.map((child) => (
+                    <li>
+                      <a class="submenu__link" href={localizePath(child.slug, lang)}>
+                        {child.label[lang]}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header { position: sticky; top: 0; z-index: 100; background: var(--color-surface); }
+
+  /* Bara superioară */
+  .topbar { background: var(--color-primary-dark); color: var(--color-text-inverse); }
+  .topbar__inner { display: flex; align-items: center; justify-content: space-between; min-height: 2.25rem; gap: 1rem; }
+  .topbar__links { display: flex; gap: 1.25rem; font-size: var(--fs-300); }
+  .topbar__links a { color: var(--color-text-inverse); opacity: 0.85; text-decoration: none; }
+  .topbar__links a:hover { opacity: 1; text-decoration: underline; }
+  .topbar :global(.langswitch__link) { color: rgba(251, 250, 247, 0.8); }
+  .topbar :global(.langswitch__link:hover) { color: var(--color-text-inverse); background: rgba(255,255,255,0.12); }
+
+  /* Bara principală */
+  .mainbar { border-bottom: 2px solid var(--color-primary); }
+  .mainbar__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: 0.75rem; }
+
+  .brand { display: inline-flex; align-items: center; gap: 0.65rem; text-decoration: none; }
+  .brand__text { display: flex; flex-direction: column; line-height: 1.15; }
+  .brand__name { font-family: var(--font-serif); font-weight: 700; font-size: var(--fs-500); color: var(--color-primary); }
+  .brand__tag { font-size: 0.72rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* Meniu principal */
+  .mainnav__list { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+  .mainnav__item { position: relative; }
+  .mainnav__link {
+    display: block; padding: 0.5rem 0.7rem; border-radius: var(--radius);
+    font-weight: 600; font-size: var(--fs-400); color: var(--color-text); text-decoration: none;
+  }
+  .mainnav__link:hover, .mainnav__item:focus-within > .mainnav__link { background: var(--color-surface-alt); color: var(--color-primary); }
+  .mainnav__link[aria-current="page"] { color: var(--color-primary); box-shadow: inset 0 -2px 0 var(--color-accent); }
+
+  /* Submeniu (dropdown desktop) */
+  .submenu {
+    position: absolute; top: 100%; left: 0; min-width: 240px;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius); box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    padding: 0.35rem; display: none; z-index: 10;
+  }
+  .has-children:hover > .submenu, .has-children:focus-within > .submenu { display: block; }
+  .submenu__link { display: block; padding: 0.45rem 0.6rem; border-radius: var(--radius); font-size: var(--fs-400); color: var(--color-text); text-decoration: none; }
+  .submenu__link:hover { background: var(--color-surface-alt); color: var(--color-primary); }
+
+  /* Buton meniu mobil */
+  .nav-toggle { display: none; width: 2.75rem; height: 2.75rem; border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); position: relative; }
+  .nav-toggle__bar, .nav-toggle__bar::before, .nav-toggle__bar::after {
+    content: ""; position: absolute; left: 50%; width: 1.25rem; height: 2px; background: var(--color-text);
+    transform: translateX(-50%); transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .nav-toggle__bar { top: 50%; transform: translate(-50%, -50%); }
+  .nav-toggle__bar::before { top: -6px; }
+  .nav-toggle__bar::after { top: 6px; }
+  .nav-toggle[aria-expanded="true"] .nav-toggle__bar { background: transparent; }
+  .nav-toggle[aria-expanded="true"] .nav-toggle__bar::before { transform: translateX(-50%) translateY(6px) rotate(45deg); }
+  .nav-toggle[aria-expanded="true"] .nav-toggle__bar::after { transform: translateX(-50%) translateY(-6px) rotate(-45deg); }
+
+  /* ───── Mobil ───── */
+  @media (max-width: 900px) {
+    .nav-toggle { display: block; }
+    .mainnav {
+      display: none; position: absolute; left: 0; right: 0; top: 100%;
+      background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08); max-height: 80vh; overflow-y: auto;
+    }
+    .mainnav.is-open { display: block; }
+    .mainnav__list { flex-direction: column; gap: 0; padding: 0.5rem; }
+    .mainnav__link { padding: 0.7rem; }
+    .submenu {
+      position: static; display: block; box-shadow: none; border: none; min-width: 0;
+      padding: 0 0 0.5rem 1rem; background: transparent;
+    }
+    .brand__tag { display: none; }
+  }
+  @media (max-width: 480px) {
+    .topbar__links a:not(:first-child) { display: none; }
+  }
+</style>
+
+<script>
+  // Toggle meniu mobil — JS minim, cu aria-expanded corect.
+  const toggle = document.querySelector<HTMLButtonElement>(".nav-toggle");
+  const nav = document.getElementById("main-nav");
+  if (toggle && nav) {
+    toggle.addEventListener("click", () => {
+      const open = nav.classList.toggle("is-open");
+      toggle.setAttribute("aria-expanded", String(open));
+    });
+    // Închide la navigare cu tastatura în afara meniului
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && nav.classList.contains("is-open")) {
+        nav.classList.remove("is-open");
+        toggle.setAttribute("aria-expanded", "false");
+        toggle.focus();
+      }
+    });
+  }
+</script>

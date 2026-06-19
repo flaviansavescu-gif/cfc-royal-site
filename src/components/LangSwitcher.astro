@@ -1,0 +1,34 @@
+---
+// LangSwitcher.astro — comutator RO/EN, păstrând calea curentă.
+import { languages, switchLangPath, type Lang } from "../i18n/utils";
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const codes: Lang[] = ["ro", "en"];
+---
+<nav class="langswitch" aria-label="Limbă / Language">
+  {codes.map((code) => (
+    code === lang ? (
+      <span class="langswitch__item" aria-current="true">{code.toUpperCase()}</span>
+    ) : (
+      <a
+        class="langswitch__item langswitch__link"
+        href={switchLangPath(Astro.url, code)}
+        hreflang={code}
+        lang={code}
+        title={languages[code]}
+      >{code.toUpperCase()}</a>
+    )
+  ))}
+</nav>
+
+<style>
+  .langswitch { display: inline-flex; align-items: center; gap: 0.25rem; font-size: var(--fs-300); }
+  .langswitch__item {
+    padding: 0.15rem 0.4rem; border-radius: var(--radius); font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+  .langswitch__item[aria-current="true"] { background: var(--color-primary); color: var(--color-text-inverse); }
+  .langswitch__link { color: var(--color-text-muted); text-decoration: none; }
+  .langswitch__link:hover { color: var(--color-primary); background: var(--color-surface-alt); }
+</style>

@@ -1,0 +1,136 @@
+---
+// Footer.astro — coloane de linkuri + date oficiale + social + newsletter (Netlify Form).
+import { SITE } from "../data/site";
+import { footerNav } from "../data/nav";
+import { useTranslations, localizePath, type Lang } from "../i18n/utils";
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
+
+const socials = (
+  [
+    ["Facebook", SITE.social.facebook],
+    ["Instagram", SITE.social.instagram],
+    ["YouTube", SITE.social.youtube],
+    ["TikTok", SITE.social.tiktok],
+  ] as const
+).filter(([, url]) => url);
+---
+<footer class="site-footer">
+  <div class="container site-footer__grid">
+    <!-- Coloane de linkuri -->
+    {footerNav.map((col) => (
+      <nav class="fcol" aria-label={t(col.titleKey)}>
+        <h2 class="fcol__title">{t(col.titleKey)}</h2>
+        <ul role="list" class="fcol__list">
+          {col.links.map((link) => (
+            <li><a href={localizePath(link.slug, lang)}>{link.label[lang]}</a></li>
+          ))}
+        </ul>
+      </nav>
+    ))}
+
+    <!-- Date oficiale -->
+    <div class="fcol">
+      <h2 class="fcol__title">{t("footer.officialData")}</h2>
+      <address class="fcol__address">
+        <p>{SITE.contact.address[lang]}</p>
+        <p><a href={`tel:${SITE.contact.phone.replace(/\s+/g, "")}`}>{SITE.contact.phone}</a></p>
+        <p><a href={`mailto:${SITE.contact.email}`}>{SITE.contact.email}</a></p>
+        <p>CIF: <span class="mono">{SITE.legal.cif}</span></p>
+        <p>IBAN: <span class="mono">{SITE.legal.iban}</span></p>
+        <p>{SITE.contact.schedule[lang]}</p>
+      </address>
+    </div>
+
+    <!-- Newsletter + social -->
+    <div class="fcol fcol--wide">
+      <h2 class="fcol__title">{t("footer.newsletter")}</h2>
+      <form
+        class="newsletter"
+        name="newsletter"
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+        action={localizePath("newsletter-ok", lang)}
+      >
+        <input type="hidden" name="form-name" value="newsletter" />
+        <p class="hp"><label>Nu completa: <input name="bot-field" /></label></p>
+        <label class="visually-hidden" for="nl-email">{t("footer.newsletter.placeholder")}</label>
+        <div class="newsletter__row">
+          <input
+            id="nl-email" type="email" name="email" required
+            placeholder={t("footer.newsletter.placeholder")} autocomplete="email"
+          />
+          <button type="submit">{t("footer.newsletter.cta")}</button>
+        </div>
+      </form>
+
+      {socials.length > 0 && (
+        <div class="social">
+          <h2 class="fcol__title">{t("footer.social")}</h2>
+          <ul role="list" class="social__list">
+            {socials.map(([name, url]) => (
+              <li><a href={url} rel="noopener" target="_blank">{name}</a></li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  </div>
+
+  <div class="site-footer__bar">
+    <div class="container site-footer__bar-inner">
+      <p>© {year} {SITE.name[lang]}. {t("footer.rights")}</p>
+      <ul role="list" class="legal-links">
+        <li><a href={localizePath("juridic/confidentialitate", lang)}>{t("legal.privacy")}</a></li>
+        <li><a href={localizePath("juridic/cookie-uri", lang)}>{t("legal.cookies")}</a></li>
+        <li><a href={localizePath("juridic/termeni", lang)}>{t("legal.terms")}</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer { margin-top: 4rem; background: var(--color-primary-dark); color: var(--color-text-inverse); }
+  .site-footer a { color: var(--color-text-inverse); text-decoration: none; opacity: 0.85; }
+  .site-footer a:hover { opacity: 1; text-decoration: underline; }
+
+  .site-footer__grid {
+    display: grid; gap: 2rem 2.5rem; padding-block: 3rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+  .fcol--wide { grid-column: span 2; }
+  .fcol__title {
+    font-family: var(--font-sans); font-size: var(--fs-300); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-accent);
+    margin-bottom: 0.9rem;
+  }
+  .fcol__list { display: flex; flex-direction: column; gap: 0.45rem; font-size: var(--fs-400); }
+  .fcol__address { font-style: normal; display: flex; flex-direction: column; gap: 0.4rem; font-size: var(--fs-300); opacity: 0.9; }
+  .fcol__address .mono { font-size: 0.85em; }
+
+  /* Newsletter */
+  .newsletter__row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .newsletter input[type="email"] {
+    flex: 1 1 180px; padding: 0.55rem 0.7rem; border: 1px solid transparent; border-radius: var(--radius);
+    background: var(--color-surface); color: var(--color-text);
+  }
+  .newsletter button {
+    padding: 0.55rem 1.1rem; border: none; border-radius: var(--radius);
+    background: var(--color-accent); color: var(--color-primary-dark); font-weight: 700;
+  }
+  .newsletter button:hover { background: #c79e3a; }
+  .hp { position: absolute; left: -5000px; } /* honeypot ascuns */
+  .social { margin-top: 1.5rem; }
+  .social__list { display: flex; flex-wrap: wrap; gap: 1rem; font-size: var(--fs-400); }
+
+  /* Bară de jos */
+  .site-footer__bar { border-top: 1px solid rgba(255,255,255,0.12); font-size: var(--fs-300); }
+  .site-footer__bar-inner { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; justify-content: space-between; align-items: center; padding-block: 1rem; }
+  .legal-links { display: flex; flex-wrap: wrap; gap: 1rem; }
+
+  @media (max-width: 640px) { .fcol--wide { grid-column: 1 / -1; } }
+</style>
