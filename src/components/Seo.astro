@@ -1,0 +1,76 @@
+---
+// Seo.astro — meta + Open Graph + Twitter + hreflang + JSON-LD Organization.
+// Pentru pagini de tip Event (expoziții) se pasează `jsonLd` suplimentar din [slug].
+import { SITE } from "../data/site";
+import { getAltLang, switchLangPath } from "../i18n/utils";
+import type { Lang } from "../i18n/ui";
+
+interface Props {
+  title: string;
+  description?: string;
+  lang: Lang;
+  image?: string;
+  type?: "website" | "article";
+  noindex?: boolean;
+  /** JSON-LD suplimentar (ex. Event), serializat ca atare. */
+  jsonLd?: Record<string, unknown>;
+}
+
+const { title, description, lang, image, type = "website", noindex = false, jsonLd } =
+  Astro.props;
+
+const site = Astro.site ?? new URL(SITE.domain);
+const canonical = new URL(Astro.url.pathname, site).href;
+const ogImage = new URL(image ?? SITE.defaultImage, site).href;
+const desc = description ?? SITE.description[lang];
+const siteName = SITE.name[lang];
+
+const fullTitle =
+  title === siteName ? `${siteName} — ${SITE.tagline[lang]}` : `${title} — ${siteName}`;
+
+const altLang = getAltLang(lang);
+const altUrl = new URL(switchLangPath(Astro.url, altLang), site).href;
+
+const sameAs = Object.values(SITE.social).filter(Boolean);
+
+const orgSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE.name[lang],
+  alternateName: SITE.shortName,
+  url: new URL(`/${lang}/`, site).href,
+  logo: new URL(SITE.logo, site).href,
+  description: SITE.description[lang],
+  email: SITE.contact.email,
+  ...(sameAs.length ? { sameAs } : {}),
+};
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={desc} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<!-- hreflang -->
+<link rel="alternate" hreflang={lang} href={canonical} />
+<link rel="alternate" hreflang={altLang} href={altUrl} />
+<link rel="alternate" hreflang="x-default" href={new URL("/ro/", site).href} />
+
+<!-- Open Graph -->
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:locale" content={lang === "ro" ? "ro_RO" : "en_US"} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={desc} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={desc} />
+<meta name="twitter:image" content={ogImage} />
+
+<!-- JSON-LD -->
+<script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
+{jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}

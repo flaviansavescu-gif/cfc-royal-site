@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="CFC Royal">
+  <rect width="32" height="32" rx="6" fill="#1F4D3A"/>
+  <g fill="#B08D2E">
+    <ellipse cx="16" cy="20.5" rx="5.6" ry="4.6"/>
+    <ellipse cx="9.4" cy="14.2" rx="2.5" ry="3"/>
+    <ellipse cx="13.8" cy="10.4" rx="2.5" ry="3"/>
+    <ellipse cx="18.2" cy="10.4" rx="2.5" ry="3"/>
+    <ellipse cx="22.6" cy="14.2" rx="2.5" ry="3"/>
+  </g>
+</svg>

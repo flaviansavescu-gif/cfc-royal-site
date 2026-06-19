@@ -8,7 +8,9 @@
       "Bash(mv content.config.ts src/content.config.ts)",
       "Bash(mv tokens.css src/styles/tokens.css)",
       "Bash(curl -sSL -o test.woff2 \"https://cdn.jsdelivr.net/fontsource/fonts/source-sans-3@latest/latin-400-normal.woff2\")",
-      "Bash(xxd)"
+      "Bash(xxd)",
+      "PowerShell($env:Path = [Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); & npm run dev)",
+      "PowerShell(& git add -A)"
     ]
   }
 }
