@@ -1,10 +1,12 @@
-# PLAN — Site instituțional Clubul Federal Chinologic Royal
+# PLAN — Site instituțional Club Federal Chinologic Royal
 
-Asociație chinologică **națională** (RO), bilingv **RO/EN**. Astro static → Netlify.
+Asociație chinologică **națională** (RO), afiliată **WDF — World Dog Federation** (NU FCI),
+bilingv **RO/EN**. Astro static → Netlify.
 Fără WordPress, fără bază de date. Conținut care crește = content collections (un fișier = o pagină).
 
-> Identitate: site-ul aparține **Clubului Federal Chinologic Royal** (asociația națională).
-> Asociația Chinologică din Caraș-Severin și celelalte din `structura-site.md` sunt **afiliate**.
+> Identitate: site-ul aparține **Club Federal Chinologic Royal** (denumire juridică:
+> „Asociația Club Federal Chinologic - Royal"). Asociația din Caraș-Severin și celelalte
+> din `structura-site.md` sunt **afiliate**.
 
 ---
 

@@ -42,11 +42,13 @@ const expozitii = defineCollection({
     city: z.string(),
     county: z.string(), // județ
     country: z.string().default("România"),
+    // Tipuri de expoziție (WDF — World Dog Federation; NU terminologie FCI).
+    // De ajustat dacă WDF folosește titluri specifice (ex. CAC WDF, Campionat Mondial WDF).
     showType: z.enum([
       "CAC",
-      "CACIB",
       "Națională",
       "Internațională",
+      "Campionat Mondial WDF",
       "Specială de rasă",
       "Regională",
       "Monografică",
@@ -63,7 +65,7 @@ const expozitii = defineCollection({
       )
       .optional(),
     judges: z.array(reference("arbitri")).optional(),
-    groupsJudged: z.array(z.string()).optional(), // grupe FCI / rase
+    groupsJudged: z.array(z.string()).optional(), // grupe de rase / rase arbitrate
     registration: z
       .object({
         open: z.boolean().default(false),
@@ -95,10 +97,10 @@ const arbitri = defineCollection({
     judgeType: z
       .enum(["expoziție", "lucru", "specialist rasă"])
       .default("expoziție"),
-    qualifications: z.array(z.string()).optional(), // grupe FCI / rase licențiate
+    qualifications: z.array(z.string()).optional(), // grupe de rase / rase licențiate
     licensedBreeds: z.array(z.string()).optional(),
     licenseNumber: z.string().optional(),
-    affiliation: z.string().optional(), // FCI / WDF / națională
+    affiliation: z.string().default("WDF"), // WDF / națională
     languages: z.array(z.string()).optional(),
     since: z.number().optional(),
     status: z.enum(["activ", "onorific", "în formare"]).default("activ"),
@@ -134,13 +136,13 @@ const standardeRasa = defineCollection({
   schema: z.object({
     ...base,
     nameOriginal: z.string().optional(), // nume original / EN
-    fciNumber: z.string().optional(), // nr. standard FCI
-    fciGroup: z.number().min(1).max(10).optional(), // grupa FCI 1–10
-    fciSection: z.string().optional(),
+    standardNumber: z.string().optional(), // nr. standard de rasă
+    breedGroup: z.string().optional(), // grupa de rasă (conform WDF)
+    breedSection: z.string().optional(),
     originCountry: z.string().optional(),
     patronage: z.string().optional(),
     recognition: z
-      .enum(["definitivă", "provizorie", "nerecunoscută FCI"])
+      .enum(["recunoscută", "provizorie", "nerecunoscută"])
       .optional(),
     usage: z.string().optional(), // utilizare
     heightMales: z.string().optional(), // talie masculi

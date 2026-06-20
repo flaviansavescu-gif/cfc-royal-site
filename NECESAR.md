@@ -17,15 +17,15 @@
 - [ ] **Fotografii de secțiune** (expoziții, educație, despre) — 3–6 imagini de calitate. → `public/images/`
 - [ ] **Galerie multimedia** — set de poze (și eventual link-uri video). → `public/images/galerie/`
 
-## C. Date oficiale (se completează în `src/data/site.ts` — acum sunt valori `[PLACEHOLDER]`)
-- [ ] Denumire juridică completă a asociației
-- [ ] **CIF**
-- [ ] **IBAN** + banca
+## C. Date oficiale (în `src/data/site.ts`)
+- [x] Denumire juridică completă — „Asociația Club Federal Chinologic - Royal"
+- [x] **CIF** — 48828041
+- [x] **IBAN** + banca — RO07 RNCB 0263 1767 9657 0001 (BCR)
+- [x] Telefon oficial — +40 741 387 026
+- [x] E-mail oficial — club.chinologic.royal@gmail.com
+- [x] Program de lucru — L–V 08–18, S–D 10–14
 - [ ] Număr de înregistrare în Registrul Asociațiilor și Fundațiilor
-- [ ] Adresă sediu (exactă)
-- [ ] Telefon oficial
-- [ ] E-mail oficial
-- [ ] Program de lucru
+- [ ] Adresă sediu (exactă) — încă neprimită
 - [ ] Link-uri reale social media: Facebook · Instagram · YouTube · TikTok
 - [ ] **Domeniul final** al site-ului (ex. `cfc-royal.ro`) → se pune în `astro.config.mjs` și `src/data/site.ts`
 
@@ -38,10 +38,10 @@
 
 ## E. Conținut pentru colecții (un fișier `.md` = o pagină generată automat)
 Schemele sunt deja definite în `src/content.config.ts`. Pentru fiecare ai nevoie de:
-- [ ] **Expoziții** — titlu, dată, loc, organizator, tip (CAC/CACIB/…), regulament PDF, rezultate, galerie
+- [ ] **Expoziții** — titlu, dată, loc, organizator, tip (CAC / Campionat Mondial WDF / …), regulament PDF, rezultate, galerie
 - [ ] **Arbitri** — nume, foto, calificări/rase licențiate, țară, status
 - [ ] **Canise** — afix, proprietar, rase, nr. înregistrare, contact
-- [ ] **Standarde de rasă** — nume rasă, nr. FCI, grupă, talie/greutate, standard PDF, imagini
+- [ ] **Standarde de rasă** — nume rasă, nr. standard, grupă (WDF), talie/greutate, standard PDF, imagini
 - [ ] **Comunicate / Articole** — text + categorie (știre/interviu/editorial)
 - [ ] **Evenimente** — titlu, dată, locație
 - [ ] **Organizații afiliate** — nume, logo, site, județ (cele din `docs/structura-site.md`)

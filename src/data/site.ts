@@ -1,15 +1,14 @@
 // =========================================================================
 // site.ts — datele instituționale globale (sursă unică).
-// ⚠️ Valorile marcate [PLACEHOLDER] trebuie înlocuite cu datele reale
-//    ale Clubului Federal Chinologic Royal înainte de publicare.
+// Date oficiale reale. [PLACEHOLDER] = încă de completat (logo, imagini, adresă).
 // =========================================================================
 
 export const SITE = {
   /** Domeniul final (se sincronizează cu `site` din astro.config.mjs). */
-  domain: "https://cfc-royal.netlify.app",
+  domain: "https://cfc-royal.netlify.app", // [PLACEHOLDER] domeniu final
 
   name: {
-    ro: "Clubul Federal Chinologic Royal",
+    ro: "Club Federal Chinologic Royal",
     en: "Royal Federal Canine Club",
   },
   shortName: "CFC Royal",
@@ -19,34 +18,37 @@ export const SITE = {
     en: "National cynological association",
   },
 
+  /** Afiliere: World Dog Federation (NU FCI). */
+  affiliation: "WDF — World Dog Federation",
+
   description: {
-    ro: "Clubul Federal Chinologic Royal — asociație chinologică națională: expoziții canine, corp de arbitri, canise înregistrate, standarde de rasă și educație chinologică.",
-    en: "Royal Federal Canine Club — national cynological association: dog shows, panel of judges, registered kennels, breed standards and canine education.",
+    ro: "Club Federal Chinologic Royal — asociație chinologică națională afiliată WDF: expoziții canine, corp de arbitri, canise înregistrate, standarde de rasă și educație chinologică.",
+    en: "Royal Federal Canine Club — national cynological association affiliated with the WDF: dog shows, panel of judges, registered kennels, breed standards and canine education.",
   },
 
   /** Imagine implicită Open Graph (1200×630). [PLACEHOLDER] */
   defaultImage: "/images/og-default.jpg",
   logo: "/images/logo.png", // [PLACEHOLDER]
 
-  /** Date oficiale — afișate în footer / pagina Contact / Transparență. [PLACEHOLDER] */
+  /** Date oficiale — afișate în footer / pagina Contact / Transparență. */
   legal: {
-    fullName: "Clubul Federal Chinologic Royal", // denumirea juridică completă
-    cif: "RO00000000", // [PLACEHOLDER]
-    iban: "RO00 XXXX 0000 0000 0000 0000", // [PLACEHOLDER]
-    bank: "", // [PLACEHOLDER]
+    fullName: "Asociația Club Federal Chinologic - Royal", // denumirea juridică completă
+    cif: "48828041",
+    iban: "RO07 RNCB 0263 1767 9657 0001",
+    bank: "Banca Comercială Română (BCR)",
     regNumber: "", // nr. registru asociații/fundații [PLACEHOLDER]
   },
 
   contact: {
-    email: "contact@cfc-royal.ro", // [PLACEHOLDER]
-    phone: "+40 700 000 000", // [PLACEHOLDER]
+    email: "club.chinologic.royal@gmail.com",
+    phone: "+40 741 387 026",
     address: {
-      ro: "Reșița, județul Caraș-Severin, România", // [PLACEHOLDER]
-      en: "Reșița, Caraș-Severin County, Romania", // [PLACEHOLDER]
+      ro: "", // [PLACEHOLDER] adresă poștală — încă neprimită
+      en: "",
     },
     schedule: {
-      ro: "Luni–Vineri, 09:00–17:00",
-      en: "Monday–Friday, 9:00 AM–5:00 PM",
+      ro: ["Luni–Vineri: 08:00–18:00", "Sâmbătă–Duminică: 10:00–14:00"],
+      en: ["Monday–Friday: 8:00 AM–6:00 PM", "Saturday–Sunday: 10:00 AM–2:00 PM"],
     },
   },
 

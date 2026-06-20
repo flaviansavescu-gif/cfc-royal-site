@@ -4,7 +4,7 @@ title Site CFC Royal - server local
 cd /d "%~dp0"
 
 echo ============================================================
-echo   Site local - Clubul Federal Chinologic Royal
+echo   Site local - Club Federal Chinologic Royal
 echo ============================================================
 echo.
 

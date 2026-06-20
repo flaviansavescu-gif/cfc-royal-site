@@ -36,12 +36,13 @@ const socials = (
     <div class="fcol">
       <h2 class="fcol__title">{t("footer.officialData")}</h2>
       <address class="fcol__address">
-        <p>{SITE.contact.address[lang]}</p>
+        {SITE.contact.address[lang] && <p>{SITE.contact.address[lang]}</p>}
         <p><a href={`tel:${SITE.contact.phone.replace(/\s+/g, "")}`}>{SITE.contact.phone}</a></p>
         <p><a href={`mailto:${SITE.contact.email}`}>{SITE.contact.email}</a></p>
         <p>CIF: <span class="mono">{SITE.legal.cif}</span></p>
         <p>IBAN: <span class="mono">{SITE.legal.iban}</span></p>
-        <p>{SITE.contact.schedule[lang]}</p>
+        {SITE.legal.bank && <p>{SITE.legal.bank}</p>}
+        {SITE.contact.schedule[lang].map((line) => <p>{line}</p>)}
       </address>
     </div>
 

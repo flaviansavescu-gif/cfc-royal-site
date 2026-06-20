@@ -39,7 +39,7 @@ const ro: HomeContent = {
     kicker: "Asociație chinologică națională",
     title: "Pasiune pentru câini, rigoare pentru standarde",
     subtitle:
-      "Clubul Federal Chinologic Royal reunește crescători, arbitri și iubitori de câini din întreaga țară — expoziții, standarde de rasă, educație chinologică și o comunitate dedicată.",
+      "Club Federal Chinologic Royal reunește crescători, arbitri și iubitori de câini din întreaga țară — expoziții, standarde de rasă, educație chinologică și o comunitate dedicată.",
     ctaPrimary: { label: "Devino membru", slug: "membri/devino-membru" },
     ctaSecondary: { label: "Calendar expoziții", slug: "expozitii" },
   },
@@ -54,7 +54,7 @@ const ro: HomeContent = {
     viewAllSlug: "expozitii",
     items: [
       { title: "Expoziție Națională Canină", meta: "Reșița · 12 sept. 2026", tag: "Națională", slug: "expozitii", demo: true },
-      { title: "Expoziție Internațională CACIB", meta: "Timișoara · 3 oct. 2026", tag: "CACIB", slug: "expozitii", demo: true },
+      { title: "Expoziție Internațională WDF", meta: "Timișoara · 3 oct. 2026", tag: "Internațională", slug: "expozitii", demo: true },
       { title: "Specială de rasă — Ciobănesc", meta: "Buzău · 18 oct. 2026", tag: "Specială", slug: "expozitii", demo: true },
     ],
   },
@@ -70,7 +70,7 @@ const ro: HomeContent = {
   },
   membership: {
     title: "Devino membru",
-    body: "Alătură-te comunității Clubului Federal Chinologic Royal: acces la expoziții, înregistrarea canisei, sprijin pentru crescători și recunoaștere instituțională.",
+    body: "Alătură-te comunității Club Federal Chinologic Royal: acces la expoziții, înregistrarea canisei, sprijin pentru crescători și recunoaștere instituțională.",
     cta: "Vezi beneficiile",
     slug: "membri/devino-membru",
   },
@@ -92,9 +92,9 @@ const ro: HomeContent = {
     viewAll: "Toate standardele",
     viewAllSlug: "standarde-rasa",
     items: [
-      { title: "Ciobănesc Românesc Carpatin", meta: "Grupa 1 FCI", slug: "standarde-rasa", demo: true },
-      { title: "Ciobănesc Românesc Mioritic", meta: "Grupa 1 FCI", slug: "standarde-rasa", demo: true },
-      { title: "Ciobănesc Românesc de Bucovina", meta: "Grupa 2 FCI", slug: "standarde-rasa", demo: true },
+      { title: "Ciobănesc Românesc Carpatin", meta: "Rasă autohtonă", slug: "standarde-rasa", demo: true },
+      { title: "Ciobănesc Românesc Mioritic", meta: "Rasă autohtonă", slug: "standarde-rasa", demo: true },
+      { title: "Ciobănesc Românesc de Bucovina", meta: "Rasă autohtonă", slug: "standarde-rasa", demo: true },
     ],
   },
   education: {
@@ -146,7 +146,7 @@ const en: HomeContent = {
     viewAllSlug: "expozitii",
     items: [
       { title: "National Dog Show", meta: "Reșița · Sep 12, 2026", tag: "National", slug: "expozitii", demo: true },
-      { title: "International Show CACIB", meta: "Timișoara · Oct 3, 2026", tag: "CACIB", slug: "expozitii", demo: true },
+      { title: "International Show WDF", meta: "Timișoara · Oct 3, 2026", tag: "International", slug: "expozitii", demo: true },
       { title: "Breed Specialty — Shepherd", meta: "Buzău · Oct 18, 2026", tag: "Specialty", slug: "expozitii", demo: true },
     ],
   },
@@ -184,9 +184,9 @@ const en: HomeContent = {
     viewAll: "All standards",
     viewAllSlug: "standarde-rasa",
     items: [
-      { title: "Carpathian Shepherd Dog", meta: "FCI Group 1", slug: "standarde-rasa", demo: true },
-      { title: "Mioritic Shepherd Dog", meta: "FCI Group 1", slug: "standarde-rasa", demo: true },
-      { title: "Bucovina Shepherd Dog", meta: "FCI Group 2", slug: "standarde-rasa", demo: true },
+      { title: "Carpathian Shepherd Dog", meta: "Native breed", slug: "standarde-rasa", demo: true },
+      { title: "Mioritic Shepherd Dog", meta: "Native breed", slug: "standarde-rasa", demo: true },
+      { title: "Bucovina Shepherd Dog", meta: "Native breed", slug: "standarde-rasa", demo: true },
     ],
   },
   education: {
