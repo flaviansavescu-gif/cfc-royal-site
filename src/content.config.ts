@@ -92,6 +92,7 @@ const arbitri = defineCollection({
   schema: z.object({
     ...base,
     photo: z.string().optional(),
+    role: z.string().optional(), // ex. „Președinte al Colegiului de Arbitri”
     country: z.string().default("România"),
     city: z.string().optional(),
     judgeType: z

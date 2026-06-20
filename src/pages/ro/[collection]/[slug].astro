@@ -38,6 +38,7 @@ const breadcrumbs = [
   description={d.summary}
   eyebrow={def.eyebrow[lang]}
   cover={d.cover}
+  portrait={def.portrait ? def.portrait(d) : undefined}
   meta={meta}
   breadcrumbs={breadcrumbs}
   jsonLd={jsonLd}

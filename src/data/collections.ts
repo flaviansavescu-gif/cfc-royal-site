@@ -28,6 +28,8 @@ export interface CollectionDef {
   groupOrder?: string[];
   /** Traduce eticheta unui grup (cheia categoriei -> text localizat). */
   groupLabel?: (key: string, lang: Lang) => string;
+  /** Portret/poză afișat(ă) pe pagina de detaliu (ex. arbitri, membri). */
+  portrait?: (d: Data) => string | undefined;
 }
 
 // Categorii regulamente: cheia (RO, din schema) -> etichetă localizată
@@ -96,12 +98,19 @@ export const collectionDefs: CollectionDef[] = [
     empty: { ro: "Niciun arbitru publicat momentan.", en: "No judges published yet." },
     eyebrow: { ro: "Organizația", en: "Organization" },
     sort: (a, b) => a.title.localeCompare(b.title, "ro"),
-    card: (d) => ({ title: d.title, meta: d.country, tag: d.judgeType, excerpt: d.summary }),
+    portrait: (d) => d.photo,
+    card: (d) => ({
+      title: d.title,
+      meta: d.role || d.country,
+      excerpt: (d.qualifications || []).join(", ") || d.summary,
+      image: d.photo,
+    }),
     metaRows: (d, lang) =>
       rows(
+        row(L(lang, "Funcție", "Role"), d.role),
+        row(L(lang, "Calificare", "Qualification"), (d.qualifications || []).join(", ")),
         row(L(lang, "Țară", "Country"), d.country),
         row(L(lang, "Oraș", "City"), d.city),
-        row(L(lang, "Tip arbitru", "Judge type"), d.judgeType),
         row(L(lang, "Afiliere", "Affiliation"), d.affiliation),
         row(L(lang, "Nr. licență", "Licence no."), d.licenseNumber),
         row(L(lang, "Status", "Status"), d.status),

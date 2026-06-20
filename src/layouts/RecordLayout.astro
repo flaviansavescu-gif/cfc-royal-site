@@ -16,11 +16,12 @@ interface Props {
   jsonLd?: Record<string, unknown>;
   eyebrow?: string;
   cover?: string;
+  portrait?: string;
   meta?: MetaRow[];
   breadcrumbs?: Crumb[];
 }
 
-const { lang, title, description, image, type = "article", jsonLd, eyebrow, cover, meta = [], breadcrumbs = [] } =
+const { lang, title, description, image, type = "article", jsonLd, eyebrow, cover, portrait, meta = [], breadcrumbs = [] } =
   Astro.props;
 ---
 <BaseLayout title={title} description={description} lang={lang} image={image ?? cover} type={type} jsonLd={jsonLd}>
@@ -42,6 +43,8 @@ const { lang, title, description, image, type = "article", jsonLd, eyebrow, cove
         {eyebrow && <p class="eyebrow">{eyebrow}</p>}
         <h1 class="record__title">{title}</h1>
       </header>
+
+      {portrait && <img class="record__portrait" src={portrait} alt={title} width="220" loading="eager" />}
 
       {cover && <img class="record__cover" src={cover} alt="" loading="eager" />}
 
@@ -75,6 +78,7 @@ const { lang, title, description, image, type = "article", jsonLd, eyebrow, cove
   .record__head { margin-bottom: 1.5rem; }
   .record__title { color: var(--color-primary); margin-top: 0.25rem; }
   .record__cover { width: 100%; border-radius: var(--radius); border: 1px solid var(--color-border); margin-bottom: 1.5rem; }
+  .record__portrait { width: 220px; max-width: 50%; height: auto; border-radius: var(--radius); border: 1px solid var(--color-border); margin-bottom: 1.5rem; }
 
   .record__meta {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem 1.5rem;
