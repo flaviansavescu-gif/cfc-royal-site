@@ -11,12 +11,22 @@ interface Props {
   subtitle: string;
   ctaPrimary: Cta;
   ctaSecondary: Cta;
+  affiliationLogo?: string;
+  affiliationLabel?: string;
 }
-const { lang, kicker, title, subtitle, ctaPrimary, ctaSecondary } = Astro.props;
+const { lang, kicker, title, subtitle, ctaPrimary, ctaSecondary, affiliationLogo, affiliationLabel } = Astro.props;
 ---
 <section class="hero">
   <div class="container hero__inner">
-    <p class="hero__kicker">{kicker}</p>
+    <div class="hero__eyebrow">
+      <p class="hero__kicker">{kicker}</p>
+      {affiliationLogo && (
+        <span class="hero__affil">
+          <img src={affiliationLogo} alt="" width="38" height="38" loading="eager" />
+          <span>{affiliationLabel}</span>
+        </span>
+      )}
+    </div>
     <h1 class="hero__title">{title}</h1>
     <p class="hero__subtitle">{subtitle}</p>
     <div class="hero__cta">
@@ -42,10 +52,18 @@ const { lang, kicker, title, subtitle, ctaPrimary, ctaSecondary } = Astro.props;
     background-size: 22px 22px;
   }
   .hero__inner { position: relative; z-index: 1; padding-block: clamp(3.5rem, 9vw, 7rem); max-width: 56rem; }
+  .hero__eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; margin-bottom: 1rem; }
   .hero__kicker {
     color: var(--color-accent); font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.12em; font-size: var(--fs-300); margin-bottom: 1rem;
+    letter-spacing: 0.12em; font-size: var(--fs-300); margin-bottom: 0;
   }
+  .hero__affil {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 999px; padding: 0.25rem 0.85rem 0.25rem 0.3rem;
+  }
+  .hero__affil img { height: 34px; width: auto; display: block; }
+  .hero__affil span { font-size: var(--fs-300); font-weight: 600; color: var(--color-accent); white-space: nowrap; }
   .hero__title { color: var(--color-text-inverse); font-size: clamp(2.25rem, 5.5vw, 3.5rem); line-height: 1.08; max-width: 18ch; }
   .hero__subtitle { margin-top: 1.25rem; font-size: var(--fs-500); max-width: 56ch; color: rgba(251, 250, 247, 0.92); }
   .hero__cta { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.9rem; }
