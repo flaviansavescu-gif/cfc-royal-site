@@ -234,8 +234,9 @@ export const collectionDefs: CollectionDef[] = [
     empty: { ro: "Niciun membru de onoare publicat momentan.", en: "No honorary members yet." },
     eyebrow: { ro: "Organizația", en: "Organization" },
     sort: (a, b) => a.title.localeCompare(b.title, "ro"),
-    card: (d) => ({ title: d.title, meta: d.role, excerpt: d.summary }),
-    metaRows: (d, lang) => rows(row(L(lang, "Rol", "Role"), d.role)),
+    portrait: (d) => d.photo,
+    card: (d) => ({ title: d.title, meta: d.role, excerpt: d.summary, image: d.photo }),
+    metaRows: (d, lang) => rows(row(L(lang, "Distincție", "Distinction"), d.role)),
   },
 
   {
