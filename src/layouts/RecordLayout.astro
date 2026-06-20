@@ -81,8 +81,9 @@ const { lang, title, description, image, type = "article", jsonLd, eyebrow, cove
     padding: 1.25rem; margin-bottom: 2rem;
     background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius);
   }
+  .record__meta-row { min-width: 0; }
   .record__meta-row dt { font-size: var(--fs-300); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
-  .record__meta-row dd { font-weight: 600; margin-top: 0.1rem; }
+  .record__meta-row dd { font-weight: 600; margin-top: 0.1rem; overflow-wrap: anywhere; }
 
   .record__body :global(h2) { color: var(--color-primary); margin-top: 2rem; }
   .record__body :global(h3) { margin-top: 1.5rem; }

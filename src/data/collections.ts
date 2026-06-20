@@ -164,8 +164,8 @@ export const collectionDefs: CollectionDef[] = [
         row(L(lang, "Telefon", "Phone"), d.phone),
         row(L(lang, "E-mail", "Email"), d.contactEmail),
         row("CIF", d.cif),
-        row("Facebook", d.facebook),
-        row(L(lang, "Website", "Website"), d.website),
+        row("Facebook", d.facebook ? d.facebook.replace(/^https?:\/\//, "").replace(/\/$/, "") : undefined),
+        row(L(lang, "Website", "Website"), d.website ? d.website.replace(/^https?:\/\//, "").replace(/\/$/, "") : undefined),
       ),
   },
 
