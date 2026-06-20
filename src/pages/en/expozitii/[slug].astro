@@ -1,0 +1,68 @@
+---
+// Individual exhibition page (EN) — generated from the collection.
+import { getCollection, render } from "astro:content";
+import RecordLayout from "../../../layouts/RecordLayout.astro";
+import { useTranslations, localizePath } from "../../../i18n/utils";
+import { entrySlug, formatDate } from "../../../i18n/content";
+
+const lang = "en" as const;
+
+export async function getStaticPaths() {
+  const entries = await getCollection("expozitii", (e) => e.id.startsWith("en/") && !e.data.draft);
+  return entries.map((entry) => ({ params: { slug: entrySlug(entry.id) }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const t = useTranslations(lang);
+const { Content } = await render(entry);
+const d = entry.data;
+
+const dateValue = d.endDate
+  ? `${formatDate(d.startDate, lang)} – ${formatDate(d.endDate, lang)}`
+  : formatDate(d.startDate, lang);
+
+const meta = [
+  { label: t("exh.date"), value: dateValue },
+  { label: t("exh.venue"), value: d.venue },
+  { label: t("exh.location"), value: `${d.city}, ${d.county}` },
+  { label: t("exh.type"), value: d.showType },
+  { label: t("exh.organizer"), value: d.organizer },
+  { label: t("exh.registration"), value: d.registration?.open ? t("exh.regOpen") : t("exh.regClosed") },
+];
+
+const iso = (date: Date) => date.toISOString().slice(0, 10);
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Event",
+  name: d.title,
+  startDate: iso(d.startDate),
+  ...(d.endDate ? { endDate: iso(d.endDate) } : {}),
+  eventStatus: "https://schema.org/EventScheduled",
+  eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+  location: {
+    "@type": "Place",
+    name: d.venue,
+    address: { "@type": "PostalAddress", addressLocality: d.city, addressRegion: d.county, addressCountry: d.country },
+  },
+  organizer: { "@type": "Organization", name: d.organizer },
+  ...(d.summary ? { description: d.summary } : {}),
+};
+
+const breadcrumbs = [
+  { label: t("nav.home"), href: localizePath("", lang) },
+  { label: t("nav.exhibitions"), href: localizePath("expozitii", lang) },
+  { label: d.title, href: "#" },
+];
+---
+<RecordLayout
+  lang={lang}
+  title={d.title}
+  description={d.summary}
+  eyebrow={t("nav.exhibitions")}
+  cover={d.cover}
+  meta={meta}
+  breadcrumbs={breadcrumbs}
+  jsonLd={jsonLd}
+>
+  <Content />
+</RecordLayout>

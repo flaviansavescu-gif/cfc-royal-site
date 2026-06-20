@@ -1,0 +1,30 @@
+---
+// ExpozitiiList.astro — listă de expoziții pentru limba dată (din colecție), sortate cronologic.
+import { getCollection } from "astro:content";
+import Card from "../Card.astro";
+import { useTranslations, localizePath, type Lang } from "../../i18n/utils";
+import { isLang, entrySlug, formatDate } from "../../i18n/content";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const items = (await getCollection("expozitii", (e) => isLang(e.id, lang) && !e.data.draft)).sort(
+  (a, b) => a.data.startDate.getTime() - b.data.startDate.getTime(),
+);
+---
+{items.length === 0 ? (
+  <p class="muted-note">{t("exh.empty")}</p>
+) : (
+  <div class="grid grid--3">
+    {items.map((e) => (
+      <Card
+        title={e.data.title}
+        href={localizePath(`expozitii/${entrySlug(e.id)}`, lang)}
+        meta={`${e.data.city} · ${formatDate(e.data.startDate, lang)}`}
+        tag={e.data.showType}
+        excerpt={e.data.summary}
+      />
+    ))}
+  </div>
+)}

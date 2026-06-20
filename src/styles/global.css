@@ -63,6 +63,9 @@ strong, b { font-weight: 600; }
   text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent-dark);
 }
 
+/* ---- Notă secundară (stări goale, mențiuni) ---- */
+.muted-note { font-size: var(--fs-300); color: var(--color-text-muted); font-style: italic; }
+
 /* ---- Grilă responsivă utilitară ---- */
 .grid { display: grid; gap: 1.5rem; }
 .grid--3 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
