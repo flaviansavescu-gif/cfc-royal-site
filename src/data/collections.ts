@@ -9,7 +9,7 @@ import type { Lang } from "../i18n/ui";
 import { formatDate } from "../i18n/content";
 
 type Data = Record<string, any>;
-export interface MetaRow { label: string; value: string }
+export interface MetaRow { label: string; value: string; wide?: boolean }
 export interface CardData { title: string; meta?: string; excerpt?: string; tag?: string; image?: string }
 
 export interface CollectionDef {
@@ -43,8 +43,8 @@ const regCat = (key: string, lang: Lang) => REG_CATS[key]?.[lang] ?? key;
 // helper bilingv scurt
 const L = (lang: Lang, ro: string, en: string) => (lang === "en" ? en : ro);
 const fmt = (date: Date | undefined, lang: Lang) => (date ? formatDate(date, lang) : "");
-const row = (label: string, value: unknown): MetaRow | null =>
-  value ? { label, value: String(value) } : null;
+const row = (label: string, value: unknown, wide = false): MetaRow | null =>
+  value ? { label, value: String(value), wide } : null;
 const rows = (...items: (MetaRow | null)[]): MetaRow[] => items.filter((x): x is MetaRow => !!x);
 
 export const collectionDefs: CollectionDef[] = [
@@ -164,8 +164,8 @@ export const collectionDefs: CollectionDef[] = [
         row(L(lang, "Telefon", "Phone"), d.phone),
         row(L(lang, "E-mail", "Email"), d.contactEmail),
         row("CIF", d.cif),
-        row("Facebook", d.facebook ? d.facebook.replace(/^https?:\/\//, "").replace(/\/$/, "") : undefined),
-        row(L(lang, "Website", "Website"), d.website ? d.website.replace(/^https?:\/\//, "").replace(/\/$/, "") : undefined),
+        row("Facebook", d.facebook ? d.facebook.replace(/^https?:\/\//, "").replace(/\/$/, "") : undefined, true),
+        row(L(lang, "Website", "Website"), d.website ? d.website.replace(/^https?:\/\//, "").replace(/\/$/, "") : undefined, true),
       ),
   },
 

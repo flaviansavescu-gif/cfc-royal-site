@@ -5,7 +5,7 @@ import BaseLayout from "./BaseLayout.astro";
 import type { Lang } from "../i18n/ui";
 
 interface Crumb { label: string; href: string }
-interface MetaRow { label: string; value: string }
+interface MetaRow { label: string; value: string; wide?: boolean }
 
 interface Props {
   lang: Lang;
@@ -48,7 +48,7 @@ const { lang, title, description, image, type = "article", jsonLd, eyebrow, cove
       {meta.length > 0 && (
         <dl class="record__meta">
           {meta.map((m) => (
-            <div class="record__meta-row">
+            <div class={`record__meta-row${m.wide ? " record__meta-row--wide" : ""}`}>
               <dt>{m.label}</dt>
               <dd>{m.value}</dd>
             </div>
@@ -82,8 +82,9 @@ const { lang, title, description, image, type = "article", jsonLd, eyebrow, cove
     background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius);
   }
   .record__meta-row { min-width: 0; }
+  .record__meta-row--wide { grid-column: 1 / -1; }
   .record__meta-row dt { font-size: var(--fs-300); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
-  .record__meta-row dd { font-weight: 600; margin-top: 0.1rem; overflow-wrap: anywhere; }
+  .record__meta-row dd { font-weight: 600; margin-top: 0.1rem; overflow-wrap: break-word; }
 
   .record__body :global(h2) { color: var(--color-primary); margin-top: 2rem; }
   .record__body :global(h3) { margin-top: 1.5rem; }
