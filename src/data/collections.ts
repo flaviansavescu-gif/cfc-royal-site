@@ -26,7 +26,19 @@ export interface CollectionDef {
   /** Grupare în arhivă pe categorii (ex. regulamente). */
   groupBy?: (d: Data) => string;
   groupOrder?: string[];
+  /** Traduce eticheta unui grup (cheia categoriei -> text localizat). */
+  groupLabel?: (key: string, lang: Lang) => string;
 }
+
+// Categorii regulamente: cheia (RO, din schema) -> etichetă localizată
+const REG_CATS: Record<string, Record<Lang, string>> = {
+  "Titluri": { ro: "Titluri", en: "Titles" },
+  "Proceduri de arbitraj": { ro: "Proceduri de arbitraj", en: "Judging procedures" },
+  "Etică și conduită": { ro: "Etică și conduită", en: "Ethics & conduct" },
+  "Contestații și abateri": { ro: "Contestații și abateri", en: "Appeals & violations" },
+  "Roluri": { ro: "Roluri", en: "Roles" },
+};
+const regCat = (key: string, lang: Lang) => REG_CATS[key]?.[lang] ?? key;
 
 // helper bilingv scurt
 const L = (lang: Lang, ro: string, en: string) => (lang === "en" ? en : ro);
@@ -238,8 +250,9 @@ export const collectionDefs: CollectionDef[] = [
     sort: (a, b) => (a.order ?? 999) - (b.order ?? 999) || a.title.localeCompare(b.title, "ro"),
     groupBy: (d) => d.category,
     groupOrder: ["Titluri", "Proceduri de arbitraj", "Etică și conduită", "Contestații și abateri", "Roluri"],
-    card: (d) => ({ title: d.title, tag: d.category, excerpt: d.summary }),
-    metaRows: (d, lang) => rows(row(L(lang, "Categorie", "Category"), d.category)),
+    groupLabel: regCat,
+    card: (d, lang) => ({ title: d.title, tag: regCat(d.category, lang), excerpt: d.summary }),
+    metaRows: (d, lang) => rows(row(L(lang, "Categorie", "Category"), regCat(d.category, lang))),
   },
 
   {
