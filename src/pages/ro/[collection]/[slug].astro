@@ -1,0 +1,46 @@
+---
+// Pagina individuală a oricărei colecții (RO) — generată din registru.
+import RecordLayout from "../../../layouts/RecordLayout.astro";
+import { getCollection, render } from "astro:content";
+import { collectionDefs, type CollectionDef } from "../../../data/collections";
+import { localizePath, useTranslations } from "../../../i18n/utils";
+import { isLang, entrySlug } from "../../../i18n/content";
+
+const lang = "ro" as const;
+
+export async function getStaticPaths() {
+  const paths: any[] = [];
+  for (const def of collectionDefs) {
+    const entries = await getCollection(def.name as any, (e: any) => e.id.startsWith("ro/") && !e.data.draft);
+    for (const entry of entries) {
+      paths.push({ params: { collection: def.slug, slug: entrySlug(entry.id) }, props: { entry, def } });
+    }
+  }
+  return paths;
+}
+
+const { entry, def } = Astro.props as { entry: any; def: CollectionDef };
+const t = useTranslations(lang);
+const { Content } = await render(entry);
+const d = entry.data;
+
+const meta = def.metaRows ? def.metaRows(d, lang) : [];
+const jsonLd = def.jsonLd ? def.jsonLd(d, lang) : undefined;
+const breadcrumbs = [
+  { label: t("nav.home"), href: localizePath("", lang) },
+  { label: def.label[lang], href: localizePath(def.slug, lang) },
+  { label: d.title, href: "#" },
+];
+---
+<RecordLayout
+  lang={lang}
+  title={d.title}
+  description={d.summary}
+  eyebrow={def.eyebrow[lang]}
+  cover={d.cover}
+  meta={meta}
+  breadcrumbs={breadcrumbs}
+  jsonLd={jsonLd}
+>
+  <Content />
+</RecordLayout>

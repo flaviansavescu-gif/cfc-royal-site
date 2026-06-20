@@ -1,0 +1,42 @@
+---
+// Arhiva oricărei colecții (RO) — o pagină per colecție din registru.
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Section from "../../../components/Section.astro";
+import Card from "../../../components/Card.astro";
+import { getCollection } from "astro:content";
+import { collectionDefs, type CollectionDef } from "../../../data/collections";
+import { localizePath } from "../../../i18n/utils";
+import { isLang, entrySlug } from "../../../i18n/content";
+
+const lang = "ro" as const;
+
+export function getStaticPaths() {
+  return collectionDefs.map((def) => ({ params: { collection: def.slug }, props: { def } }));
+}
+
+const { def } = Astro.props as { def: CollectionDef };
+const entries = await getCollection(def.name as any, (e: any) => isLang(e.id, lang) && !e.data.draft);
+const sorted = def.sort ? [...entries].sort((a, b) => def.sort!(a.data, b.data)) : entries;
+---
+<BaseLayout title={def.label[lang]} lang={lang}>
+  <Section eyebrow={def.eyebrow[lang]} title={def.label[lang]} intro={def.intro[lang]}>
+    {sorted.length === 0 ? (
+      <p class="muted-note">{def.empty[lang]}</p>
+    ) : (
+      <div class="grid grid--3">
+        {sorted.map((e: any) => {
+          const c = def.card(e.data, lang);
+          return (
+            <Card
+              title={c.title}
+              href={localizePath(`${def.slug}/${entrySlug(e.id)}`, lang)}
+              meta={c.meta}
+              excerpt={c.excerpt}
+              tag={c.tag}
+            />
+          );
+        })}
+      </div>
+    )}
+  </Section>
+</BaseLayout>
