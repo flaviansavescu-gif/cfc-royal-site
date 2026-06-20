@@ -51,7 +51,7 @@ if (def.groupBy) {
           <h3 class="group__title">{def.groupLabel ? def.groupLabel(g.title, lang) : g.title}</h3>
           <div class="grid grid--3">
             {g.items.map((e) => { const { c, href } = renderCard(e); return (
-              <Card title={c.title} href={href} meta={c.meta} excerpt={c.excerpt} tag={c.tag} />
+              <Card title={c.title} href={href} meta={c.meta} excerpt={c.excerpt} tag={c.tag} image={c.image} />
             ); })}
           </div>
         </div>
@@ -59,7 +59,7 @@ if (def.groupBy) {
     ) : (
       <div class="grid grid--3">
         {sorted.map((e) => { const { c, href } = renderCard(e); return (
-          <Card title={c.title} href={href} meta={c.meta} excerpt={c.excerpt} tag={c.tag} />
+          <Card title={c.title} href={href} meta={c.meta} excerpt={c.excerpt} tag={c.tag} image={c.image} />
         ); })}
       </div>
     )}

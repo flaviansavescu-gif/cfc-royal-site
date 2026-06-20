@@ -10,7 +10,7 @@ import { formatDate } from "../i18n/content";
 
 type Data = Record<string, any>;
 export interface MetaRow { label: string; value: string }
-export interface CardData { title: string; meta?: string; excerpt?: string; tag?: string }
+export interface CardData { title: string; meta?: string; excerpt?: string; tag?: string; image?: string }
 
 export interface CollectionDef {
   name: string; // cheia colecției din content.config.ts
@@ -156,10 +156,15 @@ export const collectionDefs: CollectionDef[] = [
     empty: { ro: "Niciun afiliat publicat momentan.", en: "No affiliates published yet." },
     eyebrow: { ro: "Afiliați", en: "Affiliates" },
     sort: (a, b) => a.title.localeCompare(b.title, "ro"),
-    card: (d) => ({ title: d.title, meta: d.county, excerpt: d.summary }),
+    card: (d) => ({ title: d.title, meta: d.county, excerpt: d.summary, image: d.logo }),
     metaRows: (d, lang) =>
       rows(
-        row(L(lang, "Județ", "County"), d.county),
+        row(L(lang, "Localitate", "Location"), [d.city, d.county].filter(Boolean).join(", ")),
+        row(L(lang, "Adresă", "Address"), d.address),
+        row(L(lang, "Telefon", "Phone"), d.phone),
+        row(L(lang, "E-mail", "Email"), d.contactEmail),
+        row("CIF", d.cif),
+        row("Facebook", d.facebook),
         row(L(lang, "Website", "Website"), d.website),
       ),
   },

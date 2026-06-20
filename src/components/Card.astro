@@ -7,11 +7,13 @@ interface Props {
   meta?: string;
   excerpt?: string;
   tag?: string;
+  image?: string;
   demo?: boolean;
 }
-const { title, href, meta, excerpt, tag, demo = false } = Astro.props;
+const { title, href, meta, excerpt, tag, image, demo = false } = Astro.props;
 ---
-<article class="card">
+<article class={`card${image ? " card--logo" : ""}`}>
+  {image && <img class="card__img" src={image} alt="" loading="lazy" />}
   {tag && <span class="card__tag">{tag}</span>}
   <h3 class="card__title"><a href={href}>{title}</a></h3>
   {meta && <p class="card__meta">{meta}</p>}
@@ -27,6 +29,8 @@ const { title, href, meta, excerpt, tag, demo = false } = Astro.props;
     transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
   }
   .card:hover { border-color: var(--color-primary-light); box-shadow: 0 6px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+  .card--logo { align-items: center; text-align: center; }
+  .card__img { height: 92px; width: auto; object-fit: contain; margin-bottom: 0.4rem; }
   .card__tag {
     align-self: flex-start; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
     letter-spacing: 0.05em; color: var(--color-primary); background: var(--color-surface-alt);

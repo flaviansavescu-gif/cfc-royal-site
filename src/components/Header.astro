@@ -33,7 +33,7 @@ function isActive(slug: string): boolean {
   <div class="mainbar">
     <div class="container mainbar__inner">
       <a class="brand" href={homeUrl}>
-        <img src="/favicon.svg" alt="" width="36" height="36" aria-hidden="true" />
+        <img class="brand__logo" src="/images/logo-royal.webp" alt={SITE.name[lang]} width="43" height="60" loading="eager" />
         <span class="brand__text">
           <span class="brand__name">{SITE.name[lang]}</span>
           <span class="brand__tag">{SITE.tagline[lang]}</span>
@@ -95,6 +95,7 @@ function isActive(slug: string): boolean {
   .mainbar__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: 0.75rem; }
 
   .brand { display: inline-flex; align-items: center; gap: 0.65rem; text-decoration: none; }
+  .brand__logo { height: 56px; width: auto; display: block; }
   .brand__text { display: flex; flex-direction: column; line-height: 1.15; }
   .brand__name { font-family: var(--font-serif); font-weight: 700; font-size: var(--fs-500); color: var(--color-primary); }
   .brand__tag { font-size: 0.72rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.06em; }

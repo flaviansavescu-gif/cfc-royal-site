@@ -8,6 +8,7 @@ interface Props { lang: Lang; }
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 const year = new Date().getFullYear();
+const homeUrl = localizePath("", lang);
 
 const socials = (
   [
@@ -19,6 +20,21 @@ const socials = (
 ).filter(([, url]) => url);
 ---
 <footer class="site-footer">
+  <div class="container site-footer__brand">
+    <a class="fbrand" href={homeUrl}>
+      <img class="fbrand__logo" src={SITE.logo} alt={SITE.name[lang]} width="58" height="80" loading="lazy" />
+      <span>
+        <span class="fbrand__name">{SITE.name[lang]}</span>
+        <span class="fbrand__tag">{SITE.tagline[lang]}</span>
+      </span>
+    </a>
+    <div class="affil">
+      <span class="affil__label">{lang === "en" ? "Affiliated with" : "Afiliat"}</span>
+      <img class="affil__logo" src={SITE.affiliationLogo} alt={SITE.affiliation} width="64" height="64" loading="lazy" />
+      <span class="affil__name">{SITE.affiliation}</span>
+    </div>
+  </div>
+
   <div class="container site-footer__grid">
     <!-- Coloane de linkuri -->
     {footerNav.map((col) => (
@@ -98,6 +114,21 @@ const socials = (
   .site-footer { margin-top: 4rem; background: var(--color-primary-dark); color: var(--color-text-inverse); }
   .site-footer a { color: var(--color-text-inverse); text-decoration: none; opacity: 0.85; }
   .site-footer a:hover { opacity: 1; text-decoration: underline; }
+
+  /* Brand + afiliere */
+  .site-footer__brand {
+    display: flex; flex-wrap: wrap; gap: 1.5rem 2rem; align-items: center; justify-content: space-between;
+    padding-top: 2.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+  .fbrand { display: inline-flex; align-items: center; gap: 0.9rem; text-decoration: none; }
+  .fbrand:hover { text-decoration: none; }
+  .fbrand__logo { height: 72px; width: auto; }
+  .fbrand__name { display: block; font-family: var(--font-serif); font-weight: 700; font-size: var(--fs-500); color: var(--color-text-inverse); opacity: 1; }
+  .fbrand__tag { display: block; font-size: var(--fs-300); color: rgba(251,250,247,0.7); }
+  .affil { display: inline-flex; align-items: center; gap: 0.7rem; }
+  .affil__label { font-size: var(--fs-300); color: rgba(251,250,247,0.7); text-transform: uppercase; letter-spacing: 0.08em; }
+  .affil__logo { height: 56px; width: auto; }
+  .affil__name { font-size: var(--fs-300); color: var(--color-accent); max-width: 16ch; font-weight: 600; }
 
   .site-footer__grid {
     display: grid; gap: 2rem 2.5rem; padding-block: 3rem;

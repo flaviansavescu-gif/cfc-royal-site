@@ -182,7 +182,13 @@ const organizatiiAfiliate = defineCollection({
   schema: z.object({
     ...base,
     website: z.string().url().optional(),
+    facebook: z.string().url().optional(),
     county: z.string().optional(),
+    city: z.string().optional(),
+    address: z.string().optional(),
+    cif: z.string().optional(),
+    phone: z.string().optional(),
+    contactEmail: z.string().email().optional(),
     logo: z.string().optional(),
   }),
 });
