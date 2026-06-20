@@ -63,6 +63,18 @@ export const ui = {
     "exh.deadline": "Termen limită",
     "record.back": "Înapoi",
 
+    // Contact
+    "contact.title": "Contact",
+    "contact.intro": "Scrie-ne folosind formularul de mai jos sau datele oficiale de contact.",
+    "contact.formTitle": "Trimite-ne un mesaj",
+    "contact.name": "Nume",
+    "contact.email": "E-mail",
+    "contact.subject": "Subiect",
+    "contact.message": "Mesaj",
+    "contact.send": "Trimite mesajul",
+    "contact.dataTitle": "Date de contact",
+    "contact.sent": "Îți mulțumim! Mesajul a fost trimis.",
+
     // Footer — titluri de coloană
     "footer.organization": "Organizația",
     "footer.activities": "Activități",
@@ -135,6 +147,18 @@ export const ui = {
     "exh.regClosed": "Registration closed",
     "exh.deadline": "Deadline",
     "record.back": "Back",
+
+    // Contact
+    "contact.title": "Contact",
+    "contact.intro": "Write to us using the form below or the official contact details.",
+    "contact.formTitle": "Send us a message",
+    "contact.name": "Name",
+    "contact.email": "Email",
+    "contact.subject": "Subject",
+    "contact.message": "Message",
+    "contact.send": "Send message",
+    "contact.dataTitle": "Contact details",
+    "contact.sent": "Thank you! Your message has been sent.",
 
     "footer.organization": "Organization",
     "footer.activities": "Activities",

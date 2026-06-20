@@ -1,0 +1,105 @@
+---
+// Contact.astro — formular Netlify + date oficiale de contact.
+import { SITE } from "../data/site";
+import { useTranslations, localizePath, type Lang } from "../i18n/utils";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const tel = SITE.contact.phone.replace(/\s+/g, "");
+---
+<section class="contact container">
+  <header class="contact__head flow">
+    <p class="eyebrow">{t("contact.title")}</p>
+    <h1>{t("contact.title")}</h1>
+    <p class="lead">{t("contact.intro")}</p>
+  </header>
+
+  <div class="contact__grid">
+    <!-- Formular -->
+    <div>
+      <h2 class="contact__subtitle">{t("contact.formTitle")}</h2>
+      <p id="contact-sent" class="contact__sent" hidden>{t("contact.sent")}</p>
+      <form
+        class="cform"
+        name="contact"
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+        action={`${localizePath("contact", lang)}?sent=1`}
+      >
+        <input type="hidden" name="form-name" value="contact" />
+        <p class="hp"><label>Nu completa: <input name="bot-field" /></label></p>
+
+        <div class="cform__row">
+          <label for="c-name">{t("contact.name")}</label>
+          <input id="c-name" type="text" name="name" required autocomplete="name" />
+        </div>
+        <div class="cform__row">
+          <label for="c-email">{t("contact.email")}</label>
+          <input id="c-email" type="email" name="email" required autocomplete="email" />
+        </div>
+        <div class="cform__row">
+          <label for="c-subject">{t("contact.subject")}</label>
+          <input id="c-subject" type="text" name="subject" />
+        </div>
+        <div class="cform__row">
+          <label for="c-message">{t("contact.message")}</label>
+          <textarea id="c-message" name="message" rows="6" required></textarea>
+        </div>
+        <button class="btn btn--primary" type="submit">{t("contact.send")}</button>
+      </form>
+    </div>
+
+    <!-- Date oficiale -->
+    <aside class="contact__data">
+      <h2 class="contact__subtitle">{t("contact.dataTitle")}</h2>
+      <dl class="contact__dl">
+        <dt>{t("contact.email")}</dt>
+        <dd><a href={`mailto:${SITE.contact.email}`}>{SITE.contact.email}</a></dd>
+        <dt>Tel.</dt>
+        <dd><a href={`tel:${tel}`}>{SITE.contact.phone}</a></dd>
+        <dt>CIF</dt>
+        <dd class="mono">{SITE.legal.cif}</dd>
+        <dt>IBAN</dt>
+        <dd class="mono">{SITE.legal.iban}</dd>
+        {SITE.legal.bank && (<><dt>{lang === "en" ? "Bank" : "Banca"}</dt><dd>{SITE.legal.bank}</dd></>)}
+        <dt>{lang === "en" ? "Hours" : "Program"}</dt>
+        <dd>{SITE.contact.schedule[lang].map((l) => <span class="block">{l}</span>)}</dd>
+      </dl>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .contact { padding-block: clamp(2rem, 5vw, 3.5rem); }
+  .contact__head { max-width: 60ch; margin-bottom: 2.5rem; }
+  .contact__head h1 { color: var(--color-primary); }
+  .contact__grid { display: grid; gap: 2.5rem; grid-template-columns: 1.5fr 1fr; align-items: start; }
+  .contact__subtitle { color: var(--color-primary); font-size: var(--fs-600); margin-bottom: 1rem; }
+
+  .cform__row { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem; }
+  .cform label { font-weight: 600; font-size: var(--fs-300); }
+  .cform input, .cform textarea {
+    padding: 0.6rem 0.7rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    background: var(--color-surface); color: var(--color-text); width: 100%;
+  }
+  .cform input:focus, .cform textarea:focus { border-color: var(--color-primary); outline: 2px solid var(--color-focus); outline-offset: 1px; }
+  .hp { position: absolute; left: -5000px; }
+  .contact__sent { background: var(--color-success); color: #fff; padding: 0.7rem 1rem; border-radius: var(--radius); margin-bottom: 1rem; }
+
+  .contact__data { background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1.5rem; }
+  .contact__dl dt { font-size: var(--fs-300); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 0.9rem; }
+  .contact__dl dt:first-child { margin-top: 0; }
+  .contact__dl dd { font-weight: 600; }
+  .contact__dl .block { display: block; font-weight: 400; }
+
+  @media (max-width: 760px) { .contact__grid { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+  if (location.search.includes("sent")) {
+    const el = document.getElementById("contact-sent");
+    if (el) { el.hidden = false; el.scrollIntoView({ block: "center" }); }
+  }
+</script>

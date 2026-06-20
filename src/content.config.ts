@@ -226,6 +226,17 @@ const articole = defineCollection({
   }),
 });
 
+/* PAGINI — pagini instituționale statice (un fișier = o pagină).
+   slug = calea, ex. "organizatia/despre" -> /ro/organizatia/despre/ */
+const pagini = defineCollection({
+  loader: loader("pagini"),
+  schema: z.object({
+    ...base,
+    section: z.string().optional(), // eticheta secțiunii (eyebrow + breadcrumb)
+    order: z.number().optional(),
+  }),
+});
+
 export const collections = {
   expozitii,
   arbitri,
@@ -238,4 +249,5 @@ export const collections = {
   cursuri,
   documente,
   articole,
+  pagini,
 };

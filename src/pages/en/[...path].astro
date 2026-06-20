@@ -1,0 +1,28 @@
+---
+// Catch-all for static institutional pages (the `pagini` collection), EN.
+import RecordLayout from "../../layouts/RecordLayout.astro";
+import { getCollection, render } from "astro:content";
+import { localizePath, useTranslations } from "../../i18n/utils";
+import { entrySlug } from "../../i18n/content";
+
+const lang = "en" as const;
+
+export async function getStaticPaths() {
+  const entries = await getCollection("pagini", (e: any) => e.id.startsWith("en/") && !e.data.draft);
+  return entries.map((entry: any) => ({ params: { path: entrySlug(entry.id) }, props: { entry } }));
+}
+
+const { entry } = Astro.props as { entry: any };
+const t = useTranslations(lang);
+const { Content } = await render(entry);
+const d = entry.data;
+
+const breadcrumbs = [
+  { label: t("nav.home"), href: localizePath("", lang) },
+  ...(d.section ? [{ label: d.section, href: "#" }] : []),
+  { label: d.title, href: "#" },
+];
+---
+<RecordLayout lang={lang} title={d.title} description={d.summary} eyebrow={d.section} breadcrumbs={breadcrumbs}>
+  <Content />
+</RecordLayout>
