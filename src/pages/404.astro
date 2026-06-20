@@ -1,0 +1,26 @@
+---
+// 404 — servită de Netlify pentru orice cale negăsită. Bilingvă, neindexată.
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { ui } from "../i18n/ui";
+const lang = "ro" as const;
+---
+<BaseLayout title={ui.ro["404.title"]} lang={lang} noindex>
+  <section class="container nf">
+    <p class="eyebrow">404</p>
+    <h1>{ui.ro["404.title"]} <span class="nf__en">/ {ui.en["404.title"]}</span></h1>
+    <p class="nf__msg">{ui.ro["404.message"]}</p>
+    <p class="nf__msg nf__en">{ui.en["404.message"]}</p>
+    <div class="nf__actions">
+      <a class="btn btn--primary" href="/ro/">{ui.ro["common.backHome"]}</a>
+      <a class="btn btn--outline" href="/en/">{ui.en["common.backHome"]}</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf { padding-block: clamp(3rem, 8vw, 6rem); max-width: 60ch; }
+  .nf h1 { color: var(--color-primary); }
+  .nf__en { color: var(--color-text-muted); font-weight: 400; }
+  .nf__msg { margin-top: 1rem; color: var(--color-text-muted); font-size: var(--fs-500); }
+  .nf__actions { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.8rem; }
+</style>

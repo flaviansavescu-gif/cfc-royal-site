@@ -75,6 +75,11 @@ export const ui = {
     "contact.dataTitle": "Date de contact",
     "contact.sent": "Îți mulțumim! Mesajul a fost trimis.",
 
+    // Căutare
+    "search.title": "Căutare",
+    "search.intro": "Caută în expoziții, arbitri, standarde de rasă, articole și pagini.",
+    "search.devNote": "Căutarea funcționează pe site-ul publicat (după build). În modul de dezvoltare indexul nu este generat.",
+
     // Footer — titluri de coloană
     "footer.organization": "Organizația",
     "footer.activities": "Activități",
@@ -159,6 +164,11 @@ export const ui = {
     "contact.send": "Send message",
     "contact.dataTitle": "Contact details",
     "contact.sent": "Thank you! Your message has been sent.",
+
+    // Search
+    "search.title": "Search",
+    "search.intro": "Search shows, judges, breed standards, articles and pages.",
+    "search.devNote": "Search works on the published site (after build). In dev mode the index is not generated.",
 
     "footer.organization": "Organization",
     "footer.activities": "Activities",
