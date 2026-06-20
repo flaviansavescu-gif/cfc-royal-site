@@ -1,5 +1,5 @@
 ---
-title: "OFFICIAL PROCEDURE FOR AWARDING THE BBR TITLE"
+title: "Official procedure for awarding the BBR title"
 lang: en
 category: "Titluri"
 summary: "(Best Breed Representative – “The best representative of the breed”)"

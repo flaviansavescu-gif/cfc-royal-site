@@ -1,5 +1,5 @@
 ---
-title: "Official WDF Appeals Procedure"
+title: "Official WDF appeals procedure"
 lang: en
 category: "Contestații și abateri"
 summary: "(Article 36 + related articles concerning the powers of the delegate and the judges)"

@@ -1,5 +1,5 @@
 ---
-title: "CONTEXTUL DE ARBITRAJ – Câine adult eligibil"
+title: "Contextul de arbitraj – câine adult eligibil"
 lang: ro
 category: "Proceduri de arbitraj"
 summary: "1. CONTEXTUL DE ARBITRAJ – Câine adult eligibil"

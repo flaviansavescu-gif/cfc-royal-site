@@ -1,5 +1,5 @@
 ---
-title: "CONTEXTUL DE ARBITRAJ – Clase eligibile pentru câinii tineri"
+title: "Contextul de arbitraj – clase eligibile pentru câinii tineri"
 lang: ro
 category: "Proceduri de arbitraj"
 summary: "1. CONTEXT – Clase eligibile pentru câinii tineri"

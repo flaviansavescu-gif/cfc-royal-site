@@ -1,5 +1,5 @@
 ---
-title: "TITLURILE OFICIALE DE CAMPION WDF"
+title: "Titlurile oficiale de campion WDF"
 lang: ro
 category: "Titluri"
 summary: "🏆 TITLURILE OFICIALE DE CAMPION WDF"

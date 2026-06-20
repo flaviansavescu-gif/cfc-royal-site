@@ -1,5 +1,5 @@
 ---
-title: "What the “Winner” Title-Class Means in WDF"
+title: "What the „Winner” title-class means in WDF"
 lang: en
 category: "Titluri"
 summary: "What does the “Winner” title/class mean in WDF?"

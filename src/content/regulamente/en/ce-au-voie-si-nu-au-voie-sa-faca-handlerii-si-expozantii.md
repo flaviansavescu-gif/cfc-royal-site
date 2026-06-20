@@ -1,5 +1,5 @@
 ---
-title: "What Handlers and Exhibitors Are and Are Not Allowed to Do"
+title: "What handlers and exhibitors are and are not allowed to do"
 lang: en
 category: "Etică și conduită"
 summary: "WHAT HANDLERS / EXHIBITORS ARE ALLOWED TO DO (Permitted)"

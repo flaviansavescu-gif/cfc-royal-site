@@ -1,5 +1,5 @@
 ---
-title: "Judging Context – Eligible Adult Dog"
+title: "Judging context – eligible adult dog"
 lang: en
 category: "Proceduri de arbitraj"
 summary: "1. JUDGING CONTEXT – Eligible Adult Dog"

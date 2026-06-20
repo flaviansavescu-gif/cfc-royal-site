@@ -1,5 +1,5 @@
 ---
-title: "OFFICIAL PROCEDURE FOR AWARDING THE BOB TITLE (Best of Breed)"
+title: "Official procedure for awarding the BOB title (Best of Breed)"
 lang: en
 category: "Titluri"
 summary: "The BOB title represents “The best specimen of the breed”, being one of the most important titles of a WDF show."

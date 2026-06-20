@@ -1,5 +1,5 @@
 ---
-title: "Official Procedure for Awarding the CAC Title"
+title: "Official procedure for awarding the CAC title"
 lang: en
 category: "Titluri"
 summary: "The CAC title refers to the adult categories and constitutes the certification required for the National Champion title."

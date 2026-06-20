@@ -1,5 +1,5 @@
 ---
-title: "SITUAȚII CARE IMPUN DSQ (Descalificare) SAU NJ (Not Judgable)"
+title: "Situații care impun DSQ (descalificare) sau NJ (Not Judgable)"
 lang: ro
 category: "Contestații și abateri"
 summary: "(procedură oficială completă, cu explicații + când se cheamă Delegatul WDF)"

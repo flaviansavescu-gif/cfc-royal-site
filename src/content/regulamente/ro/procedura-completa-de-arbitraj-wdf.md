@@ -1,5 +1,5 @@
 ---
-title: "PROCEDURA COMPLETĂ DE ARBITRAJ WDF"
+title: "Procedura completă de arbitraj WDF"
 lang: ro
 category: "Proceduri de arbitraj"
 summary: "I. PREGĂTIREA ARBITRULUI ÎNAINTE DE ÎNCEPEREA ARBITRAJULUI"

@@ -1,5 +1,5 @@
 ---
-title: "PROCEDURA OFICIALĂ DE ATRIBUIRE A TITLULUI CAC"
+title: "Procedura oficială de atribuire a titlului CAC"
 lang: ro
 category: "Titluri"
 summary: "Titlul CAC se referă la categoriile de adulți și reprezintă certificarea necesară pentru titlul de Campion Național."

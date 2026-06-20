@@ -1,5 +1,5 @@
 ---
-title: "PROCEDURA OFICIALĂ DE ATRIBUIRE A TITLULUI JBOB (Best of Breed Junior)"
+title: "Procedura oficială de atribuire a titlului JBOB (Best of Breed Junior)"
 lang: ro
 category: "Titluri"
 summary: "Titlul JBOB reprezintă „Cel mai bun exemplar Junior al rasei” și asigură accesul în BIS Junior."

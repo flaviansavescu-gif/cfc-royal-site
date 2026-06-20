@@ -1,5 +1,5 @@
 ---
-title: "Procedure for Establishing Violations"
+title: "Procedure for establishing violations"
 lang: en
 category: "Contestații și abateri"
 summary: "\"Procedure for Establishing Violations\", in accordance with the WDF Regulation (Art. 16, 17, 26, 34, 35, 36)."

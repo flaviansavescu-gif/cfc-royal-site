@@ -1,5 +1,5 @@
 ---
-title: "COMPORTAMENTUL ȘI ETICA ÎN RING"
+title: "Comportamentul și etica în ring"
 lang: ro
 category: "Etică și conduită"
 summary: "CAPITOL: COMPORTAMENTUL ȘI ETICA ÎN RING"

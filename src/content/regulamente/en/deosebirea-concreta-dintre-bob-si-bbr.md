@@ -1,5 +1,5 @@
 ---
-title: "THE CONCRETE DIFFERENCE BETWEEN BOB AND BBR"
+title: "The concrete difference between BOB and BBR"
 lang: en
 category: "Titluri"
 summary: "1. DEFINITION AND PURPOSE"

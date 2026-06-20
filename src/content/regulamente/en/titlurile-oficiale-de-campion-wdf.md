@@ -1,5 +1,5 @@
 ---
-title: "THE OFFICIAL WDF CHAMPION TITLES"
+title: "The official WDF champion titles"
 lang: en
 category: "Titluri"
 summary: "🏆 THE OFFICIAL WDF CHAMPION TITLES"

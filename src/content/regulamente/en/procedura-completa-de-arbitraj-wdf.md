@@ -1,5 +1,5 @@
 ---
-title: "Complete WDF Judging Procedure"
+title: "Complete WDF judging procedure"
 lang: en
 category: "Proceduri de arbitraj"
 summary: "I. PREPARATION OF THE JUDGE BEFORE THE START OF JUDGING"

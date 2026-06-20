@@ -1,5 +1,5 @@
 ---
-title: "ROLUL DELEGATULUI WDF"
+title: "Rolul delegatului WDF"
 lang: ro
 category: "Roluri"
 summary: "Delegatul WDF este reprezentantul oficial al Federației Mondiale WDF în cadrul fiecărei expoziții recunoscute, având rol de supraveghere, control, validare, intervenție și…"

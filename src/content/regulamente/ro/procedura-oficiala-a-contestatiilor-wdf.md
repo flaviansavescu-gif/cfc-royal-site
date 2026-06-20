@@ -1,5 +1,5 @@
 ---
-title: "PROCEDURA OFICIALĂ A CONTESTAȚIILOR WDF"
+title: "Procedura oficială a contestațiilor WDF"
 lang: ro
 category: "Contestații și abateri"
 summary: "(Articolul 36 + articole conexe privind competențele delegatului și arbitrilor)"

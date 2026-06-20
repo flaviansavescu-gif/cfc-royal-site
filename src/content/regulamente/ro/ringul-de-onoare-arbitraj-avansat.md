@@ -1,5 +1,5 @@
 ---
-title: "Ringul de Onoare – Arbitraj Avansat"
+title: "Ringul de onoare – arbitraj avansat"
 lang: ro
 category: "Proceduri de arbitraj"
 summary: "PROTOCOL OFICIAL"

@@ -1,5 +1,5 @@
 ---
-title: "Situations Requiring DSQ (Disqualification) or NJ (Not Judgable)"
+title: "Situations requiring DSQ (disqualification) or NJ (Not Judgable)"
 lang: en
 category: "Contestații și abateri"
 summary: "(complete official procedure, with explanations + when the WDF Delegate is called)"

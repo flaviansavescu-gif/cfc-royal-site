@@ -1,5 +1,5 @@
 ---
-title: "PROCEDURA OFICIALĂ PENTRU ATRIBUIREA TITLULUI BBR"
+title: "Procedura oficială pentru atribuirea titlului BBR"
 lang: ro
 category: "Titluri"
 summary: "(Best Breed Representative – „Cel mai bun reprezentant al rasei”)"

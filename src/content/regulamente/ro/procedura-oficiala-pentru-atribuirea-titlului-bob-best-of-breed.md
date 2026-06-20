@@ -1,5 +1,5 @@
 ---
-title: "PROCEDURA OFICIALĂ PENTRU ATRIBUIREA TITLULUI BOB (Best of Breed)"
+title: "Procedura oficială pentru atribuirea titlului BOB (Best of Breed)"
 lang: ro
 category: "Titluri"
 summary: "Titlul BOB reprezintă „Cel mai bun exemplar al rasei”, fiind unul dintre cele mai importante titluri ale unei expoziții WDF."

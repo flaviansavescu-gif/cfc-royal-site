@@ -1,5 +1,5 @@
 ---
-title: "PROCEDURA OFICIALĂ DE ATRIBUIRE A TITLULUI CACIB"
+title: "Procedura oficială de atribuire a titlului CACIB"
 lang: ro
 category: "Titluri"
 summary: "(Certificat de Aptitudini pentru Campionatul Internațional de Frumusețe)"

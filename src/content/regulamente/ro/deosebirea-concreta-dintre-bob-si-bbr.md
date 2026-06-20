@@ -1,5 +1,5 @@
 ---
-title: "DEOSEBIREA CONCRETĂ DINTRE BOB ȘI BBR"
+title: "Deosebirea concretă dintre BOB și BBR"
 lang: ro
 category: "Titluri"
 summary: "1. DEFINIȚIE ȘI SCOP"

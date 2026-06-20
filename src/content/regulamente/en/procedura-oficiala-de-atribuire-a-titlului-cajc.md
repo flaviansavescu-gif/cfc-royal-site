@@ -1,5 +1,5 @@
 ---
-title: "Official Procedure for Awarding the CAJC Title"
+title: "Official procedure for awarding the CAJC title"
 lang: en
 category: "Titluri"
 summary: "1. Classes eligible for CAJC"

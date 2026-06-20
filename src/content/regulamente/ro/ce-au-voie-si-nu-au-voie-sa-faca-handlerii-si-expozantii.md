@@ -1,5 +1,5 @@
 ---
-title: "CE AU VOIE ȘI NU AU VOIE SĂ FACĂ HANDLERII ȘI EXPOZANȚII"
+title: "Ce au voie și nu au voie să facă handlerii și expozanții"
 lang: ro
 category: "Etică și conduită"
 summary: "CE AU VOIE SĂ FACĂ HANDLERII / EXPOZANȚII (Permis)"

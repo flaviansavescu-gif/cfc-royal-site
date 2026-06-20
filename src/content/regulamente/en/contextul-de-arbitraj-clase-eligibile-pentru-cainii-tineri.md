@@ -1,5 +1,5 @@
 ---
-title: "Judging Context – Eligible Classes for Young Dogs"
+title: "Judging context – eligible classes for young dogs"
 lang: en
 category: "Proceduri de arbitraj"
 summary: "1. CONTEXT – Eligible Classes for Young Dogs"

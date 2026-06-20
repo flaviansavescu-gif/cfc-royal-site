@@ -1,5 +1,5 @@
 ---
-title: "Official Procedure for Awarding the CACIB Title"
+title: "Official procedure for awarding the CACIB title"
 lang: en
 category: "Titluri"
 summary: "(Certificate of Aptitude for the International Beauty Championship)"

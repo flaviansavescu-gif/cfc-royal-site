@@ -1,5 +1,5 @@
 ---
-title: "Conduct and Ethics in the Ring"
+title: "Conduct and ethics in the ring"
 lang: en
 category: "Etică și conduită"
 summary: "CHAPTER: CONDUCT AND ETHICS IN THE RING"

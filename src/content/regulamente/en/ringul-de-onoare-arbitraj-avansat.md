@@ -1,5 +1,5 @@
 ---
-title: "Ring of Honour – Advanced Judging"
+title: "Ring of honour – advanced judging"
 lang: en
 category: "Proceduri de arbitraj"
 summary: "OFFICIAL PROTOCOL"

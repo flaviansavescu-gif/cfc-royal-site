@@ -1,5 +1,5 @@
 ---
-title: "The Role of the WDF Delegate"
+title: "The role of the WDF delegate"
 lang: en
 category: "Roluri"
 summary: "The WDF delegate is the official representative of the WDF World Federation at each recognised show, with a role of supervision, control, validation, intervention, and…"

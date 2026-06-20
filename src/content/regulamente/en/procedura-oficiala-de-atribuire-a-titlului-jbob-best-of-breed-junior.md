@@ -1,5 +1,5 @@
 ---
-title: "Official Procedure for Awarding the JBOB Title (Best of Breed Junior)"
+title: "Official procedure for awarding the JBOB title (Best of Breed Junior)"
 lang: en
 category: "Titluri"
 summary: "The JBOB title represents the “Best Junior specimen of the breed” and grants access to BIS Junior."
