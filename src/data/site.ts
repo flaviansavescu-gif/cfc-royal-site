@@ -21,6 +21,7 @@ export const SITE = {
   /** Afiliere: World Dog Federation (NU FCI). */
   affiliation: "WDF — World Dog Federation",
   affiliationLogo: "/images/wdf.webp",
+  affiliationUrl: "https://wdf-international.org/",
 
   description: {
     ro: "Club Federal Chinologic Royal — asociație chinologică națională afiliată WDF: expoziții canine, corp de arbitri, canise înregistrate, standarde de rasă și educație chinologică.",

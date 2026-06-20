@@ -28,11 +28,11 @@ const socials = (
         <span class="fbrand__tag">{SITE.tagline[lang]}</span>
       </span>
     </a>
-    <div class="affil">
+    <a class="affil" href={SITE.affiliationUrl} target="_blank" rel="noopener" title={SITE.affiliation}>
       <span class="affil__label">{lang === "en" ? "Affiliated with" : "Afiliat"}</span>
       <img class="affil__logo" src={SITE.affiliationLogo} alt={SITE.affiliation} width="64" height="64" loading="lazy" />
       <span class="affil__name">{SITE.affiliation}</span>
-    </div>
+    </a>
   </div>
 
   <div class="container site-footer__grid">
@@ -125,7 +125,9 @@ const socials = (
   .fbrand__logo { height: 72px; width: auto; }
   .fbrand__name { display: block; font-family: var(--font-serif); font-weight: 700; font-size: var(--fs-500); color: var(--color-text-inverse); opacity: 1; }
   .fbrand__tag { display: block; font-size: var(--fs-300); color: rgba(251,250,247,0.7); }
-  .affil { display: inline-flex; align-items: center; gap: 0.7rem; }
+  .affil { display: inline-flex; align-items: center; gap: 0.7rem; text-decoration: none; opacity: 1; padding: 0.25rem 0.6rem 0.25rem 0.25rem; border-radius: 999px; transition: background 0.15s ease; }
+  .affil:hover { opacity: 1; text-decoration: none; background: rgba(255,255,255,0.08); }
+  .affil:hover .affil__name { text-decoration: underline; }
   .affil__label { font-size: var(--fs-300); color: rgba(251,250,247,0.7); text-transform: uppercase; letter-spacing: 0.08em; }
   .affil__logo { height: 56px; width: auto; }
   .affil__name { font-size: var(--fs-300); color: var(--color-accent); max-width: 16ch; font-weight: 600; }
