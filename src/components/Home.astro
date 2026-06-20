@@ -1,0 +1,181 @@
+---
+// Home.astro — pagina principală completă (toate secțiunile), parametrizată pe limbă.
+// Cardurile sunt exemple (home.ts) — la M4–M5 vor veni din colecții.
+import Hero from "./Hero.astro";
+import Section from "./Section.astro";
+import Card from "./Card.astro";
+import { getHome } from "../data/home";
+import { SITE } from "../data/site";
+import { useTranslations, localizePath, type Lang } from "../i18n/utils";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const h = getHome(lang);
+const lp = (slug: string) => localizePath(slug, lang);
+---
+<Hero
+  lang={lang}
+  kicker={h.hero.kicker}
+  title={h.hero.title}
+  subtitle={h.hero.subtitle}
+  ctaPrimary={h.hero.ctaPrimary}
+  ctaSecondary={h.hero.ctaSecondary}
+/>
+
+<!-- Prezentare -->
+<Section id="despre" title={h.intro.title} eyebrow={SITE.shortName}>
+  <p class="lead">{h.intro.body}</p>
+</Section>
+
+<!-- Calendar evenimente -->
+<Section
+  id="calendar" alt title={h.events.title} intro={h.events.intro}
+  viewAllLabel={h.events.viewAll} viewAllHref={lp(h.events.viewAllSlug)}
+>
+  <div class="grid grid--3">
+    {h.events.items.map((it) => (
+      <Card title={it.title} href={lp(it.slug)} meta={it.meta} tag={it.tag} demo={it.demo} />
+    ))}
+  </div>
+</Section>
+
+<!-- Ultimele noutăți -->
+<Section
+  id="noutati" title={h.news.title}
+  viewAllLabel={h.news.viewAll} viewAllHref={lp(h.news.viewAllSlug)}
+>
+  <div class="grid grid--3">
+    {h.news.items.map((it) => (
+      <Card title={it.title} href={lp(it.slug)} meta={it.meta} tag={it.tag} excerpt={it.excerpt} demo={it.demo} />
+    ))}
+  </div>
+</Section>
+
+<!-- Devino membru (bandă CTA) -->
+<section class="cta-band">
+  <div class="container cta-band__inner">
+    <div>
+      <h2 class="cta-band__title">{h.membership.title}</h2>
+      <p class="cta-band__body">{h.membership.body}</p>
+    </div>
+    <a class="btn btn--gold" href={lp(h.membership.slug)}>{h.membership.cta}</a>
+  </div>
+</section>
+
+<!-- Afiliați -->
+<Section
+  id="afiliati" alt title={h.affiliates.title} intro={h.affiliates.intro}
+  viewAllLabel={h.affiliates.viewAll} viewAllHref={lp(h.affiliates.viewAllSlug)}
+>
+  <div class="grid grid--4">
+    {h.affiliates.items.map((it) => (
+      <Card title={it.title} href={lp(it.slug)} meta={it.meta} demo={it.demo} />
+    ))}
+  </div>
+</Section>
+
+<!-- Standarde de rasă -->
+<Section
+  id="standarde" title={h.standards.title} intro={h.standards.intro}
+  viewAllLabel={h.standards.viewAll} viewAllHref={lp(h.standards.viewAllSlug)}
+>
+  <div class="grid grid--3">
+    {h.standards.items.map((it) => (
+      <Card title={it.title} href={lp(it.slug)} meta={it.meta} demo={it.demo} />
+    ))}
+  </div>
+</Section>
+
+<!-- Educație -->
+<Section id="educatie" alt title={h.education.title} intro={h.education.intro}>
+  <div class="grid grid--3">
+    {h.education.items.map((it) => (
+      <Card title={it.title} href={lp(it.slug)} excerpt={it.excerpt} />
+    ))}
+  </div>
+</Section>
+
+<!-- Statistici -->
+<section class="stats">
+  <div class="container">
+    <h2 class="stats__title">{h.stats.title}</h2>
+    <dl class="stats__grid">
+      {h.stats.items.map((s) => (
+        <div class="stat">
+          <dd class="stat__value mono">{s.value}</dd>
+          <dt class="stat__label">{s.label}</dt>
+        </div>
+      ))}
+    </dl>
+  </div>
+</section>
+
+<!-- Galerie multimedia -->
+<Section id="galerie" alt title={h.gallery.title} intro={h.gallery.intro}>
+  <div class="grid grid--4">
+    {Array.from({ length: 4 }).map(() => (
+      <div class="media-ph" aria-hidden="true"></div>
+    ))}
+  </div>
+  <p class="muted-note">{h.gallery.note}</p>
+</Section>
+
+<!-- Newsletter -->
+<section class="nl-band">
+  <div class="container nl-band__inner">
+    <div>
+      <h2 class="nl-band__title">{t("footer.newsletter")}</h2>
+      <p class="nl-band__body">{SITE.tagline[lang]}</p>
+    </div>
+    <form class="nl-form" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="bot-field" action={lp("newsletter-ok")}>
+      <input type="hidden" name="form-name" value="newsletter" />
+      <p class="hp"><label>Nu completa: <input name="bot-field" /></label></p>
+      <label class="visually-hidden" for="hp-nl-email">{t("footer.newsletter.placeholder")}</label>
+      <input id="hp-nl-email" type="email" name="email" required placeholder={t("footer.newsletter.placeholder")} autocomplete="email" />
+      <button class="btn btn--primary" type="submit">{t("footer.newsletter.cta")}</button>
+    </form>
+  </div>
+</section>
+
+<!-- Parteneri -->
+<Section id="parteneri" title={h.partners.title}>
+  <div class="grid grid--4">
+    {Array.from({ length: 4 }).map(() => (
+      <div class="logo-ph" aria-hidden="true"></div>
+    ))}
+  </div>
+  <p class="muted-note">{h.partners.note}</p>
+</Section>
+
+<style>
+  .lead { font-size: var(--fs-500); max-width: 65ch; color: var(--color-text); }
+
+  /* Bandă CTA membru */
+  .cta-band { background: var(--color-primary); color: var(--color-text-inverse); }
+  .cta-band__inner { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; justify-content: space-between; padding-block: clamp(2rem, 5vw, 3rem); }
+  .cta-band__title { color: var(--color-text-inverse); }
+  .cta-band__body { margin-top: 0.5rem; max-width: 60ch; color: rgba(251,250,247,0.92); }
+
+  /* Statistici */
+  .stats { padding-block: clamp(2.5rem, 6vw, 4rem); }
+  .stats__title { color: var(--color-primary); text-align: center; margin-bottom: 2rem; }
+  .stats__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1.5rem; }
+  .stat { text-align: center; padding: 1.5rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); }
+  .stat__value { font-size: var(--fs-900); font-weight: 600; color: var(--color-accent-dark); line-height: 1; }
+  .stat__label { margin-top: 0.5rem; font-size: var(--fs-300); color: var(--color-text-muted); }
+
+  /* Placeholdere media/logo */
+  .media-ph, .logo-ph { aspect-ratio: 4 / 3; border-radius: var(--radius); background: linear-gradient(135deg, var(--color-surface-alt), var(--color-border)); border: 1px solid var(--color-border); }
+  .logo-ph { aspect-ratio: 3 / 2; }
+  .muted-note { margin-top: 1.25rem; font-size: var(--fs-300); color: var(--color-text-muted); font-style: italic; }
+
+  /* Newsletter */
+  .nl-band { background: var(--color-primary-dark); color: var(--color-text-inverse); }
+  .nl-band__inner { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; justify-content: space-between; padding-block: clamp(2rem, 5vw, 3rem); }
+  .nl-band__title { color: var(--color-accent); }
+  .nl-band__body { margin-top: 0.4rem; color: rgba(251,250,247,0.85); }
+  .nl-form { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .nl-form input[type="email"] { flex: 1 1 220px; padding: 0.7rem 0.9rem; border: 1px solid transparent; border-radius: var(--radius); background: var(--color-surface); color: var(--color-text); }
+  .hp { position: absolute; left: -5000px; }
+</style>

@@ -1,18 +1,10 @@
 ---
-// Front-page EN — M1 placeholder (replaced with full sections at M3).
+// Front-page EN.
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import Home from "../../components/Home.astro";
 import { SITE } from "../../data/site";
 const lang = "en" as const;
 ---
 <BaseLayout title={SITE.name[lang]} lang={lang}>
-  <section class="container flow" style="padding-block: 4rem;">
-    <p class="mono" style="color: var(--color-accent-dark); text-transform: uppercase; letter-spacing: 0.08em; font-size: var(--fs-300);">
-      M1 skeleton — layout & i18n
-    </p>
-    <h1>{SITE.name[lang]}</h1>
-    <p style="color: var(--color-text-muted); font-size: var(--fs-500);">
-      {SITE.tagline[lang]}. The page shell (BaseLayout), SEO and the bilingual system are
-      working. The header, footer and full homepage come next.
-    </p>
-  </section>
+  <Home lang={lang} />
 </BaseLayout>

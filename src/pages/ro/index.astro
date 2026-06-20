@@ -1,18 +1,10 @@
 ---
-// Front-page RO — placeholder M1 (înlocuit cu secțiunile complete la M3).
+// Front-page RO.
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import Home from "../../components/Home.astro";
 import { SITE } from "../../data/site";
 const lang = "ro" as const;
 ---
 <BaseLayout title={SITE.name[lang]} lang={lang}>
-  <section class="container flow" style="padding-block: 4rem;">
-    <p class="mono" style="color: var(--color-accent-dark); text-transform: uppercase; letter-spacing: 0.08em; font-size: var(--fs-300);">
-      Schelet M1 — layout & i18n
-    </p>
-    <h1>{SITE.name[lang]}</h1>
-    <p style="color: var(--color-text-muted); font-size: var(--fs-500);">
-      {SITE.tagline[lang]}. Învelișul de pagină (BaseLayout), SEO și sistemul bilingv sunt
-      funcționale. Urmează antetul, subsolul și pagina principală completă.
-    </p>
-  </section>
+  <Home lang={lang} />
 </BaseLayout>
