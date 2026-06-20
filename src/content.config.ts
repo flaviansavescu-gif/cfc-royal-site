@@ -42,10 +42,10 @@ const expozitii = defineCollection({
     city: z.string(),
     county: z.string(), // județ
     country: z.string().default("România"),
-    // Tipuri de expoziție (WDF — World Dog Federation; NU terminologie FCI).
-    // De ajustat dacă WDF folosește titluri specifice (ex. CAC WDF, Campionat Mondial WDF).
+    // Tipuri de expoziție (WDF — World Dog Federation). WDF acordă titlurile CAC și CACIB.
     showType: z.enum([
       "CAC",
+      "CACIB",
       "Națională",
       "Internațională",
       "Campionat Mondial WDF",
@@ -226,6 +226,25 @@ const articole = defineCollection({
   }),
 });
 
+/* REGULAMENTE — regulamentul WDF (proceduri de arbitraj, titluri, conduită). */
+const regulamente = defineCollection({
+  loader: loader("regulamente"),
+  schema: z.object({
+    ...base,
+    category: z
+      .enum([
+        "Titluri",
+        "Proceduri de arbitraj",
+        "Etică și conduită",
+        "Contestații și abateri",
+        "Roluri",
+      ])
+      .default("Proceduri de arbitraj"),
+    sourceFile: z.string().optional(), // PDF/DOCX original pentru descărcare
+    order: z.number().optional(),
+  }),
+});
+
 /* PAGINI — pagini instituționale statice (un fișier = o pagină).
    slug = calea, ex. "organizatia/despre" -> /ro/organizatia/despre/ */
 const pagini = defineCollection({
@@ -249,5 +268,6 @@ export const collections = {
   cursuri,
   documente,
   articole,
+  regulamente,
   pagini,
 };

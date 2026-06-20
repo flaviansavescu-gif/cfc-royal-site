@@ -48,7 +48,7 @@ export const mainNav: NavItem[] = [
     children: [
       { slug: "expozitii", label: { ro: "Calendar expozițional", en: "Show calendar" } },
       { slug: "expozitii/inscrieri", label: { ro: "Înscrieri", en: "Registration" } },
-      { slug: "expozitii/regulamente", label: { ro: "Regulamente", en: "Regulations" } },
+      { slug: "regulamente", label: { ro: "Regulamente WDF", en: "WDF Regulations" } },
       { slug: "expozitii/rezultate", label: { ro: "Rezultate și clasamente", en: "Results & rankings" } },
     ],
   },
@@ -57,6 +57,7 @@ export const mainNav: NavItem[] = [
     label: { ro: "Chinologie", en: "Cynology" },
     children: [
       { slug: "standarde-rasa", label: { ro: "Standardele raselor", en: "Breed standards" } },
+      { slug: "regulamente", label: { ro: "Regulamente WDF", en: "WDF Regulations" } },
       { slug: "chinologie/legislatie", label: { ro: "Legislație", en: "Legislation" } },
       { slug: "chinologie/biblioteca", label: { ro: "Bibliotecă digitală", en: "Digital library" } },
       { slug: "chinologie/resurse", label: { ro: "Resurse și descărcări", en: "Resources & downloads" } },

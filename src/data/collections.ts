@@ -23,6 +23,9 @@ export interface CollectionDef {
   metaRows?: (d: Data, lang: Lang) => MetaRow[];
   jsonLd?: (d: Data, lang: Lang) => Record<string, unknown>;
   sort?: (a: Data, b: Data) => number;
+  /** Grupare în arhivă pe categorii (ex. regulamente). */
+  groupBy?: (d: Data) => string;
+  groupOrder?: string[];
 }
 
 // helper bilingv scurt
@@ -223,6 +226,20 @@ export const collectionDefs: CollectionDef[] = [
         row(L(lang, "Nivel", "Level"), d.level),
         row(L(lang, "Durată", "Duration"), d.duration),
       ),
+  },
+
+  {
+    name: "regulamente",
+    slug: "regulamente",
+    label: { ro: "Regulamente WDF", en: "WDF Regulations" },
+    intro: { ro: "Proceduri de arbitraj, titluri și conduită — regulamentul WDF (World Dog Federation).", en: "Judging procedures, titles and conduct — the WDF (World Dog Federation) regulations." },
+    empty: { ro: "Niciun regulament publicat momentan.", en: "No regulations published yet." },
+    eyebrow: { ro: "Expoziții", en: "Dog Shows" },
+    sort: (a, b) => (a.order ?? 999) - (b.order ?? 999) || a.title.localeCompare(b.title, "ro"),
+    groupBy: (d) => d.category,
+    groupOrder: ["Titluri", "Proceduri de arbitraj", "Etică și conduită", "Contestații și abateri", "Roluri"],
+    card: (d) => ({ title: d.title, tag: d.category, excerpt: d.summary }),
+    metaRows: (d, lang) => rows(row(L(lang, "Categorie", "Category"), d.category)),
   },
 
   {
