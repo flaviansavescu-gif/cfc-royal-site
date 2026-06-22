@@ -101,7 +101,16 @@ export const collectionDefs: CollectionDef[] = [
     intro: { ro: "Arbitri licențiați ai clubului.", en: "The club's licensed judges." },
     empty: { ro: "Niciun arbitru publicat momentan.", en: "No judges published yet." },
     eyebrow: { ro: "Organizația", en: "Organization" },
-    sort: (a, b) => a.title.localeCompare(b.title, "ro"),
+    // Întâi arbitrii All Breed (all rounder), apoi cei pe grupe. În cadrul fiecărei
+    // categorii: cei cu funcție (ex. Președinte) primii, apoi alfabetic.
+    sort: (a, b) => {
+      const allBreed = (d: Data) => ((d.qualifications || []).some((q: string) => /all\s*breed/i.test(q)) ? 0 : 1);
+      const ra = allBreed(a), rb = allBreed(b);
+      if (ra !== rb) return ra - rb;
+      const fa = a.role ? 0 : 1, fb = b.role ? 0 : 1;
+      if (fa !== fb) return fa - fb;
+      return a.title.localeCompare(b.title, "ro");
+    },
     portrait: (d) => d.photo,
     card: (d) => ({
       title: d.title,
