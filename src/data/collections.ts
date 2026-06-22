@@ -168,11 +168,13 @@ export const collectionDefs: CollectionDef[] = [
     card: (d) => ({ title: d.title, meta: d.county, excerpt: d.summary, image: d.logo }),
     metaRows: (d, lang) =>
       rows(
+        row(L(lang, "Președinte", "President"), d.president),
         row(L(lang, "Localitate", "Location"), [d.city, d.county].filter(Boolean).join(", ")),
         row(L(lang, "Adresă", "Address"), d.address),
         row(L(lang, "Telefon", "Phone"), d.phone),
         row(L(lang, "E-mail", "Email"), d.contactEmail),
         row("CIF", d.cif),
+        row("IBAN", d.iban),
         row("Facebook", d.facebook ? d.facebook.replace(/^https?:\/\//, "").replace(/\/$/, "") : undefined, true),
         row(L(lang, "Website", "Website"), d.website ? d.website.replace(/^https?:\/\//, "").replace(/\/$/, "") : undefined, true),
       ),

@@ -1,12 +1,18 @@
 ---
-title: "Străjerii Munților"
+title: "Asociația Străjerii Munților"
 lang: ro
-summary: "Asociație chinologică afiliată, dedicată raselor de pază a turmelor."
-county: "Caraș-Severin"
+summary: "Asociație chinologică afiliată Club Federal Chinologic – Royal, cu sediul în județul Ilfov."
+county: "Ilfov"
+city: "Corbeanca"
+address: "Str. Conacului nr. 1A, sat Tămași, comuna Corbeanca, jud. Ilfov"
+phone: "+40 720 255 635"
+contactEmail: "strajerii.muntilor@gmail.com"
+iban: "RO05 RNCB 0072 1825 0069 0001"
+president: "Mihail Cosmin Neagu"
 draft: false
 ---
 
-> Fișier **demo** de structură. Se înlocuiește cu datele reale ale afiliatului.
+Asociația Străjerii Munților este o asociație chinologică afiliată Club Federal Chinologic – Royal,
+cu activitate dedicată raselor de câini de pază a turmelor.
 
-Asociație afiliată Club Federal Chinologic Royal, activă în promovarea raselor autohtone
-de câini de pază.
+**Cont (BCR):** RO05 RNCB 0072 1825 0069 0001

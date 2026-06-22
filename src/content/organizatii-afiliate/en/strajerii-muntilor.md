@@ -1,12 +1,18 @@
 ---
-title: "Străjerii Munților"
+title: "Străjerii Munților Association"
 lang: en
-summary: "An affiliated cynological association dedicated to livestock guardian breeds."
-county: "Caraș-Severin"
+summary: "A cynological association affiliated with the Royal Federal Canine Club, based in Ilfov County."
+county: "Ilfov"
+city: "Corbeanca"
+address: "Str. Conacului no. 1A, Tămași village, Corbeanca commune, Ilfov County"
+phone: "+40 720 255 635"
+contactEmail: "strajerii.muntilor@gmail.com"
+iban: "RO05 RNCB 0072 1825 0069 0001"
+president: "Mihail Cosmin Neagu"
 draft: false
 ---
 
-> **Demo** structure file. Replace with the real affiliate details.
+Străjerii Munților is a cynological association affiliated with the Royal Federal Canine Club, with
+activity dedicated to livestock guardian dog breeds.
 
-An association affiliated with the Royal Federal Canine Club, active in promoting native
-guardian dog breeds.
+**Account (BCR):** RO05 RNCB 0072 1825 0069 0001

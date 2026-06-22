@@ -188,8 +188,10 @@ const organizatiiAfiliate = defineCollection({
     city: z.string().optional(),
     address: z.string().optional(),
     cif: z.string().optional(),
+    iban: z.string().optional(),
     phone: z.string().optional(),
     contactEmail: z.string().email().optional(),
+    president: z.string().optional(),
     logo: z.string().optional(),
   }),
 });
