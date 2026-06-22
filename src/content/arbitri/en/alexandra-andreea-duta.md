@@ -2,6 +2,7 @@
 title: "Alexandra Andreea Duță"
 lang: en
 summary: "Member of the CFC-Royal Panel of Judges. WDF licence: Groups 1, 2, 3, 4, 5."
+photo: "/images/arbitri/alexandra-andreea-duta.webp"
 country: "Romania"
 qualifications: ["Groups 1, 2, 3, 4, 5"]
 affiliation: "WDF"
