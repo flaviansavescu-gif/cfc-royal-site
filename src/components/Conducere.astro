@@ -41,7 +41,7 @@ const t = {
   <div class="leaders">
     {leaders.map((m) => (
       <article class="leader">
-        <img class="leader__photo" src={m.photo} alt={m.name} width="130" height="130" loading="lazy" />
+        <img class="leader__photo" src={m.photo} alt={m.name} width="160" height="210" loading="lazy" />
         <div class="leader__body">
           <p class="leader__role">{m.role[lang]}{m.founder && <span class="leader__founder"> · {t.founder}</span>}</p>
           <h3 class="leader__name">{m.name}</h3>
@@ -68,7 +68,7 @@ const t = {
     display: flex; gap: 1.25rem; align-items: flex-start;
     background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1.25rem;
   }
-  .leader__photo { width: 130px; height: 130px; object-fit: cover; border-radius: var(--radius); border: 1px solid var(--color-border); flex-shrink: 0; }
+  .leader__photo { width: 160px; height: 210px; object-fit: cover; object-position: center 22%; border-radius: var(--radius); border: 1px solid var(--color-border); flex-shrink: 0; }
   .leader__role { font-size: var(--fs-300); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-accent-dark); }
   .leader__founder { color: var(--color-text-muted); font-weight: 600; text-transform: none; letter-spacing: 0; }
   .leader__name { font-size: var(--fs-600); color: var(--color-primary); margin: 0.15rem 0 0.6rem; }
