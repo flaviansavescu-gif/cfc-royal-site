@@ -1,15 +1,15 @@
 ---
-title: "Flavian Savescu"
+title: "Flavian-Sergiu Savescu"
 lang: en
-role: "President of the College of Judges"
-summary: "All-rounder judge, President of the College of Judges."
+role: "President of the Panel of Judges"
+summary: "President of the Panel of Judges, WDF licence: All Breed."
 photo: "/images/arbitri/flavian-savescu.webp"
 country: "Romania"
-qualifications: ["All rounder"]
+qualifications: ["All Breed"]
+licenseNumber: "WDF 020/25"
 affiliation: "WDF"
 status: "activ"
 draft: false
 ---
 
-Flavian Savescu is an **all-rounder** judge and **President of the College of Judges**
-of the Royal Federal Canine Club.
+Flavian-Sergiu Savescu is President of the CFC-Royal Panel of Judges, a WDF-licensed judge for all breeds (All Breed).

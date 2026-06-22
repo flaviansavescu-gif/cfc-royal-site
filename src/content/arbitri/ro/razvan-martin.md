@@ -1,14 +1,14 @@
 ---
-title: "Răzvan Martin"
+title: "Florin Răzvan Martin"
 lang: ro
-summary: "Arbitru pentru grupele I și II."
+summary: "Membru al Corpului de Arbitri CFC-Royal. Licență WDF: Grupele 1, 2."
 photo: "/images/arbitri/razvan-martin.webp"
 country: "România"
-qualifications: ["Grupa I", "Grupa II"]
+qualifications: ["Grupele 1, 2"]
+licenseNumber: "WDF 018/25"
 affiliation: "WDF"
 status: "activ"
 draft: false
 ---
 
-Răzvan Martin este arbitru licențiat al Clubului Federal Chinologic Royal, pentru
-**grupele I și II**.
+Florin Răzvan Martin este membru al Corpului de Arbitri CFC-Royal, arbitru licențiat WDF pentru grupele 1, 2.

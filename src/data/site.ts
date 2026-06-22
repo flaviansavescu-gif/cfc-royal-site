@@ -5,7 +5,7 @@
 
 export const SITE = {
   /** Domeniul final (se sincronizează cu `site` din astro.config.mjs). */
-  domain: "https://cfc-royal.netlify.app", // [PLACEHOLDER] domeniu final
+  domain: "https://www.cfc-royal.ro",
 
   name: {
     ro: "Club Federal Chinologic Royal",
@@ -38,15 +38,15 @@ export const SITE = {
     cif: "48828041",
     iban: "RO07 RNCB 0263 1767 9657 0001",
     bank: "Banca Comercială Română (BCR)",
-    regNumber: "", // nr. registru asociații/fundații [PLACEHOLDER]
+    regNumber: "36/A/I din 21.09.2023",
   },
 
   contact: {
     email: "club.chinologic.royal@gmail.com",
     phone: "+40 741 387 026",
     address: {
-      ro: "", // [PLACEHOLDER] adresă poștală — încă neprimită
-      en: "",
+      ro: "Str. Mihai Eminescu nr. 43, bloc C11, sc. A, et. 8, ap. 33, Râmnicu Vâlcea, jud. Vâlcea, 240076",
+      en: "43 Mihai Eminescu St., bl. C11, st. A, fl. 8, apt. 33, Râmnicu Vâlcea, Vâlcea County, 240076",
     },
     schedule: {
       ro: ["Luni–Vineri: 08:00–18:00", "Sâmbătă–Duminică: 10:00–14:00"],
@@ -54,12 +54,12 @@ export const SITE = {
     },
   },
 
-  /** Profiluri social media (lasă gol dacă nu există încă). [PLACEHOLDER] */
+  /** Profiluri social media. */
   social: {
-    facebook: "",
-    instagram: "",
-    youtube: "",
-    tiktok: "",
+    facebook: "https://www.facebook.com/cfc.Royal.ro",
+    instagram: "https://www.instagram.com/cfc.royal.ro",
+    youtube: "https://www.youtube.com/@ClubFederalChinologic-Royal",
+    tiktok: "https://www.tiktok.com/@cfc.royal.ro",
   },
 } as const;
 

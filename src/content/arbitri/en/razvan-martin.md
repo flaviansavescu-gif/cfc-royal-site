@@ -1,14 +1,14 @@
 ---
-title: "Răzvan Martin"
+title: "Florin Răzvan Martin"
 lang: en
-summary: "Judge for Groups I and II."
+summary: "Member of the CFC-Royal Panel of Judges. WDF licence: Groups 1, 2."
 photo: "/images/arbitri/razvan-martin.webp"
 country: "Romania"
-qualifications: ["Group I", "Group II"]
+qualifications: ["Groups 1, 2"]
+licenseNumber: "WDF 018/25"
 affiliation: "WDF"
 status: "activ"
 draft: false
 ---
 
-Răzvan Martin is a licensed judge of the Royal Federal Canine Club, for
-**Groups I and II**.
+Florin Răzvan Martin is member of the CFC-Royal Panel of Judges, a WDF-licensed judge for groups 1, 2.
