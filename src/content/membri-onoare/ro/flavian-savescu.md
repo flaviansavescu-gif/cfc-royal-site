@@ -1,11 +1,11 @@
 ---
 title: "Flavian-Sergiu Savescu"
 lang: ro
-role: "Președinte al Corpului de Arbitri"
+role: "Președinte al Colegiului de Arbitri"
 summary: "Membru de onoare al Clubului Federal Chinologic Royal."
 photo: "/images/arbitri/flavian-savescu.webp"
 draft: false
 ---
 
 Flavian-Sergiu Savescu este **membru de onoare** al Clubului Federal Chinologic Royal și
-Președinte al Corpului de Arbitri.
+Președinte al Colegiului de Arbitri.

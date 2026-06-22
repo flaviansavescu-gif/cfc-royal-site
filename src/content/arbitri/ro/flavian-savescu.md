@@ -1,8 +1,8 @@
 ---
 title: "Flavian-Sergiu Savescu"
 lang: ro
-role: "Președinte al Corpului de Arbitri"
-summary: "Președintele Corpului de Arbitri CFC-Royal, Licență WDF: All Breed."
+role: "Președinte al Colegiului de Arbitri"
+summary: "Președintele Colegiului de Arbitri CFC-Royal, Licență WDF: All Breed."
 photo: "/images/arbitri/flavian-savescu.webp"
 country: "România"
 qualifications: ["All Breed"]
@@ -12,4 +12,4 @@ status: "activ"
 draft: false
 ---
 
-Flavian-Sergiu Savescu este Președintele Corpului de Arbitri CFC-Royal, arbitru licențiat WDF pentru toate grupele (All Breed).
+Flavian-Sergiu Savescu este Președintele Colegiului de Arbitri CFC-Royal, arbitru licențiat WDF pentru toate grupele (All Breed).

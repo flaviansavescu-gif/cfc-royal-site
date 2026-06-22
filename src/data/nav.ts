@@ -25,7 +25,7 @@ export const mainNav: NavItem[] = [
     children: [
       { slug: "organizatia/despre", label: { ro: "Despre asociație", en: "About us" } },
       { slug: "organizatia/conducere", label: { ro: "Conducere", en: "Leadership" } },
-      { slug: "arbitri", label: { ro: "Corpul de arbitri", en: "Panel of judges" } },
+      { slug: "arbitri", label: { ro: "Colegiul de arbitri", en: "Panel of judges" } },
       { slug: "canise", label: { ro: "Canise înregistrate", en: "Registered kennels" } },
       { slug: "membri-onoare", label: { ro: "Membri de onoare", en: "Honorary members" } },
       { slug: "organizatia/transparenta", label: { ro: "Transparență instituțională", en: "Transparency" } },

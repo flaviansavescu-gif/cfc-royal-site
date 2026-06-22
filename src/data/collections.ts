@@ -93,7 +93,7 @@ export const collectionDefs: CollectionDef[] = [
   {
     name: "arbitri",
     slug: "arbitri",
-    label: { ro: "Corpul de arbitri", en: "Panel of judges" },
+    label: { ro: "Colegiul de arbitri", en: "Panel of judges" },
     intro: { ro: "Arbitri licențiați ai clubului.", en: "The club's licensed judges." },
     empty: { ro: "Niciun arbitru publicat momentan.", en: "No judges published yet." },
     eyebrow: { ro: "Organizația", en: "Organization" },

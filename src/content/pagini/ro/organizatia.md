@@ -15,6 +15,6 @@ organizăm expoziții și susținem cluburile afiliate.
 - [Despre asociație](/ro/organizatia/despre/)
 - [Conducere](/ro/organizatia/conducere/)
 - [Transparență instituțională](/ro/organizatia/transparenta/)
-- [Corpul de arbitri](/ro/arbitri/)
+- [Colegiul de arbitri](/ro/arbitri/)
 - [Canise înregistrate](/ro/canise/)
 - [Membri de onoare](/ro/membri-onoare/)

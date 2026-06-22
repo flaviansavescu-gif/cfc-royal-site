@@ -1,7 +1,7 @@
 ---
 title: "Mihail Sorin Iacob"
 lang: ro
-summary: "Membru al Corpului de Arbitri CFC-Royal. Licență WDF: All Breed."
+summary: "Membru al Colegiului de Arbitri CFC-Royal. Licență WDF: All Breed."
 photo: "/images/arbitri/mihail-sorin-iacob.webp"
 country: "România"
 qualifications: ["All Breed"]
@@ -11,4 +11,4 @@ status: "activ"
 draft: false
 ---
 
-Mihail Sorin Iacob este membru al Corpului de Arbitri CFC-Royal, arbitru licențiat WDF pentru toate grupele (All Breed).
+Mihail Sorin Iacob este membru al Colegiului de Arbitri CFC-Royal, arbitru licențiat WDF pentru toate grupele (All Breed).

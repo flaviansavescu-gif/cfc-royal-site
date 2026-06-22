@@ -37,15 +37,15 @@ interface HomeContent {
 const ro: HomeContent = {
   hero: {
     kicker: "Asociație chinologică națională",
-    title: "Pasiune pentru câini, rigoare pentru standarde",
+    title: "Nu construim campioni. Construim o parte din ceea ce face posibilă existența lor.",
     subtitle:
-      "Club Federal Chinologic Royal reunește crescători, arbitri și iubitori de câini din întreaga țară — expoziții, standarde de rasă, educație chinologică și o comunitate dedicată.",
+      "Club Federal Chinologic – Royal aduce împreună crescători, arbitri și specialiști din toate ramurile chinologiei, dedicați menținerii unor standarde ridicate în creșterea, selecția și evaluarea câinilor de rasă.",
     ctaPrimary: { label: "Devino membru", slug: "membri/devino-membru" },
     ctaSecondary: { label: "Calendar expoziții", slug: "expozitii" },
   },
   intro: {
-    title: "Despre asociație",
-    body: "Promovăm creșterea responsabilă a câinilor de rasă, organizăm expoziții canine la standarde naționale și internaționale și formăm arbitri și specialiști. Susținem cluburile și asociațiile afiliate într-un cadru instituțional transparent.",
+    title: "Despre Club Federal Chinologic – Royal",
+    body: "Oferim crescătorilor și proprietarilor de câini de rasă reprezentare la nivel național și internațional, suport pentru obținerea certificatelor de origine (pedigree), expoziții chinologice, seminarii și o comunitate primitoare în care să îți împărtășești pasiunea pentru câini. Credem în dialog, în experiență și în proiecte care lasă ceva în urmă.",
   },
   events: {
     title: "Calendar evenimente",
@@ -107,12 +107,12 @@ const ro: HomeContent = {
     ],
   },
   stats: {
-    title: "Clubul în cifre",
+    title: "CFC–Royal în cifre",
     items: [
-      { value: "—", label: "Membri activi" },
-      { value: "—", label: "Expoziții pe an" },
-      { value: "—", label: "Canise înregistrate" },
-      { value: "—", label: "Arbitri licențiați" },
+      { value: "167", label: "Membri activi" },
+      { value: "20+", label: "Expoziții organizate" },
+      { value: "23", label: "Canise înregistrate" },
+      { value: "10", label: "Arbitri licențiați" },
     ],
   },
   gallery: {
@@ -129,15 +129,15 @@ const ro: HomeContent = {
 const en: HomeContent = {
   hero: {
     kicker: "National cynological association",
-    title: "Passion for dogs, rigour for standards",
+    title: "We don't build champions. We build a part of what makes their existence possible.",
     subtitle:
-      "The Royal Federal Canine Club brings together breeders, judges and dog lovers from across the country — dog shows, breed standards, canine education and a dedicated community.",
+      "The Royal Federal Canine Club brings together breeders, judges and specialists from every branch of cynology, dedicated to maintaining high standards in the breeding, selection and evaluation of purebred dogs.",
     ctaPrimary: { label: "Become a member", slug: "membri/devino-membru" },
     ctaSecondary: { label: "Show calendar", slug: "expozitii" },
   },
   intro: {
-    title: "About the association",
-    body: "We promote responsible breeding of purebred dogs, organise dog shows to national and international standards, and train judges and specialists. We support affiliated clubs and associations within a transparent institutional framework.",
+    title: "About the Royal Federal Canine Club",
+    body: "We offer breeders and owners of purebred dogs national and international representation, support in obtaining pedigree certificates, dog shows, seminars and a welcoming community in which to share your passion for dogs. We believe in dialogue, experience and projects that leave something behind.",
   },
   events: {
     title: "Events calendar",
@@ -199,12 +199,12 @@ const en: HomeContent = {
     ],
   },
   stats: {
-    title: "The club in numbers",
+    title: "CFC–Royal in numbers",
     items: [
-      { value: "—", label: "Active members" },
-      { value: "—", label: "Shows per year" },
-      { value: "—", label: "Registered kennels" },
-      { value: "—", label: "Licensed judges" },
+      { value: "167", label: "Active members" },
+      { value: "20+", label: "Shows organised" },
+      { value: "23", label: "Registered kennels" },
+      { value: "10", label: "Licensed judges" },
     ],
   },
   gallery: {

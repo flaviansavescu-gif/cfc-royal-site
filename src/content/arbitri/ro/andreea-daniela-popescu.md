@@ -1,7 +1,7 @@
 ---
 title: "Andreea-Daniela Popescu"
 lang: ro
-summary: "Membru al Corpului de Arbitri CFC-Royal. Licență WDF: Grupele 3, 5, 9."
+summary: "Membru al Colegiului de Arbitri CFC-Royal. Licență WDF: Grupele 3, 5, 9."
 country: "România"
 qualifications: ["Grupele 3, 5, 9"]
 licenseNumber: "WDF 015/25"
@@ -10,4 +10,4 @@ status: "activ"
 draft: false
 ---
 
-Andreea-Daniela Popescu este membru al Corpului de Arbitri CFC-Royal, arbitru licențiat WDF pentru grupele 3, 5, 9.
+Andreea-Daniela Popescu este membru al Colegiului de Arbitri CFC-Royal, arbitru licențiat WDF pentru grupele 3, 5, 9.
