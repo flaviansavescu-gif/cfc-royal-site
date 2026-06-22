@@ -43,6 +43,11 @@ if (def.groupBy) {
 ---
 <BaseLayout title={def.label[lang]} lang={lang}>
   <Section eyebrow={def.eyebrow[lang]} title={def.label[lang]} intro={def.intro[lang]}>
+    {def.extraLink && (
+      <p class="archive-actions">
+        <a class="btn btn--outline" href={def.extraLink.url} target="_blank" rel="noopener">{def.extraLink.label[lang]} ↗</a>
+      </p>
+    )}
     {sorted.length === 0 ? (
       <p class="muted-note">{def.empty[lang]}</p>
     ) : def.groupBy ? (
@@ -57,11 +62,14 @@ if (def.groupBy) {
         </div>
       ))
     ) : (
-      <div class="grid grid--3">
-        {sorted.map((e) => { const { c, href } = renderCard(e); return (
-          <Card title={c.title} href={href} meta={c.meta} excerpt={c.excerpt} tag={c.tag} image={c.image} />
-        ); })}
-      </div>
+      <>
+        {def.itemsHeading && <h3 class="group__title">{def.itemsHeading[lang]}</h3>}
+        <div class="grid grid--3">
+          {sorted.map((e) => { const { c, href } = renderCard(e); return (
+            <Card title={c.title} href={href} meta={c.meta} excerpt={c.excerpt} tag={c.tag} image={c.image} />
+          ); })}
+        </div>
+      </>
     )}
   </Section>
 </BaseLayout>
@@ -69,4 +77,5 @@ if (def.groupBy) {
 <style>
   .group + .group { margin-top: 2.5rem; }
   .group__title { color: var(--color-primary); font-size: var(--fs-600); margin-bottom: 1rem; padding-bottom: 0.4rem; border-bottom: 2px solid var(--color-border); }
+  .archive-actions { margin: -0.5rem 0 1.75rem; }
 </style>

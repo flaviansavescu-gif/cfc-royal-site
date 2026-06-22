@@ -30,6 +30,10 @@ export interface CollectionDef {
   groupLabel?: (key: string, lang: Lang) => string;
   /** Portret/poză afișat(ă) pe pagina de detaliu (ex. arbitri, membri). */
   portrait?: (d: Data) => string | undefined;
+  /** Subtitlu deasupra listei din arhivă (ex. „Rase autohtone românești”). */
+  itemsHeading?: Record<Lang, string>;
+  /** Buton extern în arhivă (ex. link către standardele WDF). */
+  extraLink?: { label: Record<Lang, string>; url: string };
 }
 
 // Categorii regulamente: cheia (RO, din schema) -> etichetă localizată
@@ -141,9 +145,14 @@ export const collectionDefs: CollectionDef[] = [
     name: "standarde-rasa",
     slug: "standarde-rasa",
     label: { ro: "Standarde de rasă", en: "Breed standards" },
-    intro: { ro: "Documentație de referință pentru rasele recunoscute.", en: "Reference documentation for recognised breeds." },
+    intro: {
+      ro: "Standardele de rasă ale raselor autohtone românești, redactate pe nomenclatura CFCR – WDF. Pentru standardele tuturor raselor, consultă registrul WDF.",
+      en: "The breed standards of the Romanian native breeds, drawn up on the CFCR – WDF nomenclature. For the standards of all breeds, see the WDF register.",
+    },
     empty: { ro: "Niciun standard publicat momentan.", en: "No standards published yet." },
     eyebrow: { ro: "Chinologie", en: "Cynology" },
+    itemsHeading: { ro: "Rasele autohtone românești", en: "Romanian native breeds" },
+    extraLink: { label: { ro: "Toate standardele de rasă (WDF)", en: "All breed standards (WDF)" }, url: "https://wdf-international.org/breeds/" },
     sort: (a, b) => a.title.localeCompare(b.title, "ro"),
     card: (d) => ({ title: d.title, meta: d.originCountry || d.breedGroup, excerpt: d.summary }),
     metaRows: (d, lang) =>
