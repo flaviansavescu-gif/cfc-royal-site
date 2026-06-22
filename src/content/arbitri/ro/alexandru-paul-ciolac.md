@@ -2,6 +2,7 @@
 title: "Alexandru Paul Ciolac"
 lang: ro
 summary: "Membru al Colegiului de Arbitri CFC-Royal. Licență WDF: Grupele 2, 3, 4, 6, 8."
+photo: "/images/arbitri/alexandru-paul-ciolac.webp"
 country: "România"
 qualifications: ["Grupele 2, 3, 4, 6, 8"]
 licenseNumber: "WDF 017/25"

@@ -2,6 +2,7 @@
 title: "Mihail Cosmin Neagu"
 lang: en
 summary: "Member of the CFC-Royal Panel of Judges. WDF licence: All Breed."
+photo: "/images/arbitri/mihail-cosmin-neagu.webp"
 country: "Romania"
 qualifications: ["All Breed"]
 licenseNumber: "WDF 019/25"

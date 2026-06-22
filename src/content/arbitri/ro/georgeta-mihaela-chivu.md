@@ -2,6 +2,7 @@
 title: "Georgeta Mihaela Chivu"
 lang: ro
 summary: "Membru al Colegiului de Arbitri CFC-Royal. Licență WDF: All Breed."
+photo: "/images/arbitri/georgeta-mihaela-chivu.webp"
 country: "România"
 qualifications: ["All Breed"]
 licenseNumber: "WDF 016/25"

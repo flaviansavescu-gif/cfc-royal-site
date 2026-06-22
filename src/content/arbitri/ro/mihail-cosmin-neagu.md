@@ -2,6 +2,7 @@
 title: "Mihail Cosmin Neagu"
 lang: ro
 summary: "Membru al Colegiului de Arbitri CFC-Royal. Licență WDF: All Breed."
+photo: "/images/arbitri/mihail-cosmin-neagu.webp"
 country: "România"
 qualifications: ["All Breed"]
 licenseNumber: "WDF 019/25"

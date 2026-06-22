@@ -2,6 +2,7 @@
 title: "Alexandru Paul Ciolac"
 lang: en
 summary: "Member of the CFC-Royal Panel of Judges. WDF licence: Groups 2, 3, 4, 6, 8."
+photo: "/images/arbitri/alexandru-paul-ciolac.webp"
 country: "Romania"
 qualifications: ["Groups 2, 3, 4, 6, 8"]
 licenseNumber: "WDF 017/25"
