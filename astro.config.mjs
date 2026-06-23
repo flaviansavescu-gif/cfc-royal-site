@@ -3,7 +3,7 @@ import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 
 // Domeniul final se setează aici înainte de publicare (folosit la sitemap + URL-uri absolute).
-const SITE = "https://www.cfc-royal.ro";
+const SITE = "https://cfc-royal.ro";
 
 // https://astro.build/config
 export default defineConfig({

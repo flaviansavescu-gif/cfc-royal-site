@@ -16,7 +16,8 @@
       "PowerShell($env:Path = [Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); $src = Join-Path $env:TEMP 'arbp-src'; New-Item -ItemType Directory -Force -Path $src | Out-Null; $A = \"C:\\\\FLAVIAN\\\\Asociația Chinologică CARAȘ-SEVERIN\\\\SITE\\\\De pus in folder CODE\\\\Arbitrii\"; Copy-Item \"$A\\\\Mihail Sorin IACOB\\\\Mihail Sorin IACOB.png\" \"$src\\\\iacob.png\" -Force; Copy-Item \"$A\\\\Lionel Octavian ZOSMER\\\\Lionel Octavian ZOSMER.png\" \"$src\\\\zosmer.png\" -Force; Copy-Item \"$A\\\\Claudiu Martin CHIRA\\\\Claudiu Martin CHIRA.png\" \"$src\\\\chira.png\" -Force; $work = Join-Path $env:TEMP 'necesar-docx'; Set-Location $work; & node arbphotos.js)",
       "PowerShell(Set-Location \"C:\\\\FLAVIAN\\\\Asociația Chinologică CARAȘ-SEVERIN\\\\SITE\\\\De pus in folder CODE\\\\files\"; $env:Path = [Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); $t = Measure-Command { $out = & npm run build 2>&1 }; \\($out | Select-String -Pattern \"page\\\\\\(s\\\\\\) built|Complete|ERROR|error\" | Select-Object -Last 2\\); \"DURATA BUILD LOCAL: \" + [math]::Round\\($t.TotalSeconds,1\\) + \" s\")",
       "Bash(ls src/content/pagini/ro/educatie* src/content/pagini/ro/educatie/)",
-      "Bash(ls src/content/comunicate/ro/)"
+      "Bash(ls src/content/comunicate/ro/)",
+      "WebFetch(domain:www.cfc-royal.ro)"
     ]
   }
 }

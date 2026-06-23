@@ -5,7 +5,7 @@
 
 export const SITE = {
   /** Domeniul final (se sincronizează cu `site` din astro.config.mjs). */
-  domain: "https://www.cfc-royal.ro",
+  domain: "https://cfc-royal.ro",
 
   name: {
     ro: "Club Federal Chinologic Royal",
