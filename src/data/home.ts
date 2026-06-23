@@ -27,7 +27,7 @@ interface HomeContent {
   news: { title: string; viewAll: string; viewAllSlug: string; items: CardItem[] };
   membership: { title: string; body: string; cta: string; slug: string };
   affiliates: { title: string; intro: string; viewAll: string; viewAllSlug: string };
-  standards: { title: string; intro: string; viewAll: string; viewAllSlug: string; items: CardItem[] };
+  standards: { title: string; intro: string; viewAll: string; viewAllSlug: string };
   education: { title: string; intro: string; items: CardItem[] };
   stats: { title: string; items: { value: string; label: string }[] };
   gallery: { title: string; intro: string; note: string };
@@ -83,14 +83,10 @@ const ro: HomeContent = {
   },
   standards: {
     title: "Standarde de rasă",
-    intro: "Documentație de referință pentru rasele recunoscute.",
-    viewAll: "Toate standardele",
+    intro:
+      "Aici găsești standardele raselor autohtone românești de ciobănești, dar și standardele celorlalte rase recunoscute de World Dog Federation.",
+    viewAll: "Vezi standardele",
     viewAllSlug: "standarde-rasa",
-    items: [
-      { title: "Ciobănesc Românesc Carpatin", meta: "Rasă autohtonă", slug: "standarde-rasa", demo: true },
-      { title: "Ciobănesc Românesc Mioritic", meta: "Rasă autohtonă", slug: "standarde-rasa", demo: true },
-      { title: "Ciobănesc Românesc de Bucovina", meta: "Rasă autohtonă", slug: "standarde-rasa", demo: true },
-    ],
   },
   education: {
     title: "Educație chinologică",
@@ -170,14 +166,10 @@ const en: HomeContent = {
   },
   standards: {
     title: "Breed standards",
-    intro: "Reference documentation for recognised breeds.",
-    viewAll: "All standards",
+    intro:
+      "Here you will find the standards of the Romanian native shepherd breeds, as well as the standards of the other breeds recognised by the World Dog Federation.",
+    viewAll: "View standards",
     viewAllSlug: "standarde-rasa",
-    items: [
-      { title: "Carpathian Shepherd Dog", meta: "Native breed", slug: "standarde-rasa", demo: true },
-      { title: "Mioritic Shepherd Dog", meta: "Native breed", slug: "standarde-rasa", demo: true },
-      { title: "Bucovina Shepherd Dog", meta: "Native breed", slug: "standarde-rasa", demo: true },
-    ],
   },
   education: {
     title: "Canine education",

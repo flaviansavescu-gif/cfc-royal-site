@@ -66,24 +66,23 @@ const lp = (slug: string) => localizePath(slug, lang);
   </div>
 </section>
 
-<!-- Afiliați -->
-<Section id="afiliati" alt title={h.affiliates.title} intro={h.affiliates.intro}>
-  <p style="text-align:center;margin:0">
-    <a class="btn btn--gold" href={lp(h.affiliates.viewAllSlug)}>{h.affiliates.viewAll}</a>
-  </p>
-</Section>
-
-<!-- Standarde de rasă -->
-<Section
-  id="standarde" title={h.standards.title} intro={h.standards.intro}
-  viewAllLabel={h.standards.viewAll} viewAllHref={lp(h.standards.viewAllSlug)}
->
-  <div class="grid grid--3">
-    {h.standards.items.map((it) => (
-      <Card title={it.title} href={lp(it.slug)} meta={it.meta} demo={it.demo} />
-    ))}
+<!-- Afiliați + Standarde de rasă (două coloane, același nivel) -->
+<section id="afiliati" class="duo">
+  <div class="container">
+    <div class="duo__grid">
+      <article class="duo__panel">
+        <h2 class="duo__title">{h.affiliates.title}</h2>
+        <p class="duo__intro">{h.affiliates.intro}</p>
+        <a class="btn btn--gold" href={lp(h.affiliates.viewAllSlug)}>{h.affiliates.viewAll}</a>
+      </article>
+      <article class="duo__panel" id="standarde">
+        <h2 class="duo__title">{h.standards.title}</h2>
+        <p class="duo__intro">{h.standards.intro}</p>
+        <a class="btn btn--gold" href={lp(h.standards.viewAllSlug)}>{h.standards.viewAll}</a>
+      </article>
+    </div>
   </div>
-</Section>
+</section>
 
 <!-- Educație -->
 <Section id="educatie" alt title={h.education.title} intro={h.education.intro}>
@@ -148,6 +147,19 @@ const lp = (slug: string) => localizePath(slug, lang);
 
 <style>
   .lead { font-size: var(--fs-500); max-width: 65ch; color: var(--color-text); }
+
+  /* Două coloane pe același nivel: Afiliați + Standarde de rasă */
+  .duo { padding-block: clamp(2.5rem, 6vw, 4.5rem); background: var(--color-surface-alt); }
+  .duo__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+  .duo__panel {
+    display: flex; flex-direction: column; align-items: flex-start;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius); padding: clamp(1.5rem, 3vw, 2.25rem);
+  }
+  .duo__title { color: var(--color-primary); }
+  .duo__intro { margin: 0.6rem 0 1.5rem; color: var(--color-text-muted); }
+  .duo__panel .btn { margin-top: auto; }
+  @media (max-width: 640px) { .duo__grid { grid-template-columns: 1fr; } }
 
   /* Bandă CTA membru */
   .cta-band { background: var(--color-primary); color: var(--color-text-inverse); }
