@@ -9,6 +9,7 @@ phone: "+40 720 255 635"
 contactEmail: "strajerii.muntilor@gmail.com"
 iban: "RO05 RNCB 0072 1825 0069 0001"
 president: "Mihail Cosmin Neagu"
+logo: "/images/afiliat-strajerii-muntilor.webp"
 draft: false
 ---
 
