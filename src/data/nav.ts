@@ -38,8 +38,6 @@ export const mainNav: NavItem[] = [
       { slug: "membri/devino-membru", label: { ro: "Devino membru", en: "Become a member" } },
       { slug: "membri/beneficii", label: { ro: "Beneficii", en: "Benefits" } },
       { slug: "membri/cotizatii", label: { ro: "Cotizații", en: "Fees" } },
-      { slug: "membri/formulare", label: { ro: "Formulare și documente", en: "Forms & documents" } },
-      { slug: "membri/intrebari-frecvente", label: { ro: "Întrebări frecvente", en: "FAQ" } },
     ],
   },
   {
@@ -47,9 +45,7 @@ export const mainNav: NavItem[] = [
     label: { ro: "Expoziții", en: "Dog Shows" },
     children: [
       { slug: "expozitii", label: { ro: "Calendar expozițional", en: "Show calendar" } },
-      { slug: "expozitii/inscrieri", label: { ro: "Înscrieri", en: "Registration" } },
       { slug: "regulamente", label: { ro: "Regulamente WDF", en: "WDF Regulations" } },
-      { slug: "expozitii/rezultate", label: { ro: "Rezultate și clasamente", en: "Results & rankings" } },
     ],
   },
   {
@@ -58,9 +54,6 @@ export const mainNav: NavItem[] = [
     children: [
       { slug: "standarde-rasa", label: { ro: "Standardele raselor", en: "Breed standards" } },
       { slug: "regulamente", label: { ro: "Regulamente WDF", en: "WDF Regulations" } },
-      { slug: "chinologie/legislatie", label: { ro: "Legislație", en: "Legislation" } },
-      { slug: "chinologie/biblioteca", label: { ro: "Bibliotecă digitală", en: "Digital library" } },
-      { slug: "chinologie/resurse", label: { ro: "Resurse și descărcări", en: "Resources & downloads" } },
     ],
   },
   {
@@ -69,17 +62,11 @@ export const mainNav: NavItem[] = [
     children: [
       { slug: "educatie/centrul-competentelor-chinologice", label: { ro: "Centrul de Dezvoltare", en: "Development Centre" } },
       { slug: "cursuri", label: { ro: "Cursuri", en: "Courses" } },
-      { slug: "educatie/webinare", label: { ro: "Webinare", en: "Webinars" } },
-      { slug: "educatie/examene", label: { ro: "Examene și certificări", en: "Exams & certifications" } },
     ],
   },
   {
     slug: "afiliati",
     label: { ro: "Afiliați", en: "Affiliates" },
-    children: [
-      { slug: "afiliati", label: { ro: "Asociații afiliate", en: "Affiliated associations" } },
-      { slug: "afiliati/devino-afiliat", label: { ro: "Devino afiliat", en: "Become an affiliate" } },
-    ],
   },
   {
     slug: "noutati",

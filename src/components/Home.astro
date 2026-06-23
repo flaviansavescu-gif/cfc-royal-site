@@ -4,9 +4,11 @@
 import Hero from "./Hero.astro";
 import Section from "./Section.astro";
 import Card from "./Card.astro";
+import { getCollection } from "astro:content";
 import { getHome } from "../data/home";
 import { SITE } from "../data/site";
 import { useTranslations, localizePath, type Lang } from "../i18n/utils";
+import { isLang, entrySlug, formatDate } from "../i18n/content";
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
@@ -21,6 +23,22 @@ const posters = [
   { src: "/images/afise/targoviste-2026.webp", slug: "expozitii/targoviste-wdf-dambovita-dog-show-2026", alt: "Afiș CACIB Târgoviște — WDF Dâmbovița Dog Show, 18 aprilie 2026" },
   { src: "/images/afise/tuzla-2026.webp", slug: "expozitii/tuzla-wdf-constanta-dog-show-2026", alt: "Afiș CACIB Tuzla — WDF Constanța Dog Show, 2 mai 2026" },
 ];
+
+// Ultimele 3 noutăți reale (comunicate + articole), sortate descrescător după dată.
+const newsEntries = [
+  ...(await getCollection("comunicate", (e: any) => isLang(e.id, lang) && !e.data.draft)),
+  ...(await getCollection("articole", (e: any) => isLang(e.id, lang) && !e.data.draft)),
+];
+const latestNews = newsEntries
+  .sort((a: any, b: any) => (b.data.publishedAt?.getTime() ?? 0) - (a.data.publishedAt?.getTime() ?? 0))
+  .slice(0, 3)
+  .map((e: any) => ({
+    title: e.data.title,
+    meta: formatDate(e.data.publishedAt, lang),
+    tag: e.data.category,
+    excerpt: e.data.summary,
+    href: lp(`${e.collection}/${entrySlug(e.id)}`),
+  }));
 ---
 <Hero
   lang={lang}
@@ -52,8 +70,8 @@ const posters = [
   viewAllLabel={h.news.viewAll} viewAllHref={lp(h.news.viewAllSlug)}
 >
   <div class="grid grid--3">
-    {h.news.items.map((it) => (
-      <Card title={it.title} href={lp(it.slug)} meta={it.meta} tag={it.tag} excerpt={it.excerpt} demo={it.demo} />
+    {latestNews.map((it) => (
+      <Card title={it.title} href={it.href} meta={it.meta} tag={it.tag} excerpt={it.excerpt} />
     ))}
   </div>
 </Section>

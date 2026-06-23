@@ -24,7 +24,7 @@ interface HomeContent {
   };
   intro: { title: string; body: string };
   events: { title: string; intro: string; viewAll: string; viewAllSlug: string };
-  news: { title: string; viewAll: string; viewAllSlug: string; items: CardItem[] };
+  news: { title: string; viewAll: string; viewAllSlug: string };
   membership: { title: string; body: string; cta: string; slug: string };
   affiliates: { title: string; intro: string; viewAll: string; viewAllSlug: string };
   standards: { title: string; intro: string; viewAll: string; viewAllSlug: string };
@@ -58,11 +58,6 @@ const ro: HomeContent = {
     title: "Ultimele noutăți",
     viewAll: "Toate noutățile",
     viewAllSlug: "noutati",
-    items: [
-      { title: "Calendar expozițional 2026 — anunț oficial", meta: "10 iun. 2026", tag: "Comunicat", excerpt: "Programul complet al expozițiilor organizate sub egida clubului.", slug: "comunicate", demo: true },
-      { title: "Noi arbitri licențiați în corpul de arbitri", meta: "2 iun. 2026", tag: "Știre", excerpt: "Trei noi arbitri au promovat examenele de specializare.", slug: "comunicate", demo: true },
-      { title: "Interviu: creșterea responsabilă a raselor autohtone", meta: "20 mai 2026", tag: "Interviu", excerpt: "Despre conservarea raselor românești de câini ciobănești.", slug: "articole", demo: true },
-    ],
   },
   membership: {
     title: "Devino membru",
@@ -137,11 +132,6 @@ const en: HomeContent = {
     title: "Latest news",
     viewAll: "All news",
     viewAllSlug: "noutati",
-    items: [
-      { title: "2026 show calendar — official announcement", meta: "Jun 10, 2026", tag: "Release", excerpt: "The full programme of shows held under the club's aegis.", slug: "comunicate", demo: true },
-      { title: "New licensed judges join the panel", meta: "Jun 2, 2026", tag: "News", excerpt: "Three new judges passed their specialisation exams.", slug: "comunicate", demo: true },
-      { title: "Interview: responsible breeding of native breeds", meta: "May 20, 2026", tag: "Interview", excerpt: "On preserving Romanian shepherd dog breeds.", slug: "articole", demo: true },
-    ],
   },
   membership: {
     title: "Become a member",
