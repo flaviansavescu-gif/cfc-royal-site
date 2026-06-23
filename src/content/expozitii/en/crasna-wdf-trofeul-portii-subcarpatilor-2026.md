@@ -5,7 +5,7 @@ summary: "CAC dog show scheduled in Crasna. Organiser: C.F.C. – Royal."
 startDate: 2026-10-31
 venue: "To be announced"
 city: "Crasna"
-county: "To be announced"
+county: "Prahova"
 showType: "CAC"
 organizer: "C.F.C. – Royal"
 status: "anunțată"

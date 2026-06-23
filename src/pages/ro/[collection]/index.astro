@@ -48,6 +48,11 @@ if (def.groupBy) {
         <a class="btn btn--outline" href={def.extraLink.url} target="_blank" rel="noopener">{def.extraLink.label[lang]} ↗</a>
       </p>
     )}
+    {def.banner && (
+      <figure class="archive-banner">
+        <img src={def.banner.src} alt={def.banner.alt[lang]} width="1400" height="840" loading="lazy" />
+      </figure>
+    )}
     {sorted.length === 0 ? (
       <p class="muted-note">{def.empty[lang]}</p>
     ) : def.groupBy ? (
@@ -78,4 +83,6 @@ if (def.groupBy) {
   .group + .group { margin-top: 2.5rem; }
   .group__title { color: var(--color-primary); font-size: var(--fs-600); margin-bottom: 1rem; padding-bottom: 0.4rem; border-bottom: 2px solid var(--color-border); }
   .archive-actions { margin: -0.5rem 0 1.75rem; }
+  .archive-banner { margin: 0 0 2rem; }
+  .archive-banner img { display: block; width: 100%; height: auto; border-radius: var(--radius); border: 1px solid var(--color-border); }
 </style>

@@ -34,6 +34,8 @@ export interface CollectionDef {
   itemsHeading?: Record<Lang, string>;
   /** Buton extern în arhivă (ex. link către standardele WDF). */
   extraLink?: { label: Record<Lang, string>; url: string };
+  /** Imagine banner afișată în arhivă, sub intro (ex. calendar expozițional). */
+  banner?: { src: string; alt: Record<Lang, string> };
 }
 
 // Categorii regulamente: cheia (RO, din schema) -> etichetă localizată
@@ -59,6 +61,10 @@ export const collectionDefs: CollectionDef[] = [
     slug: "expozitii",
     label: { ro: "Expoziții", en: "Dog Shows" },
     intro: { ro: "Expoziții canine organizate sub egida clubului.", en: "Dog shows held under the club's aegis." },
+    banner: {
+      src: "/images/calendar-expozitional-2026.webp",
+      alt: { ro: "Calendar expozițional 2026 — Club Federal Chinologic Royal / World Dog Federation", en: "2026 dog show calendar — Royal Federal Canine Club / World Dog Federation" },
+    },
     empty: { ro: "Nicio expoziție publicată momentan.", en: "No shows published yet." },
     eyebrow: { ro: "Calendar expozițional", en: "Show calendar" },
     sort: (a, b) => a.startDate.getTime() - b.startDate.getTime(),
