@@ -51,8 +51,8 @@ const ro: HomeContent = {
     title: "Calendar evenimente",
     intro:
       "Expozițiile și evenimentele chinologice organizate sub egida Club Federal Chinologic – Royal, în țară și sub patronaj internațional World Dog Federation.",
-    viewAll: "Vezi calendarul expozițiilor",
-    viewAllSlug: "expozitii",
+    viewAll: "Vezi calendarul expozițional",
+    viewAllSlug: "calendar-expozitional",
   },
   news: {
     title: "Ultimele noutăți",
@@ -126,7 +126,7 @@ const en: HomeContent = {
     intro:
       "The dog shows and cynological events organised under the aegis of the Royal Federal Canine Club, across the country and under international World Dog Federation patronage.",
     viewAll: "View the show calendar",
-    viewAllSlug: "expozitii",
+    viewAllSlug: "calendar-expozitional",
   },
   news: {
     title: "Latest news",
