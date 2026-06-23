@@ -32,15 +32,10 @@ const lp = (slug: string) => localizePath(slug, lang);
 </Section>
 
 <!-- Calendar evenimente -->
-<Section
-  id="calendar" alt title={h.events.title} intro={h.events.intro}
-  viewAllLabel={h.events.viewAll} viewAllHref={lp(h.events.viewAllSlug)}
->
-  <div class="grid grid--3">
-    {h.events.items.map((it) => (
-      <Card title={it.title} href={lp(it.slug)} meta={it.meta} tag={it.tag} demo={it.demo} />
-    ))}
-  </div>
+<Section id="calendar" alt title={h.events.title} intro={h.events.intro}>
+  <p style="text-align:center;margin:0">
+    <a class="btn btn--gold" href={lp(h.events.viewAllSlug)}>{h.events.viewAll}</a>
+  </p>
 </Section>
 
 <!-- Ultimele noutăți -->

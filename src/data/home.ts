@@ -23,7 +23,7 @@ interface HomeContent {
     ctaSecondary: { label: string; slug: string };
   };
   intro: { title: string; body: string };
-  events: { title: string; intro: string; viewAll: string; viewAllSlug: string; items: CardItem[] };
+  events: { title: string; intro: string; viewAll: string; viewAllSlug: string };
   news: { title: string; viewAll: string; viewAllSlug: string; items: CardItem[] };
   membership: { title: string; body: string; cta: string; slug: string };
   affiliates: { title: string; intro: string; viewAll: string; viewAllSlug: string };
@@ -49,14 +49,10 @@ const ro: HomeContent = {
   },
   events: {
     title: "Calendar evenimente",
-    intro: "Următoarele expoziții și evenimente chinologice.",
-    viewAll: "Vezi tot calendarul",
+    intro:
+      "Expozițiile și evenimentele chinologice organizate sub egida Club Federal Chinologic – Royal, în țară și sub patronaj internațional World Dog Federation.",
+    viewAll: "Vezi calendarul expozițiilor",
     viewAllSlug: "expozitii",
-    items: [
-      { title: "Expoziție Națională Canină", meta: "Reșița · 12 sept. 2026", tag: "Națională", slug: "expozitii", demo: true },
-      { title: "Expoziție Internațională WDF", meta: "Timișoara · 3 oct. 2026", tag: "Internațională", slug: "expozitii", demo: true },
-      { title: "Specială de rasă — Ciobănesc", meta: "Buzău · 18 oct. 2026", tag: "Specială", slug: "expozitii", demo: true },
-    ],
   },
   news: {
     title: "Ultimele noutăți",
@@ -132,14 +128,10 @@ const en: HomeContent = {
   },
   events: {
     title: "Events calendar",
-    intro: "Upcoming dog shows and cynological events.",
-    viewAll: "View full calendar",
+    intro:
+      "The dog shows and cynological events organised under the aegis of the Royal Federal Canine Club, across the country and under international World Dog Federation patronage.",
+    viewAll: "View the show calendar",
     viewAllSlug: "expozitii",
-    items: [
-      { title: "National Dog Show", meta: "Reșița · Sep 12, 2026", tag: "National", slug: "expozitii", demo: true },
-      { title: "International Show WDF", meta: "Timișoara · Oct 3, 2026", tag: "International", slug: "expozitii", demo: true },
-      { title: "Breed Specialty — Shepherd", meta: "Buzău · Oct 18, 2026", tag: "Specialty", slug: "expozitii", demo: true },
-    ],
   },
   news: {
     title: "Latest news",
