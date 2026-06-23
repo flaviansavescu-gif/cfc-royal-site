@@ -43,7 +43,7 @@ export const leaders: Leader[] = [
   {
     photo: "/images/arbitri/mihail-cosmin-neagu.webp",
     name: "Mihail Cosmin Neagu",
-    role: { ro: "Director Instituțional — Guvernanță și Conformitate", en: "Institutional Director — Governance & Compliance" },
+    role: { ro: "Membru cu atribuții în guvernanță și conformitate", en: "Member with governance and compliance responsibilities" },
     responsibilities: {
       ro: ["Dezvoltare instituțională și organizațională", "Modernizarea regulamentelor și a procedurilor", "Consultanță juridică și instituțională", "Bună guvernanță, transparență și conformitate"],
       en: ["Institutional and organisational development", "Modernisation of regulations and procedures", "Legal and institutional consultancy", "Good governance, transparency and compliance"],

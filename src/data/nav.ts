@@ -67,7 +67,7 @@ export const mainNav: NavItem[] = [
     slug: "educatie",
     label: { ro: "Educație", en: "Education" },
     children: [
-      { slug: "educatie/scoala-arbitraj", label: { ro: "Școala de arbitraj", en: "Judging school" } },
+      { slug: "educatie/centrul-competentelor-chinologice", label: { ro: "Centrul de Dezvoltare", en: "Development Centre" } },
       { slug: "cursuri", label: { ro: "Cursuri", en: "Courses" } },
       { slug: "educatie/webinare", label: { ro: "Webinare", en: "Webinars" } },
       { slug: "educatie/examene", label: { ro: "Examene și certificări", en: "Exams & certifications" } },
@@ -113,7 +113,7 @@ export const footerNav: FooterColumn[] = [
     titleKey: "footer.activities",
     links: [
       { slug: "expozitii", label: { ro: "Expoziții", en: "Dog shows" } },
-      { slug: "educatie/scoala-arbitraj", label: { ro: "Educație", en: "Education" } },
+      { slug: "educatie/centrul-competentelor-chinologice", label: { ro: "Educație", en: "Education" } },
       { slug: "standarde-rasa", label: { ro: "Standarde de rasă", en: "Breed standards" } },
       { slug: "noutati", label: { ro: "Noutăți", en: "News" } },
     ],

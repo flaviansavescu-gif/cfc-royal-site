@@ -17,4 +17,4 @@ standards, through theoretical and practical modules.
 
 Registration for upcoming sessions remains open through the candidacy platform:
 [Submit your application](https://cfc-royal-candidaturi.netlify.app/). More details on the
-[Judging school](/en/educatie/scoala-arbitraj/) page.
+[Development Centre](/en/educatie/centrul-competentelor-chinologice/) page.

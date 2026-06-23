@@ -92,7 +92,7 @@ const ro: HomeContent = {
     title: "Educație chinologică",
     intro: "Formare pentru arbitri, crescători și pasionați.",
     items: [
-      { title: "Școala de arbitraj", excerpt: "Program de formare pentru viitorii arbitri de expoziție.", slug: "educatie/scoala-arbitraj" },
+      { title: "Centrul de Dezvoltare a Competențelor Chinologice", excerpt: "Formarea arbitrilor, comisarilor de ring, organizatorilor și prezentatorilor chinologi.", slug: "educatie/centrul-competentelor-chinologice" },
       { title: "Cursuri și webinare", excerpt: "Sesiuni despre standarde, creștere și îngrijire.", slug: "cursuri" },
       { title: "Examene și certificări", excerpt: "Atestarea competențelor chinologice.", slug: "educatie/examene" },
     ],
@@ -175,7 +175,7 @@ const en: HomeContent = {
     title: "Canine education",
     intro: "Training for judges, breeders and enthusiasts.",
     items: [
-      { title: "Judging school", excerpt: "Training programme for future show judges.", slug: "educatie/scoala-arbitraj" },
+      { title: "Centre for Cynological Competencies", excerpt: "Training judges, ring stewards, organisers and presenters.", slug: "educatie/centrul-competentelor-chinologice" },
       { title: "Courses & webinars", excerpt: "Sessions on standards, breeding and care.", slug: "cursuri" },
       { title: "Exams & certifications", excerpt: "Certification of cynological competence.", slug: "educatie/examene" },
     ],

@@ -28,3 +28,16 @@
   to = "/ro/"
   status = 302
   force = true
+
+# Redenumire pagină: Școala de Arbitraj → Centrul de Dezvoltare a Competențelor Chinologice
+[[redirects]]
+  from = "/ro/educatie/scoala-arbitraj/"
+  to = "/ro/educatie/centrul-competentelor-chinologice/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/en/educatie/scoala-arbitraj/"
+  to = "/en/educatie/centrul-competentelor-chinologice/"
+  status = 301
+  force = true

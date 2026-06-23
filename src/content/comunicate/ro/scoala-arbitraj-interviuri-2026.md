@@ -17,4 +17,4 @@ Federation**, prin module teoretice și practice.
 
 Înscrierile pentru viitoarele sesiuni rămân deschise prin platforma de candidaturi:
 [Depune candidatura](https://cfc-royal-candidaturi.netlify.app/). Mai multe detalii pe pagina
-[Școala de arbitraj](/ro/educatie/scoala-arbitraj/).
+[Centrul de Dezvoltare a Competențelor Chinologice](/ro/educatie/centrul-competentelor-chinologice/).
