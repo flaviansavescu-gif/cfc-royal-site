@@ -44,8 +44,8 @@ export const mainNav: NavItem[] = [
     slug: "expozitii",
     label: { ro: "Expoziții", en: "Dog Shows" },
     children: [
-      { slug: "expozitii", label: { ro: "Calendar expozițional", en: "Show calendar" } },
-      { slug: "regulamente", label: { ro: "Regulamente WDF", en: "WDF Regulations" } },
+      { slug: "calendar-expozitional", label: { ro: "Calendar expozițional", en: "Show calendar" } },
+      { slug: "expozitii", label: { ro: "Expoziții organizate", en: "Organized dog shows" } },
     ],
   },
   {

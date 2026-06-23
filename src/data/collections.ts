@@ -61,12 +61,8 @@ export const collectionDefs: CollectionDef[] = [
     slug: "expozitii",
     label: { ro: "Expoziții", en: "Dog Shows" },
     intro: { ro: "Expoziții canine organizate sub egida clubului.", en: "Dog shows held under the club's aegis." },
-    banner: {
-      src: "/images/calendar-expozitional-2026.webp",
-      alt: { ro: "Calendar expozițional 2026 — Club Federal Chinologic Royal / World Dog Federation", en: "2026 dog show calendar — Royal Federal Canine Club / World Dog Federation" },
-    },
     empty: { ro: "Nicio expoziție publicată momentan.", en: "No shows published yet." },
-    eyebrow: { ro: "Calendar expozițional", en: "Show calendar" },
+    eyebrow: { ro: "Expoziții 2026", en: "2026 dog shows" },
     sort: (a, b) => a.startDate.getTime() - b.startDate.getTime(),
     card: (d, lang) => ({
       title: d.title,
