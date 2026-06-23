@@ -67,15 +67,10 @@ const lp = (slug: string) => localizePath(slug, lang);
 </section>
 
 <!-- Afiliați -->
-<Section
-  id="afiliati" alt title={h.affiliates.title} intro={h.affiliates.intro}
-  viewAllLabel={h.affiliates.viewAll} viewAllHref={lp(h.affiliates.viewAllSlug)}
->
-  <div class="grid grid--4">
-    {h.affiliates.items.map((it) => (
-      <Card title={it.title} href={lp(it.slug)} meta={it.meta} demo={it.demo} />
-    ))}
-  </div>
+<Section id="afiliati" alt title={h.affiliates.title} intro={h.affiliates.intro}>
+  <p style="text-align:center;margin:0">
+    <a class="btn btn--gold" href={lp(h.affiliates.viewAllSlug)}>{h.affiliates.viewAll}</a>
+  </p>
 </Section>
 
 <!-- Standarde de rasă -->

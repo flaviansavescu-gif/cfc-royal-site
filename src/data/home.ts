@@ -26,7 +26,7 @@ interface HomeContent {
   events: { title: string; intro: string; viewAll: string; viewAllSlug: string; items: CardItem[] };
   news: { title: string; viewAll: string; viewAllSlug: string; items: CardItem[] };
   membership: { title: string; body: string; cta: string; slug: string };
-  affiliates: { title: string; intro: string; viewAll: string; viewAllSlug: string; items: CardItem[] };
+  affiliates: { title: string; intro: string; viewAll: string; viewAllSlug: string };
   standards: { title: string; intro: string; viewAll: string; viewAllSlug: string; items: CardItem[] };
   education: { title: string; intro: string; items: CardItem[] };
   stats: { title: string; items: { value: string; label: string }[] };
@@ -76,15 +76,10 @@ const ro: HomeContent = {
   },
   affiliates: {
     title: "Asociații și cluburi afiliate",
-    intro: "Organizații partenere care activează sub egida clubului.",
-    viewAll: "Toți afiliații",
+    intro:
+      "Club Federal Chinologic – Royal lucrează împreună cu asociații și cluburi chinologice din toată țara, care împărtășesc aceleași standarde și valori. Împreună construim o rețea națională solidă, în sprijinul crescătorilor și al câinilor de rasă.",
+    viewAll: "Vezi afiliații",
     viewAllSlug: "afiliati",
-    items: [
-      { title: "Străjerii Munților", meta: "Asociație chinologică", slug: "afiliati", demo: true },
-      { title: "Asociația Chinologică Caraș-Severin", meta: "Reșița", slug: "afiliati", demo: true },
-      { title: "Club Federal Chinologic Buzău", meta: "Buzău", slug: "afiliati", demo: true },
-      { title: "Asociația Chinologică Profesională", meta: "Național", slug: "afiliati", demo: true },
-    ],
   },
   standards: {
     title: "Standarde de rasă",
@@ -168,15 +163,10 @@ const en: HomeContent = {
   },
   affiliates: {
     title: "Affiliated associations & clubs",
-    intro: "Partner organisations operating under the club's aegis.",
-    viewAll: "All affiliates",
+    intro:
+      "The Royal Federal Canine Club works together with cynological associations and clubs from across the country that share the same standards and values. Together we are building a strong national network, in support of breeders and purebred dogs.",
+    viewAll: "View affiliates",
     viewAllSlug: "afiliati",
-    items: [
-      { title: "Străjerii Munților", meta: "Cynological association", slug: "afiliati", demo: true },
-      { title: "Caraș-Severin Cynological Association", meta: "Reșița", slug: "afiliati", demo: true },
-      { title: "Buzău Federal Canine Club", meta: "Buzău", slug: "afiliati", demo: true },
-      { title: "Professional Cynological Association", meta: "National", slug: "afiliati", demo: true },
-    ],
   },
   standards: {
     title: "Breed standards",
