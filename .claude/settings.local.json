@@ -17,7 +17,17 @@
       "PowerShell(Set-Location \"C:\\\\FLAVIAN\\\\Asociația Chinologică CARAȘ-SEVERIN\\\\SITE\\\\De pus in folder CODE\\\\files\"; $env:Path = [Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); $t = Measure-Command { $out = & npm run build 2>&1 }; \\($out | Select-String -Pattern \"page\\\\\\(s\\\\\\) built|Complete|ERROR|error\" | Select-Object -Last 2\\); \"DURATA BUILD LOCAL: \" + [math]::Round\\($t.TotalSeconds,1\\) + \" s\")",
       "Bash(ls src/content/pagini/ro/educatie* src/content/pagini/ro/educatie/)",
       "Bash(ls src/content/comunicate/ro/)",
-      "WebFetch(domain:www.cfc-royal.ro)"
+      "WebFetch(domain:www.cfc-royal.ro)",
+      "mcp__visualize__read_me",
+      "mcp__visualize__show_widget",
+      "mcp__Claude_in_Chrome__select_browser",
+      "mcp__Claude_in_Chrome__navigate",
+      "mcp__Claude_in_Chrome__computer",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_in_Chrome__read_page",
+      "WebFetch(domain:cfc-royal.ro)",
+      "mcp__Claude_in_Chrome__find"
     ]
   }
 }
