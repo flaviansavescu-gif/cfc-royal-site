@@ -2,31 +2,31 @@
 title: "Devino membru"
 lang: ro
 section: "Membri"
-summary: "Cum devii membru al Club Federal Chinologic – Royal: pași, cotizație și contact."
+summary: "Cum devii membru al Club Federal Chinologic – Royal: formular online, pași, cotizație."
 ---
 
 Calitatea de membru al asociației Club Federal Chinologic – Royal sau al asociațiilor membre/afiliate
-reprezintă apartenența la o organizație națională care susține dezvoltarea responsabilă a chinologiei
-și creează un cadru de colaborare între crescători, arbitri, proprietari de câini de rasă și
-specialiști din domeniu.
+reprezintă apartenența la o organizație națională care susține dezvoltarea responsabilă a chinologiei.
+Vezi [beneficiile complete](/ro/membri/beneficii/).
 
-Membrii participă la viața organizației, beneficiază de serviciile și programele dezvoltate de aceasta
-și au acces la o serie de drepturi și facilități rezervate exclusiv membrilor. Vezi
-[beneficiile complete](/ro/membri/beneficii/).
+## Formular de înscriere online
 
-## Cum poți deveni membru?
+Completează formularul de mai jos pentru a-ți depune cererea de înscriere ca membru.
 
-1. Completezi **formularul de înscriere** (disponibil în secțiunea Formulare).
-2. Achiți **taxa de înscriere**, care reprezintă totodată cotizația anuală valabilă 12 luni —
-   **100 lei**, în contul asociației:
-   - Titular cont: Club Federal Chinologic – Royal
+<p><a href="https://docs.google.com/forms/d/e/1FAIpQLSfJgo9FdGo8cHO3lVLsuUjO7nx2k0bRfUj6UJvtsHckqFeZCg/viewform" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.5rem;background:var(--color-accent);color:var(--color-primary-dark);font-weight:700;padding:.7rem 1.4rem;border-radius:var(--radius);text-decoration:none">Deschide formularul ↗</a></p>
+
+<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfJgo9FdGo8cHO3lVLsuUjO7nx2k0bRfUj6UJvtsHckqFeZCg/viewform?embedded=true" width="100%" height="1500" style="border:1px solid var(--color-border);border-radius:var(--radius);margin-top:1rem" loading="lazy" title="Formular de înscriere membru">Se încarcă formularul…</iframe>
+
+## Pașii înscrierii
+
+1. **Completezi formularul** de mai sus.
+2. Achiți **taxa de înscriere**, care reprezintă și cotizația anuală (12 luni) — **100 lei**, în contul:
+   - Titular: Club Federal Chinologic – Royal
    - IBAN: `RO07 RNCB 0263 1767 9657 0001`
    - Banca: Banca Comercială Română (BCR)
-3. Transmiți **cererea de înscriere** completată lizibil, alături de dovada plății, pe WhatsApp la
-   **0741 387 026** sau pe e-mail la **club.chinologic.royal@gmail.com**.
-4. Cererea este analizată în conformitate cu Statutul și regulamentele Clubului.
-5. După aprobare, dobândești calitatea de membru și beneficiezi de toate drepturile și serviciile
-   rezervate membrilor CFC–Royal.
+3. Transmiți **dovada plății** pe WhatsApp la **0741 387 026** sau pe e-mail la
+   **club.chinologic.royal@gmail.com**.
+4. Cererea este analizată conform Statutului și regulamentelor Clubului.
+5. După aprobare, dobândești calitatea de membru CFC–Royal.
 
-Dacă ai întrebări privind înscrierea, cotizația sau activitatea Clubului,
-[contactează-ne](/ro/contact/) — îți oferim cu plăcere toate informațiile de care ai nevoie.
+Ai întrebări? [Contactează-ne](/ro/contact/).
