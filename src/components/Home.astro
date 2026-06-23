@@ -13,6 +13,14 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 const h = getHome(lang);
 const lp = (slug: string) => localizePath(slug, lang);
+
+// Afișele primelor patru expoziții (galeria multimedia), linkate către fiecare expoziție.
+const posters = [
+  { src: "/images/afise/comarnic-2026.webp", slug: "expozitii/expozitie-club-ciobanesti-comarnic-2026", alt: "Afiș Expoziție de Club Străjerii Munților — Comarnic, 4 ianuarie 2026" },
+  { src: "/images/afise/costesti-2026.webp", slug: "expozitii/costesti-wdf-arges-dog-show-2026", alt: "Afiș CACIB Costești — WDF Argeș Dog Show, 14 martie 2026" },
+  { src: "/images/afise/targoviste-2026.webp", slug: "expozitii/targoviste-wdf-dambovita-dog-show-2026", alt: "Afiș CACIB Târgoviște — WDF Dâmbovița Dog Show, 18 aprilie 2026" },
+  { src: "/images/afise/tuzla-2026.webp", slug: "expozitii/tuzla-wdf-constanta-dog-show-2026", alt: "Afiș CACIB Tuzla — WDF Constanța Dog Show, 2 mai 2026" },
+];
 ---
 <Hero
   lang={lang}
@@ -106,8 +114,10 @@ const lp = (slug: string) => localizePath(slug, lang);
 <!-- Galerie multimedia -->
 <Section id="galerie" alt title={h.gallery.title} intro={h.gallery.intro}>
   <div class="grid grid--4">
-    {Array.from({ length: 4 }).map(() => (
-      <div class="media-ph" aria-hidden="true"></div>
+    {posters.map((p) => (
+      <a class="poster" href={lp(p.slug)}>
+        <img src={p.src} alt={p.alt} width="700" height="1060" loading="lazy" />
+      </a>
     ))}
   </div>
   <p class="muted-note">{h.gallery.note}</p>
@@ -174,6 +184,11 @@ const lp = (slug: string) => localizePath(slug, lang);
   .media-ph, .logo-ph { aspect-ratio: 4 / 3; border-radius: var(--radius); background: linear-gradient(135deg, var(--color-surface-alt), var(--color-border)); border: 1px solid var(--color-border); }
   .logo-ph { aspect-ratio: 3 / 2; }
   .muted-note { margin-top: 1.25rem; font-size: var(--fs-300); color: var(--color-text-muted); font-style: italic; }
+
+  /* Afișe expoziții (galerie) */
+  .poster { display: block; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--color-border); background: var(--color-surface); }
+  .poster img { display: block; width: 100%; height: auto; aspect-ratio: 35 / 53; object-fit: cover; transition: transform .3s ease; }
+  .poster:hover img { transform: scale(1.04); }
 
   /* Newsletter */
   .nl-band { background: var(--color-primary-dark); color: var(--color-text-inverse); }

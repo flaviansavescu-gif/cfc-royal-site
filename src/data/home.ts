@@ -105,7 +105,7 @@ const ro: HomeContent = {
   gallery: {
     title: "Galerie multimedia",
     intro: "Imagini și momente din expoziții și evenimente.",
-    note: "Galeria foto/video va fi disponibilă în curând.",
+    note: "Afișele primelor expoziții din 2026. Galeriile foto vor urma.",
   },
   partners: {
     title: "Parteneri",
@@ -184,7 +184,7 @@ const en: HomeContent = {
   gallery: {
     title: "Multimedia gallery",
     intro: "Images and moments from shows and events.",
-    note: "The photo/video gallery will be available soon.",
+    note: "Posters of the first 2026 dog shows. Photo galleries to follow.",
   },
   partners: {
     title: "Partners",
