@@ -28,9 +28,13 @@ Cursurile sunt susținute de arbitri licențiați **World Dog Federation** din c
 
 ## Colaborare
 
-În instruirea arbitrilor, Școala de Arbitraj CFC–Royal colaborează cu **Cynological School**.
-
-<p><a href="https://www.facebook.com/Cynological.School" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.5rem;background:var(--color-accent);color:var(--color-primary-dark);font-weight:700;padding:.7rem 1.4rem;border-radius:var(--radius);text-decoration:none">Cynological School pe Facebook ↗</a></p>
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem;margin:1.25rem 0;padding:1.25rem;background:var(--color-surface-alt);border-radius:var(--radius)">
+<img src="/images/cynological-school.webp" alt="International Institute of Professional Cynology" width="140" height="140" loading="lazy" style="display:block;width:140px;height:140px;object-fit:contain;border-radius:var(--radius);background:var(--color-surface)" />
+<div style="flex:1;min-width:240px">
+<p style="margin:0 0 .85rem">În instruirea arbitrilor, Școala de Arbitraj CFC–Royal colaborează cu <strong>International Institute of Professional Cynology</strong> (Cynological School).</p>
+<a href="https://www.facebook.com/Cynological.School" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.5rem;background:var(--color-accent);color:var(--color-primary-dark);font-weight:700;padding:.7rem 1.4rem;border-radius:var(--radius);text-decoration:none">Vezi pe Facebook ↗</a>
+</div>
+</div>
 
 ## Devino candidat de arbitru
 
