@@ -148,8 +148,8 @@ const latestNews = newsEntries
       <h2 class="nl-band__title">{t("footer.newsletter")}</h2>
       <p class="nl-band__body">{SITE.tagline[lang]}</p>
     </div>
-    <form class="nl-form" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="bot-field" action={lp("newsletter-ok")}>
-      <input type="hidden" name="form-name" value="newsletter" />
+    <form class="nl-form" method="POST" action="/.netlify/functions/subscribe">
+      <input type="hidden" name="redirect" value={lp("newsletter-ok")} />
       <p class="hp"><label>Nu completa: <input name="bot-field" /></label></p>
       <label class="visually-hidden" for="hp-nl-email">{t("footer.newsletter.placeholder")}</label>
       <input id="hp-nl-email" type="email" name="email" required placeholder={t("footer.newsletter.placeholder")} autocomplete="email" />
