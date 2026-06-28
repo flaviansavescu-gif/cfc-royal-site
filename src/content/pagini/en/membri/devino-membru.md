@@ -26,7 +26,7 @@ Fill in the form below to submit your membership application.
    - IBAN: `RO07 RNCB 0263 1767 9657 0001`
    - Bank: Banca Comercială Română (BCR)
 3. Send the **proof of payment** via WhatsApp to **0741 387 026** or by e-mail to
-   **club.chinologic.royal@gmail.com**.
+   **contact@cfc-royal.ro**.
 4. The request is reviewed in accordance with the Club's Statute and regulations.
 5. Once approved, you become a CFC–Royal member.
 

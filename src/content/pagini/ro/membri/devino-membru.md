@@ -25,7 +25,7 @@ Completează formularul de mai jos pentru a-ți depune cererea de înscriere ca 
    - IBAN: `RO07 RNCB 0263 1767 9657 0001`
    - Banca: Banca Comercială Română (BCR)
 3. Transmiți **dovada plății** pe WhatsApp la **0741 387 026** sau pe e-mail la
-   **club.chinologic.royal@gmail.com**.
+   **contact@cfc-royal.ro**.
 4. Cererea este analizată conform Statutului și regulamentelor Clubului.
 5. După aprobare, dobândești calitatea de membru CFC–Royal.
 

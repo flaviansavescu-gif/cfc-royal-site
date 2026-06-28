@@ -15,5 +15,5 @@ Directors. The registration fee also represents the annual membership fee, valid
 - **Bank:** Banca Comercială Română (BCR)
 
 After payment, send proof together with the registration request via WhatsApp to **0741 387 026** or
-by e-mail to **club.chinologic.royal@gmail.com**. See the full steps at
+by e-mail to **contact@cfc-royal.ro**. See the full steps at
 [Become a member](/en/membri/devino-membru/).

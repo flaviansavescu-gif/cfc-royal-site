@@ -10,7 +10,7 @@ summary: "Cum prelucrăm datele cu caracter personal."
 ## Operator de date
 
 Asociația Club Federal Chinologic - Royal (CIF 48828041), e-mail:
-club.chinologic.royal@gmail.com.
+contact@cfc-royal.ro.
 
 ## Ce date prelucrăm
 

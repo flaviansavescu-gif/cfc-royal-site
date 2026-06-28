@@ -10,7 +10,7 @@ summary: "How we process personal data."
 ## Data controller
 
 Asociația Club Federal Chinologic - Royal (Tax ID 48828041), e-mail:
-club.chinologic.royal@gmail.com.
+contact@cfc-royal.ro.
 
 ## What data we process
 

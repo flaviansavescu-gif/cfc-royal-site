@@ -42,7 +42,7 @@ export const SITE = {
   },
 
   contact: {
-    email: "club.chinologic.royal@gmail.com",
+    email: "contact@cfc-royal.ro",
     phone: "+40 741 387 026",
     address: {
       ro: "Str. Mihai Eminescu nr. 43, bloc C11, sc. A, et. 8, ap. 33, Râmnicu Vâlcea, jud. Vâlcea, 240076",
