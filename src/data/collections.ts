@@ -57,6 +57,32 @@ const rows = (...items: (MetaRow | null)[]): MetaRow[] => items.filter((x): x is
 
 export const collectionDefs: CollectionDef[] = [
   {
+    name: "campioni",
+    slug: "campioni",
+    label: { ro: "Câini campioni", en: "Champion dogs" },
+    intro: { ro: "Câinii campioni recunoscuți de Club Federal Chinologic – Royal.", en: "Champion dogs recognised by the Royal Federal Canine Club." },
+    empty: { ro: "Niciun câine campion publicat momentan.", en: "No champion dogs published yet." },
+    eyebrow: { ro: "Expoziții", en: "Dog shows" },
+    sort: (a, b) => a.title.localeCompare(b.title, "ro"),
+    portrait: (d) => d.photo,
+    card: (d, lang) => ({
+      title: d.title,
+      meta: d.breed,
+      tag: d.championTitle,
+      excerpt: d.owner ? `${L(lang, "Proprietar", "Owner")}: ${d.owner}` : d.breeder,
+      image: d.photo,
+    }),
+    metaRows: (d, lang) =>
+      rows(
+        row(L(lang, "Rasă", "Breed"), d.breed),
+        row(L(lang, "Titlu de campion", "Champion title"), d.championTitle),
+        row(L(lang, "Crescător", "Breeder"), d.breeder),
+        row(L(lang, "Proprietar", "Owner"), d.owner),
+        row(L(lang, "Pedigree (serie / nr.)", "Pedigree (series / no.)"), d.pedigree),
+        row(L(lang, "Diplomă de campion (serie / nr.)", "Champion diploma (series / no.)"), d.championDiploma),
+      ),
+  },
+  {
     name: "expozitii",
     slug: "expozitii",
     label: { ro: "Expoziții", en: "Dog Shows" },

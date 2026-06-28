@@ -235,6 +235,21 @@ const articole = defineCollection({
   }),
 });
 
+/* CÂINI CAMPIONI — title = numele câinelui */
+const campioni = defineCollection({
+  loader: loader("campioni"),
+  schema: z.object({
+    ...base,
+    breed: z.string(), // rasa
+    breeder: z.string().optional(), // crescător
+    owner: z.string().optional(), // proprietar
+    pedigree: z.string().optional(), // seria și nr. pedigree
+    championDiploma: z.string().optional(), // seria și nr. diplomă de campion
+    championTitle: z.string().optional(), // ex. „Campion Național”
+    photo: z.string().optional(),
+  }),
+});
+
 /* REGULAMENTE — regulamentul WDF (proceduri de arbitraj, titluri, conduită). */
 const regulamente = defineCollection({
   loader: loader("regulamente"),
@@ -277,6 +292,7 @@ export const collections = {
   cursuri,
   documente,
   articole,
+  campioni,
   regulamente,
   pagini,
 };
