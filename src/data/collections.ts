@@ -60,7 +60,7 @@ export const collectionDefs: CollectionDef[] = [
     name: "campioni",
     slug: "campioni",
     label: { ro: "Câini campioni", en: "Champion dogs" },
-    intro: { ro: "Câinii campioni recunoscuți de Club Federal Chinologic – Royal.", en: "Champion dogs recognised by the Royal Federal Canine Club." },
+    intro: { ro: "Câini de rasă cu titluri de campion recunoscute de Club Federal Chinologic – Royal și de World Dog Federation.", en: "Purebred dogs holding champion titles recognised by the Royal Federal Canine Club and the World Dog Federation." },
     empty: { ro: "Niciun câine campion publicat momentan.", en: "No champion dogs published yet." },
     eyebrow: { ro: "Expoziții", en: "Dog shows" },
     sort: (a, b) => a.title.localeCompare(b.title, "ro"),
