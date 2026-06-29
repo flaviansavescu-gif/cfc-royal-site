@@ -7,6 +7,8 @@ publishedAt: 2026-06-29
 draft: false
 ---
 
+*Articol de **Cosmin Neagu** — crescător de Ciobănesc Românesc Corb, arbitru CFC–Royal și președinte al Asociației Străjerii Munților.*
+
 În zilele noastre, în ciuda creșterii demografice, a expansiunii așezărilor omenești și a defrișărilor, România găzduiește pe teritoriul său cea mai mare populație de carnivore mari din Europa (ursul, lupul și râsul) și ocupă locul 4 la nivel internațional (după Rusia, Canada și S.U.A.) în ceea ce privește populația de urs brun.
 
 De asemenea, în cadrul Uniunii Europene, România ocupă locul 3 în ceea ce privește creșterea ovinelor și caprinelor.
