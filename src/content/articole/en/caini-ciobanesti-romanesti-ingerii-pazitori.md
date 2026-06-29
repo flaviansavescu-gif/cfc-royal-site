@@ -7,8 +7,6 @@ publishedAt: 2026-06-29
 draft: false
 ---
 
-*Article by **Cosmin Neagu** — breeder of the Romanian Corb Shepherd Dog, CFC–Royal judge and president of the Străjerii Munților Association.*
-
 Today, despite population growth, the expansion of human settlements and deforestation, Romania is home to the largest population of large carnivores in Europe (the bear, the wolf and the lynx) and ranks 4th in the world (after Russia, Canada and the U.S.A.) in terms of its brown bear population.
 
 Within the European Union, Romania also ranks 3rd in sheep and goat farming.
