@@ -76,3 +76,6 @@ While staying at my grandparents', late at night, I heard the barking of Nora �
 It was then that I realised I no longer had to search for the answer to my question. I am Romanian, and the love for everything that the pastoral world means — and above all for the Romanian shepherd dog, the guardian angel of the Carpathian flocks — is deeply written into my genetic code.
 
 I cherish the hope that, years and years from now, in the silence of the frosty winter night, across the land of Romania, the voices of these angels will continue to resound.
+
+**Cosmin Neagu**
+*Breeder of the Romanian Corb Shepherd Dog · CFC–Royal judge · President of the Străjerii Munților Association*

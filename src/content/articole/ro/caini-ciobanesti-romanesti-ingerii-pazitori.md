@@ -76,3 +76,6 @@ La bunici fiind, noaptea târziu, am auzit lătratul Norei – carpatina curții
 Atunci mi-am dat seama că nu trebuie să mai caut răspunsul la întrebarea mea. Sunt român, iar dragostea față de tot ceea ce înseamnă mediul pastoral și, cu precădere, față de câinele ciobănesc românesc – îngerul păzitor al turmelor din Carpați – este adânc înscrisă în codul meu genetic.
 
 Nutresc speranța că, peste ani și ani, în liniștea nopții geroase de iarnă, pe teritoriul României, vor răsuna în continuare vocile acestor îngeri.
+
+**Cosmin Neagu**
+*Crescător de Ciobănesc Românesc Corb · Arbitru CFC–Royal · Președinte al Asociației Străjerii Munților*
