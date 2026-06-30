@@ -141,7 +141,7 @@ export const collectionDefs: CollectionDef[] = [
     // Întâi arbitrii All Breed (all rounder), apoi cei pe grupe. În cadrul fiecărei
     // categorii: cei cu funcție (ex. Președinte) primii, apoi alfabetic.
     sort: (a, b) => {
-      const allBreed = (d: Data) => ((d.qualifications || []).some((q: string) => /all\s*breed/i.test(q)) ? 0 : 1);
+      const allBreed = (d: Data) => ((d.qualifications || []).some((q: string) => /all[\s-]*(breed|round)/i.test(q)) ? 0 : 1);
       const ra = allBreed(a), rb = allBreed(b);
       if (ra !== rb) return ra - rb;
       const fa = a.role ? 0 : 1, fb = b.role ? 0 : 1;
