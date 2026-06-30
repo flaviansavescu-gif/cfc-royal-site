@@ -8,6 +8,10 @@ address: "Bd. Republicii nr. 1A, Buzău, jud. Buzău"
 cif: "44064464"
 iban: "RO86 BTRL RONC RT0C N061 6701"
 president: "Lionel Octavian Zosmer"
+phone: "+40 764 227 778"
+contactEmail: "achbz@yahoo.com"
+website: "https://www.achbz.ro"
+facebook: "https://www.facebook.com/Club.Federal.Chinologic.Buzau"
 logo: "/images/afiliat-buzau.webp"
 draft: false
 ---
