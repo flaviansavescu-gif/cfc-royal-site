@@ -1,12 +1,12 @@
 ---
 title: "Regulamentul Colegiului de Arbitri"
 lang: ro
-summary: "Regulamentul Colegiului de Arbitri al Asociației Club Federal Chinologic – Royal (Anexa 3 la Regulamentul intern, versiunea 3 revizuită), aliniat la standardele WDF și IIPC."
+summary: "Regulamentul Colegiului de Arbitri al Asociației Club Federal Chinologic – Royal (Anexa 3 la Regulamentul intern), aliniat la standardele WDF și IIPC."
 docType: "regulament"
 draft: false
 ---
 
-_Anexa 3 la Regulamentul intern de funcționare — versiunea 3 (revizuită), al Asociației **Club Federal Chinologic – Royal**._
+_Anexa 3 la Regulamentul intern de funcționare, al Asociației **Club Federal Chinologic – Royal**._
 
 _Aliniat la standardele **World Dog Federation (WDF)** și **International Institute of Professional Cynology (IIPC)**._
 

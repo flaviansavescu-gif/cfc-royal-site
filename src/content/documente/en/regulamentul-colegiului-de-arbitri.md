@@ -1,12 +1,12 @@
 ---
 title: "Regulations of the Panel of Judges"
 lang: en
-summary: "Regulations of the Panel of Judges of the Club Federal Chinologic – Royal Association (Annex 3 to the Internal Operating Regulations, revised version 3), aligned with WDF and IIPC standards."
+summary: "Regulations of the Panel of Judges of the Club Federal Chinologic – Royal Association (Annex 3 to the Internal Operating Regulations), aligned with WDF and IIPC standards."
 docType: "regulament"
 draft: false
 ---
 
-_Annex 3 to the Internal Operating Regulations — version 3 (revised), of the **Club Federal Chinologic – Royal** Association._
+_Annex 3 to the Internal Operating Regulations, of the **Club Federal Chinologic – Royal** Association._
 
 _Aligned with the standards of the **World Dog Federation (WDF)** and the **International Institute of Professional Cynology (IIPC)**._
 
