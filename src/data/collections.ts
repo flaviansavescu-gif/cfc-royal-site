@@ -32,8 +32,9 @@ export interface CollectionDef {
   portrait?: (d: Data) => string | undefined;
   /** Subtitlu deasupra listei din arhivă (ex. „Rase autohtone românești”). */
   itemsHeading?: Record<Lang, string>;
-  /** Buton extern în arhivă (ex. link către standardele WDF). */
-  extraLink?: { label: Record<Lang, string>; url: string };
+  /** Buton în arhivă (ex. link extern către standardele WDF, sau intern către un regulament).
+   *  url: string unic (același pentru ambele limbi) sau pe limbi. external=false → link intern (fără target _blank). */
+  extraLink?: { label: Record<Lang, string>; url: string | Record<Lang, string>; external?: boolean };
   /** Imagine banner afișată în arhivă, sub intro (ex. calendar expozițional). */
   banner?: { src: string; alt: Record<Lang, string> };
 }
@@ -129,6 +130,14 @@ export const collectionDefs: CollectionDef[] = [
     intro: { ro: "Arbitri licențiați ai clubului.", en: "The club's licensed judges." },
     empty: { ro: "Niciun arbitru publicat momentan.", en: "No judges published yet." },
     eyebrow: { ro: "Organizația", en: "Organization" },
+    extraLink: {
+      label: { ro: "Regulamentul Colegiului de Arbitri", en: "Regulations of the Panel of Judges" },
+      url: {
+        ro: "/ro/documente/regulamentul-colegiului-de-arbitri/",
+        en: "/en/documente/regulamentul-colegiului-de-arbitri/",
+      },
+      external: false,
+    },
     // Întâi arbitrii All Breed (all rounder), apoi cei pe grupe. În cadrul fiecărei
     // categorii: cei cu funcție (ex. Președinte) primii, apoi alfabetic.
     sort: (a, b) => {

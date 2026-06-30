@@ -45,7 +45,11 @@ if (def.groupBy) {
   <Section eyebrow={def.eyebrow[lang]} title={def.label[lang]} intro={def.intro[lang]}>
     {def.extraLink && (
       <p class="archive-actions">
-        <a class="btn btn--outline" href={def.extraLink.url} target="_blank" rel="noopener">{def.extraLink.label[lang]} ↗</a>
+        <a
+          class="btn btn--outline"
+          href={typeof def.extraLink.url === "string" ? def.extraLink.url : def.extraLink.url[lang]}
+          {...(def.extraLink.external === false ? {} : { target: "_blank", rel: "noopener" })}
+        >{def.extraLink.label[lang]} {def.extraLink.external === false ? "→" : "↗"}</a>
       </p>
     )}
     {def.banner && (
