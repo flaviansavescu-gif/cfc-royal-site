@@ -215,10 +215,10 @@ export const collectionDefs: CollectionDef[] = [
   {
     name: "organizatii-afiliate",
     slug: "afiliati",
-    label: { ro: "Asociații afiliate", en: "Affiliated associations" },
+    label: { ro: "Asociații membre", en: "Member associations" },
     intro: { ro: "Organizații care activează sub egida clubului.", en: "Organisations operating under the club's aegis." },
-    empty: { ro: "Niciun afiliat publicat momentan.", en: "No affiliates published yet." },
-    eyebrow: { ro: "Afiliați", en: "Affiliates" },
+    empty: { ro: "Nicio asociație membră publicată momentan.", en: "No member associations published yet." },
+    eyebrow: { ro: "Asociații membre", en: "Member associations" },
     sort: (a, b) => a.title.localeCompare(b.title, "ro"),
     card: (d) => ({ title: d.title, meta: d.county, excerpt: d.summary, image: d.logo }),
     metaRows: (d, lang) =>

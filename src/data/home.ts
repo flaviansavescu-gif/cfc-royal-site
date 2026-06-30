@@ -66,10 +66,10 @@ const ro: HomeContent = {
     slug: "membri/devino-membru",
   },
   affiliates: {
-    title: "Asociații și cluburi afiliate",
+    title: "Asociații și cluburi membre",
     intro:
       "Club Federal Chinologic – Royal lucrează împreună cu asociații și cluburi chinologice din toată țara, care împărtășesc aceleași standarde și valori. Împreună construim o rețea națională solidă, în sprijinul crescătorilor și al câinilor de rasă.",
-    viewAll: "Vezi afiliații",
+    viewAll: "Vezi asociațiile membre",
     viewAllSlug: "afiliati",
   },
   standards: {
@@ -140,10 +140,10 @@ const en: HomeContent = {
     slug: "membri/devino-membru",
   },
   affiliates: {
-    title: "Affiliated associations & clubs",
+    title: "Member associations & clubs",
     intro:
       "The Royal Federal Canine Club works together with cynological associations and clubs from across the country that share the same standards and values. Together we are building a strong national network, in support of breeders and purebred dogs.",
-    viewAll: "View affiliates",
+    viewAll: "View member associations",
     viewAllSlug: "afiliati",
   },
   standards: {

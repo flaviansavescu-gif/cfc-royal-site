@@ -67,7 +67,7 @@ export const mainNav: NavItem[] = [
   },
   {
     slug: "afiliati",
-    label: { ro: "Afiliați", en: "Affiliates" },
+    label: { ro: "Asociații membre", en: "Member associations" },
   },
   {
     slug: "noutati",
