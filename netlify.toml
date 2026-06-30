@@ -62,3 +62,16 @@
   to = "/en/educatie/centrul-competentelor-chinologice/"
   status = 301
   force = true
+
+# Redenumire secțiune: Afiliați → Asociații membre (slug /afiliati/ → /membrii/)
+[[redirects]]
+  from = "/ro/afiliati/*"
+  to = "/ro/membrii/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/en/afiliati/*"
+  to = "/en/membrii/:splat"
+  status = 301
+  force = true

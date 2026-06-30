@@ -70,7 +70,7 @@ const ro: HomeContent = {
     intro:
       "Club Federal Chinologic – Royal lucrează împreună cu asociații și cluburi chinologice din toată țara, care împărtășesc aceleași standarde și valori. Împreună construim o rețea națională solidă, în sprijinul crescătorilor și al câinilor de rasă.",
     viewAll: "Vezi asociațiile membre",
-    viewAllSlug: "afiliati",
+    viewAllSlug: "membrii",
   },
   standards: {
     title: "Standarde de rasă",
@@ -144,7 +144,7 @@ const en: HomeContent = {
     intro:
       "The Royal Federal Canine Club works together with cynological associations and clubs from across the country that share the same standards and values. Together we are building a strong national network, in support of breeders and purebred dogs.",
     viewAll: "View member associations",
-    viewAllSlug: "afiliati",
+    viewAllSlug: "membrii",
   },
   standards: {
     title: "Breed standards",

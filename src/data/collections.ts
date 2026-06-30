@@ -214,7 +214,7 @@ export const collectionDefs: CollectionDef[] = [
 
   {
     name: "organizatii-afiliate",
-    slug: "afiliati",
+    slug: "membrii",
     label: { ro: "Asociații membre", en: "Member associations" },
     intro: { ro: "Organizații care activează sub egida clubului.", en: "Organisations operating under the club's aegis." },
     empty: { ro: "Nicio asociație membră publicată momentan.", en: "No member associations published yet." },
