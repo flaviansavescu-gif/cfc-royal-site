@@ -3,6 +3,7 @@ title: "Gabriel Djibril Kaci-Chaouche"
 lang: en
 role: "Vice-President of the World Dog Federation · President of the IIPC"
 summary: "Honorary member of the Royal Federal Canine Club."
+photo: "/images/membri-onoare/gabriel-djibril-kaci-chaouche.webp"
 draft: false
 ---
 

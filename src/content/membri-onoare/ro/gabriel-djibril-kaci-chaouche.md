@@ -3,6 +3,7 @@ title: "Gabriel Djibril Kaci-Chaouche"
 lang: ro
 role: "Vicepreședinte World Dog Federation · Președinte IIPC"
 summary: "Membru de onoare al Clubului Federal Chinologic Royal."
+photo: "/images/membri-onoare/gabriel-djibril-kaci-chaouche.webp"
 draft: false
 ---
 
