@@ -15,5 +15,3 @@ draft: false
 
 Asociația Străjerii Munților este o asociație chinologică afiliată Club Federal Chinologic – Royal,
 cu activitate dedicată raselor de câini de pază a turmelor.
-
-**Cont (BCR):** RO05 RNCB 0072 1825 0069 0001

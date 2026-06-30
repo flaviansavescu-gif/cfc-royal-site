@@ -15,5 +15,3 @@ draft: false
 
 Străjerii Munților is a cynological association affiliated with the Royal Federal Canine Club, with
 activity dedicated to livestock guardian dog breeds.
-
-**Account (BCR):** RO05 RNCB 0072 1825 0069 0001

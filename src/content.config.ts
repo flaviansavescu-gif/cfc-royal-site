@@ -218,7 +218,7 @@ const documente = defineCollection({
   loader: loader("documente"),
   schema: z.object({
     ...base,
-    file: z.string(),
+    file: z.string().optional(), // PDF/DOCX de descărcare (opțional — unele documente se citesc integral pe pagină)
     docType: z
       .enum(["statut", "regulament", "hotărâre", "financiar", "formular", "altele"])
       .default("altele"),
