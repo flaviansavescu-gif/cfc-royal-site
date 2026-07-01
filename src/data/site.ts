@@ -24,8 +24,8 @@ export const SITE = {
   affiliationUrl: "https://wdf-international.org/",
 
   description: {
-    ro: "Club Federal Chinologic Royal — asociație chinologică națională afiliată WDF: expoziții canine, corp de arbitri, canise înregistrate, standarde de rasă și educație chinologică.",
-    en: "Royal Federal Canine Club — national cynological association affiliated with the WDF: dog shows, panel of judges, registered kennels, breed standards and canine education.",
+    ro: "Club Federal Chinologic Royal — asociație chinologică națională membră WDF: expoziții canine, corp de arbitri, canise înregistrate, standarde de rasă și educație chinologică.",
+    en: "Royal Federal Canine Club — national cynological association, member of the WDF: dog shows, panel of judges, registered kennels, breed standards and canine education.",
   },
 
   /** Imagine implicită Open Graph (1200×630). [PLACEHOLDER] */
