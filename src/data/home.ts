@@ -31,7 +31,7 @@ interface HomeContent {
   education: { title: string; intro: string; items: CardItem[] };
   stats: { title: string; items: { value: string; label: string }[] };
   gallery: { title: string; intro: string; note: string };
-  partners: { title: string; note: string };
+  partners: { title: string; note: string; logos: { src: string; alt: string; url?: string }[] };
 }
 
 const ro: HomeContent = {
@@ -104,7 +104,11 @@ const ro: HomeContent = {
   },
   partners: {
     title: "Parteneri",
-    note: "Spațiu pentru logourile partenerilor și sponsorilor.",
+    note: "",
+    logos: [
+      { src: "/images/parteneri/iipc.webp", alt: "International Institute of Professional Cynology (IIPC)" },
+      { src: "/images/parteneri/anicp.webp", alt: "Asociația Națională a Instructorilor Canini Profesioniști (ANICP)" },
+    ],
   },
 };
 
@@ -178,7 +182,11 @@ const en: HomeContent = {
   },
   partners: {
     title: "Partners",
-    note: "Space for partner and sponsor logos.",
+    note: "",
+    logos: [
+      { src: "/images/parteneri/iipc.webp", alt: "International Institute of Professional Cynology (IIPC)" },
+      { src: "/images/parteneri/anicp.webp", alt: "National Association of Professional Dog Instructors (ANICP)" },
+    ],
   },
 };
 

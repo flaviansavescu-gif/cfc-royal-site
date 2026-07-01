@@ -160,12 +160,18 @@ const latestNews = newsEntries
 
 <!-- Parteneri -->
 <Section id="parteneri" title={h.partners.title}>
-  <div class="grid grid--4">
-    {Array.from({ length: 4 }).map(() => (
-      <div class="logo-ph" aria-hidden="true"></div>
+  <ul class="partners">
+    {h.partners.logos.map((logo) => (
+      <li class="partners__item">
+        {logo.url ? (
+          <a href={logo.url} target="_blank" rel="noopener"><img src={logo.src} alt={logo.alt} loading="lazy" /></a>
+        ) : (
+          <img src={logo.src} alt={logo.alt} loading="lazy" />
+        )}
+      </li>
     ))}
-  </div>
-  <p class="muted-note">{h.partners.note}</p>
+  </ul>
+  {h.partners.note && <p class="muted-note">{h.partners.note}</p>}
 </Section>
 
 <style>
@@ -198,10 +204,14 @@ const latestNews = newsEntries
   .stat__value { font-size: var(--fs-900); font-weight: 600; color: var(--color-accent-dark); line-height: 1; }
   .stat__label { margin-top: 0.5rem; font-size: var(--fs-300); color: var(--color-text-muted); }
 
-  /* Placeholdere media/logo */
-  .media-ph, .logo-ph { aspect-ratio: 4 / 3; border-radius: var(--radius); background: linear-gradient(135deg, var(--color-surface-alt), var(--color-border)); border: 1px solid var(--color-border); }
-  .logo-ph { aspect-ratio: 3 / 2; }
+  /* Placeholdere media */
+  .media-ph { aspect-ratio: 4 / 3; border-radius: var(--radius); background: linear-gradient(135deg, var(--color-surface-alt), var(--color-border)); border: 1px solid var(--color-border); }
   .muted-note { margin-top: 1.25rem; font-size: var(--fs-300); color: var(--color-text-muted); font-style: italic; }
+
+  /* Logo-uri parteneri */
+  .partners { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; justify-content: center; }
+  .partners__item { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1.25rem 1.75rem; display: flex; align-items: center; justify-content: center; }
+  .partners__item img { display: block; height: 90px; width: auto; max-width: 220px; object-fit: contain; }
 
   /* Afișe expoziții (galerie) */
   .poster { display: block; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--color-border); background: var(--color-surface); }
