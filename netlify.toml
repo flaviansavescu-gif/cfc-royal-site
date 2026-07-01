@@ -21,10 +21,16 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Rădăcina (apex) NU se mai redirecționează la edge: Netlify servește dist/index.html,
-# o pagină care conține etichetele Open Graph (card social pentru linkul scurt cfc-royal.ro)
-# și redirecționează instant vizitatorii către /ro/ prin script. Roboții WhatsApp/Facebook
-# citesc astfel cardul; un redirect 302 gol i-ar fi lăsat fără previzualizare.
+# Rădăcina (apex cfc-royal.ro) SERVEȘTE direct conținutul homepage-ului RO (rewrite 200, NU redirect).
+# Motiv: linkul scurt cfc-royal.ro trebuie să afișeze cardul social (WhatsApp/Facebook). Un redirect
+# (302 la edge sau meta-refresh) făcea roboții să nu genereze cardul. Cu rewrite, apex-ul returnează
+# exact pagina /ro/ — cea care funcționează deja — cu tot cu Open Graph. URL-ul rămâne cfc-royal.ro;
+# navigarea ulterioară intră firesc în /ro/ sau /en/.
+[[redirects]]
+  from = "/"
+  to = "/ro/"
+  status = 200
+  force = true
 
 # Redenumire pagină: Școala de Arbitraj → Centrul de Dezvoltare a Competențelor Chinologice
 [[redirects]]
