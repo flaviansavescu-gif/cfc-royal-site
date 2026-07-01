@@ -1,16 +1,45 @@
 ---
-// Rădăcina site-ului → redirect la limba implicită (RO).
-// Dublat de regula din netlify.toml; meta-refresh acoperă și preview-ul local.
+// Rădăcina site-ului (apex cfc-royal.ro) → redirect instant la limba implicită (RO).
+// IMPORTANT: conține etichete Open Graph, ca LINKUL SCURT „cfc-royal.ro" să afișeze
+// cardul de previzualizare pe WhatsApp/Facebook (roboții sociali citesc aceste etichete;
+// nu execută JS și nu urmăresc meta-refresh). Redirectul de la edge (netlify.toml) a fost
+// eliminat exact ca roboții să ajungă la această pagină, nu la un 302 gol.
+// Vizitatorii reali sunt redirecționați instant prin scriptul din <head>.
+const TITLE = "Club Federal Chinologic Royal — Asociație chinologică națională";
+const DESC =
+  "Club Federal Chinologic Royal — asociație chinologică națională membră WDF: expoziții canine, corp de arbitri, canise înregistrate, standarde de rasă și educație chinologică.";
+const OG_IMAGE = "https://cfc-royal.ro/images/og-default.jpg";
 ---
 <!doctype html>
 <html lang="ro">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{TITLE}</title>
+    <meta name="description" content={DESC} />
+    <link rel="canonical" href="https://cfc-royal.ro/ro/" />
+
+    <!-- Open Graph — cardul de previzualizare social pentru linkul scurt -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Club Federal Chinologic Royal" />
+    <meta property="og:locale" content="ro_RO" />
+    <meta property="og:title" content={TITLE} />
+    <meta property="og:description" content={DESC} />
+    <meta property="og:url" content="https://cfc-royal.ro/" />
+    <meta property="og:image" content={OG_IMAGE} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={TITLE} />
+    <meta name="twitter:description" content={DESC} />
+    <meta name="twitter:image" content={OG_IMAGE} />
+
+    <!-- Redirect instant pentru vizitatori (roboții sociali îl ignoră și citesc OG-ul de mai sus) -->
+    <script is:inline>location.replace("/ro/");</script>
     <meta http-equiv="refresh" content="0; url=/ro/" />
-    <link rel="canonical" href="/ro/" />
-    <title>Club Federal Chinologic Royal</title>
+    <style>html, body { margin: 0; height: 100%; background: #1F4D3A; }</style>
   </head>
   <body>
-    <p>Redirecționare către <a href="/ro/">/ro/</a>…</p>
+    <p style="color:#FBFAF7;font-family:system-ui,sans-serif;padding:1.25rem;">
+      Redirecționare către <a href="/ro/" style="color:#D8BE73;">cfc-royal.ro/ro/</a>…
+    </p>
   </body>
 </html>
