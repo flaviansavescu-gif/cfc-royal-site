@@ -108,6 +108,7 @@ const ro: HomeContent = {
     logos: [
       { src: "/images/parteneri/iipc.webp", alt: "International Institute of Professional Cynology (IIPC)" },
       { src: "/images/parteneri/anicp.webp", alt: "Asociația Națională a Instructorilor Canini Profesioniști (ANICP)" },
+      { src: "/images/parteneri/trops.webp", alt: "TROPS" },
     ],
   },
 };
@@ -186,6 +187,7 @@ const en: HomeContent = {
     logos: [
       { src: "/images/parteneri/iipc.webp", alt: "International Institute of Professional Cynology (IIPC)" },
       { src: "/images/parteneri/anicp.webp", alt: "National Association of Professional Dog Instructors (ANICP)" },
+      { src: "/images/parteneri/trops.webp", alt: "TROPS" },
     ],
   },
 };
