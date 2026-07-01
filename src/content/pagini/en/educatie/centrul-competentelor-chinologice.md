@@ -5,6 +5,8 @@ section: "Education"
 summary: "The CFC–Royal educational structure for training cynology specialists: judges, ring stewards, organisers and presenters."
 ---
 
+<p style="text-align:center;margin:.25rem 0 1.75rem"><img src="/images/centrul-competentelor.webp" alt="Emblem of the Centre for the Development of Cynological Competencies — CFC-Royal" width="260" height="276" loading="eager" style="display:inline-block;width:100%;max-width:260px;height:auto" /></p>
+
 The Centre for the Development of Cynological Competencies is the educational and professional
 structure of the **Royal Federal Canine Club / World Dog Federation Romania**, aiming to train a new
 generation of specialists able to contribute to the development of a modern, balanced and credible

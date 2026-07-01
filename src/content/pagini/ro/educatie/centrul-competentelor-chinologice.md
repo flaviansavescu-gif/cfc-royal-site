@@ -5,6 +5,8 @@ section: "Educație"
 summary: "Structura educațională CFC–Royal pentru formarea specialiștilor în chinologie: arbitri, comisari de ring, organizatori și prezentatori."
 ---
 
+<p style="text-align:center;margin:.25rem 0 1.75rem"><img src="/images/centrul-competentelor.webp" alt="Sigla Centrului de Dezvoltare a Competențelor Chinologice — CFC-Royal" width="260" height="276" loading="eager" style="display:inline-block;width:100%;max-width:260px;height:auto" /></p>
+
 Centrul de Dezvoltare a Competențelor Chinologice este structura educațională și profesională a
 **Club Federal Chinologic – Royal / World Dog Federation România**, având ca obiectiv formarea unei
 noi generații de specialiști capabili să contribuie la dezvoltarea unui sistem chinologic modern,
