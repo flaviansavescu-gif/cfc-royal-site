@@ -32,9 +32,10 @@ const OG_IMAGE = "https://cfc-royal.ro/images/og-default.jpg";
     <meta name="twitter:description" content={DESC} />
     <meta name="twitter:image" content={OG_IMAGE} />
 
-    <!-- Redirect instant pentru vizitatori (roboții sociali îl ignoră și citesc OG-ul de mai sus) -->
+    <!-- Redirect DOAR prin JS: roboții sociali (WhatsApp/Facebook) nu execută JS, deci văd o
+         pagină normală cu Open Graph și generează cardul. Un `meta refresh` i-ar face să trateze
+         pagina ca redirect și să NU mai afișeze cardul. Vizitatorii reali sunt duși instant la /ro/. -->
     <script is:inline>location.replace("/ro/");</script>
-    <meta http-equiv="refresh" content="0; url=/ro/" />
     <style>html, body { margin: 0; height: 100%; background: #1F4D3A; }</style>
   </head>
   <body>
