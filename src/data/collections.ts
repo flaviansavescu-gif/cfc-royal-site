@@ -301,7 +301,13 @@ export const collectionDefs: CollectionDef[] = [
     intro: { ro: "Personalități recunoscute de club.", en: "Personalities recognised by the club." },
     empty: { ro: "Niciun membru de onoare publicat momentan.", en: "No honorary members yet." },
     eyebrow: { ro: "Organizația", en: "Organization" },
-    sort: (a, b) => a.title.localeCompare(b.title, "ro"),
+    // Ordine: 1) Ciro Boiano, 2) Kaci-Chaouche, 3) ceilalți CU fotografie (alfabetic),
+    // 4) cei FĂRĂ fotografie (alfabetic).
+    sort: (a, b) => {
+      const rank = (d: Data) =>
+        d.title === "Ciro Boiano" ? 0 : d.title === "Gabriel Djibril Kaci-Chaouche" ? 1 : d.photo ? 2 : 3;
+      return rank(a) - rank(b) || a.title.localeCompare(b.title, "ro");
+    },
     portrait: (d) => d.photo,
     card: (d) => ({ title: d.title, meta: d.role, excerpt: d.summary, image: d.photo }),
     metaRows: (d, lang) => rows(row(L(lang, "Distincție", "Distinction"), d.role)),
