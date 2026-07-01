@@ -85,3 +85,13 @@ dezvoltate prin contribuția fiecărei generații.
 - extinderea programelor educaționale;
 - dezvoltarea infrastructurii digitale;
 - consolidarea cooperării internaționale.
+
+## Recunoaștere WDF
+
+Ca membru cu drepturi depline al **World Dog Federation (WDF)**, Club Federal Chinologic – Royal
+beneficiază de recunoașterea oficială a titlurilor **CAC** și **CACIB** acordate în expozițiile sale.
+Certificatul WDF (nr. 03/DE-WDF/26, 5 februarie 2026) confirmă că aceste titluri au valoare
+internațională și sunt valabile în toate țările membre WDF — garantând uniformitatea, credibilitatea
+și legitimitatea lor.
+
+![Certificat WDF de recunoaștere oficială a titlurilor CAC și CACIB acordate de Club Federal Chinologic – Royal](/images/wdf-recunoastere-cac-cacib.webp)

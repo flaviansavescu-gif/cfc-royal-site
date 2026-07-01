@@ -29,4 +29,11 @@ Completează formularul de mai jos pentru a-ți depune cererea de înscriere ca 
 4. Cererea este analizată conform Statutului și regulamentelor Clubului.
 5. După aprobare, dobândești calitatea de membru CFC–Royal.
 
+## Formulare utile
+
+- [Cerere de înscriere ca membru](/ro/documente/cerere-inscriere-membru/)
+- [Cerere de rezervare afix de crescător](/ro/documente/cerere-rezervare-afix/)
+- [Declarația de montă și fătare](/ro/documente/declaratie-monta-fatare/)
+- [Acord de prelucrare a datelor (GDPR)](/ro/documente/acord-prelucrare-date/)
+
 Ai întrebări? [Contactează-ne](/ro/contact/).

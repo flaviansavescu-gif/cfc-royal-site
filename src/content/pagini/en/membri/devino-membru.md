@@ -30,4 +30,11 @@ Fill in the form below to submit your membership application.
 4. The request is reviewed in accordance with the Club's Statute and regulations.
 5. Once approved, you become a CFC–Royal member.
 
+## Useful forms
+
+- [Membership application form](/en/documente/cerere-inscriere-membru/)
+- [Breeder affix reservation request](/en/documente/cerere-rezervare-afix/)
+- [Mating and whelping declaration](/en/documente/declaratie-monta-fatare/)
+- [Data processing agreement (GDPR)](/en/documente/acord-prelucrare-date/)
+
 Questions? [Contact us](/en/contact/).

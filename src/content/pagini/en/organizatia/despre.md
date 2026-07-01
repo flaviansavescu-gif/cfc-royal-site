@@ -86,3 +86,13 @@ contribution of each generation.
 - expanding educational programmes;
 - developing digital infrastructure;
 - strengthening international cooperation.
+
+## WDF recognition
+
+As a full member of the **World Dog Federation (WDF)**, the Royal Federal Canine Club benefits from
+the official recognition of the **CAC** and **CACIB** titles awarded at its shows. The WDF
+certificate (no. 03/DE-WDF/26, 5 February 2026) confirms that these titles carry international value
+and are valid in all WDF member countries — guaranteeing their uniformity, credibility and
+legitimacy.
+
+![WDF certificate of official recognition of the CAC and CACIB titles awarded by the Royal Federal Canine Club](/images/wdf-recunoastere-cac-cacib.webp)

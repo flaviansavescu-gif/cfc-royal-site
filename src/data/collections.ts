@@ -49,6 +49,17 @@ const REG_CATS: Record<string, Record<Lang, string>> = {
 };
 const regCat = (key: string, lang: Lang) => REG_CATS[key]?.[lang] ?? key;
 
+// Categorii documente: docType (RO, din schema) -> etichetă localizată (grup)
+const DOC_CATS: Record<string, Record<Lang, string>> = {
+  "statut": { ro: "Statut", en: "Statute" },
+  "regulament": { ro: "Regulamente", en: "Regulations" },
+  "formular": { ro: "Formulare", en: "Forms" },
+  "hotărâre": { ro: "Hotărâri", en: "Decisions" },
+  "financiar": { ro: "Financiar", en: "Financial" },
+  "altele": { ro: "Altele", en: "Other" },
+};
+const docCat = (key: string, lang: Lang) => DOC_CATS[key]?.[lang] ?? key;
+
 // helper bilingv scurt
 const L = (lang: Lang, ro: string, en: string) => (lang === "en" ? en : ro);
 const fmt = (date: Date | undefined, lang: Lang) => (date ? formatDate(date, lang) : "");
@@ -335,6 +346,9 @@ export const collectionDefs: CollectionDef[] = [
     empty: { ro: "Niciun document publicat momentan.", en: "No documents published yet." },
     eyebrow: { ro: "Transparență", en: "Transparency" },
     sort: (a, b) => a.title.localeCompare(b.title, "ro"),
+    groupBy: (d) => d.docType,
+    groupOrder: ["statut", "regulament", "formular", "hotărâre", "financiar", "altele"],
+    groupLabel: docCat,
     card: (d) => ({ title: d.title, tag: d.docType, excerpt: d.summary }),
     metaRows: (d, lang) =>
       rows(
