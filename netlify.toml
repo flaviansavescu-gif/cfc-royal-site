@@ -21,27 +21,6 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# === TEMPORAR: pagina „În curând" pe prima pagină. DE ELIMINAT după lansare (1 iulie 2026). ===
-# Afișează teaser-ul DOAR pe homepage (/, /ro/, /en/). Restul paginilor rămân accesibile.
-[[redirects]]
-  from = "/"
-  to = "/in-curand/"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/ro/"
-  to = "/in-curand/"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/en/"
-  to = "/in-curand/"
-  status = 200
-  force = true
-# === sfârșit bloc TEMPORAR ===
-
 # Redirect rădăcină → limba implicită, la nivel de edge (instant, fără pagina albă de meta-refresh).
 # force = true e esențial: altfel Netlify servește dist/index.html în loc să redirecteze.
 [[redirects]]
