@@ -79,7 +79,15 @@ const latestNews = newsEntries
 <!-- Devino membru (bandă CTA) -->
 <section class="cta-band">
   <div class="container cta-band__inner">
-    <div>
+    <img
+      class="cta-band__photo"
+      src="/images/membru-husky.webp"
+      alt={lang === "en" ? "Siberian Husky portrait — purebred dog" : "Portret de Husky Siberian — câine de rasă"}
+      width="220"
+      height="220"
+      loading="lazy"
+    />
+    <div class="cta-band__text">
       <h2 class="cta-band__title">{h.membership.title}</h2>
       <p class="cta-band__body">{h.membership.body}</p>
     </div>
@@ -192,7 +200,13 @@ const latestNews = newsEntries
 
   /* Bandă CTA membru */
   .cta-band { background: var(--color-primary); color: var(--color-text-inverse); }
-  .cta-band__inner { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; justify-content: space-between; padding-block: clamp(2rem, 5vw, 3rem); }
+  .cta-band__inner { display: flex; flex-wrap: wrap; gap: 1.75rem; align-items: center; justify-content: space-between; padding-block: clamp(2rem, 5vw, 3rem); }
+  .cta-band__photo {
+    flex: 0 0 auto; width: clamp(150px, 18vw, 220px); height: auto; aspect-ratio: 1;
+    border-radius: 50%; object-fit: cover;
+    border: 3px solid var(--color-accent); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  }
+  .cta-band__text { flex: 1 1 24rem; }
   .cta-band__title { color: var(--color-text-inverse); }
   .cta-band__body { margin-top: 0.5rem; max-width: 60ch; color: rgba(251,250,247,0.92); }
 
