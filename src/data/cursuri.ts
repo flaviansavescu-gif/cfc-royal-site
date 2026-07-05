@@ -257,7 +257,11 @@ export const LECTORI: Lector[] = [
     nume: "Flavian-Sergiu Savescu",
     rol: "Președinte al Colegiului de Arbitri · WDF All Breed",
     hash: "71a012c1d53cdf7fc5b94202c736827245baa8cc3d629e674e8a6074266c8c14",
-    materiale: [],
+    materiale: [
+      { titlu: "Suport de curs 4.1 — Regulamente WDF și standarde (PDF)", url: "/cursuri-materiale/flavian-savescu/suport-curs-4-1-regulamente-wdf-si-standarde.pdf" },
+      { titlu: "Suport de curs 4.3 — Codul Etic al arbitrului (PDF)", url: "/cursuri-materiale/flavian-savescu/suport-curs-4-3-cod-etic-arbitru.pdf" },
+      { titlu: "Orarul cursurilor 4.1 și 4.3 (PDF)", url: "/cursuri-materiale/flavian-savescu/orar-curs-4-1-si-4-3.pdf" },
+    ],
   },
   {
     slug: "mihail-cosmin-neagu",
@@ -271,7 +275,11 @@ export const LECTORI: Lector[] = [
     nume: "Georgeta Mihaela Chivu",
     rol: "Arbitru WDF · All Breed",
     hash: "ddd1b278ddf55141d8f2bca8857160b38cc64024e3f5b4368cbebee329442817",
-    materiale: [],
+    materiale: [
+      { titlu: "Suport de curs 4.2.4 — Handling expozițional (PDF)", url: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-2-4-handling-expozitional.pdf" },
+      { titlu: "Suport de curs 4.4.5 — Grooming canin (PDF)", url: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-4-5-grooming-canin.pdf" },
+      { titlu: "Orarul cursurilor 4.2.4 și 4.4.5 (PDF)", url: "/cursuri-materiale/georgeta-mihaela-chivu/orar-curs-4-2-4-si-4-4-5.pdf" },
+    ],
   },
   {
     slug: "mihail-sorin-iacob",
