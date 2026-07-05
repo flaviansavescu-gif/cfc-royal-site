@@ -17,6 +17,18 @@ const { m } = Astro.props;
   <h1 class="m-title">{m.titlu}</h1>
   <p class="m-obiectiv">{m.obiectiv}</p>
 
+  <div class="m-lock" id="m-lock" hidden>
+    <p><strong>🔒 Acest modul nu a fost încă deschis.</strong></p>
+    <p>Conținutul devine disponibil odată cu predarea cursului. Vei putea reveni oricând la modulele deja deschise.</p>
+    <p><a href="/cursuri/module/">← Înapoi la module</a></p>
+  </div>
+
+  <div class="m-admin-banner" id="m-admin-banner" hidden>
+    Vezi acest modul ca administrator — pentru candidați este momentan <strong>ascuns</strong>.
+    Îl poți deschide din <a href="/cursuri/admin/">panoul de administrare</a>.
+  </div>
+
+  <div id="m-continut" hidden>
   <h2 class="m-h2">Lecturi obligatorii</h2>
   <ul class="m-lecturi">
     {m.lecturi.map((l) => (
@@ -62,7 +74,30 @@ const { m } = Astro.props;
       întrebărilor de către lectori. Parcurge între timp lecturile de mai sus.</p>
     </section>
   )}
+  </div>
 </CursuriLayout>
+
+<script is:inline define:vars={{ slugModul: m.slug, adminHash: ADMIN_HASH }}>
+  // Conținutul modulului se arată doar dacă modulul e „online” (bifat de administrator)
+  // sau dacă vizitatorul e administratorul.
+  (async function () {
+    const continut = document.getElementById("m-continut");
+    const lock = document.getElementById("m-lock");
+    let esteAdmin = false;
+    try { esteAdmin = localStorage.getItem("cfcrAcces") === adminHash; } catch (e) {}
+    let online = true; // dacă starea nu se poate citi, nu blocăm candidații
+    try {
+      const stare = await (await fetch("/.netlify/functions/stare-cursuri")).json();
+      online = !!stare[slugModul];
+    } catch (e) {}
+    if (online || esteAdmin) {
+      continut.hidden = false;
+      if (esteAdmin && !online) document.getElementById("m-admin-banner").hidden = false;
+    } else {
+      lock.hidden = false;
+    }
+  })();
+</script>
 
 {m.intrebari && (
   <script is:inline define:vars={{ slug: m.slug, nrIntrebari: m.intrebari.length }}>
@@ -112,6 +147,16 @@ const { m } = Astro.props;
 )}
 
 <style>
+  .m-lock {
+    margin-top: 2rem; padding: 1.5rem 1.75rem; max-width: 40rem;
+    background: var(--color-surface); border: 1px dashed var(--color-border); border-radius: var(--radius);
+  }
+  .m-lock p { margin: 0 0 0.6rem; }
+  .m-lock p:last-child { margin: 0; }
+  .m-admin-banner {
+    margin-top: 1.5rem; padding: 0.85rem 1.25rem; max-width: 46rem; font-size: 0.92rem;
+    background: #f7f1df; border: 1px solid var(--color-accent); border-radius: var(--radius);
+  }
   .m-crumb { margin: 0 0 1.5rem; }
   .m-crumb a { text-decoration: none; color: var(--color-text-muted); }
   .m-crumb a:hover { color: var(--color-primary); }

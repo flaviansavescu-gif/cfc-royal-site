@@ -14,13 +14,13 @@ import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
   <ol class="d-list">
     {MODULE.map((m) => (
       <li class="d-item">
-        <a class="d-item__link" href={`/cursuri/${m.slug}/`}>
+        <a class="d-item__link" href={`/cursuri/${m.slug}/`} data-slug={m.slug}>
           <span class="d-item__nr">{m.nr}</span>
           <span class="d-item__body">
             <strong>{m.titlu}</strong>
             <span>{m.obiectiv}</span>
           </span>
-          <span class={`d-item__badge ${m.intrebari ? "is-on" : ""}`}>
+          <span class={`d-item__badge ${m.intrebari ? "is-on" : ""}`} data-badge={m.slug}>
             {m.intrebari ? "Test activ" : "Test în pregătire"}
           </span>
         </a>
@@ -28,6 +28,27 @@ import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
     ))}
   </ol>
 </CursuriLayout>
+
+<script is:inline define:vars={{ adminHash: ADMIN_HASH }}>
+  // Modulele nebifate de administrator apar „încuiate” pentru candidați.
+  (async function () {
+    let esteAdmin = false;
+    try { esteAdmin = localStorage.getItem("cfcrAcces") === adminHash; } catch (e) {}
+    if (esteAdmin) return; // adminul vede tot
+    try {
+      const stare = await (await fetch("/.netlify/functions/stare-cursuri")).json();
+      document.querySelectorAll("a[data-slug]").forEach((a) => {
+        const slug = a.dataset.slug;
+        if (stare[slug]) return; // modul online — rămâne accesibil
+        a.classList.add("is-locked");
+        a.addEventListener("click", (e) => e.preventDefault());
+        a.removeAttribute("href");
+        const b = document.querySelector('[data-badge="' + slug + '"]');
+        if (b) { b.textContent = "🔒 Se deschide în curând"; b.classList.remove("is-on"); }
+      });
+    } catch (e) { /* dacă starea nu se poate citi, nu blocăm nimic */ }
+  })();
+</script>
 
 <style>
   .d-title { font-family: var(--font-serif); color: var(--color-primary); margin-bottom: 0.5rem; }
@@ -53,6 +74,8 @@ import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
     color: var(--color-text-muted); white-space: nowrap;
   }
   .d-item__badge.is-on { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
+  .d-item__link.is-locked { opacity: 0.55; cursor: not-allowed; }
+  .d-item__link.is-locked:hover { border-color: var(--color-border); }
   @media (max-width: 640px) {
     .d-item__link { flex-wrap: wrap; }
     .d-item__badge { margin-left: 3.7rem; }

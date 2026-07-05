@@ -54,7 +54,10 @@ const lectorRoutes = Object.fromEntries(LECTORI.map((l) => [l.hash, `/cursuri/le
     const hash = await sha256(cod);
     const dest = destinatie(hash);
     if (dest) {
-      try { localStorage.setItem("cfcrAcces", hash); } catch (e2) {}
+      try {
+        localStorage.setItem("cfcrAcces", hash);
+        localStorage.setItem("cfcrAccesCod", cod); // folosit de panoul admin la comutarea modulelor
+      } catch (e2) {}
       location.href = dest;
     } else {
       err.hidden = false;
