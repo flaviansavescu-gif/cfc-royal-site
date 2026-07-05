@@ -11,6 +11,11 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
   <h1 class="a-title">Panoul platformei</h1>
   <p class="a-sub">Ai acces la toate zonele. Bifează un modul ca să devină vizibil candidaților — efectul e imediat; debifat, modulul apare „încuiat”.</p>
 
+  <p class="a-actiuni">
+    <a class="btn btn--primary" href="/cursuri/lector/flavian-savescu/">Spațiul meu de lector →</a>
+    <a class="btn btn--outline" href="/cursuri/module/">Zona candidaților →</a>
+  </p>
+
   <h2 class="a-h2">Modulele candidaților — online / ascuns</h2>
   <p class="a-stare" id="a-stare">Se încarcă starea modulelor…</p>
   <ul class="a-module">
@@ -103,6 +108,7 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
   .a-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
   .a-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
   .a-sub { color: var(--color-text-muted); max-width: 46rem; }
+  .a-actiuni { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1.25rem 0 0.5rem; }
   .a-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2.25rem 0 0.75rem; font-size: 1.35rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.35rem; }
   .a-stare { color: var(--color-text-muted); font-style: italic; }
 
