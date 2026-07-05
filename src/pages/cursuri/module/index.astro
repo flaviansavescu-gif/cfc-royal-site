@@ -1,0 +1,60 @@
+---
+// /cursuri/module/ — tabloul de bord al candidatului: lista celor 8 module.
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import { MODULE } from "../../../data/cursuri";
+---
+
+<CursuriLayout title="Module" protejat>
+  <h1 class="d-title">Modulele Școlii de Arbitraj</h1>
+  <p class="d-sub">
+    Parcurge lecturile fiecărui modul, apoi susține testul. Pragul de promovare este <strong>70%</strong>.
+    Rezultatele ajung automat la secretariatul Școlii.
+  </p>
+
+  <ol class="d-list">
+    {MODULE.map((m) => (
+      <li class="d-item">
+        <a class="d-item__link" href={`/cursuri/${m.slug}/`}>
+          <span class="d-item__nr">{m.nr}</span>
+          <span class="d-item__body">
+            <strong>{m.titlu}</strong>
+            <span>{m.obiectiv}</span>
+          </span>
+          <span class={`d-item__badge ${m.intrebari ? "is-on" : ""}`}>
+            {m.intrebari ? "Test activ" : "Test în pregătire"}
+          </span>
+        </a>
+      </li>
+    ))}
+  </ol>
+</CursuriLayout>
+
+<style>
+  .d-title { font-family: var(--font-serif); color: var(--color-primary); margin-bottom: 0.5rem; }
+  .d-sub { color: var(--color-text-muted); max-width: 46rem; }
+  .d-list { list-style: none; margin: 2rem 0 0; padding: 0; display: grid; gap: 0.85rem; }
+  .d-item__link {
+    display: flex; align-items: center; gap: 1.1rem; text-decoration: none;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius); padding: 1rem 1.25rem;
+  }
+  .d-item__link:hover { border-color: var(--color-primary); }
+  .d-item__nr {
+    flex: 0 0 auto; width: 2.6rem; height: 2.6rem; display: grid; place-items: center;
+    background: var(--color-primary); color: #fbfaf7; border-radius: 50%;
+    font-family: var(--font-serif); font-size: 1.2rem;
+  }
+  .d-item__body { display: flex; flex-direction: column; gap: 0.2rem; }
+  .d-item__body strong { color: var(--color-primary); }
+  .d-item__body span { font-size: 0.88rem; color: var(--color-text-muted); }
+  .d-item__badge {
+    margin-left: auto; flex: 0 0 auto; font-size: 0.75rem; letter-spacing: 0.04em;
+    padding: 0.3rem 0.7rem; border-radius: 999px; border: 1px solid var(--color-border);
+    color: var(--color-text-muted); white-space: nowrap;
+  }
+  .d-item__badge.is-on { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
+  @media (max-width: 640px) {
+    .d-item__link { flex-wrap: wrap; }
+    .d-item__badge { margin-left: 3.7rem; }
+  }
+</style>

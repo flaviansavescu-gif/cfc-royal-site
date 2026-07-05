@@ -6,6 +6,7 @@ export const GET: APIRoute = ({ site }) => {
   const sitemap = new URL("sitemap-index.xml", base).href;
   const body = `User-agent: *
 Allow: /
+Disallow: /cursuri/
 
 Sitemap: ${sitemap}
 `;

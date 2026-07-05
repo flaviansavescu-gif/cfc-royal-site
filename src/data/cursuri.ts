@@ -1,0 +1,229 @@
+// =========================================================================
+// cursuri.ts — datele platformei de cursuri a Școlii de Arbitraj (CFC-Royal).
+// Platforma trăiește sub /cursuri/ (RO, protejată cu cod de acces).
+// Întrebările de test NU conțin răspunsurile corecte — cheile de corectare
+// stau exclusiv pe server, în netlify/functions/test-modul.js.
+// =========================================================================
+
+export interface Lectura {
+  titlu: string;
+  url: string; // pagină publică de pe site (regulamente/documente)
+}
+
+export interface Intrebare {
+  text: string;
+  optiuni: string[]; // fără marcarea răspunsului corect
+}
+
+export interface Modul {
+  slug: string; // cursuri/<slug>/
+  nr: number;
+  titlu: string;
+  obiectiv: string;
+  lecturi: Lectura[];
+  intrebari?: Intrebare[]; // prezent doar dacă testul e activ
+}
+
+const REG = "/ro/regulamente/";
+const DOC = "/ro/documente/";
+
+export const MODULE: Modul[] = [
+  {
+    slug: "modul-1",
+    nr: 1,
+    titlu: "Rolul, etica și conduita arbitrului",
+    obiectiv:
+      "Înțelegerea responsabilității arbitrului: imparțialitate, incompatibilități, cadouri și favoruri, conduita în arenă și comunicarea deciziilor.",
+    lecturi: [
+      { titlu: "Codul Etic — Capitolul V: Etica în arbitraj", url: DOC + "cod-etic/" },
+      { titlu: "Comportamentul și etica în ring", url: REG + "comportamentul-si-etica-in-ring/" },
+      { titlu: "Ce au voie și ce nu au voie să facă handlerii și expozanții", url: REG + "ce-au-voie-si-nu-au-voie-sa-faca-handlerii-si-expozantii/" },
+      { titlu: "Regulamentul Colegiului de Arbitri", url: DOC + "regulamentul-colegiului-de-arbitri/" },
+    ],
+    intrebari: [
+      {
+        text: "Arbitrul evaluează câinii exclusiv pe baza:",
+        optiuni: [
+          "standardului de rasă, regulamentelor tehnice și observațiilor directe din arenă",
+          "preferințelor personale și a reputației câinelui",
+          "palmaresului obținut la expozițiile anterioare",
+        ],
+      },
+      {
+        text: "Înainte de judecată, arbitrului îi este interzis:",
+        optiuni: [
+          "să studieze standardele raselor pe care le va arbitra",
+          "să consulte poziția altor arbitri sau a persoanelor interesate",
+          "să verifice programul expoziției",
+        ],
+      },
+      {
+        text: "Comunicarea cu proprietarii sau handlerii pe durata competiției este permisă:",
+        optiuni: [
+          "liber, fără restricții",
+          "doar în afara ringului",
+          "doar în limita strictului necesar tehnic",
+        ],
+      },
+      {
+        text: "Un arbitru poate judeca un câine pe care l-a deținut sau crescut în ultimele 12 luni?",
+        optiuni: [
+          "Nu",
+          "Da, dacă anunță organizatorul",
+          "Da, dacă respectivul câine concurează în altă grupă",
+        ],
+      },
+      {
+        text: "Câinii rudelor arbitrului, până la gradul II inclusiv:",
+        optiuni: [
+          "pot fi judecați fără restricții",
+          "nu pot fi judecați de acel arbitru",
+          "pot fi judecați doar la expoziții naționale",
+        ],
+      },
+      {
+        text: "Practica „arbitrajului reciproc” — doi arbitri își judecă alternativ câinii, sistematic, în scop de avantaj reciproc — este:",
+        optiuni: [
+          "permisă, dacă este declarată în scris",
+          "tolerată la expozițiile mici",
+          "interzisă",
+        ],
+      },
+      {
+        text: "Arbitrul poate accepta de la organizator:",
+        optiuni: [
+          "orice cadou primit înainte de judecată",
+          "cazarea, masa, transportul în condiții uzuale, onorariul contractual și obiecte simbolice de protocol",
+          "sume suplimentare oferite de expozanți",
+        ],
+      },
+      {
+        text: "O ofertă care depășește cadrul admis trebuie:",
+        optiuni: [
+          "refuzată politicos și raportată în scris Vicepreședintelui Tehnic, în termen de 7 zile",
+          "acceptată, dacă rămâne confidențială",
+          "redirecționată către club",
+        ],
+      },
+      {
+        text: "În arenă, arbitrul examinează:",
+        optiuni: [
+          "mai atent câinii favoriți la titlu",
+          "fiecare câine cu aceeași atenție și o durată rezonabilă, comparabilă",
+          "doar câinii din clasele superioare",
+        ],
+      },
+      {
+        text: "Decizia arbitrului se comunică:",
+        optiuni: [
+          "clar, ferm, fără ezitări sau ambiguități",
+          "doar la finalul expoziției",
+          "numai în scris, prin secretariat",
+        ],
+      },
+      {
+        text: "După judecată, arbitrul:",
+        optiuni: [
+          "poate critica public, denigrator, deciziile altor arbitri",
+          "nu comentează public deciziile altor arbitri într-un mod denigrator",
+          "este obligat să justifice public fiecare calificativ acordat",
+        ],
+      },
+      {
+        text: "Acceptarea unei misiuni de arbitraj fără declararea unei incompatibilități cunoscute constituie:",
+        optiuni: [
+          "o simplă neglijență administrativă",
+          "o practică acceptată în comunitate",
+          "abatere etică gravă",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "modul-2",
+    nr: 2,
+    titlu: "Structura expozițiilor și clasele de înscriere",
+    obiectiv:
+      "Cunoașterea claselor de vârstă și a condițiilor de eligibilitate pentru câinii tineri și adulți, inclusiv clasa Winner.",
+    lecturi: [
+      { titlu: "Contextul de arbitraj — clase eligibile pentru câinii tineri", url: REG + "contextul-de-arbitraj-clase-eligibile-pentru-cainii-tineri/" },
+      { titlu: "Contextul de arbitraj — câine adult eligibil", url: REG + "contextul-de-arbitraj-caine-adult-eligibil/" },
+      { titlu: "Ce înseamnă titlul „Clasa Winner” în WDF", url: REG + "ce-inseamna-titlul-clasa-winner-in-wdf/" },
+    ],
+  },
+  {
+    slug: "modul-3",
+    nr: 3,
+    titlu: "Titlurile WDF: CAJC, CAC, CACIB, JBOB, BOB, BBR",
+    obiectiv:
+      "Stăpânirea procedurilor oficiale de atribuire a titlurilor și a diferențelor dintre ele.",
+    lecturi: [
+      { titlu: "Procedura oficială de atribuire a titlului CAJC", url: REG + "procedura-oficiala-de-atribuire-a-titlului-cajc/" },
+      { titlu: "Procedura oficială de atribuire a titlului CAC", url: REG + "procedura-oficiala-de-atribuire-a-titlului-cac/" },
+      { titlu: "Procedura oficială de atribuire a titlului CACIB", url: REG + "procedura-oficiala-de-atribuire-a-titlului-cacib/" },
+      { titlu: "Procedura oficială — JBOB (Best of Breed Junior)", url: REG + "procedura-oficiala-de-atribuire-a-titlului-jbob-best-of-breed-junior/" },
+      { titlu: "Procedura oficială — BOB (Best of Breed)", url: REG + "procedura-oficiala-pentru-atribuirea-titlului-bob-best-of-breed/" },
+      { titlu: "Procedura oficială — BBR (Best Breed Representative)", url: REG + "procedura-oficiala-pentru-atribuirea-titlului-bbr/" },
+      { titlu: "Deosebirea concretă dintre BOB și BBR", url: REG + "deosebirea-concreta-dintre-bob-si-bbr/" },
+      { titlu: "Titlurile oficiale de campion WDF", url: REG + "titlurile-oficiale-de-campion-wdf/" },
+    ],
+  },
+  {
+    slug: "modul-4",
+    nr: 4,
+    titlu: "Procedura completă de arbitraj",
+    obiectiv:
+      "Parcurgerea pașilor examinării: intrarea în ring, evaluarea individuală, clasarea și consemnarea calificativelor.",
+    lecturi: [
+      { titlu: "Procedura completă de arbitraj WDF", url: REG + "procedura-completa-de-arbitraj-wdf/" },
+    ],
+  },
+  {
+    slug: "modul-5",
+    nr: 5,
+    titlu: "Ringul de onoare (Best in Show)",
+    obiectiv:
+      "Organizarea ringului de onoare, categoriile BIS și principiile de departajare.",
+    lecturi: [
+      { titlu: "Ringul de onoare — arbitraj avansat", url: REG + "ringul-de-onoare-arbitraj-avansat/" },
+    ],
+  },
+  {
+    slug: "modul-6",
+    nr: 6,
+    titlu: "Situații speciale: DSQ, N.J., abateri",
+    obiectiv:
+      "Recunoașterea situațiilor care impun descalificarea (DSQ) sau calificativul „nu se poate judeca” (N.J.) și procedura de constatare a abaterilor.",
+    lecturi: [
+      { titlu: "Situații care impun DSQ (descalificare) sau N.J. (Not Judgable)", url: REG + "situatii-care-impun-dsq-descalificare-sau-nj-not-judgable/" },
+      { titlu: "Procedura de constatare a abaterilor", url: REG + "procedura-de-constatare-a-abaterilor/" },
+    ],
+  },
+  {
+    slug: "modul-7",
+    nr: 7,
+    titlu: "Contestații și procedura disciplinară",
+    obiectiv:
+      "Dreptul la contestație, pașii de soluționare și cadrul disciplinar al Asociației.",
+    lecturi: [
+      { titlu: "Procedura oficială a contestațiilor WDF", url: REG + "procedura-oficiala-a-contestatiilor-wdf/" },
+      { titlu: "Procedura disciplinară detaliată", url: DOC + "procedura-disciplinara/" },
+    ],
+  },
+  {
+    slug: "modul-8",
+    nr: 8,
+    titlu: "Rolul delegatului WDF",
+    obiectiv:
+      "Autoritatea, atribuțiile și raportul delegatului WDF în cadrul evenimentului expozițional.",
+    lecturi: [
+      { titlu: "Rolul delegatului WDF", url: REG + "rolul-delegatului-wdf/" },
+    ],
+  },
+];
+
+/** Pragul de promovare a testelor (procent). */
+export const PRAG_PROMOVARE = 70;
+
+/** SHA-256 al codului de acces (codul în sine NU apare în cod). */
+export const ACCES_HASH = "48493761ba33bce0e9919789a88582a482179869fa76dbbaa93be7d67dad5470";

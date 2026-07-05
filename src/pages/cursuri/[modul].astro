@@ -1,0 +1,142 @@
+---
+// /cursuri/<modul>/ — pagina unui modul: obiectiv, lecturi și (dacă e activ) testul.
+// Răspunsurile corecte NU există în această pagină — corectarea se face pe server.
+import CursuriLayout from "../../layouts/CursuriLayout.astro";
+import { MODULE, PRAG_PROMOVARE } from "../../data/cursuri";
+
+export function getStaticPaths() {
+  return MODULE.map((m) => ({ params: { modul: m.slug }, props: { m } }));
+}
+
+const { m } = Astro.props;
+---
+
+<CursuriLayout title={`Modul ${m.nr}`} protejat>
+  <p class="m-crumb"><a href="/cursuri/module/">← Toate modulele</a></p>
+  <p class="m-eyebrow">Modulul {m.nr} din {MODULE.length}</p>
+  <h1 class="m-title">{m.titlu}</h1>
+  <p class="m-obiectiv">{m.obiectiv}</p>
+
+  <h2 class="m-h2">Lecturi obligatorii</h2>
+  <ul class="m-lecturi">
+    {m.lecturi.map((l) => (
+      <li><a href={l.url} target="_blank" rel="noopener">{l.titlu} ↗</a></li>
+    ))}
+  </ul>
+
+  {m.intrebari ? (
+    <section class="test" id="test">
+      <h2 class="m-h2">Testul modulului</h2>
+      <p class="test__info">
+        {m.intrebari.length} întrebări grilă · un singur răspuns corect per întrebare · prag de
+        promovare {PRAG_PROMOVARE}%. Rezultatul se afișează imediat și este transmis secretariatului.
+      </p>
+
+      <form id="test-form">
+        <div class="test__field">
+          <label for="nume">Numele și prenumele tău</label>
+          <input id="nume" name="nume" type="text" required placeholder="ex. Ion Popescu" />
+        </div>
+
+        {m.intrebari.map((q, qi) => (
+          <fieldset class="test__q">
+            <legend><span class="test__qnr">{qi + 1}.</span> {q.text}</legend>
+            {q.optiuni.map((opt, oi) => (
+              <label class="test__opt">
+                <input type="radio" name={`q${qi}`} value={oi} required />
+                <span>{opt}</span>
+              </label>
+            ))}
+          </fieldset>
+        ))}
+
+        <button class="btn btn--primary test__submit" type="submit">Trimite testul</button>
+      </form>
+
+      <div class="test__rezultat" id="test-rezultat" hidden></div>
+    </section>
+  ) : (
+    <section class="test test--soon">
+      <h2 class="m-h2">Testul modulului</h2>
+      <p>Testul acestui modul este <strong>în pregătire</strong> — va fi activat după validarea
+      întrebărilor de către lectori. Parcurge între timp lecturile de mai sus.</p>
+    </section>
+  )}
+</CursuriLayout>
+
+{m.intrebari && (
+  <script is:inline define:vars={{ slug: m.slug, nrIntrebari: m.intrebari.length }}>
+    const form = document.getElementById("test-form");
+    const rez = document.getElementById("test-rezultat");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = form.querySelector("button[type=submit]");
+      btn.disabled = true;
+      btn.textContent = "Se corectează…";
+      const raspunsuri = [];
+      for (let i = 0; i < nrIntrebari; i++) {
+        const ales = form.querySelector(`input[name=q${i}]:checked`);
+        raspunsuri.push(ales ? Number(ales.value) : -1);
+      }
+      try {
+        const res = await fetch("/.netlify/functions/test-modul", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ modul: slug, nume: document.getElementById("nume").value.trim(), raspunsuri }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.eroare || "Eroare la corectare.");
+        rez.hidden = false;
+        rez.className = "test__rezultat " + (data.promovat ? "is-pass" : "is-fail");
+        rez.innerHTML =
+          "<strong>" + (data.promovat ? "Felicitări — test promovat! 🎉" : "Test nepromovat.") + "</strong>" +
+          "<p>Scor: <b>" + data.corecte + " / " + data.total + "</b> (" + data.procent + "%). " +
+          (data.promovat
+            ? "Rezultatul a fost transmis secretariatului."
+            : "Poți relua testul după ce recitești lecturile modulului.") + "</p>" +
+          (data.gresite && data.gresite.length
+            ? "<p class='test__gresite'>De revăzut întrebările: " + data.gresite.join(", ") + ".</p>"
+            : "");
+        rez.scrollIntoView({ behavior: "smooth", block: "center" });
+        form.hidden = data.promovat;
+      } catch (err) {
+        rez.hidden = false;
+        rez.className = "test__rezultat is-fail";
+        rez.textContent = "Nu am putut corecta testul: " + err.message + " Încearcă din nou.";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Trimite testul";
+      }
+    });
+  </script>
+)}
+
+<style>
+  .m-crumb { margin: 0 0 1.5rem; }
+  .m-crumb a { text-decoration: none; color: var(--color-text-muted); }
+  .m-crumb a:hover { color: var(--color-primary); }
+  .m-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .m-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.75rem; }
+  .m-obiectiv { max-width: 46rem; color: var(--color-text); }
+  .m-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2.25rem 0 0.75rem; font-size: 1.35rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.35rem; }
+  .m-lecturi { padding-left: 1.2rem; display: grid; gap: 0.45rem; }
+  .m-lecturi a { color: var(--color-accent-dark); }
+
+  .test__info { color: var(--color-text-muted); max-width: 46rem; }
+  .test__field { margin: 1.25rem 0; max-width: 26rem; }
+  .test__field label { display: block; font-weight: 600; margin-bottom: 0.35rem; }
+  .test__field input { width: 100%; padding: 0.65rem 0.9rem; border: 1px solid var(--color-border); border-radius: var(--radius); font-size: 1rem; }
+  .test__q { border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); padding: 1rem 1.25rem; margin: 0 0 1rem; }
+  .test__q legend { font-weight: 600; padding: 0 0.4rem; }
+  .test__qnr { color: var(--color-accent-dark); }
+  .test__opt { display: flex; gap: 0.6rem; align-items: baseline; padding: 0.35rem 0.25rem; cursor: pointer; }
+  .test__opt:hover { background: var(--color-surface-alt); border-radius: 6px; }
+  .test__submit { margin-top: 0.5rem; }
+  .test--soon p { color: var(--color-text-muted); max-width: 46rem; }
+
+  .test__rezultat { margin-top: 1.5rem; padding: 1.25rem 1.5rem; border-radius: var(--radius); border: 1px solid var(--color-border); }
+  .test__rezultat.is-pass { background: #eef5f0; border-color: var(--color-primary); }
+  .test__rezultat.is-fail { background: #f9efef; border-color: #8c1d2f; }
+  .test__rezultat p { margin: 0.4rem 0 0; }
+  .test__gresite { color: var(--color-text-muted); font-size: 0.9rem; }
+</style>

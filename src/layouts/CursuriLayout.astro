@@ -1,0 +1,90 @@
+---
+// CursuriLayout.astro — învelișul platformei de cursuri (Școala de Arbitraj).
+// Separat de BaseLayout: fără meniul site-ului, fără indexare (noindex + pagefind-ignore),
+// cu poartă de acces pe bază de cod (verificată client-side; cheile testelor stau pe server).
+import "../styles/global.css";
+import { ACCES_HASH } from "../data/cursuri";
+
+interface Props {
+  title: string;
+  /** true pe paginile protejate (module); false pe pagina de acces. */
+  protejat?: boolean;
+}
+const { title, protejat = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#1F4D3A" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <title>{title} — Școala de Arbitraj CFC-Royal</title>
+    {protejat && (
+      <script is:inline define:vars={{ hash: ACCES_HASH }}>
+        // Poartă de acces: fără codul corect, înapoi la pagina de intrare.
+        try {
+          if (localStorage.getItem("cfcrCursuriAcces") !== hash) location.replace("/cursuri/");
+        } catch (e) {
+          location.replace("/cursuri/");
+        }
+      </script>
+    )}
+  </head>
+  <body data-pagefind-ignore>
+    <header class="c-header">
+      <div class="c-header__inner">
+        <a class="c-brand" href="/cursuri/module/">
+          <img src="/images/centrul-competentelor.webp" alt="Centrul de Dezvoltare a Competențelor Chinologice" width="56" height="60" loading="eager" />
+          <span class="c-brand__text">
+            <strong>Școala de Arbitraj</strong>
+            <span>Centrul de Dezvoltare a Competențelor Chinologice · CFC-Royal</span>
+          </span>
+        </a>
+        {protejat && (
+          <button class="c-logout" id="c-logout" type="button">Ieșire</button>
+        )}
+      </div>
+    </header>
+
+    <main class="c-main">
+      <slot />
+    </main>
+
+    <footer class="c-footer">
+      <p>© Asociația Club Federal Chinologic – Royal · membru World Dog Federation · <a href="/ro/">cfc-royal.ro</a></p>
+    </footer>
+
+    {protejat && (
+      <script is:inline>
+        document.getElementById("c-logout")?.addEventListener("click", () => {
+          try { localStorage.removeItem("cfcrCursuriAcces"); } catch (e) {}
+          location.href = "/cursuri/";
+        });
+      </script>
+    )}
+  </body>
+</html>
+
+<style is:global>
+  .c-header { background: var(--color-primary); border-bottom: 3px solid var(--color-accent); }
+  .c-header__inner {
+    max-width: 62rem; margin-inline: auto; padding: 0.85rem 1.25rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+  .c-brand { display: flex; align-items: center; gap: 0.85rem; text-decoration: none; }
+  .c-brand img { display: block; width: 56px; height: auto; }
+  .c-brand__text { display: flex; flex-direction: column; line-height: 1.25; }
+  .c-brand__text strong { font-family: var(--font-serif); font-size: 1.15rem; color: #fbfaf7; }
+  .c-brand__text span { font-size: 0.78rem; color: #d8be73; }
+  .c-logout {
+    background: transparent; border: 1px solid rgba(216, 190, 115, 0.6); color: #d8be73;
+    padding: 0.4rem 1rem; border-radius: var(--radius); cursor: pointer; font-size: 0.9rem;
+  }
+  .c-logout:hover { background: rgba(216, 190, 115, 0.12); }
+  .c-main { max-width: 62rem; margin-inline: auto; padding: 2rem 1.25rem 3.5rem; }
+  .c-footer { border-top: 1px solid var(--color-border); padding: 1.25rem; text-align: center; }
+  .c-footer p { margin: 0; font-size: 0.85rem; color: var(--color-text-muted); }
+</style>

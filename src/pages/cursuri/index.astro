@@ -1,0 +1,68 @@
+---
+// /cursuri/ — pagina de intrare în platforma de cursuri (cod de acces).
+// Codul NU apare în pagină: se compară SHA-256 al codului introdus cu amprenta salvată.
+import CursuriLayout from "../../layouts/CursuriLayout.astro";
+import { ACCES_HASH } from "../../data/cursuri";
+---
+
+<CursuriLayout title="Acces platformă">
+  <div class="gate">
+    <img class="gate__emblem" src="/images/centrul-competentelor.webp" alt="" width="180" height="191" loading="eager" />
+    <h1>Platforma de cursuri</h1>
+    <p class="gate__sub">
+      Bine ai venit la Școala de Arbitraj a Clubului Federal Chinologic – Royal.
+      Introdu codul de acces primit de la secretariat.
+    </p>
+    <form id="gate-form" autocomplete="off">
+      <label class="sr-only" for="cod">Cod de acces</label>
+      <input id="cod" name="cod" type="password" placeholder="Cod de acces" required autofocus />
+      <button class="btn btn--primary" type="submit">Intră în platformă</button>
+    </form>
+    <p class="gate__err" id="gate-err" hidden>Cod incorect. Verifică și încearcă din nou.</p>
+    <p class="gate__help">Nu ai codul? Scrie-ne la <a href="mailto:contact@cfc-royal.ro">contact@cfc-royal.ro</a>.</p>
+  </div>
+</CursuriLayout>
+
+<script is:inline define:vars={{ hash: ACCES_HASH }}>
+  // Dacă e deja deblocat, sări direct la module.
+  try {
+    if (localStorage.getItem("cfcrCursuriAcces") === hash) location.replace("/cursuri/module/");
+  } catch (e) {}
+
+  async function sha256(text) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  document.getElementById("gate-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const cod = document.getElementById("cod").value.trim();
+    const err = document.getElementById("gate-err");
+    if ((await sha256(cod)) === hash) {
+      try { localStorage.setItem("cfcrCursuriAcces", hash); } catch (e2) {}
+      location.href = "/cursuri/module/";
+    } else {
+      err.hidden = false;
+      document.getElementById("cod").select();
+    }
+  });
+</script>
+
+<style>
+  .gate { max-width: 26rem; margin: 2.5rem auto 0; text-align: center; }
+  .gate__emblem { width: 180px; height: auto; margin-inline: auto; }
+  .gate h1 { font-family: var(--font-serif); color: var(--color-primary); margin: 1.25rem 0 0.5rem; }
+  .gate__sub { color: var(--color-text-muted); }
+  #gate-form { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem; }
+  #cod {
+    padding: 0.75rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    font-size: 1rem; text-align: center; letter-spacing: 0.08em;
+  }
+  #cod:focus { outline: 2px solid var(--color-primary); }
+  .gate__err { color: #8c1d2f; font-weight: 600; margin-top: 0.75rem; }
+  .gate__help { margin-top: 1.5rem; font-size: 0.9rem; color: var(--color-text-muted); }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+</style>
