@@ -46,9 +46,12 @@ const protejat = !!(allow && allow.length);
             <span>Centrul de Dezvoltare a Competențelor Chinologice · CFC-Royal</span>
           </span>
         </a>
-        {protejat && (
-          <button class="c-logout" id="c-logout" type="button">Ieșire</button>
-        )}
+        <div class="c-header__actions">
+          <a class="c-sitelink" href="/ro/">← Site-ul asociației</a>
+          {protejat && (
+            <button class="c-logout" id="c-logout" type="button">Ieșire</button>
+          )}
+        </div>
       </div>
     </header>
 
@@ -82,6 +85,12 @@ const protejat = !!(allow && allow.length);
   .c-brand__text { display: flex; flex-direction: column; line-height: 1.25; }
   .c-brand__text strong { font-family: var(--font-serif); font-size: 1.15rem; color: #fbfaf7; }
   .c-brand__text span { font-size: 0.78rem; color: #d8be73; }
+  .c-header__actions { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; justify-content: flex-end; }
+  .c-sitelink {
+    color: #d8be73; text-decoration: none; font-size: 0.9rem;
+    padding: 0.4rem 1rem; border: 1px solid rgba(216, 190, 115, 0.6); border-radius: var(--radius);
+  }
+  .c-sitelink:hover { background: rgba(216, 190, 115, 0.12); }
   .c-logout {
     background: transparent; border: 1px solid rgba(216, 190, 115, 0.6); color: #d8be73;
     padding: 0.4rem 1rem; border-radius: var(--radius); cursor: pointer; font-size: 0.9rem;
