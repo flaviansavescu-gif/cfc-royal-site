@@ -5,7 +5,7 @@ section: "Membri"
 summary: "Cum devii membru al Club Federal Chinologic – Royal: formular online, pași, cotizație."
 ---
 
-<img src="/images/membru-pui-husky.webp" alt="Pui de Husky Siberian cu o jucărie — începutul unui drum în chinologie" width="640" height="800" loading="eager" style="float:left;width:min(42%,300px);height:auto;border-radius:var(--radius);border:1px solid var(--color-border);margin:0 1.5rem 1rem 0" />
+<img src="/images/membru-pui-husky.webp" alt="Pui de Husky Siberian cu o jucărie — începutul unui drum în chinologie" width="640" height="962" loading="eager" style="float:left;width:min(42%,300px);height:auto;border-radius:var(--radius);border:1px solid var(--color-border);margin:0 1.5rem 1rem 0" />
 
 Calitatea de membru al asociației Club Federal Chinologic – Royal sau al asociațiilor membre/afiliate
 reprezintă apartenența la o organizație națională care susține dezvoltarea responsabilă a chinologiei.

@@ -5,7 +5,7 @@ section: "Members"
 summary: "How to join the Royal Federal Canine Club: online form, steps, fee."
 ---
 
-<img src="/images/membru-pui-husky.webp" alt="Siberian Husky puppy with a toy — the beginning of a journey in cynology" width="640" height="800" loading="eager" style="float:left;width:min(42%,300px);height:auto;border-radius:var(--radius);border:1px solid var(--color-border);margin:0 1.5rem 1rem 0" />
+<img src="/images/membru-pui-husky.webp" alt="Siberian Husky puppy with a toy — the beginning of a journey in cynology" width="640" height="962" loading="eager" style="float:left;width:min(42%,300px);height:auto;border-radius:var(--radius);border:1px solid var(--color-border);margin:0 1.5rem 1rem 0" />
 
 Membership of the Royal Federal Canine Club or of its member/affiliated associations means belonging
 to a national organisation that supports the responsible development of cynology.
