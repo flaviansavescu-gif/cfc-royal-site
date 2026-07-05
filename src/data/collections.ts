@@ -317,9 +317,17 @@ export const collectionDefs: CollectionDef[] = [
     name: "cursuri",
     slug: "cursuri",
     label: { ro: "Cursuri", en: "Courses" },
-    intro: { ro: "Cursuri și programe de formare.", en: "Courses and training programmes." },
-    empty: { ro: "Niciun curs publicat momentan.", en: "No courses published yet." },
+    intro: {
+      ro: "Cursuri și programe de formare. Candidații Școlii de Arbitraj își accesează modulele și testele în platforma dedicată.",
+      en: "Courses and training programmes. Judging School candidates access their modules and tests on the dedicated platform.",
+    },
+    empty: { ro: "Niciun curs public momentan.", en: "No public courses at the moment." },
     eyebrow: { ro: "Educație", en: "Education" },
+    extraLink: {
+      label: { ro: "Intră în platforma Școlii de Arbitraj", en: "Enter the Judging School platform" },
+      url: "/cursuri/",
+      external: false,
+    },
     sort: (a, b) => a.title.localeCompare(b.title, "ro"),
     card: (d) => ({ title: d.title, meta: d.level, excerpt: d.summary }),
     metaRows: (d, lang) =>
