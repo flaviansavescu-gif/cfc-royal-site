@@ -26,4 +26,6 @@ provided by the secretariat.
 
 <p><a href="/cursuri/" style="display:inline-flex;align-items:center;gap:.5rem;background:var(--color-primary);color:#FBFAF7;font-weight:700;padding:.7rem 1.4rem;border-radius:var(--radius);text-decoration:none">Enter the course platform →</a></p>
 
+<p style="font-size:.9rem;color:var(--color-text-muted);font-style:italic;margin-top:.35rem">Access reserved for the Judging School's lecturers and candidates, using an access code.</p>
+
 Questions about enrolment? [Contact us](/en/contact/).

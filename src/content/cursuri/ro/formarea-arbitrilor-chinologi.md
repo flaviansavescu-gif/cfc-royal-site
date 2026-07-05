@@ -26,4 +26,6 @@ codul primit de la secretariat.
 
 <p><a href="/cursuri/" style="display:inline-flex;align-items:center;gap:.5rem;background:var(--color-primary);color:#FBFAF7;font-weight:700;padding:.7rem 1.4rem;border-radius:var(--radius);text-decoration:none">Intră în platforma de cursuri →</a></p>
 
+<p style="font-size:.9rem;color:var(--color-text-muted);font-style:italic;margin-top:.35rem">Acces rezervat lectorilor și candidaților Școlii de Arbitraj, pe bază de cod.</p>
+
 Întrebări despre înscriere sau desfășurare? [Contactează-ne](/ro/contact/).

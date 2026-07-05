@@ -33,8 +33,9 @@ export interface CollectionDef {
   /** Subtitlu deasupra listei din arhivă (ex. „Rase autohtone românești”). */
   itemsHeading?: Record<Lang, string>;
   /** Buton în arhivă (ex. link extern către standardele WDF, sau intern către un regulament).
-   *  url: string unic (același pentru ambele limbi) sau pe limbi. external=false → link intern (fără target _blank). */
-  extraLink?: { label: Record<Lang, string>; url: string | Record<Lang, string>; external?: boolean };
+   *  url: string unic (același pentru ambele limbi) sau pe limbi. external=false → link intern (fără target _blank).
+   *  note: mențiune scurtă afișată sub buton (ex. cui îi este rezervat accesul). */
+  extraLink?: { label: Record<Lang, string>; url: string | Record<Lang, string>; external?: boolean; note?: Record<Lang, string> };
   /** Imagine banner afișată în arhivă, sub intro (ex. calendar expozițional). */
   banner?: { src: string; alt: Record<Lang, string> };
 }
@@ -327,6 +328,10 @@ export const collectionDefs: CollectionDef[] = [
       label: { ro: "Intră în platforma Școlii de Arbitraj", en: "Enter the Judging School platform" },
       url: "/cursuri/",
       external: false,
+      note: {
+        ro: "Acces rezervat lectorilor și candidaților Școlii de Arbitraj, pe bază de cod.",
+        en: "Access reserved for the Judging School's lecturers and candidates, using an access code.",
+      },
     },
     sort: (a, b) => a.title.localeCompare(b.title, "ro"),
     card: (d) => ({ title: d.title, meta: d.level, excerpt: d.summary }),

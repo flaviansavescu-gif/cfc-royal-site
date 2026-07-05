@@ -43,13 +43,14 @@ if (def.groupBy) {
 <BaseLayout title={def.label[lang]} lang={lang}>
   <Section eyebrow={def.eyebrow[lang]} title={def.label[lang]} intro={def.intro[lang]}>
     {def.extraLink && (
-      <p class="archive-actions">
+      <div class="archive-actions">
         <a
           class="btn btn--outline"
           href={typeof def.extraLink.url === "string" ? def.extraLink.url : def.extraLink.url[lang]}
           {...(def.extraLink.external === false ? {} : { target: "_blank", rel: "noopener" })}
         >{def.extraLink.label[lang]} {def.extraLink.external === false ? "→" : "↗"}</a>
-      </p>
+        {def.extraLink.note && <p class="archive-actions__note">{def.extraLink.note[lang]}</p>}
+      </div>
     )}
     {def.banner && (
       <figure class="archive-banner">
@@ -86,6 +87,7 @@ if (def.groupBy) {
   .group + .group { margin-top: 2.5rem; }
   .group__title { color: var(--color-primary); font-size: var(--fs-600); margin-bottom: 1rem; padding-bottom: 0.4rem; border-bottom: 2px solid var(--color-border); }
   .archive-actions { margin: -0.5rem 0 1.75rem; }
+  .archive-actions__note { margin: 0.5rem 0 0; font-size: var(--fs-300); color: var(--color-text-muted); font-style: italic; }
   .archive-banner { margin: 0 0 2rem; }
   .archive-banner img { display: block; width: 100%; height: auto; border-radius: var(--radius); border: 1px solid var(--color-border); }
 </style>
