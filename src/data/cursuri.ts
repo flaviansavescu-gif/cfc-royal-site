@@ -225,5 +225,73 @@ export const MODULE: Modul[] = [
 /** Pragul de promovare a testelor (procent). */
 export const PRAG_PROMOVARE = 70;
 
-/** SHA-256 al codului de acces (codul în sine NU apare în cod). */
+/** SHA-256 al codului de acces al CANDIDAȚILOR (codul în sine NU apare în cod). */
 export const ACCES_HASH = "48493761ba33bce0e9919789a88582a482179869fa76dbbaa93be7d67dad5470";
+
+/** SHA-256 al codului de ADMINISTRATOR (acces la toată platforma). */
+export const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
+
+// =========================================================================
+// LECTORI — fiecare are spațiul lui la /cursuri/lector/<slug>/, accesibil
+// doar cu codul lui (sau cu codul de administrator). Materialele de curs
+// se publică aici (un fișier PDF/pagină per material), pe măsură ce sosesc.
+// =========================================================================
+
+export interface Material {
+  titlu: string;
+  url: string; // ex. /cursuri-materiale/<lector>/<fisier>.pdf sau pagină internă
+  data?: string; // ex. "3 iulie 2026"
+}
+
+export interface Lector {
+  slug: string;
+  nume: string;
+  rol: string;
+  hash: string; // SHA-256 al codului de acces personal
+  materiale: Material[];
+}
+
+export const LECTORI: Lector[] = [
+  {
+    slug: "flavian-savescu",
+    nume: "Flavian-Sergiu Savescu",
+    rol: "Președinte al Colegiului de Arbitri · WDF All Breed",
+    hash: "71a012c1d53cdf7fc5b94202c736827245baa8cc3d629e674e8a6074266c8c14",
+    materiale: [],
+  },
+  {
+    slug: "mihail-cosmin-neagu",
+    nume: "Mihail Cosmin Neagu",
+    rol: "Arbitru WDF · All Breed",
+    hash: "21048e2893df687a5195519e5d665440c99a6060e11044fb2509b886ca0cc8b9",
+    materiale: [],
+  },
+  {
+    slug: "georgeta-mihaela-chivu",
+    nume: "Georgeta Mihaela Chivu",
+    rol: "Arbitru WDF · All Breed",
+    hash: "ddd1b278ddf55141d8f2bca8857160b38cc64024e3f5b4368cbebee329442817",
+    materiale: [],
+  },
+  {
+    slug: "mihail-sorin-iacob",
+    nume: "Mihail Sorin Iacob",
+    rol: "Arbitru WDF · All Breed",
+    hash: "d3c043092f13a97d4d83dd0df96be08162ec7e26ea7241dc1da685c8d89e1b18",
+    materiale: [],
+  },
+  {
+    slug: "andreea-daniela-popescu",
+    nume: "Andreea-Daniela Popescu",
+    rol: "Arbitru WDF · Grupele 3, 5, 9",
+    hash: "3a7948f0609b92e2a9a46075b909600eec39244f36bc2477c32f9bbc1484f697",
+    materiale: [],
+  },
+  {
+    slug: "alexandru-paul-ciolac",
+    nume: "Alexandru Paul Ciolac",
+    rol: "Arbitru WDF · Grupele 2, 3, 4, 6, 8",
+    hash: "eb393a27cbaf6fd51833e060e8a421912f17b1b12ea8c499e2084305397cc1d7",
+    materiale: [],
+  },
+];

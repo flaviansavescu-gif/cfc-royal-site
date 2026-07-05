@@ -1,10 +1,10 @@
 ---
 // /cursuri/module/ — tabloul de bord al candidatului: lista celor 8 module.
 import CursuriLayout from "../../../layouts/CursuriLayout.astro";
-import { MODULE } from "../../../data/cursuri";
+import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
 ---
 
-<CursuriLayout title="Module" protejat>
+<CursuriLayout title="Module" allow={[ACCES_HASH, ADMIN_HASH]}>
   <h1 class="d-title">Modulele Școlii de Arbitraj</h1>
   <p class="d-sub">
     Parcurge lecturile fiecărui modul, apoi susține testul. Pragul de promovare este <strong>70%</strong>.

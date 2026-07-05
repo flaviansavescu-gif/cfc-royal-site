@@ -2,7 +2,7 @@
 // /cursuri/<modul>/ — pagina unui modul: obiectiv, lecturi și (dacă e activ) testul.
 // Răspunsurile corecte NU există în această pagină — corectarea se face pe server.
 import CursuriLayout from "../../layouts/CursuriLayout.astro";
-import { MODULE, PRAG_PROMOVARE } from "../../data/cursuri";
+import { MODULE, PRAG_PROMOVARE, ACCES_HASH, ADMIN_HASH } from "../../data/cursuri";
 
 export function getStaticPaths() {
   return MODULE.map((m) => ({ params: { modul: m.slug }, props: { m } }));
@@ -11,7 +11,7 @@ export function getStaticPaths() {
 const { m } = Astro.props;
 ---
 
-<CursuriLayout title={`Modul ${m.nr}`} protejat>
+<CursuriLayout title={`Modul ${m.nr}`} allow={[ACCES_HASH, ADMIN_HASH]}>
   <p class="m-crumb"><a href="/cursuri/module/">← Toate modulele</a></p>
   <p class="m-eyebrow">Modulul {m.nr} din {MODULE.length}</p>
   <h1 class="m-title">{m.titlu}</h1>

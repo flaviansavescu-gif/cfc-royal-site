@@ -1,0 +1,63 @@
+---
+// /cursuri/lector/<slug>/ — spațiul personal al unui lector.
+// Accesibil DOAR cu codul lectorului respectiv sau cu codul de administrator.
+// Materialele se publică în src/data/cursuri.ts (lista `materiale` a lectorului).
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import { LECTORI, ADMIN_HASH } from "../../../data/cursuri";
+
+export function getStaticPaths() {
+  return LECTORI.map((l) => ({ params: { slug: l.slug }, props: { l } }));
+}
+
+const { l } = Astro.props;
+---
+
+<CursuriLayout title={l.nume} allow={[l.hash, ADMIN_HASH]}>
+  <p class="l-eyebrow">Spațiul lectorului</p>
+  <h1 class="l-title">{l.nume}</h1>
+  <p class="l-rol">{l.rol}</p>
+
+  <h2 class="l-h2">Materialele mele de curs</h2>
+  {l.materiale.length ? (
+    <ul class="l-materiale">
+      {l.materiale.map((m) => (
+        <li>
+          <a href={m.url} target="_blank" rel="noopener">{m.titlu} ↗</a>
+          {m.data && <span class="l-data">{m.data}</span>}
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <div class="l-gol">
+      <p><strong>Niciun material publicat încă.</strong></p>
+      <p>
+        Trimite cursurile tale (PDF, prezentări, documente) secretariatului Școlii —
+        <a href="mailto:contact@cfc-royal.ro">contact@cfc-royal.ro</a> — și vor apărea aici,
+        în spațiul tău, de regulă în aceeași zi.
+      </p>
+    </div>
+  )}
+
+  <h2 class="l-h2">Resurse comune</h2>
+  <ul class="l-materiale">
+    <li><a href="/ro/regulamente/" target="_blank" rel="noopener">Regulamentele WDF (site) ↗</a></li>
+    <li><a href="/ro/documente/cod-etic/" target="_blank" rel="noopener">Codul Etic ↗</a></li>
+    <li><a href="/ro/documente/regulamentul-colegiului-de-arbitri/" target="_blank" rel="noopener">Regulamentul Colegiului de Arbitri ↗</a></li>
+  </ul>
+</CursuriLayout>
+
+<style>
+  .l-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .l-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.25rem; }
+  .l-rol { color: var(--color-text-muted); margin-top: 0; }
+  .l-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2.25rem 0 0.75rem; font-size: 1.35rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.35rem; }
+  .l-materiale { padding-left: 1.2rem; display: grid; gap: 0.5rem; }
+  .l-materiale a { color: var(--color-accent-dark); }
+  .l-data { margin-left: 0.6rem; font-size: 0.82rem; color: var(--color-text-muted); }
+  .l-gol {
+    background: var(--color-surface); border: 1px dashed var(--color-border);
+    border-radius: var(--radius); padding: 1.25rem 1.5rem; max-width: 40rem;
+  }
+  .l-gol p { margin: 0 0 0.5rem; }
+  .l-gol p:last-child { margin-bottom: 0; color: var(--color-text-muted); }
+</style>

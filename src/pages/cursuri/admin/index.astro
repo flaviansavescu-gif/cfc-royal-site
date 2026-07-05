@@ -1,0 +1,46 @@
+---
+// /cursuri/admin/ — panoul administratorului (acces total la platformă).
+// Accesibil DOAR cu codul de administrator.
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
+---
+
+<CursuriLayout title="Administrare" allow={[ADMIN_HASH]}>
+  <p class="a-eyebrow">Administrare</p>
+  <h1 class="a-title">Panoul platformei</h1>
+  <p class="a-sub">Ai acces la toate zonele: modulele candidaților și spațiile lectorilor.</p>
+
+  <h2 class="a-h2">Zona candidaților</h2>
+  <ul class="a-list">
+    <li><a href="/cursuri/module/">Modulele de curs ({MODULE.length}) și testele →</a></li>
+  </ul>
+
+  <h2 class="a-h2">Spațiile lectorilor</h2>
+  <ul class="a-list">
+    {LECTORI.map((l) => (
+      <li>
+        <a href={`/cursuri/lector/${l.slug}/`}>{l.nume} →</a>
+        <span class="a-meta">{l.materiale.length ? `${l.materiale.length} materiale` : "fără materiale încă"}</span>
+      </li>
+    ))}
+  </ul>
+
+  <h2 class="a-h2">Cum publici un curs nou</h2>
+  <ol class="a-pasi">
+    <li>Primești materialul de la lector (PDF, prezentare, document).</li>
+    <li>Îl pui în folderul de lucru și îi spui lui Claude în ce spațiu de lector (și, opțional, în ce modul) să-l publice.</li>
+    <li>Materialul apare în platformă la următoarea publicare — de regulă în câteva minute.</li>
+  </ol>
+</CursuriLayout>
+
+<style>
+  .a-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .a-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
+  .a-sub { color: var(--color-text-muted); }
+  .a-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2.25rem 0 0.75rem; font-size: 1.35rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.35rem; }
+  .a-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+  .a-list a { color: var(--color-accent-dark); font-weight: 600; text-decoration: none; }
+  .a-list a:hover { text-decoration: underline; }
+  .a-meta { margin-left: 0.6rem; font-size: 0.82rem; color: var(--color-text-muted); }
+  .a-pasi { max-width: 44rem; display: grid; gap: 0.4rem; padding-left: 1.2rem; }
+</style>

@@ -2,15 +2,17 @@
 // CursuriLayout.astro — învelișul platformei de cursuri (Școala de Arbitraj).
 // Separat de BaseLayout: fără meniul site-ului, fără indexare (noindex + pagefind-ignore),
 // cu poartă de acces pe bază de cod (verificată client-side; cheile testelor stau pe server).
+// `allow` = lista amprentelor (SHA-256) acceptate pe pagină; codul de administrator
+// e inclus de pagini acolo unde adminul are drept de acces.
 import "../styles/global.css";
-import { ACCES_HASH } from "../data/cursuri";
 
 interface Props {
   title: string;
-  /** true pe paginile protejate (module); false pe pagina de acces. */
-  protejat?: boolean;
+  /** Amprentele codurilor care deblochează pagina. Lipsă = pagină publică (ex. intrarea). */
+  allow?: string[];
 }
-const { title, protejat = false } = Astro.props;
+const { title, allow } = Astro.props;
+const protejat = !!(allow && allow.length);
 ---
 
 <!doctype html>
@@ -21,12 +23,13 @@ const { title, protejat = false } = Astro.props;
     <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#1F4D3A" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="256x256" href="/favicon.png" />
     <title>{title} — Școala de Arbitraj CFC-Royal</title>
     {protejat && (
-      <script is:inline define:vars={{ hash: ACCES_HASH }}>
-        // Poartă de acces: fără codul corect, înapoi la pagina de intrare.
+      <script is:inline define:vars={{ allow }}>
+        // Poartă de acces: fără un cod acceptat pe această pagină, înapoi la intrare.
         try {
-          if (localStorage.getItem("cfcrCursuriAcces") !== hash) location.replace("/cursuri/");
+          if (!allow.includes(localStorage.getItem("cfcrAcces"))) location.replace("/cursuri/");
         } catch (e) {
           location.replace("/cursuri/");
         }
@@ -36,7 +39,7 @@ const { title, protejat = false } = Astro.props;
   <body data-pagefind-ignore>
     <header class="c-header">
       <div class="c-header__inner">
-        <a class="c-brand" href="/cursuri/module/">
+        <a class="c-brand" href="/cursuri/">
           <img src="/images/centrul-competentelor.webp" alt="Centrul de Dezvoltare a Competențelor Chinologice" width="56" height="60" loading="eager" />
           <span class="c-brand__text">
             <strong>Școala de Arbitraj</strong>
@@ -60,7 +63,7 @@ const { title, protejat = false } = Astro.props;
     {protejat && (
       <script is:inline>
         document.getElementById("c-logout")?.addEventListener("click", () => {
-          try { localStorage.removeItem("cfcrCursuriAcces"); } catch (e) {}
+          try { localStorage.removeItem("cfcrAcces"); } catch (e) {}
           location.href = "/cursuri/";
         });
       </script>

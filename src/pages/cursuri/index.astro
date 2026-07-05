@@ -1,8 +1,13 @@
 ---
-// /cursuri/ — pagina de intrare în platforma de cursuri (cod de acces).
-// Codul NU apare în pagină: se compară SHA-256 al codului introdus cu amprenta salvată.
+// /cursuri/ — pagina de intrare în platformă (un singur câmp, mai multe tipuri de cod):
+//  • codul candidaților  -> modulele de curs
+//  • codul unui lector   -> spațiul personal al lectorului
+//  • codul administratorului -> panoul de administrare (acces total)
+// Codurile NU apar în pagină: se compară SHA-256 al codului introdus cu amprentele salvate.
 import CursuriLayout from "../../layouts/CursuriLayout.astro";
-import { ACCES_HASH } from "../../data/cursuri";
+import { ACCES_HASH, ADMIN_HASH, LECTORI } from "../../data/cursuri";
+
+const lectorRoutes = Object.fromEntries(LECTORI.map((l) => [l.hash, `/cursuri/lector/${l.slug}/`]));
 ---
 
 <CursuriLayout title="Acces platformă">
@@ -11,7 +16,7 @@ import { ACCES_HASH } from "../../data/cursuri";
     <h1>Platforma de cursuri</h1>
     <p class="gate__sub">
       Bine ai venit la Școala de Arbitraj a Clubului Federal Chinologic – Royal.
-      Introdu codul de acces primit de la secretariat.
+      Introdu codul de acces primit de la secretariat — candidat sau lector.
     </p>
     <form id="gate-form" autocomplete="off">
       <label class="sr-only" for="cod">Cod de acces</label>
@@ -23,10 +28,18 @@ import { ACCES_HASH } from "../../data/cursuri";
   </div>
 </CursuriLayout>
 
-<script is:inline define:vars={{ hash: ACCES_HASH }}>
-  // Dacă e deja deblocat, sări direct la module.
+<script is:inline define:vars={{ candidatHash: ACCES_HASH, adminHash: ADMIN_HASH, lectorRoutes }}>
+  function destinatie(hash) {
+    if (hash === candidatHash) return "/cursuri/module/";
+    if (hash === adminHash) return "/cursuri/admin/";
+    return lectorRoutes[hash] || null;
+  }
+
+  // Dacă e deja deblocat, sări direct la zona potrivită.
   try {
-    if (localStorage.getItem("cfcrCursuriAcces") === hash) location.replace("/cursuri/module/");
+    const salvat = localStorage.getItem("cfcrAcces");
+    const dest = salvat && destinatie(salvat);
+    if (dest) location.replace(dest);
   } catch (e) {}
 
   async function sha256(text) {
@@ -38,9 +51,11 @@ import { ACCES_HASH } from "../../data/cursuri";
     e.preventDefault();
     const cod = document.getElementById("cod").value.trim();
     const err = document.getElementById("gate-err");
-    if ((await sha256(cod)) === hash) {
-      try { localStorage.setItem("cfcrCursuriAcces", hash); } catch (e2) {}
-      location.href = "/cursuri/module/";
+    const hash = await sha256(cod);
+    const dest = destinatie(hash);
+    if (dest) {
+      try { localStorage.setItem("cfcrAcces", hash); } catch (e2) {}
+      location.href = dest;
     } else {
       err.hidden = false;
       document.getElementById("cod").select();
