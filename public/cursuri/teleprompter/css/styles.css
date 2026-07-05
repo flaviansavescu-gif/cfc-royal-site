@@ -314,3 +314,42 @@ kbd {
   .topbar__title { font-size: 16px; }
   .ctl-speed__label, .ctl-speed__unit { display: none; }
 }
+
+/* =====================================================================
+   Platforma CFC-Royal — butonul „Încarcă un curs" + dialogul de programă
+   ===================================================================== */
+.btn--platform {
+  width: 100%;
+  margin: 0 0 10px;
+  border-color: var(--tp-accent-2);
+  color: var(--tp-accent);
+  text-align: center;
+}
+.btn--platform:hover { background: rgba(79, 157, 255, 0.12); }
+
+.platform-dialog {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.6); padding: 20px;
+}
+.platform-dialog[hidden] { display: none; }
+.platform-dialog__panel {
+  width: min(560px, 100%); max-height: 80vh; overflow: auto;
+  background: var(--tp-panel); border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius); padding: 18px 20px;
+}
+.platform-dialog__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.platform-dialog__head h2 { margin: 0; font-size: 18px; color: var(--tp-fg); }
+.platform-dialog__hint { margin: 6px 0 14px; font-size: 13px; color: var(--tp-fg-dim); }
+.platform-dialog__list { display: grid; gap: 16px; color: var(--tp-fg-dim); }
+.platform-dialog__group h3 {
+  margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--tp-fg-dim); border-bottom: 1px solid var(--tp-border); padding-bottom: 4px;
+}
+.platform-dialog__item {
+  display: block; width: 100%; text-align: left; margin: 0 0 6px;
+  background: var(--tp-panel-2); border: 1px solid var(--tp-border); color: var(--tp-fg);
+  border-radius: var(--tp-radius); padding: 10px 12px; font-size: 14px; cursor: pointer;
+}
+.platform-dialog__item:hover { border-color: var(--tp-accent-2); }
+.platform-dialog__item:disabled { opacity: 0.6; cursor: wait; }

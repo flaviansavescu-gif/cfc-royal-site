@@ -41,6 +41,9 @@
           <h2>Scripturi</h2>
           <button id="btn-new-script" class="btn btn--small" type="button">+ Nou</button>
         </div>
+        <button id="btn-platform-course" class="btn btn--small btn--platform" type="button" title="Alege un curs din programa lectorilor">
+          📚 Încarcă un curs din platformă
+        </button>
         <ul id="script-list" class="script-list" role="listbox" aria-label="Listă scripturi"></ul>
         <p class="library__hint">Scripturile se salvează local, în acest browser.</p>
       </aside>
@@ -221,6 +224,18 @@
     </div>
   </div>
 
+  <!-- Dialog: alegerea unui curs din programa lectorilor (platforma CFC-Royal) -->
+  <div id="platform-dialog" class="platform-dialog" hidden>
+    <div class="platform-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="platform-dialog-title">
+      <div class="platform-dialog__head">
+        <h2 id="platform-dialog-title">Cursurile din platformă</h2>
+        <button id="platform-dialog-close" class="btn btn--small" type="button">Închide ✕</button>
+      </div>
+      <p class="platform-dialog__hint">Alege un curs — se adaugă în biblioteca ta și se deschide în editor.</p>
+      <div id="platform-dialog-list" class="platform-dialog__list">Se încarcă programa…</div>
+    </div>
+  </div>
+
   <!-- Notificare scurtă (toast) -->
   <div id="toast" class="toast" hidden></div>
 
@@ -232,6 +247,7 @@
   <script src="js/prompter.js"></script>
   <script src="js/remote.js"></script>
   <script src="js/voice.js"></script>
+  <script src="js/platform.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

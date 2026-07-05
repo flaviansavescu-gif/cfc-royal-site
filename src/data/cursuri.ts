@@ -241,6 +241,8 @@ export interface Material {
   titlu: string;
   url: string; // ex. /cursuri-materiale/<lector>/<fisier>.pdf sau pagină internă
   data?: string; // ex. "3 iulie 2026"
+  /** Versiunea text (Markdown) a cursului — folosită de teleprompter la „Încarcă un curs”. */
+  md?: string;
 }
 
 export interface Lector {
@@ -258,8 +260,8 @@ export const LECTORI: Lector[] = [
     rol: "Președinte al Colegiului de Arbitri · WDF All Breed",
     hash: "71a012c1d53cdf7fc5b94202c736827245baa8cc3d629e674e8a6074266c8c14",
     materiale: [
-      { titlu: "Suport de curs 4.1 — Regulamente WDF și standarde (PDF)", url: "/cursuri-materiale/flavian-savescu/suport-curs-4-1-regulamente-wdf-si-standarde.pdf" },
-      { titlu: "Suport de curs 4.3 — Codul Etic al arbitrului (PDF)", url: "/cursuri-materiale/flavian-savescu/suport-curs-4-3-cod-etic-arbitru.pdf" },
+      { titlu: "Suport de curs 4.1 — Regulamente WDF și standarde (PDF)", url: "/cursuri-materiale/flavian-savescu/suport-curs-4-1-regulamente-wdf-si-standarde.pdf", md: "/cursuri-materiale/flavian-savescu/suport-curs-4-1-regulamente-wdf-si-standarde.md" },
+      { titlu: "Suport de curs 4.3 — Codul Etic al arbitrului (PDF)", url: "/cursuri-materiale/flavian-savescu/suport-curs-4-3-cod-etic-arbitru.pdf", md: "/cursuri-materiale/flavian-savescu/suport-curs-4-3-cod-etic-arbitru.md" },
       { titlu: "Orarul cursurilor 4.1 și 4.3 (PDF)", url: "/cursuri-materiale/flavian-savescu/orar-curs-4-1-si-4-3.pdf" },
     ],
   },
@@ -276,8 +278,8 @@ export const LECTORI: Lector[] = [
     rol: "Arbitru WDF · All Breed",
     hash: "ddd1b278ddf55141d8f2bca8857160b38cc64024e3f5b4368cbebee329442817",
     materiale: [
-      { titlu: "Suport de curs 4.2.4 — Handling expozițional (PDF)", url: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-2-4-handling-expozitional.pdf" },
-      { titlu: "Suport de curs 4.4.5 — Grooming canin (PDF)", url: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-4-5-grooming-canin.pdf" },
+      { titlu: "Suport de curs 4.2.4 — Handling expozițional (PDF)", url: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-2-4-handling-expozitional.pdf", md: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-2-4-handling-expozitional.md" },
+      { titlu: "Suport de curs 4.4.5 — Grooming canin (PDF)", url: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-4-5-grooming-canin.pdf", md: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-4-5-grooming-canin.md" },
       { titlu: "Orarul cursurilor 4.2.4 și 4.4.5 (PDF)", url: "/cursuri-materiale/georgeta-mihaela-chivu/orar-curs-4-2-4-si-4-4-5.pdf" },
     ],
   },

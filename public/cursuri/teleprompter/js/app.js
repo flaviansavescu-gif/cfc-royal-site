@@ -33,6 +33,9 @@ TP.toast = (function () {
     // 3) Motorul de prompter
     TP.Prompter.init();
 
+    // 3b) Legătura cu platforma de cursuri CFC-Royal („Încarcă un curs")
+    if (TP.Platform) TP.Platform.init();
+
     // 4) Butoanele de nivel înalt din editor
     document.getElementById("btn-start-prompter").addEventListener("click", function () {
       var script = TP.Library.getActive();

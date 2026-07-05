@@ -219,5 +219,15 @@ TP.Library = (function () {
       return findById(activeId);
     },
     getActiveId: function () { return activeId; },
+    /** Adaugă un script nou (folosit de platformă la „Încarcă un curs”). */
+    addScript: function (name, text) {
+      var s = { id: TP.Storage.uid(), name: name || "Curs", text: text || "", updated: nowStamp() };
+      scripts.unshift(s);
+      TP.Storage.saveScripts(scripts);
+      activeId = s.id;
+      renderList();
+      loadIntoEditor(s.id);
+      return s.id;
+    },
   };
 })();
