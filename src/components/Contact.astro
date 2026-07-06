@@ -67,6 +67,14 @@ const tel = SITE.contact.phone.replace(/\s+/g, "");
         <dt>{lang === "en" ? "Hours" : "Program"}</dt>
         <dd>{SITE.contact.schedule[lang].map((l) => <span class="block">{l}</span>)}</dd>
       </dl>
+      <img
+        class="contact__photo"
+        src="/images/contact-husky.webp"
+        alt={lang === "en" ? "Husky resting its head, waiting patiently" : "Husky cu capul sprijinit, așteptând răbdător"}
+        width="1200"
+        height="800"
+        loading="lazy"
+      />
     </aside>
   </div>
 </section>
@@ -93,6 +101,7 @@ const tel = SITE.contact.phone.replace(/\s+/g, "");
   .contact__dl dt:first-child { margin-top: 0; }
   .contact__dl dd { font-weight: 600; }
   .contact__dl .block { display: block; font-weight: 400; }
+  .contact__photo { display: block; width: 100%; height: auto; margin-top: 1.25rem; border-radius: var(--radius); border: 1px solid var(--color-border); }
 
   @media (max-width: 760px) { .contact__grid { grid-template-columns: 1fr; } }
 </style>

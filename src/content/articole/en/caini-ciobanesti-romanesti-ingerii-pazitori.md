@@ -7,6 +7,8 @@ publishedAt: 2026-06-29
 draft: false
 ---
 
+<img src="/images/articol-ciobanesc-portret.webp" alt="Portrait of a black Romanian shepherd dog with a white chest — guardian angel of the flocks" width="1400" height="932" loading="eager" style="width:100%;height:auto;border-radius:var(--radius);border:1px solid var(--color-border);margin-bottom:1.5rem" />
+
 Today, despite population growth, the expansion of human settlements and deforestation, Romania is home to the largest population of large carnivores in Europe (the bear, the wolf and the lynx) and ranks 4th in the world (after Russia, Canada and the U.S.A.) in terms of its brown bear population.
 
 Within the European Union, Romania also ranks 3rd in sheep and goat farming.
@@ -48,6 +50,8 @@ What is more, if we were to follow the example of the shepherd Badea Cârțan (c
 Therefore, since the Romanian sheep breeds, the Țurcana and the Țigaie, are at least 2000 years old (4000–5000 years, according to some authors), it is certain that the Geto-Dacian shepherds first, and then the Romanian ones, needed shepherd dogs to protect the flocks they raised in the Carpathian mountains. In this respect, the archaeological evidence comes into play — bones of shepherd dogs very similar in size and form to today's Romanian shepherd dogs. Among this archaeological evidence, we may mention, by way of example, the finds at Poiana Doicești in Neamț County, those from the medieval settlement of Garvăn-Dinogetia, and those from the commune of Cetățeni, Argeș County.
 
 And so the picture becomes complete, and we find that the Carpathian mountains have echoed for thousands of years with the powerful "barking" of the Romanian shepherd dogs — the watchmen of the mountains — in their tireless struggle with their mortal enemy: the wolf and the bear, more rarely the lynx, and increasingly often the wild boar.
+
+<img src="/images/articol-ciobanesc-paza.webp" alt="Romanian shepherd dog keeping watch by the homestead" width="1400" height="932" loading="lazy" style="width:100%;height:auto;border-radius:var(--radius);border:1px solid var(--color-border);margin:1rem 0" />
 
 The psychology of our forebears (brave and just), their millennia-old occupation (sheep farming), and the climate (temperate-continental) and relief (from plain to mountain) of our country led to the formation of some of the most beautiful, hardy, well-adapted and effective shepherd dog breeds in the world. This is why it is entirely false to put forward the idea that the Romanian shepherd dog breeds are the creation of modern cynologists, breeders of pedigreed dogs. There is only one reality, namely that the Romanian mastiff is the creation of the Geto-Dacian shepherd first, taken up by the Romanian shepherd from the most ancient times and passed down from generation to generation to this day.
 

@@ -186,6 +186,10 @@ export const collectionDefs: CollectionDef[] = [
     intro: { ro: "Canise înregistrate la club.", en: "Kennels registered with the club." },
     empty: { ro: "Nicio canisă publicată momentan.", en: "No kennels published yet." },
     eyebrow: { ro: "Organizația", en: "Organization" },
+    banner: {
+      src: "/images/canise-banner.webp",
+      alt: { ro: "Câine tânăr de rasă odihnindu-se în iarbă", en: "Young purebred dog resting in the grass" },
+    },
     sort: (a, b) => a.title.localeCompare(b.title, "ro"),
     card: (d) => ({ title: d.title, meta: [d.city, d.county].filter(Boolean).join(", "), excerpt: (d.breeds || []).join(", ") }),
     metaRows: (d, lang) =>
@@ -211,6 +215,10 @@ export const collectionDefs: CollectionDef[] = [
     eyebrow: { ro: "Chinologie", en: "Cynology" },
     itemsHeading: { ro: "Rasele autohtone românești", en: "Romanian native breeds" },
     extraLink: { label: { ro: "Toate standardele de rasă (WDF)", en: "All breed standards (WDF)" }, url: "https://wdf-international.org/breeds/" },
+    banner: {
+      src: "/images/standarde-banner.webp",
+      alt: { ro: "Câine ciobănesc românesc alb cu negru, în mers", en: "Black-and-white Romanian shepherd dog walking" },
+    },
     sort: (a, b) => a.title.localeCompare(b.title, "ro"),
     card: (d) => ({ title: d.title, meta: d.originCountry || d.breedGroup, excerpt: d.summary }),
     metaRows: (d, lang) =>

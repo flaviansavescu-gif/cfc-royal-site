@@ -7,6 +7,8 @@ publishedAt: 2026-06-29
 draft: false
 ---
 
+<img src="/images/articol-ciobanesc-portret.webp" alt="Portret de câine ciobănesc românesc negru, cu pieptul alb — înger păzitor al turmelor" width="1400" height="932" loading="eager" style="width:100%;height:auto;border-radius:var(--radius);border:1px solid var(--color-border);margin-bottom:1.5rem" />
+
 În zilele noastre, în ciuda creșterii demografice, a expansiunii așezărilor omenești și a defrișărilor, România găzduiește pe teritoriul său cea mai mare populație de carnivore mari din Europa (ursul, lupul și râsul) și ocupă locul 4 la nivel internațional (după Rusia, Canada și S.U.A.) în ceea ce privește populația de urs brun.
 
 De asemenea, în cadrul Uniunii Europene, România ocupă locul 3 în ceea ce privește creșterea ovinelor și caprinelor.
@@ -48,6 +50,8 @@ Mai mult decât atât, dacă am urma exemplul ciobanului Badea Cârțan (numit d
 Așadar, din moment ce rasele de oi românești, țurcana și țigaia, au o vechime de minim 2000 de ani (4000–5000 de ani, după unii autori), este cert faptul că ciobanii geto-daci, mai întâi, și apoi cei români, au avut nevoie de câini ciobănești pentru a-și proteja turmele pe care le creșteau în munții Carpați. În acest sens, apar în scenă dovezile arheologice reprezentând oseminte ale unor câini ciobănești foarte asemănători, sub aspectul taliei și formei, cu ciobăneștii românești din zilele noastre. Dintre aceste dovezi arheologice, amintim, cu titlu de exemplu, pe cele de la Poiana Doicești din județul Neamț, cele din așezarea medievală Garvăn-Dinogetia, precum și pe cele din comuna Cetățeni, județul Argeș.
 
 Iacă așa, tabloul devine complet și astfel constatăm că munții Carpați răsună de mii de ani de „bătăile" (lătrăturile) puternice ale ciobăneștilor românești, străjerii munților, în neobosita lor luptă cu dușmanul de moarte – lupul și ursul, mai rar râsul și, din ce în ce mai des, mistrețul.
+
+<img src="/images/articol-ciobanesc-paza.webp" alt="Câine ciobănesc românesc stând de veghe lângă gospodărie" width="1400" height="932" loading="lazy" style="width:100%;height:auto;border-radius:var(--radius);border:1px solid var(--color-border);margin:1rem 0" />
 
 Psihologia strămoșilor noștri (viteji și drepți), ocupația lor milenară (oieritul), condițiile de climă (temperat-continentală) și relief (de la câmpie la munte) din țara noastră au dus la formarea unora dintre cele mai frumoase, rezistente, bine adaptate și eficiente rase de câini ciobănești din lume. Iată de ce este cu totul fals să lansăm ideea potrivit căreia rasele de câini ciobănești românești sunt creația unor chinologi moderni, crescători de câini cu „patalama". Realitatea este una singură, și anume aceea că dulăul românesc este creația ciobanului geto-dac mai întâi, preluată de ciobanul român din cele mai vechi timpuri și transmisă din generație în generație până în zilele noastre.
 
