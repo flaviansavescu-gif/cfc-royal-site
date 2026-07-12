@@ -85,7 +85,7 @@ const ro: HomeContent = {
     items: [
       { title: "Centrul de Dezvoltare a Competențelor Chinologice", excerpt: "Formarea arbitrilor, comisarilor de ring, organizatorilor și prezentatorilor chinologi.", slug: "educatie/centrul-competentelor-chinologice" },
       { title: "Cursuri și webinare", excerpt: "Sesiuni despre standarde, creștere și îngrijire.", slug: "cursuri" },
-      { title: "Examene și certificări", excerpt: "Atestarea competențelor chinologice.", slug: "educatie/examene" },
+      { title: "Formarea Arbitrilor — Seria 2026", excerpt: "Programa de pregătire și platforma de cursuri a Școlii de Arbitraj.", slug: "cursuri/formarea-arbitrilor-chinologi" },
     ],
   },
   stats: {
@@ -165,7 +165,7 @@ const en: HomeContent = {
     items: [
       { title: "Centre for Cynological Competencies", excerpt: "Training judges, ring stewards, organisers and presenters.", slug: "educatie/centrul-competentelor-chinologice" },
       { title: "Courses & webinars", excerpt: "Sessions on standards, breeding and care.", slug: "cursuri" },
-      { title: "Exams & certifications", excerpt: "Certification of cynological competence.", slug: "educatie/examene" },
+      { title: "Judges Training — 2026 Series", excerpt: "The training syllabus and the Judging School course platform.", slug: "cursuri/formarea-arbitrilor-chinologi" },
     ],
   },
   stats: {

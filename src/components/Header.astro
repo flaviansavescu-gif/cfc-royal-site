@@ -24,7 +24,7 @@ function isActive(slug: string): boolean {
       <nav class="topbar__links" aria-label={t("a11y.mainNav")}>
         <a href={localizePath("cautare", lang)}>{t("topbar.search")}</a>
         <a href={localizePath("magazin", lang)}>{t("topbar.shop")}</a>
-        <a href={localizePath("membri/cont", lang)}>{t("topbar.account")}</a>
+        {/* „Contul meu” (membri/cont) — scos temporar: pagina de cont nu există încă, linkul ducea la 404. */}
       </nav>
     </div>
   </div>

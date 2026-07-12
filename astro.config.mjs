@@ -19,7 +19,13 @@ export default defineConfig({
       redirectToDefaultLocale: false,
     },
   },
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      // Platforma de cursuri (/cursuri/...) e privată: robots o interzice, deci nu apare nici în sitemap.
+      // Paginile publice /ro/cursuri/ și /en/cursuri/ rămân incluse (nu încep cu /cursuri/).
+      filter: (page) => !new URL(page).pathname.startsWith("/cursuri/"),
+    }),
+  ],
   build: {
     format: "directory",
   },
