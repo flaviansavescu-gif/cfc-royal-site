@@ -93,7 +93,7 @@ const ro: HomeContent = {
     items: [
       { value: "167", label: "Membri activi" },
       { value: "20+", label: "Expoziții organizate" },
-      { value: "23", label: "Canise înregistrate" },
+      { value: "28", label: "Canise înregistrate" },
       { value: "10", label: "Arbitri licențiați" },
     ],
   },
@@ -173,7 +173,7 @@ const en: HomeContent = {
     items: [
       { value: "167", label: "Active members" },
       { value: "20+", label: "Shows organised" },
-      { value: "23", label: "Registered kennels" },
+      { value: "28", label: "Registered kennels" },
       { value: "10", label: "Licensed judges" },
     ],
   },
