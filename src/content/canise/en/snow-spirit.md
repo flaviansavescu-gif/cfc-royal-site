@@ -1,10 +1,10 @@
 ---
 title: "Snow Spirit"
 lang: en
-summary: "Registered kennel — Husky. Owner: Savescu Flavian Sergiu."
+summary: "Registered kennel — Siberian Husky. Owner: Savescu Flavian Sergiu."
 affix: "Snow Spirit"
 owner: "Savescu Flavian Sergiu"
-breeds: ["Husky"]
+breeds: ["Siberian Husky"]
 registrationNumber: "AFX026/2026"
 country: "Romania"
 status: "activă"
