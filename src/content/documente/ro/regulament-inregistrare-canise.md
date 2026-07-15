@@ -58,7 +58,10 @@ a) are calitatea de membru al Asociației, cu cotizația la zi;
 
 b) aderă la Codul Etic al Asociației și la principiile privind bunăstarea animalului;
 
-c) nu se află sub o sancțiune disciplinară activă care să interzică activitatea de creștere.
+c) nu se află sub o sancțiune disciplinară activă care să interzică activitatea de creștere;
+
+d) deține în proprietate minimum 3 (trei) exemplare, dintre care cel puțin o femelă cu dreptul de
+montă obținut.
 
 (2) Un crescător poate deține un singur afix, aplicabil tuturor raselor pe care le crește.
 

@@ -58,7 +58,9 @@ a) holds membership of the Association, with membership fees up to date;
 
 b) adheres to the Association's Code of Ethics and to the principles of animal welfare;
 
-c) is not under an active disciplinary sanction prohibiting breeding activity.
+c) is not under an active disciplinary sanction prohibiting breeding activity;
+
+d) owns at least 3 (three) dogs, of which at least one female that has obtained breeding rights.
 
 (2) A breeder may hold a single affix, applicable to all breeds they breed.
 
