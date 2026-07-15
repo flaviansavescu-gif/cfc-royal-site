@@ -19,6 +19,7 @@ standardele World Dog Federation (WDF) și International Institute of Profession
 - [Codul Etic](/ro/documente/cod-etic/) — Anexa 1
 - [Procedura disciplinară detaliată](/ro/documente/procedura-disciplinara/) — Anexa 2
 - [Regulamentul Colegiului de Arbitri](/ro/documente/regulamentul-colegiului-de-arbitri/) — Anexa 3
+- [Regulamentul de înregistrare a caniselor și de rezervare a afixului](/ro/documente/regulament-inregistrare-canise/) — *proiect*
 
 ## Documente publice
 

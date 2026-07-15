@@ -20,6 +20,7 @@ Cynology (IIPC):
 - [Code of Ethics](/en/documente/cod-etic/) — Annex 1
 - [Detailed Disciplinary Procedure](/en/documente/procedura-disciplinara/) — Annex 2
 - [Regulations of the Panel of Judges](/en/documente/regulamentul-colegiului-de-arbitri/) — Annex 3
+- [Regulations on kennel registration and affix reservation](/en/documente/regulament-inregistrare-canise/) — *draft*
 
 ## Public documents
 
