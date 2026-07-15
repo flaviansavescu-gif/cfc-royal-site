@@ -186,6 +186,14 @@ export const collectionDefs: CollectionDef[] = [
     intro: { ro: "Canise înregistrate la club.", en: "Kennels registered with the club." },
     empty: { ro: "Nicio canisă publicată momentan.", en: "No kennels published yet." },
     eyebrow: { ro: "Organizația", en: "Organization" },
+    extraLink: {
+      label: { ro: "Registrul oficial WDF al crescătorilor", en: "Official WDF breeders' register" },
+      url: "https://wdf-international.org/breeds/wdf-registered-breeders/",
+      note: {
+        ro: "Canisele înregistrate prin Club Federal Chinologic – Royal și recunoscute de World Dog Federation figurează și în registrul internațional oficial al crescătorilor WDF.",
+        en: "Kennels registered through the Royal Federal Canine Club and recognised by the World Dog Federation are also listed in the WDF's official international breeders' register.",
+      },
+    },
     banner: {
       src: "/images/canise-banner.webp",
       alt: { ro: "Câine tânăr de rasă odihnindu-se în iarbă", en: "Young purebred dog resting in the grass" },
