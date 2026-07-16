@@ -4,7 +4,8 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
 import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
 ---
 
-<CursuriLayout title="Module" allow={[ACCES_HASH, ADMIN_HASH]}>
+<CursuriLayout title="Module" allow={[ACCES_HASH, ADMIN_HASH]} candidat>
+  <p class="d-hi" id="d-hi" hidden></p>
   <h1 class="d-title">Modulele Școlii de Arbitraj</h1>
   <p class="d-sub">
     Parcurge lecturile fiecărui modul, apoi susține testul. Pragul de promovare este <strong>70%</strong>.
@@ -79,11 +80,11 @@ import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
     } catch (e) {}
   })();
 
-  // Progresul candidatului (salvat pe acest dispozitiv la susținerea testelor).
-  (function () {
-    try {
-      const p = JSON.parse(localStorage.getItem("cfcrProgres") || "{}");
-      Object.keys(p).forEach((slug) => {
+  // Progresul candidatului. Cu cod individual: salvat pe server, personal, vizibil de pe
+  // orice dispozitiv. Fără cod individual (cod comun/preview): din memoria acestui dispozitiv.
+  (async function () {
+    function aplica(p) {
+      Object.keys(p || {}).forEach((slug) => {
         const el = document.querySelector('[data-prog="' + slug + '"]');
         if (!el) return;
         const r = p[slug];
@@ -93,11 +94,33 @@ import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
           : "Ultimul rezultat: " + r.procent + "% — nepromovat";
         el.className = "d-item__prog " + (r.promovat ? "is-pass" : "is-fail");
       });
-    } catch (e) {}
+    }
+
+    let cand = null;
+    try { cand = JSON.parse(localStorage.getItem("cfcrCandidat") || "null"); } catch (e) {}
+
+    if (cand && cand.id) {
+      // Salut personalizat + progres de pe server.
+      const hi = document.getElementById("d-hi");
+      if (hi) { hi.textContent = "Bun venit, " + cand.nume + "!"; hi.hidden = false; }
+      try {
+        const res = await fetch("/.netlify/functions/progres-cursuri", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: cand.id }),
+        });
+        if (res.ok) aplica(await res.json());
+      } catch (e) {}
+      return;
+    }
+
+    // Fără cod individual — progresul local (moștenit).
+    try { aplica(JSON.parse(localStorage.getItem("cfcrProgres") || "{}")); } catch (e) {}
   })();
 </script>
 
 <style>
+  .d-hi { margin: 0 0 0.35rem; font-weight: 600; color: var(--color-accent-dark); }
   .d-title { font-family: var(--font-serif); color: var(--color-primary); margin-bottom: 0.5rem; }
   .d-sub { color: var(--color-text-muted); max-width: 46rem; }
   .d-list { list-style: none; margin: 2rem 0 0; padding: 0; display: grid; gap: 0.85rem; }

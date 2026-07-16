@@ -45,13 +45,27 @@ export default async (req) => {
     return json({ eroare: "Cerere invalidă." }, 400);
   }
 
-  const { modul, nume, raspunsuri } = date || {};
+  const { modul, nume, id, raspunsuri } = date || {};
   const cheie = CHEI[modul];
   if (!cheie) return json({ eroare: "Testul acestui modul nu este activ." }, 404);
-  if (!nume || typeof nume !== "string" || nume.trim().length < 3)
-    return json({ eroare: "Scrie numele complet." }, 400);
   if (!Array.isArray(raspunsuri) || raspunsuri.length !== cheie.length)
     return json({ eroare: "Răspunde la toate întrebările." }, 400);
+
+  const store = getStore("cursuri");
+
+  // Identitatea candidatului: dacă vine cu un cod individual (id), numele e cel din
+  // registru (autoritativ, fără typo). Altfel (admin care previzualizează) — numele scris.
+  let cand = (nume || "").trim();
+  let candidatId = null;
+  if (id) {
+    try {
+      const c = await store.get("candidat/" + String(id), { type: "json" });
+      if (c) { cand = String(c.nume || "").trim(); candidatId = String(id); }
+    } catch (err) {
+      console.error("Căutare candidat eșuată:", err);
+    }
+  }
+  if (!cand || cand.length < 3) return json({ eroare: "Scrie numele complet." }, 400);
 
   // Corectare
   const gresite = [];
@@ -63,16 +77,16 @@ export default async (req) => {
   const total = cheie.length;
   const procent = Math.round((corecte / total) * 100);
   const promovat = procent >= PRAG;
-  const cand = nume.trim().slice(0, 120);
+  cand = cand.slice(0, 120);
   const titlu = TITLURI[modul] || modul;
 
   // 1) Registrul de rezultate (Netlify Blobs) — fiecare rezultat pe cheia lui, ca să nu
   //    existe curse (mai mulți candidați care termină simultan). Nu blocăm rezultatul dacă eșuează.
   try {
-    const store = getStore("cursuri");
     const key = "rezultat/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
     await store.setJSON(key, {
       nume: cand,
+      id: candidatId || undefined,
       modul,
       titlu,
       corecte,
@@ -83,6 +97,22 @@ export default async (req) => {
     });
   } catch (err) {
     console.error("Registru rezultate eșuat:", err);
+  }
+
+  // 1b) Progresul PERSONAL al candidatului (doar pentru coduri individuale) — cel mai bun
+  //     rezultat per modul, citit apoi pe tabloul candidatului de pe orice dispozitiv.
+  if (candidatId) {
+    try {
+      const cheieProg = "progres/" + candidatId;
+      const prog = (await store.get(cheieProg, { type: "json" })) || {};
+      const vechi = prog[modul];
+      if (!vechi || procent > vechi.procent || (promovat && !vechi.promovat)) {
+        prog[modul] = { procent, promovat, data: new Date().toISOString().slice(0, 10) };
+        await store.setJSON(cheieProg, prog);
+      }
+    } catch (err) {
+      console.error("Salvare progres eșuată:", err);
+    }
   }
 
   // 2) Notificare către secretariat prin Brevo

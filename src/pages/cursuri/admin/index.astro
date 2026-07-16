@@ -43,6 +43,14 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
   </div>
   <ul class="a-anunt-list" id="a-anunt-list"></ul>
 
+  <h2 class="a-h2">Candidați — coduri individuale de acces</h2>
+  <p class="a-anunt-info">Fiecare candidat primește codul lui personal. Progresul (testele promovate) se salvează pe cont, vizibil de pe orice dispozitiv. Adaugi un candidat, îi trimiți codul generat, iar el intră cu el pe platformă.</p>
+  <div class="a-cand-form">
+    <input id="a-cand-nume" type="text" placeholder="Numele complet al candidatului" />
+    <button id="a-cand-add" class="btn btn--primary" type="button">Adaugă candidat</button>
+  </div>
+  <ul class="a-cand-list" id="a-cand-list"></ul>
+
   <h2 class="a-h2">Spațiile lectorilor</h2>
   <ul class="a-list">
     {LECTORI.map((l) => (
@@ -156,6 +164,91 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
 
     incarcaAnunturi();
 
+    // ——— Candidați (coduri individuale) ———
+    async function candidatiCere(payload) {
+      const res = await fetch("/.netlify/functions/candidati-cursuri", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.eroare || "Eroare");
+      return data;
+    }
+
+    async function incarcaCandidati() {
+      const list = document.getElementById("a-cand-list");
+      list.textContent = "";
+      let candidati = [];
+      try { candidati = await candidatiCere({ actiune: "lista" }); } catch (e) {
+        const li = document.createElement("li");
+        li.className = "a-cand-empty";
+        li.textContent = "Nu am putut încărca lista candidaților.";
+        list.appendChild(li);
+        return;
+      }
+      if (!candidati.length) {
+        const li = document.createElement("li");
+        li.className = "a-cand-empty";
+        li.textContent = "Niciun candidat adăugat încă.";
+        list.appendChild(li);
+        return;
+      }
+      candidati.forEach((c) => list.appendChild(randCandidat(c)));
+    }
+
+    function randCandidat(c) {
+      const li = document.createElement("li");
+      const info = document.createElement("div");
+      info.className = "a-cand-info";
+      const nume = document.createElement("strong");
+      nume.textContent = c.nume;
+      const cod = document.createElement("code");
+      cod.className = "a-cand-cod";
+      cod.textContent = c.cod;
+      info.appendChild(nume);
+      info.appendChild(cod);
+
+      const copy = document.createElement("button");
+      copy.className = "btn btn--small btn--outline";
+      copy.textContent = "Copiază codul";
+      copy.addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(c.cod); copy.textContent = "Copiat ✓"; setTimeout(() => (copy.textContent = "Copiază codul"), 1500); }
+        catch (e) { alert("Cod: " + c.cod); }
+      });
+
+      const del = document.createElement("button");
+      del.className = "btn btn--small btn--danger";
+      del.textContent = "Șterge";
+      del.addEventListener("click", async () => {
+        if (!confirm("Ștergi candidatul „" + c.nume + "”? Codul și progresul lui se pierd.")) return;
+        del.disabled = true;
+        try { await candidatiCere({ actiune: "sterge", id: c.id }); incarcaCandidati(); }
+        catch (err) { alert("Nu am putut șterge: " + err.message); del.disabled = false; }
+      });
+
+      li.appendChild(info);
+      li.appendChild(copy);
+      li.appendChild(del);
+      return li;
+    }
+
+    document.getElementById("a-cand-add").addEventListener("click", async () => {
+      const inp = document.getElementById("a-cand-nume");
+      const nume = inp.value.trim();
+      if (nume.length < 3) { inp.focus(); return; }
+      const btn = document.getElementById("a-cand-add");
+      btn.disabled = true; btn.textContent = "Se adaugă…";
+      try {
+        const data = await candidatiCere({ actiune: "adauga", nume });
+        inp.value = "";
+        incarcaCandidati();
+        if (data.candidat) alert("Candidat adăugat.\n\n" + data.candidat.nume + "\nCod: " + data.candidat.cod + "\n\nTrimite-i acest cod — cu el intră pe platformă.");
+      } catch (err) { alert("Nu am putut adăuga: " + err.message); }
+      finally { btn.disabled = false; btn.textContent = "Adaugă candidat"; }
+    });
+
+    incarcaCandidati();
+
     inputs.forEach((inp) => {
       inp.addEventListener("change", async () => {
         const slug = inp.dataset.slug;
@@ -228,6 +321,13 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
   .a-anunt-date { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-accent-dark); }
   .a-anunt-txt { margin: 0.2rem 0 0; white-space: pre-line; }
   .a-anunt-empty { color: var(--color-text-muted); font-style: italic; border: 0 !important; background: transparent !important; padding: 0 !important; }
+  .a-cand-form { display: flex; flex-wrap: wrap; gap: 0.6rem; max-width: 44rem; }
+  .a-cand-form input { flex: 1 1 18rem; padding: 0.65rem 0.9rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
+  .a-cand-list { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid; gap: 0.6rem; max-width: 44rem; }
+  .a-cand-list li { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.7rem 1rem; }
+  .a-cand-info { flex: 1 1 14rem; display: flex; flex-direction: column; gap: 0.2rem; }
+  .a-cand-cod { font-family: var(--font-mono, monospace); font-size: 1rem; letter-spacing: 0.08em; color: var(--color-accent-dark); background: var(--color-surface-alt); padding: 0.1rem 0.5rem; border-radius: 6px; align-self: flex-start; }
+  .a-cand-empty { color: var(--color-text-muted); font-style: italic; border: 0 !important; background: transparent !important; padding: 0 !important; }
   .a-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
   .a-list a { color: var(--color-accent-dark); font-weight: 600; text-decoration: none; }
   .a-list a:hover { text-decoration: underline; }

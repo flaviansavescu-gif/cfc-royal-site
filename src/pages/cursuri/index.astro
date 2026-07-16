@@ -37,9 +37,14 @@ const lectorRoutes = Object.fromEntries(LECTORI.map((l) => [l.hash, `/cursuri/le
 
   // Dacă e deja deblocat, sări direct la zona potrivită.
   try {
-    const salvat = localStorage.getItem("cfcrAcces");
-    const dest = salvat && destinatie(salvat);
-    if (dest) location.replace(dest);
+    const cand = localStorage.getItem("cfcrCandidat");
+    if (cand && JSON.parse(cand).id) {
+      location.replace("/cursuri/module/");
+    } else {
+      const salvat = localStorage.getItem("cfcrAcces");
+      const dest = salvat && destinatie(salvat);
+      if (dest) location.replace(dest);
+    }
   } catch (e) {}
 
   async function sha256(text) {
@@ -49,20 +54,48 @@ const lectorRoutes = Object.fromEntries(LECTORI.map((l) => [l.hash, `/cursuri/le
 
   document.getElementById("gate-form").addEventListener("submit", async (e) => {
     e.preventDefault();
+    const btn = e.target.querySelector("button[type=submit]");
     const cod = document.getElementById("cod").value.trim();
     const err = document.getElementById("gate-err");
+    err.hidden = true;
+
+    // 1) Coduri fixe (administrator, lectori) — verificate local, ca până acum.
     const hash = await sha256(cod);
     const dest = destinatie(hash);
     if (dest) {
       try {
         localStorage.setItem("cfcrAcces", hash);
         localStorage.setItem("cfcrAccesCod", cod); // folosit de panoul admin la comutarea modulelor
+        localStorage.removeItem("cfcrCandidat");
       } catch (e2) {}
       location.href = dest;
-    } else {
-      err.hidden = false;
-      document.getElementById("cod").select();
+      return;
     }
+
+    // 2) Cod individual de candidat — verificat pe server (registrul candidaților).
+    btn.disabled = true;
+    try {
+      const res = await fetch("/.netlify/functions/login-cursuri", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        try {
+          localStorage.setItem("cfcrCandidat", JSON.stringify({ id: data.id, nume: data.nume }));
+          localStorage.removeItem("cfcrAcces");
+          localStorage.removeItem("cfcrAccesCod");
+        } catch (e2) {}
+        location.href = "/cursuri/module/";
+        return;
+      }
+    } catch (e2) {
+      /* rețea indisponibilă — tratăm ca un cod greșit mai jos */
+    }
+    btn.disabled = false;
+    err.hidden = false;
+    document.getElementById("cod").select();
   });
 </script>
 
