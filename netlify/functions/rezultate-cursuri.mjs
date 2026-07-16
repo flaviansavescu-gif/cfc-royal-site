@@ -19,7 +19,17 @@ export default async (req) => {
     return new Response(JSON.stringify({ eroare: "Cod de administrator incorect." }), { status: 401 });
 
   const store = getStore("cursuri");
-  const rezultate = (await store.get("rezultate", { type: "json" })) || [];
+  // Fiecare rezultat e salvat pe cheia lui (rezultat/<ts>-<rand>) — le adunăm pe toate.
+  const rezultate = [];
+  try {
+    const { blobs } = await store.list({ prefix: "rezultat/" });
+    for (const b of blobs) {
+      const r = await store.get(b.key, { type: "json" });
+      if (r) rezultate.push(r);
+    }
+  } catch (err) {
+    console.error("Citire registru eșuată:", err);
+  }
   // cele mai recente primele
   rezultate.sort((a, b) => (b.data || "").localeCompare(a.data || ""));
   return new Response(JSON.stringify({ rezultate }), {

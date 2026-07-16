@@ -66,11 +66,12 @@ export default async (req) => {
   const cand = nume.trim().slice(0, 120);
   const titlu = TITLURI[modul] || modul;
 
-  // 1) Registrul de rezultate (Netlify Blobs) — nu blocăm rezultatul dacă scrierea eșuează
+  // 1) Registrul de rezultate (Netlify Blobs) — fiecare rezultat pe cheia lui, ca să nu
+  //    existe curse (mai mulți candidați care termină simultan). Nu blocăm rezultatul dacă eșuează.
   try {
     const store = getStore("cursuri");
-    const lista = (await store.get("rezultate", { type: "json" })) || [];
-    lista.push({
+    const key = "rezultat/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+    await store.setJSON(key, {
       nume: cand,
       modul,
       titlu,
@@ -80,7 +81,6 @@ export default async (req) => {
       promovat,
       data: new Date().toISOString(),
     });
-    await store.setJSON("rezultate", lista);
   } catch (err) {
     console.error("Registru rezultate eșuat:", err);
   }
