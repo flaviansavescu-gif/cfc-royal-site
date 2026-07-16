@@ -101,14 +101,14 @@ export default async (req) => {
 
   // 1b) Progresul PERSONAL al candidatului (doar pentru coduri individuale) — cel mai bun
   //     rezultat per modul, citit apoi pe tabloul candidatului de pe orice dispozitiv.
+  //     Fiecare modul pe cheia LUI (progres/<id>/<modul>) — fără read-modify-write pe un
+  //     obiect comun, deci fără curse când se dau două teste una după alta.
   if (candidatId) {
     try {
-      const cheieProg = "progres/" + candidatId;
-      const prog = (await store.get(cheieProg, { type: "json" })) || {};
-      const vechi = prog[modul];
+      const cheieProg = "progres/" + candidatId + "/" + modul;
+      const vechi = await store.get(cheieProg, { type: "json" });
       if (!vechi || procent > vechi.procent || (promovat && !vechi.promovat)) {
-        prog[modul] = { procent, promovat, data: new Date().toISOString().slice(0, 10) };
-        await store.setJSON(cheieProg, prog);
+        await store.setJSON(cheieProg, { procent, promovat, data: new Date().toISOString().slice(0, 10) });
       }
     } catch (err) {
       console.error("Salvare progres eșuată:", err);

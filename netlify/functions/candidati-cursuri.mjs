@@ -82,7 +82,11 @@ export default async (req) => {
     const id = String(body.id || "");
     if (!id) return json({ eroare: "Lipsește candidatul." }, 400);
     try { await store.delete("candidat/" + id); } catch (err) { console.error(err); }
-    try { await store.delete("progres/" + id); } catch (err) { console.error(err); }
+    try { await store.delete("progres/" + id); } catch (err) { console.error(err); } // format vechi (obiect unic)
+    try {
+      const { blobs } = await store.list({ prefix: "progres/" + id + "/" });
+      for (const b of blobs) { try { await store.delete(b.key); } catch (e) {} }
+    } catch (err) { console.error(err); }
     return json({ ok: true });
   }
 
