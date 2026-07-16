@@ -1,0 +1,199 @@
+---
+// InscriereExpo.astro — formular public de înscriere la expoziții (bilingv RO/EN).
+// Încarcă expozițiile deschise din funcția inscriere-expo și trimite înscrierea în coadă.
+interface Props { lang: "ro" | "en"; }
+const { lang } = Astro.props;
+
+const T = {
+  ro: {
+    titlu: "Înscriere la expoziție", intro: "Completează formularul pentru a înscrie un câine la o expoziție a Clubului Federal Chinologic – Royal.",
+    faraExpo: "Momentan nu sunt expoziții cu înscrieri deschise. Revino mai târziu.",
+    expozitie: "Expoziția", dateCaine: "Datele câinelui", numeCaine: "Numele complet al câinelui", rasa: "Rasa", rasaPh: "Scrie și alege rasa…",
+    sex: "Sex", mascul: "Mascul", femela: "Femelă", dataN: "Data nașterii", pedigree: "Număr pedigree", microcip: "Microcip", crescator: "Crescător",
+    clasa: "Clasa de concurs", dateProp: "Datele proprietarului", numeProp: "Nume și prenume", email: "Email", telefon: "Telefon", adresa: "Adresă", tara: "Țara",
+    optional: "opțional", trimite: "Trimite înscrierea", seTrimite: "Se trimite…",
+    succes: "Înscriere primită! Vei primi un email de confirmare, iar după validare — numărul de catalog.", inca: "Trimite o nouă înscriere",
+  },
+  en: {
+    titlu: "Show entry", intro: "Fill in the form to enter a dog in a show of Club Federal Chinologic – Royal.",
+    faraExpo: "There are currently no shows open for entry. Please check back later.",
+    expozitie: "Show", dateCaine: "Dog details", numeCaine: "Dog's full name", rasa: "Breed", rasaPh: "Type and pick the breed…",
+    sex: "Sex", mascul: "Male", femela: "Female", dataN: "Date of birth", pedigree: "Pedigree number", microcip: "Microchip", crescator: "Breeder",
+    clasa: "Competition class", dateProp: "Owner details", numeProp: "Full name", email: "Email", telefon: "Phone", adresa: "Address", tara: "Country",
+    optional: "optional", trimite: "Submit entry", seTrimite: "Sending…",
+    succes: "Entry received! You will get a confirmation email, and your catalogue number after validation.", inca: "Submit another entry",
+  },
+}[lang];
+
+// Clasele WDF (aceleași ca în manager). Etichete + interval de vârstă (luni).
+const CLASE = [
+  { v: "baby", ro: "Baby (3–6 luni)", en: "Baby (3–6 months)" },
+  { v: "puppy", ro: "Puppy (6–9 luni)", en: "Puppy (6–9 months)" },
+  { v: "very_young", ro: "Very Young (9–12 luni)", en: "Very Young (9–12 months)" },
+  { v: "young", ro: "Young / Junior (12–18 luni)", en: "Young / Junior (12–18 months)" },
+  { v: "intermediara", ro: "Intermediară (15–24 luni)", en: "Intermediate (15–24 months)" },
+  { v: "deschisa", ro: "Deschisă / Open (18+ luni)", en: "Open (18+ months)" },
+  { v: "working", ro: "Working / Lucru (18+ luni)", en: "Working (18+ months)" },
+  { v: "winner", ro: "Winner (4 CAC)", en: "Winner (4 CAC)" },
+  { v: "champion", ro: "Champion", en: "Champion" },
+  { v: "foreign_champion", ro: "Foreign Champion", en: "Foreign Champion" },
+  { v: "veterani", ro: "Veterani (10+ ani)", en: "Veteran (10+ years)" },
+];
+---
+
+<section class="ie">
+  <h1 class="ie__titlu">{T.titlu}</h1>
+  <p class="ie__intro">{T.intro}</p>
+
+  <p class="ie__stare" id="ie-loading">…</p>
+  <p class="ie__gol" id="ie-gol" hidden>{T.faraExpo}</p>
+
+  <div class="ie__succes" id="ie-succes" hidden>
+    <p>✅ {T.succes}</p>
+    <button class="btn btn--primary" id="ie-reset" type="button">{T.inca}</button>
+  </div>
+
+  <form class="ie__form" id="ie-form" hidden autocomplete="off">
+    <p class="ie__err" id="ie-err" hidden></p>
+
+    <label class="ie__f">
+      <span>{T.expozitie} <b class="req">*</b></span>
+      <select id="ie-show" name="showId" required></select>
+    </label>
+
+    <fieldset class="ie__fs">
+      <legend>{T.dateCaine}</legend>
+      <label class="ie__f"><span>{T.numeCaine} <b class="req">*</b></span><input name="numeCaine" required /></label>
+      <label class="ie__f"><span>{T.rasa} <b class="req">*</b></span>
+        <input id="ie-rasa" name="rasaText" list="ie-rase" placeholder={T.rasaPh} required />
+        <datalist id="ie-rase"></datalist>
+        <input type="hidden" name="rasaId" id="ie-rasaId" />
+      </label>
+      <div class="ie__row">
+        <label class="ie__f"><span>{T.sex} <b class="req">*</b></span>
+          <div class="ie__radios">
+            <label><input type="radio" name="sex" value="M" required /> {T.mascul}</label>
+            <label><input type="radio" name="sex" value="F" /> {T.femela}</label>
+          </div>
+        </label>
+        <label class="ie__f"><span>{T.dataN} <b class="req">*</b></span><input name="dataNasterii" type="date" required /></label>
+      </div>
+      <label class="ie__f"><span>{T.clasa} <b class="req">*</b></span>
+        <select name="clasa" required>
+          <option value="">—</option>
+          {CLASE.map((c) => <option value={c.v}>{lang === "en" ? c.en : c.ro}</option>)}
+        </select>
+      </label>
+      <div class="ie__row">
+        <label class="ie__f"><span>{T.pedigree} ({T.optional})</span><input name="pedigree" /></label>
+        <label class="ie__f"><span>{T.microcip} ({T.optional})</span><input name="microcip" /></label>
+      </div>
+      <label class="ie__f"><span>{T.crescator} ({T.optional})</span><input name="crescator" /></label>
+    </fieldset>
+
+    <fieldset class="ie__fs">
+      <legend>{T.dateProp}</legend>
+      <div class="ie__row">
+        <label class="ie__f"><span>{T.numeProp} <b class="req">*</b></span><input name="numeProprietar" required /></label>
+        <label class="ie__f"><span>{T.email} <b class="req">*</b></span><input name="email" type="email" required /></label>
+      </div>
+      <div class="ie__row">
+        <label class="ie__f"><span>{T.telefon} ({T.optional})</span><input name="telefon" /></label>
+        <label class="ie__f"><span>{T.tara} ({T.optional})</span><input name="tara" /></label>
+      </div>
+      <label class="ie__f"><span>{T.adresa} ({T.optional})</span><input name="adresa" /></label>
+    </fieldset>
+
+    <button class="btn btn--primary" type="submit" id="ie-submit">{T.trimite}</button>
+  </form>
+</section>
+
+<script is:inline define:vars={{ txtTrimite: T.trimite, txtSe: T.seTrimite }}>
+  (async function () {
+    const form = document.getElementById("ie-form");
+    const loading = document.getElementById("ie-loading");
+    const gol = document.getElementById("ie-gol");
+    const showSel = document.getElementById("ie-show");
+    const raseList = document.getElementById("ie-rase");
+    const rasaInput = document.getElementById("ie-rasa");
+    const rasaId = document.getElementById("ie-rasaId");
+    const err = document.getElementById("ie-err");
+    const succes = document.getElementById("ie-succes");
+
+    let expozitii = [];
+    try {
+      const r = await fetch("/.netlify/functions/inscriere-expo");
+      expozitii = (await r.json()).expozitii || [];
+    } catch (e) {}
+
+    loading.hidden = true;
+    if (!expozitii.length) { gol.hidden = false; return; }
+
+    showSel.innerHTML = expozitii
+      .map((e) => `<option value="${e.showId}">${e.nume} — ${new Date(e.data).toLocaleDateString()}</option>`)
+      .join("");
+
+    function populeazaRase() {
+      const e = expozitii.find((x) => x.showId === showSel.value);
+      raseList.innerHTML = (e?.rase || [])
+        .map((r) => `<option data-id="${r.id}" value="${r.numeRo}">${r.numeEn} · Gr. ${r.grupa}</option>`)
+        .join("");
+    }
+    function rezolvaRasa() {
+      const e = expozitii.find((x) => x.showId === showSel.value);
+      const g = (e?.rase || []).find((r) => r.numeRo === rasaInput.value.trim());
+      rasaId.value = g ? g.id : "";
+    }
+    showSel.addEventListener("change", () => { populeazaRase(); rasaId.value = ""; rasaInput.value = ""; });
+    rasaInput.addEventListener("input", rezolvaRasa);
+    populeazaRase();
+    form.hidden = false;
+
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      err.hidden = true;
+      rezolvaRasa();
+      const btn = document.getElementById("ie-submit");
+      btn.disabled = true; btn.textContent = txtSe;
+      const fd = new FormData(form);
+      const payload = Object.fromEntries(fd.entries());
+      try {
+        const res = await fetch("/.netlify/functions/inscriere-expo", {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.eroare || "Eroare");
+        form.hidden = true; succes.hidden = false;
+      } catch (e2) {
+        err.textContent = e2.message; err.hidden = false;
+      } finally {
+        btn.disabled = false; btn.textContent = txtTrimite;
+      }
+    });
+
+    document.getElementById("ie-reset").addEventListener("click", () => {
+      form.reset(); succes.hidden = true; form.hidden = false; populeazaRase();
+    });
+  })();
+</script>
+
+<style>
+  .ie { max-width: 44rem; margin-inline: auto; }
+  .ie__titlu { font-family: var(--font-serif); color: var(--color-primary); }
+  .ie__intro { color: var(--color-text-muted); }
+  .ie__stare, .ie__gol { color: var(--color-text-muted); font-style: italic; }
+  .ie__form { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1.5rem; }
+  .ie__fs { border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.9rem; }
+  .ie__fs legend { font-weight: 600; color: var(--color-primary); padding: 0 0.4rem; }
+  .ie__f { display: flex; flex-direction: column; gap: 0.3rem; }
+  .ie__f > span { font-weight: 600; font-size: 0.92rem; }
+  .req { color: #8c1d2f; }
+  .ie__f input, .ie__f select { padding: 0.6rem 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
+  .ie__f input:focus, .ie__f select:focus { outline: 2px solid var(--color-primary); }
+  .ie__row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+  .ie__radios { display: flex; gap: 1.25rem; padding-top: 0.4rem; }
+  .ie__err { color: #8c1d2f; font-weight: 600; background: #f9efef; border: 1px solid #8c1d2f; border-radius: var(--radius); padding: 0.6rem 0.9rem; }
+  .ie__succes { background: #eef5f0; border: 1px solid var(--color-primary); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
+  .ie__succes p { margin: 0 0 0.75rem; color: var(--color-primary); font-weight: 600; }
+  @media (max-width: 560px) { .ie__row { grid-template-columns: 1fr; } }
+</style>

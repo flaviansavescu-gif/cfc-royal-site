@@ -1,0 +1,10 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import InscriereExpo from "../../components/InscriereExpo.astro";
+const lang = "ro" as const;
+---
+<BaseLayout title="Înscriere la expoziție" lang={lang} description="Înscrie online un câine la o expoziție a Clubului Federal Chinologic – Royal (WDF).">
+  <div class="container" style="padding-block: 3rem;">
+    <InscriereExpo lang={lang} />
+  </div>
+</BaseLayout>
