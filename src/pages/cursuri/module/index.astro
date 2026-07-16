@@ -19,6 +19,7 @@ import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
           <span class="d-item__body">
             <strong>{m.titlu}</strong>
             <span>{m.obiectiv}</span>
+            <span class="d-item__prog" data-prog={m.slug} hidden></span>
           </span>
           <span class={`d-item__badge ${m.intrebari ? "is-on" : ""}`} data-badge={m.slug}>
             {m.intrebari ? "Test activ" : "Test în pregătire"}
@@ -48,6 +49,23 @@ import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
       });
     } catch (e) { /* dacă starea nu se poate citi, nu blocăm nimic */ }
   })();
+
+  // Progresul candidatului (salvat pe acest dispozitiv la susținerea testelor).
+  (function () {
+    try {
+      const p = JSON.parse(localStorage.getItem("cfcrProgres") || "{}");
+      Object.keys(p).forEach((slug) => {
+        const el = document.querySelector('[data-prog="' + slug + '"]');
+        if (!el) return;
+        const r = p[slug];
+        el.hidden = false;
+        el.textContent = r.promovat
+          ? "✅ Test promovat — " + r.procent + "% (" + r.data + ")"
+          : "Ultimul rezultat: " + r.procent + "% — nepromovat";
+        el.className = "d-item__prog " + (r.promovat ? "is-pass" : "is-fail");
+      });
+    } catch (e) {}
+  })();
 </script>
 
 <style>
@@ -74,6 +92,9 @@ import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
     color: var(--color-text-muted); white-space: nowrap;
   }
   .d-item__badge.is-on { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
+  .d-item__prog { font-size: 0.82rem; font-weight: 600; margin-top: 0.15rem; }
+  .d-item__prog.is-pass { color: var(--color-primary); }
+  .d-item__prog.is-fail { color: #8c1d2f; }
   .d-item__link.is-locked { opacity: 0.55; cursor: not-allowed; }
   .d-item__link.is-locked:hover { border-color: var(--color-border); }
   @media (max-width: 640px) {

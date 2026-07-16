@@ -1,0 +1,88 @@
+---
+// /cursuri/admin/rezultate/ — registrul rezultatelor testelor (doar administrator).
+// Datele vin de pe server (Netlify Blobs) prin funcția rezultate-cursuri, cu codul de admin.
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import { ADMIN_HASH } from "../../../data/cursuri";
+---
+
+<CursuriLayout title="Registrul rezultatelor" allow={[ADMIN_HASH]}>
+  <p class="r-crumb"><a href="/cursuri/admin/">← Panoul de administrare</a></p>
+  <h1 class="r-title">Registrul rezultatelor</h1>
+  <p class="r-sub">Toate testele susținute de candidați, cele mai recente primele. Registrul se
+  completează automat la fiecare test corectat (dublat de e-mailul de la secretariat).</p>
+
+  <p class="r-stare" id="r-stare">Se încarcă registrul…</p>
+
+  <div class="r-wrap" id="r-wrap" hidden>
+    <p class="r-total" id="r-total"></p>
+    <table class="r-tabel">
+      <thead>
+        <tr><th>Data</th><th>Candidat</th><th>Test</th><th>Scor</th><th>Rezultat</th></tr>
+      </thead>
+      <tbody id="r-body"></tbody>
+    </table>
+  </div>
+</CursuriLayout>
+
+<script is:inline>
+  (async function () {
+    const stare = document.getElementById("r-stare");
+    let cod = null;
+    try { cod = localStorage.getItem("cfcrAccesCod"); } catch (e) {}
+    if (!cod) cod = prompt("Confirmă codul de administrator:");
+    try {
+      const res = await fetch("/.netlify/functions/rezultate-cursuri", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.eroare || "Eroare");
+      const lista = data.rezultate || [];
+      stare.hidden = true;
+      document.getElementById("r-wrap").hidden = false;
+      const promovate = lista.filter((r) => r.promovat).length;
+      document.getElementById("r-total").textContent =
+        lista.length + " teste susținute · " + promovate + " promovate · " + (lista.length - promovate) + " nepromovate";
+      const body = document.getElementById("r-body");
+      if (!lista.length) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = '<td colspan="5" style="color:var(--color-text-muted);font-style:italic">Niciun test susținut încă.</td>';
+        body.appendChild(tr);
+      }
+      lista.forEach((r) => {
+        const tr = document.createElement("tr");
+        const d = r.data ? new Date(r.data) : null;
+        const dataStr = d ? d.toLocaleDateString("ro-RO") + " " + d.toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" }) : "—";
+        [dataStr, r.nume, r.titlu || r.modul, r.corecte + "/" + r.total + " (" + r.procent + "%)"].forEach((v) => {
+          const td = document.createElement("td");
+          td.textContent = v;
+          tr.appendChild(td);
+        });
+        const td = document.createElement("td");
+        td.textContent = r.promovat ? "PROMOVAT" : "nepromovat";
+        td.className = r.promovat ? "is-pass" : "is-fail";
+        tr.appendChild(td);
+        body.appendChild(tr);
+      });
+    } catch (err) {
+      stare.textContent = "Nu am putut încărca registrul: " + err.message;
+    }
+  })();
+</script>
+
+<style>
+  .r-crumb { margin: 0 0 1.5rem; }
+  .r-crumb a { text-decoration: none; color: var(--color-text-muted); }
+  .r-crumb a:hover { color: var(--color-primary); }
+  .r-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0 0 0.5rem; }
+  .r-sub { color: var(--color-text-muted); max-width: 46rem; }
+  .r-stare { color: var(--color-text-muted); font-style: italic; }
+  .r-total { font-weight: 600; color: var(--color-primary); }
+  .r-tabel { width: 100%; border-collapse: collapse; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; }
+  .r-tabel th { text-align: left; background: var(--color-surface-alt); padding: 0.6rem 0.85rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); border-bottom: 2px solid var(--color-border); }
+  .r-tabel td { padding: 0.55rem 0.85rem; border-bottom: 1px solid var(--color-border); font-size: 0.92rem; }
+  .r-tabel td.is-pass { color: var(--color-primary); font-weight: 700; }
+  .r-tabel td.is-fail { color: #8c1d2f; font-weight: 600; }
+  @media (max-width: 640px) { .r-tabel th:first-child, .r-tabel td:first-child { display: none; } }
+</style>

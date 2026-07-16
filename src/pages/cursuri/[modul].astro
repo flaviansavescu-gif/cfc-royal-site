@@ -121,6 +121,15 @@ const { m } = Astro.props;
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.eroare || "Eroare la corectare.");
+        // Progresul candidatului (pe acest dispozitiv): păstrăm cel mai bun rezultat per modul.
+        try {
+          const p = JSON.parse(localStorage.getItem("cfcrProgres") || "{}");
+          const vechi = p[slug];
+          if (!vechi || data.procent > vechi.procent || (data.promovat && !vechi.promovat)) {
+            p[slug] = { procent: data.procent, promovat: data.promovat, data: new Date().toISOString().slice(0, 10) };
+            localStorage.setItem("cfcrProgres", JSON.stringify(p));
+          }
+        } catch (e2) {}
         rez.hidden = false;
         rez.className = "test__rezultat " + (data.promovat ? "is-pass" : "is-fail");
         rez.innerHTML =
