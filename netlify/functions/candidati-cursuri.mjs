@@ -58,6 +58,41 @@ export default async (req) => {
     return json(lista);
   }
 
+  if (actiune === "progres") {
+    // Toți candidații, fiecare cu progresul lui (candidat × module), într-un singur apel.
+    const cand = {};
+    try {
+      const { blobs } = await store.list({ prefix: "candidat/" });
+      for (const b of blobs) {
+        const c = await store.get(b.key, { type: "json" });
+        if (c) {
+          const id = b.key.slice("candidat/".length);
+          cand[id] = { id, nume: c.nume, cod: c.cod, creat: c.creat, progres: {} };
+        }
+      }
+    } catch (err) {
+      console.error("Listare candidați (progres) eșuată:", err);
+    }
+    try {
+      const prefix = "progres/";
+      const { blobs } = await store.list({ prefix });
+      for (const b of blobs) {
+        const rest = b.key.slice(prefix.length); // <id>/<modul>
+        const slash = rest.indexOf("/");
+        if (slash < 0) continue; // format vechi (progres/<id>) — ignorăm
+        const id = rest.slice(0, slash);
+        const modul = rest.slice(slash + 1);
+        if (!cand[id]) continue;
+        const r = await store.get(b.key, { type: "json" });
+        if (r) cand[id].progres[modul] = r;
+      }
+    } catch (err) {
+      console.error("Citire progres (toți) eșuată:", err);
+    }
+    const lista = Object.values(cand).sort((a, b) => (a.nume || "").localeCompare(b.nume || "", "ro"));
+    return json(lista);
+  }
+
   if (actiune === "adauga") {
     const nume = (body.nume || "").trim();
     if (nume.length < 3) return json({ eroare: "Scrie numele complet al candidatului." }, 400);
