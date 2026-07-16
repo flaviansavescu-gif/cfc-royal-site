@@ -35,6 +35,14 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
     ))}
   </ul>
 
+  <h2 class="a-h2">Anunțuri pentru candidați</h2>
+  <p class="a-anunt-info">Anunțurile apar imediat pe tabloul candidaților („📢 Noutăți"). Cel mai nou apare primul.</p>
+  <div class="a-anunt-form">
+    <textarea id="a-anunt-text" rows="3" placeholder="Ex. Modulul 3 se predă joi, 18 iulie, ora 19:00, pe Zoom. Link: ..."></textarea>
+    <button id="a-anunt-add" class="btn btn--primary" type="button">Publică anunțul</button>
+  </div>
+  <ul class="a-anunt-list" id="a-anunt-list"></ul>
+
   <h2 class="a-h2">Spațiile lectorilor</h2>
   <ul class="a-list">
     {LECTORI.map((l) => (
@@ -78,6 +86,75 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
       stareEl.textContent = "Nu am putut încărca starea. Reîncarcă pagina.";
       return;
     }
+
+    // ——— Anunțuri ———
+    function codAdmin() {
+      let c = null;
+      try { c = localStorage.getItem("cfcrAccesCod"); } catch (e) {}
+      return c || prompt("Confirmă codul de administrator:");
+    }
+
+    async function incarcaAnunturi() {
+      const list = document.getElementById("a-anunt-list");
+      list.textContent = "";
+      let anunturi = [];
+      try { anunturi = await (await fetch("/.netlify/functions/anunturi-cursuri")).json(); } catch (e) {}
+      if (!anunturi.length) {
+        const li = document.createElement("li");
+        li.className = "a-anunt-empty";
+        li.textContent = "Niciun anunț publicat.";
+        list.appendChild(li);
+        return;
+      }
+      anunturi.forEach((a) => {
+        const li = document.createElement("li");
+        const d = a.data ? new Date(a.data).toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" }) : "";
+        const wrap = document.createElement("div");
+        wrap.innerHTML = "<span class='a-anunt-date'>" + d + "</span>";
+        const p = document.createElement("p");
+        p.className = "a-anunt-txt";
+        p.textContent = a.text;
+        wrap.appendChild(p);
+        const del = document.createElement("button");
+        del.className = "btn btn--small btn--danger";
+        del.textContent = "Șterge";
+        del.addEventListener("click", async () => {
+          if (!confirm("Ștergi acest anunț?")) return;
+          del.disabled = true;
+          try {
+            const res = await fetch("/.netlify/functions/anunturi-cursuri", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ cod: codAdmin(), delete: a.key }),
+            });
+            if (!res.ok) throw new Error((await res.json()).eroare || "Eroare");
+            incarcaAnunturi();
+          } catch (err) { alert("Nu am putut șterge: " + err.message); del.disabled = false; }
+        });
+        li.appendChild(wrap);
+        li.appendChild(del);
+        list.appendChild(li);
+      });
+    }
+
+    document.getElementById("a-anunt-add").addEventListener("click", async () => {
+      const ta = document.getElementById("a-anunt-text");
+      const text = ta.value.trim();
+      if (!text) { ta.focus(); return; }
+      const btn = document.getElementById("a-anunt-add");
+      btn.disabled = true; btn.textContent = "Se publică…";
+      try {
+        const res = await fetch("/.netlify/functions/anunturi-cursuri", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cod: codAdmin(), text }),
+        });
+        if (!res.ok) throw new Error((await res.json()).eroare || "Eroare");
+        ta.value = "";
+        incarcaAnunturi();
+      } catch (err) { alert("Nu am putut publica: " + err.message); }
+      finally { btn.disabled = false; btn.textContent = "Publică anunțul"; }
+    });
+
+    incarcaAnunturi();
 
     inputs.forEach((inp) => {
       inp.addEventListener("change", async () => {
@@ -141,6 +218,16 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
   .a-switch input:checked + .a-switch__track::after { transform: translateX(1.3rem); }
   .a-switch input:disabled + .a-switch__track { opacity: 0.55; }
 
+  .a-anunt-info { color: var(--color-text-muted); margin: 0 0 0.85rem; }
+  .a-anunt-form { display: flex; flex-direction: column; gap: 0.6rem; max-width: 44rem; }
+  .a-anunt-form textarea { width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; resize: vertical; }
+  .a-anunt-form .btn { align-self: flex-start; }
+  .a-anunt-list { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid; gap: 0.6rem; max-width: 44rem; }
+  .a-anunt-list li { display: flex; align-items: flex-start; gap: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.7rem 1rem; }
+  .a-anunt-list li > div { flex: 1; }
+  .a-anunt-date { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-accent-dark); }
+  .a-anunt-txt { margin: 0.2rem 0 0; white-space: pre-line; }
+  .a-anunt-empty { color: var(--color-text-muted); font-style: italic; border: 0 !important; background: transparent !important; padding: 0 !important; }
   .a-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
   .a-list a { color: var(--color-accent-dark); font-weight: 600; text-decoration: none; }
   .a-list a:hover { text-decoration: underline; }

@@ -11,6 +11,11 @@ import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
     Rezultatele ajung automat la secretariatul Școlii.
   </p>
 
+  <section class="d-anunturi" id="d-anunturi" hidden>
+    <h2 class="d-anunturi__title">📢 Noutăți</h2>
+    <ul class="d-anunturi__list" id="d-anunturi-list"></ul>
+  </section>
+
   <ol class="d-list">
     {MODULE.map((m) => (
       <li class="d-item">
@@ -48,6 +53,30 @@ import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
         if (b) { b.textContent = "🔒 Se deschide în curând"; b.classList.remove("is-on"); }
       });
     } catch (e) { /* dacă starea nu se poate citi, nu blocăm nimic */ }
+  })();
+
+  // Anunțuri (publicate de administrator, vizibile tuturor).
+  (async function () {
+    try {
+      const anunturi = await (await fetch("/.netlify/functions/anunturi-cursuri")).json();
+      if (!Array.isArray(anunturi) || !anunturi.length) return;
+      const sec = document.getElementById("d-anunturi");
+      const list = document.getElementById("d-anunturi-list");
+      anunturi.slice(0, 8).forEach((a) => {
+        const li = document.createElement("li");
+        const d = a.data ? new Date(a.data) : null;
+        const meta = document.createElement("span");
+        meta.className = "d-anunt__data";
+        meta.textContent = d ? d.toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" }) : "";
+        const txt = document.createElement("span");
+        txt.className = "d-anunt__text";
+        txt.textContent = a.text;
+        li.appendChild(meta);
+        li.appendChild(txt);
+        list.appendChild(li);
+      });
+      sec.hidden = false;
+    } catch (e) {}
   })();
 
   // Progresul candidatului (salvat pe acest dispozitiv la susținerea testelor).
@@ -92,6 +121,13 @@ import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
     color: var(--color-text-muted); white-space: nowrap;
   }
   .d-item__badge.is-on { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
+  .d-anunturi { margin: 1.5rem 0 0; background: #f7f1df; border: 1px solid var(--color-accent); border-radius: var(--radius); padding: 1.1rem 1.4rem; }
+  .d-anunturi__title { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.15rem; margin: 0 0 0.75rem; }
+  .d-anunturi__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
+  .d-anunturi__list li { display: flex; flex-direction: column; gap: 0.15rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(176,141,46,0.3); }
+  .d-anunturi__list li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .d-anunt__data { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-accent-dark); }
+  .d-anunt__text { color: var(--color-text); white-space: pre-line; }
   .d-item__prog { font-size: 0.82rem; font-weight: 600; margin-top: 0.15rem; }
   .d-item__prog.is-pass { color: var(--color-primary); }
   .d-item__prog.is-fail { color: #8c1d2f; }
