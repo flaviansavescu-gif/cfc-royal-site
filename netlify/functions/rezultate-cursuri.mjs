@@ -11,14 +11,32 @@ export default async (req) => {
     return new Response(JSON.stringify({ eroare: "Metodă nepermisă." }), { status: 405 });
 
   let cod = "";
+  let reset = false;
   try {
-    cod = (await req.json()).cod || "";
+    const b = await req.json();
+    cod = b.cod || "";
+    reset = b.reset === true;
   } catch {}
   const hash = createHash("sha256").update(String(cod)).digest("hex");
   if (hash !== ADMIN_HASH)
     return new Response(JSON.stringify({ eroare: "Cod de administrator incorect." }), { status: 401 });
 
   const store = getStore("cursuri");
+
+  // Golirea registrului (început de serie / curățare) — șterge toate rezultatele.
+  if (reset) {
+    let sterse = 0;
+    try {
+      const { blobs } = await store.list({ prefix: "rezultat/" });
+      for (const b of blobs) { await store.delete(b.key); sterse++; }
+      await store.delete("rezultate"); // vechea listă unică, dacă mai există
+    } catch (err) {
+      console.error("Golire registru eșuată:", err);
+    }
+    return new Response(JSON.stringify({ ok: true, sterse }), {
+      headers: { "Content-Type": "application/json; charset=utf-8" },
+    });
+  }
   // Fiecare rezultat e salvat pe cheia lui (rezultat/<ts>-<rand>) — le adunăm pe toate.
   const rezultate = [];
   try {
