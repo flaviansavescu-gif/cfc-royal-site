@@ -13,6 +13,9 @@ const T = {
     clasa: "Clasa de concurs", dateProp: "Datele proprietarului", numeProp: "Nume și prenume", email: "Email", telefon: "Telefon", adresa: "Adresă", tara: "Țara",
     optional: "opțional", trimite: "Trimite înscrierea", seTrimite: "Se trimite…",
     succes: "Înscriere primită! Vei primi un email de confirmare, iar după validare — numărul de catalog.", inca: "Trimite o nouă înscriere",
+    gdprTitlu: "Protecția datelor (GDPR)",
+    gdprText: "Datele tale și ale câinelui sunt folosite exclusiv pentru organizarea expoziției (catalog, arbitraj, rezultate, comunicări legate de eveniment). Nu le vindem și nu le transmitem terților în scop comercial. Le păstrăm cât e necesar pentru evidența expozițională. Poți cere accesul, corectarea sau ștergerea datelor scriind la contact@cfc-royal.ro.",
+    gdprAccept: "Am citit și sunt de acord cu prelucrarea datelor mele personale în scopul organizării expoziției.",
   },
   en: {
     titlu: "Show entry", intro: "Fill in the form to enter a dog in a show of Club Federal Chinologic – Royal.",
@@ -22,6 +25,9 @@ const T = {
     clasa: "Competition class", dateProp: "Owner details", numeProp: "Full name", email: "Email", telefon: "Phone", adresa: "Address", tara: "Country",
     optional: "optional", trimite: "Submit entry", seTrimite: "Sending…",
     succes: "Entry received! You will get a confirmation email, and your catalogue number after validation.", inca: "Submit another entry",
+    gdprTitlu: "Data protection (GDPR)",
+    gdprText: "Your data and your dog's data are used solely for organising the show (catalogue, judging, results, event-related communications). We do not sell or share them with third parties for commercial purposes. We keep them as long as needed for show records. You may request access, correction or deletion by writing to contact@cfc-royal.ro.",
+    gdprAccept: "I have read and agree to the processing of my personal data for the purpose of organising the show.",
   },
 }[lang];
 
@@ -102,6 +108,12 @@ const CLASE = [
         <label class="ie__f"><span>{T.tara} ({T.optional})</span><input name="tara" /></label>
       </div>
       <label class="ie__f"><span>{T.adresa} ({T.optional})</span><input name="adresa" /></label>
+    </fieldset>
+
+    <fieldset class="ie__fs">
+      <legend>{T.gdprTitlu}</legend>
+      <p class="ie__gdpr">{T.gdprText}</p>
+      <label class="ie__consim"><input type="checkbox" name="gdpr" value="1" required /> <span>{T.gdprAccept} <b class="req">*</b></span></label>
     </fieldset>
 
     <button class="btn btn--primary" type="submit" id="ie-submit">{T.trimite}</button>
@@ -192,6 +204,9 @@ const CLASE = [
   .ie__f input:focus, .ie__f select:focus { outline: 2px solid var(--color-primary); }
   .ie__row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
   .ie__radios { display: flex; gap: 1.25rem; padding-top: 0.4rem; }
+  .ie__gdpr { margin: 0; font-size: 0.88rem; color: var(--color-text-muted); }
+  .ie__consim { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.92rem; }
+  .ie__consim input { margin-top: 0.2rem; }
   .ie__err { color: #8c1d2f; font-weight: 600; background: #f9efef; border: 1px solid #8c1d2f; border-radius: var(--radius); padding: 0.6rem 0.9rem; }
   .ie__succes { background: #eef5f0; border: 1px solid var(--color-primary); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
   .ie__succes p { margin: 0 0 0.75rem; color: var(--color-primary); font-weight: 600; }

@@ -151,6 +151,7 @@ export default async (req) => {
   if (!VARSTA[clasa]) return json({ eroare: "Alege clasa de concurs." }, 400);
   if (numeProp.length < 3) return json({ eroare: "Numele proprietarului este obligatoriu." }, 400);
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ eroare: "Email invalid." }, 400);
+  if (String(body.gdpr || "") !== "1") return json({ eroare: "Trebuie să accepți prelucrarea datelor (GDPR)." }, 400);
   if (!clasaValida(clasa, dataNasterii, config.data))
     return json({ eroare: "Vârsta câinelui la data expoziției nu se încadrează în clasa aleasă." }, 400);
 
