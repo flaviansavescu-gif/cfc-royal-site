@@ -12,7 +12,10 @@ import { isLang, entrySlug } from "../../../i18n/content";
 const lang = "en" as const;
 
 export function getStaticPaths() {
-  return collectionDefs.map((def) => ({ params: { collection: def.slug }, props: { def } }));
+  // „arbitri" has a dedicated index page (registry with per-group filter): src/pages/en/arbitri.astro
+  return collectionDefs
+    .filter((def) => def.slug !== "arbitri")
+    .map((def) => ({ params: { collection: def.slug }, props: { def } }));
 }
 
 const { def } = Astro.props as { def: CollectionDef };

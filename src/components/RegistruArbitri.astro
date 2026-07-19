@@ -1,0 +1,162 @@
+---
+// RegistruArbitri.astro — registrul public al Colegiului de Arbitri CFC-Royal.
+// Sursa de date: colecția de conținut „arbitri" (profiluri curate cu foto, rol, oraș,
+// qualifications = grupe WDF). Adaugă badge-uri pe grupe și filtrare pe grupă, cu link
+// la profilul fiecărui arbitru. Datele rămân editoriale (fișiere .md), nimic din Blobs.
+import { GRUPE_WDF } from "../data/grupe-wdf";
+import { entrySlug } from "../i18n/content";
+import { localizePath, type Lang } from "../i18n/utils";
+
+interface Props { lang: Lang; entries: any[]; }
+const { lang, entries } = Astro.props;
+
+const T = {
+  ro: {
+    eyebrow: "Organizația",
+    title: "Colegiul de arbitri",
+    intro: "Arbitrii licențiați ai Clubului Federal Chinologic – Royal și grupele World Dog Federation pe care le pot arbitra. Apasă pe un arbitru pentru profilul complet.",
+    filtru: "Filtrează după grupă:",
+    toate: "Toate grupele",
+    allBreed: "All Breed (toate grupele)",
+    gol: "Niciun arbitru publicat momentan.",
+    numar: (n: number) => n === 1 ? "1 arbitru" : n + " arbitri",
+    profil: "Vezi profilul →",
+  },
+  en: {
+    eyebrow: "Organization",
+    title: "Panel of judges",
+    intro: "Licensed judges of Club Federal Chinologic – Royal and the World Dog Federation groups they may judge. Click a judge for the full profile.",
+    filtru: "Filter by group:",
+    toate: "All groups",
+    allBreed: "All Breed (all groups)",
+    gol: "No judges published yet.",
+    numar: (n: number) => n === 1 ? "1 judge" : n + " judges",
+    profil: "View profile →",
+  },
+}[lang];
+
+const grupeClient = GRUPE_WDF.map((g) => ({ nr: g.nr, nume: lang === "en" ? g.en : g.ro }));
+
+// Extrage numerele de grupă (1–10) din textul liber al calificărilor; „all breed" = toate.
+function grupeDin(qualifications: string[] | undefined): { allBreed: boolean; grupe: number[] } {
+  const s = (qualifications || []).join(" ");
+  if (/all\s*breed/i.test(s)) return { allBreed: true, grupe: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] };
+  const set = new Set<number>();
+  for (const m of s.match(/\d+/g) || []) { const n = Number(m); if (n >= 1 && n <= 10) set.add(n); }
+  return { allBreed: false, grupe: [...set].sort((a, b) => a - b) };
+}
+
+const arbitri = entries
+  .map((e) => {
+    const { allBreed, grupe } = grupeDin(e.data.qualifications);
+    return {
+      nume: e.data.title as string,
+      href: localizePath(`arbitri/${entrySlug(e.id)}`, lang),
+      photo: e.data.photo as string | undefined,
+      role: e.data.role as string | undefined,
+      city: e.data.city as string | undefined,
+      country: (e.data.country as string | undefined) || "",
+      allBreed,
+      grupe,
+    };
+  })
+  // All Breed întâi, apoi cei cu funcție, apoi alfabetic.
+  .sort((a, b) => {
+    if (a.allBreed !== b.allBreed) return a.allBreed ? -1 : 1;
+    const fa = a.role ? 0 : 1, fb = b.role ? 0 : 1;
+    if (fa !== fb) return fa - fb;
+    return a.nume.localeCompare(b.nume, "ro");
+  });
+---
+
+<section class="ar">
+  <p class="ar__eyebrow">{T.eyebrow}</p>
+  <h1 class="ar__title">{T.title}</h1>
+  <p class="ar__intro">{T.intro}</p>
+
+  <div class="ar__toolbar">
+    <label class="ar__filtru">
+      {T.filtru}
+      <select id="ar-filtru">
+        <option value="0">{T.toate}</option>
+        {grupeClient.map((g) => (<option value={g.nr}>Gr. {g.nr} — {g.nume}</option>))}
+      </select>
+    </label>
+    <span class="ar__count" id="ar-count">{T.numar(arbitri.length)}</span>
+  </div>
+
+  {arbitri.length === 0 ? (
+    <p class="ar__stare">{T.gol}</p>
+  ) : (
+    <ul class="ar__list" id="ar-list">
+      {arbitri.map((a) => (
+        <li class="ar__card" data-grupe={a.grupe.join(",")} data-allbreed={a.allBreed ? "1" : "0"}>
+          <a class="ar__link" href={a.href}>
+            {a.photo && <img class="ar__foto" src={a.photo} alt={a.nume} width="72" height="72" loading="lazy" />}
+            <span class="ar__body">
+              <span class="ar__nume">{a.nume}</span>
+              {(a.role || a.city) && (
+                <span class="ar__meta">{[a.role, a.city || a.country].filter(Boolean).join(" · ")}</span>
+              )}
+              <span class="ar__badges">
+                {a.allBreed ? (
+                  <span class="ar__badge ar__badge--all">{T.allBreed}</span>
+                ) : (
+                  a.grupe.map((nr) => (<span class="ar__badge"><strong>Gr. {nr}</strong></span>))
+                )}
+              </span>
+              <span class="ar__profil">{T.profil}</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
+</section>
+
+<script is:inline>
+  (function () {
+    const filtru = document.getElementById("ar-filtru");
+    const count = document.getElementById("ar-count");
+    if (!filtru) return;
+    const cards = [...document.querySelectorAll(".ar__card")];
+    const eticheta = (n) => (n === 1 ? "1 arbitru / 1 judge" : n + " arbitri / judges");
+    filtru.addEventListener("change", () => {
+      const g = Number(filtru.value) || 0;
+      let vizibili = 0;
+      cards.forEach((c) => {
+        const grupe = (c.getAttribute("data-grupe") || "").split(",").filter(Boolean).map(Number);
+        const allBreed = c.getAttribute("data-allbreed") === "1";
+        const ok = g === 0 || allBreed || grupe.includes(g);
+        c.hidden = !ok;
+        if (ok) vizibili++;
+      });
+      if (count) count.textContent = eticheta(vizibili);
+    });
+  })();
+</script>
+
+<style>
+  .ar { max-width: 62rem; }
+  .ar__eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .ar__title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.6rem; }
+  .ar__intro { color: var(--color-text-muted); max-width: 48rem; }
+  .ar__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin: 1.5rem 0 1rem; }
+  .ar__filtru { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--color-text); }
+  .ar__filtru select { padding: 0.5rem 0.7rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; background: var(--color-surface); }
+  .ar__count { color: var(--color-text-muted); font-size: 0.9rem; }
+  .ar__stare { color: var(--color-text-muted); font-style: italic; }
+  .ar__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); }
+  .ar__card[hidden] { display: none; }
+  .ar__link { display: flex; gap: 0.9rem; text-decoration: none; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.1rem; height: 100%; }
+  .ar__link:hover { border-color: var(--color-primary); }
+  .ar__foto { flex: 0 0 auto; width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-accent); }
+  .ar__body { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+  .ar__nume { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.1rem; font-weight: 700; }
+  .ar__meta { font-size: 0.85rem; color: var(--color-text-muted); }
+  .ar__badges { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.35rem; }
+  .ar__badge { font-size: 0.78rem; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: 999px; padding: 0.15rem 0.55rem; color: var(--color-text); }
+  .ar__badge strong { color: var(--color-primary); }
+  .ar__badge--all { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
+  .ar__profil { margin-top: 0.5rem; font-size: 0.82rem; font-weight: 600; color: var(--color-accent-dark); }
+</style>

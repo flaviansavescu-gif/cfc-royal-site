@@ -1,0 +1,13 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import RegistruArbitri from "../../components/RegistruArbitri.astro";
+import { getCollection } from "astro:content";
+import { isLang } from "../../i18n/content";
+const lang = "en" as const;
+const entries = await getCollection("arbitri", (e: any) => isLang(e.id, lang) && !e.data.draft);
+---
+<BaseLayout title="Panel of judges" lang={lang} description="Public registry of Club Federal Chinologic – Royal (WDF) judges and the groups they may judge.">
+  <div class="container" style="padding-block: 3rem;">
+    <RegistruArbitri lang={lang} entries={entries} />
+  </div>
+</BaseLayout>
