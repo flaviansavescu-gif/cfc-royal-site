@@ -29,12 +29,18 @@ const { m } = Astro.props;
   </div>
 
   <div id="m-continut" hidden>
-  <h2 class="m-h2">Lecturi obligatorii</h2>
-  <ul class="m-lecturi">
-    {m.lecturi.map((l) => (
-      <li><a href={l.url} target="_blank" rel="noopener">{l.titlu} ↗</a></li>
-    ))}
-  </ul>
+  {m.lecturi.length > 0 ? (
+    <>
+      <h2 class="m-h2">Lecturi obligatorii</h2>
+      <ul class="m-lecturi">
+        {m.lecturi.map((l) => (
+          <li><a href={l.url} target="_blank" rel="noopener">{l.titlu} ↗</a></li>
+        ))}
+      </ul>
+    </>
+  ) : (
+    <p class="m-pending">📚 Materialele de curs și testul se adaugă odată cu predarea acestui modul de către lector.</p>
+  )}
 
   {m.intrebari ? (
     <section class="test" id="test">
@@ -201,6 +207,8 @@ const { m } = Astro.props;
   .m-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2.25rem 0 0.75rem; font-size: 1.35rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.35rem; }
   .m-lecturi { padding-left: 1.2rem; display: grid; gap: 0.45rem; }
   .m-lecturi a { color: var(--color-accent-dark); }
+  .m-pending { margin: 1.25rem 0; padding: 1rem 1.25rem; max-width: 46rem; color: var(--color-text-muted);
+    background: var(--color-surface); border: 1px dashed var(--color-border); border-radius: var(--radius); }
 
   .test__info { color: var(--color-text-muted); max-width: 46rem; }
   .test__field { margin: 1.25rem 0; max-width: 26rem; }

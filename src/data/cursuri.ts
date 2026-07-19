@@ -306,6 +306,81 @@ export const MODULE: Modul[] = [
       { text: "Ce conține „Raportul Delegatului”, completat după expoziție și trimis la sediul WDF?", optiuni: ["Doar lista câștigătorilor și clasamentele finale ale expoziției", "Exclusiv situația financiară a evenimentului și numărul de înscrieri", "Incidente disciplinare, DSQ-uri, nereguli tehnice, observații despre arbitri, probleme organizatorice și recomandări"] },
     ],
   },
+
+  // ——— Module din programa oficială (Modul Teoretic 2026). Se completează cu lecturi
+  //     și teste pe măsură ce lectorii își publică cursurile. ———
+  {
+    slug: "modul-9",
+    nr: 9,
+    titlu: "Introducere în chinologie",
+    obiectiv:
+      "Importanța studiului chinologiei, situația chinologiei pe plan mondial și dezvoltarea ei în România; distincția dintre chinologie și chinofilie. (Cap. I din programă)",
+    lecturi: [],
+  },
+  {
+    slug: "modul-10",
+    nr: 10,
+    titlu: "Sistematica zootehnică: specia, domesticirea și rasele canine",
+    obiectiv:
+      "Specia ca unitate sistematică, domesticirea câinelui și noțiunile despre rasele canine: subdiviziuni, factorii de formare, caracterele de rasă, clasificarea raselor (standardele), aclimatizarea și degenerarea raselor. (Cap. II)",
+    lecturi: [],
+  },
+  {
+    slug: "modul-11",
+    nr: 11,
+    titlu: "Anatomie, morfologie și biomecanică canină",
+    obiectiv:
+      "Osteologia, sistemul muscular, regiunile corporale și zoometria; biomecanica și mișcarea câinelui — baza evaluării morfologice în ring. (Cap. III.1)",
+    lecturi: [],
+  },
+  {
+    slug: "modul-12",
+    nr: 12,
+    titlu: "Genetică, etologie, nutriție, reproducție și patologie canină",
+    obiectiv:
+      "Noțiuni elementare de ereditate și ameliorare genetică, etologia canină (aprecierea caracterului), nutriția și alimentația, reproducția și aspectele generale despre patologiile canine și ereditatea unor maladii. (Cap. III.2–3.6)",
+    lecturi: [],
+  },
+  {
+    slug: "modul-13",
+    nr: 13,
+    titlu: "Metodologia examinării în ring",
+    obiectiv:
+      "Interpretarea standardului de rasă, tehnicile de arbitraj chinologic, evaluarea tipicității, clasificarea defectelor și acordarea calificativelor și a titlurilor. (Cap. IV.2.1)",
+    lecturi: [],
+  },
+  {
+    slug: "modul-14",
+    nr: 14,
+    titlu: "Fișa de arbitraj și documentele expoziției",
+    obiectiv:
+      "Identificarea exemplarului, arbitrajul descriptiv (expoziții de frumusețe) și cel specific raselor utilitare, măsurătorile corporale (zoometria), completarea și validarea fișei, centralizarea rezultatelor și raportul arbitrului de ring. (Cap. IV.2.2)",
+    lecturi: [],
+  },
+  {
+    slug: "modul-15",
+    nr: 15,
+    titlu: "Managementul ringului expozițional",
+    obiectiv:
+      "Organigrama echipei manageriale, organizarea ringului central și a celorlalte ringuri, rolurile de arbitru, comisar și secretar, amenajarea ringurilor și instrumentarul zootehnic necesar. (Cap. IV.2.3)",
+    lecturi: [],
+  },
+  {
+    slug: "modul-16",
+    nr: 16,
+    titlu: "Handling și grooming expozițional",
+    obiectiv:
+      "Noțiuni generale despre handling-ul expozițional și despre grooming-ul canin — pregătirea și prezentarea câinelui în ring. (Cap. IV.2.4 și 4.4.5)",
+    lecturi: [],
+  },
+  {
+    slug: "modul-17",
+    nr: 17,
+    titlu: "Legislația care reglementează creșterea câinilor",
+    obiectiv:
+      "Aspecte de legislație relevante pentru creșterea câinilor și pentru activitatea arbitrului chinolog. (Cap. IV.4)",
+    lecturi: [],
+  },
 ];
 
 /** Pragul de promovare a testelor (procent). */
