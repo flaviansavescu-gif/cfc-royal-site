@@ -12,6 +12,10 @@ import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
     Rezultatele ajung automat la secretariatul Școlii.
   </p>
 
+  <p class="d-actiuni">
+    <a class="d-stagiu" href="/cursuri/asistente/">🎗️ Asistențe de ring — stagiul practic (5 asistențe) →</a>
+  </p>
+
   <section class="d-anunturi" id="d-anunturi" hidden>
     <h2 class="d-anunturi__title">📢 Noutăți</h2>
     <ul class="d-anunturi__list" id="d-anunturi-list"></ul>
@@ -121,6 +125,10 @@ import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
 
 <style>
   .d-hi { margin: 0 0 0.35rem; font-weight: 600; color: var(--color-accent-dark); }
+  .d-actiuni { margin: 1.5rem 0 0; }
+  .d-stagiu { display: inline-block; text-decoration: none; font-weight: 600; color: var(--color-primary);
+    background: var(--color-surface); border: 1px solid var(--color-accent); border-radius: var(--radius); padding: 0.7rem 1.1rem; }
+  .d-stagiu:hover { border-color: var(--color-primary); }
   .d-title { font-family: var(--font-serif); color: var(--color-primary); margin-bottom: 0.5rem; }
   .d-sub { color: var(--color-text-muted); max-width: 46rem; }
   .d-list { list-style: none; margin: 2rem 0 0; padding: 0; display: grid; gap: 0.85rem; }
