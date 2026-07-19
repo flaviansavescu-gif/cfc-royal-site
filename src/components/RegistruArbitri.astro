@@ -1,8 +1,10 @@
 ---
 // RegistruArbitri.astro — registrul public al Colegiului de Arbitri CFC-Royal.
-// Sursa de date: colecția de conținut „arbitri" (profiluri curate cu foto, rol, oraș,
-// qualifications = grupe WDF). Adaugă badge-uri pe grupe și filtrare pe grupă, cu link
-// la profilul fiecărui arbitru. Datele rămân editoriale (fișiere .md), nimic din Blobs.
+// Două surse, îmbinate:
+//   1) editorial — colecția de conținut „arbitri" (profiluri curate: foto, rol, oraș, grupe);
+//   2) automat — arbitrii certificați prin Școala de Arbitraj, marcați „public" de secretariat
+//      (funcția autorizare-cursuri, Netlify Blobs), preluați la runtime și adăugați dacă nu
+//      există deja în editorial (deduplicare după nume).
 import { GRUPE_WDF } from "../data/grupe-wdf";
 import { entrySlug } from "../i18n/content";
 import { localizePath, type Lang } from "../i18n/utils";
@@ -19,8 +21,9 @@ const T = {
     toate: "Toate grupele",
     allBreed: "All Breed (toate grupele)",
     gol: "Niciun arbitru publicat momentan.",
-    numar: (n: number) => n === 1 ? "1 arbitru" : n + " arbitri",
     profil: "Vezi profilul →",
+    certificat: "🎓 Certificat prin Școala de Arbitraj",
+    unu: "arbitru", multi: "arbitri",
   },
   en: {
     eyebrow: "Organization",
@@ -30,8 +33,9 @@ const T = {
     toate: "All groups",
     allBreed: "All Breed (all groups)",
     gol: "No judges published yet.",
-    numar: (n: number) => n === 1 ? "1 judge" : n + " judges",
     profil: "View profile →",
+    certificat: "🎓 Certified via the Judging School",
+    unu: "judge", multi: "judges",
   },
 }[lang];
 
@@ -60,13 +64,15 @@ const arbitri = entries
       grupe,
     };
   })
-  // All Breed întâi, apoi cei cu funcție, apoi alfabetic.
   .sort((a, b) => {
     if (a.allBreed !== b.allBreed) return a.allBreed ? -1 : 1;
     const fa = a.role ? 0 : 1, fb = b.role ? 0 : 1;
     if (fa !== fb) return fa - fb;
     return a.nume.localeCompare(b.nume, "ro");
   });
+
+const numeEditoriale = arbitri.map((a) => a.nume);
+const Tc = { allBreed: T.allBreed, certificat: T.certificat, unu: T.unu, multi: T.multi };
 ---
 
 <section class="ar">
@@ -82,57 +88,120 @@ const arbitri = entries
         {grupeClient.map((g) => (<option value={g.nr}>Gr. {g.nr} — {g.nume}</option>))}
       </select>
     </label>
-    <span class="ar__count" id="ar-count">{T.numar(arbitri.length)}</span>
+    <span class="ar__count" id="ar-count">{arbitri.length === 1 ? `1 ${T.unu}` : `${arbitri.length} ${T.multi}`}</span>
   </div>
 
-  {arbitri.length === 0 ? (
-    <p class="ar__stare">{T.gol}</p>
-  ) : (
-    <ul class="ar__list" id="ar-list">
-      {arbitri.map((a) => (
-        <li class="ar__card" data-grupe={a.grupe.join(",")} data-allbreed={a.allBreed ? "1" : "0"}>
-          <a class="ar__link" href={a.href}>
-            {a.photo && <img class="ar__foto" src={a.photo} alt={a.nume} width="72" height="72" loading="lazy" />}
-            <span class="ar__body">
-              <span class="ar__nume">{a.nume}</span>
-              {(a.role || a.city) && (
-                <span class="ar__meta">{[a.role, a.city || a.country].filter(Boolean).join(" · ")}</span>
+  <p class="ar__stare" id="ar-gol" hidden={arbitri.length > 0}>{T.gol}</p>
+  <ul class="ar__list" id="ar-list">
+    {arbitri.map((a) => (
+      <li class="ar__card" data-grupe={a.grupe.join(",")} data-allbreed={a.allBreed ? "1" : "0"}>
+        <a class="ar__link" href={a.href}>
+          {a.photo && <img class="ar__foto" src={a.photo} alt={a.nume} width="72" height="72" loading="lazy" />}
+          <span class="ar__body">
+            <span class="ar__nume">{a.nume}</span>
+            {(a.role || a.city) && (
+              <span class="ar__meta">{[a.role, a.city || a.country].filter(Boolean).join(" · ")}</span>
+            )}
+            <span class="ar__badges">
+              {a.allBreed ? (
+                <span class="ar__badge ar__badge--all">{T.allBreed}</span>
+              ) : (
+                a.grupe.map((nr) => (<span class="ar__badge"><strong>Gr. {nr}</strong></span>))
               )}
-              <span class="ar__badges">
-                {a.allBreed ? (
-                  <span class="ar__badge ar__badge--all">{T.allBreed}</span>
-                ) : (
-                  a.grupe.map((nr) => (<span class="ar__badge"><strong>Gr. {nr}</strong></span>))
-                )}
-              </span>
-              <span class="ar__profil">{T.profil}</span>
             </span>
-          </a>
-        </li>
-      ))}
-    </ul>
-  )}
+            <span class="ar__profil">{T.profil}</span>
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
 </section>
 
-<script is:inline>
-  (function () {
+<script is:inline define:vars={{ GRUPE: grupeClient, NUME_ED: numeEditoriale, Tc }}>
+  (async function () {
+    const list = document.getElementById("ar-list");
+    const gol = document.getElementById("ar-gol");
     const filtru = document.getElementById("ar-filtru");
     const count = document.getElementById("ar-count");
-    if (!filtru) return;
-    const cards = [...document.querySelectorAll(".ar__card")];
-    const eticheta = (n) => (n === 1 ? "1 arbitru / 1 judge" : n + " arbitri / judges");
-    filtru.addEventListener("change", () => {
+    if (!list || !filtru || !count) return;
+
+    const norm = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ").trim();
+    const numeGrupa = (nr) => { const g = GRUPE.find((x) => x.nr === nr); return g ? g.nume : ("Grupa " + nr); };
+    const setEd = new Set(NUME_ED.map(norm));
+
+    // Preia arbitrii certificați prin Școală și adaugă-i pe cei care nu sunt deja în colegiul editorial.
+    try {
+      const res = await fetch("/.netlify/functions/autorizare-cursuri");
+      if (res.ok) {
+        const d = await res.json();
+        (d.arbitri || []).forEach((a) => {
+          if (!a || !a.nume || setEd.has(norm(a.nume))) return;
+          const grupe = (a.grupe || []).slice().filter((n) => n >= 1 && n <= 10).sort((x, y) => x - y);
+          if (!grupe.length) return;
+          setEd.add(norm(a.nume));
+
+          const li = document.createElement("li");
+          li.className = "ar__card";
+          li.setAttribute("data-grupe", grupe.join(","));
+          li.setAttribute("data-allbreed", "0");
+
+          const div = document.createElement("div");
+          div.className = "ar__link ar__link--static";
+          const body = document.createElement("span");
+          body.className = "ar__body";
+
+          const nume = document.createElement("span");
+          nume.className = "ar__nume";
+          nume.textContent = a.nume;
+          body.appendChild(nume);
+
+          if (a.localitate) {
+            const meta = document.createElement("span");
+            meta.className = "ar__meta";
+            meta.textContent = a.localitate;
+            body.appendChild(meta);
+          }
+
+          const badges = document.createElement("span");
+          badges.className = "ar__badges";
+          grupe.forEach((nr) => {
+            const b = document.createElement("span");
+            b.className = "ar__badge";
+            b.title = numeGrupa(nr);
+            b.innerHTML = "<strong>Gr. " + nr + "</strong>";
+            badges.appendChild(b);
+          });
+          body.appendChild(badges);
+
+          const cert = document.createElement("span");
+          cert.className = "ar__cert";
+          cert.textContent = Tc.certificat;
+          body.appendChild(cert);
+
+          div.appendChild(body);
+          li.appendChild(div);
+          list.appendChild(li);
+        });
+      }
+    } catch (e) { /* fără rețea → rămâne doar colegiul editorial */ }
+
+    // Filtru + numărător peste TOATE cardurile (editoriale + certificate).
+    const cards = () => [...list.querySelectorAll(".ar__card")];
+    function aplica() {
       const g = Number(filtru.value) || 0;
-      let vizibili = 0;
-      cards.forEach((c) => {
+      let viz = 0;
+      cards().forEach((c) => {
         const grupe = (c.getAttribute("data-grupe") || "").split(",").filter(Boolean).map(Number);
         const allBreed = c.getAttribute("data-allbreed") === "1";
         const ok = g === 0 || allBreed || grupe.includes(g);
         c.hidden = !ok;
-        if (ok) vizibili++;
+        if (ok) viz++;
       });
-      if (count) count.textContent = eticheta(vizibili);
-    });
+      count.textContent = viz === 1 ? ("1 " + Tc.unu) : (viz + " " + Tc.multi);
+      if (gol) gol.hidden = cards().length > 0;
+    }
+    filtru.addEventListener("change", aplica);
+    aplica();
   })();
 </script>
 
@@ -150,6 +219,8 @@ const arbitri = entries
   .ar__card[hidden] { display: none; }
   .ar__link { display: flex; gap: 0.9rem; text-decoration: none; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.1rem; height: 100%; }
   .ar__link:hover { border-color: var(--color-primary); }
+  .ar__link--static { cursor: default; }
+  .ar__link--static:hover { border-color: var(--color-border); }
   .ar__foto { flex: 0 0 auto; width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-accent); }
   .ar__body { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
   .ar__nume { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.1rem; font-weight: 700; }
@@ -159,4 +230,5 @@ const arbitri = entries
   .ar__badge strong { color: var(--color-primary); }
   .ar__badge--all { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
   .ar__profil { margin-top: 0.5rem; font-size: 0.82rem; font-weight: 600; color: var(--color-accent-dark); }
+  .ar__cert { margin-top: 0.5rem; font-size: 0.72rem; font-weight: 600; color: var(--color-accent-dark); }
 </style>

@@ -1,10 +1,12 @@
-// autorizare-cursuri.mjs — autorizarea arbitrilor pe grupe WDF (1–10).
-// Store "cursuri" (Netlify Blobs):
-//   autorizare/<candidatId> -> { grupe: [1,3,4,...], data }
+// autorizare-cursuri.mjs — autorizarea arbitrilor pe grupe WDF (1–10) + puntea către
+// registrul public. Store "cursuri" (Netlify Blobs):
+//   autorizare/<candidatId> -> { grupe:[1,3,...], public:bool, localitate, data }
 //
-// POST { id, actiune:"eu" }                      -> { grupe }               (candidatul își vede autorizarea)
-// POST { cod, actiune:"admin" }                  -> { autorizari:{cid:[...]} } (adminul vede tot)
-// POST { cod, actiune:"salveaza", candidatId, grupe } -> { ok, grupe }
+// GET  (public)                                  -> { arbitri:[{nume,grupe,localitate}] }  (certificați + public)
+// POST { actiune:"registru" }                    -> idem
+// POST { id, actiune:"eu" }                      -> { grupe }                (candidatul își vede autorizarea)
+// POST { cod, actiune:"admin" }                  -> { autorizari:{cid:{grupe,public,localitate}} }
+// POST { cod, actiune:"salveaza", candidatId, grupe, public, localitate } -> { ok, grupe }
 import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
 
@@ -31,14 +33,44 @@ function grupeCurate(arr) {
   return [...set].sort((a, b) => a - b);
 }
 
+// Registrul public: arbitrii marcați „public” care au cel puțin o grupă autorizată.
+async function registruPublic(store) {
+  const arbitri = [];
+  try {
+    const { blobs } = await store.list({ prefix: "autorizare/" });
+    for (const b of blobs) {
+      const a = await store.get(b.key, { type: "json" });
+      if (!a || !a.public) continue;
+      const grupe = grupeCurate(a.grupe);
+      if (!grupe.length) continue;
+      const cid = b.key.slice("autorizare/".length);
+      const c = await store.get("candidat/" + cid, { type: "json" }).catch(() => null);
+      if (!c || !c.nume) continue; // fără nume nu apare (și nu expunem NICIODATĂ codul)
+      arbitri.push({ nume: String(c.nume), grupe, localitate: taie(a.localitate, 120) });
+    }
+  } catch (err) { console.error("Registru public eșuat:", err); }
+  arbitri.sort((x, y) => (x.nume || "").localeCompare(y.nume || "", "ro"));
+  return arbitri;
+}
+
 export default async (req) => {
+  const store = getStore("cursuri");
+
+  // GET public — registrul arbitrilor certificați prin Școală.
+  if (req.method === "GET") {
+    return json({ arbitri: await registruPublic(store) });
+  }
+
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
 
   let body;
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
 
-  const store = getStore("cursuri");
   const actiune = body.actiune || "eu";
+
+  if (actiune === "registru") {
+    return json({ arbitri: await registruPublic(store) });
+  }
 
   // ——— Candidatul își vede propria autorizare ———
   if (actiune === "eu") {
@@ -64,7 +96,7 @@ export default async (req) => {
       for (const b of blobs) {
         const cid = b.key.slice("autorizare/".length);
         const a = await store.get(b.key, { type: "json" });
-        if (a) autorizari[cid] = grupeCurate(a.grupe);
+        if (a) autorizari[cid] = { grupe: grupeCurate(a.grupe), public: !!a.public, localitate: taie(a.localitate, 120) };
       }
     } catch (err) { console.error("Listare autorizări eșuată:", err); }
     return json({ autorizari });
@@ -76,7 +108,13 @@ export default async (req) => {
     const exista = await store.get("candidat/" + cid, { type: "json" }).catch(() => null);
     if (!exista) return json({ eroare: "Candidat inexistent." }, 404);
     const grupe = grupeCurate(body.grupe);
-    await store.setJSON("autorizare/" + cid, { grupe, data: new Date().toISOString() });
+    const inregistrare = {
+      grupe,
+      public: body.public === true || body.public === "1",
+      localitate: taie(body.localitate, 120),
+      data: new Date().toISOString(),
+    };
+    await store.setJSON("autorizare/" + cid, inregistrare);
     return json({ ok: true, grupe });
   }
 
