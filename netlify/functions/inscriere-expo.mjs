@@ -163,6 +163,7 @@ export default async (req) => {
     sex,
     dataNasterii,
     pedigree: String(body.pedigree || "").trim().slice(0, 60) || null,
+    pedigreeTipicitate: String(body.pedigreeTipicitate || "") === "1",
     microcip: String(body.microcip || "").trim().slice(0, 60) || null,
     crescator: String(body.crescator || "").trim().slice(0, 120) || null,
     clasa,

@@ -11,6 +11,7 @@ const T = {
     expozitie: "Expoziția", dateCaine: "Datele câinelui", numeCaine: "Numele complet al câinelui", rasa: "Rasa", rasaPh: "Scrie și alege rasa…",
     sex: "Sex", mascul: "Mascul", femela: "Femelă", dataN: "Data nașterii", pedigree: "Număr pedigree", microcip: "Microcip", crescator: "Crescător",
     clasa: "Clasa de concurs", dateProp: "Datele proprietarului", numeProp: "Nume și prenume", email: "Email", telefon: "Telefon", adresa: "Adresă", tara: "Țara",
+    tipicitate: "Doresc pedigree de tipicitate", tipicitateDesc: "Bifează dacă acest câine de rasă nu are pedigree și dorești obținerea unui pedigree de tipicitate (evaluare de tipicitate în ring).",
     optional: "opțional", trimite: "Trimite înscrierea", seTrimite: "Se trimite…",
     succes: "Înscriere primită! Vei primi un email de confirmare, iar după validare — numărul de catalog.", inca: "Trimite o nouă înscriere",
     gdprTitlu: "Protecția datelor (GDPR)",
@@ -23,6 +24,7 @@ const T = {
     expozitie: "Show", dateCaine: "Dog details", numeCaine: "Dog's full name", rasa: "Breed", rasaPh: "Type and pick the breed…",
     sex: "Sex", mascul: "Male", femela: "Female", dataN: "Date of birth", pedigree: "Pedigree number", microcip: "Microchip", crescator: "Breeder",
     clasa: "Competition class", dateProp: "Owner details", numeProp: "Full name", email: "Email", telefon: "Phone", adresa: "Address", tara: "Country",
+    tipicitate: "I want a typicity pedigree", tipicitateDesc: "Tick this if the purebred dog has no pedigree and you wish to obtain a typicity pedigree (typicity assessment in the ring).",
     optional: "optional", trimite: "Submit entry", seTrimite: "Sending…",
     succes: "Entry received! You will get a confirmation email, and your catalogue number after validation.", inca: "Submit another entry",
     gdprTitlu: "Data protection (GDPR)",
@@ -95,6 +97,7 @@ const CLASE = [
         <label class="ie__f"><span>{T.microcip} ({T.optional})</span><input name="microcip" /></label>
       </div>
       <label class="ie__f"><span>{T.crescator} ({T.optional})</span><input name="crescator" /></label>
+      <label class="ie__tip"><input type="checkbox" name="pedigreeTipicitate" value="1" /> <span><b>{T.tipicitate}</b><br /><small>{T.tipicitateDesc}</small></span></label>
     </fieldset>
 
     <fieldset class="ie__fs">
@@ -204,6 +207,9 @@ const CLASE = [
   .ie__f input:focus, .ie__f select:focus { outline: 2px solid var(--color-primary); }
   .ie__row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
   .ie__radios { display: flex; gap: 1.25rem; padding-top: 0.4rem; }
+  .ie__tip { display: flex; align-items: flex-start; gap: 0.5rem; background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
+  .ie__tip input { margin-top: 0.25rem; }
+  .ie__tip small { color: var(--color-text-muted); }
   .ie__gdpr { margin: 0; font-size: 0.88rem; color: var(--color-text-muted); }
   .ie__consim { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.92rem; }
   .ie__consim input { margin-top: 0.2rem; }
