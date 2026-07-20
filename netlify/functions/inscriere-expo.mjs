@@ -158,6 +158,11 @@ export default async (req) => {
   // obligatoriu — a doua cale, negardată.
   if (String(body.microcip || "").trim().length < 6)
     return json({ eroare: "Microcipul este obligatoriu (minimum 6 caractere)." }, 400);
+  // Numarul de pedigree e obligatoriu daca exemplarul are pedigree. Exceptia declarata
+  // e calea pedigree-ului de tipicitate (caine de rasa fara acte). Verificat si pe
+  // server, nu doar in browser.
+  if (String(body.pedigreeTipicitate || "") !== "1" && String(body.pedigree || "").trim().length < 2)
+    return json({ eroare: "Numărul de pedigree este obligatoriu. Dacă exemplarul nu are acte, bifează pedigree de tipicitate." }, 400);
   if (!clasaValida(clasa, dataNasterii, config.data))
     return json({ eroare: "Vârsta câinelui la data expoziției nu se încadrează în clasa aleasă." }, 400);
 
