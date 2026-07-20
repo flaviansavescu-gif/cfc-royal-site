@@ -43,6 +43,29 @@ const lang = "ro" as const;
       return;
     }
 
+    const rand = (et, val) => {
+      if (!val) return;
+      const dt = document.createElement("dt"); dt.textContent = et;
+      const dd = document.createElement("dd"); dd.textContent = val;
+      detalii.appendChild(dt); detalii.appendChild(dd);
+    };
+
+    // Act anulat de delegat: semnătura e validă, dar titlul a fost invalidat.
+    // Arătăm despre ce act e vorba, ca lucrurile să fie limpezi.
+    if (d.anulat) {
+      card.dataset.stare = "anulat";
+      stare.textContent = "⚠ Certificat ANULAT";
+      const a = d.act || {};
+      rand("Serie", a.serie);
+      rand("Titlu / Premiu", a.titlu);
+      rand("Câine", a.caine);
+      rand("Expoziție", a.expozitie);
+      detalii.hidden = false;
+      nota.hidden = false;
+      nota.textContent = d.motiv || "Acest act a fost anulat și nu mai este valabil.";
+      return;
+    }
+
     if (!d.valid) {
       card.dataset.stare = "invalid";
       stare.textContent = "✕ Certificat neconfirmat";
@@ -54,12 +77,6 @@ const lang = "ro" as const;
     card.dataset.stare = "valid";
     stare.textContent = "✓ Certificat autentic";
     const a = d.act;
-    const rand = (et, val) => {
-      if (!val) return;
-      const dt = document.createElement("dt"); dt.textContent = et;
-      const dd = document.createElement("dd"); dd.textContent = val;
-      detalii.appendChild(dt); detalii.appendChild(dd);
-    };
     rand("Serie", a.serie);
     rand("Titlu / Premiu", a.titlu);
     rand("Câine", a.caine);
@@ -79,9 +96,11 @@ const lang = "ro" as const;
   .vf__card { border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); padding: 2rem; text-align: left; }
   .vf__card[data-stare="valid"] { border-color: #1F7A4D; background: #f0f7f2; }
   .vf__card[data-stare="invalid"] { border-color: #8c1d2f; background: #f9efef; }
+  .vf__card[data-stare="anulat"] { border-color: #b45309; background: #fdf6ec; }
   .vf__stare { margin: 0; text-align: center; font-family: var(--font-serif); font-size: 1.5rem; font-weight: 700; color: var(--color-text); }
   .vf__card[data-stare="valid"] .vf__stare { color: #1F7A4D; }
   .vf__card[data-stare="invalid"] .vf__stare { color: #8c1d2f; }
+  .vf__card[data-stare="anulat"] .vf__stare { color: #b45309; }
   .vf__detalii { display: grid; grid-template-columns: max-content 1fr; gap: 0.5rem 1.25rem; margin: 1.5rem 0 0; }
   .vf__detalii dt { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); align-self: center; }
   .vf__detalii dd { margin: 0; font-weight: 600; color: var(--color-text); }
