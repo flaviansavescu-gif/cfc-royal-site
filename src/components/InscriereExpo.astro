@@ -13,6 +13,7 @@ const T = {
     clasa: "Clasa de concurs", dateProp: "Datele proprietarului", numeProp: "Nume și prenume", email: "Email", telefon: "Telefon", adresa: "Adresă", tara: "Țara",
     tipicitate: "Doresc pedigree de tipicitate", tipicitateDesc: "Bifează dacă acest câine de rasă nu are pedigree și dorești obținerea unui pedigree de tipicitate (evaluare de tipicitate în ring).",
     optional: "opțional", trimite: "Trimite înscrierea", seTrimite: "Se trimite…",
+    culoareRoba: "Culoarea robei", tata: "Tatăl (nume complet)", mama: "Mama (nume complet)",
     succes: "Înscriere primită! Vei primi un email de confirmare, iar după validare — numărul de catalog.", inca: "Trimite o nouă înscriere",
     gdprTitlu: "Protecția datelor (GDPR)",
     gdprText: "Datele tale și ale câinelui sunt folosite exclusiv pentru organizarea expoziției (catalog, arbitraj, rezultate, comunicări legate de eveniment). Nu le vindem și nu le transmitem terților în scop comercial. Le păstrăm cât e necesar pentru evidența expozițională. Poți cere accesul, corectarea sau ștergerea datelor scriind la contact@cfc-royal.ro.",
@@ -26,6 +27,7 @@ const T = {
     clasa: "Competition class", dateProp: "Owner details", numeProp: "Full name", email: "Email", telefon: "Phone", adresa: "Address", tara: "Country",
     tipicitate: "I want a typicity pedigree", tipicitateDesc: "Tick this if the purebred dog has no pedigree and you wish to obtain a typicity pedigree (typicity assessment in the ring).",
     optional: "optional", trimite: "Submit entry", seTrimite: "Sending…",
+    culoareRoba: "Coat colour", tata: "Sire (full name)", mama: "Dam (full name)",
     succes: "Entry received! You will get a confirmation email, and your catalogue number after validation.", inca: "Submit another entry",
     gdprTitlu: "Data protection (GDPR)",
     gdprText: "Your data and your dog's data are used solely for organising the show (catalogue, judging, results, event-related communications). We do not sell or share them with third parties for commercial purposes. We keep them as long as needed for show records. You may request access, correction or deletion by writing to contact@cfc-royal.ro.",
@@ -94,9 +96,14 @@ const CLASE = [
       </label>
       <div class="ie__row">
         <label class="ie__f"><span>{T.pedigree} ({T.optional})</span><input name="pedigree" /></label>
-        <label class="ie__f"><span>{T.microcip} ({T.optional})</span><input name="microcip" /></label>
+        <label class="ie__f"><span>{T.microcip} *</span><input name="microcip" required minlength="6" /></label>
       </div>
       <label class="ie__f"><span>{T.crescator} ({T.optional})</span><input name="crescator" /></label>
+      <div class="ie__row">
+        <label class="ie__f"><span>{T.culoareRoba} ({T.optional})</span><input name="culoareRoba" /></label>
+        <label class="ie__f"><span>{T.tata} ({T.optional})</span><input name="tata" /></label>
+      </div>
+      <label class="ie__f"><span>{T.mama} ({T.optional})</span><input name="mama" /></label>
       <label class="ie__tip"><input type="checkbox" name="pedigreeTipicitate" value="1" /> <span><b>{T.tipicitate}</b><br /><small>{T.tipicitateDesc}</small></span></label>
     </fieldset>
 

@@ -152,6 +152,12 @@ export default async (req) => {
   if (numeProp.length < 3) return json({ eroare: "Numele proprietarului este obligatoriu." }, 400);
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ eroare: "Email invalid." }, 400);
   if (String(body.gdpr || "") !== "1") return json({ eroare: "Trebuie să accepți prelucrarea datelor (GDPR)." }, 400);
+  // „Toți câinii participanți trebuie să fie identificați prin microchip, iar datele
+  // acestuia trebuie să corespundă în mod exact cu documentele prezentate"
+  // (Verificarea identității câinilor, 1.1). Era opțional aici, deși în manager e
+  // obligatoriu — a doua cale, negardată.
+  if (String(body.microcip || "").trim().length < 6)
+    return json({ eroare: "Microcipul este obligatoriu (minimum 6 caractere)." }, 400);
   if (!clasaValida(clasa, dataNasterii, config.data))
     return json({ eroare: "Vârsta câinelui la data expoziției nu se încadrează în clasa aleasă." }, 400);
 
@@ -166,6 +172,10 @@ export default async (req) => {
     pedigreeTipicitate: String(body.pedigreeTipicitate || "") === "1",
     microcip: String(body.microcip || "").trim().slice(0, 60) || null,
     crescator: String(body.crescator || "").trim().slice(0, 120) || null,
+    // Art. 21 lit. f — se tipăresc în catalog; managerul le preia la import.
+    culoareRoba: String(body.culoareRoba || "").trim().slice(0, 120) || null,
+    tata: String(body.tata || "").trim().slice(0, 120) || null,
+    mama: String(body.mama || "").trim().slice(0, 120) || null,
     clasa,
     numeProprietar: numeProp.slice(0, 120),
     email,
