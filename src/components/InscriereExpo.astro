@@ -15,6 +15,17 @@ const T = {
     optional: "opțional", trimite: "Trimite înscrierea", seTrimite: "Se trimite…",
     culoareRoba: "Culoarea robei", tata: "Tatăl (nume complet)", mama: "Mama (nume complet)",
     faraPedigree: "Bifează dacă exemplarul nu are pedigree — atunci numărul de pedigree nu se mai cere.",
+    cumTitlu: "Cum funcționează înscrierea",
+    cum1t: "Pregătește datele câinelui",
+    cum1: "numărul de pedigree, microcipul, data nașterii, numele părinților și culoarea robei. Clasa de concurs se alege după vârsta câinelui la data expoziției, nu la data înscrierii.",
+    cum2t: "Microcipul este obligatoriu",
+    cum2: "la expoziție, datele lui trebuie să corespundă exact cu documentele prezentate. Fără microcip, înscrierea nu poate fi trimisă.",
+    cum3t: "Câine de rasă fără pedigree?",
+    cum3: "bifează „Doresc pedigree de tipicitate”. Atunci numărul de pedigree nu se mai cere. Exemplarul este evaluat în ring și poate concura pentru BOB și Best in Show, dar nu poate primi certificate (CAJC, CAC, CACIB).",
+    cum4t: "Culoarea robei și părinții",
+    cum4: "se tipăresc în catalogul oficial al expoziției. Dacă nu le cunoști la înscriere, secretariatul le poate completa până la închiderea catalogului.",
+    cum5t: "După trimitere",
+    cum5: "primești un e-mail de confirmare. După verificarea înscrierii de către secretariat primești numărul de catalog. Înscrierile se închid înainte de expoziție, odată cu tipărirea catalogului.",
     succes: "Înscriere primită! Vei primi un email de confirmare, iar după validare — numărul de catalog.", inca: "Trimite o nouă înscriere",
     gdprTitlu: "Protecția datelor (GDPR)",
     gdprText: "Datele tale și ale câinelui sunt folosite exclusiv pentru organizarea expoziției (catalog, arbitraj, rezultate, comunicări legate de eveniment). Nu le vindem și nu le transmitem terților în scop comercial. Le păstrăm cât e necesar pentru evidența expozițională. Poți cere accesul, corectarea sau ștergerea datelor scriind la contact@cfc-royal.ro.",
@@ -30,6 +41,17 @@ const T = {
     optional: "optional", trimite: "Submit entry", seTrimite: "Sending…",
     culoareRoba: "Coat colour", tata: "Sire (full name)", mama: "Dam (full name)",
     faraPedigree: "Tick if the dog has no pedigree — the pedigree number is then not required.",
+    cumTitlu: "How entry works",
+    cum1t: "Have the dog's details ready",
+    cum1: "pedigree number, microchip, date of birth, the parents' names and the coat colour. The competition class is based on the dog's age on the show date, not on the entry date.",
+    cum2t: "The microchip is mandatory",
+    cum2: "at the show, its data must match the documents presented exactly. Without a microchip the entry cannot be submitted.",
+    cum3t: "Purebred dog without a pedigree?",
+    cum3: "tick “I want a typicity pedigree”. The pedigree number is then not required. The dog is assessed in the ring and may compete for BOB and Best in Show, but cannot receive certificates (CAJC, CAC, CACIB).",
+    cum4t: "Coat colour and parents",
+    cum4: "are printed in the official show catalogue. If you do not know them at entry, the secretariat can complete them until the catalogue closes.",
+    cum5t: "After you submit",
+    cum5: "you receive a confirmation email. Once the secretariat checks your entry you receive the catalogue number. Entries close before the show, when the catalogue is printed.",
     succes: "Entry received! You will get a confirmation email, and your catalogue number after validation.", inca: "Submit another entry",
     gdprTitlu: "Data protection (GDPR)",
     gdprText: "Your data and your dog's data are used solely for organising the show (catalogue, judging, results, event-related communications). We do not sell or share them with third parties for commercial purposes. We keep them as long as needed for show records. You may request access, correction or deletion by writing to contact@cfc-royal.ro.",
@@ -56,6 +78,17 @@ const CLASE = [
 <section class="ie">
   <h1 class="ie__titlu">{T.titlu}</h1>
   <p class="ie__intro">{T.intro}</p>
+
+  <section class="ie__cum">
+    <h2 class="ie__cum-t">{T.cumTitlu}</h2>
+    <ol class="ie__cum-l">
+      <li><b>{T.cum1t}</b> — {T.cum1}</li>
+      <li><b>{T.cum2t}</b> — {T.cum2}</li>
+      <li><b>{T.cum3t}</b> — {T.cum3}</li>
+      <li><b>{T.cum4t}</b> — {T.cum4}</li>
+      <li><b>{T.cum5t}</b> — {T.cum5}</li>
+    </ol>
+  </section>
 
   <p class="ie__stare" id="ie-loading">…</p>
   <p class="ie__gol" id="ie-gol" hidden>{T.faraExpo}</p>
@@ -221,6 +254,14 @@ const CLASE = [
   .ie__titlu { font-family: var(--font-serif); color: var(--color-primary); }
   .ie__intro { color: var(--color-text-muted); }
   .ie__stare, .ie__gol { color: var(--color-text-muted); font-style: italic; }
+  /* Informarea expozantului: ce are de pregatit si ce se intampla dupa trimitere.
+     Sta intre intro si starea formularului, ca sa se vada si cand nu sunt expozitii
+     deschise — atunci oamenii afla din timp ce le trebuie. */
+  .ie__cum { margin-block: 1.25rem; background: var(--color-surface-alt); border-radius: var(--radius); padding: 1rem 1.15rem; }
+  .ie__cum-t { font-size: 1.05rem; margin: 0 0 0.5rem; }
+  .ie__cum-l { margin: 0; padding-left: 1.15rem; display: grid; gap: 0.45rem; font-size: 0.94rem; line-height: 1.55; }
+  .ie__cum-l li { color: var(--color-text-muted); }
+  .ie__cum-l b { color: var(--color-text); }
   .ie__form { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1.5rem; }
   .ie__fs { border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.9rem; }
   .ie__fs legend { font-weight: 600; color: var(--color-primary); padding: 0 0.4rem; }
