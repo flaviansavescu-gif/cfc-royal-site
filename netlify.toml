@@ -32,6 +32,15 @@
   status = 200
   force = true
 
+# Adresa STABILĂ a managerului de expoziții: /r/<cale> ajunge la tunelul curent al
+# managerului (funcția tunel decide unde), ca QR-urile tipărite să nu moară niciodată.
+# Ex.: cfc-royal.ro/r/ring/<id>, cfc-royal.ro/r/panou/<id>, cfc-royal.ro/r/ring-onoare/<id>
+[[redirects]]
+  from = "/r/*"
+  to = "/.netlify/functions/tunel?tinta=:splat"
+  status = 200
+  force = true
+
 # Redenumire pagină: Școala de Arbitraj → Centrul de Dezvoltare a Competențelor Chinologice
 [[redirects]]
   from = "/ro/educatie/scoala-arbitraj/"
