@@ -9,7 +9,7 @@ const T = {
     titlu: "Înscriere la expoziție", intro: "Completează formularul pentru a înscrie un câine la o expoziție a Clubului Federal Chinologic – Royal.",
     faraExpo: "Momentan nu sunt expoziții cu înscrieri deschise. Revino mai târziu.",
     expozitie: "Expoziția", dateCaine: "Datele câinelui", numeCaine: "Numele complet al câinelui", rasa: "Rasa", rasaPh: "Scrie și alege rasa…",
-    sex: "Sex", mascul: "Mascul", femela: "Femelă", dataN: "Data nașterii", pedigree: "Număr pedigree", microcip: "Microcip", crescator: "Crescător",
+    sex: "Sex", mascul: "Mascul", femela: "Femelă", dataN: "Data nașterii", dataPh: "zz.ll.aaaa", dataInvalida: "Data nașterii este invalidă — scrie-o ca zi.lună.an, de exemplu 22.10.2021.", pedigree: "Număr pedigree", microcip: "Microcip", crescator: "Crescător",
     clasa: "Clasa de concurs", dateProp: "Datele proprietarului", numeProp: "Nume și prenume", email: "Email", telefon: "Telefon", adresa: "Adresă", tara: "Țara",
     tipicitate: "Doresc pedigree de tipicitate", tipicitateDesc: "Bifează dacă acest câine de rasă nu are pedigree și dorești obținerea unui pedigree de tipicitate (evaluare de tipicitate în ring).",
     optional: "opțional", trimite: "Trimite înscrierea", seTrimite: "Se trimite…",
@@ -35,7 +35,7 @@ const T = {
     titlu: "Show entry", intro: "Fill in the form to enter a dog in a show of Club Federal Chinologic – Royal.",
     faraExpo: "There are currently no shows open for entry. Please check back later.",
     expozitie: "Show", dateCaine: "Dog details", numeCaine: "Dog's full name", rasa: "Breed", rasaPh: "Type and pick the breed…",
-    sex: "Sex", mascul: "Male", femela: "Female", dataN: "Date of birth", pedigree: "Pedigree number", microcip: "Microchip", crescator: "Breeder",
+    sex: "Sex", mascul: "Male", femela: "Female", dataN: "Date of birth", dataPh: "dd.mm.yyyy", dataInvalida: "The date of birth is invalid — write it as day.month.year, e.g. 22.10.2021.", pedigree: "Pedigree number", microcip: "Microchip", crescator: "Breeder",
     clasa: "Competition class", dateProp: "Owner details", numeProp: "Full name", email: "Email", telefon: "Phone", adresa: "Address", tara: "Country",
     tipicitate: "I want a typicity pedigree", tipicitateDesc: "Tick this if the purebred dog has no pedigree and you wish to obtain a typicity pedigree (typicity assessment in the ring).",
     optional: "optional", trimite: "Submit entry", seTrimite: "Sending…",
@@ -122,7 +122,7 @@ const CLASE = [
             <label><input type="radio" name="sex" value="F" /> {T.femela}</label>
           </div>
         </label>
-        <label class="ie__f"><span>{T.dataN} <b class="req">*</b></span><input name="dataNasterii" type="date" required /></label>
+        <label class="ie__f"><span>{T.dataN} <b class="req">*</b></span><input id="ie-data" name="dataNasterii" inputmode="numeric" autocomplete="off" placeholder={T.dataPh} maxlength="10" required /></label>
       </div>
       <label class="ie__f"><span>{T.clasa} <b class="req">*</b></span>
         <select name="clasa" required>
@@ -166,7 +166,7 @@ const CLASE = [
   </form>
 </section>
 
-<script is:inline define:vars={{ txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu }}>
+<script is:inline define:vars={{ txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida }}>
   (async function () {
     const form = document.getElementById("ie-form");
     const loading = document.getElementById("ie-loading");
@@ -222,14 +222,43 @@ const CLASE = [
       sincronizeaza();
     }
 
+    // Data nasterii se TASTEAZA (zz.ll.aaaa) — calendarul de pe telefon era greoi.
+    // Punctele se pun singure; la trimitere data e validata si convertita in ISO,
+    // formatul pe care il asteapta serverul.
+    const campData = document.getElementById("ie-data");
+    campData.addEventListener("input", () => {
+      const cifre = campData.value.replace(/\D/g, "").slice(0, 8);
+      let v = cifre;
+      if (cifre.length > 4) v = cifre.slice(0, 2) + "." + cifre.slice(2, 4) + "." + cifre.slice(4);
+      else if (cifre.length > 2) v = cifre.slice(0, 2) + "." + cifre.slice(2);
+      campData.value = v;
+    });
+    function dataISO(v) {
+      const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(v.trim());
+      if (!m) return null;
+      const [, z, l, a] = m;
+      const d = new Date(Number(a), Number(l) - 1, Number(z));
+      if (d.getFullYear() !== Number(a) || d.getMonth() !== Number(l) - 1 || d.getDate() !== Number(z)) return null;
+      if (d > new Date() || Number(a) < 1990) return null;
+      return a + "-" + l + "-" + z;
+    }
+
     form.addEventListener("submit", async (ev) => {
       ev.preventDefault();
       err.hidden = true;
       rezolvaRasa();
+      const iso = dataISO(campData.value);
+      if (!iso) {
+        err.textContent = txtDataInvalida; err.hidden = false;
+        campData.focus();
+        err.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
       const btn = document.getElementById("ie-submit");
       btn.disabled = true; btn.textContent = txtSe;
       const fd = new FormData(form);
       const payload = Object.fromEntries(fd.entries());
+      payload.dataNasterii = iso;
       try {
         const res = await fetch("/.netlify/functions/inscriere-expo", {
           method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
