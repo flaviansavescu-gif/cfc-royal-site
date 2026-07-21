@@ -60,6 +60,32 @@ function inchisPentruInscrieri(config) {
 export default async (req) => {
   const store = getStore("expozitii");
 
+  // ——— Public: calendarul competițional (?calendar=1) ———
+  // Viitoare = publicate și deschise pentru înscrieri; trecute = DOAR cele cu rezultate
+  // publicate (astfel edițiile șterse/de test nu apar niciodată public).
+  if (req.method === "GET" && new URL(req.url).searchParams.get("calendar")) {
+    const intrari = new Map();
+    try {
+      const { blobs } = await store.list({ prefix: "config/" });
+      for (const b of blobs) {
+        const c = await store.get(b.key, { type: "json" }).catch(() => null);
+        if (c && !inchisPentruInscrieri(c)) {
+          intrari.set(c.showId, { showId: c.showId, nume: c.nume, data: c.data, locatie: c.locatie, termen: c.termen, stare: "inscrieri" });
+        }
+      }
+      const rez = await store.list({ prefix: "rezultate/" });
+      for (const b of rez.blobs) {
+        const r = await store.get(b.key, { type: "json" }).catch(() => null);
+        const showId = b.key.slice("rezultate/".length);
+        if (r) intrari.set(showId, { showId, nume: r.nume, data: r.data, locatie: "", stare: "rezultate" });
+      }
+    } catch (err) {
+      console.error("Calendar eșuat:", err);
+    }
+    const calendar = [...intrari.values()].sort((a, b) => (b.data || "").localeCompare(a.data || ""));
+    return json({ calendar });
+  }
+
   // ——— Public: lista expozițiilor deschise ———
   if (req.method === "GET") {
     const expozitii = [];
