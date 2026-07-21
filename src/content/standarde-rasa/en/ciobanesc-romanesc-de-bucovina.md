@@ -3,9 +3,9 @@ title: "Romanian Bucovina Shepherd"
 lang: en
 nameOriginal: "Ciobănesc Românesc de Bucovina"
 originCountry: "Romania"
-breedGroup: "Group I — Romanian Shepherd Dogs"
+breedGroup: "Group II — Pinscher and Schnauzer Type, Molossoids and Mountain Dogs"
 recognition: "recunoscută"
-summary: "CFCR–WDF breed standard · Origin: Romania · Group I — Romanian Shepherd Dogs."
+summary: "CFCR–WDF breed standard · Origin: Romania · Group II, per the WDF nomenclature."
 draft: false
 ---
 *Breed Standard*
@@ -16,7 +16,7 @@ __ORIGIN: __Romania.
 
 __UTILIZATION: __Guardian for flocks and an excellent watchdog.
 
-__CLASSIFICATION: __Group I — Romanian Shepherd Dogs (national native breeds).
+__CLASSIFICATION: __Group II — per the World Dog Federation nomenclature (national native breed).
 
 __Morphological type: __shepherd guard dog, mountain molossoid type.
 

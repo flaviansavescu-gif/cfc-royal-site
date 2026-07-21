@@ -3,9 +3,9 @@ title: "Ciobănesc Românesc de Bucovina"
 lang: ro
 nameOriginal: "Romanian Bucovina Shepherd"
 originCountry: "România"
-breedGroup: "Grupa I — Câini Ciobănești Românești"
+breedGroup: "Grupa II — Pinscheri, Schnauzeri, Molosoizi și Câini de munte"
 recognition: "recunoscută"
-summary: "Standard de rasă CFCR–WDF · Origine: România · Grupa I — Câini Ciobănești Românești."
+summary: "Standard de rasă CFCR–WDF · Origine: România · Grupa II, conform nomenclatorului WDF."
 draft: false
 ---
 *Standard de rasă*
@@ -16,7 +16,7 @@ __ORIGINE: __România.
 
 __UTILIZARE: __Paznic al turmelor și excelent câine de pază.
 
-__ÎNCADRARE: __Grupa I — Câini Ciobănești Românești (rase naționale autohtone).
+__ÎNCADRARE: __Grupa II — conform nomenclatorului World Dog Federation (rasă națională autohtonă).
 
 __Tip morfologic: __câine ciobănesc de pază, tip molosoid de munte.
 
