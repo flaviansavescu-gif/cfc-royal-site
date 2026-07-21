@@ -58,7 +58,7 @@ export default async (req) => {
       });
     }
     return new Response(r.html, {
-      headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=300" },
+      headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=60" },
     });
   }
 
@@ -81,6 +81,6 @@ export default async (req) => {
 <style>body{font-family:system-ui,sans-serif;max-width:44rem;margin:0 auto;padding:2rem 1.25rem;color:#1a2433;line-height:1.6}h1{color:#1F4D3A}a{color:#1F4D3A}small{color:#5b6472}</style>
 </head><body><h1>Rezultatele expozițiilor</h1>${lista}
 <p><small>Club Federal Chinologic – Royal · World Dog Federation</small></p></body></html>`,
-    { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=120" } },
+    { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=60" } },
   );
 };
