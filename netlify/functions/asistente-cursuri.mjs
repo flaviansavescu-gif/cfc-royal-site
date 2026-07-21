@@ -168,10 +168,45 @@ export default async (req) => {
     }
 
     const cid = taie(body.candidatId, 128);
-    const nr = Number(body.nr);
-    if (!cid || !(nr >= 1 && nr <= NR_ASISTENTE)) return json({ eroare: "Candidat sau slot invalid." }, 400);
+    if (!cid) return json({ eroare: "Candidat sau slot invalid." }, 400);
     const exista = await store.get("candidat/" + cid, { type: "json" }).catch(() => null);
     if (!exista) return json({ eroare: "Candidat inexistent." }, 404);
+
+    // Dosarul complet al candidatului — pentru PDF-ul comisiei de certificare (manager):
+    // module + examen final + autorizare + cele 5 asistențe cu evaluări.
+    if (actiune === "manager-dosar") {
+      const progres = {};
+      try {
+        const prefix = "progres/" + cid + "/";
+        const { blobs } = await store.list({ prefix });
+        for (const b of blobs) {
+          const m = await store.get(b.key, { type: "json" }).catch(() => null);
+          if (m) progres[b.key.slice(prefix.length)] = { procent: Number(m.procent) || 0, promovat: !!m.promovat, data: taie(m.data, 40) };
+        }
+      } catch (err) { console.error("Citire progres eșuată:", err); }
+      const ex = await store.get("examen/" + cid, { type: "json" }).catch(() => null);
+      const aut = await store.get("autorizare/" + cid, { type: "json" }).catch(() => null);
+      const numiri = numiriCurate((await store.get("asistente/numire/" + cid, { type: "json" }).catch(() => null)) || {});
+      return json({
+        candidat: { nume: taie(exista.nume, 140), creat: taie(exista.creat, 40) },
+        progres,
+        examen: ex
+          ? {
+              promovat: !!ex.promovat,
+              incercari: (Array.isArray(ex.incercari) ? ex.incercari : []).map((i) => ({
+                data: taie(i.data, 40), procent: Number(i.procent) || 0, promovat: !!i.promovat,
+              })),
+            }
+          : null,
+        autorizare: aut ? { grupe: Array.isArray(aut.grupe) ? aut.grupe.filter((g) => g >= 1 && g <= 10) : [], localitate: taie(aut.localitate, 120) } : null,
+        expozitii: await citesteExpozitii(store),
+        numiri,
+        evaluari: await citesteEvaluari(store, cid),
+      });
+    }
+
+    const nr = Number(body.nr);
+    if (!(nr >= 1 && nr <= NR_ASISTENTE)) return json({ eroare: "Candidat sau slot invalid." }, 400);
 
     if (actiune === "manager-prezenta") {
       const stare = String(body.stare || "");
