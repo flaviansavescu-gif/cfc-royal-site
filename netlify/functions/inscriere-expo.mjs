@@ -68,7 +68,7 @@ export default async (req) => {
       for (const b of blobs) {
         const c = await store.get(b.key, { type: "json" });
         if (c && !inchisPentruInscrieri(c)) {
-          expozitii.push({ showId: c.showId, nume: c.nume, data: c.data, termen: c.termen, locatie: c.locatie, rase: c.rase || [] });
+          expozitii.push({ showId: c.showId, nume: c.nume, data: c.data, termen: c.termen, locatie: c.locatie, rase: c.rase || [], taxe: c.taxe || null });
         }
       }
     } catch (err) {
@@ -119,12 +119,29 @@ export default async (req) => {
       for (const key of body.chei || []) {
         try {
           const i = await store.get(key, { type: "json" });
-          if (i) await store.setJSON(key, { ...i, importat: true });
+          if (i) {
+            await store.setJSON(key, { ...i, importat: true });
+            // Dovada plății e o dată personală: odată importată în manager, copia din
+            // cloud nu mai are rost — o ștergem.
+            if (i.dovadaKey) await store.delete(i.dovadaKey).catch(() => {});
+          }
         } catch (err) {
           console.error("Marcare eșuată:", err);
         }
       }
       return json({ ok: true });
+    }
+    if (body.actiune === "dovada") {
+      // Managerul trage dovada plății atașată unei înscrieri din coadă.
+      const cheie = String(body.cheie || "");
+      if (!cheie.startsWith("dovada/")) return json({ eroare: "Cheie invalidă." }, 400);
+      const r = await store.getWithMetadata(cheie, { type: "arrayBuffer" }).catch(() => null);
+      if (!r || !r.data) return json({ eroare: "Dovada nu există (probabil deja importată)." }, 404);
+      return json({
+        base64: Buffer.from(r.data).toString("base64"),
+        tip: r.metadata?.tip || "application/octet-stream",
+        nume: r.metadata?.nume || "dovada",
+      });
     }
     return json({ eroare: "Acțiune necunoscută." }, 400);
   }
@@ -166,6 +183,37 @@ export default async (req) => {
   if (!clasaValida(clasa, dataNasterii, config.data))
     return json({ eroare: "Vârsta câinelui la data expoziției nu se încadrează în clasa aleasă." }, 400);
 
+  // ——— Taxa de înscriere: când expoziția are taxă pe clasa aleasă, cerem declarația de
+  // plată și dovada (poză/PDF). Dovada NU confirmă plata — secretariatul o verifică și
+  // abia el marchează plata drept confirmată în manager.
+  const taxa = Number((config.taxe || {})[clasa] ?? 0);
+  const amPlatit = String(body.amPlatit || "") === "1";
+  const TIPURI_DOVADA = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf"]);
+  let dovadaBuf = null;
+  let dovadaTip = null;
+  let dovadaNume = null;
+  if (body.dovadaBase64) {
+    if (String(body.dovadaBase64).length > 6_000_000)
+      return json({ eroare: "Dovada plății depășește 4 MB — trimite o poză mai mică sau un PDF." }, 400);
+    dovadaTip = String(body.dovadaTip || "");
+    if (!TIPURI_DOVADA.has(dovadaTip))
+      return json({ eroare: "Dovada plății trebuie să fie imagine (JPG/PNG/WebP) sau PDF." }, 400);
+    try {
+      dovadaBuf = Buffer.from(String(body.dovadaBase64), "base64");
+    } catch {
+      return json({ eroare: "Fișierul cu dovada plății nu a putut fi citit — încearcă din nou." }, 400);
+    }
+    if (!dovadaBuf.length || dovadaBuf.length > 4 * 1024 * 1024)
+      return json({ eroare: "Dovada plății depășește 4 MB — trimite o poză mai mică sau un PDF." }, 400);
+    dovadaNume = String(body.dovadaNume || "dovada").replace(/[^\w.\-]/g, "_").slice(0, 80);
+  }
+  if (taxa > 0) {
+    if (!amPlatit)
+      return json({ eroare: "Bifează că ai plătit taxa de înscriere (" + taxa + " lei) — plata se face înainte de trimiterea înscrierii." }, 400);
+    if (!dovadaBuf)
+      return json({ eroare: "Atașează dovada plății taxei de înscriere (poză sau PDF)." }, 400);
+  }
+
   const inscriere = {
     showId,
     numeCaine: numeCaine.slice(0, 120),
@@ -191,7 +239,17 @@ export default async (req) => {
     importat: false,
   };
 
-  const key = "coada/" + showId + "/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+  const sufix = Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+  const key = "coada/" + showId + "/" + sufix;
+  if (dovadaBuf) {
+    const dovadaKey = "dovada/" + showId + "/" + sufix;
+    await store.set(dovadaKey, dovadaBuf, { metadata: { tip: dovadaTip, nume: dovadaNume } });
+    inscriere.dovadaKey = dovadaKey;
+    inscriere.dovadaTip = dovadaTip;
+    inscriere.dovadaNume = dovadaNume;
+  }
+  inscriere.amPlatit = amPlatit;
+  inscriere.taxa = taxa;
   await store.setJSON(key, inscriere);
 
   // Email de confirmare (Brevo), dacă e configurat.
@@ -199,7 +257,7 @@ export default async (req) => {
   if (apiKey) {
     const html = `<p>Bună, ${numeProp.replace(/</g, "&lt;")},</p>
       <p>Am primit înscrierea câinelui <b>${numeCaine.replace(/</g, "&lt;")}</b> (${rasa.numeRo}) la expoziția <b>${config.nume}</b> (${config.data}).</p>
-      <p>Vei primi numărul de catalog după validarea de către secretariat.</p>
+      <p>După verificarea de către secretariat vei primi e-mailul de validare, iar la închiderea catalogului — numărul de concurs și ecusonul de tipărit.</p>
       <p>— Club Federal Chinologic Royal · World Dog Federation</p>`;
     try {
       await fetch("https://api.brevo.com/v3/smtp/email", {

@@ -30,6 +30,19 @@ const T = {
     gdprTitlu: "Protecția datelor (GDPR)",
     gdprText: "Datele tale și ale câinelui sunt folosite exclusiv pentru organizarea expoziției (catalog, arbitraj, rezultate, comunicări legate de eveniment). Nu le vindem și nu le transmitem terților în scop comercial. Le păstrăm cât e necesar pentru evidența expozițională. Poți cere accesul, corectarea sau ștergerea datelor scriind la contact@cfc-royal.ro.",
     gdprAccept: "Am citit și sunt de acord cu prelucrarea datelor mele personale în scopul organizării expoziției.",
+    plataTitlu: "Taxa de înscriere",
+    taxaAlege: "Alege clasa de concurs ca să vezi taxa.",
+    taxaEste: "Taxa pentru clasa aleasă:",
+    faraTaxa: "Clasa aleasă nu are taxă de înscriere.",
+    lei: "lei",
+    plataCum: "Plata se face prin transfer bancar, înainte de trimiterea înscrierii:",
+    titularCont: "Titular: Club Federal Chinologic – Royal · Banca Comercială Română (BCR)",
+    plataDetalii: "La detaliile plății scrie numele câinelui.",
+    amPlatit: "Am plătit taxa de înscriere",
+    dovada: "Dovada plății (poză sau PDF, max. 4 MB)",
+    dovadaMare: "Fișierul cu dovada plății depășește 4 MB — fă o poză mai mică sau exportă un PDF.",
+    dovadaTipGresit: "Dovada plății trebuie să fie imagine (JPG/PNG/WebP) sau PDF.",
+    dovadaNota: "Secretariatul verifică plata în extras înainte de validare — dovada atașată grăbește verificarea.",
   },
   en: {
     titlu: "Show entry", intro: "Fill in the form to enter a dog in a show of Club Federal Chinologic – Royal.",
@@ -56,6 +69,19 @@ const T = {
     gdprTitlu: "Data protection (GDPR)",
     gdprText: "Your data and your dog's data are used solely for organising the show (catalogue, judging, results, event-related communications). We do not sell or share them with third parties for commercial purposes. We keep them as long as needed for show records. You may request access, correction or deletion by writing to contact@cfc-royal.ro.",
     gdprAccept: "I have read and agree to the processing of my personal data for the purpose of organising the show.",
+    plataTitlu: "Entry fee",
+    taxaAlege: "Choose the competition class to see the fee.",
+    taxaEste: "Fee for the selected class:",
+    faraTaxa: "The selected class has no entry fee.",
+    lei: "RON",
+    plataCum: "Payment is made by bank transfer, before submitting the entry:",
+    titularCont: "Account holder: Club Federal Chinologic – Royal · Banca Comercială Română (BCR)",
+    plataDetalii: "Write the dog's name in the payment details.",
+    amPlatit: "I have paid the entry fee",
+    dovada: "Proof of payment (photo or PDF, max. 4 MB)",
+    dovadaMare: "The payment proof file exceeds 4 MB — take a smaller photo or export a PDF.",
+    dovadaTipGresit: "The payment proof must be an image (JPG/PNG/WebP) or a PDF.",
+    dovadaNota: "The secretariat checks the payment in the bank statement before validation — an attached proof speeds this up.",
   },
 }[lang];
 
@@ -156,6 +182,24 @@ const CLASE = [
       <label class="ie__f"><span>{T.adresa} ({T.optional})</span><input name="adresa" /></label>
     </fieldset>
 
+    <!-- Plata taxei: apare doar când expoziția are taxe configurate. Dovada nu confirmă
+         plata — secretariatul o verifică în extras; aici doar o aducem lângă înscriere. -->
+    <fieldset class="ie__fs" id="ie-plata" hidden>
+      <legend>{T.plataTitlu}</legend>
+      <p class="ie__taxa" id="ie-taxa-text">{T.taxaAlege}</p>
+      <div class="ie__plata-info">
+        <p>{T.plataCum}</p>
+        <p class="ie__iban">RO07 RNCB 0263 1767 9657 0001</p>
+        <p>{T.titularCont}</p>
+        <p><b>{T.plataDetalii}</b></p>
+      </div>
+      <label class="ie__consim"><input type="checkbox" name="amPlatit" value="1" id="ie-amplatit" /> <span><b>{T.amPlatit}</b> <b class="req">*</b></span></label>
+      <label class="ie__f"><span>{T.dovada} <b class="req">*</b></span>
+        <input type="file" name="dovada" id="ie-dovada" accept="image/jpeg,image/png,image/webp,application/pdf" />
+      </label>
+      <p class="ie__gdpr">{T.dovadaNota}</p>
+    </fieldset>
+
     <fieldset class="ie__fs">
       <legend>{T.gdprTitlu}</legend>
       <p class="ie__gdpr">{T.gdprText}</p>
@@ -166,7 +210,7 @@ const CLASE = [
   </form>
 </section>
 
-<script is:inline define:vars={{ txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida }}>
+<script is:inline define:vars={{ txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit }}>
   (async function () {
     const form = document.getElementById("ie-form");
     const loading = document.getElementById("ie-loading");
@@ -222,6 +266,34 @@ const CLASE = [
       sincronizeaza();
     }
 
+    // Plata taxei: sectiunea apare doar cand expozitia are taxe; bifa + dovada devin
+    // obligatorii doar cand clasa aleasa are taxa > 0 (regula e impusa si pe server).
+    const plataFs = document.getElementById("ie-plata");
+    const taxaText = document.getElementById("ie-taxa-text");
+    const clasaSel = form.querySelector('select[name="clasa"]');
+    const bifaPlatit = document.getElementById("ie-amplatit");
+    const campDovada = document.getElementById("ie-dovada");
+    function expoCurenta() { return expozitii.find((x) => x.showId === showSel.value); }
+    function taxaCurenta() {
+      const e = expoCurenta();
+      return Number(((e && e.taxe) || {})[clasaSel.value] || 0);
+    }
+    function actualizeazaPlata() {
+      const e = expoCurenta();
+      const areTaxe = !!(e && e.taxe && Object.values(e.taxe).some((v) => Number(v) > 0));
+      plataFs.hidden = !areTaxe;
+      const t = areTaxe ? taxaCurenta() : 0;
+      bifaPlatit.required = areTaxe && t > 0;
+      campDovada.required = areTaxe && t > 0;
+      if (!areTaxe) return;
+      if (!clasaSel.value) taxaText.textContent = txtTaxaAlege;
+      else if (t > 0) taxaText.innerHTML = txtTaxaEste + " <b>" + t + " " + txtLei + "</b>";
+      else taxaText.textContent = txtFaraTaxa;
+    }
+    showSel.addEventListener("change", actualizeazaPlata);
+    clasaSel.addEventListener("change", actualizeazaPlata);
+    actualizeazaPlata();
+
     // Data nasterii se TASTEAZA (zz.ll.aaaa) — calendarul de pe telefon era greoi.
     // Punctele se pun singure; la trimitere data e validata si convertita in ISO,
     // formatul pe care il asteapta serverul.
@@ -254,11 +326,38 @@ const CLASE = [
         err.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
+      // Dovada platii: validata inainte de a bloca butonul, citita ca base64 (JSON-ul
+      // nu duce fisiere). Obiectul File din FormData se scoate din payload.
+      const fisier = campDovada && campDovada.files && campDovada.files[0];
+      if (fisier) {
+        if (fisier.size > 4 * 1024 * 1024) {
+          err.textContent = txtDovadaMare; err.hidden = false;
+          err.scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
+        if (!["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(fisier.type)) {
+          err.textContent = txtDovadaTipGresit; err.hidden = false;
+          err.scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
+      }
       const btn = document.getElementById("ie-submit");
       btn.disabled = true; btn.textContent = txtSe;
       const fd = new FormData(form);
       const payload = Object.fromEntries(fd.entries());
       payload.dataNasterii = iso;
+      delete payload.dovada;
+      if (fisier) {
+        const dataUrl = await new Promise((res, rej) => {
+          const fr = new FileReader();
+          fr.onload = () => res(fr.result);
+          fr.onerror = rej;
+          fr.readAsDataURL(fisier);
+        });
+        payload.dovadaBase64 = String(dataUrl).split(",")[1] || "";
+        payload.dovadaNume = fisier.name;
+        payload.dovadaTip = fisier.type;
+      }
       try {
         const res = await fetch("/.netlify/functions/inscriere-expo", {
           method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
@@ -281,7 +380,7 @@ const CLASE = [
     });
 
     document.getElementById("ie-reset").addEventListener("click", () => {
-      form.reset(); succes.hidden = true; form.hidden = false; populeazaRase();
+      form.reset(); succes.hidden = true; form.hidden = false; populeazaRase(); actualizeazaPlata();
     });
   })();
 </script>
@@ -313,6 +412,10 @@ const CLASE = [
   .ie__tip input { margin-top: 0.25rem; }
   .ie__tip small { color: var(--color-text-muted); }
   .ie__gdpr { margin: 0; font-size: 0.88rem; color: var(--color-text-muted); }
+  .ie__taxa { margin: 0; font-size: 0.95rem; }
+  .ie__plata-info { background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
+  .ie__plata-info p { margin: 0.15rem 0; font-size: 0.9rem; color: var(--color-text-muted); }
+  .ie__iban { font-family: var(--font-mono, monospace); font-weight: 700; font-size: 1.05rem; color: var(--color-text) !important; letter-spacing: 0.03em; }
   .ie__consim { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.92rem; }
   .ie__consim input { margin-top: 0.2rem; }
   .ie__err { color: #8c1d2f; font-weight: 600; background: #f9efef; border: 1px solid #8c1d2f; border-radius: var(--radius); padding: 0.6rem 0.9rem; }
