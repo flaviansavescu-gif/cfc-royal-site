@@ -41,6 +41,26 @@
   status = 200
   force = true
 
+# Linkul veșnic al panoului live: /live → panoul expoziției curente (funcția tunel știe care).
+[[redirects]]
+  from = "/live"
+  to = "/.netlify/functions/tunel?tinta=live"
+  status = 200
+  force = true
+
+# Rezultatele publicate ale expozițiilor (doar titlurile): pagina unei ediții + indexul.
+[[redirects]]
+  from = "/rezultate-live/*"
+  to = "/.netlify/functions/rezultate-expo"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/rezultate-live"
+  to = "/.netlify/functions/rezultate-expo"
+  status = 200
+  force = true
+
 # Redenumire pagină: Școala de Arbitraj → Centrul de Dezvoltare a Competențelor Chinologice
 [[redirects]]
   from = "/ro/educatie/scoala-arbitraj/"
