@@ -93,7 +93,7 @@ const CLASE = [
   <p class="ie__stare" id="ie-loading">…</p>
   <p class="ie__gol" id="ie-gol" hidden>{T.faraExpo}</p>
 
-  <div class="ie__succes" id="ie-succes" data-detaliu={JSON.stringify(T.succesDetaliu)} hidden>
+  <div class="ie__succes" id="ie-succes" hidden>
     <p><b>✅ {T.succes}</b></p>
     <p id="ie-succes-rezumat"></p>
     <button class="btn btn--primary" id="ie-reset" type="button">{T.inca}</button>
@@ -166,7 +166,7 @@ const CLASE = [
   </form>
 </section>
 
-<script is:inline define:vars={{ txtTrimite: T.trimite, txtSe: T.seTrimite }}>
+<script is:inline define:vars={{ txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu }}>
   (async function () {
     const form = document.getElementById("ie-form");
     const loading = document.getElementById("ie-loading");
