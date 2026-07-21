@@ -72,6 +72,31 @@ export default async (req) => {
     return json({ arbitri: await registruPublic(store) });
   }
 
+  // ——— Puntea cu Expo Manager: TOATE autorizările (nu doar cele publice), pe nume ———
+  // Managerul le potrivește cu judecătorii lui ca să avertizeze la repartizarea unei
+  // rase dintr-o grupă pe care arbitrul nu e autorizat.
+  if (actiune === "manager-autorizari") {
+    if (!process.env.EXPO_SYNC_SECRET || body.secret !== process.env.EXPO_SYNC_SECRET) {
+      return json({ eroare: "Neautorizat." }, 401);
+    }
+    const arbitri = [];
+    try {
+      const { blobs } = await store.list({ prefix: "autorizare/" });
+      for (const b of blobs) {
+        const a = await store.get(b.key, { type: "json" }).catch(() => null);
+        const grupe = grupeCurate(a && a.grupe);
+        if (!grupe.length) continue;
+        const cid = b.key.slice("autorizare/".length);
+        const c = await store.get("candidat/" + cid, { type: "json" }).catch(() => null);
+        if (!c || !c.nume) continue;
+        arbitri.push({ nume: String(c.nume), grupe });
+      }
+    } catch (err) {
+      console.error("Listare autorizări eșuată:", err);
+    }
+    return json({ arbitri });
+  }
+
   // ——— Candidatul își vede propria autorizare ———
   if (actiune === "eu") {
     const id = taie(body.id, 128);
