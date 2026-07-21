@@ -61,8 +61,10 @@ export default async (req) => {
 
   // GET: redirecționăm către tunelul viu; altfel, pagina de așteptare.
   const u = new URL(req.url);
-  // Calea vine din regula /r/* (:splat); acceptăm doar caractere de cale banale.
-  const tinta = (u.searchParams.get("tinta") || "").replace(/^\/+/, "");
+  // La rescrierea /r/* funcția primește URL-ul ORIGINAL (/r/<cale>), nu pe cel rescris —
+  // deci calea se ia din pathname; ?tinta= rămâne pentru apelurile directe ale funcției.
+  let tinta = (u.searchParams.get("tinta") || "").replace(/^\/+/, "");
+  if (!tinta && /^\/r(\/|$)/.test(u.pathname)) tinta = u.pathname.replace(/^\/r\/?/, "");
   const stare = await store.get(CHEIE, { type: "json" }).catch(() => null);
   const viu = stare && stare.url && Date.now() - (stare.la || 0) < PROSPETIME_MS;
   if (viu && /^[a-z0-9/_-]*$/i.test(tinta)) {
