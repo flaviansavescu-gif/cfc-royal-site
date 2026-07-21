@@ -29,6 +29,7 @@ import { ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
           <strong class="as-card__nume" data-nume>Expoziție ce urmează a fi stabilită</strong>
           <span class="as-card__meta" data-meta hidden></span>
           <span class="as-card__arbitru" data-arbitru hidden></span>
+          <span class="as-card__evaluare" data-evaluare hidden></span>
         </div>
         <span class="as-card__stare" data-stare hidden></span>
       </li>
@@ -88,6 +89,22 @@ import { ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
         stEl.textContent = et.txt;
         stEl.className = "as-card__stare " + et.cls;
         stEl.hidden = false;
+
+        // Evaluarea prestației, dată de arbitrul de bază în ziua asistenței.
+        const ev = date.evaluari && date.evaluari[ex.nr];
+        if (ev && ev.calificativ) {
+          const CAL = { foarte_bine: "Foarte bine", bine: "Bine", satisfacator: "Satisfăcător", nesatisfacator: "Nesatisfăcător" };
+          const evEl = card.querySelector("[data-evaluare]");
+          let text = "Evaluarea arbitrului: " + (CAL[ev.calificativ] || ev.calificativ);
+          if (ev.arbitru) text += " — " + ev.arbitru;
+          evEl.textContent = text;
+          if (ev.observatii) {
+            const obs = document.createElement("em");
+            obs.textContent = " „" + ev.observatii + "”";
+            evEl.appendChild(obs);
+          }
+          evEl.hidden = false;
+        }
       }
     });
 
@@ -131,6 +148,8 @@ import { ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
   .as-card__stare.is-numit { background: #f7f1df; border-color: var(--color-accent); color: var(--color-accent-dark); }
   .as-card__stare.is-prezent { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
   .as-card__stare.is-absent { background: #f9efef; border-color: #8c1d2f; color: #8c1d2f; }
+  .as-card__evaluare { display: block; margin-top: 0.35rem; font-size: 0.88rem; color: var(--color-primary); font-weight: 600; }
+  .as-card__evaluare em { font-weight: 400; color: var(--color-text-muted); }
   @media (max-width: 640px) {
     .as-card { flex-wrap: wrap; }
     .as-card__stare { margin-left: 3.7rem; }

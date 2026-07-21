@@ -119,6 +119,7 @@ import { ADMIN_HASH } from "../../../data/cursuri";
     // ——— Matricea de numire ———
     let candidati = [];
     let numiri = {};
+    let evaluari = {};
 
     async function incarca() {
       // Lista candidaților (cu nume) + numirile — două surse.
@@ -134,7 +135,8 @@ import { ADMIN_HASH } from "../../../data/cursuri";
         const d = await cere({ actiune: "admin" });
         aplicaExpozitii(d.expozitii);
         numiri = d.numiri || {};
-      } catch (e) { numiri = {}; }
+        evaluari = d.evaluari || {};
+      } catch (e) { numiri = {}; evaluari = {}; }
 
       randMatrice();
     }
@@ -156,6 +158,7 @@ import { ADMIN_HASH } from "../../../data/cursuri";
         tr.appendChild(nume);
 
         const curent = numiri[c.id] || {};
+        const evC = evaluari[c.id] || {};
         for (let i = 1; i <= 5; i++) {
           const td = document.createElement("td");
           const sel = document.createElement("select");
@@ -171,6 +174,16 @@ import { ADMIN_HASH } from "../../../data/cursuri";
             sel.className = "a-mx-sel is-" + (sel.value || "none");
           });
           td.appendChild(sel);
+          // Evaluarea arbitrului de bază (vine din Expo Manager) — doar afișare aici.
+          const ev = evC[i];
+          if (ev && ev.calificativ) {
+            const CAL = { foarte_bine: "Foarte bine", bine: "Bine", satisfacator: "Satisfăcător", nesatisfacator: "Nesatisfăcător" };
+            const b = document.createElement("div");
+            b.className = "a-mx-eval is-" + ev.calificativ;
+            b.textContent = CAL[ev.calificativ] || ev.calificativ;
+            b.title = (ev.arbitru ? "Arbitru: " + ev.arbitru + "\n" : "") + (ev.observatii || "");
+            td.appendChild(b);
+          }
           tr.appendChild(td);
         }
 
@@ -238,4 +251,10 @@ import { ADMIN_HASH } from "../../../data/cursuri";
   .a-mx-sel.is-numit { background: #f7f1df; }
   .a-mx-sel.is-prezent { background: #e7f0ea; }
   .a-mx-sel.is-absent { background: #f9efef; }
+  /* Evaluarea arbitrului de bază (vine din Expo Manager); observațiile în tooltip. */
+  .a-mx-eval { margin-top: 0.25rem; font-size: 0.72rem; font-weight: 700; text-align: center; border-radius: 3px; padding: 0.1rem 0.25rem; cursor: help; }
+  .a-mx-eval.is-foarte_bine { background: var(--color-primary); color: #fbfaf7; }
+  .a-mx-eval.is-bine { background: #e7f0ea; color: var(--color-primary); }
+  .a-mx-eval.is-satisfacator { background: #f7f1df; color: #6b5416; }
+  .a-mx-eval.is-nesatisfacator { background: #f9efef; color: #8c1d2f; }
 </style>
