@@ -26,7 +26,7 @@ const T = {
     cum4: "se tipăresc în catalogul oficial al expoziției. Dacă nu le cunoști la înscriere, secretariatul le poate completa până la închiderea catalogului.",
     cum5t: "După trimitere",
     cum5: "primești un e-mail de confirmare. După verificarea înscrierii de către secretariat primești numărul de catalog. Înscrierile se închid înainte de expoziție, odată cu tipărirea catalogului.",
-    succes: "Înscriere primită! Vei primi un email de confirmare, iar după validare — numărul de catalog.", inca: "Trimite o nouă înscriere",
+    succes: "Înscrierea a fost trimisă!", succesDetaliu: "a intrat în coada secretariatului. După verificare vei primi pe e-mail confirmarea validării, iar la închiderea catalogului — numărul de concurs și ecusonul de tipărit.", inca: "Trimite o nouă înscriere",
     gdprTitlu: "Protecția datelor (GDPR)",
     gdprText: "Datele tale și ale câinelui sunt folosite exclusiv pentru organizarea expoziției (catalog, arbitraj, rezultate, comunicări legate de eveniment). Nu le vindem și nu le transmitem terților în scop comercial. Le păstrăm cât e necesar pentru evidența expozițională. Poți cere accesul, corectarea sau ștergerea datelor scriind la contact@cfc-royal.ro.",
     gdprAccept: "Am citit și sunt de acord cu prelucrarea datelor mele personale în scopul organizării expoziției.",
@@ -52,7 +52,7 @@ const T = {
     cum4: "are printed in the official show catalogue. If you do not know them at entry, the secretariat can complete them until the catalogue closes.",
     cum5t: "After you submit",
     cum5: "you receive a confirmation email. Once the secretariat checks your entry you receive the catalogue number. Entries close before the show, when the catalogue is printed.",
-    succes: "Entry received! You will get a confirmation email, and your catalogue number after validation.", inca: "Submit another entry",
+    succes: "Your entry has been sent!", succesDetaliu: "is now in the secretariat queue. After it is checked you will receive the validation email, and when the catalogue closes — your competition number and printable armband.", inca: "Submit another entry",
     gdprTitlu: "Data protection (GDPR)",
     gdprText: "Your data and your dog's data are used solely for organising the show (catalogue, judging, results, event-related communications). We do not sell or share them with third parties for commercial purposes. We keep them as long as needed for show records. You may request access, correction or deletion by writing to contact@cfc-royal.ro.",
     gdprAccept: "I have read and agree to the processing of my personal data for the purpose of organising the show.",
@@ -93,8 +93,9 @@ const CLASE = [
   <p class="ie__stare" id="ie-loading">…</p>
   <p class="ie__gol" id="ie-gol" hidden>{T.faraExpo}</p>
 
-  <div class="ie__succes" id="ie-succes" hidden>
-    <p>✅ {T.succes}</p>
+  <div class="ie__succes" id="ie-succes" data-detaliu={JSON.stringify(T.succesDetaliu)} hidden>
+    <p><b>✅ {T.succes}</b></p>
+    <p id="ie-succes-rezumat"></p>
     <button class="btn btn--primary" id="ie-reset" type="button">{T.inca}</button>
   </div>
 
@@ -235,7 +236,14 @@ const CLASE = [
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.eroare || "Eroare");
-        form.hidden = true; succes.hidden = false;
+        // Confirmarea trebuie VAZUTA: aratam exact ce s-a trimis si derulam la mesaj —
+        // dupa un formular lung, utilizatorul e jos in pagina si mesajul aparea sus.
+        const rez = document.getElementById("ie-succes-rezumat");
+        const showSel = document.getElementById("ie-show");
+        const numeExpo = showSel && showSel.selectedIndex >= 0 ? showSel.options[showSel.selectedIndex].text : "";
+        rez.innerHTML = "<b>" + (payload.numeCaine || "") + "</b> — " + numeExpo + " — " + succesDetaliu;
+        form.hidden = true; succes.hidden = false; form.reset();
+        succes.scrollIntoView({ behavior: "smooth", block: "center" });
       } catch (e2) {
         err.textContent = e2.message; err.hidden = false;
       } finally {
