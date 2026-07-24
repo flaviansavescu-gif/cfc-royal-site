@@ -1,0 +1,248 @@
+---
+// EcosistemDigital.astro — pagina complexă de prezentare a ecosistemului digital
+// CFC-Royal: cele trei platforme (Școala de Arbitraj · Manager de Expoziții · Site
+// Asociație), fluxurile dintre ele și nucleul comun. Bilingv RO/EN, design instituțional.
+interface Props { lang: "ro" | "en"; }
+const { lang } = Astro.props;
+
+const T = {
+  ro: {
+    kicker: "Ecosistemul digital",
+    titlu: "Ecosistemul Digital CFC-Royal",
+    tagline: "Un ecosistem integrat pentru educație, organizare și promovarea chinologiei.",
+    imgAlt: "Ecosistemul digital CFC-Royal — Școala de Arbitraj, Managerul de Expoziții și Site-ul Asociației, legate printr-un nucleu comun.",
+    imgCaption: "Trei platforme, un singur scop — excelență în chinologie.",
+
+    intro: "Clubul Federal Chinologic – Royal își desfășoară activitatea pe trei platforme proprii, construite integral pe regulamentele World Dog Federation și legate între ele printr-un nucleu comun. Împreună, ele acoperă întregul parcurs al chinologiei de performanță: formarea arbitrilor, organizarea expozițiilor și comunicarea cu comunitatea. Fiecare informație are o singură sursă de adevăr și circulă automat acolo unde e nevoie de ea.",
+
+    piloniTitlu: "Trei platforme, un singur ecosistem",
+    piloni: [
+      {
+        icon: "🎓", nume: "Școala de Arbitraj", sub: "Centrul de Dezvoltare a Competențelor Chinologice",
+        desc: "Platformă de educație și formare pentru arbitri și specialiști.",
+        feats: ["Învățare și resurse educaționale", "Evaluări și certificări pe grupe WDF", "Urmărirea progresului și dezvoltare continuă"],
+        link: "/ro/educatie/centrul-competentelor-chinologice", linkTxt: "Descoperă Școala →",
+      },
+      {
+        icon: "🏆", nume: "Manager de Expoziții", sub: "CFC-Royal Expo Manager",
+        desc: "Platformă pentru organizarea și gestionarea expozițiilor canine.",
+        feats: ["Înscrieri și administrarea ringurilor", "Arbitri, asistenți și oficiali", "Rezultate, cataloage și rapoarte", "Statistici și analize în timp real"],
+        link: "/ro/manager-expozitii", linkTxt: "Descoperă Managerul →",
+      },
+      {
+        icon: "🌐", nume: "Site Asociație", sub: "Club Federal Chinologic Royal · Asociație Chinologică Națională",
+        desc: "Prezență oficială și comunicare pentru comunitatea chinologică.",
+        feats: ["Informații și noutăți", "Comunitate și membri", "Evenimente și expoziții", "Promovare și comunicare"],
+        link: "/ro/organizatia/despre", linkTxt: "Despre asociație →",
+      },
+    ],
+
+    fluxTitlu: "Cum lucrează împreună",
+    fluxIntro: "Platformele nu sunt insule: informația circulă între ele automat și securizat.",
+    flux: [
+      "Managerul publică expoziția pe site → membrii se înscriu online → înscrierile intră în platformă pentru validare.",
+      "În ziua expoziției, programul ringurilor e transmis live pe site, iar adresele rămân stabile pentru codurile QR tipărite.",
+      "Rezultatele oficiale (doar titlurile) se publică automat pe site, în calendarul competițional și în paginile de rezultate.",
+      "Candidații de arbitru sunt numiți în Școală, iar prestația lor la stagiul practic e evaluată în Manager și consemnată în dosarul lor.",
+      "Arbitrii certificați de Școală apar automat în registrul public, iar autorizările lor pe grupe ghidează repartizarea din Manager.",
+    ],
+
+    nucleuTitlu: "Nucleul ecosistemului digital",
+    nucleu: [
+      { t: "Autentificare unică (SSO)", d: "Acces simplu și securizat pentru toate platformele." },
+      { t: "Bază de date comună", d: "Informații centralizate, coerente și mereu actualizate." },
+      { t: "Sincronizare în timp real", d: "Date actualizate instant între toate modulele ecosistemului." },
+      { t: "Drepturi de acces", d: "Roluri și permisiuni clare pentru fiecare utilizator." },
+      { t: "Istoric și audit", d: "Trasabilitate completă a acțiunilor și modificărilor." },
+      { t: "API intern și integrări", d: "Extensibil și pregătit pentru integrări viitoare." },
+    ],
+
+    scopTitlu: "Un singur scop: excelență în chinologie",
+    scopText: "Tot ce construim pornește de la aceeași convingere: chinologia de performanță merită instrumente pe măsură. De la formarea riguroasă a arbitrilor, la expoziții organizate impecabil și documente pe care oricine le poate verifica — ecosistemul digital CFC-Royal ridică standardul pentru întreaga comunitate.",
+
+    ctaBtnEdu: "Educație și cursuri",
+    ctaBtnMgr: "Manager de Expoziții",
+    ctaBtnInsc: "Înscriere la expoziție",
+    wdf: "Club Federal Chinologic – Royal · Membru World Dog Federation",
+  },
+  en: {
+    kicker: "The digital ecosystem",
+    titlu: "The CFC-Royal Digital Ecosystem",
+    tagline: "An integrated ecosystem for education, organisation and the promotion of cynology.",
+    imgAlt: "The CFC-Royal digital ecosystem — the Judging School, the Exhibition Manager and the Association Website, linked by a common core.",
+    imgCaption: "Three platforms, one goal — excellence in cynology.",
+
+    intro: "Club Federal Chinologic – Royal operates on three dedicated platforms, built entirely on World Dog Federation regulations and linked by a common core. Together, they cover the whole journey of competitive cynology: training judges, organising shows and communicating with the community. Every piece of information has a single source of truth and flows automatically to where it is needed.",
+
+    piloniTitlu: "Three platforms, one ecosystem",
+    piloni: [
+      {
+        icon: "🎓", nume: "Judging School", sub: "Centre for the Development of Cynological Competencies",
+        desc: "An education and training platform for judges and specialists.",
+        feats: ["Learning and educational resources", "Assessments and WDF-group certification", "Progress tracking and continuous development"],
+        link: "/en/educatie/centrul-competentelor-chinologice", linkTxt: "Explore the School →",
+      },
+      {
+        icon: "🏆", nume: "Exhibition Manager", sub: "CFC-Royal Expo Manager",
+        desc: "A platform for organising and managing dog shows.",
+        feats: ["Entries and ring administration", "Judges, assistants and officials", "Results, catalogues and reports", "Real-time statistics and analytics"],
+        link: "/en/manager-expozitii", linkTxt: "Explore the Manager →",
+      },
+      {
+        icon: "🌐", nume: "Association Website", sub: "Club Federal Chinologic Royal · National Cynological Association",
+        desc: "Official presence and communication for the cynological community.",
+        feats: ["Information and news", "Community and members", "Events and shows", "Promotion and communication"],
+        link: "/en/organizatia/despre", linkTxt: "About us →",
+      },
+    ],
+
+    fluxTitlu: "How they work together",
+    fluxIntro: "The platforms are not islands: information flows between them automatically and securely.",
+    flux: [
+      "The Manager publishes the show on the site → members enter online → entries reach the platform for validation.",
+      "On show day, the ring schedule is broadcast live on the site, and addresses stay stable for the printed QR codes.",
+      "Official results (titles only) are published automatically on the site, in the show calendar and the results pages.",
+      "Judge candidates are appointed in the School, and their practical-stage performance is assessed in the Manager and recorded in their file.",
+      "Judges certified by the School appear automatically in the public register, and their group authorisations guide ring assignments in the Manager.",
+    ],
+
+    nucleuTitlu: "The core of the digital ecosystem",
+    nucleu: [
+      { t: "Single sign-on (SSO)", d: "Simple, secure access across all platforms." },
+      { t: "Shared database", d: "Centralised, consistent and always up-to-date information." },
+      { t: "Real-time sync", d: "Data updated instantly across all modules." },
+      { t: "Access rights", d: "Clear roles and permissions for every user." },
+      { t: "History and audit", d: "Full traceability of actions and changes." },
+      { t: "Internal API & integrations", d: "Extensible and ready for future integrations." },
+    ],
+
+    scopTitlu: "One goal: excellence in cynology",
+    scopText: "Everything we build starts from the same conviction: competitive cynology deserves tools worthy of it. From rigorous judge training, to flawlessly organised shows and documents anyone can verify — the CFC-Royal digital ecosystem raises the standard for the whole community.",
+
+    ctaBtnEdu: "Education & courses",
+    ctaBtnMgr: "Exhibition Manager",
+    ctaBtnInsc: "Show entry",
+    wdf: "Club Federal Chinologic – Royal · World Dog Federation member",
+  },
+}[lang];
+
+const IMG = "/images/ecosistem-digital-cfc-royal.webp";
+const linkEdu = lang === "en" ? "/en/educatie/centrul-competentelor-chinologice" : "/ro/educatie/centrul-competentelor-chinologice";
+const linkMgr = lang === "en" ? "/en/manager-expozitii" : "/ro/manager-expozitii";
+const linkInsc = lang === "en" ? "/en/inscriere-expozitie" : "/ro/inscriere-expozitie";
+---
+
+<article class="ec">
+  <header class="ec__hero">
+    <p class="ec__kicker">{T.kicker}</p>
+    <h1 class="ec__titlu">{T.titlu}</h1>
+    <p class="ec__tagline">{T.tagline}</p>
+  </header>
+
+  <figure class="ec__fig">
+    <img src={IMG} alt={T.imgAlt} width="1536" height="1024" loading="eager" />
+    <figcaption>{T.imgCaption}</figcaption>
+  </figure>
+
+  <p class="ec__intro">{T.intro}</p>
+
+  <section class="ec__sect">
+    <h2 class="ec__h2">{T.piloniTitlu}</h2>
+    <div class="ec__piloni">
+      {T.piloni.map((p) => (
+        <div class="ec__pilon">
+          <div class="ec__pilon-cap"><span class="ec__pilon-ic">{p.icon}</span></div>
+          <h3>{p.nume}</h3>
+          <p class="ec__pilon-sub">{p.sub}</p>
+          <p class="ec__pilon-desc">{p.desc}</p>
+          <ul>{p.feats.map((f) => <li>{f}</li>)}</ul>
+          <a class="ec__pilon-link" href={p.link}>{p.linkTxt}</a>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="ec__sect">
+    <h2 class="ec__h2">{T.fluxTitlu}</h2>
+    <p class="ec__lead">{T.fluxIntro}</p>
+    <ol class="ec__flux">
+      {T.flux.map((f, i) => (
+        <li><span class="ec__num">{i + 1}</span><span>{f}</span></li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="ec__sect ec__sect--dark">
+    <h2 class="ec__h2 ec__h2--light">{T.nucleuTitlu}</h2>
+    <div class="ec__nucleu">
+      {T.nucleu.map((n) => (
+        <div class="ec__chip">
+          <h3>{n.t}</h3>
+          <p>{n.d}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="ec__scop">
+    <h2>★ {T.scopTitlu} ★</h2>
+    <p>{T.scopText}</p>
+    <div class="ec__cta-btns">
+      <a class="btn btn--primary" href={linkMgr}>{T.ctaBtnMgr}</a>
+      <a class="btn btn--ghost" href={linkEdu}>{T.ctaBtnEdu}</a>
+      <a class="btn btn--ghost" href={linkInsc}>{T.ctaBtnInsc}</a>
+    </div>
+    <p class="ec__wdf">{T.wdf}</p>
+  </section>
+</article>
+
+<style>
+  .ec { max-width: 62rem; margin-inline: auto; }
+  .ec__hero { text-align: center; max-width: 48rem; margin-inline: auto; }
+  .ec__kicker { text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.8rem; font-weight: 700; color: var(--color-accent-dark); margin: 0 0 0.5rem; }
+  .ec__titlu { font-family: var(--font-serif); color: var(--color-primary); font-size: clamp(2rem, 4.5vw, 3rem); line-height: 1.08; margin: 0 0 0.6rem; text-wrap: balance; }
+  .ec__tagline { color: var(--color-text-muted); font-size: 1.1rem; line-height: 1.6; }
+
+  .ec__fig { margin: 2.25rem 0 0; }
+  .ec__fig img { width: 100%; height: auto; display: block; border-radius: var(--radius); border: 1px solid var(--color-border); box-shadow: 0 8px 30px rgba(22, 58, 44, 0.14); }
+  .ec__fig figcaption { text-align: center; color: var(--color-text-muted); font-size: 0.9rem; font-style: italic; margin-top: 0.7rem; }
+
+  .ec__intro { margin: 2rem auto 0; max-width: 52rem; color: var(--color-text); font-size: 1.06rem; line-height: 1.7; }
+
+  .ec__h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.6rem; margin: 0 0 0.6rem; text-align: center; }
+  .ec__h2--light { color: #fbfaf7; }
+  .ec__lead { color: var(--color-text-muted); font-size: 1.02rem; line-height: 1.6; text-align: center; max-width: 46rem; margin: 0 auto; }
+  .ec__sect { margin-top: 3rem; }
+
+  .ec__piloni { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); margin-top: 1.5rem; }
+  .ec__pilon { background: var(--color-surface); border: 1px solid var(--color-border); border-top: 4px solid var(--color-primary); border-radius: var(--radius); padding: 1.4rem 1.35rem; display: flex; flex-direction: column; }
+  .ec__pilon-cap { display: flex; justify-content: center; margin-bottom: 0.5rem; }
+  .ec__pilon-ic { font-size: 2rem; line-height: 1; }
+  .ec__pilon h3 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.25rem; text-align: center; margin: 0 0 0.15rem; }
+  .ec__pilon-sub { text-align: center; color: var(--color-accent-dark); font-size: 0.82rem; font-weight: 600; margin: 0 0 0.75rem; line-height: 1.35; }
+  .ec__pilon-desc { color: var(--color-text); font-size: 0.98rem; line-height: 1.55; margin: 0 0 0.75rem; }
+  .ec__pilon ul { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: 0.45rem; }
+  .ec__pilon li { position: relative; padding-left: 1.25rem; color: var(--color-text-muted); font-size: 0.92rem; line-height: 1.45; }
+  .ec__pilon li::before { content: "✓"; position: absolute; left: 0; color: var(--color-primary); font-weight: 700; }
+  .ec__pilon-link { margin-top: auto; font-weight: 600; color: var(--color-primary); text-decoration: none; }
+  .ec__pilon-link:hover { color: var(--color-accent-dark); }
+
+  .ec__flux { list-style: none; margin: 1.3rem auto 0; max-width: 50rem; padding: 0; display: grid; gap: 0.9rem; }
+  .ec__flux li { display: flex; gap: 0.85rem; align-items: flex-start; color: var(--color-text); line-height: 1.55; }
+  .ec__num { flex: 0 0 auto; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--color-accent); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; }
+
+  .ec__sect--dark { background: var(--color-primary-dark); border-radius: var(--radius); padding: 2rem 1.6rem; }
+  .ec__nucleu { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); margin-top: 1.3rem; }
+  .ec__chip { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(176, 141, 46, 0.4); border-radius: var(--radius); padding: 0.95rem 1.1rem; }
+  .ec__chip h3 { font-size: 0.98rem; color: var(--color-accent); margin: 0 0 0.3rem; }
+  .ec__chip p { margin: 0; color: #e8e5db; font-size: 0.9rem; line-height: 1.5; }
+
+  .ec__scop { margin-top: 3rem; text-align: center; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 2.25rem 1.6rem; }
+  .ec__scop h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.55rem; letter-spacing: 0.02em; margin: 0 0 0.6rem; }
+  .ec__scop > p { color: var(--color-text-muted); max-width: 44rem; margin: 0 auto 1.4rem; line-height: 1.65; }
+  .ec__cta-btns { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+  .btn--ghost { background: transparent; color: var(--color-primary); border: 1px solid var(--color-primary); padding: 0.6rem 1.2rem; border-radius: var(--radius); font-weight: 600; text-decoration: none; }
+  .ec__wdf { margin: 1.5rem 0 0; font-size: 0.82rem; letter-spacing: 0.03em; color: var(--color-text-muted); }
+
+  @media (max-width: 480px) { .ec__sect--dark, .ec__scop { padding-inline: 1.1rem; } }
+</style>

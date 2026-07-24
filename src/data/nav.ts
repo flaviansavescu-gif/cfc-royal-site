@@ -24,6 +24,7 @@ export const mainNav: NavItem[] = [
     label: { ro: "Organizația", en: "Organization" },
     children: [
       { slug: "organizatia/despre", label: { ro: "Despre asociație", en: "About us" } },
+      { slug: "ecosistem-digital", label: { ro: "Ecosistemul digital", en: "Digital ecosystem" } },
       { slug: "organizatia/conducere", label: { ro: "Conducere", en: "Leadership" } },
       { slug: "arbitri", label: { ro: "Colegiul de arbitri", en: "Panel of judges" } },
       { slug: "canise", label: { ro: "Canise înregistrate", en: "Registered kennels" } },
