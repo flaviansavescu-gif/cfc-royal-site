@@ -742,7 +742,7 @@
     const wrap = el("div", { class: "view" });
     wrap.appendChild(el("div", { class: "page-head" }, [
       el("div", {}, [el("h1", { text: "Breed List" }), el("p", { class: "lede", text: "Search, filter, and sort the WDF standards database." })]),
-      el("button", { class: "btn btn-primary", onclick: startNewBreed }, [el("span", { text: "＋ Add breed" })]),
+      ADMIN_ENABLED ? el("button", { class: "btn btn-primary", onclick: startNewBreed }, [el("span", { text: "＋ Add breed" })]) : null,
     ]));
 
     // Toolbar (sort + save + reset)
@@ -899,7 +899,7 @@
       el("div", { class: "profile-actions" }, [
         el("button", { class: "btn btn-sm" + (isFav(b.id) ? " btn-primary" : ""), onclick: () => { toggleFav(b.id); render(); } }, (isFav(b.id) ? "★ " : "☆ ") + "Favorite"),
         el("button", { class: "btn btn-sm", onclick: () => navigate("compare", { a: b.id }) }, "⇄ Compare"),
-        el("button", { class: "btn btn-sm", onclick: () => startEditBreed(b.id) }, "✎ Edit"),
+        ADMIN_ENABLED ? el("button", { class: "btn btn-sm", onclick: () => startEditBreed(b.id) }, "✎ Edit") : null,
         el("button", { class: "btn btn-sm", onclick: () => printProfile() }, "⎙ Print"),
         el("button", { class: "btn btn-sm", onclick: () => exportProfileWord(b) }, "⬇ Word"),
         el("button", { class: "btn btn-sm", onclick: () => exportWord(slugify(b.breed_name) + "-revision.doc", b.breed_name + " — revision sheet", wordDocRevisionSheet(b)) }, "⬇ Revision sheet"),
@@ -1287,7 +1287,7 @@
       el("div", { style: "display:flex;flex-direction:column;gap:8px" }, [
         el("button", { class: "btn btn-sm", onclick: () => printProfile() }, "⎙ Print this profile"),
         el("button", { class: "btn btn-sm", onclick: () => navigate("compare", { a: b.id }) }, "⇄ Use in comparison"),
-        el("button", { class: "btn btn-sm", onclick: () => startEditBreed(b.id) }, "✎ Edit this breed"),
+        ADMIN_ENABLED ? el("button", { class: "btn btn-sm", onclick: () => startEditBreed(b.id) }, "✎ Edit this breed") : null,
       ]),
     ]));
   }
@@ -3068,6 +3068,13 @@
     $("#btnExport").addEventListener("click", exportJSON);
     $("#btnAdd").addEventListener("click", startNewBreed);
     $("#mobileNavToggle").addEventListener("click", () => document.body.classList.toggle("nav-open"));
+
+    // Pe versiunea publicată (fără admin) ascundem butoanele de editare din antet:
+    // adăugarea și importul nu au sens dacă editorul e blocat. Export/Install rămân.
+    if (!ADMIN_ENABLED) {
+      var _add = $("#btnAdd"); if (_add) _add.style.display = "none";
+      var _imp = $("#btnImport"); if (_imp) _imp.style.display = "none";
+    }
 
     // Keyboard shortcut: "/" focuses search
     document.addEventListener("keydown", (e) => {

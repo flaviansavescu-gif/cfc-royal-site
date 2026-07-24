@@ -1945,6 +1945,1747 @@ window.__CFCR_SEED__ = {
       "recurring_judge_observations": [
         "Distinguish the correct loin arch from a roached back"
       ]
+    },
+    {
+      "id": "breed-015",
+      "breed_name": "Apuan Shepherd Dog",
+      "alternate_names": [
+        "Dog of the Apuan Alps"
+      ],
+      "group": "Group 1 Shepherd Dogs and Cattle Dogs",
+      "country_of_origin": "Italy",
+      "wdf_status": "recognized",
+      "coat_type": "long",
+      "functional_type": "herding",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/002-Apuan-Sheperd.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 01-1/002",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Apuan Shepherd Dog",
+        "owner_country": "Italy",
+        "historical_function": "Ancient herding dog from upper Tuscany and Liguria, used to lead sheep, goats and cattle and to guard the flock against small predators.",
+        "general_impression": "Medium-sized, rustic and strong, with robust but not heavy bone; solid, harmonious and well proportioned, with an alert, attentive expression.",
+        "important_proportions": "Body slightly longer than the height at the withers; muzzle roughly equal in length to the skull, with near-parallel head planes. Height about 60 cm (males) / 55 cm (females).",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "Conical seen from above, well proportioned, neither squat nor narrow.",
+        "skull": "Medium size, about as wide as long; brow and cheekbone arches only lightly marked.",
+        "stop": "Lightly marked.",
+        "muzzle": "Cone-shaped, broad at the base and tapering without a pointed tip; medium length, well chiselled under the eyes; straight nasal bridge.",
+        "jaws_teeth": "Strong white teeth in well-developed jaws; scissor or pincer bite, full dentition.",
+        "eyes": "Medium, slightly almond, set a little obliquely; brown, the darker the better; blue eye tolerated only in merles.",
+        "ears": "Set high, medium size, triangular, carried erect.",
+        "neck": "Medium length, strong and muscular, free of dewlap.",
+        "topline": "Horizontal.",
+        "body": "Powerful and athletic without heaviness; slightly longer than tall.",
+        "chest": "Reaching to the elbows, deep and of good width; ribs moderately sprung.",
+        "tail": "Set on the line of the back, thicker at the base, at least to the hock; carried low at rest, raised in action but not over the back.",
+        "forequarters": "",
+        "hindquarters": "Solid without heaviness, parallel seen from behind, moderate angulation.",
+        "feet": "Rounded, toes tightly closed; thick pigmented pads; hard dark nails.",
+        "movement": "Free and lively at all gaits, limbs moving parallel with good rear drive and long front reach; topline firm.",
+        "coat": "Straight, medium-long topcoat with dense close undercoat; longer on neck, tail and thighs.",
+        "color": "Grey, black, fawn, merle or brindle; tan permitted; solid, bicolour or tricolour."
+      },
+      "temperament": {
+        "behavior": "Watchful, active and lively, always ready to work; docile and balanced, with a natural wariness of strangers typical of sheepdogs.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [
+          "Missing teeth (other than PM1/M3)",
+          "Muzzle too short",
+          "Prognathism",
+          "Very marked stop or pronounced cheekbones",
+          "Structure too light or too heavy"
+        ],
+        "disqualifying": [
+          "Aggressive or overly shy",
+          "Overshot",
+          "Albinism",
+          "Deviated jaw",
+          "Lack of typicality"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Conical head",
+          "Merle coats permitted",
+          "Rustic medium build"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/002-Apuan-Sheperd.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-016",
+      "breed_name": "Australian Shepherd",
+      "alternate_names": [],
+      "group": "Group 1 Shepherd Dogs and Cattle Dogs",
+      "country_of_origin": "United States",
+      "wdf_status": "recognized",
+      "coat_type": "long",
+      "functional_type": "herding",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/005-Australian-Shepherd.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 01-1/005",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Australian Shepherd",
+        "owner_country": "United States",
+        "historical_function": "Developed in the United States as a versatile farm and ranch herding dog, prized for intelligence, stamina and trainability.",
+        "general_impression": "Well balanced, slightly longer than tall, of medium size and bone; attentive, agile and muscular without coarseness, with a coat of moderate length.",
+        "important_proportions": "Slightly longer than tall, solidly built with moderate bone; males masculine, females feminine, neither coarse nor slight. Height about 51–58 cm (males) / 46–53 cm (females).",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "Clean-cut, strong and dry, in proportion to the body.",
+        "skull": "Flat to slightly domed, length and width about equal; slight occiput possible.",
+        "stop": "Moderate, well defined.",
+        "muzzle": "Equal to or slightly shorter than the back-skull, tapering little and rounded at the tip; head planes parallel.",
+        "jaws_teeth": "Full dentition meeting in a scissor or pincer bite.",
+        "eyes": "Almond, not protruding or sunken; brown, blue, amber or any combination, including flecks and marbling.",
+        "ears": "Triangular, moderate size, set high, breaking forward or to the side when attentive.",
+        "neck": "Strong, moderate length, slightly arched, fitting well into the shoulders.",
+        "topline": "Back straight, level and firm from withers to hips.",
+        "body": "Firm and level topline; moderate tuck-up.",
+        "chest": "Not broad but deep, reaching the elbow; ribs well sprung.",
+        "tail": "Straight, naturally long or short, or docked (where permitted), not exceeding 10 cm.",
+        "forequarters": "Shoulders long and well laid back; legs straight with oval bone.",
+        "hindquarters": "Angulation balancing the front; hocks short and perpendicular.",
+        "feet": "Oval, compact, with well-arched toes and thick pads.",
+        "movement": "Smooth, free and agile, ground-covering; legs converge toward a centre line as speed increases, back firm.",
+        "coat": "Medium texture, straight to wavy, weather-resistant, of medium length; moderate mane and frill.",
+        "color": "Blue merle, black, red merle or red, all with or without white and/or tan markings; no order of preference."
+      },
+      "temperament": {
+        "behavior": "Intelligent working dog with strong herding and guarding instinct; even-tempered, loyal, good-natured, sometimes reserved on first meeting.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [
+          "Prick or hanging ears",
+          "Non-typical coat"
+        ],
+        "disqualifying": [
+          "Aggressive or overly shy",
+          "Undershot; overshot by more than 3 mm",
+          "White body splashes between withers and tail"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Merle patterns and varied eye colour",
+          "Natural bob or docked tail",
+          "Moderation throughout"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/005-Australian-Shepherd.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-017",
+      "breed_name": "Belgian Shepherd Dog",
+      "alternate_names": [
+        "Groenendael",
+        "Tervueren",
+        "Malinois",
+        "Laekenois"
+      ],
+      "group": "Group 1 Shepherd Dogs and Cattle Dogs",
+      "country_of_origin": "Belgium",
+      "wdf_status": "recognized",
+      "coat_type": "other",
+      "functional_type": "herding",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/007-Belgian-Shepherd-Dog.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 01-1/007",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Belgian Shepherd Dog",
+        "owner_country": "Belgium",
+        "historical_function": "Originally a Belgian sheepdog, now an all-purpose working and service dog (guarding, defence, tracking) and family companion; four coat varieties.",
+        "general_impression": "Medium-sized, square, harmoniously proportioned dog combining elegance and power, with dry strong muscle and a proud high head-carriage; judged in a natural stance.",
+        "important_proportions": "Fits into a square; chest let down to the elbows; muzzle equal to or slightly longer than half the length of the head. Ideal height about 62 cm (males) / 58 cm (females).",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "Long without exaggeration, chiselled and dry, carried high; skull and muzzle roughly equal.",
+        "skull": "Medium width, flat forehead, moderate frontal groove, occiput little developed.",
+        "stop": "Moderate.",
+        "muzzle": "Medium length, chiselled, tapering like an elongated wedge; straight nasal bridge.",
+        "jaws_teeth": "Strong white teeth, complete dentition; scissor bite (pincer tolerated).",
+        "eyes": "Medium, slightly almond, obliquely set, brown and preferably dark; lively, intelligent, questioning look.",
+        "ears": "Rather small, triangular, set high, stiff and carried upright when alert.",
+        "neck": "Well set out, slightly elongated and rather upright, well muscled, without dewlap.",
+        "topline": "Back and loins straight.",
+        "body": "Powerful without heaviness; length about equal to height; pronounced withers, short firm back.",
+        "chest": "Not broad but well let down; forechest present.",
+        "tail": "Well set on, strong at the base, reaching at least the hock; carried down at rest, raised in movement without passing the horizontal.",
+        "forequarters": "Bone solid but not heavy; legs upright and parallel; shoulder long and oblique.",
+        "hindquarters": "Powerful, upright in profile, parallel from behind, moderate hock angulation.",
+        "feet": "Round cat feet; arched closed toes; thick pads; dark nails.",
+        "movement": "Lively and free; a good galloper whose usual gaits are walk and trot; tireless, springy, tends to move in circles.",
+        "coat": "Dense, close, good texture with woolly undercoat; length/texture distinguishes the four varieties (long, short, rough).",
+        "color": "Groenendael black; Tervueren fawn/grey with black overlay and mask; Malinois fawn with black overlay and mask; Laekenois fawn with light black traces."
+      },
+      "temperament": {
+        "behavior": "Watchful and active, bursting with energy and ready to act; confident, protective, showing neither fear nor aggression; calm, fearless temperament to be rewarded.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [
+          "Missing incisor/premolars",
+          "Insufficient undercoat",
+          "Washed-out fawn base colour"
+        ],
+        "disqualifying": [
+          "Aggressive or timid",
+          "Overshot/undershot or crossbite",
+          "Ears drooping or artificially erect",
+          "Tail docked or carried ringed",
+          "Colour outside the described varieties; lack of mask in Tervueren/Malinois"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [
+          "The four varieties are judged separately"
+        ],
+        "key_markers": [
+          "Square outline",
+          "Variety-defining coat and colour",
+          "Black mask in Tervueren/Malinois"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/007-Belgian-Shepherd-Dog.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-018",
+      "breed_name": "Cão da Serra de Aires (Portuguese Sheepdog)",
+      "alternate_names": [
+        "Portuguese Sheepdog",
+        "Monkey Dog"
+      ],
+      "group": "Group 1 Shepherd Dogs and Cattle Dogs",
+      "country_of_origin": "Portugal",
+      "wdf_status": "recognized",
+      "coat_type": "long",
+      "functional_type": "herding",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/019-Cao-da-Serra-de-Aires-Portuguese-Sheepdog.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 01-1/019",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Cão da Serra de Aires (Portuguese Sheepdog)",
+        "owner_country": "Portugal",
+        "historical_function": "Alentejo herding and livestock-watching dog, rustic and enduring; noted for a simian look that earned it the nickname 'monkey dog'.",
+        "general_impression": "Medium-sized, slightly long, rustic and sober; extremely agile and swift with ample suspended movement; long goat-like hair without undercoat.",
+        "important_proportions": "Body about 10% longer than tall; chest depth under half the height; muzzle two-thirds of skull length. Height 45–55 cm (males) / 42–52 cm (females).",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "Medium size, strong and broad, neither long nor massive.",
+        "skull": "Tending to square, slightly longer than broad, convex; divergent skull/muzzle axes.",
+        "stop": "Well defined.",
+        "muzzle": "Short, about two-thirds of skull length, almost cylindrical; straight or slightly concave profile.",
+        "jaws_teeth": "Full dentition of 42 teeth, well opposed; scissor bite (pincer accepted).",
+        "eyes": "Medium, rounded, preferably dark; level and not prominent; lively, intelligent, docile expression.",
+        "ears": "Set high, hanging, triangular, thin, medium size.",
+        "neck": "Moderate length, straight and slightly rising, well muscled, without dewlap.",
+        "topline": "Level or slightly sloping.",
+        "body": "Well-muscled; back long, loin short and arched.",
+        "chest": "To the elbows, of medium width and depth; prominent forechest; oval ribcage.",
+        "tail": "Set high, tapering, reaching the hocks, with long abundant hair; carried arched, never curled over the back.",
+        "forequarters": "Strong, upright and well apart; shoulder oblique.",
+        "hindquarters": "Medium width, upright and strong; impression of power and agility.",
+        "feet": "Rounded, not splayed, with tightly arched toes; strong dark nails; hard pads.",
+        "movement": "Chiefly a light, suspended trot with great reach; energetic gallop when working.",
+        "coat": "Long, straight or slightly wavy, harsh goat-like texture without undercoat; forms beard, moustache and eyebrows without covering the eyes.",
+        "color": "Yellow, brown, grey, fawn, wolf-grey or black, in various shades, with tan markings; never pied except a small white chest spot."
+      },
+      "temperament": {
+        "behavior": "Exceptionally intelligent and lively; devoted to shepherd and flock, wary of strangers and vigilant at night; today also companion, sporting and guard dog.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [
+          "Nervous, unbalanced temperament",
+          "Missing premolars (except PM1)",
+          "Light/small eyes",
+          "Coat not harsh or long enough",
+          "Movement not ample or suspended"
+        ],
+        "disqualifying": [
+          "Aggressive or overly shy",
+          "Convex muzzle profile",
+          "Undershot/overshot or missing more than two premolars",
+          "Albinism",
+          "Docked or absent tail",
+          "Short/curly coat or coat with undercoat"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Goat-like coat, beard and eyebrows",
+          "No undercoat",
+          "Simian 'monkey dog' expression"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/019-Cao-da-Serra-de-Aires-Portuguese-Sheepdog.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-019",
+      "breed_name": "Croatian Shepherd Dog",
+      "alternate_names": [
+        "Hrvatski ovčar"
+      ],
+      "group": "Group 1 Shepherd Dogs and Cattle Dogs",
+      "country_of_origin": "Croatia",
+      "wdf_status": "recognized",
+      "coat_type": "long",
+      "functional_type": "herding",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/021-Croatian-Shepherd-Dog.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 01-1/021",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Croatian Shepherd Dog",
+        "owner_country": "Croatia",
+        "historical_function": "Versatile Croatian herding dog also used for guarding and as a companion.",
+        "general_impression": "Well-proportioned, of light rectangular build with strong but not coarse bone and strong musculature; agile and alert.",
+        "important_proportions": "Rectangular; length exceeds height at the withers; height to elbow about 50% of height; skull slightly longer than muzzle.",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "Blunt-wedge shaped with parallel skull and muzzle lines.",
+        "skull": "Harmoniously rounded, characteristically oval; width not more than half the head length.",
+        "stop": "Moderate in depth and length.",
+        "muzzle": "Tapering to the nose in a wedge; straight nasal bridge parallel with the skull.",
+        "jaws_teeth": "Strong jaws, white evenly-set teeth; scissor bite (pincer tolerated).",
+        "eyes": "Medium, oval, set at 30–40°; black to dark chestnut; neither bulging nor deep.",
+        "ears": "Triangular with slightly rounded tips, set on the nose-to-inner-eye line; erect preferred.",
+        "neck": "Medium length, muscular, tapering to the head, with straight lines.",
+        "topline": "",
+        "body": "Strong and harmoniously developed, yet elegant.",
+        "chest": "Deep, broad and capacious but not barrelled, reaching the elbow; ribs well sprung.",
+        "tail": "Continuation of the croup, strong at the root, set moderately high, tapering.",
+        "forequarters": "",
+        "hindquarters": "Strong but not heavy, elastic, with medium angulation.",
+        "feet": "Oval with tight arched toes; firm elastic black pads.",
+        "movement": "Substantial reach with strong drive; harmonious, back kept still, limbs neither crossing nor lifted high.",
+        "coat": "Profuse, dense, relatively soft (neither woolly nor harsh), with topcoat and undercoat; short on head and legs.",
+        "color": "Black; a few evenly spread, barely visible white hairs allowed; small white chest mark up to 8 cm tolerated."
+      },
+      "temperament": {
+        "behavior": "Alert, lively and intelligent herding dog, attached to its handler.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [],
+        "disqualifying": [
+          "Aggressive or overly shy",
+          "Undershot/overshot or wry mouth",
+          "Blue eyes",
+          "Dropped ears",
+          "White markings other than a small chest mark",
+          "Coat straight or woolly, or corded over the whole body"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Black coat",
+          "Oval skull",
+          "Short hair on head and legs, longer on body"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/021-Croatian-Shepherd-Dog.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-020",
+      "breed_name": "Egyptian Armant Herding Dog",
+      "alternate_names": [
+        "Armant",
+        "Ermenti"
+      ],
+      "group": "Group 1 Shepherd Dogs and Cattle Dogs",
+      "country_of_origin": "Egypt",
+      "wdf_status": "recognized",
+      "coat_type": "long",
+      "functional_type": "herding",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/026-Egyptian-Armant-Herding-Dog.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 01-1/026",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Egyptian Armant Herding Dog",
+        "owner_country": "Egypt",
+        "historical_function": "Egyptian herding and guarding dog, also kept as a companion.",
+        "general_impression": "Sturdy herding dog with moderate angulation (105–110°) and a very rich, protective coat, especially on the limbs.",
+        "important_proportions": "",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "",
+        "skull": "",
+        "stop": "",
+        "muzzle": "Straight, equal to or a little shorter than the skull, tapering but never pointed; width about equal to depth.",
+        "jaws_teeth": "Scissor bite (level bite accepted); complete dentition with very strong canines.",
+        "eyes": "Slightly almond, not too big, very expressive; colour from dark brown to hazel, matching the coat.",
+        "ears": "'V'-shaped with a pointed tip, moderate size, reaching mid-muzzle, moderately wide at the base.",
+        "neck": "Moderately long, well set from the shoulders, well muscled, without loose skin.",
+        "topline": "Straight and well supported with good elasticity.",
+        "body": "Strong but not heavy, with good bone and well-defined muscle.",
+        "chest": "Moderately wide, descending to the elbow.",
+        "tail": "",
+        "forequarters": "",
+        "hindquarters": "",
+        "feet": "",
+        "movement": "Preferred pace a free, sustained trot.",
+        "coat": "Long or semi-long, dense and flat, thicker and woollier on loins and croup; abundant on the head, covering the eyes for sun and sand protection; two coat types.",
+        "color": "White, fawn, black, grey or brown, without spots or patches."
+      },
+      "temperament": {
+        "behavior": "Attentive herding and guarding dog, valued as a companion.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [],
+        "disqualifying": []
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Rich protective coat",
+          "Hair covering the eyes",
+          "Moderate angulation"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/026-Egyptian-Armant-Herding-Dog.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-021",
+      "breed_name": "Kuvasz",
+      "alternate_names": [],
+      "group": "Group 1 Shepherd Dogs and Cattle Dogs",
+      "country_of_origin": "Hungary",
+      "wdf_status": "recognized",
+      "coat_type": "long",
+      "functional_type": "guard",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/030-Kuvasz.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 01-1/030",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Kuvasz",
+        "owner_country": "Hungary",
+        "historical_function": "Hungarian livestock-guardian used to watch and protect houses, property and people.",
+        "general_impression": "Strong, large white dog with a dense wavy coat; noble and powerful, harmoniously built with strong but not coarse bone.",
+        "important_proportions": "Body slightly longer than tall; deepest point of the brisket at about half the height; muzzle slightly shorter than half the head length. Height 71–76 cm (males) / 66–70 cm (females).",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "Typically wedge-shaped, noble and strong, in harmony with the body.",
+        "skull": "Broad, forehead slightly protruding.",
+        "stop": "Barely pronounced.",
+        "muzzle": "Straight nasal bridge, tapering gradually, never pointed.",
+        "jaws_teeth": "Strong, complete scissor bite.",
+        "eyes": "Slightly slanting, almond-shaped, dark brown.",
+        "ears": "Set at medium height, V-shaped, lifting slightly from the base then lying close to the head.",
+        "neck": "Rather short and well muscled, set at 25–30° to the horizontal, without dewlap.",
+        "topline": "",
+        "body": "Forms a slightly elongated rectangle, close to square.",
+        "chest": "Deep, long and slightly arched; belly tucked up towards the rear.",
+        "tail": "Set on low, following the slightly sloping croup, carried down with the tip slightly upturned.",
+        "forequarters": "Front legs vertical, parallel and moderately far apart.",
+        "hindquarters": "Stifle over the iliac crest, foot under the hip; good angulation.",
+        "feet": "Round to slightly oval, tight, with short arched toes.",
+        "movement": "Light-footed, springy and ground-covering trot; lively and tireless.",
+        "coat": "Moderately harsh, wavy, slightly stiff double coat with fine undercoat; short on head, ears and feet.",
+        "color": "White (ivory permitted); black nose, eye-rims and lips; black or slate pads."
+      },
+      "temperament": {
+        "behavior": "Brave and fearless guardian, self-confident and devoted; may become aggressive if ill-treated; faithful and dependable.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [],
+        "disqualifying": [
+          "Aggressive or overly shy",
+          "Pink spots on nose, lips or eyelids",
+          "Colour other than white"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Large white livestock guardian",
+          "Wavy harsh coat",
+          "Noble wedge head"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/030-Kuvasz.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-022",
+      "breed_name": "Slovakian Chuvach",
+      "alternate_names": [
+        "Slovenský čuvač",
+        "Tatra Chuvach"
+      ],
+      "group": "Group 1 Shepherd Dogs and Cattle Dogs",
+      "country_of_origin": "Slovakia",
+      "wdf_status": "recognized",
+      "coat_type": "long",
+      "functional_type": "guard",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/048-Slovensky-cuvac.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 01-1/048",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Slovakian Chuvach",
+        "owner_country": "Slovakia",
+        "historical_function": "Slovak mountain shepherd and livestock-guardian, also used to guard farms and borders; bred only in white to be told apart from wolves at night.",
+        "general_impression": "Mountain dog of firm constitution and impressive appearance with a thick white coat; strong bone, lively temperament, vigilant and fearless.",
+        "important_proportions": "",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "Strong and in proportion, with a broad forehead.",
+        "skull": "Strong, longish, broad between the ears, with a shallow tapering forehead furrow.",
+        "stop": "Moderate.",
+        "muzzle": "Straight in profile, about half the head length, fairly broad and tapering to the front.",
+        "jaws_teeth": "Strong, with a complete scissor bite.",
+        "eyes": "Dark brown, oval, set horizontally; black close-fitting eyelids.",
+        "ears": "Set on high, medium length, hanging close to the head, with finer hair halfway down.",
+        "neck": "Set straight, carried high when alert; very powerful in males with a mane.",
+        "topline": "",
+        "body": "Back straight, of medium length and strong.",
+        "chest": "Broad, sternum up to shoulder-joint height; well-sprung ribs.",
+        "tail": "Set on low, hanging to the hocks at rest, cigar-shaped; carried curled over the loin in movement.",
+        "forequarters": "Straight and pillar-like, with good upper-arm and elbow angulation.",
+        "hindquarters": "Buttocks and upper thighs form a long, broad, muscular whole.",
+        "feet": "Round with strong arched toes and strong nails.",
+        "movement": "Surprisingly light-footed for the build, agile and quick in all terrain; prefers the trot.",
+        "coat": "Thick coat without a parting on the back; males show a striking mane; short on head and limbs.",
+        "color": "White; a yellowish shade at the ear-set tolerated but not desired."
+      },
+      "temperament": {
+        "behavior": "Boundlessly faithful and courageous, ready to fend off any intruder, even bears and wolves.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [],
+        "disqualifying": [
+          "Aggressive or overly shy",
+          "Pink spots on nose, lips or eyelids",
+          "Light eyes",
+          "Yellow patches in the coat"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Pure white mountain guardian",
+          "Mane in males",
+          "Cigar-shaped tail"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/048-Slovensky-cuvac.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-023",
+      "breed_name": "Affenpinscher",
+      "alternate_names": [],
+      "group": "Group 2 Pinscher and Schnauzer Type Dogs – Molossoids and Swiss Cattle Dogs",
+      "country_of_origin": "Germany",
+      "wdf_status": "recognized",
+      "coat_type": "wire",
+      "functional_type": "companion",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/001-Affenpinscher.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 02/001",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Affenpinscher",
+        "owner_country": "Germany",
+        "historical_function": "Small German house and companion dog with a characteristic monkey-like expression.",
+        "general_impression": "Rough-haired, small and compact, as square as possible, with a monkey-like face.",
+        "important_proportions": "Length to height as square as possible.",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "",
+        "skull": "Round rather than elongated, high-domed with a pronounced forehead.",
+        "stop": "Clearly defined.",
+        "muzzle": "Short and straight, not upturned; tight-fitting lips.",
+        "jaws_teeth": "Complete 42 teeth; lower jaw protrudes slightly and turns up (undershot typical of the breed).",
+        "eyes": "Dark, round and full, with black close-fitting rims framed by harsh hair.",
+        "ears": "Set high, V-shaped, carried turned forward with inner edges close to the head.",
+        "neck": "Straight, strong and rather short.",
+        "topline": "Slightly sloping from withers to rear in a nearly straight line.",
+        "body": "Strong, square and compact.",
+        "chest": "Slightly flattened, moderately broad, reaching past the elbows; belly moderately tucked up.",
+        "tail": "Natural; a sabre or sickle carriage is sought.",
+        "forequarters": "Front legs sturdy, straight and parallel.",
+        "hindquarters": "Moderately angulated, seen obliquely from the side.",
+        "feet": "Short and round (cat feet), with well-knit arched toes and black nails.",
+        "movement": "Relaxed, fluent and mincing, with moderate drive.",
+        "coat": "Harsh and dense body coat; head adorned with bushy eyebrows, a wreath around the eyes, a beard, a top-knot and cheek hair.",
+        "color": "Pure black with black undercoat."
+      },
+      "temperament": {
+        "behavior": "Fearless, alert, persistent and devoted, sometimes quick-tempered; an agreeable family dog.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [
+          "Lack of sexual type",
+          "Too fine bone",
+          "Griffon-like upturned or long muzzle",
+          "Protruding eyes",
+          "Over/undersize 1–2 cm"
+        ],
+        "disqualifying": [
+          "Aggressive or overly shy",
+          "Lack of breed type",
+          "Scissor bite or wry mouth",
+          "Over/undersize by more than 2 cm"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Monkey-like face",
+          "Harsh black coat",
+          "Slightly undershot jaw"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/001-Affenpinscher.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-024",
+      "breed_name": "Austrian Pinscher",
+      "alternate_names": [
+        "Österreichischer Pinscher"
+      ],
+      "group": "Group 2 Pinscher and Schnauzer Type Dogs – Molossoids and Swiss Cattle Dogs",
+      "country_of_origin": "Austria",
+      "wdf_status": "recognized",
+      "coat_type": "short",
+      "functional_type": "guard",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/002-Austrian-Pinscher.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 02/002",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Austrian Pinscher",
+        "owner_country": "Austria",
+        "historical_function": "Austrian farm watchdog and companion.",
+        "general_impression": "Stocky dog of medium size with a lively, bright expression.",
+        "important_proportions": "Height at withers to body length 9:10; muzzle to skull 4:6.",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "Pear-shaped, in harmonious proportion to the body.",
+        "skull": "Broad and rounded with a pronounced frontal furrow.",
+        "stop": "Well marked.",
+        "muzzle": "Strong, with a straight nasal bridge.",
+        "jaws_teeth": "Strong, complete scissor bite.",
+        "eyes": "Large, round, with close-fitting dark-pigmented rims.",
+        "ears": "Button ears (folded), small and set high.",
+        "neck": "Strong, of medium length.",
+        "topline": "",
+        "body": "Well-defined withers; compact strong body.",
+        "chest": "Long, deep, broad and barrel-shaped, with well-developed forechest.",
+        "tail": "Set high, strong, of medium length, densely coated.",
+        "forequarters": "Well-muscled straight legs, broad front.",
+        "hindquarters": "Well angulated.",
+        "feet": "Close-knit with strong nails.",
+        "movement": "Flowing, harmonious and ground-covering.",
+        "coat": "Thick double coat; outer coat short to medium-long, smooth and close-lying.",
+        "color": "Russet gold, brownish-yellow, stag-red or black-and-tan, usually with white markings on chest, muzzle, neck, feet and tail tip."
+      },
+      "temperament": {
+        "behavior": "Lively, watchful farm dog and companion.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [],
+        "disqualifying": [
+          "Overly shy or physically/behaviourally abnormal",
+          "Undershot or overshot"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Barrel-shaped chest",
+          "Button ears",
+          "White markings on a coloured coat"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/002-Austrian-Pinscher.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-025",
+      "breed_name": "Atlas Mountain Dog",
+      "alternate_names": [
+        "Aïdi",
+        "Chien de l'Atlas"
+      ],
+      "group": "Group 2 Pinscher and Schnauzer Type Dogs – Molossoids and Swiss Cattle Dogs",
+      "country_of_origin": "Morocco",
+      "wdf_status": "recognized",
+      "coat_type": "long",
+      "functional_type": "guard",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/012-ATLAS-MOUNTAIN-DOG.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 02/012",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Atlas Mountain Dog",
+        "owner_country": "Morocco",
+        "historical_function": "Moroccan flock- and property-guardian, hardy and mobile in mountain conditions.",
+        "general_impression": "Solid, very hardy dog noted for power and mobility; well-muscled and sinewy with a thick bushy protective coat.",
+        "important_proportions": "Body length to height 10:9; chest depth to height 1:2; muzzle appreciably shorter than the skull. Height 52–62 cm.",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "Strong and broad, conical in general shape, free of wrinkle.",
+        "skull": "Flat and broad with a slight frontal groove; occiput barely perceptible.",
+        "stop": "Only slightly pronounced.",
+        "muzzle": "Conical, appreciably shorter than the skull; sloping, not very defined stop.",
+        "jaws_teeth": "Pincer (edge-to-edge) bite.",
+        "eyes": "Moderate size, dark shade varying with coat colour; slightly oblique, well pigmented.",
+        "ears": "Medium length with slightly rounded tips, set to leave the skull clear, carried half-dropped and raised forward when alert.",
+        "neck": "Powerful and well-muscled, without dewlap.",
+        "topline": "Slightly dipping without being sway-backed.",
+        "body": "",
+        "chest": "Adequate width, long and let down at least to the elbows; slightly rounded ribcage.",
+        "tail": "Long, at least to the hocks, set on the croup line, carried low in a scimitar shape at rest.",
+        "forequarters": "Oblique shoulder with distinct withers.",
+        "hindquarters": "Pronounced iliac wing; well-muscled, well let-down thighs.",
+        "feet": "Nearly round with solid pads and strong nails.",
+        "movement": "Short, fast, single-tracking trot; seems tireless.",
+        "coat": "Thick, rather harsh, half-long (about 6 cm), short and finer on face and ears; forms a mane on neck and throat, especially in males.",
+        "color": "Very variable; fawn from sand to deep red, often brindled or with black overlay or a mantle of any hue."
+      },
+      "temperament": {
+        "behavior": "Very faithful guardian, alert and protective of flock and belongings.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [],
+        "disqualifying": [
+          "Aggressive or overly shy",
+          "Pointed muzzle",
+          "Permanently pricked ears",
+          "Undershot or overshot with lack of contact",
+          "Short coat"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Bushy protective coat and mane",
+          "Half-dropped ears",
+          "Single-tracking trot"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/012-ATLAS-MOUNTAIN-DOG.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-026",
+      "breed_name": "Cane Corso Italiano",
+      "alternate_names": [
+        "Italian Cane Corso"
+      ],
+      "group": "Group 2 Pinscher and Schnauzer Type Dogs – Molossoids and Swiss Cattle Dogs",
+      "country_of_origin": "Italy",
+      "wdf_status": "recognized",
+      "coat_type": "short",
+      "functional_type": "guard",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/015-CANE-CORSO-ITALIANO.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 02/015",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Cane Corso Italiano",
+        "owner_country": "Italy",
+        "historical_function": "Italian guard and defence dog descended from the ancient Roman molossian; a property and personal protector.",
+        "general_impression": "Medium-large molossoid, sturdy and athletic; powerful yet not heavy, with a broad head that is a hallmark of the breed.",
+        "important_proportions": "Head as broad as long; muzzle very broad, its width about equal to its length (about 34% of head length). Height 64–68 cm (males) / 60–64 cm (females).",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "",
+        "skull": "As broad as long — a fundamental element of type.",
+        "stop": "Very marked, with well-developed frontal bumps and raised brow arches.",
+        "muzzle": "Very broad and deep; width almost equal to length; depth greater than length.",
+        "jaws_teeth": "White, large, complete; slightly undershot bite typical of the breed.",
+        "eyes": "Medium, sub-frontal, well spaced.",
+        "ears": "Medium, triangular with a pointed apex, set high (often left natural).",
+        "neck": "",
+        "topline": "Straight back with a slight lumbar convexity.",
+        "body": "",
+        "chest": "Well developed in all three dimensions, with long broad ribs.",
+        "tail": "Set rather high, thick at the root, reaching just past the hock (often left natural).",
+        "forequarters": "",
+        "hindquarters": "",
+        "feet": "",
+        "movement": "Powerful, extended and effortless; the trot is the preferred gait.",
+        "coat": "",
+        "color": "Black, lead grey, slate, light grey, fawn (light to dark), deer fawn and brindle."
+      },
+      "temperament": {
+        "behavior": "Reserved, steady and confident guardian; strongly bonded to its family and a determined protector.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [],
+        "disqualifying": []
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Broad square head and deep muzzle",
+          "Powerful athletic build",
+          "Slightly undershot bite"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/015-CANE-CORSO-ITALIANO.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-027",
+      "breed_name": "Appenzeller Sennenhund",
+      "alternate_names": [
+        "Appenzell Cattle Dog"
+      ],
+      "group": "Group 2 Pinscher and Schnauzer Type Dogs – Molossoids and Swiss Cattle Dogs",
+      "country_of_origin": "Switzerland",
+      "wdf_status": "recognized",
+      "coat_type": "short",
+      "functional_type": "herding",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/049-APPENZELLER-SENNENHUND.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 02/049",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Appenzeller Sennenhund",
+        "owner_country": "Switzerland",
+        "historical_function": "Swiss driving, watch, guard and farm dog from the Appenzell region.",
+        "general_impression": "Tricolour, medium-sized, almost square and balanced dog.",
+        "important_proportions": "Height at withers to body length 9:10 (rather compact); muzzle to skull 4:5.",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "Balanced, slightly wedge-shaped.",
+        "skull": "Fairly flat, broadest between the ears, tapering evenly; occiput barely pronounced.",
+        "stop": "Slightly marked.",
+        "muzzle": "Medium strength, tapering evenly but not snipy, with a strong lower jaw.",
+        "jaws_teeth": "Strong, complete, regular scissor bite (pincer tolerated).",
+        "eyes": "Rather small, almond-shaped, set slightly oblique; not protruding.",
+        "ears": "Set high and broad, triangular with slightly rounded tips, hanging flat at rest.",
+        "neck": "Rather short, strong and clean.",
+        "topline": "",
+        "body": "Compact and strong.",
+        "chest": "Broad and deep to the elbows, with a defined forechest; round-oval ribcage.",
+        "tail": "Set high, of medium length, densely coated, carried tightly curled over the croup in movement.",
+        "forequarters": "Well-muscled, straight and parallel front.",
+        "hindquarters": "Well-muscled, straight and parallel from behind.",
+        "feet": "Short, arched, tight toes with solid pads.",
+        "movement": "Good rear drive with a well-reaching front stride.",
+        "coat": "Double coat (Stockhaar): thick shiny topcoat over a dense undercoat.",
+        "color": "Tricolour — black or havana-brown main colour with brown/tan and symmetrical white markings."
+      },
+      "temperament": {
+        "behavior": "Lively, high-spirited, self-assured, reliable and fearless; slightly suspicious of strangers.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [],
+        "disqualifying": [
+          "Aggressive or overly shy",
+          "Overshot or undershot",
+          "Entropion or ectropion",
+          "Wall eye",
+          "Sickle or kinked tail",
+          "Coat other than double (Stockhaar) or other than tricolour"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Curled tail over the back",
+          "Tricolour Stockhaar coat",
+          "Almost square outline"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/049-APPENZELLER-SENNENHUND.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-028",
+      "breed_name": "Bernese Mountain Dog",
+      "alternate_names": [
+        "Berner Sennenhund"
+      ],
+      "group": "Group 2 Pinscher and Schnauzer Type Dogs – Molossoids and Swiss Cattle Dogs",
+      "country_of_origin": "Switzerland",
+      "wdf_status": "recognized",
+      "coat_type": "long",
+      "functional_type": "guard",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/051-Bernese-Mountain-Dog.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 02/051",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Bernese Mountain Dog",
+        "owner_country": "Switzerland",
+        "historical_function": "Swiss farm guard-, draught- and cattle dog from the Canton of Bern; today a family and versatile working dog.",
+        "general_impression": "Long-haired, tricolour, strong and agile working dog of above-medium size, with sturdy limbs; harmonious and well balanced.",
+        "important_proportions": "Slightly longer than tall, well balanced. Height 64–70 cm (males) / 58–66 cm (females).",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "Strong, with clean white blaze and muzzle-band markings.",
+        "skull": "Little rounded from front and profile.",
+        "stop": "Well defined but not too pronounced.",
+        "muzzle": "Strong, of medium length; straight nasal bridge.",
+        "jaws_teeth": "Strong, complete scissor bite.",
+        "eyes": "Dark brown, almond-shaped, with close-fitting lids; neither deep-set nor prominent.",
+        "ears": "Medium, set high, triangular, slightly rounded, hanging flat at rest.",
+        "neck": "Strong, muscular, of medium length.",
+        "topline": "Running slightly down from neck to withers, then straight and level.",
+        "body": "",
+        "chest": "Broad and deep to the elbows, with a distinct forechest; wide-oval ribcage.",
+        "tail": "Bushy, at least to the hocks; hanging at rest, carried level or slightly above in movement.",
+        "forequarters": "Straight and parallel from the front, standing rather wide.",
+        "hindquarters": "Straight and parallel from behind.",
+        "feet": "Short, roundish, with well-knit arched toes.",
+        "movement": "Sound and balanced in all gaits, ground-covering, with free front reach and good rear drive.",
+        "coat": "Long, shiny, straight to slightly wavy.",
+        "color": "Jet-black with rich tan on cheeks, over the eyes, on legs and chest, and clean symmetrical white markings on head, chest, feet and tail tip."
+      },
+      "temperament": {
+        "behavior": "Self-assured, good-natured and steady; attached to its family.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [],
+        "disqualifying": [
+          "Aggressive, anxious or shy",
+          "Undershot/overshot or wry mouth",
+          "Blue eye(s)",
+          "Entropion/ectropion",
+          "Kinked or ring tail",
+          "Short coat or other than tricolour"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Tricolour long coat with symmetrical white",
+          "Sturdy above-medium build",
+          "White blaze and chest cross"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/051-Bernese-Mountain-Dog.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-029",
+      "breed_name": "American Wolfdog",
+      "alternate_names": [],
+      "group": "Group 2 Pinscher and Schnauzer Type Dogs – Molossoids and Swiss Cattle Dogs",
+      "country_of_origin": "Canada",
+      "wdf_status": "recognized",
+      "coat_type": "long",
+      "functional_type": "companion",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/050-American-Wolfdog.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 02/050",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "American Wolfdog",
+        "owner_country": "Canada",
+        "historical_function": "Companion dog resembling its North American wolf ancestor; recognised by WDF in Group 2.",
+        "general_impression": "Large wolf-like dog in grey, white or black; readily exceeding 70 cm at the withers, up to about 1.40 m long, and over 40 kg.",
+        "important_proportions": "Large and long-framed; depth of chest not reaching the elbows. Height above 70 cm in both sexes.",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "",
+        "skull": "Slightly arched forehead from front and side; no marked frontal furrow.",
+        "stop": "Moderate.",
+        "muzzle": "Clean, not broad, with a straight nasal bridge.",
+        "jaws_teeth": "Strong symmetrical jaws with well-developed canines; scissor or pincer bite, 42 teeth.",
+        "eyes": "Small, slanting, amber, with well-fitting lids.",
+        "ears": "Pricked, thin, triangular and short.",
+        "neck": "Dry and well-muscled, forming up to 40° with the horizontal at rest.",
+        "topline": "Flowing transition from neck to body.",
+        "body": "",
+        "chest": "Roomy, pear-shaped, narrowing to the sternum; not reaching the elbows.",
+        "tail": "Set high, hanging at rest, raised in a sickle when excited; 30–40 cm long.",
+        "forequarters": "Straight, strong, close-set legs with slightly turned-out feet.",
+        "hindquarters": "Powerful and parallel.",
+        "feet": "Large, slightly turned out, with long arched toes and strong dark nails.",
+        "movement": "Harmonious, light-footed, ground-covering trot; head and neck near the horizontal.",
+        "coat": "Straight and close, with a great seasonal difference; heavy winter undercoat.",
+        "color": "Yellowish to silvery grey with a characteristic light mask; also white and black variants."
+      },
+      "temperament": {
+        "behavior": "Wolf-like companion; recognised as a Group 2 breed by WDF.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [],
+        "disqualifying": []
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Wolf-like appearance and mask",
+          "Large size (>70 cm)",
+          "Pricked short ears"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/050-American-Wolfdog.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Clasificat de WDF la Grupa 2. Fișă generată din standardul WDF publicat; text parafrazat în scop educațional.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-030",
+      "breed_name": "Chilean Terrier",
+      "alternate_names": [
+        "Chilean Fox Terrier"
+      ],
+      "group": "Group 3 Terrier Type Dogs",
+      "country_of_origin": "Chile",
+      "wdf_status": "recognized",
+      "coat_type": "short",
+      "functional_type": "hunting",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/Standard-3.008-Chilean-Terrier.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 3.008",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Chilean Terrier",
+        "owner_country": "Chile",
+        "historical_function": "Chilean small-game hunting dog and companion.",
+        "general_impression": "Compact, medium-small, well-balanced and elegant without heaviness; short tight coat highlighting its colours and markings; often naturally short-tailed.",
+        "important_proportions": "Height at withers about 90% of the body length; males nearly square, females a little longer. Height 32–38 cm (males, ideal 35) / 28–35 cm (females, ideal 32).",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "",
+        "skull": "",
+        "stop": "",
+        "muzzle": "Strong, triangular seen from above, with clean tight lips.",
+        "jaws_teeth": "",
+        "eyes": "Small, moderately spaced, almond-shaped, dark (a little lighter in chocolate dogs).",
+        "ears": "Small, set high, triangular, semi-erect and pointed, dropping toward the eye corner.",
+        "neck": "",
+        "topline": "",
+        "body": "",
+        "chest": "",
+        "tail": "",
+        "forequarters": "",
+        "hindquarters": "Muscular with long bone, well plumb and parallel; well-muscled thighs; high parallel hocks.",
+        "feet": "Hare feet, compact, with medium-length nails and developed pads.",
+        "movement": "Flexible and elegant with short strides, head high and back firm.",
+        "coat": "Short, smooth, close and glossy over the whole body; finer on ears, neck and inner legs.",
+        "color": "Predominantly white over the body, neck and tail, with a coloured (typically black-and-tan) head and ears."
+      },
+      "temperament": {
+        "behavior": "Lively, alert small terrier, agile and keen.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [
+          "Long body or short limbs",
+          "Fully erect ears",
+          "Light, round or too wide-set eyes",
+          "High-set tail",
+          "Rear dewclaws"
+        ],
+        "disqualifying": [
+          "Shy or aggressive",
+          "Undershot or overshot or any jaw deformity"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "White body with coloured head",
+          "Semi-erect ears",
+          "Natural short tail common"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/Standard-3.008-Chilean-Terrier.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-031",
+      "breed_name": "English Bulldog",
+      "alternate_names": [
+        "Bulldog"
+      ],
+      "group": "Group 4 Bull Type Dogs",
+      "country_of_origin": "Great Britain",
+      "wdf_status": "recognized",
+      "coat_type": "short",
+      "functional_type": "companion",
+      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/Standard-4.016-Bulldog-English.pdf",
+      "source_standard_title": "Official WDF Breed Standard n° 4.016",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "English Bulldog",
+        "owner_country": "Great Britain",
+        "historical_function": "British breed, today a companion and deterrent dog, retaining a powerful, compact build.",
+        "general_impression": "Smooth-coated, thick-set and rather low, broad, powerful and compact; the fairly large head kept in general symmetry without exaggeration that impairs movement.",
+        "important_proportions": "Head large in proportion but balanced; body short and well ribbed. Weight about 25 kg (males) / 23 kg (females).",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "Seen from the side, high and moderately short from back to nose.",
+        "skull": "Large in circumference; high, broad and square from the front.",
+        "stop": "Defined.",
+        "muzzle": "Short, broad, turned up and deep; nose wrinkle must not obscure the eyes or nose.",
+        "jaws_teeth": "Broad, strong, square jaws; lower jaw projecting slightly with a moderate turn-up (undershot).",
+        "eyes": "Set low and wide in the skull, well away from the ears; eyes and stop in one straight line.",
+        "ears": "Set high and wide apart, 'rose' ears.",
+        "neck": "Moderate length, thick, deep and strong.",
+        "topline": "Slight fall behind the shoulders then rising to the loin, forming the characteristic 'roach' back.",
+        "body": "",
+        "chest": "Wide, prominent and deep, well let down between the forelegs; ribs well rounded.",
+        "tail": "Set on low, jutting out then turning down; round, smooth and short.",
+        "forequarters": "Forelegs short and stout in proportion to the hindlegs, set wide apart.",
+        "hindquarters": "Legs large and muscular, slightly longer than the forelegs.",
+        "feet": "Medium size, moderately round, turning slightly outward.",
+        "movement": "Short, quick steps on the toes with a characteristic rolling, 'loose-jointed' gait.",
+        "coat": "Fine texture, short, dense and smooth.",
+        "color": "Whole colours (brindle, red and its shades, fawn, fallow), white and piebald; may carry a black mask/muzzle."
+      },
+      "temperament": {
+        "behavior": "Conveys determination, strength and activity; equable and courageous companion.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [],
+        "disqualifying": [
+          "Aggressive or overly shy",
+          "Physical or behavioural abnormalities affecting health"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Broad undershot jaw and short upturned muzzle",
+          "Roach back",
+          "Rolling gait; rose ears"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/wp-content/uploads/2023/12/Standard-4.016-Bulldog-English.pdf",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-032",
+      "breed_name": "Exotic Bully",
+      "alternate_names": [],
+      "group": "Group 4 Bull Type Dogs",
+      "country_of_origin": "United States",
+      "wdf_status": "recognized",
+      "coat_type": "short",
+      "functional_type": "companion",
+      "source_standard_url": "https://wdf-international.org/page/16/",
+      "source_standard_title": "Official WDF Breed Standard n° 4.015",
+      "last_updated": "2026-07-24",
+      "identity": {
+        "official_name": "Exotic Bully",
+        "owner_country": "United States",
+        "historical_function": "Modern companion bull-type breed recognised by WDF.",
+        "general_impression": "Compact, heavily built bull-type dog of small to medium height with pronounced muscle and a short coat.",
+        "important_proportions": "",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": ""
+      },
+      "anatomy": {
+        "head": "",
+        "skull": "",
+        "stop": "",
+        "muzzle": "",
+        "jaws_teeth": "",
+        "eyes": "",
+        "ears": "",
+        "neck": "",
+        "topline": "",
+        "body": "",
+        "chest": "",
+        "tail": "",
+        "forequarters": "",
+        "hindquarters": "",
+        "feet": "",
+        "movement": "",
+        "coat": "",
+        "color": ""
+      },
+      "temperament": {
+        "behavior": "Confident, people-oriented companion.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [],
+        "serious": [],
+        "disqualifying": []
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [
+          "Very compact heavy build",
+          "Short muscular frame",
+          "Bull-type head"
+        ],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Official WDF Breed Standard (PDF)",
+          "url": "https://wdf-international.org/page/16/",
+          "accessed_on": "2026-07-24"
+        }
+      ],
+      "internal_notes": "Standard WDF listat în arhiva de standarde (pagina 16 a site-ului WDF); nu are un link PDF direct la data culegerii. De completat când PDF-ul devine accesibil.",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "",
+      "source_verification_status": "",
+      "thematic_tags": [],
+      "study_track_tags": [],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
     }
   ],
   "lessons": [
