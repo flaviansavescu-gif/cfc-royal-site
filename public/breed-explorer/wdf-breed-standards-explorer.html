@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  CFCR Breed Standards Explorer
+  A local, browser-based WDF-oriented breed-standards explorer for professional
+  cynology work: breed-standard consultation, judge training, pedagogical
+  annotation, and structured reference use in a canine judges' school context.
+
+  ── FILE STRUCTURE ─────────────────────────────────────────────────────────
+    wdf-breed-standards-explorer.html   ← this file (open it in a browser)
+    assets/styles.css                   ← all styling (professional, print-ready)
+    assets/app.js                       ← app logic (data, state, rendering)
+    data/breeds.json                    ← canonical seed dataset (import/export target)
+    data/seed-data.js                   ← auto-generated mirror of breeds.json,
+                                          used as an OFFLINE fallback (see below)
+
+  ── HOW TO OPEN LOCALLY ─────────────────────────────────────────────────────
+    Simply double-click wdf-breed-standards-explorer.html to open it in your
+    browser. No server, no npm, no build step. Works fully offline.
+
+    Note on local files: many browsers block fetch() of local files over
+    file://. To guarantee the app works when opened directly, the seed dataset
+    is ALSO embedded via data/seed-data.js (loaded by the <script> tag below).
+    The app first tries to fetch data/breeds.json; if that is blocked, it falls
+    back to the embedded copy automatically. If you prefer the fetch path, serve
+    the folder with any static server (e.g. `python -m http.server`).
+
+  ── HOW TO IMPORT / EXPORT JSON ─────────────────────────────────────────────
+    • Export: click "Export JSON" (top bar). A file cfcr-breeds-YYYY-MM-DD.json
+      is downloaded containing ALL breeds and metadata. This is your canonical,
+      portable dataset — keep it safe and version it as you like.
+    • Import: click "Import JSON" and pick a file. It accepts either
+      { schema_version, meta, breeds:[...], lessons:[...] } or a bare array of
+      breed objects. The optional `lessons` array holds the curriculum
+      (lesson-to-breed/group links, objectives, reading). Both breeds and
+      lessons are carried through export and merge.
+      If the database already has breeds you are offered a choice:
+        – MERGE  : adds new standards and updates matching ones (matched by
+                   id first, then by breed name). A matched breed is replaced
+                   in full by the incoming record — upload complete standards.
+                   Use this to grow the database in batches over time.
+        – REPLACE: discards the current database and loads the file instead.
+      Favorites/recent are preserved where the ids still exist.
+    • Growth workflow: keep per-group or per-batch JSON files, import each with
+      MERGE, then Export JSON to save the consolidated canonical file.
+
+  ── WORD / DOCUMENT EXPORTS ─────────────────────────────────────────────────
+    Besides JSON (the data format), the app produces Word-ready .doc files that
+    open natively in Microsoft Word / LibreOffice (HTML-based .doc, no add-ons):
+      • Breed profile → "⬇ Word" (choose Full or Student-safe without private notes)
+      • Breed profile → "⬇ Revision sheet" (compact study sheet)
+      • Compare view → "⬇ Word" (side-by-side table, differences highlighted)
+      • Quiz/Exam    → "⬇ Export (Word)" and "📄 Printable exam" on the Quiz screen
+                       (Student handout, or Teacher version with answer key)
+    Every profile/comparison export carries a footer disclaimer and the source URL.
+    • The dataset in the app lives in memory during the session. Edits are NOT
+      auto-saved to disk — export to persist them. Only favorites, recently
+      viewed, and UI preferences are cached in localStorage for convenience.
+
+  ── WHERE TO EDIT SEED DATA ─────────────────────────────────────────────────
+    Edit data/breeds.json. After editing, regenerate the offline fallback so the
+    two stay in sync (run from the data/ folder):
+        {
+          printf 'window.__CFCR_SEED__ = ';
+          cat breeds.json;
+          printf ';\n';
+        } > seed-data.js
+    Or simply edit breeds through the app's Admin/Edit mode and Export JSON,
+    then replace data/breeds.json with the exported file.
+
+  ── DOMAIN NOTE ─────────────────────────────────────────────────────────────
+    The app is structured around the World Dog Federation (WDF) framework and
+    its group taxonomy. It is NOT structured around FCI. Descriptive text in the
+    seed dataset is a STRUCTURED DEMO DATASET (paraphrased general expectations),
+    not verbatim official standard wording — always verify against the official
+    source before examination or judging use.
+  ============================================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFCR Breed Standards Explorer</title>
+  <meta name="description" content="A WDF-oriented breed standards explorer for judge education, breed analysis, and professional cynology reference." />
+
+  <!-- PWA: installability & theming -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#2f5d50" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="CFCR Standards" />
+
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <!-- Header -->
+  <header class="app-header">
+    <button id="mobileNavToggle" class="btn btn-ghost mobile-nav-toggle" aria-label="Toggle navigation">☰</button>
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">BS</div>
+      <div class="brand-text">
+        <div class="brand-title">CFCR Breed Standards Explorer</div>
+        <div class="brand-sub">World Dog Federation framework</div>
+      </div>
+    </div>
+
+    <div class="global-search" role="search">
+      <span class="search-icon" aria-hidden="true">🔍</span>
+      <label for="globalSearch" class="visually-hidden">Search breeds, faults, anatomy, notes</label>
+      <input id="globalSearch" type="text" placeholder="Search breeds, faults, anatomy, pedagogy…  (press / to focus)" autocomplete="off" />
+    </div>
+
+    <div class="header-actions">
+      <button id="btnImport" class="btn btn-sm" title="Import JSON dataset">⭳ <span class="btn-label">Import JSON</span></button>
+      <button id="btnExport" class="btn btn-sm" title="Export JSON dataset">⭱ <span class="btn-label">Export JSON</span></button>
+      <button id="btnAdd" class="btn btn-sm btn-primary" title="Add new breed">＋ <span class="btn-label">Add breed</span></button>
+      <button id="btnInstall" class="btn btn-sm" title="Install this app" hidden>⤓ <span class="btn-label">Install app</span></button>
+      <input id="fileInput" type="file" accept="application/json,.json" class="visually-hidden" aria-hidden="true" tabindex="-1" />
+    </div>
+  </header>
+
+  <!-- App shell: sidebar + main + optional utility panel -->
+  <div class="app-shell" id="appShell">
+    <nav class="sidebar" aria-label="Primary">
+      <div id="sidebarNav"></div>
+    </nav>
+
+    <main class="main" id="main" tabindex="-1"></main>
+
+    <aside class="utility" id="utility" aria-label="Breed utilities" hidden></aside>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+
+  <!-- Embedded seed data (offline fallback) loaded before app.js -->
+  <script src="data/seed-data.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

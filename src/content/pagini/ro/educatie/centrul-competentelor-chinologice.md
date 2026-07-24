@@ -46,6 +46,22 @@ Cursurile sunt susținute de arbitri licențiați **World Dog Federation** din c
 <figure style="margin:0;width:140px;display:flex;flex-direction:column;align-items:center;text-align:center"><img src="/images/arbitri/alexandru-paul-ciolac.webp" alt="Alexandru Paul Ciolac" width="130" height="165" loading="lazy" style="display:block;width:130px;height:165px;object-fit:cover;object-position:center 22%;border-radius:var(--radius);border:1px solid var(--color-border)" /><figcaption style="margin-top:.6rem;line-height:1.35"><strong style="font-family:var(--font-serif);display:block;color:var(--color-primary)">Alexandru Paul Ciolac</strong><span style="font-size:.82rem;color:var(--color-text-muted)">Arbitru WDF · Grupele 2, 3, 4, 6, 8</span></figcaption></figure>
 </div>
 
+### Instrument de studiu — Explorator de standarde de rasă
+
+Pentru pregătirea candidaților și consultarea rapidă în timpul studiului, Centrul pune la dispoziție
+**CFCR Breed Standards Explorer** — o bază de standarde de rasă orientată World Dog Federation, cu
+studiu comparativ. Funcționează direct în browser și se poate **instala ca aplicație** pe telefon sau
+desktop; după prima deschidere merge și fără internet.
+
+<a href="/breed-explorer/" style="display:flex;gap:1rem;align-items:center;max-width:640px;text-decoration:none;background:var(--color-surface);border:1px solid var(--color-border);border-left:4px solid var(--color-primary);border-radius:var(--radius);padding:1.1rem 1.25rem;margin:1.1rem 0">
+<span style="flex:0 0 auto;width:54px;height:54px;border-radius:12px;background:var(--color-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-weight:700;font-size:20px">BS</span>
+<span style="flex:1 1 auto">
+<span style="display:block;font-family:var(--font-serif);font-weight:700;font-size:1.1rem;color:var(--color-primary)">CFCR Breed Standards Explorer</span>
+<span style="display:block;font-size:.9rem;color:var(--color-text-muted);margin-top:.2rem;line-height:1.45">Bază de standarde de rasă orientată WDF, pentru pregătirea arbitrilor, studiu comparativ și consultare rapidă. Se poate instala ca aplicație.</span>
+<span style="display:inline-block;margin-top:.6rem;font-size:.85rem;font-weight:700;color:var(--color-accent-dark)">Deschide aplicația →</span>
+</span>
+</a>
+
 ### Colaborare
 
 <div style="display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem;margin:1.25rem 0;padding:1.25rem;background:var(--color-surface-alt);border-radius:var(--radius)">

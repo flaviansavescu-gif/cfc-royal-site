@@ -21,6 +21,19 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# CFCR Breed Standards Explorer (PWA statică în /breed-explorer/). Service worker-ul și
+# manifestul NU se cache-uiesc, ca actualizările aplicației să ajungă imediat la useri
+# (Netlify servește deja .webmanifest ca application/manifest+json; .htaccess-ul inclus e
+# doar pentru găzduiri Apache și e inert aici).
+[[headers]]
+  for = "/breed-explorer/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/breed-explorer/manifest.webmanifest"
+  [headers.values]
+    Cache-Control = "no-cache"
+
 # Rădăcina (apex cfc-royal.ro) SERVEȘTE direct conținutul homepage-ului RO (rewrite 200, NU redirect).
 # Motiv: linkul scurt cfc-royal.ro trebuie să afișeze cardul social (WhatsApp/Facebook). Un redirect
 # (302 la edge sau meta-refresh) făcea roboții să nu genereze cardul. Cu rewrite, apex-ul returnează

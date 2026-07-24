@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<!--
+  Entry point for hosted deployment (e.g. https://cfc-royal.ro/breed-explorer/).
+  Redirects to the application file so the clean folder URL opens the app.
+  The canonical app remains wdf-breed-standards-explorer.html (also usable
+  directly via file:// for offline local use).
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="refresh" content="0; url=wdf-breed-standards-explorer.html" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#2f5d50" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png" />
+  <title>CFCR Breed Standards Explorer</title>
+  <style>
+    body { font-family: "Segoe UI", Roboto, Arial, sans-serif; background: #f4f5f3; color: #1e2320;
+           display: grid; place-items: center; min-height: 100vh; margin: 0; }
+    .card { text-align: center; }
+    .mark { width: 44px; height: 44px; border-radius: 10px; background: #2f5d50; color: #fff;
+            display: inline-grid; place-items: center; font-family: Georgia, serif; font-weight: 700; }
+    a { color: #1f463b; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="mark">BS</div>
+    <p>Opening the CFCR Breed Standards Explorer…</p>
+    <p><a href="wdf-breed-standards-explorer.html">Continue &rarr;</a></p>
+  </div>
+  <script>location.replace("wdf-breed-standards-explorer.html");</script>
+</body>
+</html>

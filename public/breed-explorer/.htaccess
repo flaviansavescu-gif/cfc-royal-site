@@ -1,0 +1,20 @@
+# CFCR Breed Standards Explorer — Apache hints (optional)
+# Most shared hosts are Apache; if yours is Nginx, ignore this file and set the
+# equivalents in your server config. Nothing here is required for the app to
+# work, but it improves PWA behaviour and update delivery.
+
+# Correct MIME type for the web app manifest
+AddType application/manifest+json .webmanifest
+
+# Never cache the service worker or the manifest, so updates are picked up fast
+<FilesMatch "(sw\.js|manifest\.webmanifest)$">
+  Header set Cache-Control "no-cache, no-store, must-revalidate"
+</FilesMatch>
+
+# Long-cache immutable static assets (icons); the app bumps CACHE_VERSION in sw.js
+<FilesMatch "\.(png|css|js)$">
+  Header set Cache-Control "public, max-age=604800"
+</FilesMatch>
+
+# Default document for the folder
+DirectoryIndex index.html wdf-breed-standards-explorer.html
