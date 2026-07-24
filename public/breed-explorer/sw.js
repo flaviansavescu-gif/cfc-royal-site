@@ -18,7 +18,7 @@
    fetch the new versions.
    ============================================================ */
 
-const CACHE_VERSION = "cfcr-v2.0.1";
+const CACHE_VERSION = "cfcr-v2.0.2";
 const CACHE_NAME = "cfcr-cache-" + CACHE_VERSION;
 
 // Paths are relative to the service worker scope (the app folder).

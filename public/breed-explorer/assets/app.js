@@ -3094,6 +3094,20 @@
      the app keeps running via the embedded seed fallback.
      --------------------------------------------------------- */
   let deferredInstallPrompt = null;
+  var INSTALL_UNLOCK_KEY = "bseInstalareDeblocata";
+
+  function instalareDeblocata() {
+    try { return localStorage.getItem(INSTALL_UNLOCK_KEY) === "1"; } catch (e) { return false; }
+  }
+  // Fără <link rel="manifest"> browserul NU oferă instalarea PWA. Îl injectăm doar
+  // după ce codul de instalare a fost validat (deblocare per dispozitiv).
+  function injecteazaManifest() {
+    if (document.querySelector('link[rel="manifest"]')) return;
+    var l = document.createElement("link");
+    l.rel = "manifest";
+    l.setAttribute("href", "manifest.webmanifest");
+    document.head.appendChild(l);
+  }
 
   function registerPWA() {
     const okProtocol = location.protocol === "https:" ||
@@ -3101,33 +3115,51 @@
     if ("serviceWorker" in navigator && okProtocol) {
       navigator.serviceWorker.register("sw.js").catch(function () { /* offline mode still works */ });
     }
+    if (instalareDeblocata()) injecteazaManifest();
 
     window.addEventListener("beforeinstallprompt", function (e) {
       e.preventDefault();
       deferredInstallPrompt = e;
-      const btn = $("#btnInstall");
-      if (btn) btn.hidden = false;
     });
-
     window.addEventListener("appinstalled", function () {
       deferredInstallPrompt = null;
       const btn = $("#btnInstall");
       if (btn) btn.hidden = true;
-      toast("App installed. You can now launch it from your device.", "ok");
+      toast("Aplicație instalată. O poți deschide de pe dispozitivul tău.", "ok");
     });
+
+    var standalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
+    var btn = $("#btnInstall");
+    if (btn && okProtocol && !standalone) btn.hidden = false;
+  }
+
+  function declanseazaInstalare() {
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      deferredInstallPrompt.userChoice.finally(function () {
+        deferredInstallPrompt = null;
+        const btn = $("#btnInstall");
+        if (btn) btn.hidden = true;
+      });
+    } else {
+      toast("Instalare deblocată. Dacă fereastra nu apare, folosește meniul browserului → „Instalează aplicația”.");
+    }
   }
 
   function promptInstall() {
-    if (!deferredInstallPrompt) {
-      toast("To install: use your browser menu → “Install app”. (Requires the app to be served over https, e.g. on cfc-royal.ro.)");
-      return;
-    }
-    deferredInstallPrompt.prompt();
-    deferredInstallPrompt.userChoice.finally(function () {
-      deferredInstallPrompt = null;
-      const btn = $("#btnInstall");
-      if (btn) btn.hidden = true;
-    });
+    if (instalareDeblocata()) { declanseazaInstalare(); return; }
+    var cod = window.prompt("Instalarea aplicației necesită un cod de instalare (primit de la CFC-Royal). Introdu codul:");
+    if (!cod) return;
+    fetch("/.netlify/functions/breed-instalare", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ actiune: "verifica", cod: String(cod).trim() }),
+    }).then(function (res) {
+      if (!res.ok) { toast("Cod de instalare incorect.", "warn"); return; }
+      try { localStorage.setItem(INSTALL_UNLOCK_KEY, "1"); } catch (e) {}
+      injecteazaManifest();
+      toast("Cod acceptat — se pregătește instalarea…", "ok");
+      setTimeout(declanseazaInstalare, 1000);
+    }).catch(function () { toast("Nu am putut verifica codul (ești online?).", "warn"); });
   }
 
   // Optional deep-link on load: #list / #compare / #dashboard / #admin

@@ -58,6 +58,14 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
   <p class="a-cand-count" id="a-cand-count" hidden></p>
   <ul class="a-cand-list" id="a-cand-list"></ul>
 
+  <h2 class="a-h2">Coduri de instalare — Breed Standards Explorer</h2>
+  <p class="a-anunt-info">Aplicația se poate <strong>instala</strong> pe dispozitiv doar cu un cod de instalare — diferit de codul de acces în platformă. Generezi un cod și îl dai persoanei care instalează. Consultarea online rămâne liberă pentru candidați.</p>
+  <div class="a-cand-form">
+    <input id="a-inst-eticheta" type="text" placeholder="Etichetă (opțional): pentru cine / ce dispozitiv" />
+    <button id="a-inst-gen" class="btn btn--primary" type="button">Generează cod de instalare</button>
+  </div>
+  <ul class="a-cand-list" id="a-inst-list"></ul>
+
   <h2 class="a-h2">Spațiile lectorilor</h2>
   <ul class="a-list">
     {LECTORI.map((l) => (
@@ -324,6 +332,51 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
     });
 
     incarcaCandidati();
+
+    // ——— Coduri de instalare (Breed Standards Explorer) ———
+    async function instCere(payload) {
+      const res = await fetch("/.netlify/functions/breed-instalare", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.eroare || "Eroare");
+      return data;
+    }
+    async function incarcaInstalare() {
+      const list = document.getElementById("a-inst-list");
+      list.textContent = "";
+      let coduri = [];
+      try { coduri = await instCere({ actiune: "lista" }); } catch (e) {
+        const li = document.createElement("li"); li.className = "a-cand-empty"; li.textContent = "Nu am putut încărca codurile de instalare."; list.appendChild(li); return;
+      }
+      if (!coduri.length) { const li = document.createElement("li"); li.className = "a-cand-empty"; li.textContent = "Niciun cod de instalare generat încă."; list.appendChild(li); return; }
+      coduri.forEach((c) => list.appendChild(randInstalare(c)));
+    }
+    function randInstalare(c) {
+      const li = document.createElement("li");
+      const info = document.createElement("div"); info.className = "a-cand-info";
+      const cod = document.createElement("code"); cod.className = "a-cand-cod"; cod.textContent = c.cod;
+      info.appendChild(cod);
+      if (c.eticheta) { const et = document.createElement("span"); et.className = "a-cand-meta"; et.innerHTML = "<span>" + c.eticheta.replace(/[&<>]/g, "") + "</span>"; info.appendChild(et); }
+      const copy = document.createElement("button"); copy.className = "btn btn--small btn--outline"; copy.textContent = "Copiază";
+      copy.addEventListener("click", async () => { try { await navigator.clipboard.writeText(c.cod); copy.textContent = "Copiat ✓"; setTimeout(() => (copy.textContent = "Copiază"), 1500); } catch (e) { alert("Cod: " + c.cod); } });
+      const del = document.createElement("button"); del.className = "btn btn--small btn--danger"; del.textContent = "Revocă";
+      del.addEventListener("click", async () => { if (!confirm("Revoci codul „" + c.cod + "”? Nu va mai permite instalarea.")) return; del.disabled = true; try { await instCere({ actiune: "revoca", id: c.id }); incarcaInstalare(); } catch (err) { alert("Nu am putut revoca: " + err.message); del.disabled = false; } });
+      li.appendChild(info); li.appendChild(copy); li.appendChild(del);
+      return li;
+    }
+    document.getElementById("a-inst-gen").addEventListener("click", async () => {
+      const btn = document.getElementById("a-inst-gen"); btn.disabled = true; btn.textContent = "Se generează…";
+      try {
+        const d = await instCere({ actiune: "genereaza", eticheta: document.getElementById("a-inst-eticheta").value.trim() });
+        document.getElementById("a-inst-eticheta").value = "";
+        incarcaInstalare();
+        if (d.cod) alert("Cod de instalare generat:\n\n" + d.cod.cod + "\n\nDă-l persoanei care instalează aplicația. Cu el, din butonul „Install app”, aplicația se poate instala pe dispozitiv.");
+      } catch (err) { alert("Nu am putut genera: " + err.message); }
+      finally { btn.disabled = false; btn.textContent = "Generează cod de instalare"; }
+    });
+    incarcaInstalare();
 
     inputs.forEach((inp) => {
       inp.addEventListener("change", async () => {
