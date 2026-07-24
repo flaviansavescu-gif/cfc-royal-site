@@ -1,0 +1,78 @@
+---
+// /cursuri/admin/analiza/ — Judge Comparison Room: lista de sesiuni a lectorului + creare.
+import CursuriLayout from "../../../../layouts/CursuriLayout.astro";
+import { ADMIN_HASH, LECTORI } from "../../../../data/cursuri";
+const allow = [ADMIN_HASH, ...LECTORI.map((l) => l.hash)];
+---
+
+<CursuriLayout title="Sesiuni de analiză" allow={allow}>
+  <p class="j-eyebrow">Judge Comparison Room · Lector</p>
+  <h1 class="j-title">Sesiuni de analiză</h1>
+  <p class="j-sub">Creezi o sesiune, adaugi resursa și rubrica, definești baremul, selectezi candidații și publici. Cursanții răspund individual, apoi compară cu baremul.</p>
+
+  <p class="j-actiuni">
+    <a class="btn btn--outline" href="/cursuri/admin/">← Panoul platformei</a>
+    <button class="btn btn--primary" id="j-nou" type="button">+ Sesiune nouă</button>
+  </p>
+
+  <p class="j-stare" id="j-stare">Se încarcă…</p>
+  <ul class="j-list" id="j-list" hidden></ul>
+</CursuriLayout>
+
+<script is:inline>
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const STATUS = { draft: "Schiță", published: "Publicată", closed: "Închisă", archived: "Arhivată" };
+    function cod() { try { return localStorage.getItem("cfcrAccesCod"); } catch (e) { return null; } }
+    async function api(p) { const r = await fetch("/.netlify/functions/jcr-sesiuni", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cod: cod(), ...p }) }); const d = await r.json().catch(() => ({})); if (!r.ok) throw new Error(d.eroare || "Eroare"); return d; }
+
+    async function incarca() {
+      try {
+        const d = await api({ actiune: "lista" });
+        const list = $("j-list");
+        list.innerHTML = "";
+        if (!d.sesiuni.length) { $("j-stare").textContent = "Nicio sesiune creată încă."; $("j-stare").hidden = false; list.hidden = true; return; }
+        $("j-stare").hidden = true; list.hidden = false;
+        d.sesiuni.forEach((s) => {
+          const li = document.createElement("li"); li.className = "j-card";
+          li.innerHTML =
+            '<div class="j-card__body"><strong>' + esc(s.titlu) + '</strong>' +
+            '<span class="j-meta">' + [s.rasa, s.grupa, s.nivel].filter(Boolean).map(esc).join(" · ") + '</span>' +
+            '<span class="j-badges"><span class="j-badge st-' + s.status + '">' + (STATUS[s.status] || s.status) + '</span>' +
+            (s.termen ? '<span class="j-badge">termen ' + esc(s.termen) + '</span>' : '') + '</span></div>' +
+            '<a class="btn btn--small" href="/cursuri/admin/analiza/sesiune/?s=' + encodeURIComponent(s.id) + '">Deschide →</a>';
+          list.appendChild(li);
+        });
+      } catch (err) { $("j-stare").textContent = "Nu am putut încărca: " + err.message; }
+    }
+
+    $("j-nou").addEventListener("click", async () => {
+      const titlu = prompt("Titlul sesiunii de analiză:");
+      if (!titlu || titlu.trim().length < 3) return;
+      try { const d = await api({ actiune: "creaza", sesiune: { titlu: titlu.trim() } }); location.href = "/cursuri/admin/analiza/sesiune/?s=" + encodeURIComponent(d.sesiune.id); }
+      catch (err) { alert("Nu am putut crea: " + err.message); }
+    });
+
+    incarca();
+  })();
+</script>
+
+<style>
+  .j-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .j-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
+  .j-sub { color: var(--color-text-muted); max-width: 48rem; }
+  .j-actiuni { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 1.25rem 0; }
+  .j-stare { color: var(--color-text-muted); font-style: italic; }
+  .j-list { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 0.7rem; }
+  .j-card { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.9rem 1.2rem; }
+  .j-card__body { flex: 1 1 16rem; display: flex; flex-direction: column; gap: 0.3rem; }
+  .j-card__body strong { color: var(--color-primary); }
+  .j-meta { font-size: 0.85rem; color: var(--color-text-muted); }
+  .j-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .j-badge { font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); }
+  .j-badge.st-published { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
+  .j-badge.st-closed { background: var(--color-surface-alt); }
+  .j-badge.st-draft { background: #fdf4e3; border-color: #e6cf9a; color: #8a6d1f; }
+  .btn--small { font-size: 0.85rem; padding: 0.45rem 0.9rem; }
+</style>

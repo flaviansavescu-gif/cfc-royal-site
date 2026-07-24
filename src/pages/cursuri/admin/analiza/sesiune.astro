@@ -1,0 +1,282 @@
+---
+// /cursuri/admin/analiza/sesiune/?s=<id> — editorul lectorului pentru o sesiune JCR.
+import CursuriLayout from "../../../../layouts/CursuriLayout.astro";
+import { ADMIN_HASH, LECTORI } from "../../../../data/cursuri";
+const allow = [ADMIN_HASH, ...LECTORI.map((l) => l.hash)];
+---
+
+<CursuriLayout title="Editor sesiune" allow={allow}>
+  <p class="j-actiuni"><a class="btn btn--outline btn--small" href="/cursuri/admin/analiza/">← Toate sesiunile</a></p>
+  <p class="j-stare" id="j-stare">Se încarcă…</p>
+
+  <div id="j-wrap" hidden>
+    <div class="j-head">
+      <div><p class="j-eyebrow">Judge Comparison Room · Lector</p><h1 class="j-title" id="j-titlu"></h1></div>
+      <span class="j-status" id="j-status"></span>
+    </div>
+    <div class="j-toolbar" id="j-toolbar"></div>
+    <p class="j-msg" id="j-msg" role="status" hidden></p>
+
+    <details class="j-sec" open><summary>1. Metadate</summary>
+      <div class="j-grid2">
+        <label class="j-field"><span>Titlu *</span><input id="m-titlu" /></label>
+        <label class="j-field"><span>Rasă</span><input id="m-rasa" /></label>
+        <label class="j-field"><span>Grupă</span><input id="m-grupa" /></label>
+        <label class="j-field"><span>Nivel</span><input id="m-nivel" placeholder="ex. începător / avansat" /></label>
+        <label class="j-field"><span>Termen</span><input id="m-termen" type="date" /></label>
+        <label class="j-field"><span>Timp recomandat (min, informativ)</span><input id="m-timp" type="number" min="0" max="600" /></label>
+        <label class="j-field"><span>Standard WDF — versiune</span><input id="m-std-ver" placeholder="ex. 2023" /></label>
+        <label class="j-field"><span>Standard WDF — sursă</span><input id="m-std-src" placeholder="URL / titlu standard" /></label>
+      </div>
+      <label class="j-field"><span>Descriere</span><textarea id="m-desc" rows="2"></textarea></label>
+      <label class="j-field"><span>Obiective pedagogice</span><textarea id="m-obj" rows="2"></textarea></label>
+    </details>
+
+    <details class="j-sec"><summary>2. Rubrică (criterii de observație)</summary>
+      <div id="m-criterii"></div>
+      <button type="button" class="btn btn--small" id="m-criteriu-add">+ Criteriu</button>
+    </details>
+
+    <details class="j-sec"><summary>3. Exemplare (pentru clasament)</summary>
+      <p class="j-hint">Adaugă cel puțin 2 exemplare dacă sesiunea cere clasament. Lasă gol pentru un singur câine.</p>
+      <div id="m-exemplare"></div>
+      <button type="button" class="btn btn--small" id="m-exemplar-add">+ Exemplar</button>
+    </details>
+
+    <p class="j-actiuni"><button type="button" class="btn btn--primary" id="m-salveaza">Salvează metadatele, rubrica și exemplarele</button></p>
+
+    <details class="j-sec"><summary>4. Imagini (resursa didactică)</summary>
+      <p class="j-hint">JPEG/PNG/WebP, max ~2 MB. Se pot adăuga doar cât sesiunea e în schiță.</p>
+      <div id="m-imagini" class="j-imgs"></div>
+      <label class="j-field"><span>Adaugă imagine</span><input type="file" id="m-file" accept="image/jpeg,image/png,image/webp" /></label>
+      <input id="m-alt" placeholder="Text alternativ (descriere imagine)" class="j-alt" />
+    </details>
+
+    <details class="j-sec"><summary>5. Participanți (selecție explicită)</summary>
+      <p class="j-hint" id="m-part-n"></p>
+      <div id="m-participanti" class="j-part"></div>
+      <button type="button" class="btn btn--small btn--primary" id="m-part-save">Salvează participanții</button>
+    </details>
+
+    <details class="j-sec"><summary>6. Barem (evaluarea de referință — ascunsă cursanților)</summary>
+      <label class="j-field"><span>Calificativ de referință</span><select id="b-calificativ"><option value="">—</option></select></label>
+      <fieldset class="j-fieldset"><legend>Defecte așteptate</legend><div id="b-defecte"></div><button type="button" class="btn btn--small" id="b-defect-add">+ Defect</button></fieldset>
+      <fieldset class="j-fieldset"><legend>Observații pe criterii</legend><div id="b-observatii"></div></fieldset>
+      <fieldset class="j-fieldset" id="b-clas-wrap" hidden><legend>Clasament de referință (locul fiecărui exemplar)</legend><div id="b-clasament"></div></fieldset>
+      <label class="j-field"><span>Explicații generale (referințe la standard)</span><textarea id="b-explicatii" rows="3"></textarea></label>
+      <button type="button" class="btn btn--primary" id="b-salveaza">Salvează baremul</button>
+    </details>
+
+    <details class="j-sec"><summary>7. Rezultate: răspunsuri, comparație de grup, feedback</summary>
+      <button type="button" class="btn btn--small" id="r-incarca">Încarcă rezultatele</button>
+      <div id="r-out"></div>
+    </details>
+  </div>
+</CursuriLayout>
+
+<script is:inline>
+  (async function () {
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const id = new URLSearchParams(location.search).get("s");
+    const CALIF = ["Excellent", "Very Good", "Good", "Sufficient", "Insufficient", "Disqualified", "Not Judgeable"];
+    const GRAV = [["minor", "Minor"], ["grav", "Grav"], ["eliminator", "Eliminator"]];
+    function cod() { try { return localStorage.getItem("cfcrAccesCod"); } catch (e) { return null; } }
+    async function api(fn, p) { const r = await fetch("/.netlify/functions/" + fn, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cod: cod(), id, ...p }) }); const d = await r.json().catch(() => ({})); if (!r.ok) throw new Error(d.eroare || "Eroare"); return d; }
+    function mesaj(txt, ok) { const m = $("j-msg"); m.hidden = false; m.className = "j-msg " + (ok ? "is-ok" : "is-err"); m.textContent = txt; setTimeout(() => { m.hidden = true; }, 4000); }
+    if (!id) { $("j-stare").textContent = "Sesiune invalidă."; return; }
+
+    let S, barem, participanti = [];
+    try {
+      const d = await api("jcr-sesiuni", { actiune: "detalii" });
+      S = d.sesiune; participanti = d.participanti || [];
+      barem = (await api("jcr-barem", { actiune: "citeste" })).barem || {};
+    } catch (err) { $("j-stare").textContent = "Nu am putut deschide: " + err.message; return; }
+
+    $("j-stare").hidden = true; $("j-wrap").hidden = false;
+    render();
+
+    function render() {
+      $("j-titlu").textContent = S.titlu || "(fără titlu)";
+      const ST = { draft: "Schiță", published: "Publicată", closed: "Închisă", archived: "Arhivată" };
+      $("j-status").textContent = ST[S.status] || S.status; $("j-status").className = "j-status st-" + S.status;
+      // toolbar
+      const tb = $("j-toolbar"); tb.innerHTML = "";
+      const btn = (txt, cls, fn) => { const b = document.createElement("button"); b.className = "btn btn--small " + cls; b.textContent = txt; b.addEventListener("click", fn); tb.appendChild(b); };
+      if (S.status === "draft") btn("Publică sesiunea", "btn--primary", () => actiuneStatus("publica"));
+      if (S.status === "published") btn("Închide sesiunea", "", () => actiuneStatus("inchide"));
+      if (S.status === "closed" || S.status === "published") btn(S.baremDeblocat ? "Barem deblocat ✓" : "Deblochează baremul", "", () => deblocheaza());
+      if (S.status !== "archived") btn("Arhivează", "btn--danger", () => actiuneStatus("arhiveaza"));
+      // metadate
+      $("m-titlu").value = S.titlu || ""; $("m-rasa").value = S.rasa || ""; $("m-grupa").value = S.grupa || "";
+      $("m-nivel").value = S.nivel || ""; $("m-termen").value = S.termen || ""; $("m-timp").value = S.timpLimitaMin || "";
+      $("m-desc").value = S.descriere || ""; $("m-obj").value = S.obiective || "";
+      $("m-std-ver").value = S.wdfStandard?.versiune || ""; $("m-std-src").value = S.wdfStandard?.sursa || "";
+      // criterii / exemplare
+      $("m-criterii").innerHTML = ""; (S.criterii || []).forEach(randCriteriu); if (!(S.criterii || []).length) randCriteriu();
+      $("m-exemplare").innerHTML = ""; (S.exemplare || []).forEach(randExemplar);
+      // imagini
+      renderImagini();
+      // participanti
+      renderParticipanti();
+      // barem
+      $("b-calificativ").innerHTML = '<option value="">—</option>' + CALIF.map((c) => '<option' + (barem.calificativ === c ? " selected" : "") + '>' + c + '</option>').join("");
+      $("b-defecte").innerHTML = ""; (barem.defecte || []).forEach(randBDefect); if (!(barem.defecte || []).length) randBDefect();
+      renderBObservatii(); renderBClasament();
+      $("b-explicatii").value = barem.explicatii || "";
+    }
+
+    // —— rubrică ——
+    function randCriteriu(c) { const row = document.createElement("div"); row.className = "j-row"; row.innerHTML = '<input class="c-et" placeholder="Etichetă criteriu (ex. Cap)" /><input class="c-zo" placeholder="Zonă (opțional)" /><button type="button" class="btn btn--small btn--danger">✕</button>'; if (c) { row.querySelector(".c-et").value = c.eticheta || ""; row.querySelector(".c-zo").value = c.zona || ""; row.dataset.id = c.id || ""; } row.querySelector("button").addEventListener("click", () => row.remove()); $("m-criterii").appendChild(row); }
+    $("m-criteriu-add").addEventListener("click", () => randCriteriu());
+    function culegeCriterii() { return [...$("m-criterii").querySelectorAll(".j-row")].map((r, i) => ({ id: r.dataset.id || ("c" + (i + 1)), eticheta: r.querySelector(".c-et").value.trim(), zona: r.querySelector(".c-zo").value.trim() })).filter((c) => c.eticheta); }
+
+    // —— exemplare ——
+    function randExemplar(e) { const row = document.createElement("div"); row.className = "j-row"; row.innerHTML = '<input class="e-et" placeholder="Etichetă exemplar (ex. Câine A)" /><button type="button" class="btn btn--small btn--danger">✕</button>'; if (e) { row.querySelector(".e-et").value = e.eticheta || ""; row.dataset.id = e.id || ""; } row.querySelector("button").addEventListener("click", () => row.remove()); $("m-exemplare").appendChild(row); }
+    $("m-exemplar-add").addEventListener("click", () => randExemplar());
+    function culegeExemplare() { return [...$("m-exemplare").querySelectorAll(".j-row")].map((r, i) => ({ id: r.dataset.id || ("e" + (i + 1)), eticheta: r.querySelector(".e-et").value.trim() })).filter((e) => e.eticheta); }
+
+    // —— salvare metadate ——
+    $("m-salveaza").addEventListener("click", async () => {
+      const sesiune = {
+        titlu: $("m-titlu").value.trim(), rasa: $("m-rasa").value.trim(), grupa: $("m-grupa").value.trim(),
+        nivel: $("m-nivel").value.trim(), termen: $("m-termen").value, timpLimitaMin: $("m-timp").value,
+        descriere: $("m-desc").value.trim(), obiective: $("m-obj").value.trim(),
+        wdfStandard: { versiune: $("m-std-ver").value.trim(), sursa: $("m-std-src").value.trim(), status: "current" },
+        criterii: culegeCriterii(), exemplare: culegeExemplare(),
+      };
+      try { const d = await api("jcr-sesiuni", { actiune: "salveaza", sesiune }); S = d.sesiune; mesaj("Salvat.", true); render(); }
+      catch (err) { mesaj(err.message, false); }
+    });
+
+    async function actiuneStatus(a) {
+      if (a === "arhiveaza" && !confirm("Arhivezi sesiunea?")) return;
+      try { const d = await api("jcr-sesiuni", { actiune: a }); S.status = d.status; S.baremDeblocat = d.baremDeblocat; mesaj("Stare: " + S.status, true); render(); }
+      catch (err) { mesaj(err.message, false); }
+    }
+    async function deblocheaza() { if (!confirm("Deblochezi baremul pentru cursanți? Vor putea vedea comparația.")) return; try { const d = await api("jcr-barem", { actiune: "deblocheaza" }); S.baremDeblocat = d.baremDeblocat; mesaj("Barem deblocat.", true); render(); } catch (err) { mesaj(err.message, false); } }
+
+    // —— imagini ——
+    function renderImagini() {
+      const box = $("m-imagini"); box.innerHTML = "";
+      (S.imagini || []).forEach((im) => {
+        const d = document.createElement("div"); d.className = "j-imgcard"; d.textContent = "🖼️ " + (im.alt || im.mediaId);
+        const del = document.createElement("button"); del.className = "btn btn--small btn--danger"; del.textContent = "Șterge";
+        del.addEventListener("click", async () => { try { const r = await api("jcr-resurse", { actiune: "sterge", mediaId: im.mediaId }); S.imagini = r.imagini; renderImagini(); } catch (e) { mesaj(e.message, false); } });
+        d.appendChild(del); box.appendChild(d);
+      });
+    }
+    $("m-file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = async () => { try { const r = await api("jcr-resurse", { actiune: "upload", dataUrl: rd.result, alt: $("m-alt").value.trim() }); S.imagini = r.imagini; $("m-file").value = ""; $("m-alt").value = ""; renderImagini(); mesaj("Imagine adăugată.", true); } catch (err) { mesaj(err.message, false); } };
+      rd.readAsDataURL(f);
+    });
+
+    // —— participanti ——
+    let candidati = [];
+    async function renderParticipanti() {
+      if (!candidati.length) { try { candidati = (await api("jcr-sesiuni", { actiune: "candidati" })).candidati; } catch (e) {} }
+      const box = $("m-participanti"); box.innerHTML = "";
+      const set = new Set(participanti);
+      candidati.forEach((c) => { const l = document.createElement("label"); l.className = "j-check"; l.innerHTML = '<input type="checkbox" value="' + esc(c.id) + '"' + (set.has(c.id) ? " checked" : "") + '/> ' + esc(c.nume); box.appendChild(l); });
+      $("m-part-n").textContent = participanti.length + " selectați din " + candidati.length + " candidați.";
+    }
+    $("m-part-save").addEventListener("click", async () => {
+      const ids = [...$("m-participanti").querySelectorAll("input:checked")].map((i) => i.value);
+      try { const d = await api("jcr-sesiuni", { actiune: "participanti", candidateIds: ids }); participanti = d.participanti; renderParticipanti(); mesaj("Participanți salvați.", true); } catch (err) { mesaj(err.message, false); }
+    });
+
+    // —— barem ——
+    function randBDefect(d) { const row = document.createElement("div"); row.className = "j-row j-row--3"; row.innerHTML = '<input class="bd-cod" placeholder="Cod defect" /><select class="bd-grav">' + GRAV.map((g) => '<option value="' + g[0] + '">' + g[1] + '</option>').join("") + '</select><input class="bd-exp" placeholder="Explicație / referință standard" /><button type="button" class="btn btn--small btn--danger">✕</button>'; if (d) { row.querySelector(".bd-cod").value = d.cod || ""; row.querySelector(".bd-grav").value = d.gravitate || "minor"; row.querySelector(".bd-exp").value = d.explicatie || ""; } row.querySelector("button").addEventListener("click", () => row.remove()); $("b-defecte").appendChild(row); }
+    $("b-defect-add").addEventListener("click", () => randBDefect());
+    const bObs = {};
+    function renderBObservatii() { const box = $("b-observatii"); box.innerHTML = ""; const crit = culegeCriterii(); if (!crit.length) { box.innerHTML = '<p class="j-hint">Definește întâi rubrica (secțiunea 2) și salvează.</p>'; return; } crit.forEach((c) => { const row = document.createElement("label"); row.className = "j-field"; row.innerHTML = "<span>" + esc(c.eticheta) + "</span>"; const ta = document.createElement("textarea"); ta.rows = 2; const ex = (barem.observatii || []).find((o) => o.criteriuId === c.id); if (ex) ta.value = ex.text || ""; ta.dataset.id = c.id; ta.dataset.et = c.eticheta; row.appendChild(ta); box.appendChild(row); bObs[c.id] = ta; }); }
+    function renderBClasament() { const ex = culegeExemplare(); const wrap = $("b-clas-wrap"); if (ex.length < 2) { wrap.hidden = true; return; } wrap.hidden = false; const box = $("b-clasament"); box.innerHTML = ""; ex.forEach((e) => { const row = document.createElement("label"); row.className = "j-rank"; row.innerHTML = "<span>" + esc(e.eticheta) + "</span>"; const inp = document.createElement("input"); inp.type = "number"; inp.min = "1"; inp.max = String(ex.length); inp.dataset.ex = e.id; const pos = (barem.clasament || []).indexOf(e.id); if (pos >= 0) inp.value = pos + 1; row.appendChild(inp); box.appendChild(row); }); }
+    $("b-salveaza").addEventListener("click", async () => {
+      const defecte = [...$("b-defecte").querySelectorAll(".j-row")].map((r) => ({ cod: r.querySelector(".bd-cod").value.trim(), gravitate: r.querySelector(".bd-grav").value, explicatie: r.querySelector(".bd-exp").value.trim() })).filter((d) => d.cod);
+      const observatii = Object.entries(bObs).map(([cid2, ta]) => ({ criteriuId: cid2, eticheta: ta.dataset.et, text: ta.value.trim() })).filter((o) => o.text);
+      const clasament = [...$("b-clasament").querySelectorAll("input")].map((i) => ({ ex: i.dataset.ex, r: +i.value || 999 })).sort((a, b) => a.r - b.r).filter((x) => x.r < 999).map((x) => x.ex);
+      try { const d = await api("jcr-barem", { actiune: "salveaza", barem: { calificativ: $("b-calificativ").value, defecte, observatii, clasament, explicatii: $("b-explicatii").value.trim() } }); barem = d.barem; mesaj("Barem salvat.", true); } catch (err) { mesaj(err.message, false); }
+    });
+
+    // —— rezultate + comparație grup + feedback ——
+    $("r-incarca").addEventListener("click", async () => {
+      const out = $("r-out"); out.innerHTML = "Se încarcă…";
+      try {
+        const grup = await api("jcr-comparatie", { actiune: "grup" });
+        const raspunsuri = (await api("jcr-sesiuni", { actiune: "raspunsuri" })).raspunsuri;
+        let html = "<h3 class='j-h3'>Comparație de grup (" + grup.total + " răspunsuri)</h3>";
+        html += "<p class='j-hint'>Spearman mediu: <strong>" + (grup.spearmanMediu == null ? "—" : grup.spearmanMediu) + "</strong></p>";
+        html += "<p><strong>Distribuția calificativelor:</strong> " + (Object.entries(grup.distributieCalificativ).map(([k, v]) => esc(k) + ": " + v).join(" · ") || "—") + "</p>";
+        html += "<p><strong>Defecte frecvent omise:</strong> " + (grup.defecteFrecventOmise.map((d) => esc(d.cod) + " (" + d.n + ")").join(" · ") || "—") + "</p>";
+        html += "<table class='j-tab'><thead><tr><th>Cursant</th><th>Calificativ</th><th>Acord calif.</th><th>Clasament</th><th>Defecte (acord/omise)</th></tr></thead><tbody>";
+        grup.perCursant.forEach((p) => { html += "<tr><td>" + esc(p.eticheta) + "</td><td>" + esc(p.calificativ) + "</td><td>" + esc(p.acordCalificativ) + "</td><td>" + esc(p.acordClasament) + (p.spearman != null ? " (ρ " + p.spearman + ")" : "") + "</td><td>" + p.defecteAcord + " / " + p.defecteOmise + "</td></tr>"; });
+        html += "</tbody></table>";
+        // Feedback colectiv
+        html += "<h3 class='j-h3'>Feedback colectiv</h3><textarea id='fb-grup' rows='3' style='width:100%'></textarea><div class='j-actiuni'><button type='button' class='btn btn--small' id='fb-grup-save'>Salvează (nepublicat)</button><button type='button' class='btn btn--small btn--primary' id='fb-grup-pub'>Publică</button></div>";
+        // Feedback individual
+        html += "<h3 class='j-h3'>Feedback individual</h3><div id='fb-ind'></div>";
+        out.innerHTML = html;
+        // wire feedback grup
+        const fbAll = await api("jcr-feedback", { actiune: "citeste" });
+        if (fbAll.grup) $("fb-grup").value = fbAll.grup.text || "";
+        const salvGrup = (pub) => async () => { try { await api("jcr-feedback", { actiune: "salveaza", tip: "grup", text: $("fb-grup").value, publicat: pub }); mesaj(pub ? "Feedback colectiv publicat." : "Salvat.", true); } catch (e) { mesaj(e.message, false); } };
+        $("fb-grup-save").addEventListener("click", salvGrup(false));
+        $("fb-grup-pub").addEventListener("click", salvGrup(true));
+        // individual
+        const box = $("fb-ind");
+        raspunsuri.filter((r) => r.status === "submitted").forEach((r) => {
+          const wrap = document.createElement("div"); wrap.className = "j-fbind";
+          const existing = (fbAll.individual || {})[r.candidatId];
+          wrap.innerHTML = "<strong>" + esc(r.candidatNume) + "</strong>";
+          const ta = document.createElement("textarea"); ta.rows = 2; ta.style.width = "100%"; if (existing) ta.value = existing.text || "";
+          const b = document.createElement("button"); b.className = "btn btn--small btn--primary"; b.textContent = "Publică feedback";
+          b.addEventListener("click", async () => { try { await api("jcr-feedback", { actiune: "salveaza", tip: "individual", candidatId: r.candidatId, text: ta.value, publicat: true }); mesaj("Publicat pentru " + r.candidatNume, true); } catch (e) { mesaj(e.message, false); } });
+          wrap.appendChild(ta); wrap.appendChild(b); box.appendChild(wrap);
+        });
+      } catch (err) { out.innerHTML = "<p class='j-hint'>" + esc(err.message) + "</p>"; }
+    });
+  })();
+</script>
+
+<style>
+  .j-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .j-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.25rem 0 0; }
+  .j-stare { color: var(--color-text-muted); font-style: italic; }
+  .j-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .j-status { font-size: 0.78rem; padding: 0.3rem 0.7rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); white-space: nowrap; }
+  .j-status.st-published { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
+  .j-status.st-draft { background: #fdf4e3; border-color: #e6cf9a; color: #8a6d1f; }
+  .j-toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; }
+  .j-actiuni { display: flex; gap: 0.6rem; flex-wrap: wrap; margin: 1rem 0; }
+  .j-msg { padding: 0.6rem 0.9rem; border-radius: var(--radius); }
+  .j-msg.is-ok { background: #eaf5ec; border: 1px solid #b6dcbf; color: #1f5130; }
+  .j-msg.is-err { background: #fbeaec; border: 1px solid #e2b6bd; color: #8c1d2f; }
+  .j-sec { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.5rem 1rem; margin-bottom: 0.8rem; }
+  .j-sec > summary { font-family: var(--font-serif); font-weight: 700; color: var(--color-primary); cursor: pointer; padding: 0.5rem 0; }
+  .j-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  @media (max-width: 640px) { .j-grid2 { grid-template-columns: 1fr; } }
+  .j-field { display: flex; flex-direction: column; gap: 0.25rem; margin: 0.5rem 0; }
+  .j-field > span { font-weight: 600; font-size: 0.85rem; }
+  .j-field input, .j-field select, .j-field textarea { padding: 0.5rem 0.65rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; width: 100%; }
+  .j-hint { font-size: 0.85rem; color: var(--color-text-muted); }
+  .j-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; margin-bottom: 0.4rem; }
+  .j-row--3 { grid-template-columns: 1fr auto 2fr auto; }
+  .j-row input, .j-row select { padding: 0.45rem 0.6rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
+  .j-fieldset { border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.8rem; margin: 0.6rem 0; }
+  .j-fieldset legend { font-weight: 700; font-size: 0.85rem; color: var(--color-primary); padding: 0 0.4rem; }
+  .j-rank { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.3rem; }
+  .j-rank input { width: 5rem; padding: 0.4rem; border: 1px solid var(--color-border); border-radius: var(--radius); }
+  .j-imgs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem; }
+  .j-imgcard { display: flex; align-items: center; gap: 0.5rem; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.4rem 0.7rem; font-size: 0.85rem; }
+  .j-alt { padding: 0.5rem 0.65rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; width: 100%; margin-top: 0.4rem; }
+  .j-part { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.35rem; margin: 0.5rem 0; }
+  .j-check { display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; }
+  .j-h3 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.05rem; margin: 1.2rem 0 0.4rem; }
+  .j-tab { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.5rem; }
+  .j-tab th, .j-tab td { text-align: left; padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--color-border); }
+  .j-fbind { border-top: 1px solid var(--color-border); padding: 0.6rem 0; display: flex; flex-direction: column; gap: 0.4rem; align-items: flex-start; }
+  .btn--small { font-size: 0.85rem; padding: 0.4rem 0.8rem; }
+  .btn--danger { color: #8c1d2f; }
+</style>
