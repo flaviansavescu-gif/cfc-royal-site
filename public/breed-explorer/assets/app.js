@@ -482,8 +482,20 @@
   /* ---------------------------------------------------------
      Routing
      --------------------------------------------------------- */
+  // Pagina de Admin / Edit este accesibilă DOAR local (pe calculatorul redactorului) —
+  // decizie CFC-Royal: online, pe cfc-royal.ro, aplicația e doar de consultare, iar
+  // editarea raselor se face din copia locală. Fără server, aceasta e granița practică.
+  var ADMIN_ENABLED = (function () {
+    try {
+      var h = location.hostname;
+      return location.protocol === "file:" || h === "localhost" || h === "127.0.0.1" ||
+             h === "::1" || h === "" || /\.local$/.test(h);
+    } catch (e) { return false; }
+  })();
+
   function navigate(view, opts) {
     opts = opts || {};
+    if ((view === "admin" || view === "editor") && !ADMIN_ENABLED) view = "dashboard";
     state.view = view;
     if (view === "profile" && opts.id) {
       state.currentBreedId = opts.id;
@@ -542,9 +554,9 @@
       { group: "Learn" },
       { id: "quiz", icon: "◎", label: "Quiz & Exam" },
       { id: "curriculum", icon: "▤", label: "Curriculum", count: state.lessons.length },
-      { group: "Manage" },
-      { id: "admin", icon: "✎", label: "Admin / Edit" },
     ];
+    // Admin / Edit apare doar când aplicația rulează local (vezi ADMIN_ENABLED).
+    if (ADMIN_ENABLED) items.push({ group: "Manage" }, { id: "admin", icon: "✎", label: "Admin / Edit" });
     items.forEach((it) => {
       if (it.group) { nav.appendChild(el("div", { class: "nav-group-label", text: it.group })); return; }
       const active = state.view === it.id || (it.id === "admin" && state.view === "editor") || (it.id === "curriculum" && (state.view === "lesson" || state.view === "lessonEditor"));
@@ -3114,7 +3126,7 @@
   // Optional deep-link on load: #list / #compare / #dashboard / #admin
   function initialRouteFromHash() {
     const h = (location.hash || "").replace("#", "");
-    if (["list", "compare", "dashboard", "admin", "quiz"].includes(h)) state.view = h;
+    if (["list", "compare", "dashboard", "quiz"].includes(h) || (h === "admin" && ADMIN_ENABLED)) state.view = h;
   }
 
   function loadInitialData() {

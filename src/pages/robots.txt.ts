@@ -8,6 +8,7 @@ export const GET: APIRoute = ({ site }) => {
 Allow: /
 Disallow: /cursuri/
 Disallow: /in-curand/
+Disallow: /breed-explorer/
 
 Sitemap: ${sitemap}
 `;

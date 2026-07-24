@@ -25,14 +25,23 @@
 # manifestul NU se cache-uiesc, ca actualizările aplicației să ajungă imediat la useri
 # (Netlify servește deja .webmanifest ca application/manifest+json; .htaccess-ul inclus e
 # doar pentru găzduiri Apache și e inert aici).
+# Aplicația e disponibilă doar candidaților de arbitru (link doar pe pagina Centrului),
+# deci NU o indexăm în motoarele de căutare. Excluderea din căutarea internă (Pagefind)
+# se face cu data-pagefind-ignore pe paginile aplicației.
+[[headers]]
+  for = "/breed-explorer/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
 [[headers]]
   for = "/breed-explorer/sw.js"
   [headers.values]
     Cache-Control = "no-cache"
+    X-Robots-Tag = "noindex"
 [[headers]]
   for = "/breed-explorer/manifest.webmanifest"
   [headers.values]
     Cache-Control = "no-cache"
+    X-Robots-Tag = "noindex"
 
 # Rădăcina (apex cfc-royal.ro) SERVEȘTE direct conținutul homepage-ului RO (rewrite 200, NU redirect).
 # Motiv: linkul scurt cfc-royal.ro trebuie să afișeze cardul social (WhatsApp/Facebook). Un redirect

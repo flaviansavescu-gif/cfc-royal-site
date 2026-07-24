@@ -62,6 +62,8 @@ desktop; după prima deschidere merge și fără internet.
 </span>
 </a>
 
+<p style="font-size:.9rem;color:var(--color-text-muted);margin:.4rem 0 0"><em>În acest moment, aplicația este disponibilă doar candidaților de arbitru.</em></p>
+
 ### Colaborare
 
 <div style="display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem;margin:1.25rem 0;padding:1.25rem;background:var(--color-surface-alt);border-radius:var(--radius)">
