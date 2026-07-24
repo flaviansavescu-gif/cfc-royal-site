@@ -10,8 +10,6 @@ export default async (req) => {
   const id = taie(body.id, 40);
   if (!id) return json({ eroare: "Lipsește sesiunea." }, 400);
   const st = store();
-  const s = await st.get("session/" + id, { type: "json" }).catch(() => null);
-  if (!s) return json({ eroare: "Sesiune inexistentă." }, 404);
 
   if (actiune === "citeste-cursant") {
     const cand = await candidatDinId(body.cid);
@@ -28,6 +26,8 @@ export default async (req) => {
 
   let actor;
   try { actor = cereLector(body.cod); } catch (e) { return json({ eroare: e.eroare }, e.status); }
+  const s = await st.get("session/" + id, { type: "json" }).catch(() => null);
+  if (!s) return json({ eroare: "Sesiune inexistentă." }, 404);
   if (!poateAdministraSesiunea(actor, s)) return json({ eroare: "Nu ai drept asupra acestei sesiuni." }, 403);
 
   if (actiune === "salveaza") {

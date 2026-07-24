@@ -73,11 +73,10 @@ export function cereLector(cod) {
   return a;
 }
 
-/** Poate acest actor administra sesiunea? Adminul da; lectorul doar dacă e proprietar. */
-export function poateAdministraSesiunea(actor, sesiune) {
-  if (!actor) return false;
-  if (actor.rol === "admin") return true;
-  return actor.rol === "lector" && sesiune && sesiune.lectorSlug === actor.slug;
+/** Poate acest actor administra sesiunea? Colegiul de arbitri lucrează ca spațiu comun:
+ *  orice lector (și administratorul) poate crea și administra sesiuni. */
+export function poateAdministraSesiunea(actor, _sesiune) {
+  return !!actor && (actor.rol === "admin" || actor.rol === "lector");
 }
 
 // ————— ID-uri —————

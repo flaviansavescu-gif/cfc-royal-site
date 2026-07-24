@@ -93,10 +93,10 @@ export default async (req) => {
   try { actor = cereLector(body.cod); } catch (e) { return json({ eroare: e.eroare }, e.status); }
 
   if (actiune === "lista") {
+    // Spațiu comun: toți lectorii (și adminul) văd toate sesiunile.
     const idx = await citesteIndex();
-    const vazute = actor.rol === "admin" ? idx : idx.filter((r) => r.lectorSlug === actor.slug);
-    vazute.sort((a, b) => String(b.actualizat || b.creat || "").localeCompare(String(a.actualizat || a.creat || "")));
-    return json({ sesiuni: vazute });
+    idx.sort((a, b) => String(b.actualizat || b.creat || "").localeCompare(String(a.actualizat || a.creat || "")));
+    return json({ sesiuni: idx });
   }
 
   if (actiune === "candidati") {

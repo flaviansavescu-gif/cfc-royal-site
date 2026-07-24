@@ -12,6 +12,12 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
 
   <p class="j-stare" id="j-stare">Se încarcă sesiunile tale…</p>
   <ul class="j-list" id="j-list" hidden></ul>
+
+  <section class="j-ist" id="j-ist" hidden>
+    <h2 class="j-h2">Istoricul meu</h2>
+    <p class="j-ist-sum" id="j-ist-sum"></p>
+    <div id="j-ist-list"></div>
+  </section>
 </CursuriLayout>
 
 <script is:inline>
@@ -65,6 +71,24 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
       });
     } catch (err) { stareEl.textContent = "Nu am putut încărca sesiunile: " + err.message; }
 
+    // Istoricul cursantului (sesiuni închise, cu barem deblocat)
+    try {
+      const r = await fetch("/.netlify/functions/jcr-raport", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ actiune: "istoric", cid }) });
+      const d = await r.json();
+      if (r.ok && d.sesiuni.length) {
+        document.getElementById("j-ist").hidden = false;
+        document.getElementById("j-ist-sum").textContent = d.tendinta.total + " sesiuni finalizate · calificativ în acord la " + d.tendinta.calificativAcord + "/" + d.tendinta.total;
+        const box = document.getElementById("j-ist-list");
+        d.sesiuni.forEach((s) => {
+          const div = document.createElement("div"); div.className = "j-istrow";
+          div.innerHTML = "<div><strong>" + esc(s.titlu) + "</strong> <span class='j-meta'>" + esc(s.rasa) + "</span>" +
+            "<span class='j-istbadges'>calif. " + esc(s.calificativStudent) + " vs " + esc(s.calificativReferinta) + " · defecte acord " + s.defecteAcord + "/omise " + s.defecteOmise + (s.spearman != null ? " · ρ " + s.spearman : "") + "</span></div>" +
+            "<a class='btn btn--small' href='/cursuri/analiza/comparatie/?s=" + encodeURIComponent(s.id) + "'>Detalii</a>";
+          box.appendChild(div);
+        });
+      }
+    } catch (e) {}
+
     function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
   })();
 </script>
@@ -87,4 +111,10 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
   .j-badge.resp-submitted { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
   .j-card__act { display: flex; gap: 0.5rem; flex-wrap: wrap; }
   .btn--small { font-size: 0.85rem; padding: 0.45rem 0.9rem; }
+  .j-ist { margin-top: 2.5rem; }
+  .j-h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.25rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem; }
+  .j-ist-sum { font-size: 0.9rem; color: var(--color-accent-dark); font-weight: 600; }
+  .j-istrow { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.7rem 1rem; margin-bottom: 0.5rem; }
+  .j-istrow strong { color: var(--color-primary); }
+  .j-istbadges { display: block; font-size: 0.82rem; color: var(--color-text-muted); margin-top: 0.2rem; }
 </style>

@@ -1,0 +1,107 @@
+---
+// /cursuri/materiale/ — Biblioteca comună a Școlii de Arbitraj.
+// Spațiu partajat: TOȚI lectorii (și administratorul) văd programa și toate materialele
+// încărcate de toți lectorii. Fiecare predă conform programei (modulele de mai jos).
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import { MODULE, LECTORI, ADMIN_HASH } from "../../../data/cursuri";
+const allow = [ADMIN_HASH, ...LECTORI.map((l) => l.hash)];
+const totalMateriale = LECTORI.reduce((n, l) => n + l.materiale.length, 0);
+const cuMateriale = LECTORI.filter((l) => l.materiale.length);
+---
+
+<CursuriLayout title="Biblioteca comună" allow={allow}>
+  <p class="m-eyebrow">Școala de Arbitraj · Spațiu comun</p>
+  <h1 class="m-title">Biblioteca comună a cursurilor</h1>
+  <p class="m-sub">Spațiu partajat al Colegiului de Arbitri: toți lectorii au acces la toate materialele încărcate și la programă. Fiecare lector poate preda oricare modul, conform programei de mai jos.</p>
+
+  <p class="m-actiuni">
+    <a class="btn btn--outline" href="/cursuri/admin/">← Panoul platformei</a>
+    <a class="btn btn--outline" href="/cursuri/admin/analiza/">🧭 Sala de analiză (JCR)</a>
+    <a class="btn btn--outline" href="/cursuri/teleprompter/" target="_blank" rel="noopener">🎬 Teleprompter ↗</a>
+  </p>
+
+  <h2 class="m-h2">Programa — {MODULE.length} module</h2>
+  <p class="m-hint">Planul de predare. Orice lector poate susține oricare modul, folosind materialele comune.</p>
+  <ol class="m-module">
+    {MODULE.map((m) => (
+      <li class="m-modul">
+        <div class="m-modul__head">
+          <span class="m-nr">{m.nr}</span>
+          <div>
+            <a class="m-modul__titlu" href={`/cursuri/${m.slug}/`}>{m.titlu}</a>
+            <p class="m-modul__obj">{m.obiectiv}</p>
+          </div>
+        </div>
+        {m.lecturi && m.lecturi.length > 0 && (
+          <ul class="m-lecturi">
+            {m.lecturi.map((lec) => (
+              <li><a href={lec.url} target="_blank" rel="noopener">{lec.titlu} ↗</a></li>
+            ))}
+          </ul>
+        )}
+      </li>
+    ))}
+  </ol>
+
+  <h2 class="m-h2">Materiale de curs — {totalMateriale} încărcate</h2>
+  {cuMateriale.length ? (
+    <div class="m-lectori">
+      {cuMateriale.map((l) => (
+        <section class="m-lector">
+          <h3 class="m-lector__nume">{l.nume} <span class="m-lector__rol">{l.rol}</span></h3>
+          <ul class="m-materiale">
+            {l.materiale.map((mat) => (
+              <li>
+                <a href={mat.url} target="_blank" rel="noopener">{mat.titlu} ↗</a>
+                {mat.md && <a class="m-md" href={mat.md} target="_blank" rel="noopener" title="Versiune text pentru teleprompter">✎ text</a>}
+                {mat.data && <span class="m-data">{mat.data}</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  ) : (
+    <p class="m-gol">Niciun material încărcat încă. Trimite cursurile la <a href="mailto:contact@cfc-royal.ro">contact@cfc-royal.ro</a> și apar aici, în spațiul comun.</p>
+  )}
+
+  <h2 class="m-h2">Resurse comune</h2>
+  <ul class="m-materiale">
+    <li><a href="/ro/regulamente/" target="_blank" rel="noopener">Regulamentele WDF ↗</a></li>
+    <li><a href="/ro/documente/cod-etic/" target="_blank" rel="noopener">Codul Etic ↗</a></li>
+    <li><a href="/ro/documente/regulamentul-colegiului-de-arbitri/" target="_blank" rel="noopener">Regulamentul Colegiului de Arbitri ↗</a></li>
+    <li><a href="/breed-explorer/" target="_blank" rel="noopener">CFCR Breed Standards Explorer ↗</a></li>
+  </ul>
+
+  <p class="m-nota">Pentru a încărca un material nou în spațiul comun, trimite-l secretariatului Școlii — apare aici pentru toți lectorii.</p>
+</CursuriLayout>
+
+<style>
+  .m-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .m-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
+  .m-sub { color: var(--color-text-muted); max-width: 50rem; }
+  .m-actiuni { display: flex; gap: 0.7rem; flex-wrap: wrap; margin: 1.25rem 0; }
+  .m-h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.3rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.35rem; margin: 2.25rem 0 0.5rem; }
+  .m-hint { color: var(--color-text-muted); font-size: 0.9rem; margin: 0 0 1rem; }
+  .m-module { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; }
+  .m-modul { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.9rem 1.1rem; }
+  .m-modul__head { display: flex; gap: 0.9rem; align-items: flex-start; }
+  .m-nr { flex: 0 0 auto; width: 2.2rem; height: 2.2rem; display: grid; place-items: center; background: var(--color-primary); color: #fbfaf7; border-radius: 50%; font-family: var(--font-serif); }
+  .m-modul__titlu { font-family: var(--font-serif); font-weight: 700; color: var(--color-primary); text-decoration: none; }
+  .m-modul__titlu:hover { text-decoration: underline; }
+  .m-modul__obj { margin: 0.2rem 0 0; font-size: 0.88rem; color: var(--color-text-muted); }
+  .m-lecturi { list-style: none; margin: 0.6rem 0 0 3.1rem; padding: 0; display: grid; gap: 0.25rem; }
+  .m-lecturi a { font-size: 0.85rem; color: var(--color-accent-dark); text-decoration: none; }
+  .m-lecturi a:hover { text-decoration: underline; }
+  .m-lectori { display: grid; gap: 1.25rem; }
+  .m-lector { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.25rem; }
+  .m-lector__nume { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.05rem; margin: 0 0 0.6rem; }
+  .m-lector__rol { font-size: 0.78rem; font-weight: 400; color: var(--color-text-muted); }
+  .m-materiale { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
+  .m-materiale a { color: var(--color-accent-dark); font-weight: 600; text-decoration: none; }
+  .m-materiale a:hover { text-decoration: underline; }
+  .m-md { font-size: 0.78rem; margin-left: 0.5rem; font-weight: 400 !important; }
+  .m-data { margin-left: 0.5rem; font-size: 0.8rem; color: var(--color-text-muted); }
+  .m-gol { color: var(--color-text-muted); font-style: italic; }
+  .m-nota { margin-top: 2rem; font-size: 0.88rem; color: var(--color-text-muted); background: var(--color-surface-alt); padding: 0.85rem 1.1rem; border-radius: var(--radius); }
+</style>

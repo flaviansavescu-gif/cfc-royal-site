@@ -1,5 +1,6 @@
 // jcr-barem.mjs — baremul (evaluarea de referință) a lectorului. ASCUNS până la deblocare.
 // Lector: salveaza | citeste | deblocheaza.  Cursant: citeste-cursant (doar după deblocare).
+// Întărire: autentificarea se face ÎNAINTE de a atinge sesiunea.
 import { json, taie, acum, cereLector, candidatDinId, poateAdministraSesiunea, store, citesteParticipanti, esteParticipant, audit, scrieInIndex, baremDeblocat } from "./_jcr/lib.mjs";
 
 function curataBarem(inp, baza) {
@@ -12,12 +13,10 @@ function curataBarem(inp, baza) {
   })).filter((o) => o.criteriuId || o.eticheta) : (b.observatii || []);
   const clasament = Array.isArray(inp.clasament) ? inp.clasament.slice(0, 12).map((x) => taie(x, 40)).filter(Boolean) : (b.clasament || []);
   return {
-    ...b,
-    observatii, defecte, clasament,
+    ...b, observatii, defecte, clasament,
     calificativ: taie(inp.calificativ ?? b.calificativ, 40),
     explicatii: taie(inp.explicatii ?? b.explicatii, 4000),
-    actualizat: acum(),
-    creat: b.creat || acum(),
+    actualizat: acum(), creat: b.creat || acum(),
   };
 }
 
@@ -29,13 +28,13 @@ export default async (req) => {
   const id = taie(body.id, 40);
   if (!id) return json({ eroare: "Lipsește sesiunea." }, 400);
   const st = store();
-  const s = await st.get("session/" + id, { type: "json" }).catch(() => null);
-  if (!s) return json({ eroare: "Sesiune inexistentă." }, 404);
 
   // ——— Cursant: citește baremul DOAR după deblocare și doar dacă e participant ———
   if (actiune === "citeste-cursant") {
     const cand = await candidatDinId(body.cid);
     if (!cand) return json({ eroare: "Sesiune de candidat invalidă." }, 401);
+    const s = await st.get("session/" + id, { type: "json" }).catch(() => null);
+    if (!s) return json({ eroare: "Sesiune inexistentă." }, 404);
     const part = await citesteParticipanti(id);
     if (!esteParticipant(part, cand.id)) return json({ eroare: "Nu ești alocat acestei sesiuni." }, 403);
     if (!baremDeblocat(s)) return json({ eroare: "Baremul nu este încă deblocat." }, 403);
@@ -43,9 +42,11 @@ export default async (req) => {
     return json({ barem: b || null });
   }
 
-  // ——— Lector/Admin ———
+  // ——— Lector/Admin (autentificare înainte de sesiune) ———
   let actor;
   try { actor = cereLector(body.cod); } catch (e) { return json({ eroare: e.eroare }, e.status); }
+  const s = await st.get("session/" + id, { type: "json" }).catch(() => null);
+  if (!s) return json({ eroare: "Sesiune inexistentă." }, 404);
   if (!poateAdministraSesiunea(actor, s)) return json({ eroare: "Nu ai drept asupra acestei sesiuni." }, 403);
 
   if (actiune === "citeste") {

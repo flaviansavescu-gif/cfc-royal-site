@@ -207,6 +207,7 @@ const allow = [ADMIN_HASH, ...LECTORI.map((l) => l.hash)];
         const grup = await api("jcr-comparatie", { actiune: "grup" });
         const raspunsuri = (await api("jcr-sesiuni", { actiune: "raspunsuri" })).raspunsuri;
         let html = "<h3 class='j-h3'>Comparație de grup (" + grup.total + " răspunsuri)</h3>";
+        html += "<p><button type='button' class='btn btn--small' id='r-csv'>⬇ Export CSV</button></p>";
         html += "<p class='j-hint'>Spearman mediu: <strong>" + (grup.spearmanMediu == null ? "—" : grup.spearmanMediu) + "</strong></p>";
         html += "<p><strong>Distribuția calificativelor:</strong> " + (Object.entries(grup.distributieCalificativ).map(([k, v]) => esc(k) + ": " + v).join(" · ") || "—") + "</p>";
         html += "<p><strong>Defecte frecvent omise:</strong> " + (grup.defecteFrecventOmise.map((d) => esc(d.cod) + " (" + d.n + ")").join(" · ") || "—") + "</p>";
@@ -224,6 +225,10 @@ const allow = [ADMIN_HASH, ...LECTORI.map((l) => l.hash)];
         const salvGrup = (pub) => async () => { try { await api("jcr-feedback", { actiune: "salveaza", tip: "grup", text: $("fb-grup").value, publicat: pub }); mesaj(pub ? "Feedback colectiv publicat." : "Salvat.", true); } catch (e) { mesaj(e.message, false); } };
         $("fb-grup-save").addEventListener("click", salvGrup(false));
         $("fb-grup-pub").addEventListener("click", salvGrup(true));
+        $("r-csv")?.addEventListener("click", async () => {
+          try { const d = await api("jcr-raport", { actiune: "csv" }); const blob = new Blob([d.csv], { type: "text/csv;charset=utf-8" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = d.filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href); }
+          catch (e) { mesaj(e.message, false); }
+        });
         // individual
         const box = $("fb-ind");
         raspunsuri.filter((r) => r.status === "submitted").forEach((r) => {
