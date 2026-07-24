@@ -34,7 +34,7 @@ Ordinea standard WDF:
 5. __BIS Veterans__
 6. __BIS Couple (Perechi)__
 7. __BIS Breeding Group (Loturi de reproducție)__
-8. __BBR (Best Breeder of the Ring)__ – opțional
+8. __BBR (Best Breed Representative)__ – opțional
 
 Fiecare categorie are __un singur arbitru__.
 

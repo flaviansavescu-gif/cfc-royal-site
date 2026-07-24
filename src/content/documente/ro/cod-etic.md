@@ -284,15 +284,15 @@ c) criticarea publică a unei judecăți (proprii sau a altui arbitru) se face e
 
 (1) Câinele este în orice context al activității Asociației subiect de protecție. Orice activitate desfășurată sub egida sau cu participarea Asociației respectă cele cinci libertăți fundamentale ale animalului:
 
-a) libertatea de foame și sete;
+a) libertatea față de foame și sete;
 
-b) libertatea de disconfort fizic;
+b) libertatea față de disconfort fizic;
 
-c) libertatea de durere, suferință și boală;
+c) libertatea față de durere, suferință și boală;
 
 d) libertatea de a-și manifesta comportamentul normal de specie;
 
-e) libertatea de frică și stres.
+e) libertatea față de frică și stres.
 
 (2) Aceste principii se aplică indiferent de scopul imediat al activității (didactic, demonstrativ, evaluativ, competițional).
 

@@ -6,4 +6,4 @@ summary: "Membră de onoare a Clubului Federal Chinologic Royal."
 draft: false
 ---
 
-Irene Maria Crețu este **membră de onoare** a Clubului Federal Chinologic Royal — „Primii Pași” – Junior Handling – Ciobănesc German.
+Irene Maria Crețu este **membru de onoare** al Clubului Federal Chinologic Royal — „Primii Pași” – Junior Handling – Ciobănesc German.

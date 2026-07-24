@@ -6,4 +6,4 @@ summary: "Membră de onoare a Clubului Federal Chinologic Royal."
 draft: false
 ---
 
-Laura Gabriela Hoban este **membră de onoare** a Clubului Federal Chinologic Royal — Coordonator zonal – Județ Constanța.
+Laura Gabriela Hoban este **membru de onoare** al Clubului Federal Chinologic Royal — Coordonator zonal – Județ Constanța.

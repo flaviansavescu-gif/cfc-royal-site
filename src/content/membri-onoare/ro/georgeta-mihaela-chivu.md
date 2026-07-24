@@ -7,5 +7,5 @@ photo: "/images/arbitri/georgeta-mihaela-chivu.webp"
 draft: false
 ---
 
-Georgeta Mihaela Chivu este **membră de onoare** a Clubului Federal Chinologic Royal și arbitru în
+Georgeta Mihaela Chivu este **membru de onoare** al Clubului Federal Chinologic Royal și arbitru în
 cadrul Colegiului de Arbitri.

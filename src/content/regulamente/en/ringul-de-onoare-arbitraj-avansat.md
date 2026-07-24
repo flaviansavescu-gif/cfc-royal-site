@@ -34,7 +34,7 @@ The standard WDF order:
 5. __BIS Veterans__
 6. __BIS Couple (Couples)__
 7. __BIS Breeding Group (Breeding Groups)__
-8. __BBR (Best Breeder of the Ring)__ – optional
+8. __BBR (Best Breed Representative)__ – optional
 
 Each category has __a single judge__.
 
