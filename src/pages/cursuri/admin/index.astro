@@ -66,6 +66,15 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
   </div>
   <ul class="a-cand-list" id="a-inst-list"></ul>
 
+  <h2 class="a-h2">Photo Anatomy Annotator — instalare și standard demo</h2>
+  <p class="a-anunt-info">Coduri de instalare <strong>PAA</strong> (separate de Breed Explorer) și standardul <strong>demonstrativ</strong> pentru aplicația de adnotare anatomică.</p>
+  <div class="a-cand-form">
+    <input id="a-paa-eticheta" type="text" placeholder="Etichetă (opțional)" />
+    <button id="a-paa-gen" class="btn btn--primary" type="button">Generează cod de instalare (PAA)</button>
+    <button id="a-paa-seed" class="btn btn--outline" type="button">Încarcă standardul demo</button>
+  </div>
+  <ul class="a-cand-list" id="a-paa-list"></ul>
+
   <h2 class="a-h2">Spațiile lectorilor</h2>
   <ul class="a-list">
     {LECTORI.map((l) => (
@@ -377,6 +386,36 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
       finally { btn.disabled = false; btn.textContent = "Generează cod de instalare"; }
     });
     incarcaInstalare();
+
+    // ——— Photo Anatomy Annotator: coduri PAA + seed standard demo ———
+    async function paaCere(payload) {
+      const res = await fetch("/.netlify/functions/paa-instalare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cod: codAdmin(), ...payload }) });
+      const d = await res.json().catch(() => ({})); if (!res.ok) throw new Error(d.eroare || "Eroare"); return d;
+    }
+    async function incarcaPaa() {
+      const list = document.getElementById("a-paa-list"); list.textContent = "";
+      let coduri = []; try { coduri = await paaCere({ actiune: "lista" }); } catch (e) { const li = document.createElement("li"); li.className = "a-cand-empty"; li.textContent = "Nu am putut încărca codurile PAA."; list.appendChild(li); return; }
+      if (!coduri.length) { const li = document.createElement("li"); li.className = "a-cand-empty"; li.textContent = "Niciun cod PAA generat încă."; list.appendChild(li); return; }
+      coduri.forEach((c) => list.appendChild(randPaa(c)));
+    }
+    function randPaa(c) {
+      const li = document.createElement("li"); const info = document.createElement("div"); info.className = "a-cand-info";
+      const cod = document.createElement("code"); cod.className = "a-cand-cod"; cod.textContent = c.cod; info.appendChild(cod);
+      if (c.eticheta) { const et = document.createElement("span"); et.className = "a-cand-meta"; et.innerHTML = "<span>" + c.eticheta.replace(/[&<>]/g, "") + "</span>"; info.appendChild(et); }
+      const copy = document.createElement("button"); copy.className = "btn btn--small btn--outline"; copy.textContent = "Copiază"; copy.addEventListener("click", async () => { try { await navigator.clipboard.writeText(c.cod); copy.textContent = "Copiat ✓"; setTimeout(() => (copy.textContent = "Copiază"), 1500); } catch (e) { alert("Cod: " + c.cod); } });
+      const del = document.createElement("button"); del.className = "btn btn--small btn--danger"; del.textContent = "Revocă"; del.addEventListener("click", async () => { if (!confirm("Revoci codul „" + c.cod + "”?")) return; del.disabled = true; try { await paaCere({ actiune: "revoca", id: c.id }); incarcaPaa(); } catch (err) { alert("Nu am putut revoca: " + err.message); del.disabled = false; } });
+      li.appendChild(info); li.appendChild(copy); li.appendChild(del); return li;
+    }
+    document.getElementById("a-paa-gen").addEventListener("click", async () => {
+      const btn = document.getElementById("a-paa-gen"); btn.disabled = true; btn.textContent = "Se generează…";
+      try { const d = await paaCere({ actiune: "genereaza", eticheta: document.getElementById("a-paa-eticheta").value.trim() }); document.getElementById("a-paa-eticheta").value = ""; incarcaPaa(); if (d.cod) alert("Cod de instalare PAA:\n\n" + d.cod.cod + "\n\nDă-l persoanei care instalează Photo Anatomy Annotator."); }
+      catch (err) { alert("Nu am putut genera: " + err.message); } finally { btn.disabled = false; btn.textContent = "Generează cod de instalare (PAA)"; }
+    });
+    document.getElementById("a-paa-seed").addEventListener("click", async () => {
+      try { const res = await fetch("/.netlify/functions/paa-standarde", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cod: codAdmin(), actiune: "seed-demo" }) }); const d = await res.json(); if (res.ok) alert(d.existent ? "Standardul demo există deja." : "Standardul demonstrativ a fost încărcat."); else alert(d.eroare || "Eroare"); }
+      catch (e) { alert("Nu am putut încărca standardul demo."); }
+    });
+    incarcaPaa();
 
     inputs.forEach((inp) => {
       inp.addEventListener("change", async () => {
