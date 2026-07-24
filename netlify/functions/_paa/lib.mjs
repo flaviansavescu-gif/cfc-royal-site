@@ -41,6 +41,8 @@ export function cereAdmin(cod) {
   if (sha256(cod || "") !== ADMIN_HASH) throw { status: 401, eroare: "Cod de administrator incorect." };
   return { rol: "admin" };
 }
+/** Spațiu comun: orice lector (sau admin) poate administra exercițiile. */
+export function poateAdministra(actor) { return !!actor && (actor.rol === "admin" || actor.rol === "lector"); }
 
 /** Candidat prin ID (bearer stocat în browser la login, ca la progres-cursuri). */
 export async function candidatDinId(cid) {

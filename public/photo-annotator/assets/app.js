@@ -54,6 +54,7 @@
     standard: null,
   };
   var cid = null; try { cid = (JSON.parse(localStorage.getItem("cfcrCandidat") || "null") || {}).id || null; } catch (e) {}
+  var exId = new URLSearchParams(location.search).get("ex");
 
   var canvas = $("pa-canvas"), ctx = canvas.getContext("2d"), stage = document.querySelector(".pa-stage");
 
@@ -280,6 +281,7 @@
   // —— salvare / sesiuni / export ——
   function serializeaza() { return { titlu: S.titlu, rasa: S.rasa, imageId: S.imageId, aspect: S.aspect, calibrare: S.calibrare, layers: S.layers, annotations: S.annots, measurements: S.measurements, stdRasa: S.standard ? S.standard.rasa : "", stdVersiune: S.standard ? S.standard.versiune : "" }; }
   $("btnSalveaza").addEventListener("click", function () {
+    if (S.exercitiu) { trimiteRezolvare(false); return; }
     if (!cid) return toast("Intră în platformă (cursuri) ca să salvezi sesiuni.", true);
     var payload = { actiune: S.sesiuneId ? "salveaza" : "creaza", cid: cid, id: S.sesiuneId, sesiune: serializeaza() };
     fetch(API + "paa-sesiuni", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).then(function (r) { return r.json(); }).then(function (d) { if (d.sesiune) { S.sesiuneId = d.sesiune.id; toast("Sesiune salvată."); } else toast(d.eroare || "Eroare la salvare.", true); }).catch(function () { toast("Nu am putut salva (online?).", true); });
@@ -288,6 +290,7 @@
   $("btnExportPng").addEventListener("click", function () { canvas.toBlob(function (b) { dl(b, "adnotare.png"); }); });
   function dl(blob, nume) { var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nume; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href); }
   $("btnSesiuni").addEventListener("click", function () {
+    if (S.exercitiu) { if (!S.exSubmitted && confirm("Trimiți rezolvarea? După trimitere nu mai poate fi modificată.")) trimiteRezolvare(true); return; }
     if (!cid) return toast("Intră în platformă (cursuri) pentru sesiuni.", true);
     fetch(API + "paa-sesiuni", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ actiune: "lista", cid: cid }) }).then(function (r) { return r.json(); }).then(function (d) {
       if (!d.sesiuni || !d.sesiuni.length) return toast("Nicio sesiune salvată.");
@@ -335,6 +338,42 @@
     fetch(API + "paa-instalare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ actiune: "verifica", cod: String(cod).trim() }) }).then(function (r) { if (!r.ok) return toast("Cod de instalare incorect.", true); try { localStorage.setItem(UNLOCK, "1"); } catch (e) {} injManifest(); toast("Cod acceptat — se pregătește instalarea…"); setTimeout(declanseaza, 1000); }).catch(function () { toast("Nu am putut verifica codul (online?).", true); });
   });
 
+  // —— mod EXERCIȚIU (deschis cu ?ex=<id>): fotografia lectorului, candidatul o adnotează și o trimite ——
+  function apiEx(payload) { return fetch(API + "paa-exercitii", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); }
+  function bannerEx(html) { var b = document.querySelector(".pa-warn"); if (b) b.innerHTML = html; }
+  function initExercitiu() {
+    if (!cid) { bannerEx("<strong>Exercițiu</strong> — intră întâi în platformă (cursuri) cu codul tău de candidat, apoi redeschide linkul exercițiului."); return; }
+    apiEx({ actiune: "detalii-cursant", cid: cid, id: exId }).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d.exercitiu) { toast(d.eroare || "Exercițiu indisponibil.", true); return; }
+      S.exercitiu = d.exercitiu; S.aspect = d.exercitiu.aspect || 1; S.rasa = d.exercitiu.rasa || "";
+      bannerEx("<strong>Exercițiu: " + esc(d.exercitiu.titlu) + "</strong> — adnotează fotografia și trimite rezolvarea. Estimări 2D, nu evaluare oficială.");
+      $("btnSalveaza").textContent = "Salvează schița"; $("btnSalveaza").disabled = false;
+      $("btnSesiuni").textContent = "Trimite rezolvarea";
+      if (d.raspuns) { S.annots = d.raspuns.annotations || []; S.measurements = d.raspuns.measurements || {}; if (d.raspuns.calibrare) S.calibrare = d.raspuns.calibrare; }
+      $("pa-empty").innerHTML = "<p>Se încarcă fotografia exercițiului…</p>";
+      incarcaImagineExercitiu();
+      if (d.raspuns && d.raspuns.status === "submitted") lockExercitiu(d.raspuns);
+    }).catch(function () { toast("Nu am putut încărca exercițiul.", true); });
+  }
+  function incarcaImagineExercitiu() {
+    apiEx({ actiune: "imagine", cid: cid, id: exId }).then(function (r) { return r.ok ? r.blob() : null; }).then(function (blob) {
+      if (!blob) { $("pa-empty").innerHTML = "<p>Fotografia nu a putut fi încărcată.</p>"; return; }
+      var url = URL.createObjectURL(blob); var img = new Image();
+      img.onload = function () { S.img = img; S.imgW = img.width; S.imgH = img.height; S.aspect = img.width / img.height; $("pa-empty").style.display = "none"; ["btnExportPng", "btnExportJson"].forEach(function (id) { $(id).disabled = false; }); incadreaza(); renderAll(); URL.revokeObjectURL(url); };
+      img.src = url;
+    }).catch(function () { $("pa-empty").innerHTML = "<p>Fotografia nu a putut fi încărcată.</p>"; });
+  }
+  function trimiteRezolvare(final) {
+    if (!cid || S.exSubmitted) return;
+    apiEx({ actiune: final ? "raspuns-trimite" : "raspuns-schita", cid: cid, id: exId, annotations: S.annots, measurements: S.measurements, calibrare: S.calibrare }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d.raspuns) { toast(final ? "Rezolvare trimisă lectorului." : "Schiță salvată."); if (final) lockExercitiu(d.raspuns); } else toast(d.eroare || "Eroare.", true);
+    }).catch(function () { toast("Nu am putut trimite (online?).", true); });
+  }
+  function lockExercitiu(r) {
+    S.exSubmitted = true; $("btnSesiuni").disabled = true; $("btnSalveaza").disabled = true;
+    bannerEx("<strong>Rezolvare trimisă." + (r.calificativ ? " Calificativ: " + esc(r.calificativ) + "." : " În așteptarea verificării.") + "</strong>" + (r.feedback ? " Feedback lector: " + esc(r.feedback) : ""));
+  }
+
   // —— init ——
   function init() {
     $("pa-auth").textContent = cid ? "Conectat ca și candidat" : "Neconectat — salvarea necesită autentificare în platformă";
@@ -343,6 +382,7 @@
     if (window.ResizeObserver) { var ro = new ResizeObserver(function () { resize(); }); ro.observe(stage); }
     requestAnimationFrame(function () { resize(); requestAnimationFrame(resize); });
     incarcaStandard(); registerPWA();
+    if (exId) initExercitiu();
   }
   init();
 })();

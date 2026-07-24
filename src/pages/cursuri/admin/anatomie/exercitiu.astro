@@ -1,0 +1,183 @@
+---
+// /cursuri/admin/anatomie/exercitiu/?e=<id> — editorul lectorului: foto de referință, alocare,
+// publicare + verificarea rezolvărilor (previzualizare adnotare + calificativ + feedback).
+import CursuriLayout from "../../../../layouts/CursuriLayout.astro";
+import { ADMIN_HASH, LECTORI } from "../../../../data/cursuri";
+const allow = [ADMIN_HASH, ...LECTORI.map((l) => l.hash)];
+---
+
+<CursuriLayout title="Exercițiu de anatomie" allow={allow}>
+  <p class="j-actiuni"><a class="btn btn--outline btn--small" href="/cursuri/admin/anatomie/">← Toate exercițiile</a></p>
+  <p class="j-stare" id="j-stare">Se încarcă…</p>
+  <div id="j-wrap" hidden>
+    <div class="j-head"><div><p class="j-eyebrow">Photo Anatomy Annotator · Lector</p><h1 class="j-title" id="j-titlu"></h1></div><span class="j-status" id="j-status"></span></div>
+    <div class="j-toolbar" id="j-toolbar"></div>
+    <p class="j-msg" id="j-msg" role="status" hidden></p>
+
+    <details class="j-sec" open><summary>1. Metadate</summary>
+      <div class="j-grid2">
+        <label class="j-field"><span>Titlu *</span><input id="m-titlu" /></label>
+        <label class="j-field"><span>Rasă</span><input id="m-rasa" /></label>
+        <label class="j-field"><span>Termen</span><input id="m-termen" type="date" /></label>
+        <label class="j-field"><span>Versiune standard (opțional)</span><input id="m-std" placeholder="ex. demo-1" /></label>
+      </div>
+      <label class="j-field"><span>Descriere / cerință</span><textarea id="m-desc" rows="2"></textarea></label>
+      <p class="j-actiuni"><button class="btn btn--primary" id="m-salveaza" type="button">Salvează metadatele</button></p>
+    </details>
+
+    <details class="j-sec"><summary>2. Fotografia de referință</summary>
+      <p class="j-hint">JPEG/PNG/WebP, max 6 MB. Se poate schimba doar cât exercițiul e în schiță.</p>
+      <div id="m-foto" class="j-foto"></div>
+      <label class="j-field"><span>Încarcă / înlocuiește fotografia</span><input type="file" id="m-file" accept="image/jpeg,image/png,image/webp" /></label>
+    </details>
+
+    <details class="j-sec"><summary>3. Alocare candidați</summary>
+      <label class="j-check"><input type="checkbox" id="m-toti" /> Alocă tuturor candidaților</label>
+      <div id="m-participanti" class="j-part"></div>
+      <button class="btn btn--small btn--primary" id="m-part-save" type="button">Salvează alocarea</button>
+    </details>
+
+    <details class="j-sec"><summary>4. Rezolvări primite & verificare</summary>
+      <button class="btn btn--small" id="r-incarca" type="button">Încarcă rezolvările</button>
+      <div id="r-out"></div>
+    </details>
+  </div>
+</CursuriLayout>
+
+<script is:inline>
+  (async function () {
+    var $ = function (id) { return document.getElementById(id); };
+    var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); };
+    var id = new URLSearchParams(location.search).get("e");
+    var CALIF = ["Excelent", "Foarte bine", "Bine", "Suficient", "Insuficient"];
+    function cod() { try { return localStorage.getItem("cfcrAccesCod"); } catch (e) { return null; } }
+    async function api(p) { var r = await fetch("/.netlify/functions/paa-exercitii", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ cod: cod(), id: id }, p)) }); var d = await r.json().catch(function () { return {}; }); if (!r.ok) throw new Error(d.eroare || "Eroare"); return d; }
+    async function apiBlob(p) { var r = await fetch("/.netlify/functions/paa-exercitii", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ cod: cod(), id: id }, p)) }); return r.ok ? r.blob() : null; }
+    function mesaj(t, ok) { var m = $("j-msg"); m.hidden = false; m.className = "j-msg " + (ok ? "is-ok" : "is-err"); m.textContent = t; setTimeout(function () { m.hidden = true; }, 4000); }
+    if (!id) { $("j-stare").textContent = "Exercițiu invalid."; return; }
+
+    var E, participanti = { candidateIds: [], toti: false }, candidati = [], refImg = null;
+    try { var d = await api({ actiune: "detalii" }); E = d.exercitiu; participanti = d.participanti || participanti; } catch (err) { $("j-stare").textContent = "Nu am putut deschide: " + err.message; return; }
+    $("j-stare").hidden = true; $("j-wrap").hidden = false;
+    render();
+
+    function render() {
+      $("j-titlu").textContent = E.titlu || "(fără titlu)";
+      var ST = { draft: "Schiță", published: "Publicat", closed: "Închis", archived: "Arhivat" };
+      $("j-status").textContent = ST[E.status] || E.status; $("j-status").className = "j-status st-" + E.status;
+      var tb = $("j-toolbar"); tb.innerHTML = "";
+      function btn(t, cls, fn) { var b = document.createElement("button"); b.className = "btn btn--small " + cls; b.textContent = t; b.addEventListener("click", fn); tb.appendChild(b); }
+      if (E.status === "draft") btn("Publică", "btn--primary", function () { stat("publica"); });
+      if (E.status === "published") btn("Închide", "", function () { stat("inchide"); });
+      if (E.status !== "archived") btn("Arhivează", "btn--danger", function () { if (confirm("Arhivezi exercițiul?")) stat("arhiveaza"); });
+      $("m-titlu").value = E.titlu || ""; $("m-rasa").value = E.rasa || ""; $("m-termen").value = E.termen || ""; $("m-std").value = E.stdVersiune || ""; $("m-desc").value = E.descriere || "";
+      renderFoto(); renderParticipanti();
+    }
+    function renderFoto() {
+      var box = $("m-foto"); box.innerHTML = "";
+      if (!E.imageId) { box.innerHTML = '<p class="j-hint">Nicio fotografie încărcată.</p>'; return; }
+      box.innerHTML = '<p class="j-hint">Fotografie încărcată. <span id="m-foto-load"></span></p><img id="m-foto-img" alt="Fotografia de referință" style="max-width:100%;max-height:280px;border:1px solid var(--color-border);border-radius:var(--radius)"/>';
+      apiBlob({ actiune: "imagine" }).then(function (b) { if (b) { var u = URL.createObjectURL(b); $("m-foto-img").src = u; var im = new Image(); im.onload = function () { refImg = im; }; im.src = u; } });
+    }
+    $("m-salveaza").addEventListener("click", async function () {
+      try { var d = await api({ actiune: "salveaza", exercitiu: { titlu: $("m-titlu").value.trim(), rasa: $("m-rasa").value.trim(), termen: $("m-termen").value, stdVersiune: $("m-std").value.trim(), descriere: $("m-desc").value.trim() } }); E = d.exercitiu; mesaj("Salvat.", true); render(); }
+      catch (err) { mesaj(err.message, false); }
+    });
+    $("m-file").addEventListener("change", function (e) {
+      var f = e.target.files[0]; if (!f) return; var rd = new FileReader();
+      rd.onload = function () { var im = new Image(); im.onload = async function () { try { var d = await api({ actiune: "imagine-upload", dataUrl: rd.result, w: im.width, h: im.height, aspect: im.width / im.height }); E.imageId = d.imageId; $("m-file").value = ""; renderFoto(); mesaj("Fotografie încărcată.", true); } catch (err) { mesaj(err.message, false); } }; im.src = rd.result; };
+      rd.readAsDataURL(f);
+    });
+    async function stat(a) { try { var d = await api({ actiune: a }); E.status = d.status; mesaj("Stare: " + E.status, true); render(); } catch (err) { mesaj(err.message, false); } }
+
+    async function renderParticipanti() {
+      if (!candidati.length) { try { candidati = (await api({ actiune: "candidati" })).candidati; } catch (e) {} }
+      $("m-toti").checked = participanti.toti === true;
+      var box = $("m-participanti"); box.innerHTML = ""; box.style.display = participanti.toti ? "none" : "grid";
+      var set = {}; (participanti.candidateIds || []).forEach(function (x) { set[x] = 1; });
+      candidati.forEach(function (c) { var l = document.createElement("label"); l.className = "j-checkc"; l.innerHTML = '<input type="checkbox" value="' + esc(c.id) + '"' + (set[c.id] ? " checked" : "") + '/> ' + esc(c.nume); box.appendChild(l); });
+    }
+    $("m-toti").addEventListener("change", function () { $("m-participanti").style.display = $("m-toti").checked ? "none" : "grid"; });
+    $("m-part-save").addEventListener("click", async function () {
+      var toti = $("m-toti").checked; var ids = [].slice.call($("m-participanti").querySelectorAll("input:checked")).map(function (i) { return i.value; });
+      try { var d = await api({ actiune: "participanti", toti: toti, candidateIds: ids }); participanti = d.participanti; mesaj("Alocare salvată.", true); } catch (err) { mesaj(err.message, false); }
+    });
+
+    // —— verificare rezolvări (previzualizare) ——
+    function deseneaza(cv, img, annots, measurements) {
+      var w = cv.width, h = cv.height; var ctx = cv.getContext("2d"); ctx.clearRect(0, 0, w, h);
+      var sc = Math.min(w / img.width, h / img.height); var iw = img.width * sc, ih = img.height * sc, ox = (w - iw) / 2, oy = (h - ih) / 2;
+      ctx.drawImage(img, ox, oy, iw, ih);
+      function P(n) { return { x: ox + n.x * iw, y: oy + n.y * ih }; }
+      function line(a, b, col) { var p = P(a), q = P(b); ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.stroke(); }
+      function dot(n, col) { var p = P(n); ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, 7); ctx.fillStyle = col; ctx.fill(); ctx.strokeStyle = "#fff"; ctx.lineWidth = 1; ctx.stroke(); }
+      Object.keys(measurements || {}).forEach(function (rol) { var m = measurements[rol]; if (m && m.a && m.b) line(m.a, m.b, "#0d6efd"); });
+      (annots || []).forEach(function (an) {
+        var col = "#c0392b";
+        if (an.type === "point") { dot(an.points[0], col); if (an.eticheta) { var p = P(an.points[0]); ctx.font = "11px sans-serif"; ctx.fillStyle = "#1F4D3A"; ctx.fillText(an.eticheta, p.x + 5, p.y - 5); } }
+        else if (an.type === "line") { line(an.points[0], an.points[1], col); }
+        else if (an.type === "angle") { line(an.points[0], an.points[1], col); line(an.points[1], an.points[2], col); }
+        else if (an.type === "polyline") { for (var i = 0; i < an.points.length - 1; i++) line(an.points[i], an.points[i + 1], col); }
+        else if (an.type === "label") { var lp = P(an.points[0]); ctx.font = "11px sans-serif"; ctx.fillStyle = "#1F4D3A"; ctx.fillText(an.eticheta || "", lp.x, lp.y); }
+      });
+    }
+    $("r-incarca").addEventListener("click", async function () {
+      var out = $("r-out"); out.innerHTML = "Se încarcă…";
+      try {
+        if (!refImg && E.imageId) { var b = await apiBlob({ actiune: "imagine" }); if (b) { await new Promise(function (res) { var u = URL.createObjectURL(b); var im = new Image(); im.onload = function () { refImg = im; res(); }; im.src = u; }); } }
+        var d = await api({ actiune: "raspunsuri" }); out.innerHTML = "";
+        if (!d.raspunsuri.length) { out.innerHTML = '<p class="j-hint">Nicio rezolvare încă.</p>'; return; }
+        d.raspunsuri.forEach(function (r) {
+          var card = document.createElement("div"); card.className = "j-rez";
+          card.innerHTML = '<div class="j-rez__top"><strong>' + esc(r.candidatNume) + '</strong><span class="j-badge">' + (r.status === "submitted" ? "Trimis" : "Schiță") + '</span></div>';
+          var cv = document.createElement("canvas"); cv.width = 360; cv.height = 240; cv.className = "j-prev";
+          card.appendChild(cv);
+          if (refImg) deseneaza(cv, refImg, r.annotations, r.measurements);
+          var nMas = Object.keys(r.measurements || {}).length, nAn = (r.annotations || []).length;
+          var meta = document.createElement("p"); meta.className = "j-hint"; meta.textContent = nAn + " adnotări · " + nMas + " măsurători" + (r.trimisLa ? " · trimis " + new Date(r.trimisLa).toLocaleString("ro-RO") : "");
+          card.appendChild(meta);
+          var calRow = document.createElement("div"); calRow.className = "j-calrow";
+          var sel = document.createElement("select"); sel.innerHTML = '<option value="">— calificativ —</option>' + CALIF.map(function (c) { return '<option' + (r.calificativ === c ? " selected" : "") + '>' + c + '</option>'; }).join("");
+          var fb = document.createElement("textarea"); fb.rows = 2; fb.style.width = "100%"; fb.placeholder = "Feedback pentru candidat…"; fb.value = r.feedback || "";
+          var save = document.createElement("button"); save.className = "btn btn--small btn--primary"; save.textContent = "Salvează verificarea";
+          save.addEventListener("click", async function () { try { await api({ actiune: "verifica", candidatId: r.candidatId, calificativ: sel.value, feedback: fb.value }); mesaj("Verificare salvată pentru " + r.candidatNume + ".", true); } catch (err) { mesaj(err.message, false); } });
+          calRow.appendChild(sel); card.appendChild(calRow); card.appendChild(fb); card.appendChild(save);
+          out.appendChild(card);
+        });
+      } catch (err) { out.innerHTML = '<p class="j-hint">' + esc(err.message) + '</p>'; }
+    });
+  })();
+</script>
+
+<style>
+  .j-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .j-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.25rem 0 0; }
+  .j-stare { color: var(--color-text-muted); font-style: italic; }
+  .j-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .j-status { font-size: 0.78rem; padding: 0.3rem 0.7rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); }
+  .j-status.st-published { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
+  .j-status.st-draft { background: #fdf4e3; border-color: #e6cf9a; color: #8a6d1f; }
+  .j-toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; }
+  .j-actiuni { display: flex; gap: 0.6rem; flex-wrap: wrap; margin: 1rem 0; }
+  .j-msg { padding: 0.6rem 0.9rem; border-radius: var(--radius); }
+  .j-msg.is-ok { background: #eaf5ec; border: 1px solid #b6dcbf; color: #1f5130; }
+  .j-msg.is-err { background: #fbeaec; border: 1px solid #e2b6bd; color: #8c1d2f; }
+  .j-sec { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.5rem 1rem; margin-bottom: 0.8rem; }
+  .j-sec > summary { font-family: var(--font-serif); font-weight: 700; color: var(--color-primary); cursor: pointer; padding: 0.5rem 0; }
+  .j-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  @media (max-width: 640px) { .j-grid2 { grid-template-columns: 1fr; } }
+  .j-field { display: flex; flex-direction: column; gap: 0.25rem; margin: 0.5rem 0; font-size: 0.85rem; }
+  .j-field > span { color: var(--color-text-muted); }
+  .j-field input, .j-field textarea { padding: 0.5rem 0.65rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; width: 100%; }
+  .j-hint { font-size: 0.85rem; color: var(--color-text-muted); }
+  .j-part { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.35rem; margin: 0.5rem 0; }
+  .j-check, .j-checkc { display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; margin: 0.4rem 0; }
+  .j-rez { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.8rem 1rem; margin-bottom: 0.8rem; }
+  .j-rez__top { display: flex; align-items: center; justify-content: space-between; }
+  .j-badge { font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); }
+  .j-prev { display: block; width: 100%; max-width: 360px; height: auto; border: 1px solid var(--color-border); border-radius: var(--radius); margin: 0.5rem 0; background: var(--color-surface-alt); }
+  .j-calrow { margin: 0.4rem 0; }
+  .j-calrow select { padding: 0.4rem 0.6rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
+  .btn--small { font-size: 0.85rem; padding: 0.4rem 0.8rem; }
+  .btn--danger { color: #8c1d2f; }
+</style>
