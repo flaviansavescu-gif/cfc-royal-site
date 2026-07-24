@@ -58,7 +58,7 @@ Arbitrul examinează:
 - tipicitatea rasei
 - proporții, structură
 - cap, expresie
-- dentiţie (obligatoriu)
+- dentiție (obligatoriu)
 - membre anterioare / posterioare
 - linia superioară
 - coadă

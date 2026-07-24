@@ -121,7 +121,7 @@ __BBR → nu participă la BIS__
 
 Indiferent de câștigător.
 
-__7. CRITERIU PRINCIPAL DE JUDCARE__
+__7. CRITERIU PRINCIPAL DE JUDECARE__
 
 __BOB = cel mai bun exemplar ADULT/CAMPION al rasei în ziua respectivă__
 

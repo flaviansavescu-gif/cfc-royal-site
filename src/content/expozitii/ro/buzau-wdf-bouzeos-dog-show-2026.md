@@ -13,4 +13,4 @@ draft: false
 ---
 Expoziție canină CACIB organizată sub egida World Dog Federation, la Buzău, în Parcul Tineretului, pe 27 iunie 2026. Organizator: Asociația Chinologică Buzău.
 
-**Program:** Deschidere ora 10:00 · Concurs special „Primii Pași în Ring" (Entry Level Handling pentru copii) · arbitraj de specialitate · concursurile speciale Best in Show Veteran / Junior / Adult.
+**Program:** Deschidere ora 10:00 · Concurs special „Primii Pași în Ring” (Entry Level Handling pentru copii) · arbitraj de specialitate · concursurile speciale Best in Show Veteran / Junior / Adult.

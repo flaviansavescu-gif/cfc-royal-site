@@ -43,7 +43,7 @@ __✔ Să fie considerat demn de titlu de către arbitru__
 
 Arbitrul are libertate totală:
 
-„Acordarea CAC este lăsată la discreția arbitru­lui expert…”
+„Acordarea CAC este lăsată la discreția arbitrului expert…”
 
 Asta înseamnă că __nu este obligat__ să acorde CAC, chiar dacă există câini eligibili.
 
@@ -76,7 +76,7 @@ __Etapa 2 – Play-off între câștigătorii claselor__
 
 Câștigătorii claselor eligibile la __același sex__ sunt chemați pentru comparația finală.
 
-Aici, arbitru:
+Aici, arbitrul:
 
 __✔ compară câștigătorii claselor Intermediară + Deschisă + Lucru__
 
@@ -129,7 +129,7 @@ __✔ Se acordă 1 CAC/sex__
 
 __✔ Câinele trebuie să aibă 1 Excelent__
 
-__✔ Arbiterul compară câștigătorii claselor__
+__✔ Arbitrul compară câștigătorii claselor__
 
 __✔ Acordarea CAC este discreționară__
 

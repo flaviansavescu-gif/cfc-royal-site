@@ -68,7 +68,7 @@ __✔ îi compară pe toți trei simultan__
 
 __✔ decide câinele care reprezintă cel mai bine rasa__
 
-__✔ anunță câștigătorul JBR = Best Breed Representative__
+__✔ anunță câștigătorul BBR = Best Breed Representative__
 
 __4. Caracteristicile arbitrării la BBR__
 
@@ -97,7 +97,7 @@ __❌ BBR NU este necesar pentru titluri de campionat__
 
 __6. Când se acordă BBR?__
 
-- BBR __nu este obligatori în toate expozițiile__.
+- BBR __nu este obligatoriu în toate expozițiile__.
 - Este o opțiune a organizatorului sau a arbitrului, în funcție de regulamentul local și formatul expoziției.
 
 __7. Rezumat practic (CHECKLIST BBR)__

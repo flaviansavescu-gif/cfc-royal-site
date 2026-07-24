@@ -14,9 +14,9 @@ _Aprobat de Consiliul Director în ședința din data de [data]. Ratificat de Ad
 
 ## Preambul
 
-Cinologia profesională este o disciplină în care competența tehnică, autoritatea de judecată și relația cu animalul se întâlnesc într-un spațiu de încredere publică. Această încredere nu se obține prin afilieri sau titluri, ci prin conduita constantă, vizibilă și verificabilă a celor care exercită profesia.
+Chinologia profesională este o disciplină în care competența tehnică, autoritatea de judecată și relația cu animalul se întâlnesc într-un spațiu de încredere publică. Această încredere nu se obține prin afilieri sau titluri, ci prin conduita constantă, vizibilă și verificabilă a celor care exercită profesia.
 
-Asociația își asumă responsabilitatea de a forma și certifica profesioniști care să mențină această încredere — atât față de comunitatea cinologică națională și internațională, cât și față de animalele care fac obiectul activității lor.
+Asociația își asumă responsabilitatea de a forma și certifica profesioniști care să mențină această încredere — atât față de comunitatea chinologică națională și internațională, cât și față de animalele care fac obiectul activității lor.
 
 Prezentul Cod Etic stabilește standardele de conduită pe care toți cei afiliați Centrului — membri, lectori, arbitri, cursanți și personal administrativ — se angajează să le respecte. El nu este un document declarativ, ci un instrument practic de orientare a deciziilor profesionale în situațiile concrete în care apar tensiuni etice.
 
@@ -366,7 +366,7 @@ e) încercarea de a influența evaluatorul prin orice mijloc (cadouri, relații 
 
 (1) Numai Președintele și persoanele expres mandatate pot face declarații publice în numele Asociației.
 
-(2) Persoanele afiliate pot face declarații publice în nume propriu pe teme cinologice, cu condiția de a:
+(2) Persoanele afiliate pot face declarații publice în nume propriu pe teme chinologice, cu condiția de a:
 
 a) preciza că exprimă o opinie personală, nu o poziție a Asociației;
 
@@ -374,7 +374,7 @@ b) respecta confidențialitatea și obligațiile de loialitate instituțională;
 
 c) evita atacurile la persoană împotriva altor membri sau structuri ale Asociației;
 
-d) menține un registru profesional și respectos.
+d) menține un registru profesional și respectuos.
 
 ### Art. 26. Conduita pe rețele sociale
 

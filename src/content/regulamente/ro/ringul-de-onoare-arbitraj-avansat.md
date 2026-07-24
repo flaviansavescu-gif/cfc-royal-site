@@ -102,7 +102,7 @@ __6.2. Armonia generală__
 
 __6.3. Compararea directă__
 
-- In ringul de onoare, arbitrii __compară între rase__, spre deosebire de ringul individual.
+- În ringul de onoare, arbitrii __compară între rase__, spre deosebire de ringul individual.
 - Comparația se bazează pe:
 	- calitatea de top în raport cu standardul propriu,
 	- corectitudinea funcțională,

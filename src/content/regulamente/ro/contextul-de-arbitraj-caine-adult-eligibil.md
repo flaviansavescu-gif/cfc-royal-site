@@ -18,7 +18,7 @@ Un câine adult poate concura în:
 
 Acest parcurs este identic, indiferent de clasa adultă din care pornește.
 
-__1. ÎNTRAREA ÎN RING – VERIFICĂRI INITIALE__
+__1. INTRAREA ÎN RING – VERIFICĂRI INIȚIALE__
 
 __Responsabilitățile arbitrului:__
 
@@ -38,7 +38,7 @@ __✔ 1.2. Observă comportamentul general la intrare__
 🔸 Dacă comportamentul → imposibil de evaluat  
 → Arbitrul acordă __N.J. – Not Judgable__.
 
-__2. JUDCAREA INDIVIDUALĂ A CÂINELUI__
+__2. JUDECAREA INDIVIDUALĂ A CÂINELUI__
 
 Arbitrul evaluează câinele __singur__, în fața concurenților clasei.
 

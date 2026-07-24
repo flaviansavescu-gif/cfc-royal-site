@@ -105,7 +105,7 @@ e) BIS Veterans – locul I: 6 puncte;
 
 f) Best in Show absolut (dacă este organizat un singur BIS final): 15 puncte.
 
-b) Pentru câinii clasați pe locurile II și III în ringul de onoare se acordă suplimentar:
+g) Pentru câinii clasați pe locurile II și III în ringul de onoare se acordă suplimentar:
 
 - locul II în orice BIS de categorie sau Best in Show absolut: +3 puncte;
 
@@ -148,8 +148,8 @@ b) câinele cu cel mai mare punctaj obținut preponderent din BOB Veteran/BIS Ve
 
 (1) În cazul egalității de puncte între doi sau mai mulți câini, departajarea se face, în ordine:
 a) după numărul mai mare de titluri BOB obținute în anul de referință;
-c) după numărul mai mare de expoziții internaționale CFC Royal la care câinele a obținut puncte;
-d) dacă egalitatea persistă, se poate declara ex aequo sau se poate stabili un criteriu suplimentar prin decizie a comisiei CFC Royal.
+b) după numărul mai mare de expoziții internaționale CFC Royal la care câinele a obținut puncte;
+c) dacă egalitatea persistă, se poate declara ex aequo sau se poate stabili un criteriu suplimentar prin decizie a comisiei CFC Royal.
 
 (2) Schimbarea proprietarului câinelui în cursul anului nu afectează punctajul; punctele rămân atașate câinelui. În listele oficiale poate fi menționat atât proprietarul inițial, cât și proprietarul actual, aplicându-se prin analogie prevederile art. 15 din regulamentul WDF privind proprietatea câinilor înscriși la expoziție.
 

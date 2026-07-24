@@ -8,9 +8,9 @@ draft: false
 
 _Anexa 2 la Regulamentul intern de funcționare, al Asociației **Club Federal Chinologic – Royal**._
 
-_Aliniat la standardele **World Dog Federation (WDF)** și **International Institute of Professional Cynology (IIPC)**._
+_Aliniată la standardele **World Dog Federation (WDF)** și **International Institute of Professional Cynology (IIPC)**._
 
-_Aprobată de Consiliul Director în ședința din data de [data]. Ratificat de Adunarea Generală în data de [data]._
+_Aprobată de Consiliul Director în ședința din data de [data]. Ratificată de Adunarea Generală în data de [data]._
 
 ## Preambul
 

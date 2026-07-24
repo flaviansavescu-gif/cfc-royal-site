@@ -1,7 +1,7 @@
 ---
 title: "Asociația Chinologică Profesională Carpații"
 lang: ro
-summary: "Asociație chinologică profesională afiliată Club Federal Chinologic – Royal, cu sediul în județul Iași."
+summary: "Asociație chinologică profesională afiliată Clubului Federal Chinologic – Royal, cu sediul în județul Iași."
 county: "Iași"
 city: "Tomești"
 address: "Str. Văzduh nr. 27, loc. Tomești, jud. Iași"
@@ -14,4 +14,4 @@ draft: false
 ---
 
 Asociația Chinologică Profesională „Carpații" (AChP-Carpații) este o asociație chinologică profesională
-afiliată Club Federal Chinologic – Royal, cu activitate în județul Iași.
+afiliată Clubului Federal Chinologic – Royal, cu activitate în județul Iași.

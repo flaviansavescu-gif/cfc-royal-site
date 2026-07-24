@@ -14,7 +14,7 @@ _Aprobat de Consiliul Director în ședința din data de [data]. Ratificat de Ad
 
 ## Preambul
 
-Arbitrul cinologic exercită o autoritate de judecată care produce consecințe imediate asupra unor animale, asupra unor proprietari și asupra unei comunități profesionale care îl observă. Calitatea acestei autorități nu se rezumă la cunoașterea standardelor de rasă sau a regulamentelor tehnice — ea include capacitatea de a păstra distanța deontologică față de presiunile relațiilor personale, comerciale și afective dintr-o comunitate cinologică prin natură mică și interconectată.
+Arbitrul chinologic exercită o autoritate de judecată care produce consecințe imediate asupra unor animale, asupra unor proprietari și asupra unei comunități profesionale care îl observă. Calitatea acestei autorități nu se rezumă la cunoașterea standardelor de rasă sau a regulamentelor tehnice — ea include capacitatea de a păstra distanța deontologică față de presiunile relațiilor personale, comerciale și afective dintr-o comunitate chinologică prin natură mică și interconectată.
 
 Colegiul de Arbitri este structura prin care Asociația formează, evaluează, certifică și protejează această autoritate. Prezentul Regulament definește componența Colegiului, drepturile și obligațiile membrilor săi, procedurile de dobândire și menținere a calității de arbitru și relațiile Colegiului cu celelalte structuri ale Asociației și cu federațiile internaționale afiliate.
 
@@ -60,13 +60,13 @@ a) tuturor persoanelor care exercită sau aspiră la exercitarea calității de 
 
 b) structurilor de conducere ale Colegiului;
 
-c) organizatorilor de evenimente cinologice care apelează la arbitri ai Asociației.
+c) organizatorilor de evenimente chinologice care apelează la arbitri ai Asociației.
 
 ### Art. 4. Definiții
 
 În cuprinsul prezentului Regulament:
 
-a) Arbitru — persoana certificată de Asociație ca având competența profesională de a evalua, în context formal, exemplare canine sau prestații cinologice;
+a) Arbitru — persoana certificată de Asociație ca având competența profesională de a evalua, în context formal, exemplare canine sau prestații chinologice;
 
 b) Misiune de arbitraj — activitatea concretă prin care arbitrul evaluează, într-un eveniment determinat, exemplare sau prestații;
 
@@ -84,7 +84,7 @@ e) Mentor — arbitru senior desemnat să supravegheze formarea unui arbitru sta
 
 (2) Colegiul nu are personalitate juridică distinctă. El funcționează în subordinea Consiliului Director și sub coordonarea directă a Vicepreședintelui Tehnic și de Arbitraj.
 
-(3) Colegiul beneficiază de autonomie tehnică în chestiuni pur profesionale (interpretarea standardelor, propuneri de uniformizare a evaluării, organizarea internă a seminariilor), în limitele stabilite prin Statut, Regulament și prezentul Anexa 3.
+(3) Colegiul beneficiază de autonomie tehnică în chestiuni pur profesionale (interpretarea standardelor, propuneri de uniformizare a evaluării, organizarea internă a seminariilor), în limitele stabilite prin Statut, Regulament și prezenta Anexă 3.
 
 ### Art. 6. Categorii de arbitri
 
@@ -108,7 +108,7 @@ a) arbitri pentru evaluarea morfologică (conformitate față de standardul de r
 
 b) arbitri pentru probe utilitare și de muncă;
 
-c) arbitri pentru discipline sportive cinologice (după caz: agilitate, ascultare, sport canin în general);
+c) arbitri pentru discipline sportive chinologice (după caz: agilitate, ascultare, sport canin în general);
 
 d) arbitri specialiști de rasă (single-breed specialists), certificați pentru un grup restrâns de rase;
 
@@ -224,9 +224,9 @@ Pentru a fi admisă ca arbitru stagiar, persoana trebuie să îndeplinească cum
 
 a) să aibă vârsta minimă de [25] ani;
 
-b) să aibă o experiență cinologică verificabilă de minimum [5] ani (creștere, expoziții, sport, activitate clubistică);
+b) să aibă o experiență chinologică verificabilă de minimum [5] ani (creștere, expoziții, sport, activitate clubistică);
 
-c) să dețină studii superioare sau, în lipsa acestora, o pregătire cinologică de specialitate echivalentă, dovedită prin diplome, certificate sau publicații;
+c) să dețină studii superioare sau, în lipsa acestora, o pregătire chinologică de specialitate echivalentă, dovedită prin diplome, certificate sau publicații;
 
 d) să fie membru activ al Asociației de minimum 12 luni la data depunerii cererii;
 
@@ -422,7 +422,7 @@ c) rasele pe care le crește activ;
 
 d) raporturile comerciale active cu alți crescători (parteneriate de monte, schimburi de exemplare, asociații comerciale);
 
-e) calitatea de membru sau funcțiile deținute în alte cluburi sau asociații cinologice;
+e) calitatea de membru sau funcțiile deținute în alte cluburi sau asociații chinologice;
 
 f) rolurile didactice (cursanți pe care îi formează curent în calitate de mentor sau lector).
 
@@ -450,9 +450,9 @@ a) seminariile organizate de Asociație;
 
 b) seminariile organizate de WDF, IIPC sau federațiile recunoscute;
 
-c) conferințele științifice cinologice;
+c) conferințele științifice chinologice;
 
-d) cursurile universitare și postuniversitare de cinologie;
+d) cursurile universitare și postuniversitare de chinologie;
 
 e) activitatea de mentor pentru arbitri stagiari (recunoscută parțial);
 
@@ -490,7 +490,7 @@ f) eventuale incidente sau probleme constatate.
 
 ### Art. 27. Invitarea și acceptarea unei misiuni
 
-(1) Organizatorul unui eveniment cinologic invită arbitrii direct, alegându-i din Registrul Colegiului, în funcție de specializarea cerută.
+(1) Organizatorul unui eveniment chinologic invită arbitrii direct, alegându-i din Registrul Colegiului, în funcție de specializarea cerută.
 
 (2) Invitația trebuie comunicată în scris cu minimum [60] zile înainte de eveniment, pentru evenimentele internaționale, și [30] zile, pentru cele naționale, cu următoarele elemente:
 
@@ -626,7 +626,7 @@ d) calendarul activităților.
 
 (2) Asociația sprijină procedural cererile de recunoaștere internațională ale arbitrilor săi, prin emiterea documentelor justificative și prin reprezentare instituțională.
 
-(3) Recunoașterea unor calități de arbitru obținute la alte federații sau organizații cinologice se face de Consiliul Director, la propunerea Consiliului Colegiului, după verificarea echivalenței standardelor.
+(3) Recunoașterea unor calități de arbitru obținute la alte federații sau organizații chinologice se face de Consiliul Director, la propunerea Consiliului Colegiului, după verificarea echivalenței standardelor.
 
 ## Capitolul X. Dispoziții finale
 

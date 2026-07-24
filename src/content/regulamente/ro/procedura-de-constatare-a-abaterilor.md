@@ -2,10 +2,10 @@
 title: "Procedura de constatare a abaterilor"
 lang: ro
 category: "Contestații și abateri"
-summary: "„Procedura de constatare a abaterilor”, în acord cu Regulamentul WDF (art. 16, 17, 26, 34, 35, 36."
+summary: "„Procedura de constatare a abaterilor”, în acord cu Regulamentul WDF (art. 16, 17, 26, 34, 35, 36)."
 draft: false
 ---
-__„Procedura de constatare a abaterilor”__, în acord cu Regulamentul WDF (art. 16, 17, 26, 34, 35, 36.
+__„Procedura de constatare a abaterilor”__, în acord cu Regulamentul WDF (art. 16, 17, 26, 34, 35, 36).
 
 __ Procedura de constatare a abaterilor__
 
@@ -50,7 +50,7 @@ Arbitrul poate constata:
 - defecte eliminatorii,
 - comportamente agresive,
 - imposibilitatea examinării,
-- urme de intervenții interzise (art. 17 WDF) .
+- urme de intervenții interzise (art. 17 WDF).
 
 Arbitrul poate __opri temporar sau definitiv evaluarea__ câinelui.
 
@@ -91,7 +91,7 @@ __c) Reținerea documentelor__
 
 Conform regulamentului WDF:
 
-- delegatul preia __fișa de arbitraj__ și __carnetul de calificări__ în caz de descalificare pentru defecte eliminatorii sau fraudă (art. 16 WDF) .
+- delegatul preia __fișa de arbitraj__ și __carnetul de calificări__ în caz de descalificare pentru defecte eliminatorii sau fraudă (art. 16 WDF).
 
 __d) Nota în raportul delegatului WDF__
 
@@ -125,7 +125,7 @@ La cererea expozantului, se poate oferi:
 
 __e) Dreptul la reclamație__
 
-Expozanții sunt informați că pot depune o reclamație __conform procedurii oficiale__, înainte de finalizarea judecării rasei (art. 36 WDF) .
+Expozanții sunt informați că pot depune o reclamație __conform procedurii oficiale__, înainte de finalizarea judecării rasei (art. 36 WDF).
 
 __1.5. Finalizarea procedurii__
 

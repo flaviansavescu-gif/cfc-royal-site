@@ -1,7 +1,7 @@
 ---
 title: "Asociația Club Federal Chinologic – Buzău"
 lang: ro
-summary: "Asociație chinologică afiliată Club Federal Chinologic – Royal, cu sediul în județul Buzău."
+summary: "Asociație chinologică afiliată Clubului Federal Chinologic – Royal, cu sediul în județul Buzău."
 county: "Buzău"
 city: "Buzău"
 address: "Bd. Republicii nr. 1A, Buzău, jud. Buzău"

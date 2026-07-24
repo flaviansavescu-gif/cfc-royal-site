@@ -52,7 +52,7 @@ __8. Să plece mai devreme din expoziție, cu acordul comitetului__
 Dar __doar după ce__:
 
 - a primit carnetul cu omologările
-- a finalizat toate runde în care câinele trebuie să participe
+- a finalizat toate rundele în care câinele trebuie să participe
 
 __CE NU AU VOIE SĂ FACĂ HANDLERII / EXPOZANȚII (Interzis)__
 
@@ -139,7 +139,7 @@ Ex.: câini fără:
 
 - carnet de calificative
 - microchip valid
-- certificat de tipicitate (dacă sunt înregistrare provizorie)
+- certificat de tipicitate (dacă sunt în înregistrare provizorie)
 
 Aceștia nu pot primi titluri.
 

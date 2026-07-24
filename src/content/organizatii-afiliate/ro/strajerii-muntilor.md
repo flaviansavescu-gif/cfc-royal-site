@@ -1,7 +1,7 @@
 ---
 title: "Asociația Străjerii Munților"
 lang: ro
-summary: "Asociație chinologică afiliată Club Federal Chinologic – Royal, cu sediul în județul Ilfov."
+summary: "Asociație chinologică afiliată Clubului Federal Chinologic – Royal, cu sediul în județul Ilfov."
 county: "Ilfov"
 city: "Corbeanca"
 address: "Str. Conacului nr. 1A, sat Tămași, comuna Corbeanca, jud. Ilfov"
@@ -13,5 +13,5 @@ logo: "/images/afiliat-strajerii-muntilor.webp"
 draft: false
 ---
 
-Asociația Străjerii Munților este o asociație chinologică afiliată Club Federal Chinologic – Royal,
+Asociația Străjerii Munților este o asociație chinologică afiliată Clubului Federal Chinologic – Royal,
 cu activitate dedicată raselor de câini de pază a turmelor.

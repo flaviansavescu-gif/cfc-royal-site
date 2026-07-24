@@ -130,7 +130,7 @@ __Păr: __Capul și partea anterioară a membrelor sunt acoperite cu păr scurt.
 
 __Culoare:__
 
-__Culoare clasică: __Culoarea principală a blănii este alb curat sau alb-bej, cu pete distincte de gri, negru sau negru cu reflexe roșcat-fulvii. Pe membre pot apărea stropi (ticking) negri sau gri. Aspectul tigrat (brindle) al petelor se respinge.
+__Culoare clasică: __Culoarea principală a blănii este alb curat sau alb-bej, cu pete distincte de gri, negru sau negru cu reflexe roșcat-fulve. Pe membre pot apărea stropi (ticking) negri sau gri. Aspectul tigrat (brindle) al petelor se respinge.
 
 __Culori solide: __Subiecții de culoare uniformă (fără pete) sunt acceptați, dar nu încurajați: alb, alb-bej, gri-cenușiu sau negru.
 

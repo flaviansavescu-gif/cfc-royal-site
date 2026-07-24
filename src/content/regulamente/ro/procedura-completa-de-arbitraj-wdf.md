@@ -232,7 +232,7 @@ __2. În timpul arbitrajului__
 ✔ chem clasa → verific prezența  
 ✔ examinez câinele → notez raportul  
 ✔ ofer calificativ  
-✔ stabilesc clasamentul primei 3  
+✔ stabilesc clasamentul primilor 3  
 ✔ acord CAJC / CAC / CACIB dacă este cazul  
 ✔ trimit câinii la play-off
 

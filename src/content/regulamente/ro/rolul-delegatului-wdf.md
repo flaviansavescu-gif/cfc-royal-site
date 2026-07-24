@@ -97,7 +97,7 @@ __✔ sancționa sau exclude pe loc:__
 
 - handleri agresivi
 - persoane care contestă arbitrul
-- persoane care jigneasc sau tulbură ordinea
+- persoane care jignesc sau tulbură ordinea
 - comportament antisportiv
 
 __✔ raporta imediat la WDF în „Raportul Delegatului”.__
@@ -110,7 +110,7 @@ __✔ confirmă corectitudinea CAJC, CAC, CACIB, BOB, JBOB, BBR__
 
 înainte ca secretariatul să le omologheze.
 
-__✔ poate invalida titluri dacă observa nereguli__
+__✔ poate invalida titluri dacă observă nereguli__
 
 (ex. câine în clasă greșită, comportament nepotrivit, documente false)
 
@@ -165,7 +165,7 @@ __✔ cere schimbarea ringului dacă devine nesigur__
 
 (suprafață alunecoasă, obiecte periculoase)
 
-__✔ verifica munca ring-commisarilor__
+__✔ verifica munca ring-comisarilor__
 
 (corectitudinea completării fișelor, numerelor etc.)
 

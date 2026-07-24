@@ -16,7 +16,7 @@ Ringul reprezintă un spațiu oficial, în care:
 - arbitrul este __autoritatea supremă tehnică__
 - delegatul WDF este __autoritatea supremă procedurală__
 - handlerii/expozanții trebuie să se supună regulilor fără discuții
-- ring-comissarul asigură ordinea și fluxul corect al examinării
+- ring-comisarul asigură ordinea și fluxul corect al examinării
 
 Regulamentul cere un __comportament exemplar, calm, disciplinat și sportiv__.
 
@@ -52,7 +52,7 @@ Handlerii trebuie să:
 - urmeze instrucțiunile
 - se prezinte la timp
 - respecte ordinea numerică
-- răspund civilizat la solicitările acestuia
+- răspundă civilizat la solicitările acestuia
 
 __✔ 2.4. Aderență la regulile de prezentare__
 
