@@ -25,9 +25,10 @@
 # manifestul NU se cache-uiesc, ca actualizările aplicației să ajungă imediat la useri
 # (Netlify servește deja .webmanifest ca application/manifest+json; .htaccess-ul inclus e
 # doar pentru găzduiri Apache și e inert aici).
-# Aplicația e disponibilă doar candidaților de arbitru (link doar pe pagina Centrului),
-# deci NU o indexăm în motoarele de căutare. Excluderea din căutarea internă (Pagefind)
-# se face cu data-pagefind-ignore pe paginile aplicației.
+# Aplicația e disponibilă doar candidaților de arbitru: linkul activ e DOAR în platforma
+# Școlii de Arbitraj (/cursuri/, protejată cu cod), iar pe pagina publică a Centrului cardul
+# apare inactiv (informativ). Deci NU o indexăm în motoarele de căutare. Excluderea din
+# căutarea internă (Pagefind) se face cu data-pagefind-ignore pe paginile aplicației.
 [[headers]]
   for = "/breed-explorer/*"
   [headers.values]
