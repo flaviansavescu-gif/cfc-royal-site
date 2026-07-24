@@ -52,6 +52,8 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
     <input id="a-cand-nume" type="text" placeholder="Numele complet al candidatului" />
     <button id="a-cand-add" class="btn btn--primary" type="button">Adaugă candidat</button>
   </div>
+  <p class="a-cand-feedback" id="a-cand-feedback" role="status" hidden></p>
+  <p class="a-cand-count" id="a-cand-count" hidden></p>
   <ul class="a-cand-list" id="a-cand-list"></ul>
 
   <h2 class="a-h2">Spațiile lectorilor</h2>
@@ -178,11 +180,23 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
       return data;
     }
 
-    async function incarcaCandidati() {
+    function fmtData(iso, cuOra) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (isNaN(d)) return "";
+      const opt = cuOra
+        ? { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }
+        : { day: "numeric", month: "long", year: "numeric" };
+      return d.toLocaleString("ro-RO", opt);
+    }
+
+    async function incarcaCandidati(highlightId) {
       const list = document.getElementById("a-cand-list");
+      const countEl = document.getElementById("a-cand-count");
       list.textContent = "";
       let candidati = [];
       try { candidati = await candidatiCere({ actiune: "lista" }); } catch (e) {
+        countEl.hidden = true;
         const li = document.createElement("li");
         li.className = "a-cand-empty";
         li.textContent = "Nu am putut încărca lista candidaților.";
@@ -190,17 +204,26 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
         return;
       }
       if (!candidati.length) {
+        countEl.hidden = true;
         const li = document.createElement("li");
         li.className = "a-cand-empty";
         li.textContent = "Niciun candidat adăugat încă.";
         list.appendChild(li);
         return;
       }
-      candidati.forEach((c) => list.appendChild(randCandidat(c)));
+      // Cei mai recent înregistrați apar primii.
+      candidati.sort((a, b) => String(b.creat || "").localeCompare(String(a.creat || "")));
+      const intrati = candidati.filter((c) => c.prima_logare).length;
+      countEl.hidden = false;
+      countEl.textContent =
+        candidati.length + (candidati.length === 1 ? " candidat înregistrat" : " candidați înregistrați") +
+        " · " + intrati + " au intrat deja în platformă";
+      candidati.forEach((c) => list.appendChild(randCandidat(c, c.id === highlightId)));
     }
 
-    function randCandidat(c) {
+    function randCandidat(c, evidentiaza) {
       const li = document.createElement("li");
+      if (evidentiaza) li.className = "is-nou";
       const info = document.createElement("div");
       info.className = "a-cand-info";
       const nume = document.createElement("strong");
@@ -210,6 +233,21 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
       cod.textContent = c.cod;
       info.appendChild(nume);
       info.appendChild(cod);
+
+      // Evidența înscrierii: când a fost adăugat și dacă a intrat deja în platformă.
+      const meta = document.createElement("span");
+      meta.className = "a-cand-meta";
+      const adaugat = c.creat ? "Înregistrat: " + fmtData(c.creat, false) : "";
+      if (c.prima_logare) {
+        meta.innerHTML =
+          (adaugat ? "<span>" + adaugat + "</span>" : "") +
+          "<span class='a-cand-intrat'>✓ A intrat: " + fmtData(c.prima_logare, true) + "</span>";
+      } else {
+        meta.innerHTML =
+          (adaugat ? "<span>" + adaugat + "</span>" : "") +
+          "<span class='a-cand-neintrat'>● Nu a intrat încă</span>";
+      }
+      info.appendChild(meta);
 
       const copy = document.createElement("button");
       copy.className = "btn btn--small btn--outline";
@@ -235,6 +273,30 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
       return li;
     }
 
+    function feedbackCandidat(candidat) {
+      const fb = document.getElementById("a-cand-feedback");
+      fb.className = "a-cand-feedback is-ok";
+      fb.hidden = false;
+      fb.innerHTML = "";
+      const t = document.createElement("span");
+      t.innerHTML = "✓ <strong>" + candidat.nume + "</strong> a fost înregistrat. Cod personal: ";
+      const code = document.createElement("code");
+      code.className = "a-cand-cod";
+      code.textContent = candidat.cod;
+      const copy = document.createElement("button");
+      copy.type = "button";
+      copy.className = "btn btn--small btn--outline";
+      copy.textContent = "Copiază codul";
+      copy.addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(candidat.cod); copy.textContent = "Copiat ✓"; setTimeout(() => (copy.textContent = "Copiază codul"), 1500); }
+        catch (e) { /* clipboard indisponibil — codul e vizibil oricum */ }
+      });
+      const hint = document.createElement("span");
+      hint.className = "a-cand-feedback__hint";
+      hint.textContent = "Trimite-i acest cod — cu el intră pe platformă. Îl vezi și mai jos, în listă.";
+      fb.appendChild(t); fb.appendChild(code); fb.appendChild(copy); fb.appendChild(hint);
+    }
+
     document.getElementById("a-cand-add").addEventListener("click", async () => {
       const inp = document.getElementById("a-cand-nume");
       const nume = inp.value.trim();
@@ -244,9 +306,18 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
       try {
         const data = await candidatiCere({ actiune: "adauga", nume });
         inp.value = "";
-        incarcaCandidati();
-        if (data.candidat) alert("Candidat adăugat.\n\n" + data.candidat.nume + "\nCod: " + data.candidat.cod + "\n\nTrimite-i acest cod — cu el intră pe platformă.");
-      } catch (err) { alert("Nu am putut adăuga: " + err.message); }
+        if (data.candidat) {
+          feedbackCandidat(data.candidat);
+          await incarcaCandidati(data.candidat.id);
+        } else {
+          await incarcaCandidati();
+        }
+      } catch (err) {
+        const fb = document.getElementById("a-cand-feedback");
+        fb.className = "a-cand-feedback is-err";
+        fb.hidden = false;
+        fb.textContent = "Nu am putut adăuga candidatul: " + err.message;
+      }
       finally { btn.disabled = false; btn.textContent = "Adaugă candidat"; }
     });
 
@@ -326,9 +397,18 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
   .a-anunt-empty { color: var(--color-text-muted); font-style: italic; border: 0 !important; background: transparent !important; padding: 0 !important; }
   .a-cand-form { display: flex; flex-wrap: wrap; gap: 0.6rem; max-width: 44rem; }
   .a-cand-form input { flex: 1 1 18rem; padding: 0.65rem 0.9rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
-  .a-cand-list { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid; gap: 0.6rem; max-width: 44rem; }
+  .a-cand-feedback { max-width: 44rem; margin: 0.9rem 0 0; padding: 0.7rem 1rem; border-radius: var(--radius); display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; }
+  .a-cand-feedback.is-ok { background: #eaf5ec; border: 1px solid #b6dcbf; color: #1f5130; }
+  .a-cand-feedback.is-err { background: #fbeaec; border: 1px solid #e2b6bd; color: #8c1d2f; }
+  .a-cand-feedback__hint { flex-basis: 100%; font-size: 0.85rem; color: var(--color-text-muted); }
+  .a-cand-count { max-width: 44rem; margin: 1.1rem 0 0; font-size: 0.9rem; color: var(--color-accent-dark); font-weight: 600; }
+  .a-cand-list { list-style: none; margin: 0.6rem 0 0; padding: 0; display: grid; gap: 0.6rem; max-width: 44rem; }
   .a-cand-list li { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.7rem 1rem; }
+  .a-cand-list li.is-nou { border-color: #b6dcbf; box-shadow: 0 0 0 2px #eaf5ec; }
   .a-cand-info { flex: 1 1 14rem; display: flex; flex-direction: column; gap: 0.2rem; }
+  .a-cand-meta { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; font-size: 0.8rem; color: var(--color-text-muted); margin-top: 0.15rem; }
+  .a-cand-intrat { color: #1f5130; font-weight: 600; }
+  .a-cand-neintrat { color: var(--color-text-muted); }
   .a-cand-cod { font-family: var(--font-mono, monospace); font-size: 1rem; letter-spacing: 0.08em; color: var(--color-accent-dark); background: var(--color-surface-alt); padding: 0.1rem 0.5rem; border-radius: 6px; align-self: flex-start; }
   .a-cand-empty { color: var(--color-text-muted); font-style: italic; border: 0 !important; background: transparent !important; padding: 0 !important; }
   .a-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }

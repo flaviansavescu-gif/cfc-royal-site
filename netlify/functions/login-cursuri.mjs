@@ -27,13 +27,25 @@ export default async (req) => {
   if (!cod) return json({ eroare: "Cod lipsă." }, 400);
 
   const id = sha256(cod);
+  const store = getStore("cursuri");
   let cand = null;
   try {
-    cand = await getStore("cursuri").get("candidat/" + id, { type: "json" });
+    cand = await store.get("candidat/" + id, { type: "json" });
   } catch (err) {
     console.error("Căutare candidat eșuată:", err);
   }
   if (!cand) return json({ eroare: "Cod incorect." }, 404);
+
+  // Marcăm prima și ultima intrare a candidatului în platformă (evidența înscrierilor
+  // pentru administrator). Nu blocăm autentificarea dacă scrierea eșuează.
+  try {
+    const acum = new Date().toISOString();
+    if (!cand.prima_logare) cand.prima_logare = acum;
+    cand.ultima_logare = acum;
+    await store.setJSON("candidat/" + id, cand);
+  } catch (err) {
+    console.error("Nu am putut marca intrarea candidatului:", err);
+  }
 
   return json({ rol: "candidat", nume: cand.nume, id });
 };

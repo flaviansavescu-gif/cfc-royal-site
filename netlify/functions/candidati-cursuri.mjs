@@ -3,7 +3,7 @@
 //   candidat/<sha256(cod)> -> { nume, cod, creat }
 // Progresul candidatului stă separat, pe progres/<sha256(cod)> (vezi test-modul.mjs).
 //
-// POST { cod, actiune:"lista" }          -> [ { nume, cod, id, creat } ]  (adminul vede codurile ca să le distribuie)
+// POST { cod, actiune:"lista" }          -> [ { nume, cod, id, creat, prima_logare, ultima_logare } ]  (adminul vede codurile + când a intrat candidatul)
 // POST { cod, actiune:"adauga", nume }   -> { ok, candidat:{ nume, cod, id, creat } }  (generează un cod unic)
 // POST { cod, actiune:"sterge", id }     -> { ok }  (șterge candidatul și progresul lui)
 import { getStore } from "@netlify/blobs";
@@ -49,7 +49,11 @@ export default async (req) => {
       const { blobs } = await store.list({ prefix: "candidat/" });
       for (const b of blobs) {
         const c = await store.get(b.key, { type: "json" });
-        if (c) lista.push({ nume: c.nume, cod: c.cod, creat: c.creat, id: b.key.slice("candidat/".length) });
+        if (c) lista.push({
+          nume: c.nume, cod: c.cod, creat: c.creat,
+          prima_logare: c.prima_logare || null, ultima_logare: c.ultima_logare || null,
+          id: b.key.slice("candidat/".length),
+        });
       }
     } catch (err) {
       console.error("Listare candidați eșuată:", err);
