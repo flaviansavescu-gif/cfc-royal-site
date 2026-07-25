@@ -70,7 +70,15 @@ async function toateProfilurile() {
   const out = [];
   for (const b of (listata.blobs || [])) {
     const p = await st.get(b.key, { type: "json" }).catch(() => null);
-    if (!p) continue;
+    if (!p || !p.cid) continue;
+    // Auto-curățare: dacă acel candidat a fost șters din platformă, îi eliminăm profilul și
+    // repartizarea rămase orfane (store „cursuri" e sursa de adevăr pentru existența candidatului).
+    const inca = await candidatDinId(p.cid);
+    if (!inca) {
+      await st.delete("profil/" + p.cid).catch(() => {});
+      await st.delete("alocare/" + p.cid).catch(() => {});
+      continue;
+    }
     const al = await st.get("alocare/" + p.cid, { type: "json" }).catch(() => null);
     out.push({ ...p, alocare: al || null });
   }
