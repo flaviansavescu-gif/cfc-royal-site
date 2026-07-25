@@ -12,31 +12,13 @@
 //
 // Store „interese": profil/<cid>, alocare/<cid>, deficit.
 import { getStore } from "@netlify/blobs";
-import { json, taie, acum, actorDinCod, candidatDinId, audit } from "./_paa/lib.mjs";
-import { LECTORI } from "./_paa/lib.mjs";
+import { json, taie, acum, candidatDinId, audit } from "./_paa/lib.mjs";
+// Rolurile, lectorii ȘI competențele lor pe grupe vin din SURSA UNICĂ.
+import { actorDinCod, LECTORI, lectoriCuGrupe } from "./_comun/roluri.mjs";
 
 const store = () => getStore("interese");
 const MIN_GRUPE = 2;
 const MAX_RASE = 80;
-
-// Competențele pe grupe ale lectorilor, derivate din prezentările lor (data/cursuri.ts, câmpul `rol`).
-// „all" = All Breed (toate cele 10 grupe). Ține sincron cu rol-urile din src/data/cursuri.ts.
-const LECTOR_GRUPE = {
-  "flavian-savescu": "all",
-  "mihail-cosmin-neagu": "all",
-  "georgeta-mihaela-chivu": "all",
-  "mihail-sorin-iacob": "all",
-  "andreea-daniela-popescu": [3, 5, 9],
-  "alexandru-paul-ciolac": [2, 3, 4, 6, 8],
-};
-const TOATE_GRUPELE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-function grupeLector(slug) {
-  const g = LECTOR_GRUPE[slug];
-  return g === "all" ? TOATE_GRUPELE.slice() : Array.isArray(g) ? g.slice() : [];
-}
-function lectoriCuGrupe() {
-  return LECTORI.map((l) => ({ slug: l.slug, nume: l.nume, grupe: grupeLector(l.slug), allBreed: LECTOR_GRUPE[l.slug] === "all" }));
-}
 
 // —— sanitizare intrări candidat ——
 function curataGrupe(v) {

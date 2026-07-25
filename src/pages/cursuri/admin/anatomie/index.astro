@@ -1,8 +1,7 @@
 ---
 // /cursuri/admin/anatomie/ — exerciții de anatomie (Photo Anatomy Annotator), spațiu comun lectori.
 import CursuriLayout from "../../../../layouts/CursuriLayout.astro";
-import { ADMIN_HASH, LECTORI } from "../../../../data/cursuri";
-const allow = [ADMIN_HASH, ...LECTORI.map((l) => l.hash)];
+const allow = ["lector"];
 ---
 
 <CursuriLayout title="Exerciții de anatomie" allow={allow}>

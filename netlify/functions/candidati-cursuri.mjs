@@ -21,9 +21,12 @@ const json = (body, status = 200) =>
     headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
   });
 
+// 8 caractere, nu 4: cu 4 existau ~0,9 milioane de variante, enumerabile într-o oră.
+// Cu 8 sunt ~850 de miliarde — imposibil de ghicit, mai ales cu limitarea încercărilor
+// de la intrare. Codurile deja emise (de 4) rămân valabile: se caută după amprentă.
 function codNou() {
   let c = "ARB-";
-  for (let i = 0; i < 4; i++) c += ALFABET[Math.floor(Math.random() * ALFABET.length)];
+  for (let i = 0; i < 8; i++) c += ALFABET[Math.floor(Math.random() * ALFABET.length)];
   return c;
 }
 

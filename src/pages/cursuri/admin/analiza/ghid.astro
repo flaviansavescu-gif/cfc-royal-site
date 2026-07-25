@@ -2,8 +2,7 @@
 // /cursuri/admin/analiza/ghid/ — ghid + exemplu complet pentru lectori: cum se creează
 // un exercițiu în Judge Comparison Room. Pagină statică (model), accesibilă tuturor lectorilor.
 import CursuriLayout from "../../../../layouts/CursuriLayout.astro";
-import { ADMIN_HASH, LECTORI } from "../../../../data/cursuri";
-const allow = [ADMIN_HASH, ...LECTORI.map((l) => l.hash)];
+const allow = ["lector"];
 ---
 
 <CursuriLayout title="Ghid: cum creezi un exercițiu" allow={allow}>

@@ -3,8 +3,8 @@
 // Spațiu partajat: TOȚI lectorii (și administratorul) văd programa și toate materialele
 // încărcate de toți lectorii. Fiecare predă conform programei (modulele de mai jos).
 import CursuriLayout from "../../../layouts/CursuriLayout.astro";
-import { MODULE, LECTORI, ADMIN_HASH } from "../../../data/cursuri";
-const allow = [ADMIN_HASH, ...LECTORI.map((l) => l.hash)];
+import { MODULE, LECTORI } from "../../../data/cursuri";
+const allow = ["lector"];
 const totalMateriale = LECTORI.reduce((n, l) => n + l.materiale.length, 0);
 const cuMateriale = LECTORI.filter((l) => l.materiale.length);
 ---

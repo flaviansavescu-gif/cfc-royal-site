@@ -4,11 +4,10 @@
 // (încurajăm lărgimea — asociația are nevoie de arbitri cu competențe extinse).
 // Alegerile ajung la secretariatul Școlii pentru orientarea către un lector potrivit.
 import CursuriLayout from "../../../layouts/CursuriLayout.astro";
-import { ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
 import { GRUPE_WDF, RASE_PE_GRUPA } from "../../../data/nomenclator-wdf";
 ---
 
-<CursuriLayout title="Interesele mele pe rase" allow={[ACCES_HASH, ADMIN_HASH]} candidat>
+<CursuriLayout title="Interesele mele pe rase" candidat>
   <p class="ir-eyebrow">Școala de Arbitraj</p>
   <h1 class="ir-title">Interesele mele pe rase</h1>
   <p class="ir-sub">

@@ -3,11 +3,10 @@
 //  A) autorizarea candidaților pe grupe WDF (1–10);
 //  B) starea examenului final + resetarea dreptului de examinare.
 import CursuriLayout from "../../../layouts/CursuriLayout.astro";
-import { ADMIN_HASH } from "../../../data/cursuri";
 import { GRUPE_WDF } from "../../../data/grupe-wdf";
 ---
 
-<CursuriLayout title="Certificare — administrare" allow={[ADMIN_HASH]}>
+<CursuriLayout title="Certificare — administrare" allow={["admin"]}>
   <p class="c-crumb"><a href="/cursuri/admin/">← Panoul platformei</a></p>
   <p class="c-eyebrow">Administrare · certificare</p>
   <h1 class="c-title">Certificarea arbitrilor</h1>

@@ -1,8 +1,7 @@
 ---
 // /cursuri/admin/analiza/sesiune/?s=<id> — editorul lectorului pentru o sesiune JCR.
 import CursuriLayout from "../../../../layouts/CursuriLayout.astro";
-import { ADMIN_HASH, LECTORI } from "../../../../data/cursuri";
-const allow = [ADMIN_HASH, ...LECTORI.map((l) => l.hash)];
+const allow = ["lector"];
 ---
 
 <CursuriLayout title="Editor sesiune" allow={allow}>

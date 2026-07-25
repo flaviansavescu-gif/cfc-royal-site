@@ -1,9 +1,11 @@
 // _jcr/lib.mjs — infrastructură comună pentru funcțiile Judge Comparison Room:
 // autentificare (RBAC pe cod), acces la store-ul Blobs „jcr", audit, validare.
 import { getStore } from "@netlify/blobs";
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
+// Rolurile și amprentele codurilor vin din SURSA UNICĂ (_comun/roluri.mjs).
+import { sha256, ADMIN_HASH, LECTORI, actorDinCod } from "../_comun/roluri.mjs";
 
-export const sha256 = (s) => createHash("sha256").update(String(s)).digest("hex");
+export { sha256, ADMIN_HASH, LECTORI, actorDinCod };
 export const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 export const acum = () => new Date().toISOString();
 
@@ -13,18 +15,6 @@ export const json = (body, status = 200) =>
     headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
   });
 
-// Coduri de rol (SHA-256). Aceleași ca în src/data/cursuri.ts (gating client) — aici sunt
-// autoritatea server-side. Dacă se schimbă un cod, se actualizează în ambele locuri.
-export const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
-export const LECTORI = [
-  { slug: "flavian-savescu", nume: "Flavian-Sergiu Savescu", hash: "71a012c1d53cdf7fc5b94202c736827245baa8cc3d629e674e8a6074266c8c14" },
-  { slug: "mihail-cosmin-neagu", nume: "Mihail Cosmin Neagu", hash: "21048e2893df687a5195519e5d665440c99a6060e11044fb2509b886ca0cc8b9" },
-  { slug: "georgeta-mihaela-chivu", nume: "Georgeta Mihaela Chivu", hash: "ddd1b278ddf55141d8f2bca8857160b38cc64024e3f5b4368cbebee329442817" },
-  { slug: "mihail-sorin-iacob", nume: "Mihail Sorin Iacob", hash: "d3c043092f13a97d4d83dd0df96be08162ec7e26ea7241dc1da685c8d89e1b18" },
-  { slug: "andreea-daniela-popescu", nume: "Andreea-Daniela Popescu", hash: "3a7948f0609b92e2a9a46075b909600eec39244f36bc2477c32f9bbc1484f697" },
-  { slug: "alexandru-paul-ciolac", nume: "Alexandru Paul Ciolac", hash: "eb393a27cbaf6fd51833e060e8a421912f17b1b12ea8c499e2084305397cc1d7" },
-];
-
 /** Baremul e vizibil cursantului? La închiderea sesiunii (dacă așa e configurat) sau la
  *  deblocarea manuală de către lector. */
 export const baremDeblocat = (s) =>
@@ -32,15 +22,6 @@ export const baremDeblocat = (s) =>
 
 export const store = () => getStore("jcr");
 export const storeCursuri = () => getStore("cursuri"); // pt. verificarea candidaților (registrul existent)
-
-/** Determină rolul din cod. Întoarce {rol:'admin'} | {rol:'lector',slug,nume} | null. */
-export function actorDinCod(cod) {
-  const h = sha256(cod || "");
-  if (h === ADMIN_HASH) return { rol: "admin", hash: h };
-  const l = LECTORI.find((x) => x.hash === h);
-  if (l) return { rol: "lector", slug: l.slug, nume: l.nume, hash: h };
-  return null;
-}
 
 /** Verifică un cod INDIVIDUAL de candidat față de registrul existent (store „cursuri"). */
 export async function candidatDinCod(cod) {

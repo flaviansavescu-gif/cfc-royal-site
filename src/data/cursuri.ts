@@ -386,11 +386,18 @@ export const MODULE: Modul[] = [
 /** Pragul de promovare a testelor (procent). */
 export const PRAG_PROMOVARE = 70;
 
-/** SHA-256 al codului de acces al CANDIDAȚILOR (codul în sine NU apare în cod). */
-export const ACCES_HASH = "48493761ba33bce0e9919789a88582a482179869fa76dbbaa93be7d67dad5470";
-
-/** SHA-256 al codului de ADMINISTRATOR (acces la toată platforma). */
-export const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
+// =========================================================================
+// SECURITATE — amprentele codurilor NU mai stau aici.
+//
+// Acest fișier ajunge în HTML-ul public al paginilor. Cât timp conținea
+// SHA-256 al codurilor, oricine le putea citi de pe site și sparge offline un
+// cod scurt, fără limită de încercări. Amprentele trăiesc acum exclusiv pe
+// server, în `netlify/functions/_comun/roluri.mjs`, iar poarta de intrare
+// (`acces-cursuri`) verifică fiecare cod acolo, cu limitare a încercărilor.
+//
+// Paginile se deschid pe baza ROLULUI primit de la server (care nu e secret):
+//   "admin" · "lector" · "lector:<slug>" · "acces" (cod comun) · candidat.
+// =========================================================================
 
 // =========================================================================
 // LECTORI — fiecare are spațiul lui la /cursuri/lector/<slug>/, accesibil
@@ -410,8 +417,8 @@ export interface Lector {
   slug: string;
   nume: string;
   rol: string;
-  hash: string; // SHA-256 al codului de acces personal
   materiale: Material[];
+  // Amprenta codului personal NU se află aici — vezi nota de securitate de mai sus.
 }
 
 export const LECTORI: Lector[] = [
@@ -419,7 +426,6 @@ export const LECTORI: Lector[] = [
     slug: "flavian-savescu",
     nume: "Flavian-Sergiu Savescu",
     rol: "Președinte al Colegiului de Arbitri · WDF All Breed",
-    hash: "71a012c1d53cdf7fc5b94202c736827245baa8cc3d629e674e8a6074266c8c14",
     materiale: [
       { titlu: "Suport de curs 4.1 — Regulamente WDF și standarde (PDF)", url: "/cursuri-materiale/flavian-savescu/suport-curs-4-1-regulamente-wdf-si-standarde.pdf", md: "/cursuri-materiale/flavian-savescu/suport-curs-4-1-regulamente-wdf-si-standarde.md" },
       { titlu: "Suport de curs 4.3 — Codul Etic al arbitrului (PDF)", url: "/cursuri-materiale/flavian-savescu/suport-curs-4-3-cod-etic-arbitru.pdf", md: "/cursuri-materiale/flavian-savescu/suport-curs-4-3-cod-etic-arbitru.md" },
@@ -430,14 +436,12 @@ export const LECTORI: Lector[] = [
     slug: "mihail-cosmin-neagu",
     nume: "Mihail Cosmin Neagu",
     rol: "Arbitru WDF · All Breed",
-    hash: "21048e2893df687a5195519e5d665440c99a6060e11044fb2509b886ca0cc8b9",
     materiale: [],
   },
   {
     slug: "georgeta-mihaela-chivu",
     nume: "Georgeta Mihaela Chivu",
     rol: "Arbitru WDF · All Breed",
-    hash: "ddd1b278ddf55141d8f2bca8857160b38cc64024e3f5b4368cbebee329442817",
     materiale: [
       { titlu: "Suport de curs 4.2.4 — Handling expozițional (PDF)", url: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-2-4-handling-expozitional.pdf", md: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-2-4-handling-expozitional.md" },
       { titlu: "Suport de curs 4.4.5 — Grooming canin (PDF)", url: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-4-5-grooming-canin.pdf", md: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-4-5-grooming-canin.md" },
@@ -448,21 +452,18 @@ export const LECTORI: Lector[] = [
     slug: "mihail-sorin-iacob",
     nume: "Mihail Sorin Iacob",
     rol: "Arbitru WDF · All Breed",
-    hash: "d3c043092f13a97d4d83dd0df96be08162ec7e26ea7241dc1da685c8d89e1b18",
     materiale: [],
   },
   {
     slug: "andreea-daniela-popescu",
     nume: "Andreea-Daniela Popescu",
     rol: "Arbitru WDF · Grupele 3, 5, 9",
-    hash: "3a7948f0609b92e2a9a46075b909600eec39244f36bc2477c32f9bbc1484f697",
     materiale: [],
   },
   {
     slug: "alexandru-paul-ciolac",
     nume: "Alexandru Paul Ciolac",
     rol: "Arbitru WDF · Grupele 2, 3, 4, 6, 8",
-    hash: "eb393a27cbaf6fd51833e060e8a421912f17b1b12ea8c499e2084305397cc1d7",
     materiale: [],
   },
 ];

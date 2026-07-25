@@ -1,10 +1,10 @@
 ---
 // /cursuri/module/ — tabloul de bord al candidatului: lista celor 8 module.
 import CursuriLayout from "../../../layouts/CursuriLayout.astro";
-import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
+import { MODULE } from "../../../data/cursuri";
 ---
 
-<CursuriLayout title="Module" allow={[ACCES_HASH, ADMIN_HASH]} candidat>
+<CursuriLayout title="Module" candidat>
   <p class="d-hi" id="d-hi" hidden></p>
   <h1 class="d-title">Modulele Școlii de Arbitraj</h1>
   <p class="d-sub">
@@ -54,11 +54,11 @@ import { MODULE, ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
   </ol>
 </CursuriLayout>
 
-<script is:inline define:vars={{ adminHash: ADMIN_HASH }}>
+<script is:inline>
   // Modulele nebifate de administrator apar „încuiate” pentru candidați.
   (async function () {
     let esteAdmin = false;
-    try { esteAdmin = localStorage.getItem("cfcrAcces") === adminHash; } catch (e) {}
+    try { esteAdmin = (JSON.parse(localStorage.getItem("cfcrRol") || "null") || {}).rol === "admin"; } catch (e) {}
     if (esteAdmin) return; // adminul vede tot
     try {
       const stare = await (await fetch("/.netlify/functions/stare-cursuri")).json();

@@ -3,10 +3,9 @@
 // Candidatul își vede numirile proprii (dacă a intrat cu codul personal) și arbitrul
 // care coordonează ringul la fiecare expoziție.
 import CursuriLayout from "../../../layouts/CursuriLayout.astro";
-import { ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
 ---
 
-<CursuriLayout title="Asistențe de ring" allow={[ACCES_HASH, ADMIN_HASH]} candidat>
+<CursuriLayout title="Asistențe de ring" candidat>
   <p class="as-crumb"><a href="/cursuri/module/">← Modulele mele</a></p>
   <h1 class="as-title">Asistențe de ring — stagiul practic</h1>
   <p class="as-sub">

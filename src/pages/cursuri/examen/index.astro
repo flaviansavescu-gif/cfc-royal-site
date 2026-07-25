@@ -1,11 +1,10 @@
 ---
 // /cursuri/examen/ — examenul final al candidatului + autorizarea lui pe grupe WDF.
 import CursuriLayout from "../../../layouts/CursuriLayout.astro";
-import { ACCES_HASH, ADMIN_HASH } from "../../../data/cursuri";
 import { GRUPE_WDF } from "../../../data/grupe-wdf";
 ---
 
-<CursuriLayout title="Examen final" allow={[ACCES_HASH, ADMIN_HASH]} candidat>
+<CursuriLayout title="Examen final" candidat>
   <p class="ex-crumb"><a href="/cursuri/module/">← Modulele mele</a></p>
   <h1 class="ex-title">Examenul final</h1>
   <p class="ex-sub">

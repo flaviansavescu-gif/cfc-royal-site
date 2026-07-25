@@ -2,8 +2,7 @@
 // /cursuri/admin/anatomie/exercitiu/?e=<id> — editorul lectorului: foto de referință, alocare,
 // publicare + verificarea rezolvărilor (previzualizare adnotare + calificativ + feedback).
 import CursuriLayout from "../../../../layouts/CursuriLayout.astro";
-import { ADMIN_HASH, LECTORI } from "../../../../data/cursuri";
-const allow = [ADMIN_HASH, ...LECTORI.map((l) => l.hash)];
+const allow = ["lector"];
 ---
 
 <CursuriLayout title="Exercițiu de anatomie" allow={allow}>

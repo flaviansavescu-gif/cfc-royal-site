@@ -3,10 +3,9 @@
 // Adminul stabilește cele 5 expoziții + arbitrul coordonator al fiecăreia și numește
 // candidații (numit / prezent / absent) la fiecare asistență.
 import CursuriLayout from "../../../layouts/CursuriLayout.astro";
-import { ADMIN_HASH } from "../../../data/cursuri";
 ---
 
-<CursuriLayout title="Asistențe de ring — administrare" allow={[ADMIN_HASH]}>
+<CursuriLayout title="Asistențe de ring — administrare" allow={["admin"]}>
   <p class="a-crumb"><a href="/cursuri/admin/">← Panoul platformei</a></p>
   <p class="a-eyebrow">Administrare · stagiu practic</p>
   <h1 class="a-title">Asistențe de ring</h1>

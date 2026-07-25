@@ -2,10 +2,9 @@
 // /cursuri/admin/rezultate/ — registrul rezultatelor testelor (doar administrator).
 // Datele vin de pe server (Netlify Blobs) prin funcția rezultate-cursuri, cu codul de admin.
 import CursuriLayout from "../../../layouts/CursuriLayout.astro";
-import { ADMIN_HASH } from "../../../data/cursuri";
 ---
 
-<CursuriLayout title="Registrul rezultatelor" allow={[ADMIN_HASH]}>
+<CursuriLayout title="Registrul rezultatelor" allow={["admin"]}>
   <p class="r-crumb"><a href="/cursuri/admin/">← Panoul de administrare</a></p>
   <h1 class="r-title">Registrul rezultatelor</h1>
   <p class="r-sub">Toate testele susținute de candidați, cele mai recente primele. Registrul se

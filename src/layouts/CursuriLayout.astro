@@ -1,15 +1,21 @@
 ---
 // CursuriLayout.astro — învelișul platformei de cursuri (Școala de Arbitraj).
-// Separat de BaseLayout: fără meniul site-ului, fără indexare (noindex + pagefind-ignore),
-// cu poartă de acces pe bază de cod (verificată client-side; cheile testelor stau pe server).
-// `allow` = lista amprentelor (SHA-256) acceptate pe pagină; codul de administrator
-// e inclus de pagini acolo unde adminul are drept de acces.
+// Separat de BaseLayout: fără meniul site-ului, fără indexare (noindex + pagefind-ignore).
+//
+// POARTA DE ACCES: pagina se deschide pe baza ROLULUI stabilit de server la intrare
+// (funcția `acces-cursuri`). NU mai punem amprente de coduri în HTML — erau publice și
+// permiteau spargerea offline a unui cod scurt. Rolul nu e secret, deci poate sta în pagină.
+//
+// Autoritatea reală rămâne, ca până acum, pe server: fiecare funcție își verifică
+// singură codul. Poarta de aici doar îndrumă utilizatorul spre zona lui.
+//
+// `allow` acceptă: "admin" · "lector" (oricare) · "lector:<slug>" · "acces" (codul comun).
+// Administratorul intră peste tot, fără să fie trecut explicit.
 import "../styles/global.css";
-import { ADMIN_HASH } from "../data/cursuri";
 
 interface Props {
   title: string;
-  /** Amprentele codurilor care deblochează pagina. Lipsă = pagină publică (ex. intrarea). */
+  /** Rolurile care deblochează pagina. Lipsă = pagină publică (ex. intrarea). */
   allow?: string[];
   /** Pagină deschisă candidaților (orice cod individual valid) — și administratorului. */
   candidat?: boolean;
@@ -31,17 +37,25 @@ const protejat = allowList.length > 0 || candidatOk;
     <link rel="icon" type="image/png" sizes="256x256" href="/favicon.png" />
     <title>{title} — Școala de Arbitraj CFC-Royal</title>
     {protejat && (
-      <script is:inline define:vars={{ allow: allowList, candidatOk, adminHash: ADMIN_HASH }}>
-        // Poartă de acces: fără un cod acceptat pe această pagină, înapoi la intrare.
+      <script is:inline define:vars={{ allow: allowList, candidatOk }}>
+        // Poartă de acces: fără rolul potrivit, înapoi la intrare.
         try {
-          const acc = localStorage.getItem("cfcrAcces");
-          let ok = allow.includes(acc);
-          if (!ok && candidatOk) {
-            if (acc === adminHash) ok = true;
-            else {
-              const c = localStorage.getItem("cfcrCandidat");
-              if (c && JSON.parse(c).id) ok = true;
+          let ok = false;
+          let r = null;
+          try { r = JSON.parse(localStorage.getItem("cfcrRol") || "null"); } catch (e) {}
+
+          if (r && r.rol) {
+            if (r.rol === "admin") ok = true;                                   // adminul intră peste tot
+            else if (r.rol === "lector") {
+              ok = allow.includes("lector") || allow.includes("lector:" + r.slug);
+            } else if (r.rol === "acces") {
+              ok = candidatOk || allow.includes("acces");
             }
+          }
+          // Candidat cu cod individual.
+          if (!ok && candidatOk) {
+            const c = localStorage.getItem("cfcrCandidat");
+            if (c && JSON.parse(c).id) ok = true;
           }
           if (!ok) location.replace("/cursuri/");
         } catch (e) {
@@ -81,7 +95,8 @@ const protejat = allowList.length > 0 || candidatOk;
       <script is:inline>
         document.getElementById("c-logout")?.addEventListener("click", () => {
           try {
-            localStorage.removeItem("cfcrAcces");
+            localStorage.removeItem("cfcrRol");
+            localStorage.removeItem("cfcrAcces"); // cheie veche (curățare)
             localStorage.removeItem("cfcrAccesCod");
             localStorage.removeItem("cfcrCandidat");
           } catch (e) {}

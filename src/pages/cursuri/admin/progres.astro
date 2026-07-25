@@ -3,12 +3,12 @@
 // Arată, pentru fiecare candidat, ce module a promovat și cu ce procent. Datele vin din
 // registrul candidaților + progresul personal (Netlify Blobs), într-un singur apel.
 import CursuriLayout from "../../../layouts/CursuriLayout.astro";
-import { MODULE, ADMIN_HASH } from "../../../data/cursuri";
+import { MODULE } from "../../../data/cursuri";
 
 const module = MODULE.map((m) => ({ slug: m.slug, nr: m.nr, titlu: m.titlu }));
 ---
 
-<CursuriLayout title="Progresul candidaților" allow={[ADMIN_HASH]}>
+<CursuriLayout title="Progresul candidaților" allow={["admin"]}>
   <p class="a-crumb"><a href="/cursuri/admin/">← Panoul de administrare</a></p>
   <p class="a-eyebrow">Administrare</p>
   <h1 class="a-title">Progresul candidaților</h1>

@@ -1,8 +1,7 @@
 ---
 // /cursuri/admin/analiza/ — Judge Comparison Room: lista de sesiuni a lectorului + creare.
 import CursuriLayout from "../../../../layouts/CursuriLayout.astro";
-import { ADMIN_HASH, LECTORI } from "../../../../data/cursuri";
-const allow = [ADMIN_HASH, ...LECTORI.map((l) => l.hash)];
+const allow = ["lector"];
 ---
 
 <CursuriLayout title="Sesiuni de analiză" allow={allow}>

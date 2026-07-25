@@ -1,9 +1,14 @@
 // login-cursuri.mjs — verifică un cod INDIVIDUAL de candidat (server-side).
-// POST { cod } -> { rol:"candidat", nume, id }  dacă există un candidat cu acest cod.
-// Codurile de administrator și de lector NU trec pe aici — ele se verifică direct
-// în pagina de intrare (client-side, ca până acum). Aici doar codurile personale.
+//
+// Păstrat pentru compatibilitate: pagini rămase în cache la utilizatori încă îl apelează.
+// Poarta actuală este `acces-cursuri` (verifică toate tipurile de cod). Aici am adăugat
+// ACEEAȘI limitare a încercărilor — altfel rămânea o ușă neprotejată prin care codurile
+// de candidat (scurte) puteau fi enumerate.
+//
+// POST { cod } -> { rol:"candidat", nume, id } | 401 | 429
 import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
+import { ipClient, verificaLimita, inregistreazaEsec, resetLimita } from "./_comun/limitare.mjs";
 
 const sha256 = (s) => createHash("sha256").update(String(s)).digest("hex");
 
@@ -26,6 +31,11 @@ export default async (req) => {
   const cod = String(body.cod || "").trim();
   if (!cod) return json({ eroare: "Cod lipsă." }, 400);
 
+  const cheie = ipClient(req);
+  const lim = await verificaLimita(cheie);
+  if (!lim.permis)
+    return json({ eroare: "Prea multe încercări. Reîncearcă peste " + Math.ceil(lim.dupaSecunde / 60) + " minute." }, 429);
+
   const id = sha256(cod);
   const store = getStore("cursuri");
   let cand = null;
@@ -34,7 +44,11 @@ export default async (req) => {
   } catch (err) {
     console.error("Căutare candidat eșuată:", err);
   }
-  if (!cand) return json({ eroare: "Cod incorect." }, 404);
+  if (!cand) {
+    await inregistreazaEsec(cheie);
+    return json({ eroare: "Cod incorect." }, 404);
+  }
+  await resetLimita(cheie);
 
   // Marcăm prima și ultima intrare a candidatului în platformă (evidența înscrierilor
   // pentru administrator). Nu blocăm autentificarea dacă scrierea eșuează.

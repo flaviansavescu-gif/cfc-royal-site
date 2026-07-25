@@ -3,11 +3,11 @@
 //  • codul candidaților  -> modulele de curs
 //  • codul unui lector   -> spațiul personal al lectorului
 //  • codul administratorului -> panoul de administrare (acces total)
-// Codurile NU apar în pagină: se compară SHA-256 al codului introdus cu amprentele salvate.
+//
+// TOATE codurile se verifică pe SERVER (funcția `acces-cursuri`), cu limitarea
+// încercărilor. În pagină nu mai există nicio amprentă de cod — înainte, amprentele
+// erau publice și un cod scurt putea fi spart offline, fără nicio limită.
 import CursuriLayout from "../../layouts/CursuriLayout.astro";
-import { ACCES_HASH, ADMIN_HASH, LECTORI } from "../../data/cursuri";
-
-const lectorRoutes = Object.fromEntries(LECTORI.map((l) => [l.hash, `/cursuri/lector/${l.slug}/`]));
 ---
 
 <CursuriLayout title="Acces platformă">
@@ -24,70 +24,63 @@ const lectorRoutes = Object.fromEntries(LECTORI.map((l) => [l.hash, `/cursuri/le
       <button class="btn btn--primary" type="submit">Intră în platformă</button>
     </form>
     <p class="gate__err" id="gate-err" hidden>Cod incorect. Verifică și încearcă din nou.</p>
+    <p class="gate__err" id="gate-lim" hidden></p>
     <p class="gate__help">Nu ai codul? Scrie-ne la <a href="mailto:contact@cfc-royal.ro">contact@cfc-royal.ro</a>.</p>
   </div>
 </CursuriLayout>
 
-<script is:inline define:vars={{ candidatHash: ACCES_HASH, adminHash: ADMIN_HASH, lectorRoutes }}>
-  function destinatie(hash) {
-    if (hash === candidatHash) return "/cursuri/module/";
-    if (hash === adminHash) return "/cursuri/admin/";
-    return lectorRoutes[hash] || null;
-  }
-
+<script is:inline>
   // Dacă e deja deblocat, sări direct la zona potrivită.
   try {
     const cand = localStorage.getItem("cfcrCandidat");
     if (cand && JSON.parse(cand).id) {
       location.replace("/cursuri/module/");
     } else {
-      const salvat = localStorage.getItem("cfcrAcces");
-      const dest = salvat && destinatie(salvat);
-      if (dest) location.replace(dest);
+      const r = JSON.parse(localStorage.getItem("cfcrRol") || "null");
+      if (r && r.dest) location.replace(r.dest);
     }
   } catch (e) {}
-
-  async function sha256(text) {
-    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
-  }
 
   document.getElementById("gate-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector("button[type=submit]");
     const cod = document.getElementById("cod").value.trim();
     const err = document.getElementById("gate-err");
-    err.hidden = true;
+    const lim = document.getElementById("gate-lim");
+    err.hidden = true; lim.hidden = true;
 
-    // 1) Coduri fixe (administrator, lectori) — verificate local, ca până acum.
-    const hash = await sha256(cod);
-    const dest = destinatie(hash);
-    if (dest) {
-      try {
-        localStorage.setItem("cfcrAcces", hash);
-        localStorage.setItem("cfcrAccesCod", cod); // folosit de panoul admin la comutarea modulelor
-        localStorage.removeItem("cfcrCandidat");
-      } catch (e2) {}
-      location.href = dest;
-      return;
-    }
-
-    // 2) Cod individual de candidat — verificat pe server (registrul candidaților).
+    // Un singur drum: serverul stabilește rolul (administrator, lector, candidat).
     btn.disabled = true;
     try {
-      const res = await fetch("/.netlify/functions/login-cursuri", {
+      const res = await fetch("/.netlify/functions/acces-cursuri", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cod }),
       });
-      if (res.ok) {
-        const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data.dest) {
         try {
-          localStorage.setItem("cfcrCandidat", JSON.stringify({ id: data.id, nume: data.nume }));
-          localStorage.removeItem("cfcrAcces");
-          localStorage.removeItem("cfcrAccesCod");
+          localStorage.removeItem("cfcrAcces"); // cheie veche
+          if (data.rol === "candidat") {
+            localStorage.setItem("cfcrCandidat", JSON.stringify({ id: data.id, nume: data.nume }));
+            localStorage.removeItem("cfcrRol");
+            localStorage.removeItem("cfcrAccesCod");
+          } else {
+            // Rolul (nesecret) deschide paginile; codul rămâne local, pentru apelurile către funcții.
+            localStorage.setItem("cfcrRol", JSON.stringify({ rol: data.rol, slug: data.slug || "", nume: data.nume || "", dest: data.dest }));
+            localStorage.setItem("cfcrAccesCod", cod);
+            localStorage.removeItem("cfcrCandidat");
+          }
         } catch (e2) {}
-        location.href = "/cursuri/module/";
+        location.href = data.dest;
+        return;
+      }
+
+      if (res.status === 429) {
+        lim.textContent = data.eroare || "Prea multe încercări. Reîncearcă mai târziu.";
+        lim.hidden = false;
+        btn.disabled = false;
         return;
       }
     } catch (e2) {

@@ -3,7 +3,7 @@
 // Accesibil DOAR cu codul lectorului respectiv sau cu codul de administrator.
 // Materialele se publică în src/data/cursuri.ts (lista `materiale` a lectorului).
 import CursuriLayout from "../../../layouts/CursuriLayout.astro";
-import { LECTORI, ADMIN_HASH } from "../../../data/cursuri";
+import { LECTORI } from "../../../data/cursuri";
 
 export function getStaticPaths() {
   return LECTORI.map((l) => ({ params: { slug: l.slug }, props: { l } }));
@@ -12,7 +12,7 @@ export function getStaticPaths() {
 const { l } = Astro.props;
 ---
 
-<CursuriLayout title={l.nume} allow={[l.hash, ADMIN_HASH]}>
+<CursuriLayout title={l.nume} allow={[`lector:${l.slug}`]}>
   <p class="l-eyebrow">Spațiul lectorului</p>
   <h1 class="l-title">{l.nume}</h1>
   <p class="l-rol">{l.rol}</p>

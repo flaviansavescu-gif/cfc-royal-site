@@ -3,10 +3,10 @@
 // Accesibil DOAR cu codul de administrator. De aici se comută modulele
 // online/ascuns pentru candidați (bifa are efect instant).
 import CursuriLayout from "../../../layouts/CursuriLayout.astro";
-import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
+import { LECTORI, MODULE } from "../../../data/cursuri";
 ---
 
-<CursuriLayout title="Administrare" allow={[ADMIN_HASH]}>
+<CursuriLayout title="Administrare" allow={["admin"]}>
   <p class="a-eyebrow">Administrare</p>
   <h1 class="a-title">Panoul platformei</h1>
   <p class="a-sub">Ai acces la toate zonele. Bifează un modul ca să devină vizibil candidaților — efectul e imediat; debifat, modulul apare „încuiat”.</p>
