@@ -318,13 +318,28 @@
   }
 
   // —— PWA install gated cu cod PAA ——
-  var UNLOCK = "paaInstalareDeblocata";
-  function deblocat() { try { return localStorage.getItem(UNLOCK) === "1"; } catch (e) { return false; } }
+  // Păstrăm CODUL, nu un semnalizator „deblocat=1": un semnalizator nu poate fi retras,
+  // așa că revocarea codului din Panou nu avea niciun efect pe dispozitivele deja deblocate.
+  var COD_INST = "paaCodInstalare";
+  var UNLOCK = "paaInstalareDeblocata"; // cheia veche (doar pentru curățare)
+  function codInst() { try { return localStorage.getItem(COD_INST) || ""; } catch (e) { return ""; } }
+  function deblocat() { return !!codInst(); }
+  function uitaCod() { try { localStorage.removeItem(COD_INST); localStorage.removeItem(UNLOCK); } catch (e) {} }
   function injManifest() { if (document.querySelector('link[rel="manifest"]')) return; var l = document.createElement("link"); l.rel = "manifest"; l.setAttribute("href", "manifest.webmanifest"); document.head.appendChild(l); }
+  function scoateManifest() { var l = document.querySelector('link[rel="manifest"]'); if (l) l.parentNode.removeChild(l); }
+  // La pornire re-verificăm codul salvat: dacă a fost revocat, dispare posibilitatea de
+  // instalare pe acest dispozitiv. Offline nu schimbăm nimic (o pană de rețea nu blochează).
+  function reverificaInstalarea() {
+    var cod = codInst();
+    if (!cod) return;
+    fetch(API + "paa-instalare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ actiune: "verifica", cod: cod }) })
+      .then(function (r) { if (r.status === 401) { uitaCod(); scoateManifest(); } })
+      .catch(function () { /* offline — păstrăm starea */ });
+  }
   var deferred = null;
   function registerPWA() {
     if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("sw.js").catch(function () {});
-    if (deblocat()) injManifest();
+    if (deblocat()) { injManifest(); reverificaInstalarea(); }
     window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); deferred = e; });
     window.addEventListener("appinstalled", function () { deferred = null; $("btnInstall").hidden = true; toast("Aplicație instalată."); });
     var standalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
@@ -335,7 +350,7 @@
     if (deblocat()) return declanseaza();
     var cod = prompt("Instalarea necesită un cod de instalare (de la CFC-Royal). Introdu codul:");
     if (!cod) return;
-    fetch(API + "paa-instalare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ actiune: "verifica", cod: String(cod).trim() }) }).then(function (r) { if (!r.ok) return toast("Cod de instalare incorect.", true); try { localStorage.setItem(UNLOCK, "1"); } catch (e) {} injManifest(); toast("Cod acceptat — se pregătește instalarea…"); setTimeout(declanseaza, 1000); }).catch(function () { toast("Nu am putut verifica codul (online?).", true); });
+    fetch(API + "paa-instalare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ actiune: "verifica", cod: String(cod).trim() }) }).then(function (r) { if (!r.ok) return toast("Cod de instalare incorect.", true); try { localStorage.setItem(COD_INST, String(cod).trim()); localStorage.removeItem(UNLOCK); } catch (e) {} injManifest(); toast("Cod acceptat — se pregătește instalarea…"); setTimeout(declanseaza, 1000); }).catch(function () { toast("Nu am putut verifica codul (online?).", true); });
   });
 
   // —— mod EXERCIȚIU (deschis cu ?ex=<id>): fotografia lectorului, candidatul o adnotează și o trimite ——

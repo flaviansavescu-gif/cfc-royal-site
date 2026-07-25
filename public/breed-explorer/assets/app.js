@@ -3094,11 +3094,21 @@
      the app keeps running via the embedded seed fallback.
      --------------------------------------------------------- */
   let deferredInstallPrompt = null;
-  var INSTALL_UNLOCK_KEY = "bseInstalareDeblocata";
+  // Păstrăm CODUL, nu un simplu „deblocat=1". Un semnalizator nu poate fi retras:
+  // odată pus, rămânea valabil chiar dacă administratorul revoca codul. Cu codul
+  // salvat îl putem re-verifica la fiecare pornire, deci revocarea are efect real.
+  var INSTALL_COD_KEY = "bseCodInstalare";
+  var INSTALL_UNLOCK_KEY = "bseInstalareDeblocata"; // cheia veche (doar pentru curățare)
 
-  function instalareDeblocata() {
-    try { return localStorage.getItem(INSTALL_UNLOCK_KEY) === "1"; } catch (e) { return false; }
+  function codInstalareSalvat() {
+    try { return localStorage.getItem(INSTALL_COD_KEY) || ""; } catch (e) { return ""; }
   }
+  function instalareDeblocata() { return !!codInstalareSalvat(); }
+
+  function uitaCodInstalare() {
+    try { localStorage.removeItem(INSTALL_COD_KEY); localStorage.removeItem(INSTALL_UNLOCK_KEY); } catch (e) {}
+  }
+
   // Fără <link rel="manifest"> browserul NU oferă instalarea PWA. Îl injectăm doar
   // după ce codul de instalare a fost validat (deblocare per dispozitiv).
   function injecteazaManifest() {
@@ -3108,6 +3118,29 @@
     l.setAttribute("href", "manifest.webmanifest");
     document.head.appendChild(l);
   }
+  function scoateManifest() {
+    var l = document.querySelector('link[rel="manifest"]');
+    if (l) l.parentNode.removeChild(l);
+  }
+
+  // Re-verifică la pornire codul salvat. Dacă a fost revocat, dispare posibilitatea
+  // de a instala pe acest dispozitiv. Dacă suntem offline, NU schimbăm nimic —
+  // altfel o simplă pană de rețea ar bloca un utilizator legitim.
+  function reverificaInstalarea() {
+    var cod = codInstalareSalvat();
+    if (!cod) return;
+    fetch("/.netlify/functions/breed-instalare", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ actiune: "verifica", cod: cod }),
+    }).then(function (res) {
+      if (res.status === 401) { // cod revocat de administrator
+        uitaCodInstalare();
+        scoateManifest();
+        var b = $("#btnInstall");
+        if (b) b.hidden = false; // rămâne butonul, dar va cere din nou un cod
+      }
+    }).catch(function () { /* offline — păstrăm starea */ });
+  }
 
   function registerPWA() {
     const okProtocol = location.protocol === "https:" ||
@@ -3115,7 +3148,7 @@
     if ("serviceWorker" in navigator && okProtocol) {
       navigator.serviceWorker.register("sw.js").catch(function () { /* offline mode still works */ });
     }
-    if (instalareDeblocata()) injecteazaManifest();
+    if (instalareDeblocata()) { injecteazaManifest(); reverificaInstalarea(); }
 
     window.addEventListener("beforeinstallprompt", function (e) {
       e.preventDefault();
@@ -3155,7 +3188,8 @@
       body: JSON.stringify({ actiune: "verifica", cod: String(cod).trim() }),
     }).then(function (res) {
       if (!res.ok) { toast("Cod de instalare incorect.", "warn"); return; }
-      try { localStorage.setItem(INSTALL_UNLOCK_KEY, "1"); } catch (e) {}
+      // Salvăm CODUL, ca să-l putem re-verifica la fiecare pornire (revocarea are efect).
+      try { localStorage.setItem(INSTALL_COD_KEY, String(cod).trim()); localStorage.removeItem(INSTALL_UNLOCK_KEY); } catch (e) {}
       injecteazaManifest();
       toast("Cod acceptat — se pregătește instalarea…", "ok");
       setTimeout(declanseazaInstalare, 1000);
