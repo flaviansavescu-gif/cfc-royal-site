@@ -8,6 +8,7 @@
 // Aici se șterg, într-un singur loc, toate cheile legate de un candidat. Când apare
 // un modul nou care ține date per candidat, se adaugă în lista de mai jos.
 import { getStore } from "@netlify/blobs";
+import { scoate } from "../_interese/logica.mjs";
 
 /** Șterge o cheie fără să oprească restul curățării dacă eșuează. */
 async function sterge(store, cheie, raport) {
@@ -84,6 +85,16 @@ export async function stergeUrmeleCandidatului(cid) {
   const interese = getStore("interese");
   await sterge(interese, "profil/" + cid, raport);
   await sterge(interese, "alocare/" + cid, raport);
+  // Listele Panoului și ale lectorilor se servesc dintr-un index — îl actualizăm și pe el,
+  // altfel candidatul șters ar mai apărea acolo până la prima auto-vindecare.
+  try {
+    const index = (await interese.get("profil-index", { type: "json" })) || [];
+    const fara = scoate(index, cid);
+    if (fara.length !== index.length) {
+      await interese.setJSON("profil-index", fara);
+      raport.actualizate.push("profil-index");
+    }
+  } catch (err) { console.error("Actualizare profil-index eșuată:", err); }
 
   return raport;
 }

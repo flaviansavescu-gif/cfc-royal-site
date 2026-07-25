@@ -15,65 +15,77 @@ import { getStore } from "@netlify/blobs";
 import { json, taie, acum, candidatDinId, audit } from "./_paa/lib.mjs";
 // Rolurile, lectorii ȘI competențele lor pe grupe vin din SURSA UNICĂ.
 import { actorDinCod, LECTORI, lectoriCuGrupe } from "./_comun/roluri.mjs";
+// Logica pură (sanitizare, lărgime, sugestii, agregare) — testată separat.
+import {
+  MIN_GRUPE, curataGrupe, curataRase, grupeEfective, poateTrimite,
+  sugestii, incarcareLectori, agregare, randIndex, pune,
+} from "./_interese/logica.mjs";
 
 const store = () => getStore("interese");
-const MIN_GRUPE = 2;
-const MAX_RASE = 80;
-
-// —— sanitizare intrări candidat ——
-function curataGrupe(v) {
-  const out = [];
-  if (Array.isArray(v)) for (const x of v) { const n = parseInt(x, 10); if (n >= 1 && n <= 10 && out.indexOf(n) < 0) out.push(n); }
-  return out.sort((a, b) => a - b);
-}
-function curataRase(v) {
-  const out = [], vaz = new Set();
-  if (Array.isArray(v)) for (const x of v) {
-    const ro = taie(x && x.ro, 120); const g = parseInt(x && x.g, 10);
-    if (!ro || !(g >= 1 && g <= 10)) continue;
-    const k = g + "|" + ro; if (vaz.has(k)) continue; vaz.add(k);
-    out.push({ ro, g }); if (out.length >= MAX_RASE) break;
-  }
-  return out;
-}
-// Grupele efective = grupele bifate ∪ grupele raselor alese (o rasă implică interes pentru grupa ei).
-function grupeEfective(grupe, rase) {
-  const s = new Set(grupe);
-  for (const r of rase) s.add(r.g);
-  return Array.from(s).sort((a, b) => a - b);
-}
+const storeCursuri = () => getStore("cursuri");
 
 async function citeste(key) { try { return await store().get(key, { type: "json" }); } catch { return null; } }
 async function deficitCurent() { const d = await citeste("deficit"); return Array.isArray(d) ? d : []; }
 
+// ————— INDEX —————
+// Înainte, fiecare deschidere a Panoului sau a unui spațiu de lector făcea 3 citiri
+// Blobs PER CANDIDAT (profil + verificarea existenței + repartizare). La 200 de
+// candidați însemna 600 de citiri. Acum listele se servesc dintr-un singur index.
+async function citesteIndexProfiluri() {
+  try { return (await store().get("profil-index", { type: "json" })) || []; } catch { return []; }
+}
+async function scrieIndexProfiluri(l) {
+  try { await store().setJSON("profil-index", l); } catch (err) { console.error("Scriere index interese eșuată:", err); }
+}
+
+/** Identificatorii candidaților care mai există (o singură listare, nu una per candidat). */
+async function candidatiVii() {
+  const set = new Set();
+  try {
+    const { blobs } = await storeCursuri().list({ prefix: "candidat/" });
+    for (const b of blobs) set.add(b.key.slice("candidat/".length));
+  } catch (err) { console.error("Listare candidați eșuată:", err); return null; }
+  return set;
+}
+
+/**
+ * Profilurile pentru liste, din index. Curăță din mers rândurile candidaților
+ * care nu mai există (auto-vindecare, ca ștergerea unui candidat să nu lase urme).
+ * Dacă registrul nu se poate citi, întoarcem indexul neatins — nu ștergem pe orbecăite.
+ */
 async function toateProfilurile() {
+  const index = await citesteIndexProfiluri();
+  const vii = await candidatiVii();
+  if (!vii || vii.size === 0) return index;
+
+  const valide = index.filter((p) => p && p.cid && vii.has(p.cid));
+  if (valide.length !== index.length) {
+    const st = store();
+    for (const p of index) {
+      if (p && p.cid && !vii.has(p.cid)) {
+        await st.delete("profil/" + p.cid).catch(() => {});
+        await st.delete("alocare/" + p.cid).catch(() => {});
+      }
+    }
+    await scrieIndexProfiluri(valide);
+  }
+  return valide;
+}
+
+/** Reconstruiește indexul din chei (recuperare, dacă indexul lipsește sau a rămas în urmă). */
+async function reconstruiesteIndex() {
   const st = store();
-  let listata; try { listata = await st.list({ prefix: "profil/" }); } catch { listata = { blobs: [] }; }
+  let listata; try { listata = await st.list({ prefix: "profil/" }); } catch { return []; }
   const out = [];
   for (const b of (listata.blobs || [])) {
     const p = await st.get(b.key, { type: "json" }).catch(() => null);
     if (!p || !p.cid) continue;
-    // Auto-curățare: dacă acel candidat a fost șters din platformă, îi eliminăm profilul și
-    // repartizarea rămase orfane (store „cursuri" e sursa de adevăr pentru existența candidatului).
-    const inca = await candidatDinId(p.cid);
-    if (!inca) {
-      await st.delete("profil/" + p.cid).catch(() => {});
-      await st.delete("alocare/" + p.cid).catch(() => {});
-      continue;
-    }
     const al = await st.get("alocare/" + p.cid, { type: "json" }).catch(() => null);
-    out.push({ ...p, alocare: al || null });
+    out.push(randIndex(p, al));
   }
   out.sort((a, b) => String(b.actualizat || "").localeCompare(String(a.actualizat || "")));
+  await scrieIndexProfiluri(out);
   return out;
-}
-
-// Sugestie de lector: sortează după suprapunerea de grupe (desc), apoi după încărcare (asc), apoi nume.
-function sugestii(grupeCand, incarcare) {
-  const setG = new Set(grupeCand);
-  return lectoriCuGrupe()
-    .map((l) => ({ slug: l.slug, nume: l.nume, allBreed: l.allBreed, overlap: l.grupe.filter((g) => setG.has(g)).length, incarcare: incarcare[l.slug] || 0 }))
-    .sort((a, b) => b.overlap - a.overlap || a.incarcare - b.incarcare || a.nume.localeCompare(b.nume, "ro"));
 }
 
 export default async (req) => {
@@ -94,14 +106,18 @@ export default async (req) => {
     if (actiune === "salveaza") {
       const rase = curataRase(body.rase);
       const grupe = grupeEfective(curataGrupe(body.grupe), rase);
-      if (grupe.length < MIN_GRUPE)
+      if (!poateTrimite(grupe))
         return json({ eroare: "Alege cel puțin " + MIN_GRUPE + " grupe (o rasă aleasă contează și ca interes pentru grupa ei)." }, 400);
+      const vechi = await citeste("profil/" + cand.id);
       const p = {
         cid: cand.id, nume: cand.nume, grupe, rase,
         nota: taie(body.nota, 600),
-        creat: (await citeste("profil/" + cand.id))?.creat || acum(), actualizat: acum(),
+        creat: (vechi && vechi.creat) || acum(), actualizat: acum(),
       };
       await st.setJSON("profil/" + cand.id, p);
+      // Indexul ține listele Panoului și ale lectorilor — îl actualizăm odată cu profilul.
+      const alocare = await citeste("alocare/" + cand.id);
+      await scrieIndexProfiluri(pune(await citesteIndexProfiluri(), randIndex(p, alocare)));
       await audit("interese-salveaza", { rol: "candidat", id: cand.id }, cand.id);
       return json({ ok: true, profil: p });
     }
@@ -115,7 +131,8 @@ export default async (req) => {
 
   if (actiune === "candidatii-mei") {
     // Lectorul își vede candidații repartizați; adminul, dacă apelează, îi vede pe toți grupați.
-    const toate = await toateProfilurile();
+    let toate = await toateProfilurile();
+    if (!toate.length) toate = await reconstruiesteIndex();
     const grupe = GRUPE_LABEL;
     if (esteAdmin) return json({ rol: "admin", candidati: toate, grupe });
     const aiMei = toate.filter((p) => p.alocare && p.alocare.lectorSlug === actor.slug);
@@ -126,17 +143,14 @@ export default async (req) => {
   if (!esteAdmin) return json({ eroare: "Necesită cod de administrator." }, 403);
 
   if (actiune === "toate") {
-    const toate = await toateProfilurile();
-    const incarcare = {};
-    for (const p of toate) if (p.alocare && p.alocare.lectorSlug) incarcare[p.alocare.lectorSlug] = (incarcare[p.alocare.lectorSlug] || 0) + 1;
-    const cerereGrupe = {}, cerereRase = {};
-    for (const p of toate) {
-      for (const g of (p.grupe || [])) cerereGrupe[g] = (cerereGrupe[g] || 0) + 1;
-      for (const r of (p.rase || [])) { const k = r.g + "|" + r.ro; cerereRase[k] = (cerereRase[k] || 0) + 1; }
-    }
-    const candidati = toate.map((p) => ({ ...p, sugestii: sugestii(p.grupe || [], incarcare).slice(0, 3) }));
+    let toate = await toateProfilurile();
+    if (!toate.length) toate = await reconstruiesteIndex(); // index lipsă sau rămas în urmă
+    const incarcare = incarcareLectori(toate);
+    const { cerereGrupe, cerereRase } = agregare(toate);
+    const lectori = lectoriCuGrupe();
+    const candidati = toate.map((p) => ({ ...p, sugestii: sugestii(lectori, p.grupe || [], incarcare).slice(0, 3) }));
     return json({
-      candidati, deficit: await deficitCurent(), lectori: lectoriCuGrupe(), incarcare,
+      candidati, deficit: await deficitCurent(), lectori, incarcare,
       cerereGrupe, cerereRase, grupe: GRUPE_LABEL,
     });
   }
@@ -144,11 +158,24 @@ export default async (req) => {
     const cid = taie(body.cid2 || body.tinta, 80);
     if (!cid) return json({ eroare: "Candidat lipsă." }, 400);
     const slug = taie(body.lectorSlug, 60);
-    if (!slug) { await st.delete("alocare/" + cid); await audit("interese-aloca-sterge", actor, cid); return json({ ok: true, alocare: null }); }
+    async function actualizeazaAlocareaInIndex(al) {
+      const index = await citesteIndexProfiluri();
+      const rand = index.find((x) => x && x.cid === cid);
+      if (!rand) return;
+      rand.alocare = al;
+      await scrieIndexProfiluri(index);
+    }
+    if (!slug) {
+      await st.delete("alocare/" + cid);
+      await actualizeazaAlocareaInIndex(null);
+      await audit("interese-aloca-sterge", actor, cid);
+      return json({ ok: true, alocare: null });
+    }
     const l = LECTORI.find((x) => x.slug === slug);
     if (!l) return json({ eroare: "Lector inexistent." }, 400);
     const al = { lectorSlug: l.slug, lectorNume: l.nume, ts: acum(), de: actor.rol };
     await st.setJSON("alocare/" + cid, al);
+    await actualizeazaAlocareaInIndex(al);
     await audit("interese-aloca", actor, cid + "→" + slug);
     return json({ ok: true, alocare: al });
   }
