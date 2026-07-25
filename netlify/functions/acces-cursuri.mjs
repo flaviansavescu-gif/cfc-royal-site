@@ -56,6 +56,6 @@ export default async (req) => {
     return json({ rol: "candidat", id, nume: cand.nume, dest: "/cursuri/module/" });
   }
 
-  await inregistreazaEsec(cheie);
-  return json({ eroare: "Cod incorect." }, 401);
+  const ramase = await inregistreazaEsec(cheie);
+  return json({ eroare: "Cod incorect.", incercariRamase: ramase }, 401);
 };

@@ -42,7 +42,12 @@ export async function verificaLimita(cheie) {
   }
 }
 
-/** Înregistrează o încercare greșită; blochează adresa la depășirea pragului. */
+/**
+ * Înregistrează o încercare greșită; blochează adresa la depășirea pragului.
+ * Întoarce câte încercări au mai rămas (sau -1 dacă nu s-a putut număra) —
+ * folosit în răspuns, ca utilizatorul să știe unde se află, și ca semnal de
+ * diagnostic: dacă numărul nu scade, înseamnă că scrierea în Blobs nu reușește.
+ */
 export async function inregistreazaEsec(cheie) {
   try {
     const acum = Date.now();
@@ -50,9 +55,11 @@ export async function inregistreazaEsec(cheie) {
     // Fereastră glisantă: dacă a trecut fereastra de la prima încercare, o luăm de la capăt.
     if (!r.de || acum - r.de > FEREASTRA_MS) { r.n = 0; r.de = acum; r.blocatPana = 0; }
     r.n = (r.n || 0) + 1;
-    if (r.n >= MAX_ESECURI) { r.blocatPana = acum + BLOCARE_MS; r.n = 0; r.de = acum; }
+    let ramase = MAX_ESECURI - r.n;
+    if (r.n >= MAX_ESECURI) { r.blocatPana = acum + BLOCARE_MS; r.n = 0; r.de = acum; ramase = 0; }
     await store().setJSON("limita/" + cheie, r);
-  } catch (err) { console.error("Scriere limită eșuată:", err); }
+    return ramase;
+  } catch (err) { console.error("Scriere limită eșuată:", err); return -1; }
 }
 
 /** Autentificare reușită — ștergem contorul adresei. */
