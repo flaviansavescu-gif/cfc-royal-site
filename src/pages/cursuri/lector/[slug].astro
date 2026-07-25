@@ -72,6 +72,15 @@ const { l } = Astro.props;
     <a class="btn btn--primary" href="/cursuri/admin/anatomie/">Deschide exercițiile →</a>
   </div>
 
+  <div class="l-teleprompter">
+    <div>
+      <strong>🎯 Exerciții de arbitraj (Challenge Generator)</strong>
+      <p>Aplicație separată: generezi scenarii de arbitraj, îi pui pe cursanți să evalueze și să claseze câinii, cu scor determinist și feedback. Cont propriu (e-mail + parolă), diferit de codul din platformă.</p>
+      <p class="l-nota">Aplicație educațională — nu înlocuiește standardele oficiale sau decizia unui arbitru expert.</p>
+    </div>
+    <a class="btn btn--primary" href="https://arbitraj.cfc-royal.ro" target="_blank" rel="noopener">Deschide aplicația ↗</a>
+  </div>
+
   <h2 class="l-h2">Candidații mei repartizați</h2>
   <p class="l-cand-info">Candidații pe care secretariatul ți i-a repartizat, în funcție de interesele lor pe rase.
   Îi vezi cu grupele și rasele care îi atrag, ca să-ți pregătești îndrumarea.</p>
@@ -143,6 +152,7 @@ const { l } = Astro.props;
     background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius);
   }
   .l-teleprompter p { margin: 0.3rem 0 0; font-size: 0.9rem; color: var(--color-text-muted); max-width: 34rem; }
+  .l-nota { font-style: italic; font-size: 0.82rem !important; }
   .l-teleprompter .btn { flex: 0 0 auto; }
   .l-gol {
     background: var(--color-surface); border: 1px dashed var(--color-border);
