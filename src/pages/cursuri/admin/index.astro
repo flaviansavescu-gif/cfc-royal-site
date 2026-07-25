@@ -18,6 +18,7 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
     <a class="btn btn--outline" href="/cursuri/admin/progres/">📊 Progresul candidaților →</a>
     <a class="btn btn--outline" href="/cursuri/admin/analiza/">🧭 Sala de analiză (Judge Comparison Room) →</a>
     <a class="btn btn--outline" href="/cursuri/admin/anatomie/">📐 Exerciții de anatomie →</a>
+    <a class="btn btn--outline" href="#interese">🐾 Interese pe rase (orientare lectori) →</a>
     <a class="btn btn--outline" href="/cursuri/materiale/">📚 Biblioteca comună (toate cursurile) →</a>
     <a class="btn btn--outline" href="/breed-explorer/" target="_blank" rel="noopener">📖 CFCR Breed Standards Explorer ↗</a>
     <a class="btn btn--outline" href="/photo-annotator/" target="_blank" rel="noopener">📐 Photo Anatomy Annotator ↗</a>
@@ -77,6 +78,19 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
     <button id="a-paa-seed" class="btn btn--outline" type="button">Încarcă standardul demo</button>
   </div>
   <ul class="a-cand-list" id="a-paa-list"></ul>
+
+  <h2 class="a-h2" id="interese">Interese pe rase — orientarea către lectori</h2>
+  <p class="a-anunt-info">Candidații își aleg grupele și rasele care îi interesează (minim 2 grupe). Aici vezi profilul fiecăruia, primești o <strong>sugestie de lector</strong> după suprapunerea de grupe (la egalitate, cel cu mai puțini candidați) și repartizezi <strong>lectorul principal</strong>. Marchează grupele cu <strong>deficit de arbitri</strong> — candidații le văd evidențiate și sunt încurajați să aleagă larg.</p>
+
+  <div class="a-int-deficit">
+    <div class="a-int-deficit__lbl">Grupe cu deficit de arbitri:</div>
+    <div id="a-int-def-boxes" class="a-int-defrow">Se încarcă…</div>
+    <button id="a-int-def-save" class="btn btn--small btn--primary" type="button">Salvează deficitul</button>
+    <span id="a-int-def-msg" class="a-int-msg"></span>
+  </div>
+
+  <div id="a-int-agg" class="a-int-agg" hidden></div>
+  <div id="a-int-list" class="a-int-list">Se încarcă profilurile de interese…</div>
 
   <h2 class="a-h2">Spațiile lectorilor</h2>
   <ul class="a-list">
@@ -420,6 +434,123 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
     });
     incarcaPaa();
 
+    // ——— Interese pe rase: profiluri, sugestii de lector, repartizare, deficit ———
+    async function interCere(payload) {
+      const res = await fetch("/.netlify/functions/interese-rase", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.eroare || "Eroare");
+      return d;
+    }
+    let INT_GRUPE = {}, INT_LECTORI = [];
+    function chip(txt, cls) { const s = document.createElement("span"); s.className = "a-int-chip" + (cls ? " " + cls : ""); s.textContent = txt; return s; }
+    function grupaScurt(g) { return (INT_GRUPE[g] || ("Grupa " + g)); }
+
+    function randCandidatInteres(c, deficit) {
+      const setDef = {}; (deficit || []).forEach((g) => (setDef[g] = 1));
+      const card = document.createElement("div"); card.className = "a-int-card";
+      const head = document.createElement("div"); head.className = "a-int-card__head";
+      const nm = document.createElement("strong"); nm.textContent = c.nume || "(fără nume)"; head.appendChild(nm);
+      const nG = (c.grupe || []).length;
+      const br = chip(nG + (nG === 1 ? " grupă" : " grupe") + " · " + (c.rase || []).length + " rase", nG >= 4 ? "is-larg" : "is-focal");
+      br.title = nG >= 4 ? "Interes larg — bun pentru autorizare extinsă" : "Interes focalizat — poate fi încurajat spre mai multe grupe";
+      head.appendChild(br);
+      card.appendChild(head);
+
+      const gr = document.createElement("div"); gr.className = "a-int-grupe";
+      (c.grupe || []).forEach((g) => { const ch = chip(grupaScurt(g), setDef[g] ? "is-def" : ""); if (setDef[g]) ch.title = "grupă cu deficit de arbitri"; gr.appendChild(ch); });
+      card.appendChild(gr);
+
+      if ((c.rase || []).length) {
+        const rz = document.createElement("div"); rz.className = "a-int-rase";
+        rz.textContent = "Rase: " + c.rase.map((r) => r.ro).join(", ");
+        card.appendChild(rz);
+      }
+      if (c.nota) { const nt = document.createElement("div"); nt.className = "a-int-nota"; nt.textContent = "„" + c.nota + "”"; card.appendChild(nt); }
+
+      const asg = document.createElement("div"); asg.className = "a-int-assign";
+      const sg = document.createElement("span"); sg.className = "a-int-sug"; sg.textContent = "Sugestie: ";
+      (c.sugestii || []).forEach((s) => { const ch = chip(s.nume + " (" + s.overlap + ")" + (s.allBreed ? " ·AB" : ""), "is-sug"); sg.appendChild(ch); });
+      asg.appendChild(sg);
+
+      const sel = document.createElement("select"); sel.className = "a-int-sel";
+      const opt0 = document.createElement("option"); opt0.value = ""; opt0.textContent = "— nerepartizat —"; sel.appendChild(opt0);
+      INT_LECTORI.forEach((l) => { const o = document.createElement("option"); o.value = l.slug; o.textContent = l.nume + (l.allBreed ? " (All Breed)" : " (gr. " + l.grupe.join(",") + ")"); sel.appendChild(o); });
+      sel.value = c.alocare ? c.alocare.lectorSlug : "";
+      const st = document.createElement("span"); st.className = "a-int-alocst";
+      st.textContent = c.alocare ? "repartizat: " + c.alocare.lectorNume : "";
+      sel.addEventListener("change", async () => {
+        sel.disabled = true;
+        try {
+          const d = await interCere({ actiune: "aloca", tinta: c.cid, lectorSlug: sel.value });
+          c.alocare = d.alocare;
+          st.textContent = d.alocare ? "repartizat: " + d.alocare.lectorNume : "";
+          st.classList.add("is-ok"); setTimeout(() => st.classList.remove("is-ok"), 1200);
+        } catch (err) { alert("Nu am putut repartiza: " + err.message); sel.value = c.alocare ? c.alocare.lectorSlug : ""; }
+        finally { sel.disabled = false; }
+      });
+      const wrap = document.createElement("label"); wrap.className = "a-int-selwrap"; wrap.appendChild(document.createTextNode("Lector principal: ")); wrap.appendChild(sel);
+      asg.appendChild(wrap); asg.appendChild(st);
+      card.appendChild(asg);
+      return card;
+    }
+
+    function randAgregare(d) {
+      const box = document.getElementById("a-int-agg");
+      box.textContent = "";
+      const cg = d.cerereGrupe || {}, cr = d.cerereRase || {};
+      const grupeSort = Object.keys(cg).map(Number).sort((a, b) => cg[b] - cg[a]);
+      const raseSort = Object.keys(cr).sort((a, b) => cr[b] - cr[a]).slice(0, 12);
+      if (!grupeSort.length && !raseSort.length) { box.hidden = true; return; }
+      box.hidden = false;
+      const h = document.createElement("div"); h.className = "a-int-agg__t"; h.textContent = "Cerere agregată (pentru prioritatea Breed Explorer)"; box.appendChild(h);
+      if (grupeSort.length) {
+        const row = document.createElement("div"); row.className = "a-int-agg__row";
+        grupeSort.forEach((g) => row.appendChild(chip(grupaScurt(g) + " — " + cg[g])));
+        box.appendChild(row);
+      }
+      if (raseSort.length) {
+        const row = document.createElement("div"); row.className = "a-int-agg__row";
+        raseSort.forEach((k) => { const ro = k.split("|").slice(1).join("|"); row.appendChild(chip(ro + " — " + cr[k], "is-rasa")); });
+        box.appendChild(row);
+      }
+    }
+
+    function randDeficitBoxes(deficit) {
+      const box = document.getElementById("a-int-def-boxes"); box.textContent = "";
+      const setDef = {}; (deficit || []).forEach((g) => (setDef[g] = 1));
+      for (let g = 1; g <= 10; g++) {
+        const lab = document.createElement("label"); lab.className = "a-int-defbox";
+        const cb = document.createElement("input"); cb.type = "checkbox"; cb.value = String(g); cb.checked = !!setDef[g]; cb.className = "a-int-defcb";
+        lab.appendChild(cb); lab.appendChild(document.createTextNode(" Gr. " + g));
+        box.appendChild(lab);
+      }
+    }
+
+    async function incarcaInterese() {
+      const list = document.getElementById("a-int-list");
+      let d;
+      try { d = await interCere({ actiune: "toate" }); }
+      catch (e) { list.textContent = "Nu am putut încărca profilurile: " + e.message; return; }
+      INT_GRUPE = d.grupe || {}; INT_LECTORI = d.lectori || [];
+      randDeficitBoxes(d.deficit);
+      randAgregare(d);
+      list.textContent = "";
+      if (!d.candidati.length) { list.textContent = "Niciun candidat nu și-a exprimat încă interesele."; return; }
+      d.candidati.forEach((c) => list.appendChild(randCandidatInteres(c, d.deficit)));
+    }
+    document.getElementById("a-int-def-save").addEventListener("click", async () => {
+      const btn = document.getElementById("a-int-def-save"), msg = document.getElementById("a-int-def-msg");
+      const grupe = Array.prototype.slice.call(document.querySelectorAll(".a-int-defcb")).filter((c) => c.checked).map((c) => parseInt(c.value, 10));
+      btn.disabled = true; msg.textContent = "Se salvează…"; msg.className = "a-int-msg";
+      try { await interCere({ actiune: "deficit", grupe }); msg.textContent = "✓ salvat"; msg.className = "a-int-msg is-ok"; incarcaInterese(); }
+      catch (err) { msg.textContent = err.message; msg.className = "a-int-msg is-err"; }
+      finally { btn.disabled = false; }
+    });
+    incarcaInterese();
+
     inputs.forEach((inp) => {
       inp.addEventListener("change", async () => {
         const slug = inp.dataset.slug;
@@ -513,4 +644,40 @@ import { LECTORI, MODULE, ADMIN_HASH } from "../../../data/cursuri";
   .a-list a:hover { text-decoration: underline; }
   .a-meta { margin-left: 0.6rem; font-size: 0.82rem; color: var(--color-text-muted); }
   .a-pasi { max-width: 44rem; display: grid; gap: 0.4rem; padding-left: 1.2rem; }
+
+  /* Interese pe rase */
+  .a-int-deficit { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; margin: 0.5rem 0 1rem;
+    padding: 0.75rem 1rem; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); }
+  .a-int-deficit__lbl { font-weight: 600; color: var(--color-primary); }
+  .a-int-defrow { display: flex; flex-wrap: wrap; gap: 0.35rem 0.75rem; }
+  .a-int-defbox { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.88rem; cursor: pointer; }
+  .a-int-defcb { accent-color: var(--color-primary); }
+  .a-int-msg { font-size: 0.85rem; }
+  .a-int-msg.is-ok { color: var(--color-primary); font-weight: 600; }
+  .a-int-msg.is-err { color: #8c1d2f; font-weight: 600; }
+  .a-int-agg { margin: 0 0 1rem; padding: 0.75rem 1rem; background: #fbf6e6; border: 1px solid var(--color-accent); border-radius: var(--radius); }
+  .a-int-agg__t { font-weight: 700; color: var(--color-primary); margin-bottom: 0.5rem; font-size: 0.92rem; }
+  .a-int-agg__row { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.4rem; }
+  .a-int-list { display: grid; gap: 0.75rem; }
+  .a-int-card { border: 1px solid var(--color-border); border-left: 4px solid var(--color-primary); border-radius: var(--radius);
+    background: var(--color-surface); padding: 0.85rem 1.1rem; }
+  .a-int-card__head { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+  .a-int-card__head strong { color: var(--color-primary); font-size: 1.02rem; }
+  .a-int-grupe { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.5rem 0 0.35rem; }
+  .a-int-chip { display: inline-block; font-size: 0.78rem; padding: 0.15rem 0.55rem; border-radius: 999px;
+    background: var(--color-surface-alt); border: 1px solid var(--color-border); color: var(--color-text); }
+  .a-int-chip.is-def { background: #f7e2e2; border-color: #e0b4b4; color: #8c1d2f; font-weight: 600; }
+  .a-int-chip.is-larg { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; font-weight: 600; }
+  .a-int-chip.is-focal { background: #fbf3d9; border-color: var(--color-accent); color: var(--color-accent-dark); }
+  .a-int-chip.is-sug { background: #eef4ee; border-color: #b9d3b9; color: var(--color-primary); }
+  .a-int-chip.is-rasa { background: var(--color-surface); }
+  .a-int-rase { font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 0.35rem; }
+  .a-int-nota { font-size: 0.88rem; color: var(--color-text); font-style: italic; margin-bottom: 0.4rem; }
+  .a-int-assign { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.75rem; margin-top: 0.5rem;
+    padding-top: 0.5rem; border-top: 1px dashed var(--color-border); }
+  .a-int-sug { font-size: 0.82rem; color: var(--color-text-muted); display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; }
+  .a-int-selwrap { font-size: 0.85rem; color: var(--color-text-muted); }
+  .a-int-sel { font: inherit; font-size: 0.85rem; padding: 0.3rem 0.5rem; border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); }
+  .a-int-alocst { font-size: 0.82rem; color: var(--color-text-muted); }
+  .a-int-alocst.is-ok { color: var(--color-primary); font-weight: 600; }
 </style>
