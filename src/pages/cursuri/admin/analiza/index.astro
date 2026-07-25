@@ -39,6 +39,10 @@ const allow = ["lector"];
           li.innerHTML =
             '<div class="j-card__body"><strong>' + esc(s.titlu) + '</strong>' +
             '<span class="j-meta">' + [s.rasa, s.grupa, s.nivel].filter(Boolean).map(esc).join(" · ") + '</span>' +
+            '<span class="j-urma">' + (s.lectorNume ? 'creat de ' + esc(s.lectorNume) : '') +
+              (s.actualizatDe && s.actualizatDe !== s.lectorNume
+                ? ' · ultima modificare: ' + esc(s.actualizatDe) + (s.ultimaActiune ? ' (' + esc(s.ultimaActiune) + ')' : '')
+                : '') + '</span>' +
             '<span class="j-badges"><span class="j-badge st-' + s.status + '">' + (STATUS[s.status] || s.status) + '</span>' +
             (s.termen ? '<span class="j-badge">termen ' + esc(s.termen) + '</span>' : '') + '</span></div>' +
             '<a class="btn btn--small" href="/cursuri/admin/analiza/sesiune/?s=' + encodeURIComponent(s.id) + '">Deschide →</a>';
@@ -69,6 +73,7 @@ const allow = ["lector"];
   .j-card__body { flex: 1 1 16rem; display: flex; flex-direction: column; gap: 0.3rem; }
   .j-card__body strong { color: var(--color-primary); }
   .j-meta { font-size: 0.85rem; color: var(--color-text-muted); }
+  .j-urma { font-size: 0.78rem; color: var(--color-text-muted); font-style: italic; }
   .j-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; }
   .j-badge { font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); }
   .j-badge.st-published { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }

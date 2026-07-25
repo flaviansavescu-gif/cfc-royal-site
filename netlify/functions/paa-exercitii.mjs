@@ -4,6 +4,7 @@
 // Store „paa": exercitiu/<id>, exercitiu-index, ex-participanti/<id>, ex-raspuns/<id>/<cid>,
 //              image/<id> (binar), image-meta/<id>.
 import { json, taie, acum, idNou, cereLector, candidatDinId, actorDinCod, poateAdministra, store, storeCursuri, audit } from "./_paa/lib.mjs";
+import { marcheazaUrma, numeActor } from "./_comun/urma.mjs";
 
 const CALIFICATIVE = ["Excelent", "Foarte bine", "Bine", "Suficient", "Insuficient"];
 const STATUS = ["draft", "published", "closed", "archived"];
@@ -15,7 +16,7 @@ function parseDataUrl(u) { var m = /^data:([^;]+);base64,([A-Za-z0-9+/=]+)$/.exe
 async function idx() { try { return (await store().get("exercitiu-index", { type: "json" })) || []; } catch { return []; } }
 async function scrieIdx(e) {
   const l = await idx();
-  const r = { id: e.id, titlu: e.titlu, rasa: e.rasa || "", status: e.status, lectorSlug: e.lectorSlug || "", lectorNume: e.lectorNume || "", termen: e.termen || "", creat: e.creat, actualizat: e.actualizat || acum() };
+  const r = { id: e.id, titlu: e.titlu, rasa: e.rasa || "", status: e.status, lectorSlug: e.lectorSlug || "", lectorNume: e.lectorNume || "", termen: e.termen || "", creat: e.creat, actualizat: e.actualizat || acum(), actualizatDe: e.actualizatDe || "", ultimaActiune: e.ultimaActiune || "" };
   const i = l.findIndex((x) => x.id === e.id); if (i >= 0) l[i] = r; else l.push(r);
   await store().setJSON("exercitiu-index", l);
 }
@@ -103,6 +104,7 @@ export default async (req) => {
   }
   if (actiune === "creaza") {
     const id = idNou("ex-"); const e = curata(body.exercitiu || body, { id, status: "draft", creat: acum() }, actor);
+    marcheazaUrma(e, actor, "creare");
     await st.setJSON("exercitiu/" + id, e); await scrieIdx(e); await audit("exercitiu-creat", actor, id);
     return json({ ok: true, exercitiu: e });
   }
@@ -113,7 +115,7 @@ export default async (req) => {
   if (!poateAdministra(actor)) return json({ eroare: "Fără drept." }, 403);
 
   if (actiune === "detalii") { const p = await participanti(id); return json({ exercitiu: e, participanti: p }); }
-  if (actiune === "salveaza") { const u = curata(body.exercitiu || body, e, actor); await st.setJSON("exercitiu/" + id, u); await scrieIdx(u); await audit("exercitiu-salvat", actor, id); return json({ ok: true, exercitiu: u }); }
+  if (actiune === "salveaza") { const u = curata(body.exercitiu || body, e, actor); marcheazaUrma(u, actor, "modificare"); await st.setJSON("exercitiu/" + id, u); await scrieIdx(u); await audit("exercitiu-salvat", actor, id); return json({ ok: true, exercitiu: u }); }
 
   if (actiune === "imagine-upload") {
     if (e.status !== "draft") return json({ eroare: "Schimbă imaginea doar cât exercițiul e în lucru (schiță)." }, 409);
@@ -123,6 +125,7 @@ export default async (req) => {
     await st.set("image/" + imgId, pu.buf, { metadata: { contentType: pu.ct } });
     await st.setJSON("image-meta/" + imgId, { owner: "lector:" + (actor.slug || "admin"), exId: id, contentType: pu.ct, w: parseInt(body.w, 10) || 0, h: parseInt(body.h, 10) || 0, creat: acum() });
     e.imageId = imgId; e.aspect = Number.isFinite(+body.aspect) ? +body.aspect : e.aspect; e.actualizat = acum();
+    marcheazaUrma(e, actor, "schimbare fotografie");
     await st.setJSON("exercitiu/" + id, e); await scrieIdx(e); await audit("exercitiu-imagine", actor, id);
     return json({ ok: true, imageId: imgId });
   }
@@ -146,7 +149,7 @@ export default async (req) => {
       if (!e.imageId) return json({ eroare: "Încarcă fotografia de referință înainte de publicare." }, 400);
       const p = await participanti(id); if (!p.toti && !(p.candidateIds || []).length) return json({ eroare: "Alocă cel puțin un candidat (sau „toți”)." }, 400);
     }
-    e.status = tinta; e.actualizat = acum(); await st.setJSON("exercitiu/" + id, e); await scrieIdx(e); await audit(actiune + "-exercitiu", actor, tinta);
+    e.status = tinta; e.actualizat = acum(); marcheazaUrma(e, actor, actiune); await st.setJSON("exercitiu/" + id, e); await scrieIdx(e); await audit(actiune + "-exercitiu", actor, tinta);
     return json({ ok: true, status: tinta });
   }
   if (actiune === "raspunsuri") {
@@ -160,7 +163,7 @@ export default async (req) => {
     const cidr = taie(body.candidatId, 80); const key = "ex-raspuns/" + id + "/" + cidr;
     const r = await st.get(key, { type: "json" }).catch(() => null); if (!r) return json({ eroare: "Răspuns inexistent." }, 404);
     const cal = CALIFICATIVE.indexOf(taie(body.calificativ, 20)) >= 0 ? taie(body.calificativ, 20) : "";
-    r.calificativ = cal; r.feedback = taie(body.feedback, 4000); r.verificatLa = acum(); r.verificatDe = actor.slug || "admin";
+    r.calificativ = cal; r.feedback = taie(body.feedback, 4000); r.verificatLa = acum(); r.verificatDe = numeActor(actor);
     await st.setJSON(key, r); await audit("exercitiu-verificat", actor, id + "/" + cidr);
     return json({ ok: true, raspuns: r });
   }

@@ -75,6 +75,7 @@ export async function scrieInIndex(sesiune) {
     rasa: sesiune.rasa || "", grupa: sesiune.grupa || "", nivel: sesiune.nivel || "",
     lectorSlug: sesiune.lectorSlug || "", lectorNume: sesiune.lectorNume || "",
     termen: sesiune.termen || "", creat: sesiune.creat, actualizat: sesiune.actualizat || acum(),
+    actualizatDe: sesiune.actualizatDe || "", ultimaActiune: sesiune.ultimaActiune || "",
   };
   const i = idx.findIndex((x) => x.id === sesiune.id);
   if (i >= 0) idx[i] = rand; else idx.push(rand);

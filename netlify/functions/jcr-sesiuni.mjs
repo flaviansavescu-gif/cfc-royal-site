@@ -5,6 +5,7 @@ import {
   json, taie, acum, idNou, actorDinCod, candidatDinId, cereLector, poateAdministraSesiunea,
   store, storeCursuri, citesteIndex, scrieInIndex, audit, citesteParticipanti, esteParticipant, baremDeblocat,
 } from "./_jcr/lib.mjs";
+import { marcheazaUrma } from "./_comun/urma.mjs";
 
 function curataSesiune(inp, baza) {
   const s = baza || {};
@@ -122,6 +123,7 @@ export default async (req) => {
     });
     if (!s.titlu) return json({ eroare: "Titlul sesiunii este obligatoriu." }, 400);
     s.actualizat = acum();
+    marcheazaUrma(s, actor, "creare");
     await st.setJSON("session/" + id, s);
     await scrieInIndex(s);
     await audit(id, actor, "creare-sesiune", id);
@@ -143,6 +145,7 @@ export default async (req) => {
   if (actiune === "salveaza") {
     const upd = curataSesiune(body.sesiune || body, s);
     upd.actualizat = acum();
+    marcheazaUrma(upd, actor, "modificare");
     await st.setJSON("session/" + id, upd);
     await scrieInIndex(upd);
     await audit(id, actor, "salveaza-sesiune", id);
@@ -166,6 +169,7 @@ export default async (req) => {
     }
     s.status = tinta;
     s.actualizat = acum();
+    marcheazaUrma(s, actor, actiune);
     if (actiune === "inchide") s.inchisLa = acum();
     await st.setJSON("session/" + id, s);
     await scrieInIndex(s);

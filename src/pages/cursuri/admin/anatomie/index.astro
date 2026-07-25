@@ -30,7 +30,7 @@ const allow = ["lector"];
         document.getElementById("j-stare").hidden = true; list.hidden = false;
         d.exercitii.forEach(function (e) {
           var li = document.createElement("li"); li.className = "j-card";
-          li.innerHTML = '<div class="j-card__body"><strong>' + esc(e.titlu) + '</strong><span class="j-meta">' + [e.rasa, e.lectorNume].filter(Boolean).map(esc).join(" · ") + (e.termen ? " · termen " + esc(e.termen) : "") + '</span><span class="j-badges"><span class="j-badge st-' + e.status + '">' + (STATUS[e.status] || e.status) + '</span></span></div>' +
+          li.innerHTML = '<div class="j-card__body"><strong>' + esc(e.titlu) + '</strong><span class="j-meta">' + [e.rasa, e.lectorNume].filter(Boolean).map(esc).join(" · ") + (e.termen ? " · termen " + esc(e.termen) : "") + '</span><span class="j-urma">' + (e.lectorNume ? 'creat de ' + esc(e.lectorNume) : '') + (e.actualizatDe && e.actualizatDe !== e.lectorNume ? ' · ultima modificare: ' + esc(e.actualizatDe) + (e.ultimaActiune ? ' (' + esc(e.ultimaActiune) + ')' : '') : '') + '</span><span class="j-badges"><span class="j-badge st-' + e.status + '">' + (STATUS[e.status] || e.status) + '</span></span></div>' +
             '<a class="btn btn--small" href="/cursuri/admin/anatomie/exercitiu/?e=' + encodeURIComponent(e.id) + '">Deschide →</a>';
           list.appendChild(li);
         });
@@ -56,6 +56,7 @@ const allow = ["lector"];
   .j-card__body { flex: 1 1 16rem; display: flex; flex-direction: column; gap: 0.3rem; }
   .j-card__body strong { color: var(--color-primary); }
   .j-meta { font-size: 0.85rem; color: var(--color-text-muted); }
+  .j-urma { font-size: 0.78rem; color: var(--color-text-muted); font-style: italic; display: block; }
   .j-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; }
   .j-badge { font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); }
   .j-badge.st-published { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
