@@ -8,6 +8,7 @@
 // POST { cod, actiune:"sterge", id }     -> { ok }  (șterge candidatul și progresul lui)
 import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
+import { stergeUrmeleCandidatului, curataOrfanii } from "./_comun/curatare.mjs";
 
 const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
 // Alfabet fără caractere ambigue (0/O, 1/I/L) — codurile se dictează ușor la telefon.
@@ -129,7 +130,20 @@ export default async (req) => {
       const { blobs } = await store.list({ prefix: "progres/" + id + "/" });
       for (const b of blobs) { try { await store.delete(b.key); } catch (e) {} }
     } catch (err) { console.error(err); }
-    return json({ ok: true });
+    // …și urmele din CELELALTE module (analiză, anatomie, sesiuni, imagini, interese).
+    // Fără asta, un candidat șters continua să apară în exerciții și în spațiile lectorilor.
+    const raport = await stergeUrmeleCandidatului(id);
+    return json({ ok: true, curatat: { sterse: raport.sterse.length, actualizate: raport.actualizate.length, esuate: raport.esuate.length } });
+  }
+
+  if (actiune === "curata-orfane") {
+    // Curățare retroactivă: date rămase de la candidați șterși ÎNAINTE ca ștergerea
+    // să curețe și celelalte module.
+    const r = await curataOrfanii();
+    return json({
+      ok: true, oprit: r.oprit, candidatiVii: r.candidatiVii,
+      orfani: r.orfani.length, sterse: r.sterse.length, actualizate: r.actualizate.length, esuate: r.esuate.length,
+    });
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);

@@ -61,6 +61,15 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
   <p class="a-cand-feedback" id="a-cand-feedback" role="status" hidden></p>
   <p class="a-cand-count" id="a-cand-count" hidden></p>
   <ul class="a-cand-list" id="a-cand-list"></ul>
+  <p class="a-anunt-info">
+    Ștergerea unui candidat îi înlătură acum <strong>toate</strong> urmele: răspunsurile din Sala de analiză
+    și de la exercițiile de anatomie, sesiunile și imaginile lui, apartenența la exerciții și profilul de interese.
+    Butonul de mai jos face aceeași curățare <strong>retroactiv</strong>, pentru candidații șterși înainte de această schimbare.
+  </p>
+  <p>
+    <button id="a-orfani" class="btn btn--outline" type="button">🧹 Curăță datele rămase de la candidați șterși</button>
+    <span id="a-orfani-msg" class="a-int-msg"></span>
+  </p>
 
   <h2 class="a-h2">Coduri de instalare — Breed Standards Explorer</h2>
   <p class="a-anunt-info">Aplicația se poate <strong>instala</strong> pe dispozitiv doar cu un cod de instalare — diferit de codul de acces în platformă. Generezi un cod și îl dai persoanei care instalează. Consultarea online rămâne liberă pentru candidați.</p>
@@ -358,6 +367,27 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
     });
 
     incarcaCandidati();
+
+    // ——— Curățare retroactivă a datelor rămase de la candidați șterși ———
+    document.getElementById("a-orfani").addEventListener("click", async () => {
+      const btn = document.getElementById("a-orfani"), msg = document.getElementById("a-orfani-msg");
+      if (!confirm("Caut datele rămase de la candidații care nu mai există și le șterg definitiv. Continui?")) return;
+      btn.disabled = true; msg.className = "a-int-msg"; msg.textContent = "Se caută…";
+      try {
+        const d = await candidatiCere({ actiune: "curata-orfane" });
+        if (d.oprit) {
+          msg.className = "a-int-msg is-err";
+          msg.textContent = "Oprit: registrul candidaților nu s-a putut citi. Nu am șters nimic.";
+        } else if (!d.orfani) {
+          msg.className = "a-int-msg is-ok";
+          msg.textContent = "✓ Nimic de curățat — nu există date orfane.";
+        } else {
+          msg.className = "a-int-msg is-ok";
+          msg.textContent = "✓ " + d.orfani + " candidat(i) șterși: " + d.sterse + " intrări eliminate, " + d.actualizate + " liste actualizate" + (d.esuate ? ", " + d.esuate + " eșecuri" : "") + ".";
+        }
+      } catch (err) { msg.className = "a-int-msg is-err"; msg.textContent = err.message; }
+      finally { btn.disabled = false; }
+    });
 
     // ——— Coduri de instalare (Breed Standards Explorer) ———
     async function instCere(payload) {
