@@ -30,7 +30,7 @@ export const ACCES_HASH = "48493761ba33bce0e9919789a88582a482179869fa76dbbaa93be
  * (folosite la orientarea candidaților spre lector). "all" = All Breed.
  */
 export const LECTORI = [
-  { slug: "flavian-savescu", nume: "Flavian-Sergiu Savescu", hash: "71a012c1d53cdf7fc5b94202c736827245baa8cc3d629e674e8a6074266c8c14", grupe: "all" },
+  { slug: "flavian-savescu", nume: "Flavian-Sergiu Savescu", hash: "1604036be0bc0d666209789a9599257419813a13750b950734da13faa3330d1d", grupe: "all" },
   { slug: "mihail-cosmin-neagu", nume: "Mihail Cosmin Neagu", hash: "21048e2893df687a5195519e5d665440c99a6060e11044fb2509b886ca0cc8b9", grupe: "all" },
   { slug: "georgeta-mihaela-chivu", nume: "Georgeta Mihaela Chivu", hash: "ddd1b278ddf55141d8f2bca8857160b38cc64024e3f5b4368cbebee329442817", grupe: "all" },
   { slug: "mihail-sorin-iacob", nume: "Mihail Sorin Iacob", hash: "d3c043092f13a97d4d83dd0df96be08162ec7e26ea7241dc1da685c8d89e1b18", grupe: "all" },

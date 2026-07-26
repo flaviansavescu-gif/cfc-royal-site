@@ -23,3 +23,6 @@ Thumbs.db
 
 # netlify
 .netlify/
+
+# codurile de acces personale (local, niciodată în git)
+CODURILE-MELE.txt
