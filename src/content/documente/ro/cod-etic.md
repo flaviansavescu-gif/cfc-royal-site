@@ -196,7 +196,7 @@ a) relațiile cu caracter sexual sau romantic între lector și cursant pe durat
 
 b) primirea de cadouri, beneficii sau servicii personale de la cursanți, în afara unor gesturi simbolice obișnuite în contextul de absolvire;
 
-c) favorizarea unui cursant pe criterii non-profesionale (rudenie, prietenie, interes comercial, presiune ierarhică);
+c) favorizarea unui cursant pe criterii non-profesionale (rudenie, prietenie, interes comercial, presiune ierarhică), sau de orice natură;
 
 d) comunicarea privată cu cursanții pe teme legate de evaluarea acestora, în afara cadrelor instituționale;
 

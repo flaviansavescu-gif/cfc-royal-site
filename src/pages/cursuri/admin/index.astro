@@ -703,7 +703,10 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
           meta.className = "a-cand-meta";
           meta.innerHTML = m.asumat
             ? "<span class='a-cand-intrat'>✓ Asumat: " + fmtData(m.data, true) + "</span>"
-            : "<span class='a-cand-neintrat'>● Nu a asumat încă</span>";
+            : m.anterior
+              // A semnat textul vechi: nu e om care ignoră Codul, ci unul de reconfirmat.
+              ? "<span class='a-cand-neintrat'>◑ De reconfirmat — asumase versiunea " + m.anterior.versiune + " la " + fmtData(m.anterior.data, true) + "</span>"
+              : "<span class='a-cand-neintrat'>● Nu a asumat încă</span>";
           info.appendChild(nm); info.appendChild(meta);
           const rol = document.createElement("span");
           rol.className = "a-cand-meta";

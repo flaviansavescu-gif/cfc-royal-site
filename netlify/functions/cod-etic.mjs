@@ -17,13 +17,30 @@ import { rolLaIntrare, actorDinCod, sha256, LECTORI } from "./_comun/roluri.mjs"
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 /** Versiunea Codului Etic asumată acum. Se ridică DOAR când se schimbă textul. */
-export const VERSIUNE = "2026-07";
+export const VERSIUNE = "2026-07.2";
+
+/** Versiunile anterioare, ca să se vadă cine asumase textul vechi (istoricul nu se pierde). */
+export const VERSIUNI_ANTERIOARE = ["2026-07"];
+
+/** Ce s-a schimbat la ultima revizuire — se arată celor rugați să reconfirme. */
+export const MODIFICARE = "Art. 14 alin. (2) lit. c): interdicția favorizării unui cursant se extinde la criterii de orice natură.";
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
     headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
   });
+
+/** A asumat o versiune ANTERIOARĂ a Codului? Întoarce cea mai recentă. */
+async function asumareAnterioara(store, id) {
+  for (const v of [...VERSIUNI_ANTERIOARE].reverse()) {
+    try {
+      const a = await store.get(`cod-etic/${v}/${id}`, { type: "json" });
+      if (a) return { versiune: v, data: a.data };
+    } catch (err) { console.error("Citire asumare anterioară eșuată:", err); }
+  }
+  return null;
+}
 
 /** Cine confirmă? Candidat (cod individual), arbitru, lector — nu codul comun, nu adminul. */
 async function membrul(body, store) {
@@ -70,11 +87,24 @@ export default cuLimitareCod(async (req) => {
       }
     } catch (err) { console.error(err); }
 
+    // Asumările versiunilor ANTERIOARE — ca să se distingă cine n-a semnat niciodată
+    // de cine a semnat textul vechi și trebuie doar să reconfirme.
+    const vechi = {};
+    for (const v of VERSIUNI_ANTERIOARE) {
+      try {
+        const { blobs } = await store.list({ prefix: `cod-etic/${v}/` });
+        for (const b of blobs) {
+          const a = await store.get(b.key, { type: "json" });
+          if (a) vechi[b.key.slice(`cod-etic/${v}/`.length)] = { versiune: v, data: a.data };
+        }
+      } catch (err) { console.error(err); }
+    }
+
     // Toți cei care TREBUIE să asume: candidați + arbitri + lectori.
     const membri = [];
     for (const l of LECTORI) {
       const a = asumari[l.hash];
-      membri.push({ nume: l.nume, rol: "lector", asumat: !!a, data: a?.data ?? null });
+      membri.push({ nume: l.nume, rol: "lector", asumat: !!a, data: a?.data ?? null, anterior: a ? null : vechi[l.hash] ?? null });
     }
     for (const [prefix, rol] of [["arbitru/", "arbitru"], ["candidat/", "candidat"]]) {
       try {
@@ -84,7 +114,7 @@ export default cuLimitareCod(async (req) => {
           if (!x) continue;
           const id = b.key.slice(prefix.length);
           const a = asumari[id];
-          membri.push({ nume: x.nume, rol, asumat: !!a, data: a?.data ?? null });
+          membri.push({ nume: x.nume, rol, asumat: !!a, data: a?.data ?? null, anterior: a ? null : vechi[id] ?? null });
         }
       } catch (err) { console.error(err); }
     }
@@ -106,7 +136,18 @@ export default cuLimitareCod(async (req) => {
 
   if (actiune === "stare") {
     const a = await store.get(cheie, { type: "json" }).catch(() => null);
-    return json({ versiune: VERSIUNE, asumat: !!a, data: a?.data ?? null, nume: cine.nume, rol: cine.rol });
+    if (a) return json({ versiune: VERSIUNE, asumat: true, data: a.data, nume: cine.nume, rol: cine.rol });
+    // Nu a asumat versiunea curentă: poate a asumat una anterioară, iar atunci nu e un
+    // om care ignoră Codul, ci unul căruia i s-a schimbat textul sub semnătură.
+    const anterior = await asumareAnterioara(store, cine.id);
+    return json({
+      versiune: VERSIUNE,
+      asumat: false,
+      nume: cine.nume,
+      rol: cine.rol,
+      anterior,                       // { versiune, data } | null
+      modificare: anterior ? MODIFICARE : null,
+    });
   }
 
   if (actiune === "asuma") {

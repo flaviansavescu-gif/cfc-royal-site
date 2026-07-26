@@ -9,8 +9,8 @@
 
 <section class="ce-banner" id="ce-banner" hidden>
   <div class="ce-banner__text">
-    <strong>📜 Codul Etic al CFC-Royal</strong>
-    <p>
+    <strong id="ce-titlu">📜 Codul Etic al CFC-Royal</strong>
+    <p id="ce-explicatie">
       Înainte de a începe, citește <a href="/ro/documente/cod-etic/" target="_blank" rel="noopener">Codul Etic ↗</a>
       și confirmă că ți-l asumi. Confirmarea se înregistrează cu numele și data ta.
     </p>
@@ -69,6 +69,24 @@
           confirmat.hidden = false;
           confirmat.textContent = "📜 Codul Etic — asumat" + (d.data ? " la " + dataRo(d.data) : "") + ".";
           return;
+        }
+        // Dacă a semnat o versiune anterioară, i se spune limpede că textul s-a schimbat
+        // și CE s-a schimbat — nu i se cere „din nou" ceva ce a făcut deja.
+        if (d.anterior) {
+          document.getElementById("ce-titlu").textContent = "📜 Codul Etic a fost modificat";
+          var expl = document.getElementById("ce-explicatie");
+          expl.textContent = "";
+          expl.appendChild(document.createTextNode(
+            "Ai confirmat versiunea anterioară la " + dataRo(d.anterior.data) + ". Textul a fost între timp modificat" +
+            (d.modificare ? " — " + d.modificare : "") + " Citește "
+          ));
+          var a = document.createElement("a");
+          a.href = "/ro/documente/cod-etic/"; a.target = "_blank"; a.rel = "noopener";
+          a.textContent = "Codul Etic actualizat ↗";
+          expl.appendChild(a);
+          expl.appendChild(document.createTextNode(
+            " și confirmă noul text. Confirmarea anterioară rămâne în evidență."
+          ));
         }
         banner.hidden = false;
       })

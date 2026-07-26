@@ -196,7 +196,7 @@ a) relationships of a sexual or romantic nature between the lecturer and the tra
 
 b) the receipt of gifts, benefits or personal services from trainees, apart from symbolic gestures customary in the context of graduation;
 
-c) favouring a trainee on non-professional grounds (kinship, friendship, commercial interest, hierarchical pressure);
+c) favouring a trainee on non-professional grounds (kinship, friendship, commercial interest, hierarchical pressure), or on any other grounds whatsoever;
 
 d) private communication with trainees on matters related to their assessment, outside the institutional frameworks;
 
