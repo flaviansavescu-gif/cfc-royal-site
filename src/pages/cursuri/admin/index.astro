@@ -57,6 +57,10 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
   <p class="a-anunt-info">Buletinul apare în <a href="/cursuri/buletin/">arhiva din platformă</a> (o văd toți membrii:
   candidați, arbitri, lectori) și pleacă <strong>pe e-mail</strong> către cei abonați din pagina buletinului.
   <span id="a-bul-abonati">Se numără abonații…</span></p>
+  <details class="a-bul-abonati-det" id="a-bul-abonati-det" hidden>
+    <summary>Vezi lista abonaților</summary>
+    <ul class="a-cand-list" id="a-bul-abonati-list"></ul>
+  </details>
   <div class="a-anunt-form">
     <input id="a-bul-titlu" type="text" placeholder="Titlul buletinului — ex. Noutățile lunii august" />
     <textarea id="a-bul-text" rows="6" placeholder="Conținutul buletinului. Paragrafele se păstrează așa cum le scrii."></textarea>
@@ -300,12 +304,41 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
 
     async function numaraAbonati() {
       const el = document.getElementById("a-bul-abonati");
+      const det = document.getElementById("a-bul-abonati-det");
+      const list = document.getElementById("a-bul-abonati-list");
       try {
         const d = await buletinCere({ actiune: "abonati" });
-        el.textContent = d.abonati.length
-          ? "Abonați pe e-mail acum: " + d.abonati.length + "."
-          : "Nimeni nu s-a abonat încă pe e-mail — buletinul rămâne vizibil în platformă.";
-      } catch (e) { el.textContent = ""; }
+        if (!d.abonati.length) {
+          el.textContent = "Nimeni nu s-a abonat încă pe e-mail — buletinul rămâne vizibil în platformă.";
+          det.hidden = true;
+          return;
+        }
+        el.textContent = "Abonați pe e-mail acum: " + d.abonati.length + ".";
+        det.hidden = false;
+        list.innerHTML = "";
+        d.abonati.forEach((a) => {
+          const li = document.createElement("li");
+          const info = document.createElement("div");
+          info.className = "a-cand-info";
+          const em = document.createElement("strong");
+          em.textContent = a.email;
+          const meta = document.createElement("span");
+          meta.className = "a-cand-meta";
+          meta.textContent = a.creat ? "Abonat: " + fmtData(a.creat, true) : "";
+          info.appendChild(em); info.appendChild(meta);
+          const del = document.createElement("button");
+          del.className = "btn btn--small btn--danger";
+          del.textContent = "Scoate";
+          del.addEventListener("click", async () => {
+            if (!confirm("Scoți adresa " + a.email + " de la buletin? Nu va mai primi e-mailuri.")) return;
+            del.disabled = true;
+            try { await buletinCere({ actiune: "dezaboneaza", email: a.email }); numaraAbonati(); }
+            catch (e2) { alert("Nu am putut scoate adresa: " + e2.message); del.disabled = false; }
+          });
+          li.appendChild(info); li.appendChild(del);
+          list.appendChild(li);
+        });
+      } catch (e) { el.textContent = ""; det.hidden = true; }
     }
 
     document.getElementById("a-bul-add").addEventListener("click", async () => {
@@ -1014,4 +1047,9 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
   .a-int-sel { font: inherit; font-size: 0.85rem; padding: 0.3rem 0.5rem; border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); }
   .a-int-alocst { font-size: 0.82rem; color: var(--color-text-muted); }
   .a-int-alocst.is-ok { color: var(--color-primary); font-weight: 600; }
+
+  .a-bul-abonati-det { margin: 0.5rem 0 1rem; }
+  .a-bul-abonati-det[hidden] { display: none; }
+  .a-bul-abonati-det summary { cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--color-accent-dark); }
+  .a-bul-abonati-det .a-cand-list { margin-top: 0.6rem; }
 </style>
