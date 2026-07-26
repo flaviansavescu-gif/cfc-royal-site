@@ -1,0 +1,111 @@
+---
+// Asumarea Codului Etic — bannerul de confirmare de la intrarea în platformă.
+//
+// Apare pe pagina de intrare a fiecărui rol (candidat, arbitru, lector) până când
+// membrul confirmă că a citit și își asumă Codul Etic. Confirmarea se înregistrează
+// pe server, cu numele și data — actul pe care se sprijină procedura disciplinară.
+// Cine intră cu codul comun (fără identitate personală) nu vede bannerul.
+---
+
+<section class="ce-banner" id="ce-banner" hidden>
+  <div class="ce-banner__text">
+    <strong>📜 Codul Etic al CFC-Royal</strong>
+    <p>
+      Înainte de a începe, citește <a href="/ro/documente/cod-etic/" target="_blank" rel="noopener">Codul Etic ↗</a>
+      și confirmă că ți-l asumi. Confirmarea se înregistrează cu numele și data ta.
+    </p>
+    <label class="ce-banner__check">
+      <input type="checkbox" id="ce-check" />
+      <span>Am citit Codul Etic al Asociației Club Federal Chinologic Royal și mi-l asum.</span>
+    </label>
+  </div>
+  <button class="btn btn--primary" id="ce-buton" type="button" disabled>Confirm asumarea</button>
+</section>
+
+<p class="ce-confirmat" id="ce-confirmat" hidden></p>
+
+<script is:inline>
+  (function () {
+    var banner = document.getElementById("ce-banner");
+    var confirmat = document.getElementById("ce-confirmat");
+    var check = document.getElementById("ce-check");
+    var buton = document.getElementById("ce-buton");
+
+    function acreditare() {
+      var d = {};
+      try {
+        var c = JSON.parse(localStorage.getItem("cfcrCandidat") || "null");
+        if (c && c.id) d.cid = c.id;
+      } catch (e) {}
+      try {
+        var cod = localStorage.getItem("cfcrAccesCod");
+        if (cod) d.cod = cod;
+      } catch (e) {}
+      return d;
+    }
+
+    function cere(payload) {
+      return fetch("/.netlify/functions/cod-etic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign(acreditare(), payload)),
+      }).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (!r.ok) throw new Error(j.eroare || "Eroare de server.");
+          return j;
+        });
+      });
+    }
+
+    var dataRo = function (s) {
+      var d = new Date(s);
+      return isNaN(d) ? "" : d.toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" });
+    };
+
+    cere({ actiune: "stare" })
+      .then(function (d) {
+        if (d.anonim) return;                       // cod comun — nu cerem asumare personală
+        if (d.asumat) {
+          confirmat.hidden = false;
+          confirmat.textContent = "📜 Codul Etic — asumat" + (d.data ? " la " + dataRo(d.data) : "") + ".";
+          return;
+        }
+        banner.hidden = false;
+      })
+      .catch(function () { /* dacă starea nu se poate citi, nu blocăm intrarea */ });
+
+    check.addEventListener("change", function () { buton.disabled = !check.checked; });
+
+    buton.addEventListener("click", function () {
+      if (!check.checked) return;
+      buton.disabled = true;
+      buton.textContent = "Se înregistrează…";
+      cere({ actiune: "asuma" })
+        .then(function (d) {
+          banner.hidden = true;
+          confirmat.hidden = false;
+          confirmat.textContent = "✓ Codul Etic — asumat la " + dataRo(d.data) + ". Îți mulțumim.";
+        })
+        .catch(function (e) {
+          buton.disabled = false;
+          buton.textContent = "Confirm asumarea";
+          alert("Nu am putut înregistra asumarea: " + e.message);
+        });
+    });
+  })();
+</script>
+
+<style>
+  .ce-banner {
+    display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap;
+    margin: 1.25rem 0; padding: 1.1rem 1.4rem;
+    background: #f7f1df; border: 1px solid var(--color-accent); border-radius: var(--radius);
+  }
+  .ce-banner[hidden] { display: none; }
+  .ce-banner__text p { margin: 0.3rem 0 0.6rem; font-size: 0.9rem; color: var(--color-text-muted); max-width: 40rem; }
+  .ce-banner__text a { color: var(--color-accent-dark); }
+  .ce-banner__check { display: flex; gap: 0.55rem; align-items: flex-start; font-size: 0.9rem; cursor: pointer; max-width: 40rem; }
+  .ce-banner .btn { flex: 0 0 auto; }
+  .ce-confirmat { margin: 0.75rem 0 0; font-size: 0.85rem; color: var(--color-text-muted); }
+  .ce-confirmat[hidden] { display: none; }
+</style>

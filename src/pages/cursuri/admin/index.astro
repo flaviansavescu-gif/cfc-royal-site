@@ -100,6 +100,16 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
   <p class="a-cand-count" id="a-arb-count" hidden></p>
   <ul class="a-cand-list" id="a-arb-list"></ul>
 
+  <h2 class="a-h2">Codul Etic — asumări</h2>
+  <p class="a-anunt-info">La prima intrare în platformă, fiecare candidat, arbitru și lector confirmă că a citit
+  și își asumă <a href="/ro/documente/cod-etic/" target="_blank" rel="noopener">Codul Etic</a>. Confirmarea se
+  înregistrează cu numele și data — actul pe care se sprijină procedura disciplinară.
+  <span id="a-ce-sumar"></span></p>
+  <details class="a-bul-abonati-det" id="a-ce-det" hidden>
+    <summary>Vezi cine a asumat și cine nu</summary>
+    <ul class="a-cand-list" id="a-ce-list"></ul>
+  </details>
+
   <h2 class="a-h2">Formarea continuă — situația anului</h2>
   <p class="a-anunt-info">Toți arbitrii Colegiului (lectori + arbitri cu cod de studiu) trebuie să parcurgă anual
   <a href="/cursuri/arbitru/formare/">modulul de actualizare</a> și mini-testul. Aici vezi cine l-a promovat.</p>
@@ -663,6 +673,44 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
     });
 
     incarcaArbitri();
+
+    // ——— Codul Etic: cine și l-a asumat ———
+    (async function () {
+      const sumar = document.getElementById("a-ce-sumar");
+      const det = document.getElementById("a-ce-det");
+      const list = document.getElementById("a-ce-list");
+      try {
+        const res = await fetch("/.netlify/functions/cod-etic", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cod: codAdmin(), actiune: "situatie" }),
+        });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.eroare || "Eroare");
+        const asumati = d.membri.filter((m) => m.asumat).length;
+        sumar.textContent = " Versiunea în vigoare: " + d.versiune + " — " + asumati + " din " + d.membri.length + " membri au asumat.";
+        if (!d.membri.length) return;
+        det.hidden = false;
+        list.innerHTML = "";
+        d.membri.forEach((m) => {
+          const li = document.createElement("li");
+          const info = document.createElement("div");
+          info.className = "a-cand-info";
+          const nm = document.createElement("strong");
+          nm.textContent = m.nume;
+          const meta = document.createElement("span");
+          meta.className = "a-cand-meta";
+          meta.innerHTML = m.asumat
+            ? "<span class='a-cand-intrat'>✓ Asumat: " + fmtData(m.data, true) + "</span>"
+            : "<span class='a-cand-neintrat'>● Nu a asumat încă</span>";
+          info.appendChild(nm); info.appendChild(meta);
+          const rol = document.createElement("span");
+          rol.className = "a-cand-meta";
+          rol.textContent = m.rol;
+          li.appendChild(info); li.appendChild(rol);
+          list.appendChild(li);
+        });
+      } catch (e) { sumar.textContent = ""; }
+    })();
 
     // ——— Formarea continuă: situația anului (cine a promovat modulul de actualizare) ———
     (async function () {

@@ -1,6 +1,7 @@
 ---
 // /cursuri/module/ — tabloul de bord al candidatului: lista celor 8 module.
 import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import AsumareCodEtic from "../../../components/AsumareCodEtic.astro";
 import { MODULE } from "../../../data/cursuri";
 ---
 
@@ -11,6 +12,8 @@ import { MODULE } from "../../../data/cursuri";
     Parcurge lecturile fiecărui modul, apoi susține testul. Pragul de promovare este <strong>70%</strong>.
     Rezultatele ajung automat la secretariatul Școlii.
   </p>
+
+  <AsumareCodEtic />
 
   <p class="d-actiuni">
     <a class="d-stagiu" href="/cursuri/manual/">📖 Manualul de studiu individual — 128 de pagini, 8 module →</a>

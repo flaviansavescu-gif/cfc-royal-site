@@ -1,11 +1,16 @@
 ---
-// /cursuri/admin/progres/ — tabloul de progres al candidaților (candidat × cele 8 module).
+// /cursuri/admin/progres/ — tabloul de progres al candidaților (candidat × module + manual).
 // Arată, pentru fiecare candidat, ce module a promovat și cu ce procent. Datele vin din
 // registrul candidaților + progresul personal (Netlify Blobs), într-un singur apel.
+//
+// Testul manualului de studiu individual se salvează pe aceeași cheie de progres ca
+// modulele (progres/<id>/manual-studiu), dar are coloana lui: nu e modul de curs, ci
+// verificarea materialului parcurs individual — de aceea nu intră nici în „Total".
 import CursuriLayout from "../../../layouts/CursuriLayout.astro";
-import { MODULE } from "../../../data/cursuri";
+import { MODULE, MANUAL } from "../../../data/cursuri";
 
 const module = MODULE.map((m) => ({ slug: m.slug, nr: m.nr, titlu: m.titlu }));
+const manual = { slug: MANUAL.slug, titlu: "Manual de studiu individual — " + MANUAL.titlu };
 ---
 
 <CursuriLayout title="Progresul candidaților" allow={["admin"]}>
@@ -13,6 +18,7 @@ const module = MODULE.map((m) => ({ slug: m.slug, nr: m.nr, titlu: m.titlu }));
   <p class="a-eyebrow">Administrare</p>
   <h1 class="a-title">Progresul candidaților</h1>
   <p class="a-sub">Fiecare candidat și modulele promovate. <span class="lg lg--pass">✅ promovat</span> · <span class="lg lg--try">procent</span> = susținut, încă nepromovat · <span class="lg lg--none">–</span> = nesusținut.</p>
+  <p class="a-sub a-sub--mic">Coloana <strong>📖 Manual</strong> este testul manualului de studiu individual. Nu e modul de curs, ci verificarea materialului parcurs pe cont propriu — de aceea are coloană separată și nu intră în „Total module".</p>
 
   <p class="a-info" id="a-info">Se încarcă…</p>
 
@@ -24,7 +30,8 @@ const module = MODULE.map((m) => ({ slug: m.slug, nr: m.nr, titlu: m.titlu }));
           {module.map((m) => (
             <th class="a-th-mod" title={m.titlu}>M{m.nr}</th>
           ))}
-          <th class="a-th-tot">Total</th>
+          <th class="a-th-man" title={manual.titlu}>📖 Manual</th>
+          <th class="a-th-tot">Total module</th>
         </tr>
       </thead>
       <tbody id="a-tbody"></tbody>
@@ -32,7 +39,7 @@ const module = MODULE.map((m) => ({ slug: m.slug, nr: m.nr, titlu: m.titlu }));
   </div>
 </CursuriLayout>
 
-<script is:inline define:vars={{ module }}>
+<script is:inline define:vars={{ module, manual }}>
   (async function () {
     const info = document.getElementById("a-info");
     const wrap = document.getElementById("a-tablewrap");
@@ -70,25 +77,36 @@ const module = MODULE.map((m) => ({ slug: m.slug, nr: m.nr, titlu: m.titlu }));
       tdName.textContent = c.nume;
       tr.appendChild(tdName);
 
-      let promovate = 0;
-      module.forEach((m) => {
+      // O celulă de progres: nesusținut / susținut-nepromovat / promovat.
+      function celula(rezultat, etichetaTitlu) {
         const td = document.createElement("td");
-        const r = c.progres && c.progres[m.slug];
-        if (!r) {
+        if (!rezultat) {
           td.className = "cell cell--none";
           td.textContent = "–";
-        } else if (r.promovat) {
-          promovate++;
+          td.title = etichetaTitlu + " — nesusținut";
+        } else if (rezultat.promovat) {
           td.className = "cell cell--pass";
-          td.innerHTML = "✅<span class='cell__pct'>" + r.procent + "%</span>";
-          if (r.data) td.title = "Promovat — " + r.data;
+          td.innerHTML = "✅<span class='cell__pct'>" + rezultat.procent + "%</span>";
+          td.title = etichetaTitlu + " — promovat" + (rezultat.data ? ", " + rezultat.data : "");
         } else {
           td.className = "cell cell--try";
-          td.textContent = r.procent + "%";
-          td.title = "Susținut, nepromovat";
+          td.textContent = rezultat.procent + "%";
+          td.title = etichetaTitlu + " — susținut, nepromovat";
         }
-        tr.appendChild(td);
+        return td;
+      }
+
+      let promovate = 0;
+      module.forEach((m) => {
+        const r = c.progres && c.progres[m.slug];
+        if (r && r.promovat) promovate++;
+        tr.appendChild(celula(r, "Modulul " + m.nr));
       });
+
+      // Manualul de studiu individual — coloană proprie, în afara totalului pe module.
+      const tdMan = celula(c.progres && c.progres[manual.slug], manual.titlu);
+      tdMan.classList.add("cell--man");
+      tr.appendChild(tdMan);
 
       const tdTot = document.createElement("td");
       tdTot.className = "a-td-tot" + (promovate === module.length ? " is-full" : "");
@@ -121,13 +139,16 @@ const module = MODULE.map((m) => ({ slug: m.slug, nr: m.nr, titlu: m.titlu }));
   .a-table th, .a-table td { border: 1px solid var(--color-border); padding: 0.55rem 0.6rem; text-align: center; }
   .a-th-name { text-align: left; background: var(--color-surface-alt); position: sticky; left: 0; z-index: 1; }
   .a-th-mod { background: var(--color-surface-alt); font-size: 0.85rem; width: 3.4rem; }
+  .a-th-man { background: #f7f1df; font-size: 0.85rem; white-space: nowrap; border-left: 2px solid var(--color-accent) !important; }
   .a-th-tot { background: var(--color-surface-alt); }
+  .a-sub--mic { font-size: 0.85rem; margin-top: -0.25rem; }
   .a-td-name { text-align: left; font-weight: 600; color: var(--color-primary); background: var(--color-surface); position: sticky; left: 0; white-space: nowrap; }
   .cell { font-size: 0.9rem; }
   .cell--none { color: var(--color-text-muted); }
   .cell--pass { background: #eef5f0; }
   .cell--pass .cell__pct { display: block; font-size: 0.72rem; color: var(--color-primary); }
   .cell--try { background: #fbf6e8; color: var(--color-accent-dark); font-weight: 600; }
+  .cell--man { border-left: 2px solid var(--color-accent) !important; }
   .a-td-tot { font-weight: 700; color: var(--color-text-muted); }
   .a-td-tot.is-full { color: var(--color-primary); }
 </style>
