@@ -96,6 +96,12 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
   <p class="a-cand-count" id="a-arb-count" hidden></p>
   <ul class="a-cand-list" id="a-arb-list"></ul>
 
+  <h2 class="a-h2">Formarea continuă — situația anului</h2>
+  <p class="a-anunt-info">Toți arbitrii Colegiului (lectori + arbitri cu cod de studiu) trebuie să parcurgă anual
+  <a href="/cursuri/arbitru/formare/">modulul de actualizare</a> și mini-testul. Aici vezi cine l-a promovat.</p>
+  <p class="a-cand-count" id="a-form-count" hidden></p>
+  <ul class="a-cand-list" id="a-form-list"></ul>
+
   <h2 class="a-h2">Coduri de instalare — Breed Standards Explorer</h2>
   <p class="a-anunt-info">Aplicația se poate <strong>instala</strong> pe dispozitiv doar cu un cod de instalare — diferit de codul de acces în platformă. Generezi un cod și îl dai persoanei care instalează. Consultarea online rămâne liberă pentru candidați.</p>
   <div class="a-cand-form">
@@ -624,6 +630,46 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
     });
 
     incarcaArbitri();
+
+    // ——— Formarea continuă: situația anului (cine a promovat modulul de actualizare) ———
+    (async function () {
+      const list = document.getElementById("a-form-list");
+      const countEl = document.getElementById("a-form-count");
+      try {
+        const res = await fetch("/.netlify/functions/formare-arbitri", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cod: codAdmin(), actiune: "situatie" }),
+        });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.eroare || "Eroare");
+        const promovati = d.arbitri.filter((a) => a.promovat).length;
+        countEl.hidden = false;
+        countEl.textContent = "Anul " + d.an + ": " + promovati + " din " + d.arbitri.length + " arbitri au îndeplinit formarea.";
+        d.arbitri.forEach((a) => {
+          const li = document.createElement("li");
+          const info = document.createElement("div");
+          info.className = "a-cand-info";
+          const nm = document.createElement("strong");
+          nm.textContent = a.nume;
+          const meta = document.createElement("span");
+          meta.className = "a-cand-meta";
+          meta.innerHTML = a.promovat
+            ? "<span class='a-cand-intrat'>✓ Promovat — " + a.procent + "% (" + a.data + ")</span>"
+            : "<span class='a-cand-neintrat'>● Neîndeplinită</span>";
+          info.appendChild(nm); info.appendChild(meta);
+          const rol = document.createElement("span");
+          rol.className = "a-cand-meta";
+          rol.textContent = a.rol === "lector" ? "lector" : "arbitru";
+          li.appendChild(info); li.appendChild(rol);
+          list.appendChild(li);
+        });
+      } catch (e) {
+        const li = document.createElement("li");
+        li.className = "a-cand-empty";
+        li.textContent = "Nu am putut încărca situația formării.";
+        list.appendChild(li);
+      }
+    })();
 
     // ——— Curățare retroactivă a datelor rămase de la candidați șterși ———
     document.getElementById("a-orfani").addEventListener("click", async () => {

@@ -620,3 +620,100 @@ export const MANUAL = {
     },
   ] as Intrebare[],
 };
+
+// =========================================================================
+// FORMAREA CONTINUĂ a arbitrilor autorizați — modulul anual de actualizare.
+//
+// O dată pe an, arbitrii (inclusiv lectorii) parcurg materialul de actualizare și
+// susțin mini-testul (10 întrebări, prag 70%). Promovarea = formarea îndeplinită pe
+// anul respectiv; evidența stă pe server (funcția formare-arbitri), per arbitru și an.
+// Ca peste tot: întrebările NU conțin răspunsul corect — cheia stă doar pe server.
+//
+// La schimbarea anului: se actualizează `an`, lecturile și întrebările de aici, plus
+// cheia „formare-<an>” din netlify/functions/formare-arbitri.mjs.
+// =========================================================================
+
+export const FORMARE = {
+  an: 2026,
+  titlu: "Actualizarea anuală 2026 — regulamentele WDF în practică",
+  descriere:
+    "Modulul anual de formare continuă al Colegiului de Arbitri: reîmprospătarea regulilor cu " +
+    "consecință directă în ring. Parcurge lecturile, apoi susține mini-testul (10 întrebări, prag 70%). " +
+    "Promovarea se înregistrează în evidența Colegiului pentru anul în curs.",
+  lecturi: [
+    { titlu: "Regulamentul de expoziție WDF (integral)", url: "/ro/regulamente/" },
+    { titlu: "Titlurile oficiale de campion WDF", url: "/ro/regulamente/titlurile-oficiale-de-campion-wdf/" },
+    { titlu: "Comportamentul și etica în ring", url: "/ro/regulamente/comportamentul-si-etica-in-ring/" },
+    { titlu: "Manualul de studiu individual — Modulul 6 (Metodica) și 7 (Etica)", url: "/cursuri/manual/" },
+  ],
+  intrebari: [
+    {
+      text: "Numărul maxim de exemplare pe care un arbitru le poate judeca într-o zi este:",
+      optiuni: ["100", "80", "60"],
+    },
+    {
+      text: "Un arbitru poate judeca un câine pe care l-a deținut sau crescut în ultimele 12 luni?",
+      optiuni: ["Da, dacă anunță organizatorul", "Da, în clasele de dezvoltare", "Nu"],
+    },
+    {
+      text: "Certificatul CAC se acordă exclusiv în clasele:",
+      optiuni: [
+        "Intermediară, Deschisă, Working, Winner, Champion, Foreign Champion",
+        "Young, Intermediară și Deschisă",
+        "tuturor claselor, inclusiv Baby și Puppy",
+      ],
+    },
+    {
+      text: "CACIB se poate acorda:",
+      optiuni: [
+        "în orice expoziție națională",
+        "doar în expoziții internaționale, câinilor care au primit CAC",
+        "doar la World Cup WDF",
+      ],
+    },
+    {
+      text: "Motivul descalificării sau al acordării N.J.:",
+      optiuni: [
+        "se consemnează obligatoriu pe raport",
+        "se comunică doar verbal expozantului",
+        "se consemnează doar la cererea expozantului",
+      ],
+    },
+    {
+      text: "Exagerările dăunătoare (brahicefalie extremă, piele în exces, unghiuri exagerate):",
+      optiuni: [
+        "se recompensează dacă țin de tipicitatea rasei",
+        "se ignoră — sunt problema crescătorului",
+        "se penalizează: sănătatea și funcționalitatea primează asupra spectaculosului",
+      ],
+    },
+    {
+      text: "Clasamentul I–IV într-o clasă se stabilește:",
+      optiuni: [
+        "numai între câinii cu cel puțin „Foarte bun”; la mai multe Excelente, ierarhizarea e obligatorie",
+        "între toți câinii prezentați, indiferent de calificativ",
+        "doar dacă expozanții o solicită",
+      ],
+    },
+    {
+      text: "Comunicarea arbitrului cu expozanții pe durata arbitrajului:",
+      optiuni: [
+        "e liberă, în pauzele dintre clase",
+        "se limitează la strictul necesar tehnic al muncii în ring",
+        "e permisă doar cu handlerii profesioniști",
+      ],
+    },
+    {
+      text: "Clasa Veterani se deschide de la vârsta de:",
+      optiuni: ["10 ani", "8 ani", "12 ani"],
+    },
+    {
+      text: "Critica descriptivă a fiecărui exemplar:",
+      optiuni: [
+        "e opțională la expozițiile naționale",
+        "se redactează doar pentru câinii cu „Excelent”",
+        "justifică calificativul și consemnează atât calitățile, cât și abaterile, cu gravitatea lor",
+      ],
+    },
+  ] as Intrebare[],
+};

@@ -14,8 +14,22 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
 
   <div class="ex-stare" id="ex-stare">Se verifică eligibilitatea…</div>
 
+  <div class="ex-sesiune" id="ex-sesiune" hidden>
+    <p class="ex-sesiune__titlu" id="ex-sesiune-titlu"></p>
+    <p class="ex-sesiune__comisie" id="ex-sesiune-comisie"></p>
+  </div>
+
   <div id="ex-zona" hidden>
     <button class="btn btn--primary" id="ex-start" type="button">Începe examenul</button>
+  </div>
+
+  <div class="ex-contest" id="ex-contest" hidden>
+    <h2 class="ex-h2">Contestația rezultatului</h2>
+    <p class="ex-contest__info" id="ex-contest-info"></p>
+    <form id="ex-contest-form" hidden>
+      <textarea id="ex-contest-motiv" rows="4" placeholder="Descrie motivul contestației (ex. problemă tehnică la trimitere, întrebare pe care o consideri greșită) — comisia de examinare are nevoie de detalii."></textarea>
+      <button class="btn btn--outline" type="submit">Depune contestația</button>
+    </form>
   </div>
 
   <form id="ex-form" hidden>
@@ -97,6 +111,72 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
       return;
     }
 
+    // ——— Sesiunea și comisia de examinare ———
+    (function sesiuni() {
+      const sec = document.getElementById("ex-sesiune");
+      const titlu = document.getElementById("ex-sesiune-titlu");
+      const comisie = document.getElementById("ex-sesiune-comisie");
+      const s = stare.sesiune || stare.urmatoareaSesiune;
+      if (!s) return;
+      sec.hidden = false;
+      const per = dataRo(s.start) + " – " + dataRo(s.sfarsit);
+      titlu.innerHTML = stare.sesiune
+        ? "🟢 <strong>Sesiune de examen în desfășurare:</strong> " + s.nume + " (" + per + ")"
+        : "📅 <strong>Următoarea sesiune de examen:</strong> " + s.nume + " (" + per + ")";
+      const membri = (s.membri || []).length ? " · Membri: " + s.membri.join(", ") : "";
+      comisie.textContent = "Comisia de examinare — Președinte: " + s.presedinte + membri;
+    })();
+
+    // ——— Contestația rezultatului ———
+    (function contestatie() {
+      const sec = document.getElementById("ex-contest");
+      const info = document.getElementById("ex-contest-info");
+      const cform = document.getElementById("ex-contest-form");
+      const c = stare.contestatie;
+      if (c && c.status === "depusa") {
+        sec.hidden = false;
+        info.textContent = "Contestația ta din " + dataRo(c.depusa) + " este în curs de soluționare de către comisia de examinare.";
+        return;
+      }
+      if (c && (c.status === "admisa" || c.status === "respinsa")) {
+        sec.hidden = false;
+        info.innerHTML =
+          "<strong>Contestația a fost " + (c.status === "admisa" ? "ADMISĂ" : "respinsă") + "</strong> (" + dataRo(c.solutionataLa) + "). " +
+          "Motivarea comisiei: „" + (c.motivare || "—") + "”" +
+          (c.status === "admisa" ? " Încercarea contestată a fost anulată — poți susține din nou examenul în sesiune." : "");
+        // După soluționare, o nouă încercare poate fi din nou contestată — formularul
+        // apare doar dacă serverul spune că se poate.
+      }
+      if (stare.poateContesta) {
+        sec.hidden = false;
+        if (!c || c.status !== "depusa") {
+          info.textContent = (info.textContent ? info.textContent + " " : "") +
+            "Poți contesta ultimul rezultat în cel mult " + stare.zileContestatie + " zile de la susținere.";
+          cform.hidden = false;
+        }
+      }
+      cform.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const motiv = document.getElementById("ex-contest-motiv").value.trim();
+        if (motiv.length < 20) { alert("Descrie motivul contestației (minim 20 de caractere)."); return; }
+        const btn = cform.querySelector("button[type=submit]");
+        btn.disabled = true; btn.textContent = "Se depune…";
+        try {
+          const r = await fetch("/.netlify/functions/examen-final", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ actiune: "contesta", id: cand.id, motiv }),
+          });
+          const d = await r.json();
+          if (!r.ok) throw new Error(d.eroare || "Eroare");
+          cform.hidden = true;
+          info.textContent = "✓ Contestația a fost depusă și transmisă comisiei de examinare. Vei vedea aici soluționarea.";
+        } catch (err) {
+          btn.disabled = false; btn.textContent = "Depune contestația";
+          alert("Nu am putut depune contestația: " + err.message);
+        }
+      });
+    })();
+
     if (!stare.activ) {
       stareEl.className = "ex-stare is-info";
       stareEl.textContent = "Examenul final se activează după ce lectorii completează banca de întrebări.";
@@ -107,9 +187,18 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
       stareEl.innerHTML = "<strong>Ai promovat examenul final! 🎉</strong> Felicitări — secretariatul îți acordă autorizarea pe grupe.";
       return;
     }
+    if (!stare.inSesiune) {
+      stareEl.className = "ex-stare is-wait";
+      stareEl.innerHTML = stare.urmatoareaSesiune
+        ? "Examenul final se susține <strong>doar în sesiunile din calendar</strong>. Următoarea sesiune: <strong>" +
+          stare.urmatoareaSesiune.nume + "</strong>, " + dataRo(stare.urmatoareaSesiune.start) + " – " + dataRo(stare.urmatoareaSesiune.sfarsit) + "."
+        : "Examenul final se susține <strong>doar în sesiunile din calendar</strong>. Următoarea sesiune va fi anunțată de secretariat.";
+      return;
+    }
     if (!stare.poateSustine) {
       stareEl.className = "ex-stare is-wait";
-      stareEl.innerHTML = "Ai susținut recent examenul. Îl poți relua începând cu <strong>" + dataRo(stare.urmatoareaData) + "</strong>.";
+      stareEl.innerHTML = "Ai susținut recent examenul. Îl poți relua începând cu <strong>" + dataRo(stare.urmatoareaData) + "</strong>" +
+        (stare.sesiune ? ", dacă sesiunea mai este deschisă — altfel în sesiunea următoare." : ".");
       return;
     }
 
@@ -215,6 +304,16 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
   .ex-rezultat { margin-top: 1.5rem; padding: 1.25rem 1.5rem; max-width: 48rem; border-radius: var(--radius); border: 1px solid var(--color-border); }
   .ex-rezultat.is-pass { background: #eef5f0; border-color: var(--color-primary); }
   .ex-rezultat p { margin: 0.4rem 0 0; }
+
+  .ex-sesiune { margin: 1rem 0; padding: 0.9rem 1.25rem; max-width: 48rem; border-radius: var(--radius); border: 1px solid var(--color-border); background: var(--color-surface-alt); }
+  .ex-sesiune__titlu { margin: 0; }
+  .ex-sesiune__comisie { margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--color-text-muted); }
+
+  .ex-contest { margin-top: 2rem; max-width: 48rem; }
+  .ex-contest__info { color: var(--color-text-muted); }
+  #ex-contest-form { display: grid; gap: 0.6rem; }
+  #ex-contest-form textarea { width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; resize: vertical; }
+  #ex-contest-form .btn { justify-self: start; }
 
   .ex-grupe { margin-top: 2.5rem; }
   .ex-h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.35rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.35rem; }

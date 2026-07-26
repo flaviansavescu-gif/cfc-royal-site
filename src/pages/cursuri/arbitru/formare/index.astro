@@ -1,0 +1,157 @@
+---
+// /cursuri/arbitru/formare/ — formarea continuă anuală a arbitrilor autorizați.
+// Arbitrii (inclusiv lectorii) parcurg materialul de actualizare și susțin mini-testul.
+// Promovarea se înregistrează pe server, per arbitru și an (funcția formare-arbitri).
+import CursuriLayout from "../../../../layouts/CursuriLayout.astro";
+import { FORMARE } from "../../../../data/cursuri";
+---
+
+<CursuriLayout title="Formare continuă" allow={["arbitru", "lector"]}>
+  <p class="f-inapoi"><a href="/cursuri/arbitru/">← Spațiul arbitrului</a></p>
+  <p class="f-eyebrow">Colegiul de Arbitri · formare continuă {FORMARE.an}</p>
+  <h1 class="f-title">{FORMARE.titlu}</h1>
+  <p class="f-sub">{FORMARE.descriere}</p>
+
+  <p class="f-stare" id="f-stare" role="status" hidden></p>
+
+  <h2 class="f-h2">Lecturile de actualizare</h2>
+  <ul class="f-lecturi">
+    {FORMARE.lecturi.map((l) => (
+      <li><a href={l.url} target="_blank" rel="noopener">{l.titlu} ↗</a></li>
+    ))}
+  </ul>
+
+  <section class="f-test">
+    <h2 class="f-h2">Mini-testul anual</h2>
+    <p class="f-info">
+      {FORMARE.intrebari.length} întrebări · un singur răspuns corect · prag de promovare 70%.
+      Se reține cel mai bun rezultat al anului; poți relua testul oricând.
+    </p>
+
+    <form id="f-form">
+      {FORMARE.intrebari.map((q, qi) => (
+        <fieldset class="f-q">
+          <legend><span class="f-qnr">{qi + 1}.</span> {q.text}</legend>
+          {q.optiuni.map((opt, oi) => (
+            <label class="f-opt">
+              <input type="radio" name={`q${qi}`} value={oi} required />
+              <span>{opt}</span>
+            </label>
+          ))}
+        </fieldset>
+      ))}
+      <button class="btn btn--primary" type="submit">Trimite testul</button>
+    </form>
+
+    <div class="f-rezultat" id="f-rezultat" hidden></div>
+  </section>
+</CursuriLayout>
+
+<script is:inline define:vars={{ nrIntrebari: FORMARE.intrebari.length }}>
+  (function () {
+    var stare = document.getElementById("f-stare");
+    var form = document.getElementById("f-form");
+    var rez = document.getElementById("f-rezultat");
+
+    function cere(payload) {
+      var cod = "";
+      try { cod = localStorage.getItem("cfcrAccesCod") || ""; } catch (e) {}
+      return fetch("/.netlify/functions/formare-arbitri", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ cod: cod }, payload)),
+      }).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (!r.ok) throw new Error(j.eroare || "Nu am putut comunica cu serverul. Reîncearcă.");
+          return j;
+        });
+      });
+    }
+
+    // Starea formării pe anul în curs.
+    cere({ actiune: "stare" })
+      .then(function (d) {
+        stare.hidden = false;
+        if (d.promovat) {
+          stare.className = "f-stare is-ok";
+          stare.textContent = "✅ " + d.nume + " — formarea " + d.an + " este ÎNDEPLINITĂ (" + d.procent + "%, " + d.data + "). Poți relua testul oricând; se reține cel mai bun rezultat.";
+        } else {
+          stare.className = "f-stare is-todo";
+          stare.textContent = "◻ " + d.nume + " — formarea " + d.an + " nu este încă îndeplinită. Parcurge lecturile și susține mini-testul de mai jos.";
+        }
+      })
+      .catch(function (e) {
+        stare.hidden = false;
+        stare.className = "f-stare is-err";
+        stare.textContent = e.message;
+      });
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var btn = form.querySelector("button[type=submit]");
+      btn.disabled = true;
+      btn.textContent = "Se corectează…";
+      var raspunsuri = [];
+      for (var i = 0; i < nrIntrebari; i++) {
+        var ales = form.querySelector('input[name="q' + i + '"]:checked');
+        raspunsuri.push(ales ? Number(ales.value) : -1);
+      }
+      cere({ actiune: "trimite", raspunsuri: raspunsuri })
+        .then(function (d) {
+          rez.hidden = false;
+          rez.className = "f-rezultat " + (d.promovat ? "is-pass" : "is-fail");
+          rez.innerHTML =
+            "<strong>" + (d.promovat ? "Formarea anuală este îndeplinită! ✅" : "Sub pragul de promovare.") + "</strong>" +
+            "<p>Scor: <b>" + d.corecte + " / " + d.total + "</b> (" + d.procent + "%).</p>" +
+            (d.gresite && d.gresite.length
+              ? "<p class='f-gresite'>Întrebări greșite: " + d.gresite.join(", ") + ". Reia lecturile și încearcă din nou.</p>"
+              : "");
+          rez.scrollIntoView({ behavior: "smooth", block: "center" });
+          if (d.promovat) {
+            stare.className = "f-stare is-ok";
+            stare.textContent = "✅ Formarea anuală este îndeplinită (" + d.procent + "%).";
+          }
+        })
+        .catch(function (err) {
+          rez.hidden = false;
+          rez.className = "f-rezultat is-fail";
+          rez.innerHTML = "<strong>Nu am putut trimite testul.</strong><p>" + err.message + "</p>";
+        })
+        .finally(function () {
+          btn.disabled = false;
+          btn.textContent = "Trimite testul";
+        });
+    });
+  })();
+</script>
+
+<style>
+  .f-inapoi { margin: 0 0 0.75rem; font-size: 0.9rem; }
+  .f-inapoi a { color: var(--color-accent-dark); }
+  .f-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .f-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.25rem; }
+  .f-sub { color: var(--color-text-muted); max-width: 48rem; margin-top: 0; }
+  .f-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 1.75rem 0 0.5rem; font-size: 1.3rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem; }
+
+  .f-stare { margin: 1.25rem 0 0; padding: 0.85rem 1.1rem; border-radius: var(--radius); font-weight: 600; border: 1px solid var(--color-border); }
+  .f-stare[hidden] { display: none; }
+  .f-stare.is-ok { background: #eef5f0; border-color: var(--color-primary); color: var(--color-primary); }
+  .f-stare.is-todo { background: #f7f1df; border-color: var(--color-accent); color: var(--color-accent-dark); }
+  .f-stare.is-err { background: #f9efef; border-color: #8c1d2f; color: #8c1d2f; }
+
+  .f-lecturi { padding-left: 1.2rem; display: grid; gap: 0.45rem; }
+  .f-lecturi a { color: var(--color-accent-dark); }
+
+  .f-info { color: var(--color-text-muted); max-width: 46rem; }
+  .f-q { border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); padding: 1rem 1.25rem; margin: 0 0 1rem; }
+  .f-q legend { font-weight: 600; padding: 0 0.4rem; }
+  .f-qnr { color: var(--color-accent-dark); }
+  .f-opt { display: flex; gap: 0.6rem; align-items: baseline; padding: 0.35rem 0.25rem; cursor: pointer; }
+  .f-opt:hover { background: var(--color-surface-alt); border-radius: 6px; }
+  .f-rezultat { margin-top: 1.5rem; padding: 1.25rem 1.5rem; border-radius: var(--radius); border: 1px solid var(--color-border); }
+  .f-rezultat[hidden] { display: none; }
+  .f-rezultat.is-pass { background: #eef5f0; border-color: var(--color-primary); }
+  .f-rezultat.is-fail { background: #f9efef; border-color: #8c1d2f; }
+  .f-rezultat p { margin: 0.4rem 0 0; }
+  .f-gresite { color: var(--color-text-muted); font-size: 0.9rem; }
+</style>

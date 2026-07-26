@@ -3,11 +3,24 @@
 // La fiecare susținere se extrage aleatoriu un subset de întrebări (fără cheia de răspuns),
 // se corectează pe server, se aplică pauza de reîncercare și se anunță secretariatul.
 //
-// POST { id, actiune:"stare" }                 -> { activ, nrExtrase, prag, promovat, poateSustine, urmatoareaData }
+// EXAMINAREA FORMALIZATĂ (deciziile Colegiului din 26.07.2026):
+//  • examenul se susține DOAR în sesiunile din calendar (de regulă 2/an), fiecare cu
+//    comisia ei de examinare (președinte + membri), definite de administrator;
+//  • rezultatul se poate CONTESTA în 3 zile; contestația admisă anulează încercarea
+//    (nu mai contează la pauza de reîncercare — candidatul poate susține din nou).
+//
+// POST { id, actiune:"stare" }                 -> { activ, nrExtrase, prag, promovat, poateSustine,
+//                                                   urmatoareaData, sesiune, urmatoareaSesiune, contestatie, poateContesta }
 // POST { id, actiune:"start" }                 -> { sesiune:[{id,text,optiuni}], prag, nrExtrase }
 // POST { id, actiune:"trimite", raspunsuri }   -> { corecte, total, procent, promovat, urmatoareaData }
+// POST { id, actiune:"contesta", motiv }       -> { ok }
 // POST { cod, actiune:"admin" }                -> { candidati:{cid:{promovat,ultimaData,incercari}} }
 // POST { cod, actiune:"reset", candidatId }    -> { ok }
+// POST { cod, actiune:"sesiuni" }              -> { sesiuni:[...] }
+// POST { cod, actiune:"sesiune-salveaza", ... }-> { ok, id }
+// POST { cod, actiune:"sesiune-sterge", id }   -> { ok }
+// POST { cod, actiune:"contestatii" }          -> { contestatii:[...] }
+// POST { cod, actiune:"solutioneaza", candidatId, decizie, motivare } -> { ok }
 import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
 
@@ -17,6 +30,8 @@ const MIN_ACTIV = 10;         // banca minimă pentru ca examenul să fie „act
 const PRAG = 75;              // procent minim de promovare
 const COOLDOWN_ZILE = 7;      // pauză după o picare
 const COOLDOWN_MS = COOLDOWN_ZILE * 24 * 60 * 60 * 1000;
+const CONTESTATIE_ZILE = 3;   // termenul de depunere a contestației, de la rezultat
+const CONTESTATIE_MS = CONTESTATIE_ZILE * 24 * 60 * 60 * 1000;
 
 // Banca de întrebări (provizorie — lectorii o extind la 25+). corect = indexul opțiunii corecte.
 const BANCA = [
@@ -74,23 +89,167 @@ async function candidatNume(store, id) {
   } catch { return null; }
 }
 
+// ——— Sesiunile de examen (calendar + comisie) ———
+// sesiune-examen/<id> -> { nume, start:"AAAA-LL-ZZ", sfarsit:"AAAA-LL-ZZ", presedinte, membri:[], creat }
+// O sesiune e „activă" pe toată durata zilelor ei, inclusiv capetele.
+async function sesiuniToate(store) {
+  const sesiuni = [];
+  try {
+    const { blobs } = await store.list({ prefix: "sesiune-examen/" });
+    for (const b of blobs) {
+      const s = await store.get(b.key, { type: "json" });
+      if (s) sesiuni.push({ ...s, id: b.key.slice("sesiune-examen/".length) });
+    }
+  } catch (err) { console.error("Citire sesiuni eșuată:", err); }
+  sesiuni.sort((a, b) => String(a.start).localeCompare(String(b.start)));
+  return sesiuni;
+}
+
+function publicSesiune(s) {
+  return s
+    ? { id: s.id, nume: s.nume, start: s.start, sfarsit: s.sfarsit, presedinte: s.presedinte || "", membri: Array.isArray(s.membri) ? s.membri : [] }
+    : null;
+}
+
+function sesiuneActivaSiUrmatoarea(sesiuni) {
+  const azi = new Date().toISOString().slice(0, 10);
+  const activa = sesiuni.find((s) => s.start <= azi && azi <= s.sfarsit) || null;
+  const urmatoarea = sesiuni.find((s) => s.start > azi) || null;
+  return { activa, urmatoarea };
+}
+
+// ——— Contestația rezultatului ———
+// contestatie-examen/<cid> -> { nume, dataIncercare, procent, motiv, depusa,
+//                              status: "depusa"|"admisa"|"respinsa", motivare?, solutionataLa? }
+// Se poate contesta ULTIMA încercare nepromovată, în cel mult 3 zile de la rezultat.
+function poateContesta(dosar, contestatie) {
+  if (!dosar || dosar.promovat) return false;
+  const ultima = Array.isArray(dosar.incercari) ? dosar.incercari[dosar.incercari.length - 1] : null;
+  if (!ultima) return false;
+  const t = Date.parse(ultima.data);
+  if (isNaN(t) || Date.now() > t + CONTESTATIE_MS) return false;
+  // O singură contestație per încercare.
+  if (contestatie && contestatie.dataIncercare === ultima.data) return false;
+  return true;
+}
+
+async function anuntaSecretariatul(subiect, html) {
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) { console.error("BREVO_API_KEY lipsește:", subiect); return; }
+  try {
+    await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        sender: { name: "Școala de Arbitraj CFC-Royal", email: "newsletter@cfc-royal.ro" },
+        to: [{ email: "contact@cfc-royal.ro" }],
+        subject: subiect,
+        htmlContent: html,
+      }),
+    });
+  } catch (err) { console.error("E-mail eșuat:", err); }
+}
+
 export default async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
 
   let body;
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
 
-  const store = getStore("cursuri");
   const actiune = body.actiune || "stare";
+  // Store-ul se creează abia după porți: cine nu trece de verificare nu atinge stocarea.
 
   // ——— Acțiuni de administrator ———
-  if (actiune === "admin" || actiune === "reset") {
+  const ACTIUNI_ADMIN = ["admin", "reset", "sesiuni", "sesiune-salveaza", "sesiune-sterge", "contestatii", "solutioneaza"];
+  if (ACTIUNI_ADMIN.includes(actiune)) {
     if (sha256(body.cod || "") !== ADMIN_HASH) return json({ eroare: "Cod de administrator incorect." }, 401);
+    const store = getStore("cursuri");
 
     if (actiune === "reset") {
       const cid = taie(body.candidatId, 128);
       if (!cid) return json({ eroare: "Lipsește candidatul." }, 400);
       try { await store.delete("examen/" + cid); } catch (err) { console.error(err); }
+      return json({ ok: true });
+    }
+
+    if (actiune === "sesiuni") {
+      return json({ sesiuni: await sesiuniToate(store) });
+    }
+
+    if (actiune === "sesiune-salveaza") {
+      const nume = taie(body.nume, 120);
+      const start = taie(body.start, 10);
+      const sfarsit = taie(body.sfarsit, 10);
+      const presedinte = taie(body.presedinte, 120);
+      const membri = Array.isArray(body.membri)
+        ? body.membri.map((m) => taie(m, 120)).filter(Boolean).slice(0, 8)
+        : [];
+      const eData = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s);
+      if (nume.length < 3) return json({ eroare: "Dă un nume sesiunii (ex. Sesiunea de primăvară 2027)." }, 400);
+      if (!eData(start) || !eData(sfarsit) || sfarsit < start)
+        return json({ eroare: "Perioada sesiunii e invalidă (start ≤ sfârșit, format AAAA-LL-ZZ)." }, 400);
+      if (presedinte.length < 3) return json({ eroare: "Numește președintele comisiei de examinare." }, 400);
+      const id = taie(body.id, 60) || Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+      await store.setJSON("sesiune-examen/" + id, {
+        nume, start, sfarsit, presedinte, membri,
+        creat: new Date().toISOString(),
+      });
+      return json({ ok: true, id });
+    }
+
+    if (actiune === "sesiune-sterge") {
+      const id = taie(body.id, 60);
+      if (!id) return json({ eroare: "Lipsește sesiunea." }, 400);
+      try { await store.delete("sesiune-examen/" + id); } catch (err) { console.error(err); }
+      return json({ ok: true });
+    }
+
+    if (actiune === "contestatii") {
+      const contestatii = [];
+      try {
+        const { blobs } = await store.list({ prefix: "contestatie-examen/" });
+        for (const b of blobs) {
+          const c = await store.get(b.key, { type: "json" });
+          if (c) contestatii.push({ ...c, candidatId: b.key.slice("contestatie-examen/".length) });
+        }
+      } catch (err) { console.error(err); }
+      contestatii.sort((a, b) => String(b.depusa).localeCompare(String(a.depusa)));
+      return json({ contestatii });
+    }
+
+    if (actiune === "solutioneaza") {
+      const cid = taie(body.candidatId, 128);
+      const decizie = taie(body.decizie, 10);
+      const motivare = taie(body.motivare, 2000);
+      if (!cid) return json({ eroare: "Lipsește candidatul." }, 400);
+      if (decizie !== "admisa" && decizie !== "respinsa")
+        return json({ eroare: "Decizia poate fi doar „admisa” sau „respinsa”." }, 400);
+      if (motivare.length < 5) return json({ eroare: "Scrie motivarea deciziei — candidatul o va vedea." }, 400);
+
+      const c = await store.get("contestatie-examen/" + cid, { type: "json" }).catch(() => null);
+      if (!c || c.status !== "depusa") return json({ eroare: "Nu există o contestație în așteptare pentru acest candidat." }, 404);
+
+      // Contestația ADMISĂ anulează încercarea contestată: dispare din dosar, deci nu
+      // mai contează la pauza de reîncercare — candidatul poate susține din nou.
+      if (decizie === "admisa") {
+        const dosar = await store.get("examen/" + cid, { type: "json" }).catch(() => null);
+        if (dosar && Array.isArray(dosar.incercari)) {
+          const ramase = dosar.incercari.filter((i) => i.data !== c.dataIncercare);
+          const ultima = ramase[ramase.length - 1] || null;
+          await store.setJSON("examen/" + cid, {
+            ...dosar,
+            incercari: ramase,
+            ultimaData: ultima ? ultima.data : null,
+          });
+        }
+      }
+
+      await store.setJSON("contestatie-examen/" + cid, {
+        ...c,
+        status: decizie,
+        motivare,
+        solutionataLa: new Date().toISOString(),
+      });
       return json({ ok: true });
     }
 
@@ -109,19 +268,70 @@ export default async (req) => {
   // ——— Acțiuni de candidat (identificat prin id) ———
   const id = taie(body.id, 128);
   if (!id) return json({ eroare: "Intră cu codul tău personal pentru a susține examenul." }, 401);
+  const store = getStore("cursuri");
   const nume = await candidatNume(store, id);
   if (!nume) return json({ eroare: "Cod de candidat invalid." }, 401);
 
   let dosar = null;
   try { dosar = await store.get("examen/" + id, { type: "json" }); } catch {}
   const elig = eligibilitate(dosar);
+  const toate = await sesiuniToate(store);
+  const { activa, urmatoarea } = sesiuneActivaSiUrmatoarea(toate);
+  let contestatie = null;
+  try { contestatie = await store.get("contestatie-examen/" + id, { type: "json" }); } catch {}
 
   if (actiune === "stare") {
-    return json({ activ: activ(), nrExtrase: nrExtrase(), prag: PRAG, ...elig });
+    return json({
+      activ: activ(),
+      nrExtrase: nrExtrase(),
+      prag: PRAG,
+      ...elig,
+      // Examenul se susține doar în sesiune: eligibilitatea personală rămâne separată,
+      // dar butonul de start cere amândouă.
+      poateSustine: elig.poateSustine && !!activa,
+      inSesiune: !!activa,
+      sesiune: publicSesiune(activa),
+      urmatoareaSesiune: publicSesiune(urmatoarea),
+      contestatie: contestatie
+        ? { status: contestatie.status, motivare: contestatie.motivare || null, depusa: contestatie.depusa, solutionataLa: contestatie.solutionataLa || null }
+        : null,
+      poateContesta: poateContesta(dosar, contestatie),
+      zileContestatie: CONTESTATIE_ZILE,
+    });
+  }
+
+  if (actiune === "contesta") {
+    if (!poateContesta(dosar, contestatie))
+      return json({ eroare: "Poți contesta doar ultima încercare nepromovată, în cel mult " + CONTESTATIE_ZILE + " zile de la rezultat (o singură dată)." }, 409);
+    const motiv = taie(body.motiv, 2000);
+    if (motiv.length < 20)
+      return json({ eroare: "Descrie motivul contestației (minim 20 de caractere) — comisia are nevoie de el." }, 400);
+    const ultima = dosar.incercari[dosar.incercari.length - 1];
+    await store.setJSON("contestatie-examen/" + id, {
+      nume,
+      dataIncercare: ultima.data,
+      procent: ultima.procent,
+      motiv,
+      depusa: new Date().toISOString(),
+      status: "depusa",
+    });
+    await anuntaSecretariatul(
+      `[Contestație examen] ${nume} (${ultima.procent}%)`,
+      `<h2 style="margin:0 0 8px">Contestație — examenul final</h2>
+       <p><b>Candidat:</b> ${nume.replace(/</g, "&lt;")}</p>
+       <p><b>Încercarea contestată:</b> ${ultima.data} — ${ultima.procent}%</p>
+       <p><b>Motivul:</b> ${motiv.replace(/</g, "&lt;")}</p>
+       <p style="color:#888;font-size:12px">Se soluționează de comisia de examinare, din panoul de certificare al platformei.</p>`
+    );
+    return json({ ok: true });
   }
 
   if (actiune === "start") {
     if (!activ()) return json({ eroare: "Examenul final nu este încă activ." }, 409);
+    if (!activa)
+      return json({ eroare: urmatoarea
+        ? `Examenul se susține doar în sesiunile din calendar. Următoarea: „${urmatoarea.nume}”, ${urmatoarea.start} – ${urmatoarea.sfarsit}.`
+        : "Examenul se susține doar în sesiunile din calendar. Următoarea sesiune va fi anunțată de secretariat." }, 409);
     if (!elig.poateSustine)
       return json({ eroare: elig.promovat ? "Ai promovat deja examenul final." : "Poți relua examenul mai târziu.", urmatoareaData: elig.urmatoareaData }, 409);
     const sesiune = amesteca(BANCA).slice(0, nrExtrase()).map((q) => ({ id: q.id, text: q.text, optiuni: q.optiuni }));
@@ -130,6 +340,7 @@ export default async (req) => {
 
   if (actiune === "trimite") {
     if (!activ()) return json({ eroare: "Examenul final nu este încă activ." }, 409);
+    if (!activa) return json({ eroare: "Sesiunea de examen s-a închis. Rezultatul nu a fost înregistrat — reia examenul în sesiunea următoare." }, 409);
     if (!elig.poateSustine)
       return json({ eroare: elig.promovat ? "Ai promovat deja examenul final." : "Poți relua examenul mai târziu.", urmatoareaData: elig.urmatoareaData }, 409);
 
@@ -151,7 +362,7 @@ export default async (req) => {
 
     // Actualizăm dosarul de examen (fiecare candidat pe cheia lui — fără curse).
     const incercari = (dosar && Array.isArray(dosar.incercari) ? dosar.incercari : []).slice(-9);
-    incercari.push({ data: acum, procent, promovat });
+    incercari.push({ data: acum, procent, promovat, sesiune: activa.nume });
     const nouDosar = { promovat: !!(dosar && dosar.promovat) || promovat, ultimaData: acum, incercari };
     try { await store.setJSON("examen/" + id, nouDosar); } catch (err) { console.error("Salvare examen eșuată:", err); }
 

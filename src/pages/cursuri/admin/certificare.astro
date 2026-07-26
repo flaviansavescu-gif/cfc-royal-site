@@ -46,6 +46,36 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
   <ul class="c-examen-list" id="c-examen-list">
     <li class="c-ex-empty">Se încarcă…</li>
   </ul>
+
+  <h2 class="c-h2">C. Sesiunile de examen și comisia de examinare</h2>
+  <p class="c-note">
+    Examenul final se susține <strong>doar în sesiunile de aici</strong> (de regulă două pe an).
+    Fiecare sesiune are comisia ei: un președinte și, opțional, membri. Candidații văd sesiunea
+    activă / următoarea și componența comisiei pe pagina examenului.
+  </p>
+  <form class="c-ses-form" id="c-ses-form">
+    <input id="c-ses-nume" type="text" placeholder="Numele sesiunii (ex. Sesiunea de toamnă 2026)" required />
+    <div class="c-ses-rand">
+      <label>De la <input id="c-ses-start" type="date" required /></label>
+      <label>până la <input id="c-ses-sfarsit" type="date" required /></label>
+    </div>
+    <input id="c-ses-presedinte" type="text" placeholder="Președintele comisiei de examinare" required />
+    <input id="c-ses-membri" type="text" placeholder="Membrii comisiei, despărțiți prin virgulă (opțional)" />
+    <button class="btn btn--primary" type="submit">Adaugă sesiunea</button>
+  </form>
+  <ul class="c-examen-list" id="c-ses-list">
+    <li class="c-ex-empty">Se încarcă…</li>
+  </ul>
+
+  <h2 class="c-h2">D. Contestațiile rezultatelor</h2>
+  <p class="c-note">
+    Candidatul poate contesta ultima încercare nepromovată în cel mult <strong>3 zile</strong> de la rezultat.
+    Contestația <strong>admisă</strong> anulează încercarea: nu mai contează la pauza de reîncercare, iar candidatul
+    poate susține din nou examenul în sesiune. Motivarea deciziei ajunge la candidat, pe pagina examenului.
+  </p>
+  <ul class="c-examen-list" id="c-contest-list">
+    <li class="c-ex-empty">Se încarcă…</li>
+  </ul>
 </CursuriLayout>
 
 <script is:inline define:vars={{ GRUPE: GRUPE_WDF }}>
@@ -195,6 +225,125 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
     }
 
     incarca();
+
+    // ——— C. Sesiunile de examen + comisia ———
+    const dataRo = (s) => {
+      const d = new Date(s);
+      return isNaN(d) ? s : d.toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" });
+    };
+
+    async function incarcaSesiuni() {
+      const list = document.getElementById("c-ses-list");
+      list.innerHTML = "";
+      try {
+        const d = await cere("examen-final", { actiune: "sesiuni" });
+        if (!d.sesiuni.length) {
+          list.innerHTML = "<li class='c-ex-empty'>Nicio sesiune definită — examenul NU poate fi susținut până nu adaugi una.</li>";
+          return;
+        }
+        const azi = new Date().toISOString().slice(0, 10);
+        d.sesiuni.forEach((s) => {
+          const li = document.createElement("li");
+          const info = document.createElement("div");
+          const stare = s.start <= azi && azi <= s.sfarsit ? " 🟢 în desfășurare" : s.start > azi ? " · viitoare" : " · încheiată";
+          info.innerHTML =
+            "<strong>" + s.nume + "</strong> — " + dataRo(s.start) + " – " + dataRo(s.sfarsit) + stare +
+            "<br><span class='c-ses-comisie'>Președinte: " + s.presedinte +
+            ((s.membri || []).length ? " · Membri: " + s.membri.join(", ") : "") + "</span>";
+          const del = document.createElement("button");
+          del.className = "btn btn--small btn--danger";
+          del.textContent = "Șterge";
+          del.addEventListener("click", async () => {
+            if (!confirm("Ștergi sesiunea „" + s.nume + "”?")) return;
+            del.disabled = true;
+            try { await cere("examen-final", { actiune: "sesiune-sterge", id: s.id }); incarcaSesiuni(); }
+            catch (e) { alert("Nu am putut șterge: " + e.message); del.disabled = false; }
+          });
+          li.appendChild(info);
+          li.appendChild(del);
+          list.appendChild(li);
+        });
+      } catch (e) {
+        list.innerHTML = "<li class='c-ex-empty'>Nu am putut încărca sesiunile.</li>";
+      }
+    }
+
+    document.getElementById("c-ses-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector("button[type=submit]");
+      btn.disabled = true; btn.textContent = "Se salvează…";
+      try {
+        await cere("examen-final", {
+          actiune: "sesiune-salveaza",
+          nume: document.getElementById("c-ses-nume").value.trim(),
+          start: document.getElementById("c-ses-start").value,
+          sfarsit: document.getElementById("c-ses-sfarsit").value,
+          presedinte: document.getElementById("c-ses-presedinte").value.trim(),
+          membri: document.getElementById("c-ses-membri").value.split(",").map((m) => m.trim()).filter(Boolean),
+        });
+        e.target.reset();
+        incarcaSesiuni();
+      } catch (err) { alert("Nu am putut salva sesiunea: " + err.message); }
+      finally { btn.disabled = false; btn.textContent = "Adaugă sesiunea"; }
+    });
+
+    incarcaSesiuni();
+
+    // ——— D. Contestațiile ———
+    async function incarcaContestatii() {
+      const list = document.getElementById("c-contest-list");
+      list.innerHTML = "";
+      try {
+        const d = await cere("examen-final", { actiune: "contestatii" });
+        if (!d.contestatii.length) {
+          list.innerHTML = "<li class='c-ex-empty'>Nicio contestație depusă.</li>";
+          return;
+        }
+        d.contestatii.forEach((c) => {
+          const li = document.createElement("li");
+          li.className = "c-contest-item";
+          const info = document.createElement("div");
+          const eticheta = c.status === "depusa" ? "🔶 ÎN AȘTEPTARE" : c.status === "admisa" ? "✅ admisă" : "❌ respinsă";
+          info.innerHTML =
+            "<strong>" + c.nume + "</strong> — încercarea din " + dataRo(c.dataIncercare) + " (" + c.procent + "%) · " + eticheta +
+            "<br><span class='c-ses-comisie'>Motivul candidatului: „" + c.motiv + "”</span>" +
+            (c.motivare ? "<br><span class='c-ses-comisie'>Motivarea comisiei: „" + c.motivare + "”</span>" : "");
+          li.appendChild(info);
+          if (c.status === "depusa") {
+            const zona = document.createElement("div");
+            zona.className = "c-contest-zona";
+            const motivare = document.createElement("input");
+            motivare.type = "text";
+            motivare.placeholder = "Motivarea deciziei (obligatorie — o vede candidatul)";
+            const admite = document.createElement("button");
+            admite.className = "btn btn--small btn--primary";
+            admite.textContent = "Admite (anulează încercarea)";
+            const respinge = document.createElement("button");
+            respinge.className = "btn btn--small btn--outline";
+            respinge.textContent = "Respinge";
+            async function decide(decizie) {
+              const m = motivare.value.trim();
+              if (m.length < 5) { motivare.focus(); alert("Scrie motivarea deciziei."); return; }
+              if (!confirm((decizie === "admisa" ? "Admiți" : "Respingi") + " contestația lui " + c.nume + "?")) return;
+              admite.disabled = respinge.disabled = true;
+              try {
+                await cere("examen-final", { actiune: "solutioneaza", candidatId: c.candidatId, decizie, motivare: m });
+                incarcaContestatii();
+              } catch (e2) { alert("Nu am putut soluționa: " + e2.message); admite.disabled = respinge.disabled = false; }
+            }
+            admite.addEventListener("click", () => decide("admisa"));
+            respinge.addEventListener("click", () => decide("respinsa"));
+            zona.appendChild(motivare); zona.appendChild(admite); zona.appendChild(respinge);
+            li.appendChild(zona);
+          }
+          list.appendChild(li);
+        });
+      } catch (e) {
+        list.innerHTML = "<li class='c-ex-empty'>Nu am putut încărca contestațiile.</li>";
+      }
+    }
+
+    incarcaContestatii();
   })();
 </script>
 
@@ -230,4 +379,14 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
   .c-badge { font-size: 0.72rem; padding: 0.15rem 0.55rem; border-radius: 999px; }
   .c-badge--pass { background: var(--color-primary); color: #fbfaf7; }
   .c-badge--fail { background: #f9efef; color: #8c1d2f; border: 1px solid #8c1d2f; }
+
+  .c-ses-form { display: grid; gap: 0.6rem; max-width: 34rem; margin-bottom: 1rem; }
+  .c-ses-form input { padding: 0.55rem 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
+  .c-ses-rand { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .c-ses-rand label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-muted); }
+  .c-ses-form .btn { justify-self: start; }
+  .c-ses-comisie { font-size: 0.85rem; color: var(--color-text-muted); }
+  .c-contest-item { flex-direction: column; align-items: stretch !important; gap: 0.6rem; }
+  .c-contest-zona { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+  .c-contest-zona input { flex: 1 1 16rem; padding: 0.45rem 0.7rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
 </style>
