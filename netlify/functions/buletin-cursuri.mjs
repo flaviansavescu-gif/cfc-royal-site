@@ -29,20 +29,36 @@ const esc = (s) =>
 
 /** E membru al platformei? (candidat cu cod individual, arbitru, lector, admin sau cod comun) */
 async function esteMembru(body, store) {
+  if (await membruIndividual(body, store)) return true;
+  // Codul comun și cel de administrator dau acces la ARHIVĂ, dar nu la abonări.
+  const cod = String(body.cod || "").trim();
+  return !!(cod && rolLaIntrare(cod));
+}
+
+/**
+ * Membrul IDENTIFICABIL — candidat cu cod propriu, lector sau arbitru.
+ * Abonările se leagă de el: altfel, oricine are codul COMUN (împărțit între candidați)
+ * putea abona adresa altcuiva fără consimțământ sau, mai rău, o putea dezabona tăcut.
+ */
+async function membruIndividual(body, store) {
   const cid = String(body.cid || "").trim();
   if (cid) {
     try {
-      if (await store.get("candidat/" + cid, { type: "json" })) return true;
+      const c = await store.get("candidat/" + cid, { type: "json" });
+      if (c) return { id: cid, nume: String(c.nume || "").trim() || "Candidat", rol: "candidat" };
     } catch (err) { console.error(err); }
   }
   const cod = String(body.cod || "").trim();
   if (cod) {
-    if (rolLaIntrare(cod)) return true;
+    const fix = rolLaIntrare(cod);
+    if (fix?.rol === "lector") return { id: sha256(cod), nume: fix.nume, rol: "lector" };
+    if (fix) return null; // admin sau cod comun — nu au identitate personală
     try {
-      if (await store.get("arbitru/" + sha256(cod), { type: "json" })) return true;
+      const a = await store.get("arbitru/" + sha256(cod), { type: "json" });
+      if (a) return { id: sha256(cod), nume: String(a.nume || "").trim() || "Arbitru", rol: "arbitru" };
     } catch (err) { console.error(err); }
   }
-  return false;
+  return null;
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -59,6 +75,9 @@ export default async (req) => {
 
   // —— Acțiunile membrilor ——
   if (actiune === "lista" || actiune === "aboneaza" || actiune === "dezaboneaza") {
+    // Fără nicio acreditare nu atingem stocarea.
+    if (!String(body.cid || "").trim() && !String(body.cod || "").trim())
+      return json({ eroare: "Buletinul este disponibil doar membrilor platformei." }, 403);
     const store = getStore("cursuri");
     if (!(await esteMembru(body, store)))
       return json({ eroare: "Buletinul este disponibil doar membrilor platformei." }, 403);
@@ -80,11 +99,34 @@ export default async (req) => {
     if (!EMAIL_RE.test(email)) return json({ eroare: "Scrie o adresă de e-mail validă." }, 400);
     const cheie = "abonat/" + sha256(email);
 
+    // Abonările cer identitate personală: cu codul comun nu se poate abona sau dezabona
+    // nimeni — nici pe sine, nici, mai ales, pe altcineva.
+    const membru = await membruIndividual(body, store);
+    const existent = await store.get(cheie, { type: "json" }).catch(() => null);
+
     if (actiune === "aboneaza") {
-      await store.setJSON(cheie, { email, creat: new Date().toISOString() });
+      if (!membru)
+        return json({ eroare: "Abonarea se face cu codul tău personal (de candidat, arbitru sau lector), nu cu codul comun." }, 403);
+      // O adresă aparține unui singur membru: nu se poate prelua adresa altcuiva.
+      if (existent && existent.membruId && existent.membruId !== membru.id)
+        return json({ eroare: "Adresa este deja abonată de alt membru al platformei." }, 409);
+      await store.setJSON(cheie, {
+        email,
+        membruId: membru.id,
+        nume: membru.nume,
+        rol: membru.rol,
+        creat: existent?.creat || new Date().toISOString(),
+      });
       return json({ ok: true });
     }
-    // dezaboneaza
+
+    // dezaboneaza — doar propria adresă; administratorul poate scoate pe oricine (din panou).
+    if (!esteAdmin) {
+      if (!membru)
+        return json({ eroare: "Dezabonarea se face cu codul tău personal, nu cu codul comun." }, 403);
+      if (existent && existent.membruId && existent.membruId !== membru.id)
+        return json({ eroare: "Poți dezabona doar adresa pe care ai abonat-o tu." }, 403);
+    }
     try { await store.delete(cheie); } catch (err) { console.error(err); }
     return json({ ok: true });
   }
@@ -100,7 +142,8 @@ export default async (req) => {
       const { blobs } = await store.list({ prefix: "abonat/" });
       for (const b of blobs) {
         const a = await store.get(b.key, { type: "json" });
-        if (a) abonati.push({ email: a.email, creat: a.creat });
+        // `nume`/`rol` lipsesc la abonările vechi (dinainte de legarea de membru).
+        if (a) abonati.push({ email: a.email, creat: a.creat, nume: a.nume || null, rol: a.rol || null });
       }
     } catch (err) { console.error(err); }
     abonati.sort((a, b) => String(a.email).localeCompare(String(b.email)));
@@ -145,7 +188,10 @@ export default async (req) => {
         `<p style="color:#888;font-size:12px">Buletinul Școlii de Arbitraj — CFC-Royal · ` +
         `arhiva completă și dezabonarea: <a href="https://cfc-royal.ro/cursuri/buletin/">cfc-royal.ro/cursuri/buletin/</a></p>`;
 
-      for (const email of abonati) {
+      // În LOTURI paralele, nu unul câte unul: secvențial, la ~300 ms per e-mail,
+      // funcția expira pe la 30 de abonați și o parte din oameni nu primeau nimic.
+      const LOT = 8;
+      async function trimiteUnul(email) {
         try {
           const res = await fetch("https://api.brevo.com/v3/smtp/email", {
             method: "POST",
@@ -159,6 +205,9 @@ export default async (req) => {
           });
           if (res.ok) trimise++; else { esuate++; console.error("Brevo:", res.status, await res.text()); }
         } catch (err) { esuate++; console.error("Trimitere eșuată:", err); }
+      }
+      for (let i = 0; i < abonati.length; i += LOT) {
+        await Promise.all(abonati.slice(i, i + LOT).map(trimiteUnul));
       }
     } else if ((await store.list({ prefix: "abonat/" })).blobs.length) {
       console.error("BREVO_API_KEY lipsește — buletinul NU a plecat pe e-mail.");

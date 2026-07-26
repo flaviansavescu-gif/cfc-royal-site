@@ -334,7 +334,9 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
           em.textContent = a.email;
           const meta = document.createElement("span");
           meta.className = "a-cand-meta";
-          meta.textContent = a.creat ? "Abonat: " + fmtData(a.creat, true) : "";
+          meta.textContent =
+            (a.nume ? a.nume + (a.rol ? " (" + a.rol + ")" : "") + " · " : "") +
+            (a.creat ? "abonat " + fmtData(a.creat, true) : "");
           info.appendChild(em); info.appendChild(meta);
           const del = document.createElement("button");
           del.className = "btn btn--small btn--danger";

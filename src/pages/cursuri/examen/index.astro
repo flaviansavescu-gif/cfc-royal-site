@@ -140,10 +140,15 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
       }
       if (c && (c.status === "admisa" || c.status === "respinsa")) {
         sec.hidden = false;
-        info.innerHTML =
-          "<strong>Contestația a fost " + (c.status === "admisa" ? "ADMISĂ" : "respinsă") + "</strong> (" + dataRo(c.solutionataLa) + "). " +
-          "Motivarea comisiei: „" + (c.motivare || "—") + "”" +
-          (c.status === "admisa" ? " Încercarea contestată a fost anulată — poți susține din nou examenul în sesiune." : "");
+        // Motivarea vine de la comisie, dar tot ca text o punem — nu ca HTML.
+        info.textContent = "";
+        const tare = document.createElement("strong");
+        tare.textContent = "Contestația a fost " + (c.status === "admisa" ? "ADMISĂ" : "respinsă");
+        info.appendChild(tare);
+        info.appendChild(document.createTextNode(
+          " (" + dataRo(c.solutionataLa) + "). Motivarea comisiei: „" + (c.motivare || "—") + "”" +
+          (c.status === "admisa" ? " Încercarea contestată a fost anulată — poți susține din nou examenul în sesiune." : "")
+        ));
         // După soluționare, o nouă încercare poate fi din nou contestată — formularul
         // apare doar dacă serverul spune că se poate.
       }

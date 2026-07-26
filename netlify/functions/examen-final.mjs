@@ -32,6 +32,10 @@ const COOLDOWN_ZILE = 7;      // pauză după o picare
 const COOLDOWN_MS = COOLDOWN_ZILE * 24 * 60 * 60 * 1000;
 const CONTESTATIE_ZILE = 3;   // termenul de depunere a contestației, de la rezultat
 const CONTESTATIE_MS = CONTESTATIE_ZILE * 24 * 60 * 60 * 1000;
+// Fereastra de grație: cine A ÎNCEPUT examenul în sesiune îl poate trimite și după
+// închiderea ei. Altfel, un candidat care începe la 23:50 în ultima zi și trimite la
+// 00:05 pierdea tot — deși respectase regula la pornire.
+const GRATIE_TRIMITERE_MS = 3 * 60 * 60 * 1000;
 
 // Banca de întrebări (provizorie — lectorii o extind la 25+). corect = indexul opțiunii corecte.
 const BANCA = [
@@ -307,6 +311,20 @@ export default async (req) => {
     if (motiv.length < 20)
       return json({ eroare: "Descrie motivul contestației (minim 20 de caractere) — comisia are nevoie de el." }, 400);
     const ultima = dosar.incercari[dosar.incercari.length - 1];
+    // Contestația precedentă (dacă a existat) intră în istoric: o evidență formală nu
+    // are voie să piardă deciziile motivate ale comisiei.
+    const istoric = Array.isArray(contestatie?.istoric) ? contestatie.istoric.slice(-9) : [];
+    if (contestatie?.status && contestatie.status !== "depusa") {
+      istoric.push({
+        dataIncercare: contestatie.dataIncercare,
+        procent: contestatie.procent,
+        motiv: contestatie.motiv,
+        depusa: contestatie.depusa,
+        status: contestatie.status,
+        motivare: contestatie.motivare || null,
+        solutionataLa: contestatie.solutionataLa || null,
+      });
+    }
     await store.setJSON("contestatie-examen/" + id, {
       nume,
       dataIncercare: ultima.data,
@@ -314,6 +332,7 @@ export default async (req) => {
       motiv,
       depusa: new Date().toISOString(),
       status: "depusa",
+      istoric,
     });
     await anuntaSecretariatul(
       `[Contestație examen] ${nume} (${ultima.procent}%)`,
@@ -334,13 +353,23 @@ export default async (req) => {
         : "Examenul se susține doar în sesiunile din calendar. Următoarea sesiune va fi anunțată de secretariat." }, 409);
     if (!elig.poateSustine)
       return json({ eroare: elig.promovat ? "Ai promovat deja examenul final." : "Poți relua examenul mai târziu.", urmatoareaData: elig.urmatoareaData }, 409);
+    // Consemnăm pornirea: pe ea se sprijină fereastra de grație la trimitere.
+    try {
+      await store.setJSON("examen-inceput/" + id, { sesiuneId: activa.id, sesiuneNume: activa.nume, la: new Date().toISOString() });
+    } catch (err) { console.error("Nu am putut consemna pornirea examenului:", err); }
     const sesiune = amesteca(BANCA).slice(0, nrExtrase()).map((q) => ({ id: q.id, text: q.text, optiuni: q.optiuni }));
     return json({ sesiune, prag: PRAG, nrExtrase: nrExtrase() });
   }
 
   if (actiune === "trimite") {
     if (!activ()) return json({ eroare: "Examenul final nu este încă activ." }, 409);
-    if (!activa) return json({ eroare: "Sesiunea de examen s-a închis. Rezultatul nu a fost înregistrat — reia examenul în sesiunea următoare." }, 409);
+    // Dacă sesiunea s-a închis între pornire și trimitere, primim totuși lucrarea —
+    // în limita ferestrei de grație. Munca deja făcută nu se pierde.
+    let inceput = null;
+    try { inceput = await store.get("examen-inceput/" + id, { type: "json" }); } catch {}
+    const inGratie = !!inceput && Date.now() - Date.parse(inceput.la) <= GRATIE_TRIMITERE_MS;
+    if (!activa && !inGratie)
+      return json({ eroare: "Sesiunea de examen s-a închis, iar timpul de trimitere a expirat. Reia examenul în sesiunea următoare." }, 409);
     if (!elig.poateSustine)
       return json({ eroare: elig.promovat ? "Ai promovat deja examenul final." : "Poți relua examenul mai târziu.", urmatoareaData: elig.urmatoareaData }, 409);
 
@@ -362,7 +391,9 @@ export default async (req) => {
 
     // Actualizăm dosarul de examen (fiecare candidat pe cheia lui — fără curse).
     const incercari = (dosar && Array.isArray(dosar.incercari) ? dosar.incercari : []).slice(-9);
-    incercari.push({ data: acum, procent, promovat, sesiune: activa.nume });
+    incercari.push({ data: acum, procent, promovat, sesiune: activa?.nume || inceput?.sesiuneNume || "—" });
+    // Pornirea s-a consumat: următoarea trimitere are nevoie de o pornire nouă.
+    try { await store.delete("examen-inceput/" + id); } catch {}
     const nouDosar = { promovat: !!(dosar && dosar.promovat) || promovat, ultimaData: acum, incercari };
     try { await store.setJSON("examen/" + id, nouDosar); } catch (err) { console.error("Salvare examen eșuată:", err); }
 

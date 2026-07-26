@@ -246,10 +246,19 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
           const li = document.createElement("li");
           const info = document.createElement("div");
           const stare = s.start <= azi && azi <= s.sfarsit ? " 🟢 în desfășurare" : s.start > azi ? " · viitoare" : " · încheiată";
-          info.innerHTML =
-            "<strong>" + s.nume + "</strong> — " + dataRo(s.start) + " – " + dataRo(s.sfarsit) + stare +
-            "<br><span class='c-ses-comisie'>Președinte: " + s.presedinte +
-            ((s.membri || []).length ? " · Membri: " + s.membri.join(", ") : "") + "</span>";
+          // Ca și la contestații: numele și comisia se pun ca text, nu ca HTML.
+          const capS = document.createElement("div");
+          const nmS = document.createElement("strong");
+          nmS.textContent = s.nume;
+          capS.appendChild(nmS);
+          capS.appendChild(document.createTextNode(" — " + dataRo(s.start) + " – " + dataRo(s.sfarsit) + stare));
+          const comS = document.createElement("span");
+          comS.className = "c-ses-comisie";
+          comS.style.display = "block";
+          comS.textContent = "Președinte: " + s.presedinte +
+            ((s.membri || []).length ? " · Membri: " + s.membri.join(", ") : "");
+          info.appendChild(capS);
+          info.appendChild(comS);
           const del = document.createElement("button");
           del.className = "btn btn--small btn--danger";
           del.textContent = "Șterge";
@@ -304,10 +313,27 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
           li.className = "c-contest-item";
           const info = document.createElement("div");
           const eticheta = c.status === "depusa" ? "🔶 ÎN AȘTEPTARE" : c.status === "admisa" ? "✅ admisă" : "❌ respinsă";
-          info.innerHTML =
-            "<strong>" + c.nume + "</strong> — încercarea din " + dataRo(c.dataIncercare) + " (" + c.procent + "%) · " + eticheta +
-            "<br><span class='c-ses-comisie'>Motivul candidatului: „" + c.motiv + "”</span>" +
-            (c.motivare ? "<br><span class='c-ses-comisie'>Motivarea comisiei: „" + c.motivare + "”</span>" : "");
+          // Motivul e scris LIBER de candidat. Se pune ca TEXT, niciodată ca HTML:
+          // pagina asta e a administratorului, iar în localStorage-ul lui stă codul de
+          // administrator — un „<img onerror=…>" într-o contestație l-ar putea fura.
+          const cap = document.createElement("div");
+          const nm = document.createElement("strong");
+          nm.textContent = c.nume;
+          cap.appendChild(nm);
+          cap.appendChild(document.createTextNode(
+            " — încercarea din " + dataRo(c.dataIncercare) + " (" + c.procent + "%) · " + eticheta
+          ));
+          info.appendChild(cap);
+
+          function randText(eticheta, continut) {
+            const s = document.createElement("span");
+            s.className = "c-ses-comisie";
+            s.style.display = "block";
+            s.textContent = eticheta + " „" + continut + "”";
+            return s;
+          }
+          info.appendChild(randText("Motivul candidatului:", c.motiv));
+          if (c.motivare) info.appendChild(randText("Motivarea comisiei:", c.motivare));
           li.appendChild(info);
           if (c.status === "depusa") {
             const zona = document.createElement("div");
