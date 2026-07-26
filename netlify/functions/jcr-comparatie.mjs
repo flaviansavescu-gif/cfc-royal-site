@@ -3,8 +3,9 @@
 // Întărire: autentificarea se face ÎNAINTE de a atinge sesiunea.
 import { json, taie, cereLector, candidatDinId, poateAdministraSesiunea, store, storeCursuri, citesteParticipanti, esteParticipant, baremDeblocat } from "./_jcr/lib.mjs";
 import { comparaRaspuns, comparaDefecte, spearman } from "./_jcr/compare.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
   let body;
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
@@ -83,4 +84,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

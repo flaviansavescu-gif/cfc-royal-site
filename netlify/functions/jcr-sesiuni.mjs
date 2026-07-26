@@ -6,6 +6,7 @@ import {
   store, storeCursuri, citesteIndex, scrieInIndex, audit, citesteParticipanti, esteParticipant, baremDeblocat,
 } from "./_jcr/lib.mjs";
 import { marcheazaUrma } from "./_comun/urma.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 function curataSesiune(inp, baza) {
   const s = baza || {};
@@ -48,7 +49,7 @@ function sesiunePtCursant(s) {
   };
 }
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
   let body;
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
@@ -199,4 +200,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

@@ -9,6 +9,7 @@
 // POST { cod, actiune:"salveaza", candidatId, grupe, public, localitate } -> { ok, grupe }
 import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
 const GRUPE_VALIDE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -53,7 +54,7 @@ async function registruPublic(store) {
   return arbitri;
 }
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   const store = getStore("cursuri");
 
   // GET public — registrul arbitrilor certificați prin Școală.
@@ -144,4 +145,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

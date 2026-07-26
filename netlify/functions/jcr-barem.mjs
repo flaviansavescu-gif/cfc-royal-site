@@ -2,6 +2,7 @@
 // Lector: salveaza | citeste | deblocheaza.  Cursant: citeste-cursant (doar după deblocare).
 // Întărire: autentificarea se face ÎNAINTE de a atinge sesiunea.
 import { json, taie, acum, cereLector, candidatDinId, poateAdministraSesiunea, store, citesteParticipanti, esteParticipant, audit, scrieInIndex, baremDeblocat } from "./_jcr/lib.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 function curataBarem(inp, baza) {
   const b = baza || {};
@@ -20,7 +21,7 @@ function curataBarem(inp, baza) {
   };
 }
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
   let body;
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
@@ -72,4 +73,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

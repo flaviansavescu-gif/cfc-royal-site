@@ -5,6 +5,7 @@
 //              image/<id> (binar), image-meta/<id>.
 import { json, taie, acum, idNou, cereLector, candidatDinId, actorDinCod, poateAdministra, store, storeCursuri, audit } from "./_paa/lib.mjs";
 import { marcheazaUrma, numeActor } from "./_comun/urma.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const CALIFICATIVE = ["Excelent", "Foarte bine", "Bine", "Suficient", "Insuficient"];
 const STATUS = ["draft", "published", "closed", "archived"];
@@ -37,7 +38,7 @@ function curata(inp, baza, lector) {
 }
 function ptCursant(e) { return { id: e.id, titlu: e.titlu, descriere: e.descriere, rasa: e.rasa, stdVersiune: e.stdVersiune, imageId: e.imageId, aspect: e.aspect, termen: e.termen, status: e.status }; }
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
   let body; try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
   const actiune = taie(body.actiune, 30) || "lista";
@@ -168,4 +169,4 @@ export default async (req) => {
     return json({ ok: true, raspuns: r });
   }
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

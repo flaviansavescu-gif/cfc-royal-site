@@ -11,6 +11,7 @@
 // POST { cod, actiune:"situatie" }              -> { an, arbitri:[...] }   (doar admin)
 import { getStore } from "@netlify/blobs";
 import { rolLaIntrare, actorDinCod, sha256, LECTORI } from "./_comun/roluri.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const AN = 2026;
 const PRAG = 70;
@@ -39,7 +40,7 @@ async function arbitrul(cod, store) {
   return null;
 }
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
 
   let body;
@@ -129,4 +130,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

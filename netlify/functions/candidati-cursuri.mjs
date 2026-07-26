@@ -9,6 +9,7 @@
 import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
 import { stergeUrmeleCandidatului, curataOrfanii } from "./_comun/curatare.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
 // Alfabet fără caractere ambigue (0/O, 1/I/L) — codurile se dictează ușor la telefon.
@@ -31,7 +32,7 @@ function codNou() {
   return c;
 }
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
 
   let body;
@@ -147,4 +148,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

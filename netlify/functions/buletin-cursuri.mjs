@@ -17,6 +17,7 @@
 // POST { actiune:"abonati",     cod }              -> { abonati:[...] }         (doar admin)
 import { getStore } from "@netlify/blobs";
 import { rolLaIntrare, actorDinCod, sha256 } from "./_comun/roluri.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -63,7 +64,7 @@ async function membruIndividual(body, store) {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
 
   let body;
@@ -217,4 +218,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

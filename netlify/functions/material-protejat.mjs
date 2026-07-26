@@ -22,6 +22,7 @@ import { getStore } from "@netlify/blobs";
 import sharp from "sharp";
 import opentype from "opentype.js";
 import { rolLaIntrare, sha256 } from "./_comun/roluri.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const PAGINI = 128;
 const TITLU = "Noțiuni de bază în arbitrajul chinologic — manual pentru studiu individual";
@@ -143,7 +144,7 @@ async function cititor(body) {
   return null;
 }
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
   let body;
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
@@ -202,7 +203,7 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});
 
 // Doar pentru teste locale.
 export const _test = { stratFiligran, MODULE, PAGINI };

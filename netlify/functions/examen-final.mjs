@@ -23,6 +23,7 @@
 // POST { cod, actiune:"solutioneaza", candidatId, decizie, motivare } -> { ok }
 import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
 const NR_INTREBARI = 25;      // câte se extrag la un examen (sau toată banca, dacă e mai mică)
@@ -154,7 +155,7 @@ async function anuntaSecretariatul(subiect, html) {
   } catch (err) { console.error("E-mail eșuat:", err); }
 }
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
 
   let body;
@@ -426,4 +427,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

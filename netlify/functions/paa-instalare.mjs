@@ -3,6 +3,7 @@
 // Store „paa": install-cod/<sha256(cod)> -> { cod, eticheta, creat }
 import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
 const ALFABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -11,7 +12,7 @@ const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 const json = (b, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
 function codNou() { let c = "PAA-"; for (let i = 0; i < 5; i++) c += ALFABET[Math.floor(Math.random() * ALFABET.length)]; return c; }
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
   let body;
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
@@ -52,4 +53,4 @@ export default async (req) => {
     return json({ ok: true });
   }
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

@@ -3,6 +3,7 @@
 // image-meta/<id> = { userId, contentType, w, h, marime, creat }.
 // Cursant: incarca | serveste (proprietar).  Lector: serveste (review).
 import { json, taie, acum, idNou, candidatDinId, actorDinCod, store } from "./_paa/lib.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const TIPURI = { "image/jpeg": 1, "image/png": 1, "image/webp": 1 };
 const MAX_BYTES = 6 * 1024 * 1024; // 6 MB
@@ -13,7 +14,7 @@ function parseDataUrl(dataUrl) {
   return { contentType: m[1], buf: Buffer.from(m[2], "base64") };
 }
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
   let body;
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
@@ -52,4 +53,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

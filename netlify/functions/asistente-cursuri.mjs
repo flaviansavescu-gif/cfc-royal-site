@@ -17,6 +17,7 @@
 // POST { secret, actiune:"manager-evaluare", candidatId, nr, evaluare } -> { ok }
 import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
 const NR_ASISTENTE = 5;
@@ -103,7 +104,7 @@ async function toateEvaluarile(store) {
   return evaluari;
 }
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   const store = getStore("cursuri");
 
   // GET public — doar programul celor 5 expoziții.
@@ -275,4 +276,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

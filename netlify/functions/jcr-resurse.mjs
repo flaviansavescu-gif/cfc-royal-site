@@ -3,6 +3,7 @@
 // Stocare privată în store „jcr": media/<sessionId>/<mediaId> = { contentType, alt, b64 }.
 import { json, taie, acum, cereLector, candidatDinId, actorDinCod, poateAdministraSesiunea, store, citesteParticipanti, esteParticipant, audit, scrieInIndex } from "./_jcr/lib.mjs";
 import { randomUUID } from "node:crypto";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const TIPURI = { "image/jpeg": 1, "image/png": 1, "image/webp": 1 };
 const MAX_B64 = 2_800_000; // ~2 MB imagine
@@ -13,7 +14,7 @@ function parseDataUrl(dataUrl) {
   return { contentType: m[1], b64: m[2] };
 }
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
   let body;
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
@@ -73,4 +74,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

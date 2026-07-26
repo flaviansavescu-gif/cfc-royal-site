@@ -81,3 +81,67 @@ export async function inregistreazaEsec(cheie) {
 export async function resetLimita(cheie) {
   try { await store().delete("limita/" + cheie); } catch (err) { console.error(err); }
 }
+
+/**
+ * Îmbracă o funcție care primește un COD în cerere, ca să nu poată fi folosită drept
+ * „ghicitoare" nelimitată de coduri.
+ *
+ * Poarta de intrare (`acces-cursuri`) era limitată, dar restul funcțiilor primesc și
+ * ele coduri de administrator, de lector sau de arbitru și le verificau fără nicio
+ * limită — deci ocoleau apărarea. Ambalajul acesta o extinde peste tot, dintr-un
+ * singur loc, fără să atingă logica fiecărei funcții.
+ *
+ * Cum decide dacă a fost o încercare greșită: după STAREA răspunsului. 401/403
+ * înseamnă acreditare respinsă (o numărăm), un răspuns reușit înseamnă cod bun
+ * (ștergem contorul). Funcția nu trebuie să știe nimic despre limitare.
+ *
+ * Cererile fără `cod` trec neatinse: un `cid` este deja o amprentă de 64 de
+ * caractere — nu se ghicește, deci nu are ce limita.
+ *
+ * Dacă limitarea însăși dă eroare, cererea trece: apărarea nu are voie să devină
+ * ea însăși cauza unei căderi.
+ */
+export function cuLimitareCod(handler) {
+  return async (req, context) => {
+    let areCod = false;
+    try {
+      if (req.method === "POST") {
+        const b = await req.clone().json();
+        areCod = !!String(b?.cod || "").trim();
+      }
+    } catch { areCod = false; }
+    if (!areCod) return handler(req, context);
+
+    let cheie = null;
+    try {
+      cheie = ipClient(req);
+      const lim = await verificaLimita(cheie);
+      if (!lim.permis) {
+        return new Response(
+          JSON.stringify({ eroare: "Prea multe încercări. Reîncearcă peste " + Math.ceil(lim.dupaSecunde / 60) + " minute." }),
+          {
+            status: 429,
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+              "Cache-Control": "no-store",
+              "Retry-After": String(lim.dupaSecunde),
+            },
+          },
+        );
+      }
+    } catch (err) {
+      console.error("Limitare (verificare) eșuată:", err);
+      cheie = null;
+    }
+
+    const raspuns = await handler(req, context);
+
+    if (cheie) {
+      try {
+        if (raspuns.status === 401 || raspuns.status === 403) await inregistreazaEsec(cheie);
+        else if (raspuns.ok) await resetLimita(cheie);
+      } catch (err) { console.error("Limitare (numărare) eșuată:", err); }
+    }
+    return raspuns;
+  };
+}

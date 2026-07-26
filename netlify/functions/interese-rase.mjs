@@ -15,6 +15,7 @@ import { getStore } from "@netlify/blobs";
 import { json, taie, acum, candidatDinId, audit } from "./_paa/lib.mjs";
 // Rolurile, lectorii ȘI competențele lor pe grupe vin din SURSA UNICĂ.
 import { actorDinCod, LECTORI, lectoriCuGrupe } from "./_comun/roluri.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 // Logica pură (sanitizare, lărgime, sugestii, agregare) — testată separat.
 import {
   MIN_GRUPE, curataGrupe, curataRase, grupeEfective, poateTrimite,
@@ -88,7 +89,7 @@ async function reconstruiesteIndex() {
   return out;
 }
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
   let body; try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
   const actiune = taie(body.actiune, 30) || "meniu";
@@ -186,7 +187,7 @@ export default async (req) => {
     return json({ ok: true, deficit: grupe });
   }
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});
 
 // Etichete scurte de grupă (RO), pentru afișare în spațiile lectorilor/adminului fără a importa nomenclatorul.
 const GRUPE_LABEL = {

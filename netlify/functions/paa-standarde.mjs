@@ -3,6 +3,7 @@
 // Admin: salveaza | sterge | seed-demo  (cu audit).
 // NU inventăm limite WDF: datele demo sunt marcate explicit `demo:true`.
 import { json, taie, acum, cereAdmin, store, audit } from "./_paa/lib.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const SEVERITATI = ["informativ", "minor", "major"];
 
@@ -26,7 +27,7 @@ async function scrieIndex(std) {
   await store().setJSON("std-index", idx);
 }
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
   let body;
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
@@ -93,4 +94,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

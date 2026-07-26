@@ -1,8 +1,9 @@
 // jcr-feedback.mjs — feedback individual și colectiv, publicabil de lector.
 // Lector: salveaza | citeste.  Cursant: citeste-cursant (doar ce e publicat).
 import { json, taie, acum, cereLector, candidatDinId, poateAdministraSesiunea, store, citesteParticipanti, esteParticipant, audit } from "./_jcr/lib.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
   let body;
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
@@ -55,4 +56,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

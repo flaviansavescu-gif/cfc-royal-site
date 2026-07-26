@@ -14,6 +14,7 @@
 // POST { cod, actiune:"situatie" }   -> { versiune, membri:[...] }   (doar admin)
 import { getStore } from "@netlify/blobs";
 import { rolLaIntrare, actorDinCod, sha256, LECTORI } from "./_comun/roluri.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 /** Versiunea Codului Etic asumată acum. Se ridică DOAR când se schimbă textul. */
 export const VERSIUNE = "2026-07";
@@ -46,7 +47,7 @@ async function membrul(body, store) {
   return null;
 }
 
-export default async (req) => {
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
 
   let body;
@@ -117,4 +118,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});
