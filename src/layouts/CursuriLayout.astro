@@ -9,7 +9,8 @@
 // Autoritatea reală rămâne, ca până acum, pe server: fiecare funcție își verifică
 // singură codul. Poarta de aici doar îndrumă utilizatorul spre zona lui.
 //
-// `allow` acceptă: "admin" · "lector" (oricare) · "lector:<slug>" · "acces" (codul comun).
+// `allow` acceptă: "admin" · "lector" (oricare) · "lector:<slug>" · "arbitru" (membru al
+// Colegiului care nu e lector — acces de studiu) · "acces" (codul comun).
 // Administratorul intră peste tot, fără să fie trecut explicit.
 import "../styles/global.css";
 
@@ -48,6 +49,8 @@ const protejat = allowList.length > 0 || candidatOk;
             if (r.rol === "admin") ok = true;                                   // adminul intră peste tot
             else if (r.rol === "lector") {
               ok = allow.includes("lector") || allow.includes("lector:" + r.slug);
+            } else if (r.rol === "arbitru") {
+              ok = allow.includes("arbitru");
             } else if (r.rol === "acces") {
               ok = candidatOk || allow.includes("acces");
             }

@@ -1,0 +1,153 @@
+---
+// /cursuri/buletin/ — Buletinul Școlii de Arbitraj (newsletter intern).
+// Arhiva completă, vizibilă tuturor membrilor platformei: candidați, arbitri,
+// lectori și administrator. Abonarea pe e-mail e opțională (opt-in) și se face
+// de aici; tot de aici te dezabonezi.
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+---
+
+<CursuriLayout title="Buletinul Școlii" allow={["lector", "arbitru", "acces"]} candidat>
+  <p class="b-eyebrow">Școala de Arbitraj · comunicări</p>
+  <h1 class="b-title">Buletinul Școlii</h1>
+  <p class="b-sub">Noutățile Școlii de Arbitraj și ale Colegiului — publicate de secretariat.
+  Arhiva completă rămâne aici; dacă vrei, îl primești și pe e-mail.</p>
+
+  <div class="b-abonare">
+    <div>
+      <strong>📬 Primește buletinul pe e-mail</strong>
+      <p>Adresa ta se folosește exclusiv pentru buletinul Școlii — nu se afișează nimănui și
+      o poți scoate oricând, tot de aici.</p>
+    </div>
+    <form class="b-abonare__form" id="b-form">
+      <input id="b-email" type="email" placeholder="adresa@exemplu.ro" autocomplete="email" required />
+      <button class="btn btn--primary" type="submit">Abonează-mă</button>
+      <button class="btn btn--outline" type="button" id="b-dezab">Dezabonare</button>
+    </form>
+  </div>
+  <p class="b-msg" id="b-msg" role="status" hidden></p>
+
+  <div class="b-lista" id="b-lista">Se încarcă buletinele…</div>
+</CursuriLayout>
+
+<script is:inline>
+  (function () {
+    var lista = document.getElementById("b-lista");
+    var msg = document.getElementById("b-msg");
+
+    function acreditare() {
+      var d = {};
+      try {
+        var c = JSON.parse(localStorage.getItem("cfcrCandidat") || "null");
+        if (c && c.id) d.cid = c.id;
+      } catch (e) {}
+      try {
+        var cod = localStorage.getItem("cfcrAccesCod");
+        if (cod) d.cod = cod;
+      } catch (e) {}
+      return d;
+    }
+
+    function cere(payload) {
+      var corp = Object.assign(acreditare(), payload);
+      return fetch("/.netlify/functions/buletin-cursuri", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(corp),
+      }).then(function (r) {
+        // Răspunsul de eroare nu e neapărat JSON (ex. o pagină 404) — nu ne bazăm pe el.
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (!r.ok)
+            throw new Error(
+              j.eroare ||
+                (r.status === 403
+                  ? "Sesiunea a expirat. Intră din nou cu codul tău de acces."
+                  : "Nu am putut comunica cu serverul. Reîncearcă.")
+            );
+          return j;
+        });
+      });
+    }
+
+    function arata(text, ok) {
+      msg.hidden = false;
+      msg.className = "b-msg " + (ok ? "is-ok" : "is-err");
+      msg.textContent = text;
+    }
+
+    // —— Arhiva ——
+    cere({ actiune: "lista" })
+      .then(function (d) {
+        lista.textContent = "";
+        if (!d.buletine || !d.buletine.length) {
+          lista.textContent = "Niciun buletin publicat încă. Revino curând.";
+          return;
+        }
+        d.buletine.forEach(function (b) {
+          var art = document.createElement("article");
+          art.className = "b-item";
+          var data = document.createElement("p");
+          data.className = "b-item__data";
+          try {
+            data.textContent = new Date(b.data).toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" });
+          } catch (e) { data.textContent = ""; }
+          var h = document.createElement("h2");
+          h.className = "b-item__titlu";
+          h.textContent = b.titlu;
+          var txt = document.createElement("div");
+          txt.className = "b-item__text";
+          txt.textContent = b.text; // textContent, nu innerHTML — conținutul rămâne text
+          art.appendChild(data); art.appendChild(h); art.appendChild(txt);
+          lista.appendChild(art);
+        });
+      })
+      .catch(function (e) { lista.textContent = e.message || "Nu am putut încărca buletinele."; });
+
+    // —— Abonare / dezabonare ——
+    document.getElementById("b-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var email = document.getElementById("b-email").value.trim();
+      if (!email) return;
+      cere({ actiune: "aboneaza", email: email })
+        .then(function () { arata("✓ Te-ai abonat. Următorul buletin ajunge și pe " + email + ".", true); })
+        .catch(function (err) { arata(err.message, false); });
+    });
+    document.getElementById("b-dezab").addEventListener("click", function () {
+      var email = document.getElementById("b-email").value.trim();
+      if (!email) { arata("Scrie adresa pe care vrei să o dezabonezi, apoi apasă din nou.", false); return; }
+      cere({ actiune: "dezaboneaza", email: email })
+        .then(function () { arata("✓ Adresa " + email + " nu va mai primi buletinul.", true); })
+        .catch(function (err) { arata(err.message, false); });
+    });
+  })();
+</script>
+
+<style>
+  .b-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .b-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.25rem; }
+  .b-sub { color: var(--color-text-muted); max-width: 46rem; margin-top: 0; }
+
+  .b-abonare {
+    display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap;
+    margin-top: 1.5rem; padding: 1.1rem 1.4rem;
+    background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius);
+  }
+  .b-abonare p { margin: 0.3rem 0 0; font-size: 0.88rem; color: var(--color-text-muted); max-width: 30rem; }
+  .b-abonare__form { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+  .b-abonare__form input {
+    padding: 0.55rem 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    font: inherit; min-width: 16rem;
+  }
+  .b-msg { margin: 0.75rem 0 0; font-weight: 600; }
+  .b-msg[hidden] { display: none; }
+  .b-msg.is-ok { color: var(--color-primary); }
+  .b-msg.is-err { color: #8c1d2f; }
+
+  .b-lista { margin-top: 2rem; display: grid; gap: 1.25rem; color: var(--color-text-muted); }
+  .b-item {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary); border-radius: var(--radius); padding: 1.25rem 1.5rem;
+  }
+  .b-item__data { margin: 0; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-accent-dark); }
+  .b-item__titlu { font-family: var(--font-serif); color: var(--color-primary); margin: 0.3rem 0 0.6rem; font-size: 1.3rem; }
+  .b-item__text { color: var(--color-text); white-space: pre-line; line-height: 1.55; }
+</style>

@@ -11,7 +11,7 @@ export function getStaticPaths() {
 const { m } = Astro.props;
 ---
 
-<CursuriLayout title={`Modul ${m.nr}`} candidat>
+<CursuriLayout title={`Modul ${m.nr}`} allow={["arbitru"]} candidat>
   <p class="m-crumb"><a href="/cursuri/module/">← Toate modulele</a></p>
   <p class="m-eyebrow">Modulul {m.nr} din {MODULE.length}</p>
   <h1 class="m-title">{m.titlu}</h1>
@@ -91,7 +91,17 @@ const { m } = Astro.props;
     const continut = document.getElementById("m-continut");
     const lock = document.getElementById("m-lock");
     let esteAdmin = false;
-    try { esteAdmin = (JSON.parse(localStorage.getItem("cfcrRol") || "null") || {}).rol === "admin"; } catch (e) {}
+    let esteArbitru = false;
+    try {
+      const r = JSON.parse(localStorage.getItem("cfcrRol") || "null") || {};
+      esteAdmin = r.rol === "admin";
+      esteArbitru = r.rol === "arbitru";
+    } catch (e) {}
+    // Arbitrii au acces de STUDIU: văd lecturile, dar nu susțin teste.
+    if (esteArbitru) {
+      const t = document.getElementById("test");
+      if (t) t.remove();
+    }
     let online = true; // dacă starea nu se poate citi, nu blocăm candidații
     try {
       const stare = await (await fetch("/.netlify/functions/stare-cursuri")).json();

@@ -8,7 +8,7 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
 import { MANUAL } from "../../../data/cursuri";
 ---
 
-<CursuriLayout title="Manual de studiu individual" allow={["lector", "acces"]} candidat>
+<CursuriLayout title="Manual de studiu individual" allow={["lector", "arbitru", "acces"]} candidat>
   <p class="m-eyebrow">Material comun · studiu individual</p>
   <h1 class="m-title">{MANUAL.titlu}</h1>
   <p class="m-sub">{MANUAL.descriere}</p>
@@ -40,7 +40,7 @@ import { MANUAL } from "../../../data/cursuri";
     Este destinat exclusiv studiului individual — nu se redistribuie.
   </p>
 
-  <div class="m-test">
+  <div class="m-test" id="m-test-card">
     <div>
       <strong>📝 Testul manualului</strong>
       <p>După parcurgerea materialului, susține testul de verificare. Pragul de promovare este 70%,
@@ -56,6 +56,15 @@ import { MANUAL } from "../../../data/cursuri";
     var stare = document.getElementById("m-stare");
     var nrIn = document.getElementById("m-nr");
     var sel = document.getElementById("m-modul");
+    // Arbitrii au acces de studiu, fără teste — cardul testului dispare pentru ei.
+    try {
+      var rolCurent = JSON.parse(localStorage.getItem("cfcrRol") || "null") || {};
+      if (rolCurent.rol === "arbitru") {
+        var card = document.getElementById("m-test-card");
+        if (card) card.remove();
+      }
+    } catch (e) {}
+
     var n = 1;
     var urlCurent = null;
     var cache = {}; // pagini deja aduse (obiect URL), ca răsfoirea înapoi să fie instantanee

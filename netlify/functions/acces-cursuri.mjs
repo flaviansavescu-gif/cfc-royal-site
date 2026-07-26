@@ -56,6 +56,23 @@ export default async (req) => {
     return json({ rol: "candidat", id, nume: cand.nume, dest: "/cursuri/module/" });
   }
 
+  // —— 3) Cod de ARBITRU (membru al Colegiului care nu e lector): acces de studiu,
+  //       fără teste. Registrul e administrat din panou (arbitri-cursuri).
+  let arb = null;
+  try { arb = await getStore("cursuri").get("arbitru/" + id, { type: "json" }); }
+  catch (err) { console.error("Căutare arbitru eșuată:", err); }
+
+  if (arb) {
+    await resetLimita(cheie);
+    try {
+      const acum = new Date().toISOString();
+      if (!arb.prima_logare) arb.prima_logare = acum;
+      arb.ultima_logare = acum;
+      await getStore("cursuri").setJSON("arbitru/" + id, arb);
+    } catch (err) { console.error("Nu am putut marca intrarea arbitrului:", err); }
+    return json({ rol: "arbitru", nume: arb.nume, dest: "/cursuri/arbitru/" });
+  }
+
   const ramase = await inregistreazaEsec(cheie);
   return json({ eroare: "Cod incorect.", incercariRamase: ramase }, 401);
 };

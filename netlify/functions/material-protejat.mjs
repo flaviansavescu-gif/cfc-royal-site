@@ -21,7 +21,7 @@ import path from "node:path";
 import { getStore } from "@netlify/blobs";
 import sharp from "sharp";
 import opentype from "opentype.js";
-import { rolLaIntrare } from "./_comun/roluri.mjs";
+import { rolLaIntrare, sha256 } from "./_comun/roluri.mjs";
 
 const PAGINI = 128;
 const TITLU = "Noțiuni de bază în arbitrajul chinologic — manual pentru studiu individual";
@@ -132,6 +132,13 @@ async function cititor(body) {
     if (r?.rol === "admin") return { rol: "admin", nume: "Administrator CFC-Royal" };
     if (r?.rol === "lector") return { rol: "lector", nume: r.nume };
     if (r?.rol === "acces") return { rol: "acces", nume: "Acces cu cod comun" };
+    // Arbitru (membru al Colegiului care nu e lector) — cod individual din registru.
+    try {
+      const a = await getStore("cursuri").get("arbitru/" + sha256(cod), { type: "json" });
+      if (a) return { rol: "arbitru", nume: String(a.nume || "").trim() || "Arbitru" };
+    } catch (err) {
+      console.error("Căutare arbitru eșuată:", err);
+    }
   }
   return null;
 }
