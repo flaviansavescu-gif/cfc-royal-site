@@ -16,6 +16,8 @@ const CHEI = {
   "modul-6": [1, 0, 2, 0, 2, 1, 0, 2, 1, 0],
   "modul-7": [1, 0, 2, 1, 0, 2, 1, 0, 2, 1],
   "modul-8": [0, 1, 2, 1, 0, 2, 1, 2, 0, 2],
+  // Manualul de studiu individual (128 de pagini) — întrebările sunt în MANUAL.intrebari.
+  "manual-studiu": [1, 2, 0, 2, 0, 1, 0, 2, 1, 2, 1, 0, 1, 0, 2],
 };
 
 const TITLURI = {
@@ -27,6 +29,7 @@ const TITLURI = {
   "modul-6": "Modul 6 — Situații speciale: DSQ, N.J., abateri",
   "modul-7": "Modul 7 — Contestații și procedura disciplinară",
   "modul-8": "Modul 8 — Rolul delegatului WDF",
+  "manual-studiu": "Manual de studiu individual — Noțiuni de bază în arbitrajul chinologic",
 };
 
 const json = (body, status = 200) =>

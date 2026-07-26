@@ -109,3 +109,14 @@
   to = "/en/membrii/:splat"
   status = 301
   force = true
+
+# Manualul de studiu individual: paginile NU se publică (nu sunt în `dist/`), ci se
+# includ în pachetul funcției care le servește. Așa nu există nicio adresă publică
+# spre ele — se ajunge la o pagină doar prin `material-protejat`, după verificarea rolului.
+# `sharp` rămâne extern: e un modul nativ, nu se poate împacheta cu esbuild.
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["sharp"]
+
+[functions."material-protejat"]
+  included_files = ["material-studiu/**"]

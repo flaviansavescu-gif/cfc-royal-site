@@ -467,3 +467,156 @@ export const LECTORI: Lector[] = [
     materiale: [],
   },
 ];
+
+// =========================================================================
+// MANUALUL DE STUDIU INDIVIDUAL — material COMUN (candidați + lectori).
+//
+// Paginile manualului NU se află în `public/`: acolo ar fi accesibile oricui le-ar
+// ghici adresa, fiindcă poarta de rol nu apără fișierele statice. Ele stau în
+// `material-studiu/` (inclus doar în pachetul funcției) și se servesc prin
+// `netlify/functions/material-protejat.mjs`, filigranate pe server cu numele
+// cititorului. Aici păstrăm doar datele publice: titlu, cuprins, întrebări.
+//
+// Ca la module, întrebările NU conțin răspunsul corect — cheia stă pe server,
+// în `netlify/functions/test-modul.mjs`, sub cheia „manual-studiu”.
+// =========================================================================
+
+export interface ModulManual {
+  nr: number;
+  titlu: string;
+  start: number;
+  sfarsit: number;
+}
+
+export const MANUAL = {
+  slug: "manual-studiu",
+  titlu: "Noțiuni de bază în arbitrajul chinologic",
+  descriere:
+    "Manual vizual pentru studiu individual — 128 de pagini, 8 module, conform regulamentelor WDF și CFC-Royal. " +
+    "Se parcurge de trei ori: întâi integral, apoi doar rubricile „De reținut”, iar la final Modulul 8 (sinteze și autoevaluare).",
+  pagini: 128,
+  module: [
+    { nr: 1, titlu: "Introducere", start: 2, sfarsit: 8 },
+    { nr: 2, titlu: "Anatomia câinelui", start: 9, sfarsit: 39 },
+    { nr: 3, titlu: "Exteriorul câinelui", start: 40, sfarsit: 81 },
+    { nr: 4, titlu: "Dentiția", start: 82, sfarsit: 89 },
+    { nr: 5, titlu: "Expoziția canină", start: 90, sfarsit: 102 },
+    { nr: 6, titlu: "Metodica de arbitraj", start: 103, sfarsit: 115 },
+    { nr: 7, titlu: "Etică și deontologie", start: 116, sfarsit: 121 },
+    { nr: 8, titlu: "Sinteze și autoevaluare", start: 122, sfarsit: 128 },
+  ] as ModulManual[],
+  intrebari: [
+    {
+      text: "Principiul care stă la baza întregului material este:",
+      optiuni: [
+        "se premiază câinele la care se găsesc cele mai puține abateri",
+        "se premiază cel mai bun câine în ansamblu, nu cel cu cele mai puține defecte",
+        "se premiază câinele cu cea mai bună mișcare, indiferent de tipicitate",
+      ],
+    },
+    {
+      text: "Cele trei unghiuri de analiză a exemplarului sunt:",
+      optiuni: [
+        "frontal și lateral, cel dorsal fiind opțional",
+        "cele alese de arbitru, în funcție de rasă",
+        "frontal, lateral și dorsal, parcurse în aceeași ordine la fiecare câine",
+      ],
+    },
+    {
+      text: "Formula vertebrală a câinelui (cervicale · toracice · lombare · sacrale · caudale) este:",
+      optiuni: ["7 · 13 · 7 · 3 · 18–22", "7 · 12 · 6 · 4 · 15–20", "5 · 13 · 7 · 3 · 20–24"],
+    },
+    {
+      text: "Baza anatomică a greabănului — punctul până la care se măsoară talia — este dată de:",
+      optiuni: [
+        "primele două vertebre cervicale (atlasul și axisul)",
+        "marginea superioară a scapulei",
+        "apofizele spinale ale vertebrelor toracice",
+      ],
+    },
+    {
+      text: "Cele 13 perechi de coaste ale câinelui se împart în:",
+      optiuni: [
+        "9 perechi sternale și 4 asternale",
+        "8 perechi sternale și 5 asternale",
+        "10 perechi sternale și 3 asternale",
+      ],
+    },
+    {
+      text: "Diferența dintre monorhidie și criptorhidie este:",
+      optiuni: [
+        "monorhidie — niciun testicul coborât; criptorhidie — unul singur coborât",
+        "monorhidie — un singur testicul coborât; criptorhidie — niciunul coborât",
+        "sunt două denumiri pentru aceeași anomalie",
+      ],
+    },
+    {
+      text: "Dentiția definitivă a câinelui numără:",
+      optiuni: [
+        "42 de dinți: 12 incisivi, 4 canini, 16 premolari, 10 molari",
+        "42 de dinți: 12 incisivi, 4 canini, 14 premolari, 12 molari",
+        "44 de dinți: 12 incisivi, 4 canini, 16 premolari, 12 molari",
+      ],
+    },
+    {
+      text: "Carnasierii sunt:",
+      optiuni: [
+        "cei patru canini",
+        "primul premolar superior și ultimul molar inferior",
+        "ultimul premolar superior (P4) și primul molar inferior (M1)",
+      ],
+    },
+    {
+      text: "Clasa Veterani se deschide de la vârsta de:",
+      optiuni: ["8 ani", "10 ani", "7 ani"],
+    },
+    {
+      text: "Pe lângă apropierea de standard, calificativul „Excelent” presupune:",
+      optiuni: [
+        "absența oricărui defect, oricât de mic",
+        "cea mai bună mișcare din clasă, restul fiind secundar",
+        "condiție perfectă, ansamblu armonios, temperament echilibrat și caracterele tipice ale sexului",
+      ],
+    },
+    {
+      text: "Clasamentul I–IV dintr-o clasă se face:",
+      optiuni: [
+        "între toți câinii prezentați în clasă, indiferent de calificativ",
+        "numai între câinii care au obținut cel puțin calificativul „Foarte bun”",
+        "doar dacă arbitrul consideră necesar",
+      ],
+    },
+    {
+      text: "Când într-o clasă sunt mai multe exemplare cu „Excelent”, arbitrul:",
+      optiuni: [
+        "este obligat să stabilească ierarhia de la I la IV",
+        "poate lăsa clasa neierarhizată",
+        "acordă titlul primului câine intrat în ring",
+      ],
+    },
+    {
+      text: "Motivul descalificării unui exemplar:",
+      optiuni: [
+        "se comunică doar verbal expozantului",
+        "se consemnează obligatoriu pe raport",
+        "nu se consemnează, pentru a nu prejudicia expozantul",
+      ],
+    },
+    {
+      text: "Primul pas în grila de decizie a calificativului este:",
+      optiuni: [
+        "verificarea existenței unui defect eliminatoriu sau a unui motiv de descalificare",
+        "aprecierea mișcării în triunghi",
+        "stabilirea tipului constituțional",
+      ],
+    },
+    {
+      text: "Brahicefalia extremă este tratată în material ca:",
+      optiuni: [
+        "caracter de tipicitate care se recompensează",
+        "detaliu estetic, fără consecințe",
+        "exagerare dăunătoare, penalizată pentru urmările asupra respirației",
+      ],
+    },
+  ] as Intrebare[],
+};

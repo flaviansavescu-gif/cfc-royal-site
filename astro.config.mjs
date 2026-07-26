@@ -29,4 +29,16 @@ export default defineConfig({
   build: {
     format: "directory",
   },
+  vite: {
+    server: {
+      fs: {
+        // Manualul de studiu individual stă în rădăcina proiectului, nu în `public/`, ca să
+        // NU fie publicat: la build ajunge doar în pachetul funcției `material-protejat`.
+        // În producție nu e expus (se publică doar `dist/`), dar serverul de dezvoltare
+        // servește implicit fișierele din rădăcină — aici îi interzicem explicit accesul,
+        // ca materialul să nu fie accesibil nici local, fără trecerea prin poarta de rol.
+        deny: ["**/material-studiu/**"],
+      },
+    },
+  },
 });
