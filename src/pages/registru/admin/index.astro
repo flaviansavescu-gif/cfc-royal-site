@@ -52,7 +52,9 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     Scoate din magazie două feluri de rămășițe: <strong>codurile de acces</strong> rămase
     în fișele scrise înainte de regula actuală (azi nu se mai păstrează niciunul) și
     <strong>ciornele abandonate</strong> — formulare DMF începute, cu fișiere încărcate,
-    pe care nimeni nu le-a dus până la capăt de peste o săptămână.
+    pe care nimeni nu le-a dus până la capăt de peste o săptămână. Cele mai recente NU se
+    ating: cineva poate chiar acum completează formularul. Aceeași curățenie se face și
+    singură, duminică noaptea, odată cu copia de siguranță.
   </p>
   <p class="a-copie">
     <button class="btn btn--outline" type="button" id="a-curatenie">🧹 Curăță magazia</button>
@@ -265,8 +267,23 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
         if (d.coduriSterse) parti.push(d.coduriSterse + " coduri scoase din fișe");
         if (d.ciorneSterse) parti.push(d.ciorneSterse + " ciorne abandonate");
         if (d.fisiereSterse) parti.push(d.fisiereSterse + " fișiere agățate de ele");
-        stare.className = "a-stare " + (d.erori && d.erori.length ? "is-atentie" : "is-bun");
-        stare.textContent = parti.length ? "✓ " + parti.join(", ") + "." : "✓ Nu era nimic de curățat.";
+
+        // Ce s-a găsit dar e prea recent se spune apăsat: „n-am găsit nimic" și
+        // „am găsit, dar nu am voie încă" sunt lucruri diferite.
+        const recente = d.ciornePreaRecente || [];
+        let text = parti.length ? "✓ Șters: " + parti.join(", ") + "." : "✓ Nu era nimic de șters.";
+        if (recente.length) {
+          const cea = recente.slice().sort((a, b) => a.de.localeCompare(b.de))[0];
+          const dataRo2 = new Date(cea.de).toLocaleDateString("ro-RO",
+            { day: "numeric", month: "long" });
+          text += " " + (recente.length === 1
+            ? "O ciornă e prea recentă (" + (cea.zile === 0 ? "de azi" : cea.zile + " zile") +
+              ") — se poate șterge de pe " + dataRo2 + "."
+            : recente.length + " ciorne sunt prea recente — prima se poate șterge de pe " + dataRo2 + ".");
+        }
+        stare.className = "a-stare " + (d.erori && d.erori.length ? "is-atentie"
+          : (recente.length ? "is-atentie" : "is-bun"));
+        stare.textContent = text;
       } catch (err) {
         stare.className = "a-stare is-rau";
         stare.textContent = err.message;

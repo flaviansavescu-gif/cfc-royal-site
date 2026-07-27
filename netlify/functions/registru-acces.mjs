@@ -103,6 +103,69 @@ async function marcheazaIntrarea(cheie, brut) {
   } catch (err) { console.error("Marcarea intrării a eșuat:", err); }
 }
 
+/** O ciornă mai veche de atât e considerată abandonată. */
+export const CIORNA_ABANDONATA_MS = 7 * 24 * 3600e3;
+
+/**
+ * Curăță magazia de două feluri de rămășițe:
+ *   • coduri de acces rămase în fișe scrise înainte de regula de azi;
+ *   • ciorne de DMF începute și nedepuse, cu fișierele lor.
+ *
+ * Exportată fiindcă o cheamă și copia săptămânală: o curățenie care depinde de cine
+ * își aduce aminte să apese un buton nu se face niciodată. Raportează și ce a GĂSIT
+ * dar n-a atins — „n-am găsit nimic" și „am găsit, dar e prea recentă" sunt lucruri
+ * diferite, iar omul trebuie să știe care dintre ele e.
+ */
+export async function curataMagazia() {
+  const s = store();
+  const rezultat = {
+    coduriSterse: 0, ciorneSterse: 0, fisiereSterse: 0,
+    ciornePreaRecente: [], erori: [],
+  };
+  const FELURI = ["pedigree-mascul", "pedigree-femela", "drept-monta", "plata", "confirmare-alternativa"];
+
+  for (const prefix of ["membru/", "registrator/"]) {
+    try {
+      const { blobs } = await s.list({ prefix });
+      for (const b of blobs) {
+        const x = await s.get(b.key, { type: "json" });
+        if (!x || !x.cod) continue;
+        const { cod: _sters, ...fara } = x;
+        await s.setJSON(b.key, fara);
+        rezultat.coduriSterse++;
+      }
+    } catch (err) { rezultat.erori.push(prefix + ": " + err.message); }
+  }
+
+  try {
+    const { blobs } = await s.list({ prefix: "ciorna/" });
+    for (const b of blobs) {
+      const c = await s.get(b.key, { type: "json" });
+      if (!c) continue;
+      const varsta = Date.now() - Date.parse(c.creat || 0);
+      if (varsta < CIORNA_ABANDONATA_MS) {
+        // Prea recentă: cineva poate chiar acum completează formularul.
+        rezultat.ciornePreaRecente.push({
+          zile: Math.floor(varsta / 86400e3),
+          de: new Date(Date.parse(c.creat) + CIORNA_ABANDONATA_MS).toISOString().slice(0, 10),
+        });
+        continue;
+      }
+      const id = b.key.slice("ciorna/".length);
+      for (const fel of FELURI) {
+        try {
+          const are = await s.getMetadata("dmf-fisier/" + id + "/" + fel);
+          if (are) { await s.delete("dmf-fisier/" + id + "/" + fel); rezultat.fisiereSterse++; }
+        } catch { /* piesa nu există — normal */ }
+      }
+      await s.delete(b.key);
+      rezultat.ciorneSterse++;
+    }
+  } catch (err) { rezultat.erori.push("ciorne: " + err.message); }
+
+  return rezultat;
+}
+
 /** Cod unic cu prefixul dat. */
 async function codUnic(prefix, prefixCheie) {
   for (let i = 0; i < 5; i++) {
@@ -294,43 +357,7 @@ export default cuLimitareCod(async (req) => {
   //   • formularul DMF început și nedus până la capăt lasă ciorna și cele patru fișiere
   //     încărcate, la nesfârșit: scanuri de acte agățate de niciun dosar.
   if (actiune === "curatenie") {
-    const s = store();
-    const rezultat = { coduriSterse: 0, ciorneSterse: 0, fisiereSterse: 0, erori: [] };
-    const FELURI = ["pedigree-mascul", "pedigree-femela", "drept-monta", "plata", "confirmare-alternativa"];
-    const PRAG_MS = 7 * 24 * 3600e3;   // o ciornă mai veche de o săptămână e abandonată
-
-    for (const prefix of ["membru/", "registrator/"]) {
-      try {
-        const { blobs } = await s.list({ prefix });
-        for (const b of blobs) {
-          const x = await s.get(b.key, { type: "json" });
-          if (!x || !x.cod) continue;
-          const { cod: _sters, ...fara } = x;
-          await s.setJSON(b.key, fara);
-          rezultat.coduriSterse++;
-        }
-      } catch (err) { rezultat.erori.push(prefix + ": " + err.message); }
-    }
-
-    try {
-      const { blobs } = await s.list({ prefix: "ciorna/" });
-      for (const b of blobs) {
-        const c = await s.get(b.key, { type: "json" });
-        if (!c) continue;
-        if (Date.now() - Date.parse(c.creat || 0) < PRAG_MS) continue;
-        const id = b.key.slice("ciorna/".length);
-        for (const fel of FELURI) {
-          try {
-            const are = await s.getMetadata("dmf-fisier/" + id + "/" + fel);
-            if (are) { await s.delete("dmf-fisier/" + id + "/" + fel); rezultat.fisiereSterse++; }
-          } catch { /* piesa nu există — normal */ }
-        }
-        await s.delete(b.key);
-        rezultat.ciorneSterse++;
-      }
-    } catch (err) { rezultat.erori.push("ciorne: " + err.message); }
-
-    return json({ ok: true, ...rezultat });
+    return json({ ok: true, ...(await curataMagazia()) });
   }
 
   if (actiune === "membru-sterge" || actiune === "registrator-sterge") {

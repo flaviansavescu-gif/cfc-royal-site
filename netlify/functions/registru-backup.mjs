@@ -18,6 +18,7 @@
 //   BACKUP_GITHUB_REPO      — implicit „flaviansavescu-gif/cfc-royal-site"
 //   BACKUP_GITHUB_RAMURA    — implicit „backup-registru"
 import { construiesteArhiva } from "./_comun/registru-arhiva.mjs";
+import { curataMagazia } from "./registru-acces.mjs";
 
 const REPO = process.env.BACKUP_GITHUB_REPO || "flaviansavescu-gif/cfc-royal-site";
 const RAMURA = process.env.BACKUP_GITHUB_RAMURA || "backup-registru";
@@ -95,6 +96,18 @@ export default async () => {
   }
 
   try {
+    // Curățenia ÎNAINTE de arhivare: altfel copia ar căra săptămână de săptămână
+    // ciorne abandonate și scanurile lor. O curățenie care depinde de cine își aduce
+    // aminte să apese un buton nu se face niciodată.
+    let curatenie = null;
+    try {
+      curatenie = await curataMagazia();
+      if (curatenie.ciorneSterse || curatenie.coduriSterse) {
+        console.log(`Curățenie: ${curatenie.ciorneSterse} ciorne, ${curatenie.fisiereSterse} fișiere, ` +
+          `${curatenie.coduriSterse} coduri scoase din fișe.`);
+      }
+    } catch (err) { console.error("Curățenia dinaintea copiei a eșuat:", err); }
+
     const { zip, rezumat } = await construiesteArhiva({ maxFisiere: MAX_FISIERE_AUTO });
     const cifrat = await cripteaza(zip, parola);
     await asiguraRamura();
@@ -124,7 +137,7 @@ export default async () => {
     }
     console.log(`Copia registrului: ${cale} · ${rezumat.inregistrari} înregistrări · ` +
       `${rezumat.fisiere} fișiere · ${(cifrat.length / 1048576).toFixed(1)} MB criptați`);
-    return json({ ok: true, cale, ...rezumat });
+    return json({ ok: true, cale, ...rezumat, curatenie });
   } catch (err) {
     console.error("COPIA REGISTRULUI A EȘUAT:", err);
     return json({ ok: false, eroare: err.message }, 500);
