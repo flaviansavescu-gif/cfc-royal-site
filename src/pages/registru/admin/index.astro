@@ -1,0 +1,286 @@
+---
+// /registru/admin/ — accesul la Registrul genealogic: membrii care depun declarații
+// și persoanele din Registratură care le verifică.
+//
+// Dreptul de a solicita Certificate Pedigree ține de calitatea de MEMBRU cu cotizația
+// la zi, nu de existența unei canise. Afixul e opțional: cine îl are îl vede pe Certificat,
+// cine nu, crește totuși un cuib și are dreptul la documente de origine.
+//
+// Afixele caniselor înregistrate se citesc din colecția de conținut, la build — ca să fie
+// alese dintr-o listă, nu retastate (afixul ajunge pe Certificatul Pedigree).
+import RegistruLayout from "../../../layouts/RegistruLayout.astro";
+import { getCollection } from "astro:content";
+
+const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") && !c.data.draft))
+  .map((c) => ({
+    afix: c.data.affix,
+    proprietar: c.data.owner,
+    nrAfix: c.data.registrationNumber ?? "",
+  }))
+  .sort((a, b) => a.afix.localeCompare(b.afix, "ro"));
+---
+
+<RegistruLayout title="Acces — administrare" allow={["admin"]}>
+  <p class="a-eyebrow">Administrare · Registrul genealogic</p>
+  <h1 class="a-title">Accesul la registru</h1>
+  <p class="a-sub">
+    Codurile se generează aici și se transmit personal. Codul de membru dă dreptul de a depune
+    Declarații de Montă și Fătare și de a solicita Certificate Pedigree — <strong>cât timp cotizația
+    este la zi</strong>. Codul de registratură dă dreptul de a verifica dosarele și de a pregăti emiterea.
+  </p>
+
+  <h2 class="a-h2">Membri cu drept de solicitare</h2>
+  <p class="a-note">
+    Dacă membrul are canisă înregistrată, alege-o din listă — afixul și numărul se completează singure.
+    Dacă nu are, lasă câmpurile goale: dreptul vine din calitatea de membru, nu din afix.
+    <strong>Data cotizației</strong> e obligatorie; după ea, depunerea se blochează până la reînnoire.
+  </p>
+  <form class="a-form" id="a-membru-form">
+    <input id="a-m-nume" type="text" placeholder="Numele și prenumele membrului" required />
+    <input id="a-m-email" type="email" placeholder="E-mail (pe el pleacă numărul de înregistrare)" required />
+    <label class="a-camp">Cotizația achitată până la
+      <input id="a-m-cotizatie" type="date" required />
+    </label>
+    <select id="a-m-canisa">
+      <option value="">— fără canisă înregistrată —</option>
+      {caniseSite.map((c) => (
+        <option value={c.afix} data-nr={c.nrAfix} data-proprietar={c.proprietar}>
+          {c.afix} — {c.proprietar}
+        </option>
+      ))}
+    </select>
+    <input id="a-m-afix" type="text" placeholder="Afix (opțional)" />
+    <input id="a-m-nrafix" type="text" placeholder="Nr. afix (opțional, ex. AFX025/2026)" />
+    <button class="btn btn--primary" type="submit">Generează cod de membru</button>
+  </form>
+  <p class="a-cod-nou" id="a-membru-cod" hidden></p>
+  <ul class="a-lista" id="a-membri"><li class="a-gol">Se încarcă…</li></ul>
+
+  <h2 class="a-h2">Registratura</h2>
+  <p class="a-note">
+    Persoanele care verifică dosarele (DMF, pedigree-urile părinților, dovada dreptului de montă
+    al femelei, dovada plății), extrag ascendența și atribuie numărul de cuib WDF.
+  </p>
+  <form class="a-form a-form--mic" id="a-reg-form">
+    <input id="a-reg-nume" type="text" placeholder="Numele persoanei" required />
+    <input id="a-reg-email" type="email" placeholder="E-mail (opțional)" />
+    <button class="btn btn--primary" type="submit">Generează cod de registratură</button>
+  </form>
+  <p class="a-cod-nou" id="a-reg-cod" hidden></p>
+  <ul class="a-lista" id="a-registratori"><li class="a-gol">Se încarcă…</li></ul>
+</RegistruLayout>
+
+<script is:inline>
+  (function () {
+    function codAdmin() {
+      let c = null;
+      try { c = localStorage.getItem("cfcrRegistruCod"); } catch (e) {}
+      return c || prompt("Confirmă codul de administrator:");
+    }
+    async function cere(payload) {
+      const res = await fetch("/.netlify/functions/registru-acces", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.eroare || "Eroare de server.");
+      return d;
+    }
+    const dataRo = (s) => { const d = new Date(s); return isNaN(d) ? String(s || "") : d.toLocaleDateString("ro-RO"); };
+
+    // Codul se arată o singură dată: în registru rămâne doar amprenta lui.
+    function arataCod(el, eticheta, cod) {
+      el.hidden = false;
+      el.textContent = "";
+      el.appendChild(document.createTextNode("✓ " + eticheta + " — cod: "));
+      const tare = document.createElement("strong");
+      tare.textContent = cod;
+      el.appendChild(tare);
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "a-copiaza"; b.textContent = "copiază";
+      b.addEventListener("click", () => {
+        navigator.clipboard?.writeText(cod).then(() => { b.textContent = "copiat ✓"; });
+      });
+      el.appendChild(b);
+      el.appendChild(document.createTextNode(" — notează-l acum, nu mai poate fi recuperat."));
+    }
+
+    async function incarcaMembri() {
+      const ul = document.getElementById("a-membri");
+      ul.innerHTML = "";
+      try {
+        const d = await cere({ actiune: "membri" });
+        if (!d.membri.length) { ul.innerHTML = "<li class='a-gol'>Niciun membru cu drept de solicitare încă.</li>"; return; }
+        d.membri.forEach((m) => {
+          const li = document.createElement("li");
+          const info = document.createElement("div");
+          const tare = document.createElement("strong");
+          tare.textContent = m.nume + (m.afix ? " · " + m.afix : "");
+          info.appendChild(tare);
+
+          const meta = document.createElement("span");
+          meta.className = "a-meta";
+          meta.textContent = [m.email, m.nrAfix,
+            m.ultima_logare ? "ultima intrare " + dataRo(m.ultima_logare) : "nu a intrat încă"]
+            .filter(Boolean).join(" · ");
+          info.appendChild(meta);
+
+          const cot = document.createElement("span");
+          cot.className = "a-cotizatie " + (m.cotizatieLaZi ? "is-ok" : "is-expirat");
+          cot.textContent = m.cotizatieLaZi
+            ? "cotizație la zi — până la " + dataRo(m.cotizatiePana)
+            : "⚠ cotizație expirată la " + dataRo(m.cotizatiePana) + " — nu poate depune";
+          info.appendChild(cot);
+          li.appendChild(info);
+
+          const actiuni = document.createElement("div");
+          actiuni.className = "a-actiuni";
+          const dataNoua = document.createElement("input");
+          dataNoua.type = "date"; dataNoua.title = "Reînnoiește cotizația până la…";
+          const reinnoieste = document.createElement("button");
+          reinnoieste.className = "btn btn--small btn--outline";
+          reinnoieste.textContent = "Reînnoiește";
+          reinnoieste.addEventListener("click", async () => {
+            if (!dataNoua.value) { dataNoua.focus(); return; }
+            reinnoieste.disabled = true;
+            try { await cere({ actiune: "membru-cotizatie", id: m.id, cotizatiePana: dataNoua.value }); incarcaMembri(); }
+            catch (e) { alert("Nu am putut reînnoi: " + e.message); reinnoieste.disabled = false; }
+          });
+          const del = document.createElement("button");
+          del.className = "btn btn--small btn--danger";
+          del.textContent = "Revocă";
+          del.addEventListener("click", async () => {
+            if (!confirm("Revoci accesul lui „" + m.nume + "”? Codul nu va mai funcționa.")) return;
+            del.disabled = true;
+            try { await cere({ actiune: "membru-sterge", id: m.id }); incarcaMembri(); }
+            catch (e) { alert("Nu am putut revoca: " + e.message); del.disabled = false; }
+          });
+          actiuni.appendChild(dataNoua); actiuni.appendChild(reinnoieste); actiuni.appendChild(del);
+          li.appendChild(actiuni);
+          ul.appendChild(li);
+        });
+      } catch (e) { ul.innerHTML = "<li class='a-gol'>Nu am putut încărca lista.</li>"; }
+    }
+
+    async function incarcaRegistratori() {
+      const ul = document.getElementById("a-registratori");
+      ul.innerHTML = "";
+      try {
+        const d = await cere({ actiune: "registratori" });
+        if (!d.registratori.length) { ul.innerHTML = "<li class='a-gol'>Niciun cont de registratură încă.</li>"; return; }
+        d.registratori.forEach((r) => {
+          const li = document.createElement("li");
+          const info = document.createElement("div");
+          const tare = document.createElement("strong");
+          tare.textContent = r.nume;
+          info.appendChild(tare);
+          const meta = document.createElement("span");
+          meta.className = "a-meta";
+          meta.textContent = [r.email, r.ultima_logare ? "ultima intrare " + dataRo(r.ultima_logare) : "nu a intrat încă"]
+            .filter(Boolean).join(" · ");
+          info.appendChild(meta);
+          li.appendChild(info);
+          const del = document.createElement("button");
+          del.className = "btn btn--small btn--danger";
+          del.textContent = "Revocă";
+          del.addEventListener("click", async () => {
+            if (!confirm("Revoci accesul lui „" + r.nume + "”?")) return;
+            del.disabled = true;
+            try { await cere({ actiune: "registrator-sterge", id: r.id }); incarcaRegistratori(); }
+            catch (e) { alert("Nu am putut revoca: " + e.message); del.disabled = false; }
+          });
+          li.appendChild(del);
+          ul.appendChild(li);
+        });
+      } catch (e) { ul.innerHTML = "<li class='a-gol'>Nu am putut încărca lista.</li>"; }
+    }
+
+    // Alegerea unei canise completează afixul și numărul (și numele, dacă e gol).
+    document.getElementById("a-m-canisa").addEventListener("change", (e) => {
+      const o = e.target.selectedOptions[0];
+      if (!o || !o.value) return;
+      document.getElementById("a-m-afix").value = o.value;
+      document.getElementById("a-m-nrafix").value = o.dataset.nr || "";
+      const nume = document.getElementById("a-m-nume");
+      if (!nume.value.trim()) nume.value = o.dataset.proprietar || "";
+    });
+
+    document.getElementById("a-membru-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector("button[type=submit]");
+      btn.disabled = true; btn.textContent = "Se generează…";
+      try {
+        const d = await cere({
+          actiune: "membru-adauga",
+          nume: document.getElementById("a-m-nume").value.trim(),
+          email: document.getElementById("a-m-email").value.trim(),
+          cotizatiePana: document.getElementById("a-m-cotizatie").value,
+          afix: document.getElementById("a-m-afix").value.trim(),
+          nrAfix: document.getElementById("a-m-nrafix").value.trim(),
+        });
+        arataCod(document.getElementById("a-membru-cod"), d.membru.nume, d.membru.cod);
+        e.target.reset();
+        incarcaMembri();
+      } catch (err) { alert("Nu am putut genera codul: " + err.message); }
+      finally { btn.disabled = false; btn.textContent = "Generează cod de membru"; }
+    });
+
+    document.getElementById("a-reg-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector("button[type=submit]");
+      btn.disabled = true; btn.textContent = "Se generează…";
+      try {
+        const d = await cere({
+          actiune: "registrator-adauga",
+          nume: document.getElementById("a-reg-nume").value.trim(),
+          email: document.getElementById("a-reg-email").value.trim(),
+        });
+        arataCod(document.getElementById("a-reg-cod"), d.registrator.nume, d.registrator.cod);
+        e.target.reset();
+        incarcaRegistratori();
+      } catch (err) { alert("Nu am putut genera codul: " + err.message); }
+      finally { btn.disabled = false; btn.textContent = "Generează cod de registratură"; }
+    });
+
+    incarcaMembri();
+    incarcaRegistratori();
+  })();
+</script>
+
+<style>
+  .a-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .a-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.25rem; }
+  .a-sub { color: var(--color-text-muted); max-width: 46rem; margin-top: 0; }
+  .a-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2.25rem 0 0.5rem;
+    font-size: 1.3rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem; }
+  .a-note { color: var(--color-text-muted); font-size: 0.9rem; max-width: 46rem; }
+  .a-form { display: grid; gap: 0.6rem; max-width: 30rem; margin-bottom: 1rem; }
+  .a-form--mic { max-width: 24rem; }
+  .a-form input, .a-form select {
+    padding: 0.6rem 0.85rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; background: var(--color-surface);
+  }
+  .a-camp { display: flex; align-items: center; gap: 0.6rem; font-size: 0.9rem; color: var(--color-text-muted); }
+  .a-camp input { flex: 1; }
+  .a-form .btn { justify-self: start; }
+  .a-cod-nou { max-width: 46rem; padding: 0.75rem 1rem; border-radius: var(--radius);
+    background: #eef5f0; border: 1px solid var(--color-primary); font-size: 0.92rem; }
+  .a-cod-nou[hidden] { display: none; }
+  .a-cod-nou strong { font-family: var(--font-mono, monospace); letter-spacing: 0.05em; }
+  .a-copiaza { margin: 0 0.4rem; font: inherit; font-size: 0.82rem; cursor: pointer;
+    border: 1px solid var(--color-primary); background: transparent; color: var(--color-primary);
+    border-radius: 6px; padding: 0.1rem 0.5rem; }
+  .a-lista { list-style: none; margin: 0.75rem 0 0; padding: 0; display: grid; gap: 0.45rem; max-width: 50rem; }
+  .a-lista li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius); padding: 0.7rem 1rem; }
+  .a-lista li.a-gol { display: block; color: var(--color-text-muted); font-style: italic; border-style: dashed; }
+  .a-lista strong { color: var(--color-primary); display: block; }
+  .a-meta { font-size: 0.82rem; color: var(--color-text-muted); display: block; }
+  .a-cotizatie { font-size: 0.82rem; display: block; margin-top: 0.15rem; font-weight: 600; }
+  .a-cotizatie.is-ok { color: var(--color-primary); }
+  .a-cotizatie.is-expirat { color: #8c1d2f; }
+  .a-actiuni { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+  .a-actiuni input[type=date] { padding: 0.3rem 0.5rem; border: 1px solid var(--color-border);
+    border-radius: 6px; font: inherit; font-size: 0.85rem; }
+</style>

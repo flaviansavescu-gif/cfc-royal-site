@@ -1,0 +1,93 @@
+---
+// /crescatori/ — spațiul membrului: de aici se depun declarațiile și se urmărește stadiul lor.
+//
+// Dreptul de a depune vine din calitatea de membru cu cotizația la zi, nu din afix.
+// Condițiile de fond ale depunerii (le impune formularul, faza următoare le va aplica):
+//   • DMF-ul se depune DOAR de proprietarul femelei montate;
+//   • femela trebuie să aibă dreptul de montă câștigat — minimum un calificativ „Bun";
+//   • până când expozițiile trec prin managerul propriu, dovada acestui drept se încarcă
+//     (fișa de arbitraj sau imaginea din carnetul de performanță); după aceea, verificarea
+//     se va putea face automat din rezultatele înregistrate.
+import RegistruLayout from "../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Spațiul membrului" allow={["membru"]}>
+  <p class="c-eyebrow">Registrul genealogic · spațiul membrului</p>
+  <h1 class="c-title" id="c-nume">Membru</h1>
+  <p class="c-sub" id="c-detalii"></p>
+
+  <p class="c-cotizatie" id="c-cotizatie" hidden></p>
+
+  <div class="c-card">
+    <div>
+      <strong>📋 Declarație de Montă și Fătare</strong>
+      <p>Se depune în cel mult <strong>90 de zile de la data nașterii puilor</strong>, de către
+      <strong>proprietarul femelei montate</strong>. Dosarul cuprinde declarația, copiile digitale ale
+      pedigree-urilor ambilor părinți, <strong>dovada dreptului de montă al femelei</strong> și dovada plății.
+      La depunere primești pe e-mail numărul de înregistrare al cuibului.</p>
+    </div>
+    <span class="c-curand">În pregătire</span>
+  </div>
+
+  <h2 class="c-h2">Declarațiile mele</h2>
+  <p class="c-gol">Nicio declarație depusă încă.</p>
+
+  <div class="c-ajutor">
+    <p><strong>Dreptul de montă al femelei.</strong> Femela trebuie să fi obținut minimum un
+    calificativ <strong>„Bun"</strong> într-o expoziție. Până când expozițiile trec prin registrul
+    propriu, dovada se încarcă odată cu declarația: fișa de arbitraj sau imaginea din carnetul de
+    performanță.</p>
+    <p><strong>Proprietarul masculului</strong> nu are nevoie de cod: după depunere primește pe
+    e-mail un link unic prin care confirmă monta — inclusiv dacă e dintr-o altă asociație sau din
+    străinătate.</p>
+    <p>Codul tău este personal și nu se împarte: pe el se înregistrează declarațiile depuse.</p>
+  </div>
+</RegistruLayout>
+
+<script is:inline>
+  (function () {
+    let r = null;
+    try { r = JSON.parse(localStorage.getItem("cfcrRegistru") || "null"); } catch (e) {}
+    if (!r) return;
+    if (r.nume) document.getElementById("c-nume").textContent = r.nume;
+    const d = [r.afix, r.nrAfix].filter(Boolean).join(" · ");
+    document.getElementById("c-detalii").textContent = d || "Membru fără canisă înregistrată";
+
+    // Cotizația restantă nu blochează intrarea, dar oprește depunerea — omul trebuie să
+    // afle de ce, nu să descopere la trimitere.
+    const cot = document.getElementById("c-cotizatie");
+    const dataRo = (s) => { const x = new Date(s); return isNaN(x) ? String(s || "") : x.toLocaleDateString("ro-RO"); };
+    if (r.cotizatiePana) {
+      cot.hidden = false;
+      if (r.cotizatieLaZi) {
+        cot.className = "c-cotizatie is-ok";
+        cot.textContent = "Cotizație achitată până la " + dataRo(r.cotizatiePana) + ".";
+      } else {
+        cot.className = "c-cotizatie is-expirat";
+        cot.textContent = "⚠ Cotizația a expirat la " + dataRo(r.cotizatiePana) +
+          ". Până la reînnoire nu poți depune declarații noi. Scrie secretariatului la contact@cfc-royal.ro.";
+      }
+    }
+  })();
+</script>
+
+<style>
+  .c-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .c-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.2rem; }
+  .c-sub { color: var(--color-text-muted); margin-top: 0; }
+  .c-cotizatie { max-width: 46rem; padding: 0.7rem 1rem; border-radius: var(--radius); font-size: 0.9rem; font-weight: 600; }
+  .c-cotizatie[hidden] { display: none; }
+  .c-cotizatie.is-ok { background: #eef5f0; border: 1px solid var(--color-primary); color: var(--color-primary); }
+  .c-cotizatie.is-expirat { background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; }
+  .c-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2.25rem 0 0.5rem;
+    font-size: 1.3rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem; }
+  .c-card { display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap;
+    margin-top: 1.5rem; padding: 1.1rem 1.4rem;
+    background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); }
+  .c-card p { margin: 0.3rem 0 0; font-size: 0.9rem; color: var(--color-text-muted); max-width: 36rem; }
+  .c-curand { flex: 0 0 auto; font-size: 0.8rem; color: var(--color-accent-dark);
+    border: 1px solid var(--color-accent); border-radius: 999px; padding: 0.3rem 0.8rem; }
+  .c-gol { color: var(--color-text-muted); font-style: italic; }
+  .c-ajutor { margin-top: 2rem; border-top: 1px solid var(--color-border); padding-top: 1rem; max-width: 44rem; }
+  .c-ajutor p { font-size: 0.88rem; color: var(--color-text-muted); }
+</style>

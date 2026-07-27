@@ -1,0 +1,87 @@
+---
+// RegistruLayout.astro — învelișul Registrului genealogic (canise, registratură, administrare).
+// Separat de CursuriLayout: Școala de Arbitraj și cartea de origini sunt lucruri diferite,
+// cu alți oameni și alte roluri, chiar dacă amândouă aparțin asociației.
+//
+// POARTA: pagina se deschide pe baza ROLULUI stabilit de server la intrare (funcția
+// `registru-acces`). Rolul nu e secret, deci poate sta în pagină; autoritatea reală
+// rămâne pe server — fiecare funcție își verifică singură codul.
+//
+// `allow` acceptă: "canisa" · "registratura" · "admin". Administratorul intră peste tot.
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  /** Rolurile care deblochează pagina. Lipsă = pagină publică (intrarea). */
+  allow?: string[];
+}
+const { title, allow } = Astro.props;
+const allowList = allow ?? [];
+const protejat = allowList.length > 0;
+---
+
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#1F4D3A" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="256x256" href="/favicon.png" />
+    <title>{title} — Registrul genealogic CFC-Royal</title>
+    {protejat && (
+      <script is:inline define:vars={{ allow: allowList }}>
+        try {
+          let ok = false;
+          let r = null;
+          try { r = JSON.parse(localStorage.getItem("cfcrRegistru") || "null"); } catch (e) {}
+          if (r && r.rol) {
+            if (r.rol === "admin") ok = true;             // adminul intră peste tot
+            else ok = allow.includes(r.rol);
+          }
+          if (!ok) location.replace("/registru/");
+        } catch (e) {
+          location.replace("/registru/");
+        }
+      </script>
+    )}
+  </head>
+  <body data-pagefind-ignore>
+    <header class="c-header">
+      <div class="c-header__inner">
+        <a class="c-brand" href="/registru/">
+          <img src="/images/logo-royal.webp" alt="Club Federal Chinologic Royal" width="56" height="56" loading="eager" />
+          <span class="c-brand__text">
+            <strong>Registrul genealogic</strong>
+            <span>Declarații de montă și fătare · Certificate Pedigree · CFC-Royal</span>
+          </span>
+        </a>
+        <div class="c-header__actions">
+          <a class="c-sitelink" href="/ro/">← Site-ul asociației</a>
+          {protejat && <button class="c-logout" id="r-logout" type="button">Ieșire</button>}
+        </div>
+      </div>
+    </header>
+
+    <main class="c-main">
+      <slot />
+    </main>
+
+    <footer class="c-footer">
+      <p>© Asociația Club Federal Chinologic – Royal · membru World Dog Federation · <a href="/ro/">cfc-royal.ro</a></p>
+    </footer>
+
+    {protejat && (
+      <script is:inline>
+        document.getElementById("r-logout")?.addEventListener("click", () => {
+          try {
+            localStorage.removeItem("cfcrRegistru");
+            localStorage.removeItem("cfcrRegistruCod");
+          } catch (e) {}
+          location.href = "/registru/";
+        });
+      </script>
+    )}
+  </body>
+</html>

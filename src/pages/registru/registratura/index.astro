@@ -1,0 +1,58 @@
+---
+// /registru/registratura/ — spațiul de lucru al Registraturii.
+// Aici ajung dosarele depuse de canise: verificarea pieselor, extragerea ascendenței
+// din pedigree-urile părinților, atribuirea numărului de cuib WDF și pregătirea
+// Certificatelor Pedigree Tip A și B.
+import RegistruLayout from "../../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Registratura" allow={["registratura"]}>
+  <p class="g-eyebrow">Registrul genealogic · Registratura</p>
+  <h1 class="g-title">Dosarele de înregistrare</h1>
+  <p class="g-sub" id="g-cine"></p>
+
+  <div class="g-flux">
+    <h2 class="g-h2">Ce se verifică la fiecare dosar</h2>
+    <ol class="g-lista">
+      <li><strong>Declarația de Montă și Fătare</strong> — completă, în termenul de 90 de zile de la fătare, confirmată de proprietarul masculului.</li>
+      <li><strong>Pedigree-ul masculului</strong> — copie digitală lizibilă.</li>
+      <li><strong>Pedigree-ul femelei</strong> — copie digitală lizibilă.</li>
+      <li><strong>Dovada dreptului de montă al femelei</strong> — fișa de arbitraj sau imaginea din
+      carnetul de performanță, care atestă minimum un calificativ „Bun". După ce expozițiile trec
+      prin registrul propriu, verificarea se va putea face automat din rezultate.</li>
+      <li><strong>Dovada plății.</strong></li>
+    </ol>
+    <p class="g-nota">
+      Din pedigree-urile părinților se extrage ascendența pe patru generații — părinți, bunici,
+      străbunici și stră-străbunici — pentru înregistrarea cuibului în baza World Dog Federation.
+      Tipul certificatului rezultă din date: <strong>Tip A</strong> dacă toate pozițiile au detalii
+      de înregistrare, <strong>Tip B</strong> dacă lipsește oricare, pe oricare dintre linii.
+    </p>
+  </div>
+
+  <h2 class="g-h2">Dosare în lucru</h2>
+  <p class="g-gol">Niciun dosar depus încă. Aici vor apărea declarațiile pe măsură ce sosesc.</p>
+</RegistruLayout>
+
+<script is:inline>
+  (function () {
+    let r = null;
+    try { r = JSON.parse(localStorage.getItem("cfcrRegistru") || "null"); } catch (e) {}
+    if (r && r.nume) document.getElementById("g-cine").textContent = "Autentificat: " + r.nume;
+  })();
+</script>
+
+<style>
+  .g-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .g-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.2rem; }
+  .g-sub { color: var(--color-text-muted); margin-top: 0; font-weight: 600; }
+  .g-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2rem 0 0.5rem;
+    font-size: 1.3rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem; }
+  .g-flux { margin-top: 1.5rem; }
+  .g-lista { padding-left: 1.2rem; display: grid; gap: 0.4rem; max-width: 46rem; }
+  .g-lista strong { color: var(--color-primary); }
+  .g-nota { max-width: 46rem; font-size: 0.9rem; color: var(--color-text-muted);
+    background: var(--color-surface-alt); border: 1px solid var(--color-border);
+    border-radius: var(--radius); padding: 0.9rem 1.1rem; }
+  .g-gol { color: var(--color-text-muted); font-style: italic; }
+</style>

@@ -1,0 +1,88 @@
+---
+// /registru/ — intrarea în Registrul genealogic.
+// Un singur câmp: codul primit. Serverul spune ce rol are și unde îl duce —
+// membru (depune declarații), registratură (verifică dosare) sau administrator.
+import RegistruLayout from "../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Intrare">
+  <p class="r-eyebrow">Asociația Club Federal Chinologic Royal</p>
+  <h1 class="r-title">Registrul genealogic</h1>
+  <p class="r-sub">
+    Aici se depun <strong>Declarațiile de Montă și Fătare</strong> și se emit
+    <strong>Certificatele Pedigree</strong>. Accesul se face cu codul primit de la secretariat.
+  </p>
+
+  <form class="r-form" id="r-form">
+    <label for="r-cod">Codul de acces</label>
+    <input id="r-cod" name="cod" type="text" autocomplete="off" autocapitalize="characters"
+           spellcheck="false" placeholder="ex. MBR-XXXXXXXX" required />
+    <button class="btn btn--primary" type="submit">Intră</button>
+    <p class="r-eroare" id="r-eroare" role="alert" hidden></p>
+  </form>
+
+  <div class="r-info">
+    <p><strong>Membrii</strong> primesc un cod care începe cu <code>MBR-</code>. Cu el se depune
+    declarația pentru fiecare cuib și se urmărește stadiul dosarului. Dreptul ține de calitatea de
+    membru cu <strong>cotizația la zi</strong>, nu de existența unei canise.</p>
+    <p><strong>Proprietarul masculului</strong> nu are nevoie de cod: primește pe e-mail un link
+    unic prin care confirmă monta — inclusiv dacă este dintr-o altă asociație sau din străinătate.</p>
+    <p>Nu ai cod? Scrie secretariatului la
+    <a href="mailto:contact@cfc-royal.ro">contact@cfc-royal.ro</a>.</p>
+  </div>
+</RegistruLayout>
+
+<script is:inline>
+  (function () {
+    const form = document.getElementById("r-form");
+    const input = document.getElementById("r-cod");
+    const eroare = document.getElementById("r-eroare");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const cod = input.value.trim();
+      if (!cod) { input.focus(); return; }
+      const btn = form.querySelector("button[type=submit]");
+      btn.disabled = true; btn.textContent = "Se verifică…";
+      eroare.hidden = true;
+      try {
+        const res = await fetch("/.netlify/functions/registru-acces", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ actiune: "intrare", cod }),
+        });
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(d.eroare || "Nu am putut verifica codul.");
+        // Rolul (care nu e secret) deschide paginile; codul rămâne pentru apelurile
+        // următoare, unde serverul îl verifică din nou.
+        localStorage.setItem("cfcrRegistru", JSON.stringify(d));
+        localStorage.setItem("cfcrRegistruCod", cod);
+        location.href = d.dest || "/registru/";
+      } catch (err) {
+        btn.disabled = false; btn.textContent = "Intră";
+        eroare.hidden = false;
+        eroare.textContent = err.message;
+        input.select();
+      }
+    });
+  })();
+</script>
+
+<style>
+  .r-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .r-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
+  .r-sub { color: var(--color-text-muted); max-width: 44rem; }
+  .r-form { display: grid; gap: 0.6rem; max-width: 22rem; margin: 2rem 0; }
+  .r-form label { font-weight: 600; color: var(--color-primary); }
+  .r-form input {
+    padding: 0.7rem 0.9rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    font-size: 1.05rem; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .r-form .btn { justify-self: start; }
+  .r-eroare { margin: 0; padding: 0.6rem 0.9rem; border-radius: var(--radius);
+    background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; font-size: 0.9rem; }
+  .r-eroare[hidden] { display: none; }
+  .r-info { max-width: 44rem; border-top: 1px solid var(--color-border); padding-top: 1.25rem; }
+  .r-info p { font-size: 0.9rem; color: var(--color-text-muted); }
+  .r-info code { background: var(--color-surface-alt); padding: 0.1rem 0.35rem; border-radius: 4px; }
+  .r-info a { color: var(--color-accent-dark); }
+</style>
