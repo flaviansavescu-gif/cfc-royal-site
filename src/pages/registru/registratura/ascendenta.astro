@@ -41,6 +41,11 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
         <strong>Numărul de înregistrare</strong> e cel care decide tipul certificatului: o poziție
         fără număr contează ca lipsă, chiar dacă are nume.
       </p>
+      <p class="p-unelte">
+        <a class="btn btn--outline btn--small" href="https://rou.pedigree-database.org/en/"
+           target="_blank" rel="noopener">🌐 Baza de pedigree WDF ↗</a>
+        <span>Se deschide într-o filă separată — poți căuta acolo strămoșii, fără să pierzi ce ai completat aici.</span>
+      </p>
       <p class="p-tip" id="p-tip">—</p>
       <div id="p-generatii"></div>
       <p class="p-actiuni">
@@ -323,4 +328,6 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     border-radius: var(--radius); font: inherit; font-size: 0.82rem; min-width: 15rem; }
   .p-actiuni { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
   .p-stare { font-size: 0.88rem; color: var(--color-text-muted); }
+  .p-unelte { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; max-width: 48rem; }
+  .p-unelte span { font-size: 0.83rem; color: var(--color-text-muted); }
 </style>

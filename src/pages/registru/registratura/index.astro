@@ -11,6 +11,14 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   <h1 class="g-title">Dosarele de înregistrare</h1>
   <p class="g-sub" id="g-cine"></p>
 
+  <p class="g-unelte">
+    <a class="btn btn--outline" href="https://rou.pedigree-database.org/en/" target="_blank" rel="noopener">
+      🌐 Baza de pedigree WDF ↗
+    </a>
+    <span>Pentru căutarea exemplarelor după număr de pedigree sau microcip, la verificarea dosarelor
+    și la transcrierea ascendenței.</span>
+  </p>
+
   <div class="g-flux">
     <h2 class="g-h2">Ce se verifică la fiecare dosar</h2>
     <ol class="g-lista">
@@ -228,6 +236,8 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     background: var(--color-surface-alt); border: 1px solid var(--color-border);
     border-radius: var(--radius); padding: 0.9rem 1.1rem; }
   .g-gol { color: var(--color-text-muted); font-style: italic; }
+  .g-unelte { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; max-width: 48rem; }
+  .g-unelte span { font-size: 0.85rem; color: var(--color-text-muted); }
   .g-dosare { list-style: none; padding: 0; display: grid; gap: 0.5rem; max-width: 52rem; }
   .g-dosar__buton { display: flex; align-items: baseline; gap: 0.9rem; flex-wrap: wrap; width: 100%;
     text-align: left; padding: 0.7rem 0.9rem; background: var(--color-surface-alt);
