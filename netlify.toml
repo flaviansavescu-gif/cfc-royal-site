@@ -7,6 +7,26 @@
   NODE_VERSION = "20"
 
 # Securitate de bază (fără a bloca fonturile self-hosted sau Netlify Forms)
+#
+# CONTENT-SECURITY-POLICY. Ce apără, cinstit spus:
+#   • `connect-src 'self'` — chiar dacă un cod străin ar ajunge să ruleze în pagină, NU
+#     poate trimite nimic în afară. Asta e apărarea care contează pentru un registru cu
+#     date personale: scurgerea, nu execuția.
+#   • `form-action 'self'` — un formular nu poate fi deturnat către alt server.
+#   • `base-uri 'self'` + `object-src 'none'` — închid două căi clasice de deturnare.
+#   • `script-src 'self'` — nu se poate încărca cod de pe alt domeniu.
+#
+# Ce NU apără: `'unsafe-inline'` la scripturi. Site-ul e static, cu zeci de blocuri
+# `is:inline`, iar nonce-urile cer un server care rescrie fiecare pagină. Așa că un cod
+# injectat DIRECT în pagină tot ar rula — dar n-ar avea unde să trimită ce fură.
+# Alternativa (nonce peste tot) e o lucrare separată, nu o linie de configurare.
+#
+# `'wasm-unsafe-eval'` e pentru Pagefind (căutarea internă rulează pe WebAssembly);
+# fără el, căutarea moare în tăcere. Verificat: cu politica asta, căutarea întoarce
+# rezultate, formularul Google se încarcă, iar aplicația de rase funcționează.
+#
+# `blob:` la imagini e pentru previzualizarea pozelor în formularul DMF și pentru
+# manualul de studiu; `data:` e pentru codurile QR generate pe server.
 [[headers]]
   for = "/*"
   [headers.values]
@@ -14,6 +34,15 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "geolocation=(), camera=(), microphone=()"
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; worker-src 'self' blob:; font-src 'self'; connect-src 'self'; frame-src 'self' https://docs.google.com"
+
+# Pagina veche „în curând" e singura care mai încarcă fonturi de la Google. Nu merită
+# rescrisă, dar nici nu are rost să slăbim politica întregului site pentru ea: primește
+# una proprie, cu exact atât cât îi trebuie.
+[[headers]]
+  for = "/in-curand/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; connect-src 'self'"
 
 # Fonturile self-hosted — cache lung (sunt imuabile, versionate prin nume)
 [[headers]]
