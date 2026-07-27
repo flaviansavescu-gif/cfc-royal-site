@@ -26,7 +26,10 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
     <a class="btn btn--outline" href="/cursuri/admin/asistente/">🎗️ Asistențe de ring →</a>
     <a class="btn btn--outline" href="/cursuri/admin/certificare/">🎓 Certificare (grupe + examen) →</a>
     <a class="btn btn--outline" href="/cursuri/teleprompter/" target="_blank" rel="noopener">🎬 Teleprompter ↗</a>
-    <a class="btn btn--outline" href="/registru/">🧬 Registrul genealogic (coduri de membru) →</a>
+    {/* `?din=cursuri` pornește intrarea automată cu codul păstrat de browser. Fără el,
+        pagina de intrare nu reautentifică nimic — altfel butonul „Ieșire" din registru
+        ar fi anulat pe loc de o nouă autentificare. */}
+    <a class="btn btn--outline" href="/registru/?din=cursuri">🧬 Registrul genealogic (coduri de membru) →</a>
   </p>
 
   <h2 class="a-h2">Modulele candidaților — online / ascuns</h2>

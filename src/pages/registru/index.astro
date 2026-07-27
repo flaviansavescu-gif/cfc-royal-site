@@ -71,13 +71,20 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
 
     // Puntea dinspre Școala de Arbitraj: e același cod de administrator, păstrat de
     // browser pe aceeași origine. Îl folosim ca să nu fie tastat a doua oară.
-    // Verificăm întâi rolul memorat — nu ca autoritate (serverul decide oricum), ci ca
-    // să nu pornim o încercare sortită eșecului pentru un candidat sau un lector,
-    // care i-ar consuma degeaba din încercările permise.
+    //
+    // Pornește DOAR pe `?din=cursuri`, adică numai când omul chiar a apăsat butonul
+    // punții. Când mergea la orice vizită, „Ieșire" devenea inutil: butonul ștergea
+    // sesiunea, aducea aici, iar pagina reautentifica pe loc și îl arunca înapoi în
+    // panou — părea că butonul nu face nimic.
+    //
+    // Rolul memorat se verifică nu ca autoritate (serverul decide oricum), ci ca să nu
+    // pornim o încercare sortită eșecului pentru un candidat sau un lector, care i-ar
+    // consuma degeaba din încercările permise.
     try {
+      const dinCursuri = new URLSearchParams(location.search).get("din") === "cursuri";
       const rol = JSON.parse(localStorage.getItem("cfcrRol") || "null");
       const cod = localStorage.getItem("cfcrAccesCod");
-      if (rol && rol.rol === "admin" && cod) intra(cod, true);
+      if (dinCursuri && rol && rol.rol === "admin" && cod) intra(cod, true);
     } catch (e) {}
   })();
 </script>
