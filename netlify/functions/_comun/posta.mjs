@@ -10,8 +10,15 @@
 
 const EXPEDITOR = { name: "Registrul genealogic CFC-Royal", email: "newsletter@cfc-royal.ro" };
 
-/** Adresa asociației — acolo ajung alertele și codurile de administrator. */
-export const ADRESA_ASOCIATIEI = process.env.ALERTE_EMAIL || "contact@cfc-royal.ro";
+/**
+ * Adresa la care ajung alertele și codurile de administrator.
+ *
+ * E cutia pe care președintele o CITEȘTE, nu neapărat cea mai instituțională: un cod de
+ * intrare valabil 10 minute și o alertă de faptă gravă nu au ce căuta într-o cutie pe
+ * care o deschide cineva săptămânal. Se poate muta oricând din Netlify, fără publicare,
+ * prin variabila ALERTE_EMAIL.
+ */
+export const ADRESA_ASOCIATIEI = process.env.ALERTE_EMAIL || "flavian.savescu@gmail.com";
 
 export const escapeHtml = (s) =>
   String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));

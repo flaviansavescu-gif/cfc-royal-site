@@ -18,7 +18,7 @@
 // încercare greșită de `cuLimitareCod` și, după destule rulări, s-ar autobloca.
 //
 // Variabile de mediu:
-//   ALERTE_EMAIL         — unde pleacă alerta (implicit contact@cfc-royal.ro)
+//   ALERTE_EMAIL         — unde pleacă alerta (implicit adresa președintelui, din _comun/posta.mjs)
 //   BREVO_API_KEY        — pentru trimitere (fără ea, alerta rămâne doar în jurnal)
 //   BACKUP_GITHUB_TOKEN  — opțional, pentru verificarea prospețimii copiei
 //   SITE_PUBLIC          — implicit https://cfc-royal.ro
@@ -26,7 +26,7 @@ import { getStore } from "@netlify/blobs";
 import { decide, deCandText } from "./_comun/monitor.mjs";
 
 const SITE = process.env.SITE_PUBLIC || "https://cfc-royal.ro";
-const CATRE = process.env.ALERTE_EMAIL || "contact@cfc-royal.ro";
+const CATRE = process.env.ALERTE_EMAIL || "flavian.savescu@gmail.com";
 const REPO = process.env.BACKUP_GITHUB_REPO || "flaviansavescu-gif/cfc-royal-site";
 const RAMURA = process.env.BACKUP_GITHUB_RAMURA || "backup-registru";
 
