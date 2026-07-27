@@ -38,9 +38,7 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     const input = document.getElementById("r-cod");
     const eroare = document.getElementById("r-eroare");
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const cod = input.value.trim();
+    async function intra(cod, tacut) {
       if (!cod) { input.focus(); return; }
       const btn = form.querySelector("button[type=submit]");
       btn.disabled = true; btn.textContent = "Se verifică…";
@@ -59,11 +57,28 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
         location.href = d.dest || "/registru/";
       } catch (err) {
         btn.disabled = false; btn.textContent = "Intră";
-        eroare.hidden = false;
-        eroare.textContent = err.message;
-        input.select();
+        // La încercarea automată (puntea din Școala de Arbitraj) nu arătăm eroarea:
+        // omul n-a cerut nimic, ar fi un mesaj roșu apărut din senin.
+        if (!tacut) {
+          eroare.hidden = false;
+          eroare.textContent = err.message;
+          input.select();
+        }
       }
-    });
+    }
+
+    form.addEventListener("submit", (e) => { e.preventDefault(); intra(input.value.trim(), false); });
+
+    // Puntea dinspre Școala de Arbitraj: e același cod de administrator, păstrat de
+    // browser pe aceeași origine. Îl folosim ca să nu fie tastat a doua oară.
+    // Verificăm întâi rolul memorat — nu ca autoritate (serverul decide oricum), ci ca
+    // să nu pornim o încercare sortită eșecului pentru un candidat sau un lector,
+    // care i-ar consuma degeaba din încercările permise.
+    try {
+      const rol = JSON.parse(localStorage.getItem("cfcrRol") || "null");
+      const cod = localStorage.getItem("cfcrAccesCod");
+      if (rol && rol.rol === "admin" && cod) intra(cod, true);
+    } catch (e) {}
   })();
 </script>
 

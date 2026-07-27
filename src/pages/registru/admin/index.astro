@@ -29,6 +29,11 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     este la zi</strong>. Codul de registratură dă dreptul de a verifica dosarele și de a pregăti emiterea.
   </p>
 
+  <p class="a-punte">
+    <a class="btn btn--outline" href="/cursuri/admin/">← Panoul Școlii de Arbitraj</a>
+    <span>Registrele sunt separate: aici sunt membrii și registratura, acolo candidații, lectorii și arbitrii.</span>
+  </p>
+
   <h2 class="a-h2">Membri cu drept de solicitare</h2>
   <p class="a-note">
     Dacă membrul are canisă înregistrată, alege-o din listă — afixul și numărul se completează singure.
@@ -254,6 +259,8 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
   .a-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2.25rem 0 0.5rem;
     font-size: 1.3rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem; }
   .a-note { color: var(--color-text-muted); font-size: 0.9rem; max-width: 46rem; }
+  .a-punte { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; max-width: 46rem; }
+  .a-punte span { font-size: 0.85rem; color: var(--color-text-muted); }
   .a-form { display: grid; gap: 0.6rem; max-width: 30rem; margin-bottom: 1rem; }
   .a-form--mic { max-width: 24rem; }
   .a-form input, .a-form select {
