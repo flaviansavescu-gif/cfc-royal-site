@@ -11,13 +11,28 @@
 //   • ARBORELE arată patru generații, cu linia tatălui în verde și a mamei în auriu.
 //     Pozițiile fără număr de înregistrare se văd punctate: de acolo vine Tipul B.
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { RASE_WDF } from "../../data/nomenclator-wdf";
+
+// Numele raselor în engleză, pentru vizitatorii din alte țări. Se trimit în pagină ca
+// JSON, nu ca script: sunt date, nu cod, iar așa rămân în afara verificării de sintaxă.
+const raseEn: Record<string, string> = {};
+for (const r of RASE_WDF) raseEn[r.ro] = r.en;
 ---
 
 <BaseLayout lang="ro" title="Cartea de origini" description="Caută un câine înregistrat în Registrul genealogic al Asociației Club Federal Chinologic Royal: ascendență pe patru generații, frați de cuib, descendenți și titluri.">
+  <script type="application/json" id="k-rase" set:html={JSON.stringify(raseEn)}></script>
+
   <section class="k-sect">
-    <p class="k-eyebrow">Registrul genealogic</p>
-    <h1 class="k-title">Cartea de origini</h1>
-    <p class="k-sub">
+    <p class="k-limba">
+      <button type="button" class="k-lb is-activ" data-l="ro">Română</button>
+      <button type="button" class="k-lb" data-l="en">English</button>
+    </p>
+
+    <p class="k-eyebrow" data-ro="Registrul genealogic" data-en="Stud book">Registrul genealogic</p>
+    <h1 class="k-title" data-ro="Cartea de origini" data-en="Stud book">Cartea de origini</h1>
+    <p class="k-sub"
+       data-ro="Caută după seria certificatului, numărul WDF sau microcip. Numele nu se caută: se repetă între canise, iar microcipul e unic."
+       data-en="Search by certificate serial number, WDF number or microchip. Names are not searchable: they repeat across kennels, while a microchip is unique.">
       Caută după <strong>seria certificatului</strong>, <strong>numărul WDF</strong> sau
       <strong>microcip</strong>. Numele nu se caută: se repetă între canise, iar microcipul e unic.
     </p>
@@ -25,7 +40,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     <form class="k-cauta" id="k-form">
       <input id="k-input" type="text" placeholder="CFCR-P-2026-0001 · WDF.RO… · 941000024600001"
              autocomplete="off" spellcheck="false" required />
-      <button class="btn btn--primary" type="submit">Caută</button>
+      <button class="btn btn--primary" type="submit" data-ro="Caută" data-en="Search">Caută</button>
     </form>
 
     <p class="k-eroare" id="k-eroare" role="alert" hidden></p>
@@ -34,11 +49,11 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       <!-- ——— Identitatea ——— -->
       <div class="fisa">
         <div class="fisa__stanga">
-          <p class="fisa__reg"><span>Nr. înregistrare</span><strong id="k-reg"></strong></p>
+          <p class="fisa__reg"><span data-ro="Nr. înregistrare" data-en="Reg. number">Nr. înregistrare</span><strong id="k-reg"></strong></p>
           <div class="fisa__poza" aria-hidden="true">🐾</div>
           <table class="fisa__mic">
-            <tr><th>Crescător</th><td id="k-crescator"></td></tr>
-            <tr><th>Proprietar</th><td id="k-proprietar"></td></tr>
+            <tr><th data-ro="Crescător" data-en="Breeder">Crescător</th><td id="k-crescator"></td></tr>
+            <tr><th data-ro="Proprietar" data-en="Owner">Proprietar</th><td id="k-proprietar"></td></tr>
           </table>
         </div>
         <div class="fisa__dreapta">
@@ -50,10 +65,14 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
       <!-- ——— Taburile ——— -->
       <nav class="tab" role="tablist">
-        <button class="tab__b is-activ" type="button" data-t="pedigree" role="tab">Pedigree</button>
-        <button class="tab__b" type="button" data-t="frati" role="tab">Frați de cuib</button>
-        <button class="tab__b" type="button" data-t="descendenti" role="tab">Descendenți</button>
-        <button class="tab__b" type="button" data-t="titluri" role="tab">Expoziții și titluri</button>
+        <button class="tab__b is-activ" type="button" data-t="pedigree" role="tab"
+                data-ro="Pedigree" data-en="Pedigree">Pedigree</button>
+        <button class="tab__b" type="button" data-t="frati" role="tab"
+                data-ro="Frați de cuib" data-en="Littermates">Frați de cuib</button>
+        <button class="tab__b" type="button" data-t="descendenti" role="tab"
+                data-ro="Descendenți" data-en="Progeny">Descendenți</button>
+        <button class="tab__b" type="button" data-t="titluri" role="tab"
+                data-ro="Expoziții și titluri" data-en="Shows and titles">Expoziții și titluri</button>
       </nav>
 
       <div class="panou" id="panou-pedigree">
@@ -82,7 +101,69 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       if (text != null) x.textContent = text;
       return x;
     };
-    const dataRo = (s) => { const x = new Date(s); return isNaN(x) ? String(s || "") : x.toLocaleDateString("ro-RO"); };
+    // —— Limba ——
+    // Fișa poate fi deschisă de o asociație străină sau de un cumpărător din altă țară,
+    // venit prin codul QR de pe certificat. Textele fixe stau în data-ro / data-en;
+    // cele construite din date, aici.
+    const L = {
+      ro: {
+        generatii: { 1: "Părinți", 2: "Bunici", 3: "Străbunici", 4: "Stră-străbunici" },
+        tipA: "Certificat de Tip A — ascendență completă",
+        tipB: "Certificat de Tip B — ascendență incompletă",
+        anulat: "⚠ Certificat anulat",
+        necunoscut: "necunoscut", faraNr: "fără nr. de înregistrare",
+        rasa: "Rasa", varietate: "Varietatea", sex: "Sexul", mascul: "mascul", femela: "femelă",
+        nastere: "Data nașterii", culoare: "Culoarea", par: "Tipul de păr", microcip: "Microcip",
+        nrWdf: "Nr. WDF", serie: "Seria certificatului", cuib: "Cuibul",
+        declaratie: "Declarația de origine", emis: "Emis la",
+        faraFrati: "Nu sunt înregistrați alți pui din acest cuib.",
+        faraDescendenti: "Niciun cuib înregistrat de la acest exemplar.",
+        faraTitluri: "Niciun titlu înregistrat. Titlurile se preiau din Managerul de Expoziții, după fiecare ediție.",
+        capTitluri: ["Titlul", "Expoziția", "Data", "Clasa", "Arbitru"],
+        cuib2: (s, rol, alt) => "Cuib " + s + " · ca " + rol + (alt ? ", cu " + alt : ""),
+        tata: "tată", mama: "mamă", fatare: "fătare",
+        notaB: (n) => (n === 1
+          ? "O poziție din 30 nu are detalii complete de înregistrare"
+          : n + " din 30 de poziții nu au detalii complete de înregistrare") +
+          " — de aceea certificatul e de Tip B.",
+        notaA: "Toate cele 30 de poziții au detalii de înregistrare — certificat de Tip A.",
+        seCauta: "Se caută…", butonul: "Caută", esec: "Căutarea a eșuat.",
+      },
+      en: {
+        generatii: { 1: "Parents", 2: "Grandparents", 3: "Great-grandparents", 4: "Great-great-grandparents" },
+        tipA: "Type A certificate — complete pedigree",
+        tipB: "Type B certificate — incomplete pedigree",
+        anulat: "⚠ Certificate cancelled",
+        necunoscut: "unknown", faraNr: "no registration number",
+        rasa: "Breed", varietate: "Variety", sex: "Sex", mascul: "male", femela: "female",
+        nastere: "Date of birth", culoare: "Colour", par: "Coat", microcip: "Microchip",
+        nrWdf: "WDF number", serie: "Certificate serial", cuib: "Litter",
+        declaratie: "Mating declaration", emis: "Issued on",
+        faraFrati: "No other puppies from this litter are registered.",
+        faraDescendenti: "No litters registered from this dog.",
+        faraTitluri: "No titles recorded. Titles are imported from the Show Manager after each event.",
+        capTitluri: ["Title", "Show", "Date", "Class", "Judge"],
+        cuib2: (s, rol, alt) => "Litter " + s + " · as " + rol + (alt ? ", with " + alt : ""),
+        tata: "sire", mama: "dam", fatare: "whelped",
+        notaB: (n) => (n === 1
+          ? "One of the 30 pedigree positions lacks complete registration details"
+          : n + " of the 30 pedigree positions lack complete registration details") +
+          " — hence a Type B certificate.",
+        notaA: "All 30 pedigree positions carry registration details — Type A certificate.",
+        seCauta: "Searching…", butonul: "Search", esec: "The search failed.",
+      },
+    };
+    let limba = (navigator.language || "ro").toLowerCase().startsWith("ro") ? "ro" : "en";
+    let ultimul = null;   // ultima fișă încărcată, ca s-o putem reface în cealaltă limbă
+
+    let RASE_EN = {};
+    try { RASE_EN = JSON.parse(document.getElementById("k-rase").textContent || "{}"); } catch (e) {}
+    const numeRasa = (ro) => (limba === "en" && RASE_EN[ro]) ? RASE_EN[ro] : ro;
+
+    const dataRo = (s) => {
+      const x = new Date(s);
+      return isNaN(x) ? String(s || "") : x.toLocaleDateString(limba === "ro" ? "ro-RO" : "en-GB");
+    };
     const legatura = (ref, text, cls) => {
       const a = document.createElement("a");
       a.className = cls || "";
@@ -106,8 +187,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       zona.textContent = "";
       for (let gen = 1; gen <= 4; gen++) {
         const col = el("div", "arbore__col");
-        col.appendChild(el("p", "arbore__cap",
-          { 1: "Părinți", 2: "Bunici", 3: "Străbunici", 4: "Stră-străbunici" }[gen]));
+        col.appendChild(el("p", "arbore__cap", L[limba].generatii[gen]));
         for (const p of pozitii.filter((x) => x.generatie === gen)) {
           const a = asc[p.cod];
           // Prima literă a codului spune linia: T = tatăl (verde), M = mama (auriu).
@@ -117,11 +197,11 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
             if (a.nr && ePropriu(a.nr)) cutie.appendChild(legatura(a.nr, a.nume, "nod__nume"));
             else cutie.appendChild(el("strong", "nod__nume", a.nume));
             if (a.titluri) cutie.appendChild(el("span", "nod__titluri", a.titluri));
-            cutie.appendChild(el("span", "nod__nr", a.nr || "fără nr. de înregistrare"));
+            cutie.appendChild(el("span", "nod__nr", a.nr || L[limba].faraNr));
             if (!a.nr) cutie.classList.add("is-incomplet");
           } else {
             cutie.classList.add("is-gol");
-            cutie.appendChild(el("span", "nod__nr", "necunoscut"));
+            cutie.appendChild(el("span", "nod__nr", L[limba].necunoscut));
           }
           col.appendChild(cutie);
         }
@@ -132,7 +212,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     function deseneazaFrati(frati) {
       const p = document.getElementById("panou-frati");
       p.textContent = "";
-      if (!frati.length) { p.appendChild(el("p", "panou__gol", "Nu sunt înregistrați alți pui din acest cuib.")); return; }
+      if (!frati.length) { p.appendChild(el("p", "panou__gol", L[limba].faraFrati)); return; }
       const ul = el("ul", "lista");
       for (const f of frati) {
         const li = document.createElement("li");
@@ -147,14 +227,15 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       const p = document.getElementById("panou-descendenti");
       p.textContent = "";
       if (!desc.length) {
-        p.appendChild(el("p", "panou__gol", "Niciun cuib înregistrat de la acest exemplar."));
+        p.appendChild(el("p", "panou__gol", L[limba].faraDescendenti));
         return;
       }
       for (const d of desc) {
         const box = el("div", "cuib");
-        box.appendChild(el("h3", "cuib__cap",
-          "Cuib " + d.dmfSerie + " · ca " + d.rol + (d.celalaltParinte ? ", cu " + d.celalaltParinte : "")));
-        box.appendChild(el("p", "lista__mic", d.rasa + " · fătare " + dataRo(d.dataFatarii)));
+        const rol = d.rol === "tată" ? L[limba].tata : L[limba].mama;
+        box.appendChild(el("h3", "cuib__cap", L[limba].cuib2(d.dmfSerie, rol, d.celalaltParinte)));
+        box.appendChild(el("p", "lista__mic",
+          numeRasa(d.rasa) + " · " + L[limba].fatare + " " + dataRo(d.dataFatarii)));
         const ul = el("ul", "lista");
         for (const pu of d.pui) {
           const li = document.createElement("li");
@@ -171,13 +252,12 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       const p = document.getElementById("panou-titluri");
       p.textContent = "";
       if (!titluri.length) {
-        p.appendChild(el("p", "panou__gol",
-          "Niciun titlu înregistrat. Titlurile se preiau din Managerul de Expoziții, după fiecare ediție."));
+        p.appendChild(el("p", "panou__gol", L[limba].faraTitluri));
         return;
       }
       const t = el("table", "tabel");
       const cap = document.createElement("tr");
-      ["Titlul", "Expoziția", "Data", "Clasa", "Arbitru"].forEach((x) => cap.appendChild(el("th", null, x)));
+      L[limba].capTitluri.forEach((x) => cap.appendChild(el("th", null, x)));
       t.appendChild(cap);
       for (const x of titluri) {
         const tr = document.createElement("tr");
@@ -191,69 +271,84 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       p.appendChild(t);
     }
 
+    function deseneaza(d) {
+      const T = L[limba];
+      const c = d.caine;
+
+      document.getElementById("k-reg").textContent = c.numarWDF || c.serie;
+      document.getElementById("k-nume").textContent = c.nume;
+      const stare = document.getElementById("k-stare");
+      stare.className = "fisa__stare is-" + (c.anulat ? "anulat" : c.tip.toLowerCase());
+      stare.textContent = c.anulat ? T.anulat : (c.tip === "A" ? T.tipA : T.tipB);
+
+      document.getElementById("k-crescator").textContent =
+        [c.crescator.nume, c.crescator.afix].filter(Boolean).join(" · ");
+      document.getElementById("k-proprietar").textContent = c.proprietarCod || "—";
+
+      const t = document.getElementById("k-date");
+      t.textContent = "";
+      const rand = (a, b) => {
+        if (!b) return;
+        const tr = document.createElement("tr");
+        tr.appendChild(el("th", null, a));
+        tr.appendChild(el("td", null, b));
+        t.appendChild(tr);
+      };
+      rand(T.rasa, numeRasa(c.rasa));
+      rand(T.varietate, c.varietate);
+      rand(T.sex, c.sex === "M" ? T.mascul : T.femela);
+      rand(T.nastere, dataRo(c.dataNasterii));
+      rand(T.culoare, c.culoare);
+      rand(T.par, c.tipPar);
+      rand(T.microcip, c.microcip);
+      rand(T.nrWdf, c.numarWDF);
+      rand(T.serie, c.serie);
+      rand(T.cuib, c.numarCuib);
+      rand(T.declaratie, c.dmfSerie);
+      rand(T.emis, dataRo(c.emis));
+
+      deseneazaArbore(d.ascendenta, d.pozitii);
+      const lipsa = d.pozitii.filter((p) => {
+        const a = d.ascendenta[p.cod];
+        return !a || !a.nume || !a.nr;
+      }).length;
+      document.getElementById("k-tip-nota").textContent = lipsa ? T.notaB(lipsa) : T.notaA;
+      deseneazaFrati(d.frati || []);
+      deseneazaDescendenti(d.descendenti || []);
+      deseneazaTitluri(d.titluri || []);
+      fisa.hidden = false;
+    }
+
     async function cauta(ref) {
       eroare.hidden = true;
       const btn = form.querySelector("button[type=submit]");
-      btn.disabled = true; btn.textContent = "Se caută…";
+      btn.disabled = true; btn.textContent = L[limba].seCauta;
       try {
         const r = await fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ actiune: "caine", cautat: ref }) });
         const d = await r.json().catch(() => ({}));
-        if (!r.ok) throw new Error(d.eroare || "Căutarea a eșuat.");
-        const c = d.caine;
-
-        document.getElementById("k-reg").textContent = c.numarWDF || c.serie;
-        document.getElementById("k-nume").textContent = c.nume;
-        const stare = document.getElementById("k-stare");
-        stare.className = "fisa__stare is-" + (c.anulat ? "anulat" : c.tip.toLowerCase());
-        stare.textContent = c.anulat
-          ? "⚠ Certificat anulat"
-          : "Certificat de Tip " + c.tip + (c.tip === "A" ? " — ascendență completă" : " — ascendență incompletă");
-
-        document.getElementById("k-crescator").textContent =
-          [c.crescator.nume, c.crescator.afix].filter(Boolean).join(" · ");
-        document.getElementById("k-proprietar").textContent = c.proprietarCod || "—";
-
-        const t = document.getElementById("k-date");
-        t.textContent = "";
-        const rand = (a, b) => {
-          if (!b) return;
-          const tr = document.createElement("tr");
-          tr.appendChild(el("th", null, a));
-          tr.appendChild(el("td", null, b));
-          t.appendChild(tr);
-        };
-        rand("Rasa", c.rasa);
-        rand("Varietatea", c.varietate);
-        rand("Sexul", c.sex === "M" ? "mascul" : "femelă");
-        rand("Data nașterii", dataRo(c.dataNasterii));
-        rand("Culoarea", c.culoare);
-        rand("Tipul de păr", c.tipPar);
-        rand("Microcip", c.microcip);
-        rand("Nr. WDF", c.numarWDF);
-        rand("Seria certificatului", c.serie);
-        rand("Cuibul", c.numarCuib);
-        rand("Declarația de origine", c.dmfSerie);
-        rand("Emis la", dataRo(c.emis));
-
-        deseneazaArbore(d.ascendenta, d.pozitii);
-        const nota = document.getElementById("k-tip-nota");
-        const lipsa = d.pozitii.filter((p) => {
-          const a = d.ascendenta[p.cod];
-          return !a || !a.nume || !a.nr;
-        }).length;
-        nota.textContent = lipsa
-          ? lipsa + " din 30 de poziții nu au detalii complete de înregistrare — de aceea certificatul e de Tip B."
-          : "Toate cele 30 de poziții au detalii de înregistrare — certificat de Tip A.";
-        deseneazaFrati(d.frati || []);
-        deseneazaDescendenti(d.descendenti || []);
-        deseneazaTitluri(d.titluri || []);
-
-        fisa.hidden = false;
+        if (!r.ok) throw new Error(d.eroare || L[limba].esec);
+        ultimul = d;
+        deseneaza(d);
         history.replaceState(null, "", "/caine/?r=" + encodeURIComponent(ref));
       } catch (err) { arataEroare(err.message); }
-      btn.disabled = false; btn.textContent = "Caută";
+      btn.disabled = false; btn.textContent = L[limba].butonul;
     }
+
+    function aplicaLimba() {
+      document.documentElement.lang = limba;
+      document.querySelectorAll("[data-ro]").forEach((x) => {
+        x.textContent = x.getAttribute("data-" + limba) || x.textContent;
+      });
+      document.querySelectorAll(".k-lb").forEach((b) => {
+        b.classList.toggle("is-activ", b.dataset.l === limba);
+      });
+      if (ultimul) deseneaza(ultimul);
+    }
+    document.querySelectorAll(".k-lb").forEach((b) => {
+      b.addEventListener("click", () => { limba = b.dataset.l; aplicaLimba(); });
+    });
+    aplicaLimba();
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -277,6 +372,10 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
 <style>
   .k-sect { max-width: 68rem; margin-inline: auto; padding: 3rem 1.25rem 4rem; }
+  .k-limba { display: flex; gap: 0.3rem; justify-content: flex-end; margin: 0 0 0.5rem; }
+  .k-lb { padding: 0.25rem 0.8rem; border: 1px solid var(--color-border); border-radius: 999px;
+    background: transparent; cursor: pointer; font: inherit; font-size: 0.8rem; color: var(--color-text-muted); }
+  .k-lb.is-activ { background: var(--color-primary); color: #fbfaf7; border-color: var(--color-primary); }
   .k-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
   .k-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
   .k-sub { color: var(--color-text-muted); max-width: 44rem; }

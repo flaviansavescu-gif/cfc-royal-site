@@ -38,7 +38,17 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     </p>
   </div>
 
-  <h2 class="g-h2">Dosare în lucru</h2>
+  <h2 class="g-h2">Dosare</h2>
+  <p class="g-filtre">
+    <button class="g-filtru is-activ" type="button" data-f="lucru">În lucru <span id="g-nr-lucru"></span></button>
+    <button class="g-filtru" type="button" data-f="arhiva">Arhivă <span id="g-nr-arhiva"></span></button>
+    <button class="g-filtru" type="button" data-f="toate">Toate</button>
+    <input id="g-cauta" type="search" placeholder="caută serie, rasă sau crescător…" />
+  </p>
+  <p class="g-explic">
+    Un dosar iese din lista de lucru când i s-au emis certificatele sau când a fost respins.
+    <strong>Nu se șterge niciodată</strong>: e dovada din spatele actelor eliberate.
+  </p>
   <ul class="g-dosare" id="g-dosare"><li class="g-gol">Se încarcă…</li></ul>
 
   <div class="g-detaliu" id="g-detaliu" hidden></div>
@@ -113,6 +123,12 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
             .filter(Boolean).map((x) => " · " + x).join("")));
       }
       detaliu.appendChild(ul);
+
+      if (d.stare === "respins" && d.respingere) {
+        detaliu.appendChild(el("p", "g-motiv",
+          "Dosar respins la " + dataRo(d.respingere.la) + " de " + d.respingere.deCatre +
+          ". Motivul: " + d.respingere.motiv));
+      }
 
       // —— Semnătura declarantului ——
       // Ține locul rubricii „Semnătura" de pe formularul tipărit. Fără urma asta,
@@ -202,35 +218,99 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
         piese.appendChild(b);
       }
       detaliu.appendChild(piese);
+
+      // Respingerea motivată e singura cale de a scoate din lucru un dosar care nu se
+      // poate soluționa. Certificatele emise o blochează: ele nu se pot desface.
+      if (d.stare !== "emis" && d.stare !== "respins") {
+        const zonaR = el("div", "g-respinge");
+        zonaR.appendChild(el("label", "g-respinge__eticheta",
+          "Dacă dosarul nu poate fi soluționat, respinge-l motivat — trece în arhivă:"));
+        const motiv = document.createElement("input");
+        motiv.type = "text";
+        motiv.placeholder = "motivul respingerii";
+        motiv.className = "g-respinge__motiv";
+        const bR = el("button", "btn btn--small btn--danger", "Respinge dosarul");
+        bR.type = "button";
+        bR.addEventListener("click", async () => {
+          if (!motiv.value.trim()) { motiv.focus(); return; }
+          if (!confirm("Respingi definitiv dosarul " + d.serie + "?")) return;
+          bR.disabled = true;
+          try {
+            const rr = await post({ actiune: "dosar-respinge", id, motiv: motiv.value.trim() });
+            const dd = await rr.json().catch(() => ({}));
+            if (!rr.ok) throw new Error(dd.eroare || "Nu am putut respinge dosarul.");
+            deschide(id);
+            incarcaDosare();
+          } catch (e) { alert(e.message); bR.disabled = false; }
+        });
+        zonaR.append(motiv, bR);
+        detaliu.appendChild(zonaR);
+      }
+
       detaliu.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-    post({ actiune: "dosare" })
-      .then((res) => res.json())
-      .then((d) => {
-        lista.textContent = "";
-        const arr = d.dosare || [];
-        if (!arr.length) {
-          lista.appendChild(el("li", "g-gol", "Niciun dosar depus încă. Aici apar declarațiile pe măsură ce sosesc."));
-          return;
-        }
-        for (const x of arr) {
-          const li = el("li", "g-dosar");
-          const b = el("button", "g-dosar__buton");
-          b.type = "button";
-          b.appendChild(el("strong", "g-dosar__serie", x.serie));
-          b.appendChild(el("span", "g-dosar__det",
-            [x.rasa, x.membruNume, "fătare " + dataRo(x.dataFatarii), x.pui + " pui"].join(" · ")));
-          if (x.pesteTermen) b.appendChild(el("span", "g-dosar__termen", "peste termen"));
-          b.addEventListener("click", () => deschide(x.id));
-          li.appendChild(b);
-          lista.appendChild(li);
-        }
-      })
-      .catch(() => {
-        lista.textContent = "";
-        lista.appendChild(el("li", "g-gol", "Nu am putut încărca lista dosarelor."));
+    const ETICHETA_STARE = {
+      depus: "depusă", verificat: "verificată", emis: "certificate emise", respins: "respinsă",
+    };
+    let filtru = "lucru";
+
+    function incarcaDosare() {
+      const cauta = document.getElementById("g-cauta").value.trim();
+      lista.textContent = "";
+      lista.appendChild(el("li", "g-gol", "Se încarcă…"));
+      post({ actiune: "dosare", filtru, cauta })
+        .then((res) => res.json())
+        .then((d) => {
+          document.getElementById("g-nr-lucru").textContent = "(" + (d.inLucru || 0) + ")";
+          document.getElementById("g-nr-arhiva").textContent = "(" + (d.arhivate || 0) + ")";
+          lista.textContent = "";
+          const arr = d.dosare || [];
+          if (!arr.length) {
+            lista.appendChild(el("li", "g-gol", cauta
+              ? "Niciun dosar care să se potrivească."
+              : filtru === "arhiva"
+                ? "Arhiva e goală: niciun dosar soluționat încă."
+                : "Niciun dosar în lucru. Aici apar declarațiile pe măsură ce sosesc."));
+            return;
+          }
+          for (const x of arr) {
+            const li = el("li", "g-dosar");
+            const b = el("button", "g-dosar__buton" + (x.arhivat ? " is-arhivat" : ""));
+            b.type = "button";
+            b.appendChild(el("strong", "g-dosar__serie", x.serie));
+            b.appendChild(el("span", "g-dosar__det",
+              [x.rasa, x.membruNume, "fătare " + dataRo(x.dataFatarii), x.pui + " pui",
+               x.numarWDF || null].filter(Boolean).join(" · ")));
+            b.appendChild(el("span", "g-dosar__stare", ETICHETA_STARE[x.stare] || x.stare));
+            if (x.pesteTermen) b.appendChild(el("span", "g-dosar__termen", "peste termen"));
+            b.addEventListener("click", () => deschide(x.id));
+            li.appendChild(b);
+            lista.appendChild(li);
+          }
+        })
+        .catch(() => {
+          lista.textContent = "";
+          lista.appendChild(el("li", "g-gol", "Nu am putut încărca lista dosarelor."));
+        });
+    }
+
+    document.querySelectorAll(".g-filtru").forEach((b) => {
+      b.addEventListener("click", () => {
+        document.querySelectorAll(".g-filtru").forEach((x) => x.classList.remove("is-activ"));
+        b.classList.add("is-activ");
+        filtru = b.dataset.f;
+        incarcaDosare();
       });
+    });
+    // Căutarea așteaptă o clipă după ultima tastă: altfel pleacă o cerere la fiecare literă.
+    let ceas = null;
+    document.getElementById("g-cauta").addEventListener("input", () => {
+      clearTimeout(ceas);
+      ceas = setTimeout(incarcaDosare, 300);
+    });
+
+    incarcaDosare();
   })();
 </script>
 
@@ -249,6 +329,23 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .g-gol { color: var(--color-text-muted); font-style: italic; }
   .g-unelte { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; max-width: 48rem; }
   .g-unelte span { font-size: 0.85rem; color: var(--color-text-muted); }
+  .g-filtre { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; max-width: 52rem; }
+  .g-filtru { padding: 0.4rem 0.9rem; border: 1px solid var(--color-border); border-radius: 999px;
+    background: var(--color-surface-alt); cursor: pointer; font: inherit; font-size: 0.88rem;
+    color: var(--color-text-muted); }
+  .g-filtru.is-activ { background: var(--color-primary); color: #fbfaf7; border-color: var(--color-primary); font-weight: 600; }
+  .g-filtre input { flex: 1 1 14rem; padding: 0.4rem 0.7rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.88rem; }
+  .g-explic { font-size: 0.85rem; color: var(--color-text-muted); max-width: 48rem; }
+  .g-dosar__stare { font-size: 0.78rem; color: var(--color-text-muted);
+    border: 1px solid var(--color-border); border-radius: 999px; padding: 0.15rem 0.6rem; }
+  .g-dosar__buton.is-arhivat { opacity: 0.72; }
+  .g-respinge { display: grid; gap: 0.4rem; margin-top: 1.5rem; padding: 0.9rem 1.1rem;
+    border: 1px solid #8c1d2f; border-radius: var(--radius); background: #fdf7f7; max-width: 40rem; }
+  .g-respinge__eticheta { font-size: 0.85rem; font-weight: 600; color: #8c1d2f; }
+  .g-respinge__motiv { padding: 0.4rem 0.6rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.88rem; }
+  .g-respinge button { justify-self: start; }
   .g-dosare { list-style: none; padding: 0; display: grid; gap: 0.5rem; max-width: 52rem; }
   .g-dosar__buton { display: flex; align-items: baseline; gap: 0.9rem; flex-wrap: wrap; width: 100%;
     text-align: left; padding: 0.7rem 0.9rem; background: var(--color-surface-alt);

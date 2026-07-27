@@ -593,24 +593,65 @@ export default cuLimitareCod(async (req) => {
   }
 
   // —— Registratura și administratorul ——
+  //
+  // ARHIVAREA nu înseamnă ștergere: un dosar cu certificate emise e dovada din spatele
+  // actelor și rămâne pentru totdeauna. Înseamnă doar că iese din lista de lucru — altfel,
+  // după cincizeci de cuiburi, cel care caută dosarul de azi derulează printr-un zid.
+  // „În lucru" = depus sau verificat; „Arhivă" = emis sau respins.
   if (actiune === "dosare") {
     if (eu.rol !== "registratura" && eu.rol !== "admin") return json({ eroare: "Nepermis." }, 403);
+    const filtru = taie(body.filtru, 12) || "lucru";
+    const cauta = taie(body.cauta, 80).toLowerCase();
+    const eArhivat = (st) => st === "emis" || st === "respins";
     const lista = [];
+    let inLucru = 0, arhivate = 0;
     try {
       const { blobs } = await s.list({ prefix: "dmf/" });
       for (const b of blobs) {
         const x = await s.get(b.key, { type: "json" });
         if (!x) continue;
+        const arhivat = eArhivat(x.stare);
+        if (arhivat) arhivate++; else inLucru++;
+
+        if (filtru === "lucru" && arhivat) continue;
+        if (filtru === "arhiva" && !arhivat) continue;
+        // Căutarea merge peste serie, rasă și numele crescătorului: astea trei sunt ce
+        // ține omul minte când revine la un dosar vechi.
+        if (cauta) {
+          const paie = [x.serie, x.rasa, x.membruNume, x.numarWDF].filter(Boolean).join(" ").toLowerCase();
+          if (!paie.includes(cauta)) continue;
+        }
         lista.push({
           id: x.id, serie: x.serie, numarWDF: x.numarWDF || null, rasa: x.rasa,
           dataFatarii: x.dataFatarii, pui: (x.pui || []).length, stare: x.stare,
           pesteTermen: x.pesteTermen, membruNume: x.membruNume, creat: x.creat,
-          confirmare: x.confirmare?.stare || "asteptare",
+          confirmare: x.confirmare?.stare || "asteptare", arhivat,
         });
       }
     } catch (err) { console.error("Listare dosare eșuată:", err); }
     lista.sort((a, b) => String(b.creat).localeCompare(String(a.creat)));
-    return json({ dosare: lista });
+    return json({ dosare: lista, inLucru, arhivate });
+  }
+
+  // Închiderea unui dosar fără emitere: cererea se respinge motivat și trece în arhivă.
+  // Fără asta, un dosar nesoluționabil ar rămâne veșnic în lista de lucru.
+  if (actiune === "dosar-respinge") {
+    if (eu.rol !== "registratura" && eu.rol !== "admin") return json({ eroare: "Nepermis." }, 403);
+    const id = taie(body.id, 40);
+    const motiv = taie(body.motiv, 600);
+    if (motiv.length < 5) return json({ eroare: "Scrie motivul respingerii." }, 400);
+    const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
+    if (!d) return json({ eroare: "Dosar inexistent." }, 404);
+    if (d.stare === "emis")
+      return json({ eroare: "Dosarul are certificate emise și nu mai poate fi respins." }, 409);
+    await s.setJSON("dmf/" + id, {
+      ...d, stare: "respins",
+      respingere: {
+        motiv, la: new Date().toISOString(),
+        deCatre: eu.rol === "admin" ? "administrator" : (eu.registrator?.nume || "registratură"),
+      },
+    });
+    return json({ ok: true });
   }
 
   if (actiune === "dosar") {
