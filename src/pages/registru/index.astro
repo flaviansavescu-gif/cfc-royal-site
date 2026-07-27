@@ -27,9 +27,44 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     membru cu <strong>cotizația la zi</strong>, nu de existența unei canise.</p>
     <p><strong>Proprietarul masculului</strong> nu are nevoie de cod: primește pe e-mail un link
     unic prin care confirmă monta — inclusiv dacă este dintr-o altă asociație sau din străinătate.</p>
-    <p>Nu ai cod? Scrie secretariatului la
-    <a href="mailto:contact@cfc-royal.ro">contact@cfc-royal.ro</a>.</p>
   </div>
+
+  <!-- ——— Solicitarea de acces ———
+       Cine n-are cod trebuie să poată cere unul aici, nu să caute o adresă de e-mail
+       prin site. Se cer doar numele, e-mailul și telefonul: atât îi trebuie
+       secretariatului ca să verifice calitatea de membru și să sune. Codul NU se dă
+       automat — cotizația și dreptul se verifică de om. -->
+  <section class="r-cerere">
+    <h2 class="r-h2">Nu ai cod de acces?</h2>
+    <p class="r-cerere__intro">
+      Lasă-ne datele tale și te căutăm. Codul se dă după verificarea calității de membru și a
+      cotizației — nu se eliberează automat de pe această pagină.
+    </p>
+
+    <form class="r-form2" id="r-cerere-form">
+      <label>Numele și prenumele
+        <input name="nume" autocomplete="name" required />
+      </label>
+      <label>E-mail
+        <input name="email" type="email" autocomplete="email" required />
+      </label>
+      <label>Telefon
+        <input name="telefon" type="tel" autocomplete="tel" required />
+      </label>
+      <label>Pe scurt, ce te interesează <span class="r-opt">(opțional)</span>
+        <textarea name="mesaj" rows="2" placeholder="ex. am o canisă și vreau să depun declarații"></textarea>
+      </label>
+      <!-- Câmp-capcană pentru roboți: rămâne gol la oameni, fiindcă nu-l văd. -->
+      <input class="r-capcana" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <button class="btn btn--outline" type="submit">Trimite solicitarea</button>
+      <p class="r-stare" id="r-cerere-stare" role="status"></p>
+    </form>
+
+    <p class="r-cerere__nota">
+      Poți scrie oricând direct la <a href="mailto:contact@cfc-royal.ro">contact@cfc-royal.ro</a>.
+      Datele lăsate aici se folosesc doar pentru a te contacta în legătură cu accesul la registru.
+    </p>
+  </section>
 </RegistruLayout>
 
 <script is:inline>
@@ -69,6 +104,36 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
 
     form.addEventListener("submit", (e) => { e.preventDefault(); intra(input.value.trim(), false); });
 
+    // —— Solicitarea de acces ——
+    const cerereForm = document.getElementById("r-cerere-form");
+    const cerereStare = document.getElementById("r-cerere-stare");
+    cerereForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = cerereForm.querySelector("button[type=submit]");
+      const val = (n) => cerereForm.querySelector('[name="' + n + '"]').value.trim();
+      btn.disabled = true; btn.textContent = "Se trimite…";
+      cerereStare.className = "r-stare";
+      cerereStare.textContent = "";
+      try {
+        const res = await fetch("/.netlify/functions/registru-acces", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            actiune: "cerere", nume: val("nume"), email: val("email"),
+            telefon: val("telefon"), mesaj: val("mesaj"), website: val("website"),
+          }),
+        });
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(d.eroare || "Nu am putut trimite solicitarea.");
+        cerereForm.reset();
+        cerereStare.className = "r-stare is-bun";
+        cerereStare.textContent = "✓ Solicitarea a ajuns la secretariat. Te contactăm pe e-mail sau telefon.";
+      } catch (err) {
+        cerereStare.className = "r-stare is-rau";
+        cerereStare.textContent = err.message;
+      }
+      btn.disabled = false; btn.textContent = "Trimite solicitarea";
+    });
+
     // Puntea dinspre Școala de Arbitraj: e același cod de administrator, păstrat de
     // browser pe aceeași origine. Îl folosim ca să nu fie tastat a doua oară.
     //
@@ -107,4 +172,24 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   .r-info p { font-size: 0.9rem; color: var(--color-text-muted); }
   .r-info code { background: var(--color-surface-alt); padding: 0.1rem 0.35rem; border-radius: 4px; }
   .r-info a { color: var(--color-accent-dark); }
+
+  .r-cerere { max-width: 30rem; margin-top: 2.5rem; border-top: 2px solid var(--color-accent); padding-top: 1.25rem; }
+  .r-h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.15rem; margin: 0 0 0.4rem; }
+  .r-cerere__intro { font-size: 0.9rem; color: var(--color-text-muted); }
+  .r-form2 { display: grid; gap: 0.7rem; margin: 1.2rem 0; }
+  .r-form2 label { display: block; font-weight: 600; color: var(--color-primary); font-size: 0.88rem; }
+  .r-form2 input, .r-form2 textarea {
+    display: block; width: 100%; margin-top: 0.2rem; padding: 0.5rem 0.7rem;
+    border: 1px solid var(--color-border); border-radius: var(--radius);
+    font: inherit; font-weight: 400; text-transform: none; letter-spacing: normal;
+  }
+  .r-form2 .btn { justify-self: start; }
+  .r-opt { color: var(--color-text-muted); font-weight: 400; font-size: 0.85em; }
+  /* Câmpul-capcană: scos din pagină, dar nu cu display:none — unii roboți îl caută anume. */
+  .r-capcana { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .r-stare { margin: 0; font-size: 0.88rem; }
+  .r-stare.is-bun { color: var(--color-primary); font-weight: 600; }
+  .r-stare.is-rau { color: #8c1d2f; font-weight: 600; }
+  .r-cerere__nota { font-size: 0.82rem; color: var(--color-text-muted); }
+  .r-cerere__nota a { color: var(--color-accent-dark); }
 </style>

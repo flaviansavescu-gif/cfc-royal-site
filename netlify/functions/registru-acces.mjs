@@ -28,7 +28,7 @@
 // POST { cod, actiune:"registratori" | "registrator-adauga" | "registrator-sterge" }       (admin)
 import { getStore } from "@netlify/blobs";
 import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
-import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { cuLimitareCod, ipClient } from "./_comun/limitare.mjs";
 
 const store = () => getStore("registru");
 
@@ -118,6 +118,49 @@ export default cuLimitareCod(async (req) => {
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
 
   const actiune = taie(body.actiune, 24);
+
+  // —— Solicitarea de acces: SINGURA acțiune fără cod ——
+  //
+  // Cine n-are cod trebuie să poată cere unul fără să caute o adresă de e-mail pe site.
+  // Se cer doar e-mailul și telefonul: atât îi trebuie secretariatului ca să sune sau să
+  // scrie, iar mai mult ar fi date personale strânse degeaba, înainte să existe vreo
+  // hotărâre. Codul NU se dă automat — calitatea de membru și cotizația se verifică de om.
+  if (actiune === "cerere") {
+    const nume = taie(body.nume, 120);
+    const email = taie(body.email, 200).toLowerCase();
+    const telefon = taie(body.telefon, 40);
+    // Câmp-capcană: umplut înseamnă robot. Oamenii nu văd câmpul, deci nu-l completează.
+    if (taie(body.website, 100)) return json({ ok: true });   // tăcere, ca robotul să nu învețe
+    if (nume.length < 3) return json({ eroare: "Scrie numele și prenumele." }, 400);
+    if (!EMAIL_RE.test(email)) return json({ eroare: "Scrie o adresă de e-mail validă." }, 400);
+    if (telefon.replace(/\D/g, "").length < 9)
+      return json({ eroare: "Scrie un număr de telefon valid." }, 400);
+
+    const s = store();
+    // Formularul e public, deci trebuie o limită: fără ea, cineva ar putea umple panoul
+    // administratorului cu mii de cereri într-un minut.
+    let cheieIp = null;
+    try {
+      cheieIp = "cerere-ip/" + sha256(ipClient(req));
+      const c = await s.get(cheieIp, { type: "json" });
+      const acum = Date.now();
+      if (c && acum - c.de < 3600e3 && c.n >= 3)
+        return json({ eroare: "Ai trimis deja mai multe solicitări. Așteaptă o oră sau scrie la contact@cfc-royal.ro." }, 429);
+      await s.setJSON(cheieIp, (c && acum - c.de < 3600e3) ? { n: c.n + 1, de: c.de } : { n: 1, de: acum });
+    } catch (err) { console.error("Limitarea cererilor a eșuat:", err); }
+
+    const id = sha256(email).slice(0, 16);   // aceeași adresă = aceeași cerere, nu douăzeci
+    const veche = await s.get("cerere/" + id, { type: "json" }).catch(() => null);
+    await s.setJSON("cerere/" + id, {
+      id, nume, email, telefon,
+      mesaj: taie(body.mesaj, 500),
+      creat: veche?.creat || new Date().toISOString(),
+      actualizat: new Date().toISOString(),
+      trimiteri: (veche?.trimiteri || 0) + 1,
+    });
+    return json({ ok: true });
+  }
+
   const cod = taie(body.cod, 60);
 
   // —— Intrarea (membru, registratură sau administrator) ——
@@ -213,6 +256,27 @@ export default cuLimitareCod(async (req) => {
     const registrator = { nume, email, cod: nou.cod, creat: new Date().toISOString() };
     await store().setJSON("registrator/" + nou.id, registrator);
     return json({ ok: true, registrator: { ...registrator, id: nou.id } });
+  }
+
+  // —— Solicitările de acces, pentru administrator ——
+  if (actiune === "cereri") {
+    const lista = [];
+    try {
+      const { blobs } = await store().list({ prefix: "cerere/" });
+      for (const b of blobs) {
+        const x = await store().get(b.key, { type: "json" });
+        if (x) lista.push(x);
+      }
+    } catch (err) { console.error("Listare cereri eșuată:", err); }
+    lista.sort((a, b) => String(b.actualizat).localeCompare(String(a.actualizat)));
+    return json({ cereri: lista });
+  }
+
+  if (actiune === "cerere-sterge") {
+    const id = taie(body.id, 40);
+    if (!id) return json({ eroare: "Lipsește solicitarea." }, 400);
+    try { await store().delete("cerere/" + id); } catch (err) { console.error(err); }
+    return json({ ok: true });
   }
 
   if (actiune === "membru-sterge" || actiune === "registrator-sterge") {

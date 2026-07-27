@@ -34,6 +34,14 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     <span>Registrele sunt separate: aici sunt membrii și registratura, acolo candidații, lectorii și arbitrii.</span>
   </p>
 
+  <h2 class="a-h2">Solicitări de acces</h2>
+  <p class="a-note">
+    Vin din formularul de pe pagina de intrare. Verifică întâi calitatea de membru și cotizația;
+    apoi apasă <strong>Preia</strong> — datele trec în formularul de mai jos și rămâne doar să
+    alegi data cotizației și să generezi codul.
+  </p>
+  <ul class="a-lista" id="a-cereri"><li class="a-gol">Se încarcă…</li></ul>
+
   <h2 class="a-h2">Membri cu drept de solicitare</h2>
   <p class="a-note">
     Dacă membrul are canisă înregistrată, alege-o din listă — afixul și numărul se completează singure.
@@ -175,6 +183,62 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       } catch (e) { ul.innerHTML = "<li class='a-gol'>Nu am putut încărca lista.</li>"; }
     }
 
+    // Solicitările vin din formularul public. Textul e scris de străini, deci NUMAI
+    // textContent — un nume cu marcaj HTML n-are ce executa în pagina administratorului.
+    async function incarcaCereri() {
+      const ul = document.getElementById("a-cereri");
+      ul.innerHTML = "";
+      try {
+        const d = await cere({ actiune: "cereri" });
+        if (!d.cereri.length) { ul.innerHTML = "<li class='a-gol'>Nicio solicitare nerezolvată.</li>"; return; }
+        d.cereri.forEach((c) => {
+          const li = document.createElement("li");
+          const info = document.createElement("div");
+          const tare = document.createElement("strong");
+          tare.textContent = c.nume;
+          info.appendChild(tare);
+
+          const meta = document.createElement("span");
+          meta.className = "a-meta";
+          meta.textContent = [c.email, c.telefon, "cerut " + dataRo(c.creat),
+            c.trimiteri > 1 ? c.trimiteri + " trimiteri" : null].filter(Boolean).join(" · ");
+          info.appendChild(meta);
+
+          if (c.mesaj) {
+            const m = document.createElement("span");
+            m.className = "a-mesaj";
+            m.textContent = c.mesaj;
+            info.appendChild(m);
+          }
+          li.appendChild(info);
+
+          const actiuni = document.createElement("div");
+          actiuni.className = "a-actiuni";
+          const preia = document.createElement("button");
+          preia.className = "btn btn--small btn--primary";
+          preia.textContent = "Preia";
+          preia.addEventListener("click", () => {
+            document.getElementById("a-m-nume").value = c.nume;
+            document.getElementById("a-m-email").value = c.email;
+            document.getElementById("a-m-cotizatie").focus();
+            document.getElementById("a-membru-form").scrollIntoView({ behavior: "smooth", block: "center" });
+          });
+          const gata = document.createElement("button");
+          gata.className = "btn btn--small btn--danger";
+          gata.textContent = "Șterge";
+          gata.addEventListener("click", async () => {
+            if (!confirm("Ștergi solicitarea lui " + c.nume + "?")) return;
+            gata.disabled = true;
+            try { await cere({ actiune: "cerere-sterge", id: c.id }); incarcaCereri(); }
+            catch (e) { alert("Nu am putut șterge: " + e.message); gata.disabled = false; }
+          });
+          actiuni.appendChild(preia); actiuni.appendChild(gata);
+          li.appendChild(actiuni);
+          ul.appendChild(li);
+        });
+      } catch (e) { ul.innerHTML = "<li class='a-gol'>Nu am putut încărca solicitările.</li>"; }
+    }
+
     async function incarcaRegistratori() {
       const ul = document.getElementById("a-registratori");
       ul.innerHTML = "";
@@ -307,6 +371,7 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       finally { btn.disabled = false; btn.textContent = "Generează cod de registratură"; }
     });
 
+    incarcaCereri();
     incarcaMembri();
     incarcaRegistratori();
     incarcaDeclaratii();
@@ -345,6 +410,8 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
   .a-lista li.a-gol { display: block; color: var(--color-text-muted); font-style: italic; border-style: dashed; }
   .a-lista strong { color: var(--color-primary); display: block; }
   .a-meta { font-size: 0.82rem; color: var(--color-text-muted); display: block; }
+  .a-mesaj { display: block; font-size: 0.85rem; color: var(--color-text); font-style: italic;
+    margin-top: 0.25rem; max-width: 34rem; }
   .a-cotizatie { font-size: 0.82rem; display: block; margin-top: 0.15rem; font-weight: 600; }
   .a-cotizatie.is-ok { color: var(--color-primary); }
   .a-cotizatie.is-expirat { color: #8c1d2f; }
