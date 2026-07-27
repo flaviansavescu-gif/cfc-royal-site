@@ -21,6 +21,23 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     <p class="r-eroare" id="r-eroare" role="alert" hidden></p>
   </form>
 
+  <!-- ——— A doua cheie ———
+       Pentru registratură și administrator, codul singur nu mai ajunge: se cere și un
+       cod de șase cifre, trimis pe e-mailul asociației. Se arată doar când serverul îl
+       cere; membrii nu trec niciodată pe aici. -->
+  <form class="r-form" id="r-otp-form" hidden>
+    <p class="r-otp__intro" id="r-otp-intro"></p>
+    <label for="r-otp">Codul din e-mail</label>
+    <input id="r-otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code"
+           pattern="[0-9]*" maxlength="6" placeholder="6 cifre" required />
+    <button class="btn btn--primary" type="submit">Confirmă</button>
+    <p class="r-eroare" id="r-otp-eroare" role="alert" hidden></p>
+    <p class="r-otp__nota">
+      Nu ai primit nimic? Verifică și în „Spam". Codul e valabil 10 minute.
+      <button type="button" class="r-linkbtn" id="r-otp-renunta">Ia-o de la capăt</button>
+    </p>
+  </form>
+
   <div class="r-info">
     <p><strong>Membrii</strong> primesc un cod care începe cu <code>MBR-</code>. Cu el se depune
     declarația pentru fiecare cuib și se urmărește stadiul dosarului. Dreptul ține de calitatea de
@@ -73,6 +90,21 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     const input = document.getElementById("r-cod");
     const eroare = document.getElementById("r-eroare");
 
+    const otpForm = document.getElementById("r-otp-form");
+    const otpIntrare = document.getElementById("r-otp");
+    const otpEroare = document.getElementById("r-otp-eroare");
+    const otpIntro = document.getElementById("r-otp-intro");
+    let asteptare = null;   // { intrareId, cod } cât timp se așteaptă codul din e-mail
+
+    function tineMinte(d, cod) {
+      localStorage.setItem("cfcrRegistru", JSON.stringify(d));
+      localStorage.setItem("cfcrRegistruCod", cod);
+      // Jetonul de dispozitiv însoțește de acum fiecare cerere privilegiată. Fără el,
+      // serverul refuză — chiar dacă are codul bun.
+      if (d.dispozitiv) localStorage.setItem("cfcrRegistruDispozitiv", d.dispozitiv);
+      location.href = d.dest || "/registru/";
+    }
+
     async function intra(cod, tacut) {
       if (!cod) { input.focus(); return; }
       const btn = form.querySelector("button[type=submit]");
@@ -81,15 +113,30 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
       try {
         const res = await fetch("/.netlify/functions/registru-acces", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ actiune: "intrare", cod }),
+          body: JSON.stringify({
+            actiune: "intrare", cod,
+            dispozitiv: localStorage.getItem("cfcrRegistruDispozitiv") || "",
+          }),
         });
         const d = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(d.eroare || "Nu am putut verifica codul.");
+
+        // Rol greu, dispozitiv nerecunoscut: urmează codul de șase cifre de pe e-mail.
+        if (d.pas === "cod-email") {
+          asteptare = { intrareId: d.intrareId, cod };
+          form.hidden = true;
+          otpForm.hidden = false;
+          otpIntro.textContent =
+            "Am trimis un cod de șase cifre la " + (d.catre || "adresa asociației") +
+            ". Scrie-l aici ca să încheiem intrarea.";
+          otpIntrare.value = "";
+          otpIntrare.focus();
+          return;
+        }
+
         // Rolul (care nu e secret) deschide paginile; codul rămâne pentru apelurile
         // următoare, unde serverul îl verifică din nou.
-        localStorage.setItem("cfcrRegistru", JSON.stringify(d));
-        localStorage.setItem("cfcrRegistruCod", cod);
-        location.href = d.dest || "/registru/";
+        tineMinte(d, cod);
       } catch (err) {
         btn.disabled = false; btn.textContent = "Intră";
         // La încercarea automată (puntea din Școala de Arbitraj) nu arătăm eroarea:
@@ -103,6 +150,42 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     }
 
     form.addEventListener("submit", (e) => { e.preventDefault(); intra(input.value.trim(), false); });
+
+    otpForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!asteptare) return;
+      const btn = otpForm.querySelector("button[type=submit]");
+      btn.disabled = true; btn.textContent = "Se confirmă…";
+      otpEroare.hidden = true;
+      try {
+        const res = await fetch("/.netlify/functions/registru-acces", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            actiune: "intrare-confirma",
+            intrareId: asteptare.intrareId,
+            otp: otpIntrare.value.replace(/\D/g, ""),
+            cod: asteptare.cod,
+          }),
+        });
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(d.eroare || "Codul nu a putut fi confirmat.");
+        tineMinte(d, asteptare.cod);
+      } catch (err) {
+        btn.disabled = false; btn.textContent = "Confirmă";
+        otpEroare.hidden = false;
+        otpEroare.textContent = err.message;
+        otpIntrare.select();
+      }
+    });
+
+    document.getElementById("r-otp-renunta").addEventListener("click", () => {
+      asteptare = null;
+      otpForm.hidden = true;
+      form.hidden = false;
+      const btn = form.querySelector("button[type=submit]");
+      btn.disabled = false; btn.textContent = "Intră";
+      input.select();
+    });
 
     // —— Solicitarea de acces ——
     const cerereForm = document.getElementById("r-cerere-form");
@@ -187,6 +270,12 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   .r-opt { color: var(--color-text-muted); font-weight: 400; font-size: 0.85em; }
   /* Câmpul-capcană: scos din pagină, dar nu cu display:none — unii roboți îl caută anume. */
   .r-capcana { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .r-otp__intro { color: var(--color-text-muted); font-size: 0.92rem; margin: 0 0 0.4rem; }
+  #r-otp { letter-spacing: 0.35em; font-size: 1.3rem; text-align: center; font-variant-numeric: tabular-nums; }
+  .r-otp__nota { font-size: 0.83rem; color: var(--color-text-muted); margin: 0.5rem 0 0; }
+  .r-linkbtn { background: none; border: none; padding: 0; font: inherit;
+    color: var(--color-accent-dark); text-decoration: underline; cursor: pointer; }
+  #r-otp-form[hidden], #r-form[hidden] { display: none; }
   .r-stare { margin: 0; font-size: 0.88rem; }
   .r-stare.is-bun { color: var(--color-primary); font-weight: 600; }
   .r-stare.is-rau { color: #8c1d2f; font-weight: 600; }

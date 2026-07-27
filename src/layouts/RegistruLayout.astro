@@ -84,6 +84,9 @@ const protejat = allowList.length > 0;
           try {
             localStorage.removeItem("cfcrRegistru");
             localStorage.removeItem("cfcrRegistruCod");
+            // Și jetonul de dispozitiv: „Ieșire" pe un calculator din secretariat sau
+            // dintr-o sală trebuie să șteargă TOT. Reintrarea costă un e-mail, nu o zi.
+            localStorage.removeItem("cfcrRegistruDispozitiv");
           } catch (e) {}
           location.href = "/registru/";
         });

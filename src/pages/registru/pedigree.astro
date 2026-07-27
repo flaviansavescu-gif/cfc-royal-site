@@ -91,6 +91,7 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     const F = "/.netlify/functions/registru-pedigree";
     const serie = (new URLSearchParams(location.search).get("s") || "").toUpperCase();
     const cod = () => localStorage.getItem("cfcrRegistruCod") || "";
+    const dispozitiv = () => localStorage.getItem("cfcrRegistruDispozitiv") || "";
     const eroare = document.getElementById("c-eroare");
     const incarcare = document.getElementById("c-incarcare");
 
@@ -117,7 +118,7 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     }
 
     fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cod: cod(), actiune: "certificat", serie }) })
+      body: JSON.stringify({ cod: cod(), dispozitiv: dispozitiv(), actiune: "certificat", serie }) })
       .then(async (r) => {
         const d = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(d.eroare || "Nu am putut încărca certificatul.");

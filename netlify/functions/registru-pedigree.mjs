@@ -36,6 +36,7 @@ import { membruDinCod, registratorDinCod } from "./registru-acces.mjs";
 import {
   jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, ipCerere,
 } from "./_comun/registru-jurnal.mjs";
+import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
 
 const store = () => getStore("registru");
 
@@ -306,6 +307,12 @@ export default cuLimitareCod(async (req) => {
   const eu = await cine(cod);
   if (!eu) return json({ eroare: "Cod incorect." }, 401);
   const s = store();
+
+  // A doua cheie pentru registratură și administrator: aici se emit și se anulează acte.
+  if (ROLURI_PROTEJATE.includes(eu.rol) &&
+      !(await dispozitivCunoscut(s, taie(body.dispozitiv, 80), eu.rol))) {
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+  }
 
   // —— Anularea unui certificat emis ——
   //

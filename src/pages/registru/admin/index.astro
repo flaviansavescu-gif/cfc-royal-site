@@ -160,6 +160,10 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
 
 <script is:inline>
   (function () {
+    // A doua cheie. Însoțește FIECARE cerere privilegiată: o apărare pusă doar la pagina
+    // de intrare ar fi teatru, fiindcă cine are codul cheamă funcțiile direct.
+    const dispozitivAdmin = () => localStorage.getItem("cfcrRegistruDispozitiv") || "";
+
     function codAdmin() {
       let c = null;
       try { c = localStorage.getItem("cfcrRegistruCod"); } catch (e) {}
@@ -168,7 +172,7 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     async function cere(payload) {
       const res = await fetch("/.netlify/functions/registru-acces", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+        body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivAdmin(), ...payload }),
       });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(d.eroare || "Eroare de server.");
@@ -261,7 +265,7 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       try {
         const res = await fetch("/.netlify/functions/registru-export", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cod: codAdmin() }),
+          body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivAdmin() }),
         });
         if (!res.ok) {
           const d = await res.json().catch(() => ({}));
@@ -424,7 +428,7 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     async function cereDmf(payload) {
       const res = await fetch("/.netlify/functions/registru-dmf", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+        body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivAdmin(), ...payload }),
       });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(d.eroare || "Eroare de server.");
@@ -583,7 +587,7 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     async function cerePedigree(payload) {
       const res = await fetch("/.netlify/functions/registru-pedigree", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+        body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivAdmin(), ...payload }),
       });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(d.eroare || "Eroare de server.");

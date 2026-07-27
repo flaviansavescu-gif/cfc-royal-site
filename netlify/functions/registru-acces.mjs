@@ -32,6 +32,11 @@ import { cuLimitareCod, ipClient } from "./_comun/limitare.mjs";
 import {
   jurnalizeaza, jurnalizeazaObligatoriu, ipCerere, citesteJurnal, FAPTE,
 } from "./_comun/registru-jurnal.mjs";
+import {
+  dispozitivCunoscut, deschideIntrarea, confirmaIntrarea,
+  opritDinMediu, OTP_MINUTE, DISPOZITIV_ZILE,
+} from "./_comun/al-doilea-factor.mjs";
+import { trimite, pagina, escapeHtml, ADRESA_ASOCIATIEI, postaConfigurata } from "./_comun/posta.mjs";
 
 /** Toate acțiunile de aici sunt ale administratorului; actorul e mereu același. */
 const ADMIN = { rol: "admin", nume: "Administrator" };
@@ -54,6 +59,18 @@ const json = (body, status = 200) =>
 
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 const EMAIL_RE = /^[^@\s]+@[^@\s.]+\.[^@\s]+$/;
+
+/**
+ * Adresa, arătată pe jumătate: „co•••••@cfc-royal.ro".
+ * Cine intră trebuie să știe UNDE să caute codul, fără ca pagina să dea adresa întreagă
+ * cuiva care abia a ghicit un cod de acces.
+ */
+function mascheaza(email) {
+  const [nume, gazda] = String(email || "").split("@");
+  if (!gazda) return "adresa asociației";
+  const vizibil = nume.slice(0, 2);
+  return vizibil + "•".repeat(Math.max(3, nume.length - 2)) + "@" + gazda;
+}
 const eData = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s);
 
 /** Cotizația e la zi dacă data de valabilitate nu a trecut. Ziua scadenței e inclusă. */
@@ -234,14 +251,58 @@ export default cuLimitareCod(async (req) => {
   }
 
   const cod = taie(body.cod, 60);
+  const dispozitiv = taie(body.dispozitiv, 80);
+
+  /**
+   * Trimite codul de șase cifre și deschide intrarea în așteptare.
+   * Dacă poșta nu e configurată deloc, mecanismul nu e operațional — lăsăm omul să
+   * intre, dar spunem răspicat că a doua cheie lipsește. Dacă poșta E configurată și
+   * totuși nu pleacă, refuzăm: e o defecțiune trecătoare, nu un motiv de a renunța
+   * la apărare.
+   */
+  async function ceruIntrarea(rol, cine, email) {
+    if (!postaConfigurata()) {
+      console.error("AL DOILEA FACTOR NU E OPERAȚIONAL: lipsește BREVO_API_KEY.");
+      return { ocolit: true };
+    }
+    const { id, otp } = await deschideIntrarea(store(), { rol, cine, email });
+    const catre = email || ADRESA_ASOCIATIEI;
+    const trimis = await trimite({
+      catre,
+      subiect: `[CFC-Royal] Cod de intrare în registru: ${otp}`,
+      html: pagina("Cod de intrare", "#1F4D3A",
+        `<p style="font-size:15px">Cineva intră în registru ca <strong>${escapeHtml(rol === "admin" ? "administrator" : "registratură")}</strong>` +
+        (cine ? ` (${escapeHtml(cine)})` : "") + `, de pe un dispozitiv nerecunoscut.</p>` +
+        `<p style="font-size:32px;letter-spacing:0.18em;font-weight:700;color:#1F4D3A;margin:18px 0">${escapeHtml(otp)}</p>` +
+        `<p style="font-size:14px;color:#666">Codul e valabil ${OTP_MINUTE} minute. După confirmare, ` +
+        `dispozitivul rămâne recunoscut ${DISPOZITIV_ZILE} de zile.</p>` +
+        `<hr style="margin:20px 0;border:none;border-top:1px solid #ddd">` +
+        `<p style="font-size:12px;color:#888"><strong>Dacă nu ai cerut tu această intrare, cineva ` +
+        `îți cunoaște codul de acces.</strong> Nu da codul mai departe și schimbă-l imediat.</p>`),
+    });
+    if (!trimis) {
+      return { eroare: "Nu am putut trimite codul pe e-mail. Reîncearcă peste un minut." };
+    }
+    return { intrareId: id, catre };
+  }
 
   // —— Intrarea (membru, registratură sau administrator) ——
+  //
+  // Rolurile grele trec prin a doua cheie: cod BUN + dispozitiv recunoscut. Codul se
+  // dictează la telefon și se scrie pe hârtie; singur, nu mai e de ajuns pentru dosarele
+  // și actele întregii asociații.
   if (actiune === "intrare") {
     if (!cod) return json({ eroare: "Scrie codul primit." }, 400);
 
     // Administratorul intră peste tot, fără să fie trecut în registru.
-    if (actorDinCod(cod)?.rol === "admin")
-      return json({ rol: "admin", dest: "/registru/admin/" });
+    if (actorDinCod(cod)?.rol === "admin") {
+      if (await dispozitivCunoscut(store(), dispozitiv, "admin"))
+        return json({ rol: "admin", dest: "/registru/admin/" });
+      const r = await ceruIntrarea("admin", "administrator", ADRESA_ASOCIATIEI);
+      if (r.ocolit) return json({ rol: "admin", dest: "/registru/admin/", alDoileaFactorLipsa: true });
+      if (r.eroare) return json({ eroare: r.eroare }, 503);
+      return json({ pas: "cod-email", intrareId: r.intrareId, catre: mascheaza(r.catre), rol: "admin" });
+    }
 
     const m = await membruDinCod(cod);
     if (m) {
@@ -257,16 +318,56 @@ export default cuLimitareCod(async (req) => {
 
     const r = await registratorDinCod(cod);
     if (r) {
-      await marcheazaIntrarea("registrator/" + r.id, r);
-      return json({ rol: "registratura", id: r.id, nume: r.nume, dest: "/registru/registratura/" });
+      if (await dispozitivCunoscut(store(), dispozitiv, "registratura")) {
+        await marcheazaIntrarea("registrator/" + r.id, r);
+        return json({ rol: "registratura", id: r.id, nume: r.nume, dest: "/registru/registratura/" });
+      }
+      // Fără e-mail în fișă, codul pleacă la asociație: cineva de acolo îl dictează.
+      // Mai bine un pas în plus decât o poartă care se deschide singură.
+      const c = await ceruIntrarea("registratura", r.nume, r.email || ADRESA_ASOCIATIEI);
+      if (c.ocolit) {
+        await marcheazaIntrarea("registrator/" + r.id, r);
+        return json({ rol: "registratura", id: r.id, nume: r.nume, dest: "/registru/registratura/", alDoileaFactorLipsa: true });
+      }
+      if (c.eroare) return json({ eroare: c.eroare }, 503);
+      return json({ pas: "cod-email", intrareId: c.intrareId, catre: mascheaza(c.catre), rol: "registratura" });
     }
 
     return json({ eroare: "Cod incorect." }, 401);
   }
 
+  // —— Confirmarea codului primit pe e-mail ——
+  // Nu cere codul de acces: cine a ajuns aici l-a dat deja, iar intrarea în așteptare e
+  // legată de el. Cere doar cele șase cifre, care au ajuns pe altă cale decât browserul.
+  if (actiune === "intrare-confirma") {
+    const rez = await confirmaIntrarea(store(), taie(body.intrareId, 64), taie(body.otp, 10));
+    if (rez.eroare) return json({ eroare: rez.eroare }, 401);
+
+    await jurnalizeaza(store(), {
+      fapta: "intrare-noua",
+      actor: { rol: rez.rol, nume: rez.cine || (rez.rol === "admin" ? "Administrator" : "registratură") },
+      obiect: rez.rol === "admin" ? "administrator" : rez.cine,
+      detalii: `Dispozitiv nou recunoscut pentru ${DISPOZITIV_ZILE} de zile`,
+      ip: ipCerere(req),
+    });
+
+    if (rez.rol === "admin") return json({ ok: true, rol: "admin", dispozitiv: rez.jeton, dest: "/registru/admin/" });
+    const r = await registratorDinCod(cod);
+    if (r) await marcheazaIntrarea("registrator/" + r.id, r);
+    return json({
+      ok: true, rol: "registratura", dispozitiv: rez.jeton,
+      id: r?.id || null, nume: r?.nume || rez.cine, dest: "/registru/registratura/",
+    });
+  }
+
   // —— Restul e administrare ——
+  //
+  // Poarta cere AMÂNDOUĂ cheile. O apărare pusă doar la pagina de intrare ar fi teatru:
+  // cine are codul cheamă funcția direct și n-a văzut niciodată pagina.
   if (actorDinCod(cod)?.rol !== "admin")
     return json({ eroare: "Doar administratorul poate administra accesul la registru." }, 401);
+  if (!(await dispozitivCunoscut(store(), dispozitiv, "admin")))
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
 
   if (actiune === "membri" || actiune === "registratori") {
     const prefix = actiune === "membri" ? "membru/" : "registrator/";

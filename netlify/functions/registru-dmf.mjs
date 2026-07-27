@@ -38,6 +38,7 @@ import { membruDinCod, registratorDinCod } from "./registru-acces.mjs";
 import {
   jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, actorExtern, ipCerere,
 } from "./_comun/registru-jurnal.mjs";
+import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
 
 const store = () => getStore("registru");
 
@@ -435,6 +436,13 @@ export default cuLimitareCod(async (req) => {
   if (!eu) return json({ eroare: "Cod incorect." }, 401);
 
   const s = store();
+
+  // A doua cheie, pentru rolurile grele. Membrul nu trece pe aici: el își vede doar
+  // propriile dosare, iar un pas în plus la fiecare depunere l-ar alunga de la formular.
+  if (ROLURI_PROTEJATE.includes(eu.rol) &&
+      !(await dispozitivCunoscut(s, taie(body.dispozitiv, 80), eu.rol))) {
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+  }
 
   // —— Ciornă: deschide dosarul, ca fișierele să se încarce unul câte unul ——
   // Patru fotografii de telefon într-o singură cerere depășesc limita de mărime și

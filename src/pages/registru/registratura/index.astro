@@ -58,6 +58,8 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   (function () {
     const F = "/.netlify/functions/registru-dmf";
     const cod = () => localStorage.getItem("cfcrRegistruCod") || "";
+    // A doua cheie: fără ea serverul refuză, chiar dacă codul e bun.
+    const dispozitiv = () => localStorage.getItem("cfcrRegistruDispozitiv") || "";
     let r = null;
     try { r = JSON.parse(localStorage.getItem("cfcrRegistru") || "null"); } catch (e) {}
     if (r && r.nume) document.getElementById("g-cine").textContent = "Autentificat: " + r.nume;
@@ -71,7 +73,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     };
 
     const post = (b) => fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(Object.assign({ cod: cod() }, b)) });
+      body: JSON.stringify(Object.assign({ cod: cod(), dispozitiv: dispozitiv() }, b)) });
 
     // Textul dosarelor vine de la crescători: NUMAI textContent, niciodată innerHTML.
     // Altfel numele unui câine ar putea executa cod în pagina registratorului.

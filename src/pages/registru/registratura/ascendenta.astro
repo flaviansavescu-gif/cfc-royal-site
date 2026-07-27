@@ -75,9 +75,10 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     const F = "/.netlify/functions/registru-pedigree";
     const id = new URLSearchParams(location.search).get("id") || "";
     const cod = () => localStorage.getItem("cfcrRegistruCod") || "";
+    const dispozitiv = () => localStorage.getItem("cfcrRegistruDispozitiv") || "";
     const eroare = document.getElementById("p-eroare");
     const post = (b) => fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(Object.assign({ cod: cod() }, b)) });
+      body: JSON.stringify(Object.assign({ cod: cod(), dispozitiv: dispozitiv() }, b)) });
 
     // Datele vin din dosarele crescătorilor: doar textContent, niciodată innerHTML.
     const el = (tag, cls, text) => {

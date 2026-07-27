@@ -22,6 +22,8 @@
 //
 // Stocare (store „registru"): jurnal/<AAAA-LL>/<ISO>-<aleator>
 
+import { trimite, pagina, escapeHtml, ADRESA_ASOCIATIEI } from "./posta.mjs";
+
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 
 /** Faptele consemnate, cu eticheta lor lizibilă. Lista e închisă: ce nu e aici nu se scrie. */
@@ -49,7 +51,26 @@ export const FAPTE = {
   // Administrare
   "arhiva-descarcata": "Arhiva registrului descărcată",
   "magazie-curatata": "Curățenie în magazie",
+  "intrare-noua": "Dispozitiv nou recunoscut (al doilea factor)",
 };
+
+/**
+ * Faptele care nu trebuie doar consemnate, ci ANUNȚATE.
+ *
+ * Jurnalul e o probă: îl citești când te-ai apucat deja să cauți ceva. Faptele de aici
+ * sunt cele despre care vrei să afli chiar dacă nu cauți nimic — pentru că, dacă nu
+ * le-ai făcut tu, e prea târziu să le afli peste o lună. Restul rămân în jurnal, unde
+ * le e locul: o alertă la fiecare declarație depusă ar face alertele invizibile.
+ */
+export const FAPTE_DE_ANUNTAT = new Set([
+  "arhiva-descarcata",     // tot registrul, cu scanuri de acte, pe un calculator din afară
+  "dmf-sters",             // un dosar dispare
+  "certificat-anulat",     // un act eliberat își pierde valabilitatea
+  "certificat-restabilit",
+  "cod-generat",           // cineva nou capătă acces
+  "cod-sters",             // cuiva i se ia accesul
+  "intrare-noua",          // s-a recunoscut un dispozitiv nou pentru un rol greu
+]);
 
 /** Numele sub care apare autorul faptei. Niciodată codul cu care a intrat. */
 export function actorJurnal(eu) {
@@ -88,6 +109,34 @@ function construieste({ fapta, actor, obiect, detalii, ip }) {
 }
 
 /**
+ * Trimite alerta pentru o faptă gravă. Nu așteptăm rezultatul acolo unde e chemată:
+ * consemnarea a reușit deja, iar poșta e o treabă separată.
+ */
+async function anunta(intrare) {
+  const corp =
+    `<p style="font-size:15px"><strong>${escapeHtml(intrare.eticheta)}</strong>` +
+    (intrare.obiect ? ` — <code>${escapeHtml(intrare.obiect)}</code>` : "") + `</p>` +
+    `<table style="border-collapse:collapse;font-size:14px;margin:14px 0">` +
+    `<tr><td style="padding:3px 14px 3px 0;color:#666">Cine</td>` +
+    `<td><strong>${escapeHtml(intrare.actor?.nume || "necunoscut")}</strong> ` +
+    `<span style="color:#666">(${escapeHtml(intrare.actor?.rol || "")})</span></td></tr>` +
+    `<tr><td style="padding:3px 14px 3px 0;color:#666">Când</td><td>${escapeHtml(intrare.la)}</td></tr>` +
+    (intrare.ip ? `<tr><td style="padding:3px 14px 3px 0;color:#666">De la</td><td>${escapeHtml(intrare.ip)}</td></tr>` : "") +
+    (intrare.detalii ? `<tr><td style="padding:3px 14px 3px 0;color:#666;vertical-align:top">Detalii</td><td>${escapeHtml(intrare.detalii)}</td></tr>` : "") +
+    `</table>` +
+    `<hr style="margin:20px 0;border:none;border-top:1px solid #ddd">` +
+    `<p style="font-size:12px;color:#888">Primești acest mesaj fiindcă e una dintre faptele grave ` +
+    `ale registrului. <strong>Dacă nu ai făcut-o tu, schimbă imediat codurile de acces</strong> ` +
+    `și verifică jurnalul din panoul de administrare.</p>`;
+
+  return trimite({
+    catre: ADRESA_ASOCIATIEI,
+    subiect: `[CFC-Royal] ${intrare.eticheta}${intrare.obiect ? " — " + intrare.obiect : ""}`,
+    html: pagina("Faptă gravă în registru", "#8c1d2f", corp),
+  });
+}
+
+/**
  * Consemnează o faptă. NU aruncă niciodată: acțiunea a reușit deja, iar o eroare de
  * scriere a jurnalului nu are voie s-o transforme într-un eșec pentru om.
  * Întoarce true dacă intrarea a fost scrisă.
@@ -100,6 +149,7 @@ export async function jurnalizeaza(store, date) {
     }
     const { cheie, intrare } = construieste(date);
     await store.setJSON(cheie, intrare);
+    if (FAPTE_DE_ANUNTAT.has(intrare.fapta)) await anunta(intrare);
     return true;
   } catch (err) {
     console.error("Scrierea în jurnal a eșuat:", err);
@@ -116,6 +166,11 @@ export async function jurnalizeazaObligatoriu(store, date) {
   if (!FAPTE[date?.fapta]) throw new Error("Faptă necunoscută: " + date?.fapta);
   const { cheie, intrare } = construieste(date);
   await store.setJSON(cheie, intrare);
+  // Anunțul vine DUPĂ ce urma e scrisă, și nu poate anula fapta: dacă poșta cade,
+  // ștergerea tot are voie să se facă — proba, care contează, există deja.
+  if (FAPTE_DE_ANUNTAT.has(intrare.fapta)) {
+    try { await anunta(intrare); } catch (err) { console.error("Alerta n-a plecat:", err); }
+  }
   return intrare;
 }
 

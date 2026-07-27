@@ -14,6 +14,7 @@ import { actorDinCod } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { construiesteArhiva } from "./_comun/registru-arhiva.mjs";
 import { jurnalizeaza, ipCerere } from "./_comun/registru-jurnal.mjs";
+import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -30,6 +31,12 @@ export default cuLimitareCod(async (req) => {
   // Poarta ÎNAINTE de a atinge magazia, ca peste tot în registru.
   if (actorDinCod(String(body.cod || "").trim())?.rol !== "admin")
     return json({ eroare: "Doar administratorul poate descărca registrul." }, 401);
+
+  // Și a doua cheie: asta e cererea prin care tot registrul, cu scanuri de acte și date
+  // personale, pleacă pe un calculator din afara serverului. Dacă e o singură cerere
+  // care merită două chei, ea e.
+  if (!(await dispozitivCunoscut(getStore("registru"), String(body.dispozitiv || "").trim(), "admin")))
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
 
   const maxMB = Math.min(Math.max(Number(body.maxMB) || 40, 1), 80);
 
