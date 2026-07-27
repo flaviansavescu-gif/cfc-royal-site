@@ -36,9 +36,9 @@ account, at [cfc-royal.ro/registru](/registru/):
 ## Documents anyone can verify
 Every Certificate of Origin carries a **QR code**. A puppy buyer, a judge at the ring entrance or an
 association abroad can check on the spot whether the document is genuine, in Romanian or English, at
-[cfc-royal.ro/verifica-pedigree](/verifica-pedigree/?lang=en).
+[cfc-royal.ro/verifica-pedigree](/en/verifica-pedigree/).
 
-Registered dogs also have a **public record** in the [stud book](/caine/?lang=en): the four-generation
+Registered dogs also have a **public record** in the [stud book](/en/caine/): the four-generation
 pedigree drawn out, littermates, progeny and show titles. Searching is done by certificate serial
 number, WDF number or microchip — not by name, because names repeat across kennels while a microchip
 does not.

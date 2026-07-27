@@ -1,0 +1,26 @@
+---
+// /en/caine/?r=… — the public record of a dog, in English.
+// The Romanian version lives at /caine/ (the address printed in the QR code on
+// certificates, which cannot be changed).
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import CarteaOrigini from "../../../components/CarteaOrigini.astro";
+---
+
+<BaseLayout
+  lang="en"
+  title="Stud book"
+  description="Search for a dog registered in the stud book of the Royal Federal Canine Club: four-generation pedigree, littermates, progeny and show titles."
+>
+  <script is:inline>
+    // Compatibilitate cu legăturile vechi de forma /en/caine/?lang=ro.
+    (function () {
+      const p = new URLSearchParams(location.search);
+      if ((p.get("lang") || "").toLowerCase() === "ro") {
+        p.delete("lang");
+        const q = p.toString();
+        location.replace("/caine/" + (q ? "?" + q : ""));
+      }
+    })();
+  </script>
+  <CarteaOrigini lang="en" />
+</BaseLayout>

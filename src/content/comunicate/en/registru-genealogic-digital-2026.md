@@ -72,8 +72,8 @@ That is what a modern organisation actually means — not that it has a handsome
 
 ---
 
-- The stud book: [cfc-royal.ro/caine](/caine/?lang=en)
-- Verifying a certificate: [cfc-royal.ro/verifica-pedigree](/verifica-pedigree/?lang=en)
+- The stud book: [cfc-royal.ro/en/caine](/en/caine/)
+- Verifying a certificate: [cfc-royal.ro/en/verifica-pedigree](/en/verifica-pedigree/)
 - Filing mating and whelping declarations: [cfc-royal.ro/registru](/registru/)
 - Centre for the Development of Cynological Competencies: [cfc-royal.ro/en/educatie/centrul-competentelor-chinologice](/en/educatie/centrul-competentelor-chinologice/)
 - The Exhibition Manager: [cfc-royal.ro/en/manager-expozitii](/en/manager-expozitii/)

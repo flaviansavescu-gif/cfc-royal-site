@@ -1,0 +1,25 @@
+---
+// /en/verifica-pedigree/?s=CFCR-P-2026-0001 — public certificate check, in English.
+// The Romanian version lives at /verifica-pedigree/ (the address printed in the QR code).
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import VerificaPedigree from "../../../components/VerificaPedigree.astro";
+---
+
+<BaseLayout
+  lang="en"
+  title="Verify a Certificate of Origin"
+  description="Check whether a Certificate of Origin issued by the Royal Federal Canine Club is genuine."
+>
+  <script is:inline>
+    // Compatibilitate cu legăturile vechi de forma /en/verifica-pedigree/?lang=ro.
+    (function () {
+      const p = new URLSearchParams(location.search);
+      if ((p.get("lang") || "").toLowerCase() === "ro") {
+        p.delete("lang");
+        const q = p.toString();
+        location.replace("/verifica-pedigree/" + (q ? "?" + q : ""));
+      }
+    })();
+  </script>
+  <VerificaPedigree lang="en" />
+</BaseLayout>
