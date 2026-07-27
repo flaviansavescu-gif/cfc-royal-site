@@ -35,10 +35,9 @@ export const FAPTE = {
   "confirmare-raspuns": "Răspunsul proprietarului masculului",
   "confirmare-alternativa": "Confirmare acceptată pe dovadă alternativă",
   // Certificate și ascendență
-  // (anularea unui certificat emis NU are încă mecanism în registru, deși paginile o
-  //  anunță ca urmare a datelor false — de aceea nu există aici o faptă pe care
-  //  nimeni n-o scrie. Se adaugă odată cu acțiunea.)
   "certificat-emis": "Certificat de origine emis",
+  "certificat-anulat": "Certificat ANULAT",
+  "certificat-restabilit": "Anulare revocată (certificat repus în vigoare)",
   "ascendenta-modificata": "Ascendență modificată",
   "numar-wdf": "Număr WDF de cuib înregistrat",
   "numar-wdf-caine": "Număr WDF individual înregistrat",

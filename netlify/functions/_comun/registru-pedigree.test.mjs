@@ -1,7 +1,9 @@
 // Teste pentru ascendență și tipul certificatului — regulile care decid ce document
 // primește omul în mână. Rulează: node netlify/functions/_comun/registru-pedigree.test.mjs
-import handler, { pozitiiAscendenta, etichetaPozitie, tipCertificat, WDF_ULTIMUL_PE_HARTIE }
-  from "../registru-pedigree.mjs";
+import handler, {
+  pozitiiAscendenta, etichetaPozitie, tipCertificat, WDF_ULTIMUL_PE_HARTIE,
+  schimbaValabilitatea, MOTIV_MINIM,
+} from "../registru-pedigree.mjs";
 
 let ok = 0, rau = 0;
 const t = (n, c, info) => { if (c) { ok++; console.log("  ok  " + n); } else { rau++; console.log("  RAU " + n + (info != null ? " -> " + info : "")); } };
@@ -79,6 +81,52 @@ console.log("— fisa publica a cainelui —");
 // inexistente (404) si poarta pentru numarul WDF se verifica pe situl publicat.
 const p1 = await cere({ actiune: "caine" });
 t("cautare fara referinta -> 400", p1.status === 400, p1.status);
+
+console.log("— anularea unui certificat emis —");
+{
+  const emis = () => ({
+    serie: "CFCR-P-2026-0001", tip: "A", anulat: false,
+    caine: { nume: "Rex", rasa: "Ciobănesc German" },
+    crescator: { nume: "Ion Popescu" },
+    ascendenta: { T: { nume: "Tata" }, M: { nume: "Mama" } },
+  });
+
+  const fara = schimbaValabilitatea(emis(), { anuleaza: true, motiv: "fals" });
+  t("motiv prea scurt -> refuzat", !!fara.eroare && !fara.cert, fara.eroare);
+  t(`pragul motivului e ${MOTIV_MINIM}`, MOTIV_MINIM === 10, MOTIV_MINIM);
+
+  const a = schimbaValabilitatea(emis(), {
+    anuleaza: true, motiv: "Microcipul declarat nu corespunde cu exemplarul",
+    deCatre: "administrator", acum: "2026-08-01T10:00:00.000Z",
+  });
+  t("anularea marcheaza actul, nu-l sterge", a.cert && a.cert.anulat === true && a.cert.serie === "CFCR-P-2026-0001");
+  t("ascendenta ramane in act", !!(a.cert && a.cert.ascendenta && a.cert.ascendenta.T));
+  t("motivul si autorul se pastreaza", a.cert.anulare.motiv.startsWith("Microcipul") && a.cert.anulare.deCatre === "administrator");
+  t("istoricul are o intrare", a.cert.anulariIstoric.length === 1 && a.cert.anulariIstoric[0].fapta === "anulare");
+
+  const dinNou = schimbaValabilitatea(a.cert, { anuleaza: true, motiv: "acelasi lucru inca o data" });
+  t("un act deja anulat nu se anuleaza a doua oara", !!dinNou.eroare, dinNou.eroare);
+
+  const r = schimbaValabilitatea(a.cert, {
+    anuleaza: false, motiv: "Anularea a fost o eroare de secretariat",
+    deCatre: "administrator", acum: "2026-08-02T10:00:00.000Z",
+  });
+  t("repunerea in vigoare sterge steagul", r.cert.anulat === false && r.cert.anulare === null);
+  t("istoricul pastreaza AMBELE fapte", r.cert.anulariIstoric.length === 2 &&
+    r.cert.anulariIstoric[1].fapta === "restabilire", JSON.stringify(r.cert.anulariIstoric.map((x) => x.fapta)));
+  t("motivul anularii ramane in istoric dupa repunere",
+    r.cert.anulariIstoric[0].motiv.startsWith("Microcipul"));
+
+  const r2 = schimbaValabilitatea(r.cert, { anuleaza: false, motiv: "nu era anulat oricum" });
+  t("un act neanulat nu se repune in vigoare", !!r2.eroare, r2.eroare);
+
+  t("certificat inexistent -> eroare", !!schimbaValabilitatea(null, { anuleaza: true, motiv: "orice motiv lung" }).eroare);
+
+  // Obiectul primit nu trebuie modificat: apelantul decide ce scrie in magazie.
+  const original = emis();
+  schimbaValabilitatea(original, { anuleaza: true, motiv: "un motiv suficient de lung" });
+  t("obiectul primit ramane neatins", original.anulat === false && original.anulariIstoric === undefined);
+}
 
 console.log(`\n${ok} trecute, ${rau} căzute`);
 process.exit(rau ? 1 : 0);

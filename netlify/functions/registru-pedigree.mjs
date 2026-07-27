@@ -33,7 +33,9 @@ import QRCode from "qrcode";
 import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { membruDinCod, registratorDinCod } from "./registru-acces.mjs";
-import { jurnalizeaza, actorJurnal, ipCerere } from "./_comun/registru-jurnal.mjs";
+import {
+  jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, ipCerere,
+} from "./_comun/registru-jurnal.mjs";
 
 const store = () => getStore("registru");
 
@@ -128,6 +130,45 @@ async function cine(cod) {
 }
 
 const potVerifica = (eu) => eu.rol === "registratura" || eu.rol === "admin";
+
+/** Motivul cel mai scurt acceptat la anulare. „Fals" nu e un motiv, e o etichetă. */
+export const MOTIV_MINIM = 10;
+
+/**
+ * Schimbă valabilitatea unui certificat emis — regulile, fără magazie.
+ *
+ * Certificatul NU se șterge și NU se rescrie: actul există, e tipărit și e în mâna
+ * cuiva. Se marchează, cu motiv, dată și autor, iar fiecare schimbare se adaugă la
+ * istoric — inclusiv repunerile în vigoare. Cine caută mai târziu trebuie să vadă tot
+ * drumul, nu doar ultima stare.
+ *
+ * @returns {{eroare: string} | {cert: object}}
+ */
+export function schimbaValabilitatea(cert, { anuleaza, motiv, deCatre, acum } = {}) {
+  if (!cert) return { eroare: "Certificat inexistent." };
+  const m = String(motiv == null ? "" : motiv).trim();
+  if (m.length < MOTIV_MINIM)
+    return { eroare: `Scrie motivul, pe scurt dar limpede (cel puțin ${MOTIV_MINIM} caractere).` };
+  if (anuleaza && cert.anulat) return { eroare: "Certificatul e deja anulat." };
+  if (!anuleaza && !cert.anulat) return { eroare: "Certificatul nu e anulat." };
+
+  const la = acum || new Date().toISOString();
+  const cine = String(deCatre || "").slice(0, 120) || "administrator";
+  const istoric = Array.isArray(cert.anulariIstoric) ? [...cert.anulariIstoric] : [];
+  istoric.push({ fapta: anuleaza ? "anulare" : "restabilire", motiv: m, la, deCatre: cine });
+
+  return {
+    cert: {
+      ...cert,
+      anulat: !!anuleaza,
+      // Motivul rămâne în registru, dar NU se publică: verificarea publică spune doar
+      // că actul e anulat. Motivul poate numi o persoană, iar o pagină deschisă de
+      // oricine nu e locul unde se pun acuzații.
+      anulare: anuleaza ? { motiv: m, la, deCatre: cine } : null,
+      anulariIstoric: istoric,
+    },
+  };
+}
 
 /** Serie unică, cu același mecanism ca la declarații: marcaj înainte de returnare. */
 async function serieNoua(an) {
@@ -265,6 +306,70 @@ export default cuLimitareCod(async (req) => {
   const eu = await cine(cod);
   if (!eu) return json({ eroare: "Cod incorect." }, 401);
   const s = store();
+
+  // —— Anularea unui certificat emis ——
+  //
+  // Formularul de declarație și pagina registrului spun, amândouă, că declararea de date
+  // false atrage anularea documentelor eliberate. Până acum era o promisiune fără
+  // mecanism: steagul `anulat` se scria `false` la emitere și nu-l mai schimba nimic.
+  //
+  // Certificatul NU se șterge și NU se rescrie. Un act eliberat există: e tipărit, e în
+  // mâna cuiva, poate fi arătat oricând. Se marchează anulat, cu motiv, dată și autor —
+  // iar fișa publică și verificarea prin cod QR arată asta pe loc. Cine scanează codul
+  // de pe hârtie trebuie să afle adevărul, nu să nu găsească nimic.
+  //
+  // Doar administratorul: e cea mai grea faptă din registru după ștergere.
+  if (actiune === "certificat-anuleaza" || actiune === "certificat-restabileste") {
+    if (eu.rol !== "admin")
+      return json({ eroare: "Doar administratorul poate anula sau repune în vigoare un certificat." }, 403);
+    const serie = taie(body.serie, 40).toUpperCase();
+    const motiv = taie(body.motiv, 600);
+    const c = await s.get("pedigree/" + serie, { type: "json" }).catch(() => null);
+    if (!c) return json({ eroare: "Certificat inexistent." }, 404);
+
+    const anuleaza = actiune === "certificat-anuleaza";
+    const cine = eu.rol === "admin" ? "administrator" : (eu.registrator?.nume || "registratură");
+    const rez = schimbaValabilitatea(c, { anuleaza, motiv, deCatre: cine });
+    if (rez.eroare) return json({ eroare: rez.eroare }, rez.eroare.startsWith("Scrie") ? 400 : 409);
+
+    // Urma se scrie ÎNAINTE. Un act care își schimbă valabilitatea fără să se știe cine
+    // a hotărât și de ce nu e mai bun decât unul fals.
+    try {
+      await jurnalizeazaObligatoriu(s, {
+        fapta: anuleaza ? "certificat-anulat" : "certificat-restabilit",
+        actor: actorJurnal(eu),
+        obiect: serie,
+        detalii: `${c.caine?.nume || ""} (${c.caine?.rasa || ""}), crescător ${c.crescator?.nume || ""}` +
+          `, emis ${String(c.emis || "").slice(0, 10)} — motiv: ${motiv}`,
+        ip: ipCerere(req),
+      });
+    } catch (err) {
+      console.error("Jurnalul nu a putut fi scris; certificatul a rămas neschimbat:", err);
+      return json({ eroare: "Nu am putut consemna fapta în jurnal, deci nu am schimbat nimic. Reîncearcă." }, 503);
+    }
+
+    await s.setJSON("pedigree/" + serie, rez.cert);
+    return json({ ok: true, serie, anulat: anuleaza });
+  }
+
+  // Starea unui certificat, pentru panoul de administrare: cât să poți hotărî în
+  // cunoștință de cauză înainte de a anula, fără să încarci tot certificatul cu QR.
+  if (actiune === "certificat-stare") {
+    if (!potVerifica(eu)) return json({ eroare: "Nepermis." }, 403);
+    const serie = taie(body.serie, 40).toUpperCase();
+    const c = await s.get("pedigree/" + serie, { type: "json" }).catch(() => null);
+    if (!c) return json({ eroare: "Nu există niciun certificat cu această serie." }, 404);
+    return json({
+      certificat: {
+        serie: c.serie, tip: c.tip, emis: c.emis, emisDe: c.emisDe || "",
+        numarWDF: c.numarWDF, numarWDFCaine: c.numarWDFCaine || null,
+        caine: { nume: c.caine?.nume, rasa: c.caine?.rasa, microcip: c.caine?.microcip },
+        crescator: c.crescator?.nume || "",
+        anulat: !!c.anulat,
+        anulare: c.anulare || null,
+      },
+    });
+  }
 
   // —— Numărul WDF individual al câinelui ——
   // Nu se generează: îl atribuie World Dog Federation la înregistrarea cuibului în baza
