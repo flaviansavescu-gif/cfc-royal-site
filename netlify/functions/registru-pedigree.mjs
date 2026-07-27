@@ -30,7 +30,7 @@
 // POST { actiune:"verifica", serie }                           PUBLIC — date minime
 import { getStore } from "@netlify/blobs";
 import QRCode from "qrcode";
-import { actorDinCod } from "./_comun/roluri.mjs";
+import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { membruDinCod, registratorDinCod } from "./registru-acces.mjs";
 
@@ -93,6 +93,29 @@ export function tipCertificat(ascendenta) {
   return { tip: lipsa.length ? "B" : "A", lipsa };
 }
 
+/**
+ * Codul public al unui proprietar (P-000115), în locul numelui.
+ *
+ * Pe fișa publică a câinelui, crescătorul apare cu numele și afixul — creșterea e o
+ * activitate publică, asumată. Proprietarul unui câine de companie nu: el apare printr-un
+ * cod stabil, care permite să vezi că mai multe exemplare au același stăpân, fără să
+ * afli cine e. Aceeași alegere o face și baza World Dog Federation.
+ */
+async function codProprietar(nume, localitate) {
+  const identitate = (taie(nume, 120) + "|" + taie(localitate, 120)).toLowerCase();
+  if (!identitate.replace("|", "")) return null;
+  const s = store();
+  const cheie = "proprietar-cod/" + sha256(identitate);
+  const existent = await s.get(cheie, { type: "json" }).catch(() => null);
+  if (existent?.cod) return existent.cod;
+  const c = await s.get("contor/proprietar", { type: "json" }).catch(() => null);
+  const urm = (c?.ultim || 0) + 1;
+  const cod = "P-" + String(urm).padStart(6, "0");
+  await s.setJSON("contor/proprietar", { ultim: urm });
+  await s.setJSON(cheie, { cod });
+  return cod;
+}
+
 /** Cine cere. */
 async function cine(cod) {
   if (actorDinCod(cod)?.rol === "admin") return { rol: "admin" };
@@ -149,10 +172,119 @@ export default cuLimitareCod(async (req) => {
     });
   }
 
+  // —— Fișa publică a unui câine ——
+  // Se caută după seria certificatului, numărul WDF individual sau microcip: numele se
+  // repetă între canise, celelalte nu. Fără cod de acces — o carte de origini care nu
+  // se poate consulta nu ajută pe nimeni.
+  if (actiune === "caine") {
+    const cautat = taie(body.cautat, 60).toUpperCase();
+    if (!cautat) return json({ eroare: "Scrie seria, numărul WDF sau microcipul." }, 400);
+    const s0 = store();
+
+    let cert = await s0.get("pedigree/" + cautat, { type: "json" }).catch(() => null);
+    if (!cert) {
+      const dupaCaine = await s0.get("pedigree-caine/" + cautat.replace(/[\s-]/g, ""), { type: "json" }).catch(() => null);
+      if (dupaCaine?.serie) cert = await s0.get("pedigree/" + dupaCaine.serie, { type: "json" }).catch(() => null);
+    }
+    if (!cert) {
+      const dupaWdf = await s0.get("pedigree-wdf/" + cautat, { type: "json" }).catch(() => null);
+      if (dupaWdf?.serie) cert = await s0.get("pedigree/" + dupaWdf.serie, { type: "json" }).catch(() => null);
+    }
+    if (!cert)
+      return json({
+        eroare: "Niciun câine cu această referință în registrul CFC-Royal. " +
+          "Dacă numărul aparține altui registru (COR, ROI, LOE, RKF…), exemplarul poate apărea " +
+          "în ascendența câinilor noștri, dar fișa lui se ține la registrul care l-a emis.",
+      }, 404);
+
+    // Frații de cuib: ceilalți pui din aceeași declarație.
+    const frati = [];
+    try {
+      const { blobs } = await s0.list({ prefix: "pedigree-cuib/" + cert.dmfId + "/" });
+      for (const b of blobs) {
+        const x = await s0.get(b.key, { type: "json" });
+        if (x && x.serie !== cert.serie) frati.push(x);
+      }
+    } catch (err) { console.error("Listare frați eșuată:", err); }
+
+    // Descendenții: declarațiile în care acest exemplar apare ca părinte. Legătura se
+    // face pe MICROCIP, nu pe nume — numele se pot scrie în zece feluri, cipul nu.
+    const descendenti = [];
+    const cip = String(cert.caine.microcip || "").replace(/[\s-]/g, "");
+    if (cip) {
+      try {
+        const { blobs } = await s0.list({ prefix: "dmf/" });
+        for (const b of blobs) {
+          const d = await s0.get(b.key, { type: "json" });
+          if (!d) continue;
+          const cipT = String(d.mascul?.microcip || "").replace(/[\s-]/g, "");
+          const cipM = String(d.femela?.microcip || "").replace(/[\s-]/g, "");
+          if (cipT !== cip && cipM !== cip) continue;
+          const { blobs: ale } = await s0.list({ prefix: "pedigree-cuib/" + d.id + "/" });
+          const pui = [];
+          for (const x of ale) {
+            const c2 = await s0.get(x.key, { type: "json" });
+            if (c2) pui.push(c2);
+          }
+          descendenti.push({
+            dmfSerie: d.serie, dataFatarii: d.dataFatarii, rasa: d.rasa,
+            rol: cipT === cip ? "tată" : "mamă",
+            celalaltParinte: cipT === cip ? d.femela?.nume : d.mascul?.nume,
+            pui,
+          });
+        }
+      } catch (err) { console.error("Căutare descendenți eșuată:", err); }
+    }
+
+    // Titlurile vin din Managerul de Expoziții, împinse pe microcip.
+    let titluri = null;
+    if (cip) {
+      try { titluri = await getStore("expozitii").get("titluri/" + cip, { type: "json" }); }
+      catch (err) { console.error("Citire titluri eșuată:", err); }
+    }
+
+    const codProp = await codProprietar(cert.proprietar?.nume, cert.proprietar?.localitate);
+    return json({
+      caine: {
+        serie: cert.serie, tip: cert.tip, numarWDF: cert.numarWDFCaine || null,
+        numarCuib: cert.numarWDF, dmfSerie: cert.dmfSerie,
+        ...cert.caine,
+        crescator: cert.crescator,           // cu nume și afix: creșterea e publică
+        proprietarCod: codProp,              // doar codul: deținerea nu e
+        emis: cert.emis, anulat: !!cert.anulat,
+      },
+      ascendenta: cert.ascendenta || {},
+      pozitii: pozitiiAscendenta().map((p) => ({ ...p, eticheta: etichetaPozitie(p.cod) })),
+      frati, descendenti,
+      titluri: titluri?.titluri || [],
+    });
+  }
+
   const cod = taie(body.cod, 60);
   const eu = await cine(cod);
   if (!eu) return json({ eroare: "Cod incorect." }, 401);
   const s = store();
+
+  // —— Numărul WDF individual al câinelui ——
+  // Nu se generează: îl atribuie World Dog Federation la înregistrarea cuibului în baza
+  // internațională (forma WDF.RO150640L26). Registratura îl trece aici când îl primește.
+  if (actiune === "wdf-caine") {
+    if (!potVerifica(eu)) return json({ eroare: "Nepermis." }, 403);
+    const serie = taie(body.serie, 40).toUpperCase();
+    const numar = taie(body.numarWDFCaine, 40).toUpperCase();
+    const c = await s.get("pedigree/" + serie, { type: "json" }).catch(() => null);
+    if (!c) return json({ eroare: "Certificat inexistent." }, 404);
+    if (numar) {
+      const ocupat = await s.get("pedigree-wdf/" + numar, { type: "json" }).catch(() => null);
+      if (ocupat && ocupat.serie !== serie)
+        return json({ eroare: "Numărul e deja folosit la certificatul " + ocupat.serie + "." }, 409);
+      await s.setJSON("pedigree-wdf/" + numar, { serie });
+    }
+    if (c.numarWDFCaine && c.numarWDFCaine !== numar)
+      await s.delete("pedigree-wdf/" + c.numarWDFCaine).catch(() => {});
+    await s.setJSON("pedigree/" + serie, { ...c, numarWDFCaine: numar || null });
+    return json({ ok: true, numarWDFCaine: numar || null });
+  }
 
   // —— Dosarul pregătit pentru ascendență ——
   if (actiune === "ascendenta") {
@@ -317,7 +449,11 @@ export default cuLimitareCod(async (req) => {
       const { blobs } = await s.list({ prefix: "pedigree-cuib/" + id + "/" });
       for (const b of blobs) {
         const x = await s.get(b.key, { type: "json" });
-        if (x) lista.push({ ...x, index: Number(b.key.split("/").pop()) });
+        if (!x) continue;
+        // Numărul WDF individual se citește din certificat, nu din rezumat: rezumatul e
+        // scris la emitere, iar numărul vine de la World Dog Federation mai târziu.
+        const c = await s.get("pedigree/" + x.serie, { type: "json" }).catch(() => null);
+        lista.push({ ...x, index: Number(b.key.split("/").pop()), numarWDFCaine: c?.numarWDFCaine || "" });
       }
     } catch (err) { console.error("Listare certificate eșuată:", err); }
     lista.sort((a, b) => a.index - b.index);

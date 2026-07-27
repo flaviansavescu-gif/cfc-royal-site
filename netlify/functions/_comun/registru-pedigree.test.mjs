@@ -74,5 +74,11 @@ t("verificare publica fara serie -> 400", g3.status === 400, g3.status);
 const g4 = await handler(new Request("https://x/y", { method: "GET" }), {});
 t("GET -> 405", g4.status === 405, g4.status);
 
+console.log("— fisa publica a cainelui —");
+// Doar cazurile care NU ating stocarea: aici nu exista Blobs. Cautarea unei referinte
+// inexistente (404) si poarta pentru numarul WDF se verifica pe situl publicat.
+const p1 = await cere({ actiune: "caine" });
+t("cautare fara referinta -> 400", p1.status === 400, p1.status);
+
 console.log(`\n${ok} trecute, ${rau} căzute`);
 process.exit(rau ? 1 : 0);

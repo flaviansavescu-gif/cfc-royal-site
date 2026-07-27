@@ -33,6 +33,9 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     <div class="v-rezultat" id="v-rezultat" hidden>
       <p class="v-valid" id="v-valid"></p>
       <table class="v-tabel" id="v-tabel"></table>
+      <p class="v-fisa" id="v-fisa" hidden>
+        <a class="btn btn--outline" href="/caine/">Vezi fișa completă: ascendență, frați de cuib, descendenți →</a>
+      </p>
       <p class="v-nota">
         Verificarea confirmă că seria există în registrul asociației și că datele afișate sunt cele
         înregistrate. Datele proprietarului nu se afișează public. Pentru orice neconcordanță între
@@ -99,6 +102,10 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         rand("Nr. cuib WDF", c.numarWDF);
         rand("Afixul crescătorului", c.afixCrescator);
         rand("Data emiterii", dataRo(c.emis));
+
+        const catreFisa = document.getElementById("v-fisa");
+        catreFisa.hidden = false;
+        catreFisa.querySelector("a").href = "/caine/?r=" + encodeURIComponent(c.serie);
         rezultat.hidden = false;
       } catch (err) {
         eroare.hidden = false;
@@ -139,6 +146,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
   .v-tabel th, .v-tabel td { text-align: left; padding: 0.45rem 0.6rem; font-size: 0.92rem;
     border-bottom: 1px solid var(--color-border); }
   .v-tabel th { color: var(--color-primary); width: 42%; font-weight: 600; }
+  .v-fisa[hidden] { display: none; }
+  .v-fisa { margin-top: 1.2rem; }
   .v-nota { font-size: 0.85rem; color: var(--color-text-muted); margin-top: 1.2rem; }
   .v-nota a { color: var(--color-accent-dark); }
 </style>

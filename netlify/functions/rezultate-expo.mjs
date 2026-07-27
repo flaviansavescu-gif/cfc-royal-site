@@ -36,6 +36,26 @@ export default async (req) => {
       });
       return json({ ok: true });
     }
+    // Titlurile per câine, pentru fișa din cartea de origini (/caine/).
+    // Cheia e MICROCIPUL, nu numele: numele se scrie în zece feluri, cipul nu. Pagina
+    // publică a expoziției rămâne cum a fost — aici se împinge doar palmaresul, ca să
+    // apară pe fișa exemplarului alături de ascendență.
+    if (body.actiune === "titluri") {
+      const microcip = String(body.microcip || "").replace(/[\s-]/g, "").slice(0, 30);
+      if (!/^\d{10}$|^\d{15}$/.test(microcip)) return json({ eroare: "Microcip invalid." }, 400);
+      const titluri = Array.isArray(body.titluri) ? body.titluri.slice(0, 200).map((t) => ({
+        titlu: String(t?.titlu || "").slice(0, 60),
+        expozitie: String(t?.expozitie || "").slice(0, 160),
+        data: String(t?.data || "").slice(0, 10),
+        arbitru: String(t?.arbitru || "").slice(0, 120),
+        clasa: String(t?.clasa || "").slice(0, 60),
+      })) : [];
+      await store.setJSON("titluri/" + microcip, {
+        titluri, nume: String(body.nume || "").slice(0, 120), actualizat: new Date().toISOString(),
+      });
+      return json({ ok: true, microcip, titluri: titluri.length });
+    }
+
     if (body.actiune === "retrage") {
       await store.delete("rezultate/" + String(body.showId || ""));
       return json({ ok: true });
