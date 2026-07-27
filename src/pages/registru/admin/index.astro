@@ -34,6 +34,19 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     <span>Registrele sunt separate: aici sunt membrii și registratura, acolo candidații, lectorii și arbitrii.</span>
   </p>
 
+  <h2 class="a-h2">Copie de siguranță</h2>
+  <p class="a-note">
+    Registrul trăiește într-un singur loc. Butonul descarcă <strong>tot</strong> —
+    declarații, certificate, scanurile încărcate — într-o arhivă ZIP obișnuită, care se
+    deschide cu orice program, fără parolă și fără acest site. Ține una pe un disc al tău.
+    În plus, duminică noaptea pleacă automat o copie criptată pe ramura privată
+    <code>backup-registru</code>.
+  </p>
+  <p class="a-copie">
+    <button class="btn btn--primary" type="button" id="a-export">⬇ Descarcă registrul</button>
+    <span class="a-stare" id="a-export-stare"></span>
+  </p>
+
   <h2 class="a-h2">Solicitări de acces</h2>
   <p class="a-note">
     Vin din formularul de pe pagina de intrare. Verifică întâi calitatea de membru și cotizația;
@@ -182,6 +195,48 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
         });
       } catch (e) { ul.innerHTML = "<li class='a-gol'>Nu am putut încărca lista.</li>"; }
     }
+
+    // —— Descărcarea registrului ——
+    // Arhiva vine ca fișier binar, nu ca JSON, deci n-o putem trece prin `cere()`.
+    document.getElementById("a-export").addEventListener("click", async (e) => {
+      const b = e.target;
+      const stare = document.getElementById("a-export-stare");
+      b.disabled = true; b.textContent = "Se pregătește…";
+      stare.className = "a-stare";
+      stare.textContent = "Poate dura câteva zeci de secunde, dacă sunt multe scanuri.";
+      try {
+        const res = await fetch("/.netlify/functions/registru-export", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cod: codAdmin() }),
+        });
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          throw new Error(d.eroare || "Exportul a eșuat.");
+        }
+        const inreg = res.headers.get("X-Registru-Inregistrari") || "?";
+        const fis = res.headers.get("X-Registru-Fisiere") || "?";
+        const omise = Number(res.headers.get("X-Registru-Omise") || 0);
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "registru-cfcr-" + new Date().toISOString().slice(0, 10) + ".zip";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 30000);
+
+        stare.className = "a-stare " + (omise ? "is-atentie" : "is-bun");
+        stare.textContent = "✓ " + inreg + " înregistrări, " + fis + " fișiere, " +
+          (blob.size / 1048576).toFixed(1) + " MB" +
+          (omise ? " — ATENȚIE: " + omise + " fișiere n-au încăput; vezi CUPRINS.md din arhivă." : ".");
+      } catch (err) {
+        stare.className = "a-stare is-rau";
+        stare.textContent = err.message;
+      }
+      b.disabled = false; b.textContent = "⬇ Descarcă registrul";
+    });
 
     // Solicitările vin din formularul public. Textul e scris de străini, deci NUMAI
     // textContent — un nume cu marcaj HTML n-are ce executa în pagina administratorului.
@@ -412,6 +467,11 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
   .a-meta { font-size: 0.82rem; color: var(--color-text-muted); display: block; }
   .a-mesaj { display: block; font-size: 0.85rem; color: var(--color-text); font-style: italic;
     margin-top: 0.25rem; max-width: 34rem; }
+  .a-copie { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .a-stare { font-size: 0.85rem; color: var(--color-text-muted); }
+  .a-stare.is-bun { color: var(--color-primary); font-weight: 600; }
+  .a-stare.is-atentie { color: var(--color-accent-dark); font-weight: 600; }
+  .a-stare.is-rau { color: #8c1d2f; font-weight: 600; }
   .a-cotizatie { font-size: 0.82rem; display: block; margin-top: 0.15rem; font-weight: 600; }
   .a-cotizatie.is-ok { color: var(--color-primary); }
   .a-cotizatie.is-expirat { color: #8c1d2f; }

@@ -9,6 +9,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { execFileSync } from "node:child_process";
 
 // fileURLToPath, nu `.pathname`: calea proiectului conține diacritice și spații, care
 // într-un URL apar procentate (Asocia%C8%9Bia) și nu mai există pe disc.
@@ -66,9 +67,41 @@ for (const f of fisiere(RADACINA)) {
   }
 }
 
+// —— Modulele .mjs: funcțiile Netlify și uneltele din scripts/ ——
+//
+// Aceeași greșeală a apărut și acolo, într-un loc mult mai rău: în unealta care
+// DESCIFREAZĂ copiile de siguranță. Ar fi ieșit la iveală exact în ziua în care omul
+// avea nevoie de ea. Verificarea de aici nu execută nimic — doar cere lui Node să
+// analizeze fișierul (`--check`), ceea ce prinde erorile de sintaxă fără efecte.
+const PROIECT = join(dirname(fileURLToPath(import.meta.url)), "..");
+let module = 0;
+function moduleDin(dir) {
+  const out = [];
+  for (const n of readdirSync(dir)) {
+    if (n === "node_modules" || n.startsWith(".")) continue;
+    const p = join(dir, n);
+    if (statSync(p).isDirectory()) out.push(...moduleDin(p));
+    else if (n.endsWith(".mjs")) out.push(p);
+  }
+  return out;
+}
+for (const dir of ["netlify/functions", "scripts"]) {
+  let lista = [];
+  try { lista = moduleDin(join(PROIECT, dir)); } catch { continue; }
+  for (const f of lista) {
+    module++;
+    try {
+      execFileSync(process.execPath, ["--check", f], { stdio: "pipe" });
+    } catch (err) {
+      const mesaj = String(err.stderr || err.message).split("\n").find((l) => l.includes("Error")) || "eroare de sintaxă";
+      probleme.push({ fisier: relative(PROIECT, f), linie: "—", mesaj: mesaj.trim() });
+    }
+  }
+}
+
 for (const p of probleme) console.log(`  ROU  ${p.fisier}:${p.linie} — ${p.mesaj}`);
 console.log(
-  `${verificate} scripturi is:inline verificate, ${sarite} sărite (module, define:vars, JSON), ` +
-  `${probleme.length} cu erori de sintaxă`
+  `${verificate} scripturi is:inline + ${module} module .mjs verificate, ` +
+  `${sarite} sărite (module Astro, define:vars, JSON), ${probleme.length} cu erori de sintaxă`
 );
 process.exit(probleme.length ? 1 : 0);
