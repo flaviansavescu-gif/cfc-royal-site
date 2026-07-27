@@ -47,6 +47,20 @@ const protejat = allowList.length > 0 || candidatOk;
           let r = null;
           try { r = JSON.parse(localStorage.getItem("cfcrRol") || "null"); } catch (e) {}
 
+          // Rolurile cu drepturi de administrare expiră după 12 ore, ca în registru și
+          // ca sesiunea managerului. Candidații și arbitrii NU: ei doar învață și își
+          // văd propriul dosar, iar un termen scurt i-ar goni de la studiu. La expirare
+          // se șterge doar rolul — codul se scrie din nou și gata.
+          if (r && (r.rol === "admin" || r.rol === "lector")) {
+            const la = Date.parse(localStorage.getItem("cfcrRolLa") || "");
+            if (!Number.isFinite(la) || Date.now() - la > 12 * 3600e3) {
+              localStorage.removeItem("cfcrRol");
+              localStorage.removeItem("cfcrRolLa");
+              localStorage.removeItem("cfcrAccesCod");
+              r = null;
+            }
+          }
+
           if (r && r.rol) {
             if (r.rol === "admin") ok = true;                                   // adminul intră peste tot
             else if (r.rol === "lector") {
@@ -101,6 +115,7 @@ const protejat = allowList.length > 0 || candidatOk;
         document.getElementById("c-logout")?.addEventListener("click", () => {
           try {
             localStorage.removeItem("cfcrRol");
+            localStorage.removeItem("cfcrRolLa");
             localStorage.removeItem("cfcrAcces"); // cheie veche (curățare)
             localStorage.removeItem("cfcrAccesCod");
             localStorage.removeItem("cfcrCandidat");

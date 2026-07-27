@@ -42,6 +42,28 @@ const protejat = allowList.length > 0;
           let ok = false;
           let r = null;
           try { r = JSON.parse(localStorage.getItem("cfcrRegistru") || "null"); } catch (e) {}
+
+          // EXPIRAREA. Codul stătea în browser la nesfârșit: pe un calculator comun,
+          // „am intrat o dată" însemna „am intrat pentru totdeauna". Rolurile grele
+          // expiră după 12 ore (ca sesiunea managerului de expoziții); membrii după
+          // 30 de zile — un crescător depune rar, iar retastarea codului la fiecare
+          // vizită l-ar alunga de la formular.
+          //
+          // La expirare se șterge CODUL, nu și jetonul de dispozitiv: reintrarea cere
+          // doar codul, fără încă un drum la e-mail. Autoritatea reală rămâne oricum pe
+          // server — asta doar scoate cheile uitate din browserele uitate.
+          if (r && r.rol) {
+            const greu = r.rol === "admin" || r.rol === "registratura";
+            const termen = greu ? 12 * 3600e3 : 30 * 24 * 3600e3;
+            const la = Date.parse(localStorage.getItem("cfcrRegistruLa") || "");
+            if (!Number.isFinite(la) || Date.now() - la > termen) {
+              localStorage.removeItem("cfcrRegistru");
+              localStorage.removeItem("cfcrRegistruCod");
+              localStorage.removeItem("cfcrRegistruLa");
+              r = null;
+            }
+          }
+
           if (r && r.rol) {
             if (r.rol === "admin") ok = true;             // adminul intră peste tot
             else ok = allow.includes(r.rol);
@@ -84,6 +106,7 @@ const protejat = allowList.length > 0;
           try {
             localStorage.removeItem("cfcrRegistru");
             localStorage.removeItem("cfcrRegistruCod");
+            localStorage.removeItem("cfcrRegistruLa");
             // Și jetonul de dispozitiv: „Ieșire" pe un calculator din secretariat sau
             // dintr-o sală trebuie să șteargă TOT. Reintrarea costă un e-mail, nu o zi.
             localStorage.removeItem("cfcrRegistruDispozitiv");

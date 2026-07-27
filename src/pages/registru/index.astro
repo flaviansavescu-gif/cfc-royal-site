@@ -99,6 +99,9 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     function tineMinte(d, cod) {
       localStorage.setItem("cfcrRegistru", JSON.stringify(d));
       localStorage.setItem("cfcrRegistruCod", cod);
+      // Momentul intrării — de la el se numără expirarea (12 ore pentru rolurile
+      // grele, 30 de zile pentru membri; regula stă în RegistruLayout).
+      localStorage.setItem("cfcrRegistruLa", new Date().toISOString());
       // Jetonul de dispozitiv însoțește de acum fiecare cerere privilegiată. Fără el,
       // serverul refuză — chiar dacă are codul bun.
       if (d.dispozitiv) localStorage.setItem("cfcrRegistruDispozitiv", d.dispozitiv);
