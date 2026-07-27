@@ -28,4 +28,7 @@
 .c-logout:hover { background: rgba(216, 190, 115, 0.12); }
 .c-main { max-width: 62rem; margin-inline: auto; padding: 2rem 1.25rem 3.5rem; }
 .c-footer { border-top: 1px solid var(--color-border); padding: 1.25rem; text-align: center; }
-.c-footer p { margin: 0; font-size: 0.85rem; color: var(--color-text-muted); }
+/* `p, li { max-width: 70ch }` din global.css ține paragraful îngust — bun pentru citit,
+   dar în subsol cutia rămânea lipită de marginea din stânga, sub coloana de conținut.
+   Îi dăm lățimea coloanei și margini automate, ca rândul să stea centrat pe pagină. */
+.c-footer p { margin: 0 auto; max-width: 62rem; font-size: 0.85rem; color: var(--color-text-muted); }
