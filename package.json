@@ -8,8 +8,8 @@
     "dev": "astro dev",
     "start": "astro dev",
     "verifica": "node scripts/verifica-scripturi.mjs",
-  "prebuild": "node scripts/verifica-scripturi.mjs",
-  "build": "astro build",
+    "prebuild": "node scripts/verifica-scripturi.mjs",
+    "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "postbuild": "pagefind --site dist"
@@ -19,6 +19,7 @@
     "@netlify/blobs": "^10.7.9",
     "astro": "^5.7.0",
     "opentype.js": "^2.0.0",
+    "qrcode": "^1.5.4",
     "sharp": "^0.35.3"
   },
   "devDependencies": {

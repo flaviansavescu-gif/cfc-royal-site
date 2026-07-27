@@ -1,0 +1,144 @@
+---
+// /verifica-pedigree/?s=CFCR-P-2026-0001 — verificarea publică a unui certificat.
+//
+// Ținta codului QR de pe act. Fără cod de acces: oricine ține certificatul în mână —
+// un cumpărător, un arbitru la intrarea în ring, o altă asociație — trebuie să poată
+// afla în două secunde dacă e real.
+//
+// Se arată DOAR identitatea câinelui și tipul certificatului. Numele și adresa
+// proprietarului nu au ce căuta la o adresă publică pe care o poate deschide oricine
+// fotografiază un act. Afixul crescătorului se arată: e numele unei canise, public prin
+// natura lui.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout lang="ro" title="Verificarea certificatului de origine" description="Verifică autenticitatea unui Certificat de Origine emis de Asociația Club Federal Chinologic Royal.">
+  <section class="v-sect">
+    <p class="v-eyebrow">Registrul genealogic</p>
+    <h1 class="v-title">Verificarea certificatului</h1>
+    <p class="v-sub">
+      Scrie seria de pe certificat sau scanează codul QR de pe act. Verificarea arată datele
+      de identificare ale câinelui, așa cum sunt înregistrate la asociație.
+    </p>
+
+    <form class="v-form" id="v-form">
+      <label for="v-serie">Seria certificatului</label>
+      <input id="v-serie" name="serie" type="text" placeholder="ex. CFCR-P-2026-0001"
+             autocomplete="off" spellcheck="false" required />
+      <button class="btn btn--primary" type="submit">Verifică</button>
+    </form>
+
+    <p class="v-eroare" id="v-eroare" role="alert" hidden></p>
+
+    <div class="v-rezultat" id="v-rezultat" hidden>
+      <p class="v-valid" id="v-valid"></p>
+      <table class="v-tabel" id="v-tabel"></table>
+      <p class="v-nota">
+        Verificarea confirmă că seria există în registrul asociației și că datele afișate sunt cele
+        înregistrate. Datele proprietarului nu se afișează public. Pentru orice neconcordanță între
+        actul tipărit și această pagină, scrie la
+        <a href="mailto:contact@cfc-royal.ro">contact@cfc-royal.ro</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  (function () {
+    const F = "/.netlify/functions/registru-pedigree";
+    const form = document.getElementById("v-form");
+    const input = document.getElementById("v-serie");
+    const eroare = document.getElementById("v-eroare");
+    const rezultat = document.getElementById("v-rezultat");
+
+    const el = (tag, cls, text) => {
+      const x = document.createElement(tag);
+      if (cls) x.className = cls;
+      if (text != null) x.textContent = text;
+      return x;
+    };
+    const dataRo = (s) => { const x = new Date(s); return isNaN(x) ? String(s || "") : x.toLocaleDateString("ro-RO"); };
+
+    async function verifica(serie) {
+      eroare.hidden = true;
+      rezultat.hidden = true;
+      const btn = form.querySelector("button[type=submit]");
+      btn.disabled = true; btn.textContent = "Se verifică…";
+      try {
+        const r = await fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ actiune: "verifica", serie }) });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.eroare || "Verificarea a eșuat.");
+        const c = d.certificat;
+
+        const valid = document.getElementById("v-valid");
+        if (c.anulat) {
+          valid.className = "v-valid is-anulat";
+          valid.textContent = "⚠ Certificatul " + c.serie + " a fost ANULAT.";
+        } else {
+          valid.className = "v-valid is-bun";
+          valid.textContent = "✓ Certificatul " + c.serie + " este înregistrat și valabil.";
+        }
+
+        const t = document.getElementById("v-tabel");
+        t.textContent = "";
+        const rand = (a, b) => {
+          const tr = document.createElement("tr");
+          tr.appendChild(el("th", null, a));
+          tr.appendChild(el("td", null, b || "—"));
+          t.appendChild(tr);
+        };
+        rand("Tipul certificatului", "Tip " + c.tip +
+          (c.tip === "A" ? " — ascendență completă pe patru generații" : " — ascendență incompletă"));
+        rand("Numele câinelui", c.caine.nume);
+        rand("Rasa", c.caine.rasa + (c.caine.varietate ? " · " + c.caine.varietate : ""));
+        rand("Sexul", c.caine.sex === "M" ? "mascul" : "femelă");
+        rand("Data nașterii", dataRo(c.caine.dataNasterii));
+        rand("Culoarea", c.caine.culoare);
+        rand("Microcip / tatuaj", c.caine.microcip);
+        rand("Nr. cuib WDF", c.numarWDF);
+        rand("Afixul crescătorului", c.afixCrescator);
+        rand("Data emiterii", dataRo(c.emis));
+        rezultat.hidden = false;
+      } catch (err) {
+        eroare.hidden = false;
+        eroare.textContent = err.message;
+      }
+      btn.disabled = false; btn.textContent = "Verifică";
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const s = input.value.trim().toUpperCase();
+      if (s) verifica(s);
+    });
+
+    // Venit prin QR: seria e deja în adresă, deci verificăm pe loc.
+    const dinAdresa = (new URLSearchParams(location.search).get("s") || "").trim().toUpperCase();
+    if (dinAdresa) { input.value = dinAdresa; verifica(dinAdresa); }
+  })();
+</script>
+
+<style>
+  .v-sect { max-width: 46rem; margin-inline: auto; padding: 3rem 1.25rem 4rem; }
+  .v-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .v-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
+  .v-sub { color: var(--color-text-muted); }
+  .v-form { display: grid; gap: 0.6rem; max-width: 24rem; margin: 2rem 0; }
+  .v-form label { font-weight: 600; color: var(--color-primary); }
+  .v-form input { padding: 0.7rem 0.9rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font-size: 1.02rem; letter-spacing: 0.04em; text-transform: uppercase; }
+  .v-form .btn { justify-self: start; }
+  .v-eroare { padding: 0.7rem 1rem; border-radius: var(--radius);
+    background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; }
+  .v-eroare[hidden], .v-rezultat[hidden] { display: none; }
+  .v-valid { padding: 0.8rem 1rem; border-radius: var(--radius); font-weight: 700; }
+  .v-valid.is-bun { background: #eef5f0; border: 1px solid var(--color-primary); color: var(--color-primary); }
+  .v-valid.is-anulat { background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; }
+  .v-tabel { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  .v-tabel th, .v-tabel td { text-align: left; padding: 0.45rem 0.6rem; font-size: 0.92rem;
+    border-bottom: 1px solid var(--color-border); }
+  .v-tabel th { color: var(--color-primary); width: 42%; font-weight: 600; }
+  .v-nota { font-size: 0.85rem; color: var(--color-text-muted); margin-top: 1.2rem; }
+  .v-nota a { color: var(--color-accent-dark); }
+</style>

@@ -74,6 +74,13 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       if (!d) { detaliu.appendChild(el("p", "g-gol", "Dosarul nu a putut fi încărcat.")); return; }
 
       detaliu.appendChild(el("h3", "g-dh", d.serie + " — " + d.rasa));
+      const catre = document.createElement("a");
+      catre.className = "btn btn--primary btn--small";
+      catre.href = "/registru/registratura/ascendenta/?id=" + encodeURIComponent(id);
+      catre.textContent = d.numarWDF
+        ? "Ascendența și certificatele (" + d.numarWDF + ") →"
+        : "Ascendența, numărul de cuib și certificatele →";
+      detaliu.appendChild(catre);
       const meta = el("p", "g-dmeta",
         [d.membruNume, "montă " + dataRo(d.dataMontei), "fătare " + dataRo(d.dataFatarii),
          "născuți " + (d.nascutiM + d.nascutiF), "rămași " + d.pui.length,

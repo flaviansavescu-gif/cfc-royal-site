@@ -45,6 +45,11 @@ const probleme = [];
 for (const f of fisiere(RADACINA)) {
   const sursa = readFileSync(f, "utf8");
   for (const s of scripturi(sursa)) {
+    // Verificăm DOAR scripturile `is:inline`: pe acelea Astro le trimite în pagină
+    // exact cum sunt scrise, deci o greșeală de sintaxă ajunge la om. Restul trec prin
+    // Vite, care le compilează (și se plânge singur), și pot conține `import`/`export`
+    // — sintaxă de modul, pe care `new Function` o respinge pe drept.
+    if (!s.atribute.includes("is:inline")) { sarite++; continue; }
     // `define:vars` injectează valori din server: blocul nu e JS de sine stătător.
     // La fel scripturile de tip JSON-LD, care nu sunt cod.
     if (s.atribute.includes("define:vars") || /type=["']application\/(ld\+json|json)["']/.test(s.atribute)) {
@@ -63,7 +68,7 @@ for (const f of fisiere(RADACINA)) {
 
 for (const p of probleme) console.log(`  ROU  ${p.fisier}:${p.linie} — ${p.mesaj}`);
 console.log(
-  `${verificate} scripturi verificate, ${sarite} sărite (define:vars / JSON), ` +
+  `${verificate} scripturi is:inline verificate, ${sarite} sărite (module, define:vars, JSON), ` +
   `${probleme.length} cu erori de sintaxă`
 );
 process.exit(probleme.length ? 1 : 0);

@@ -1,0 +1,300 @@
+---
+// /registru/registratura/ascendenta/?id=… — completarea ascendenței și emiterea certificatelor.
+//
+// Aici se face munca de fond a registraturii: din pedigree-urile celor doi părinți se
+// transcriu cele 30 de poziții ale ascendenței, se atribuie numărul de cuib WDF și se
+// emit certificatele individuale.
+//
+// TIPUL NU SE ALEGE. Se vede în timp real, calculat din câte poziții au nume ȘI număr
+// de înregistrare: 30 din 30 înseamnă Tip A, orice lipsă înseamnă Tip B. Dacă tipul ar
+// fi o bifă, ar deveni o chestiune de indulgență; calculat, e o constatare.
+import RegistruLayout from "../../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Ascendența cuibului" allow={["registratura"]}>
+  <p class="p-eyebrow">Registrul genealogic · Registratura</p>
+  <h1 class="p-title" id="p-titlu">Ascendența cuibului</h1>
+  <p class="p-sub" id="p-sub"></p>
+  <p><a class="btn btn--outline btn--small" href="/registru/registratura/">← Toate dosarele</a></p>
+
+  <p class="p-eroare" id="p-eroare" role="alert" hidden></p>
+
+  <div id="p-continut" hidden>
+    <!-- ——— Numărul de cuib ——— -->
+    <section class="p-sect">
+      <h2 class="p-h2">Numărul de cuib WDF</h2>
+      <p class="p-nota">
+        Se dă o singură dată și nu se mai schimbă: e cheia sub care cuibul intră în baza
+        World Dog Federation. Numerotarea continuă de la cuibul 76, ultimul înregistrat pe hârtie.
+      </p>
+      <p class="p-wdf">
+        <strong id="p-wdf">—</strong>
+        <button class="btn btn--primary btn--small" type="button" id="p-wdf-buton">Atribuie numărul</button>
+      </p>
+    </section>
+
+    <!-- ——— Ascendența ——— -->
+    <section class="p-sect">
+      <h2 class="p-h2">Ascendența pe patru generații</h2>
+      <p class="p-nota">
+        Părinții sunt completați din declarație. Restul se transcriu din pedigree-urile lor.
+        <strong>Numărul de înregistrare</strong> e cel care decide tipul certificatului: o poziție
+        fără număr contează ca lipsă, chiar dacă are nume.
+      </p>
+      <p class="p-tip" id="p-tip">—</p>
+      <div id="p-generatii"></div>
+      <p class="p-actiuni">
+        <button class="btn btn--primary" type="button" id="p-salveaza">Salvează ascendența</button>
+        <span class="p-stare" id="p-stare-salvare"></span>
+      </p>
+    </section>
+
+    <!-- ——— Emiterea ——— -->
+    <section class="p-sect">
+      <h2 class="p-h2">Certificatele de origine</h2>
+      <p class="p-nota">
+        Se emite câte un certificat pentru fiecare pui. Ascendența se îngheață în certificat:
+        dacă dosarul se corectează mai târziu, actul deja tipărit rămâne ce a fost înmânat omului.
+      </p>
+      <ul class="p-pui" id="p-pui"></ul>
+      <p class="p-actiuni">
+        <button class="btn btn--primary" type="button" id="p-emite">Emite certificatele bifate</button>
+        <span class="p-stare" id="p-stare-emitere"></span>
+      </p>
+    </section>
+  </div>
+</RegistruLayout>
+
+<script is:inline>
+  (function () {
+    const F = "/.netlify/functions/registru-pedigree";
+    const id = new URLSearchParams(location.search).get("id") || "";
+    const cod = () => localStorage.getItem("cfcrRegistruCod") || "";
+    const eroare = document.getElementById("p-eroare");
+    const post = (b) => fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ cod: cod() }, b)) });
+
+    // Datele vin din dosarele crescătorilor: doar textContent, niciodată innerHTML.
+    const el = (tag, cls, text) => {
+      const x = document.createElement(tag);
+      if (cls) x.className = cls;
+      if (text != null) x.textContent = text;
+      return x;
+    };
+    function arataEroare(m) { eroare.hidden = false; eroare.textContent = m; }
+
+    if (!id) { arataEroare("Lipsește dosarul. Intră dintr-un dosar din lista registraturii."); return; }
+
+    let pozitii = [];
+    let ascendenta = {};
+    let dosar = null;
+
+    // Tipul se recalculează la fiecare tastă: registratorul vede pe loc ce iese.
+    function recalculeaza() {
+      let complete = 0;
+      for (const p of pozitii) {
+        const a = ascendenta[p.cod];
+        if (a && a.nume && a.nr) complete++;
+      }
+      const t = document.getElementById("p-tip");
+      const total = pozitii.length;
+      const lipsa = total - complete;
+      if (complete === total) {
+        t.className = "p-tip is-a";
+        t.textContent = "Tip A — toate cele " + total + " de poziții au nume și număr de înregistrare.";
+      } else {
+        t.className = "p-tip is-b";
+        t.textContent = "Tip B — " + complete + " din " + total + " de poziții complete. " +
+          (lipsa === 1 ? "Lipsește una." : "Lipsesc " + lipsa + ".");
+      }
+    }
+
+    function campuriPozitie(p) {
+      const box = el("div", "p-poz");
+      box.appendChild(el("span", "p-poz__cod", p.cod));
+      box.appendChild(el("span", "p-poz__eticheta", p.eticheta));
+      const a = ascendenta[p.cod] || {};
+      const camp = (nume, valoare, marcaj) => {
+        const i = document.createElement("input");
+        i.type = "text";
+        i.value = valoare || "";
+        i.placeholder = marcaj;
+        i.className = "p-poz__" + nume;
+        i.addEventListener("input", () => {
+          ascendenta[p.cod] = Object.assign({}, ascendenta[p.cod], { [nume]: i.value.trim() });
+          box.classList.toggle("is-complet",
+            !!(ascendenta[p.cod].nume && ascendenta[p.cod].nr));
+          recalculeaza();
+        });
+        return i;
+      };
+      box.appendChild(camp("nume", a.nume, "numele câinelui"));
+      box.appendChild(camp("nr", a.nr, "nr. înregistrare"));
+      box.appendChild(camp("titluri", a.titluri, "titluri (opțional)"));
+      if (a.nume && a.nr) box.classList.add("is-complet");
+      return box;
+    }
+
+    function deseneazaGeneratii() {
+      const zona = document.getElementById("p-generatii");
+      zona.textContent = "";
+      const NUME = { 1: "Părinți", 2: "Bunici", 3: "Străbunici", 4: "Stră-străbunici" };
+      for (let gen = 1; gen <= 4; gen++) {
+        const set = pozitii.filter((p) => p.generatie === gen);
+        const sect = el("div", "p-gen");
+        sect.appendChild(el("h3", "p-gen__titlu", NUME[gen] + " (" + set.length + ")"));
+        const grid = el("div", "p-gen__grid");
+        for (const p of set) grid.appendChild(campuriPozitie(p));
+        sect.appendChild(grid);
+        zona.appendChild(sect);
+      }
+    }
+
+    function deseneazaPui(certificate) {
+      const ul = document.getElementById("p-pui");
+      ul.textContent = "";
+      dosar.pui.forEach((pu, i) => {
+        const li = el("li", "p-pui__rand");
+        const emis = certificate && certificate[i];
+        if (emis) {
+          li.appendChild(el("strong", null, (pu.sex === "M" ? "♂ " : "♀ ") + pu.nume));
+          li.appendChild(el("span", "p-pui__serie", emis.serie + " · Tip " + emis.tip));
+          const a = document.createElement("a");
+          a.className = "btn btn--outline btn--small";
+          a.href = "/registru/pedigree/?s=" + encodeURIComponent(emis.serie);
+          a.target = "_blank"; a.rel = "noopener";
+          a.textContent = "Deschide certificatul ↗";
+          li.appendChild(a);
+        } else {
+          const lab = document.createElement("label");
+          lab.className = "p-pui__alege";
+          const bifa = document.createElement("input");
+          bifa.type = "checkbox"; bifa.checked = true; bifa.dataset.index = String(i);
+          lab.appendChild(bifa);
+          lab.appendChild(el("span", null, (pu.sex === "M" ? "♂ " : "♀ ") + pu.nume +
+            (pu.identificare ? " · " + pu.identificare : " · fără microcip")));
+          li.appendChild(lab);
+          if (pu.cumparator && pu.cumparator.nume)
+            li.appendChild(el("span", "p-pui__prop", "→ " + pu.cumparator.nume));
+        }
+        ul.appendChild(li);
+      });
+    }
+
+    async function incarca() {
+      const r = await post({ actiune: "ascendenta", id });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) { arataEroare(d.eroare || "Nu am putut încărca dosarul."); return; }
+      dosar = d.dosar;
+      ascendenta = d.ascendenta || {};
+      pozitii = d.pozitii || [];
+      document.getElementById("p-titlu").textContent = dosar.serie + " — " + dosar.rasa;
+      document.getElementById("p-sub").textContent =
+        [dosar.membruNume, dosar.afix ? "afix " + dosar.afix : null,
+         "fătare " + dosar.dataFatarii, dosar.pui.length + " pui",
+         dosar.confirmare === "asteptare" ? "⏳ monta neconfirmată încă" : "monta confirmată"]
+        .filter(Boolean).join(" · ");
+      document.getElementById("p-wdf").textContent = dosar.numarWDF || "neatribuit";
+      document.getElementById("p-wdf-buton").hidden = !!dosar.numarWDF;
+      deseneazaGeneratii();
+      recalculeaza();
+      const rc = await post({ actiune: "certificate-cuib", id });
+      const dc = await rc.json().catch(() => ({}));
+      const dupaIndex = {};
+      for (const c of (dc.certificate || [])) dupaIndex[c.index] = c;
+      deseneazaPui(dupaIndex);
+      document.getElementById("p-continut").hidden = false;
+    }
+
+    document.getElementById("p-wdf-buton").addEventListener("click", async (e) => {
+      const b = e.target;
+      b.disabled = true;
+      try {
+        const r = await post({ actiune: "numar-wdf", id });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.eroare || "Nu am putut atribui numărul.");
+        document.getElementById("p-wdf").textContent = d.numarWDF;
+        b.hidden = true;
+      } catch (err) { b.disabled = false; alert(err.message); }
+    });
+
+    document.getElementById("p-salveaza").addEventListener("click", async (e) => {
+      const b = e.target;
+      const stare = document.getElementById("p-stare-salvare");
+      b.disabled = true; stare.textContent = "se salvează…";
+      try {
+        const r = await post({ actiune: "ascendenta-salveaza", id, ascendenta });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.eroare || "Salvarea a eșuat.");
+        stare.textContent = "✓ salvat — " + d.completate + " poziții, tip " + d.tip;
+      } catch (err) { stare.textContent = err.message; }
+      b.disabled = false;
+    });
+
+    document.getElementById("p-emite").addEventListener("click", async (e) => {
+      const b = e.target;
+      const stare = document.getElementById("p-stare-emitere");
+      const alesi = [...document.querySelectorAll("#p-pui input[type=checkbox]:checked")]
+        .map((x) => ({ index: Number(x.dataset.index) }));
+      if (!alesi.length) { stare.textContent = "Bifează cel puțin un pui."; return; }
+      if (!confirm("Emiți " + alesi.length + " certificate? Seriile alocate nu se mai pot retrage.")) return;
+      b.disabled = true; stare.textContent = "se emit…";
+      try {
+        const r = await post({ actiune: "emite", id, pui: alesi });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.eroare || "Emiterea a eșuat.");
+        stare.textContent = "✓ " + d.emise.length + " certificate de tip " + d.tip;
+        await incarca();
+      } catch (err) { stare.textContent = err.message; }
+      b.disabled = false;
+    });
+
+    incarca();
+  })();
+</script>
+
+<style>
+  .p-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .p-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.2rem; }
+  .p-sub { color: var(--color-text-muted); margin-top: 0; font-size: 0.9rem; }
+  .p-eroare { max-width: 46rem; padding: 0.8rem 1rem; border-radius: var(--radius);
+    background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; }
+  .p-eroare[hidden], #p-continut[hidden] { display: none; }
+  .p-sect { margin-top: 2.25rem; }
+  .p-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 0 0 0.5rem;
+    font-size: 1.3rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem; }
+  .p-nota { color: var(--color-text-muted); font-size: 0.9rem; max-width: 48rem; }
+  .p-wdf { display: flex; align-items: center; gap: 1rem; }
+  .p-wdf strong { font-family: var(--font-mono, monospace); font-size: 1.3rem; color: var(--color-primary); }
+
+  .p-tip { display: inline-block; padding: 0.5rem 1rem; border-radius: var(--radius);
+    font-weight: 700; font-size: 0.95rem; }
+  .p-tip.is-a { background: #eef5f0; border: 1px solid var(--color-primary); color: var(--color-primary); }
+  .p-tip.is-b { background: #fdf6e8; border: 1px solid var(--color-accent-dark); color: var(--color-accent-dark); }
+
+  .p-gen { margin-top: 1.5rem; }
+  .p-gen__titlu { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.05rem; margin: 0 0 0.5rem; }
+  .p-gen__grid { display: grid; gap: 0.5rem; }
+  .p-poz { display: grid; gap: 0.4rem; align-items: center;
+    grid-template-columns: 3.5rem 11rem minmax(10rem, 2fr) minmax(8rem, 1fr) minmax(7rem, 1fr);
+    padding: 0.35rem 0.5rem; border: 1px solid var(--color-border); border-radius: var(--radius); }
+  .p-poz.is-complet { border-color: var(--color-primary); background: #f6faf7; }
+  .p-poz__cod { font-family: var(--font-mono, monospace); font-weight: 700; color: var(--color-primary); font-size: 0.85rem; }
+  .p-poz__eticheta { font-size: 0.78rem; color: var(--color-text-muted); }
+  .p-poz input { padding: 0.35rem 0.5rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.85rem; width: 100%; }
+  @media (max-width: 60rem) {
+    .p-poz { grid-template-columns: 3.5rem 1fr; }
+    .p-poz__eticheta { grid-column: 2; }
+    .p-poz input { grid-column: 1 / -1; }
+  }
+
+  .p-pui { list-style: none; padding: 0; display: grid; gap: 0.4rem; max-width: 48rem; }
+  .p-pui__rand { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
+    padding: 0.5rem 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius); }
+  .p-pui__alege { display: flex; align-items: center; gap: 0.5rem; }
+  .p-pui__serie { font-family: var(--font-mono, monospace); font-size: 0.85rem; color: var(--color-primary); }
+  .p-pui__prop { font-size: 0.82rem; color: var(--color-text-muted); }
+  .p-actiuni { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+  .p-stare { font-size: 0.88rem; color: var(--color-text-muted); }
+</style>
