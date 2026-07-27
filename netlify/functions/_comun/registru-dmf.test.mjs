@@ -22,7 +22,8 @@ const baza = (o) => Object.assign({
   mascul: parinte({ nume: "Tata", email: "tata@x.ro" }),
   femela: parinte({ nume: "Mama" }),
   pui: pui(3, 2),
-  consimtaminte: { adn: true, predare60: true, gdpr: true },
+  consimtaminte: { adn: true, predare60: true, gdpr: true, semnatura: true },
+  semnatura: "Ion Popescu",
 }, o || {});
 
 console.log("— cazul bun —");
@@ -81,10 +82,20 @@ t("la femelă e opțional", !valideazaDeclaratia(baza({ femela: parinte({ email:
 
 console.log("— consimțămintele —");
 for (const c of ["adn", "predare60", "gdpr"]) {
-  const cons = { adn: true, predare60: true, gdpr: true };
+  const cons = { adn: true, predare60: true, gdpr: true, semnatura: true };
   cons[c] = false;
   t("fara consimtamant " + c + " -> respins", !!valideazaDeclaratia(baza({ consimtaminte: cons }), membru).eroare);
 }
+
+console.log("— semnatura, care tine locul celei olografe —");
+t("fara bifa de semnatura -> respins",
+  !!valideazaDeclaratia(baza({ consimtaminte: { adn: true, predare60: true, gdpr: true, semnatura: false } }), membru).eroare);
+t("fara nume scris -> respins", !!valideazaDeclaratia(baza({ semnatura: "" }), membru).eroare);
+t("doar prenume -> respins", !!valideazaDeclaratia(baza({ semnatura: "Ion" }), membru).eroare);
+t("nume prea scurt -> respins", !!valideazaDeclaratia(baza({ semnatura: "I P" }), membru).eroare);
+const semnat = valideazaDeclaratia(baza({ semnatura: "  Ion Popescu  " }), membru);
+t("nume complet -> acceptat si curatat",
+  !semnat.eroare && semnat.d.semnatura === "Ion Popescu", semnat.eroare || (semnat.d && "[" + semnat.d.semnatura + "]"));
 
 console.log("— câmpuri obligatorii —");
 t("fără rasă respins", !!valideazaDeclaratia(baza({ rasa: "" }), membru).eroare);

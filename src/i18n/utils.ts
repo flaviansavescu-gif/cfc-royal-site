@@ -16,8 +16,16 @@ export function useTranslations(lang: Lang) {
   };
 }
 
-/** Prefixează o cale cu limba și normalizează slash-urile (trailing slash). */
+/**
+ * Prefixează o cale cu limba și normalizează slash-urile (trailing slash).
+ *
+ * O cale care ÎNCEPE cu „/" se întoarce neatinsă: registrul genealogic („/caine/",
+ * „/verifica-pedigree/", „/registru/") și platforma cursurilor stau la rădăcină, în
+ * afara structurii pe limbi. Fără excepția asta, meniul le-ar trimite la /ro/caine/,
+ * care nu există.
+ */
 export function localizePath(path: string, lang: Lang): string {
+  if (path.startsWith("/")) return path;
   const clean = path.replace(/^\/+|\/+$/g, "");
   return clean ? `/${lang}/${clean}/` : `/${lang}/`;
 }

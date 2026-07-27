@@ -165,11 +165,23 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
     <!-- ——— Declarațiile pe propria răspundere ——— -->
     <section class="d-sect">
       <h2 class="d-h2">Declar pe propria răspundere</h2>
-      <label class="d-bifa">
+      <label class="d-bifa d-bifa--grea">
         <input type="checkbox" name="c.adn" required />
-        <span>Sunt de acord cu prelevarea de mostre ADN la solicitarea asociației și mă oblig să asigur
-        prelevarea în caz de deces sau înstrăinare a vreunuia dintre câinii montați, în termen de
-        <strong>16 luni</strong> de la depunerea prezentei declarații.</span>
+        <span>
+          <strong>Prelevarea de probe ADN.</strong> Mă oblig, timp de <strong>16 luni</strong> de la
+          depunerea prezentei declarații:
+          <span class="d-lista-bifa">
+            <span>a) să permit prelevarea de probe ADN de la oricare dintre câinii declarați,
+            <strong>ori de câte ori asociația o solicită</strong>, fără să cer motive;</span>
+            <span>b) să prelevez probe ADN <strong>din proprie inițiativă, înainte de a înstrăina</strong>
+            oricare dintre acești câini, și să le pun la dispoziția asociației;</span>
+            <span>c) să prelevez probe ADN <strong>înainte de înhumarea, incinerarea sau predarea
+            cadavrului</strong>, dacă vreunul dintre câinii declarați moare în acest interval.</span>
+          </span>
+          Înțeleg că <strong>neîndeplinirea acestor obligații</strong> atrage suspendarea dreptului de
+          a depune declarații și poate duce la anularea documentelor de origine eliberate în baza
+          prezentei declarații.
+        </span>
       </label>
       <label class="d-bifa">
         <input type="checkbox" name="c.predare60" required />
@@ -181,6 +193,31 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
         <input type="checkbox" name="c.gdpr" required />
         <span>Datele cumpărătorilor pe care le completez au fost furnizate cu acordul acestora, pentru
         eliberarea documentelor de origine, și declar că informațiile sunt complete, reale și actualizate.</span>
+      </label>
+    </section>
+
+    <!-- ——— Semnătura ———
+         Formularul tipărit are rubrica „Semnătura" în coloana femelei și „Data / Semnătura"
+         la final. Online nu există semnătură olografă, deci îi ține locul această asumare:
+         numele scris de mână, bifa explicită și urma înregistrată (data, ora, adresa IP).
+         Fără ea, declarația ar fi un formular trimis de un cont, nu un act asumat de un om. -->
+    <section class="d-sect">
+      <h2 class="d-h2">Semnătura</h2>
+      <label class="d-camp-semn">Numele și prenumele meu, scrise de mine
+        <input name="semnatura" autocomplete="name" required placeholder="așa cum apar în actul de identitate" />
+      </label>
+      <label class="d-bifa d-bifa--grea">
+        <input type="checkbox" name="c.semnatura" required />
+        <span>
+          Prin bifarea acestei căsuțe și scrierea numelui meu mai sus, <strong>semnez prezenta
+          Declarație de Montă și Fătare</strong>. Această asumare <strong>ține locul semnăturii
+          olografe</strong> de pe formularul tipărit și are aceeași valoare.
+          Confirm că sunt <strong>proprietarul femelei montate</strong>, că am completat declarația
+          în mod corect, integral și pe propria răspundere, și că am luat cunoștință că
+          <strong>declararea de date false</strong> atrage anularea documentelor eliberate,
+          suspendarea din asociație și, după caz, răspunderea prevăzută de lege.
+          Se înregistrează numele scris de mine, data, ora și adresa IP.
+        </span>
       </label>
     </section>
 
@@ -419,7 +456,11 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
         nascutiM: Number(val("nascutiM")) || 0, nascutiF: Number(val("nascutiF")) || 0,
         ramasiM: Number(val("ramasiM")) || 0, ramasiF: Number(val("ramasiF")) || 0,
         mascul: parinte("mascul"), femela: parinte("femela"), pui,
-        consimtaminte: { adn: g("c.adn").checked, predare60: g("c.predare60").checked, gdpr: g("c.gdpr").checked },
+        consimtaminte: {
+          adn: g("c.adn").checked, predare60: g("c.predare60").checked,
+          gdpr: g("c.gdpr").checked, semnatura: g("c.semnatura").checked,
+        },
+        semnatura: val("semnatura"),
       };
     }
 
@@ -515,6 +556,10 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
   .d-bifa { display: grid; grid-template-columns: auto 1fr; gap: 0.6rem; align-items: start;
     margin-bottom: 0.8rem; font-weight: 400; color: var(--color-text); font-size: 0.9rem; max-width: 46rem; }
   .d-bifa input { margin-top: 0.2rem; }
+  .d-bifa--grea { background: var(--color-surface-alt); border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-accent); border-radius: var(--radius); padding: 0.9rem 1.1rem; }
+  .d-lista-bifa { display: grid; gap: 0.35rem; margin: 0.5rem 0; padding-left: 0.9rem; }
+  .d-camp-semn { display: block; max-width: 26rem; margin-bottom: 0.9rem; }
 
   .d-eroare { max-width: 46rem; margin-top: 1.5rem; padding: 0.7rem 1rem; border-radius: var(--radius);
     background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; font-size: 0.9rem; }

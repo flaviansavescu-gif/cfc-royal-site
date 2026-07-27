@@ -328,6 +328,15 @@ export function valideazaDeclaratia(body, membru) {
   if (!c.adn || !c.predare60 || !c.gdpr)
     return { eroare: "Toate cele trei declarații pe propria răspundere trebuie bifate." };
 
+  // SEMNĂTURA. Formularul tipărit are rubrica „Semnătura"; online îi ține locul numele
+  // scris de om plus bifa explicită. Se cer amândouă — o bifă singură nu spune cine a
+  // semnat, iar un nume fără bifă nu spune că și-a asumat.
+  const semnatura = taie(body.semnatura, 120);
+  if (!c.semnatura)
+    return { eroare: "Bifează asumarea semnăturii: fără ea, declarația nu e semnată." };
+  if (semnatura.length < 5 || !semnatura.includes(" "))
+    return { eroare: "Scrie numele și prenumele complet la semnătură." };
+
   // AFIXUL se poate scrie pe declarație chiar dacă în fișa de membru nu există: cineva
   // se poate înscrie fără canisă și să-și înregistreze una un an mai târziu. Ce vine din
   // formular are întâietate; fișa de membru rămâne doar valoarea prestabilită.
@@ -340,7 +349,8 @@ export function valideazaDeclaratia(body, membru) {
       rasa, varietate, dataMontei, dataFatarii,
       nascutiM, nascutiF, ramasiM, ramasiF,
       mascul: m.p, femela: f.p, pui,
-      consimtaminte: { adn: true, predare60: true, gdpr: true },
+      consimtaminte: { adn: true, predare60: true, gdpr: true, semnatura: true },
+      semnatura,
       afix, nrAfix,
       zileDeLaFatare: zile,
       pesteTermen: zile > TERMEN_ZILE,
@@ -484,6 +494,13 @@ export default cuLimitareCod(async (req) => {
       membruNume: eu.membru.nume,
       membruEmail: eu.membru.email,
       creat: new Date().toISOString(),
+      // Urma semnăturii: numele scris de om, momentul și de unde. Asta transformă bifa
+      // într-o asumare verificabilă, nu doar într-o casetă bifată de un cont.
+      semnaturaUrma: {
+        nume: v.d.semnatura,
+        la: new Date().toISOString(),
+        ip: req.headers.get("x-nf-client-connection-ip") || req.headers.get("x-forwarded-for") || "",
+      },
       confirmare: {
         stare: "asteptare",
         email: v.d.mascul.email,

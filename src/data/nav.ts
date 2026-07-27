@@ -39,6 +39,7 @@ export const mainNav: NavItem[] = [
       { slug: "membri/devino-membru", label: { ro: "Devino membru", en: "Become a member" } },
       { slug: "membri/beneficii", label: { ro: "Beneficii", en: "Benefits" } },
       { slug: "membri/cotizatii", label: { ro: "Cotizații", en: "Fees" } },
+      { slug: "/registru/", label: { ro: "Registrul genealogic (acces)", en: "Stud book (member access)" } },
     ],
   },
   {
@@ -58,6 +59,10 @@ export const mainNav: NavItem[] = [
     children: [
       { slug: "standarde-rasa", label: { ro: "Standardele raselor", en: "Breed standards" } },
       { slug: "regulamente", label: { ro: "Regulamente WDF", en: "WDF Regulations" } },
+      // Registrul genealogic stă la rădăcină, fără prefix de limbă: căile care încep
+      // cu „/" trec neatinse prin localizePath.
+      { slug: "/caine/", label: { ro: "Cartea de origini", en: "Stud book" } },
+      { slug: "/verifica-pedigree/", label: { ro: "Verificarea certificatelor", en: "Verify a certificate" } },
     ],
   },
   {
@@ -106,6 +111,7 @@ export const footerNav: FooterColumn[] = [
       { slug: "expozitii", label: { ro: "Expoziții", en: "Dog shows" } },
       { slug: "educatie/centrul-competentelor-chinologice", label: { ro: "Educație", en: "Education" } },
       { slug: "standarde-rasa", label: { ro: "Standarde de rasă", en: "Breed standards" } },
+      { slug: "/caine/", label: { ro: "Cartea de origini", en: "Stud book" } },
       { slug: "noutati", label: { ro: "Noutăți", en: "News" } },
     ],
   },

@@ -114,6 +114,17 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       }
       detaliu.appendChild(ul);
 
+      // —— Semnătura declarantului ——
+      // Ține locul rubricii „Semnătura" de pe formularul tipărit. Fără urma asta,
+      // declarația ar fi doar un formular trimis de un cont.
+      const sem = d.semnaturaUrma;
+      if (sem) {
+        detaliu.appendChild(el("h4", "g-dh4", "Semnătura declarantului"));
+        detaliu.appendChild(el("p", "g-semn", "✍ " + sem.nume));
+        detaliu.appendChild(el("p", "g-dmeta",
+          ["asumată la " + dataRo(sem.la), sem.ip ? "de la " + sem.ip : null].filter(Boolean).join(" · ")));
+      }
+
       // —— Confirmarea proprietarului masculului ——
       detaliu.appendChild(el("h4", "g-dh4", "Confirmarea montei"));
       const c = d.confirmare || { stare: "asteptare" };
@@ -257,6 +268,8 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .g-pui { padding-left: 1.2rem; font-size: 0.9rem; }
   .g-piese { display: flex; gap: 0.6rem; flex-wrap: wrap; }
   .g-piesa { font-size: 0.85rem; }
+  .g-semn { font-family: var(--font-serif); font-size: 1.05rem; color: var(--color-primary);
+    margin: 0.2rem 0; }
   .g-conf { font-weight: 600; font-size: 0.92rem; margin: 0.3rem 0; }
   .g-conf.is-asteptare { color: var(--color-accent-dark); }
   .g-conf.is-confirmat, .g-conf.is-alternativ { color: var(--color-primary); }
