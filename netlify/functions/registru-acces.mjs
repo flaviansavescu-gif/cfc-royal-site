@@ -425,6 +425,14 @@ export default cuLimitareCod(async (req) => {
 
   if (actiune === "jurnal-fapte") return json({ fapte: FAPTE });
 
+  // —— Starea sistemului ——
+  // Raportul lăsat de funcția programată `monitor-flux`. Se citește, nu se rulează
+  // de aici: verificarea are ritmul ei, iar panoul doar arată ce a găsit.
+  if (actiune === "monitor") {
+    const stare = await store().get("monitor/stare", { type: "json" }).catch(() => null);
+    return json({ monitor: stare || null });
+  }
+
   if (actiune === "membru-sterge" || actiune === "registrator-sterge") {
     const id = taie(body.id, 128);
     if (!id) return json({ eroare: "Lipsește înregistrarea." }, 400);

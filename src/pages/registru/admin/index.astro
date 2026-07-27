@@ -117,6 +117,15 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
   </p>
   <ul class="a-lista" id="a-declaratii"><li class="a-gol">Se încarcă…</li></ul>
 
+  <h2 class="a-h2">Starea sistemului</h2>
+  <p class="a-note">
+    Fluxul critic se verifică singur la fiecare 15 minute: verificarea certificatelor,
+    fișa publică a câinelui, poarta declarațiilor, pagina de verificare și prospețimea
+    copiei de siguranță. La o cădere pleacă un e-mail — <strong>unul singur</strong>, plus
+    o reamintire la fiecare 6 ore cât ține problema, și unul la revenire.
+  </p>
+  <div class="a-monitor" id="a-monitor">Se încarcă…</div>
+
   <h2 class="a-h2">Anularea unui certificat</h2>
   <p class="a-note">
     Declararea de date false atrage anularea documentelor eliberate. Certificatul
@@ -510,6 +519,65 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       finally { btn.disabled = false; btn.textContent = "Generează cod de registratură"; }
     });
 
+    // —— Starea sistemului ——
+    // Raportul e lăsat de funcția programată; panoul doar îl arată. Dacă lipsește,
+    // spunem asta limpede: „nicio verificare încă" nu înseamnă „totul e bine".
+    function momentScurt(s) {
+      const d = new Date(s);
+      return isNaN(d) ? String(s || "—") : d.toLocaleString("ro-RO", {
+        day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
+      });
+    }
+
+    async function incarcaMonitor() {
+      const zona = document.getElementById("a-monitor");
+      zona.textContent = "Se încarcă…";
+      zona.className = "a-monitor";
+      try {
+        const d = await cere({ actiune: "monitor" });
+        const m = d.monitor;
+        zona.textContent = "";
+        if (!m) {
+          zona.className = "a-monitor is-necunoscut";
+          zona.textContent = "Nicio verificare înregistrată încă. Prima rulare are loc în cel mult 15 minute de la publicare.";
+          return;
+        }
+        const bun = m.stare === "bun";
+        zona.className = "a-monitor " + (bun ? "is-bun" : "is-rau");
+
+        const cap = document.createElement("div");
+        cap.className = "a-monitor__cap";
+        const et = document.createElement("strong");
+        et.textContent = bun ? "✓ Totul funcționează" : "⚠ Ceva nu funcționează";
+        cap.appendChild(et);
+        const cand = document.createElement("span");
+        cand.className = "a-monitor__cand";
+        cand.textContent = "verificat la " + momentScurt(m.la);
+        cap.appendChild(cand);
+        zona.appendChild(cap);
+
+        const lista = document.createElement("ul");
+        lista.className = "a-monitor__lista";
+        (m.verificari || []).forEach((v) => {
+          const li = document.createElement("li");
+          li.className = v.ok ? "is-ok" : "is-rau";
+          const n = document.createElement("strong");
+          n.textContent = (v.ok ? "✓ " : "✕ ") + v.nume;
+          li.appendChild(n);
+          if (v.detaliu) {
+            const det = document.createElement("span");
+            det.textContent = v.detaliu;
+            li.appendChild(det);
+          }
+          lista.appendChild(li);
+        });
+        zona.appendChild(lista);
+      } catch (e) {
+        zona.className = "a-monitor is-necunoscut";
+        zona.textContent = "Nu am putut citi starea: " + e.message;
+      }
+    }
+
     // —— Anularea unui certificat ——
     // Certificatele stau în registru-pedigree, cu aceeași poartă de administrator.
     async function cerePedigree(payload) {
@@ -731,6 +799,7 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     incarcaMembri();
     incarcaRegistratori();
     incarcaDeclaratii();
+    incarcaMonitor();
     incarcaJurnal();
   })();
 </script>
@@ -750,6 +819,23 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     padding: 0.6rem 0.85rem; border: 1px solid var(--color-border);
     border-radius: var(--radius); font: inherit; background: var(--color-surface);
   }
+  /* —— Starea sistemului —— */
+  .a-monitor { max-width: 44rem; padding: 0.9rem 1.1rem; border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-border); border-radius: var(--radius);
+    background: var(--color-surface); color: var(--color-text-muted); font-size: 0.9rem; }
+  .a-monitor.is-bun { border-left-color: var(--color-primary); }
+  .a-monitor.is-rau { border-left-color: #8c1d2f; background: #f9efef; }
+  .a-monitor.is-necunoscut { border-left-color: var(--color-accent); font-style: italic; }
+  .a-monitor__cap { display: flex; gap: 0.8rem; align-items: baseline; flex-wrap: wrap; margin-bottom: 0.5rem; }
+  .a-monitor.is-bun .a-monitor__cap strong { color: var(--color-primary); }
+  .a-monitor.is-rau .a-monitor__cap strong { color: #8c1d2f; }
+  .a-monitor__cand { margin-left: auto; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+  .a-monitor__lista { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.25rem; }
+  .a-monitor__lista li { display: flex; gap: 0.6rem; align-items: baseline; flex-wrap: wrap; font-size: 0.85rem; }
+  .a-monitor__lista li.is-ok strong { color: var(--color-primary); font-weight: 600; }
+  .a-monitor__lista li.is-rau strong { color: #8c1d2f; font-weight: 700; }
+  .a-monitor__lista span { color: var(--color-text-muted); }
+
   /* —— Anularea unui certificat —— */
   .a-cert { display: grid; gap: 0.5rem; max-width: 40rem; padding: 0.9rem 1.1rem;
     border: 1px solid var(--color-border); border-left: 4px solid var(--color-border);
