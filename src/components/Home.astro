@@ -122,6 +122,16 @@ const latestNews = newsEntries
   </div>
 </Section>
 
+<!-- Instrumentele proprii: registrul, școala, managerul. Aceleași trei coloane ca la
+     educație — sunt trei lucruri de aceeași greutate, nu unul principal și două anexe. -->
+<Section id="instrumente" title={h.ecosistem.title} intro={h.ecosistem.intro}>
+  <div class="grid grid--3">
+    {h.ecosistem.items.map((it) => (
+      <Card title={it.title} href={lp(it.slug)} excerpt={it.excerpt} />
+    ))}
+  </div>
+</Section>
+
 <!-- Statistici -->
 <section class="stats">
   <div class="container">
