@@ -27,6 +27,20 @@ const EXTENSII = {
 };
 
 /**
+ * Scoate din înregistrare orice ar fi o cheie de intrare.
+ *
+ * Plasă de siguranță, nu apărarea principală: codurile nu se mai păstrează în fișe. Dar
+ * prima arhivă făcută pe date reale conținea un cod funcțional de registratură, scris
+ * acolo de o versiune mai veche — iar o copie de siguranță circulă, se pune pe un disc,
+ * se trimite pe e-mail. Ce iese de aici nu trebuie să deschidă nicio ușă.
+ */
+export function faraSecrete(x) {
+  if (!x || typeof x !== "object") return x;
+  const { cod, jeton, parola, secret, ...restul } = x;
+  return restul;
+}
+
+/**
  * Construiește arhiva.
  * @param {object} optiuni
  * @param {number} optiuni.maxFisiere - câți octeți de fișiere binare se includ (0 = niciunul)
@@ -59,7 +73,7 @@ export async function construiesteArhiva({ maxFisiere = 40 * 1024 * 1024 } = {})
     try {
       const x = await store.get(cheie, { type: "json" });
       if (x == null) continue;
-      continut["date/" + cheie + ".json"] = codificator.encode(JSON.stringify(x, null, 2));
+      continut["date/" + cheie + ".json"] = codificator.encode(JSON.stringify(faraSecrete(x), null, 2));
       rezumat.inregistrari++;
     } catch (err) {
       rezumat.erori.push(cheie + ": " + err.message);
@@ -103,7 +117,9 @@ Făcută la: ${r.facutLa}
   - \`pedigree/<serie>.json\` — Certificatul de Origine emis, cu ascendența înghețată
     în el la data emiterii.
   - \`membru/<amprentă>.json\`, \`registrator/<amprentă>.json\` — persoanele cu acces.
-    Cheia e amprenta codului, nu codul: din arhivă NU se poate reconstitui niciun cod.
+    Numele fișierului e amprenta codului (SHA-256), nu codul. Codurile propriu-zise nu
+    se păstrează nicăieri și sunt scoase din arhivă chiar dacă ar rămâne undeva: de aici
+    NU se poate intra în registru. Cine își pierde codul primește altul.
   - \`contor/…\`, \`serie/…\` — evidența numerelor, ca să nu se repete.
 - \`fisiere/\` — piesele încărcate la dosare (pedigree-uri, dovada dreptului de montă,
   dovada plății, dovezile semnate), cu extensia lor reală.

@@ -94,6 +94,9 @@ async function marcheazaIntrarea(cheie, brut) {
     const x = { ...brut };
     delete x.id;
     delete x.cotizatieLaZi;
+    // Codul NU se păstrează în fișă (vezi `fisaFaraCod`). Ștergerea de aici curăță și
+    // fișele vechi, scrise înainte de regula asta: la prima intrare a omului, dispare.
+    delete x.cod;
     if (!x.prima_logare) x.prima_logare = acum;
     x.ultima_logare = acum;
     await store().setJSON(cheie, x);
@@ -227,9 +230,13 @@ export default cuLimitareCod(async (req) => {
 
     const nou = await codUnic("MBR-", "membru/");
     if (!nou) return json({ eroare: "Nu am putut genera un cod unic. Reîncearcă." }, 500);
-    const membru = { nume, afix, nrAfix, email, cotizatiePana, cod: nou.cod, creat: new Date().toISOString() };
+    // Fișa NU conține codul — cheia e amprenta lui, și atât. Codul pleacă o singură dată,
+    // în răspunsul ăsta, către administratorul care l-a cerut. Dacă se pierde, se
+    // generează altul; nu se poate scoate înapoi din registru, și nici din copiile de
+    // siguranță. Altfel amprenta n-ar apăra nimic: cine ajunge la stocare ar avea codul.
+    const membru = { nume, afix, nrAfix, email, cotizatiePana, creat: new Date().toISOString() };
     await store().setJSON("membru/" + nou.id, membru);
-    return json({ ok: true, membru: { ...membru, id: nou.id, cotizatieLaZi: cotizatieLaZi(cotizatiePana) } });
+    return json({ ok: true, membru: { ...membru, cod: nou.cod, id: nou.id, cotizatieLaZi: cotizatieLaZi(cotizatiePana) } });
   }
 
   // Reînnoirea cotizației — anual, fără să se schimbe codul. Altfel oamenii ar primi
@@ -253,9 +260,9 @@ export default cuLimitareCod(async (req) => {
 
     const nou = await codUnic("REG-", "registrator/");
     if (!nou) return json({ eroare: "Nu am putut genera un cod unic. Reîncearcă." }, 500);
-    const registrator = { nume, email, cod: nou.cod, creat: new Date().toISOString() };
+    const registrator = { nume, email, creat: new Date().toISOString() };   // fără cod, ca la membri
     await store().setJSON("registrator/" + nou.id, registrator);
-    return json({ ok: true, registrator: { ...registrator, id: nou.id } });
+    return json({ ok: true, registrator: { ...registrator, cod: nou.cod, id: nou.id } });
   }
 
   // —— Solicitările de acces, pentru administrator ——
@@ -277,6 +284,53 @@ export default cuLimitareCod(async (req) => {
     if (!id) return json({ eroare: "Lipsește solicitarea." }, 400);
     try { await store().delete("cerere/" + id); } catch (err) { console.error(err); }
     return json({ ok: true });
+  }
+
+  // —— Curățenie: coduri rămase în fișe și ciorne abandonate ——
+  //
+  // Amândouă au ieșit la iveală când am deschis prima arhivă de siguranță:
+  //   • fișele scrise înainte de regula de acum păstrau codul în clar — cine ajungea la
+  //     arhivă avea o intrare funcțională;
+  //   • formularul DMF început și nedus până la capăt lasă ciorna și cele patru fișiere
+  //     încărcate, la nesfârșit: scanuri de acte agățate de niciun dosar.
+  if (actiune === "curatenie") {
+    const s = store();
+    const rezultat = { coduriSterse: 0, ciorneSterse: 0, fisiereSterse: 0, erori: [] };
+    const FELURI = ["pedigree-mascul", "pedigree-femela", "drept-monta", "plata", "confirmare-alternativa"];
+    const PRAG_MS = 7 * 24 * 3600e3;   // o ciornă mai veche de o săptămână e abandonată
+
+    for (const prefix of ["membru/", "registrator/"]) {
+      try {
+        const { blobs } = await s.list({ prefix });
+        for (const b of blobs) {
+          const x = await s.get(b.key, { type: "json" });
+          if (!x || !x.cod) continue;
+          const { cod: _sters, ...fara } = x;
+          await s.setJSON(b.key, fara);
+          rezultat.coduriSterse++;
+        }
+      } catch (err) { rezultat.erori.push(prefix + ": " + err.message); }
+    }
+
+    try {
+      const { blobs } = await s.list({ prefix: "ciorna/" });
+      for (const b of blobs) {
+        const c = await s.get(b.key, { type: "json" });
+        if (!c) continue;
+        if (Date.now() - Date.parse(c.creat || 0) < PRAG_MS) continue;
+        const id = b.key.slice("ciorna/".length);
+        for (const fel of FELURI) {
+          try {
+            const are = await s.getMetadata("dmf-fisier/" + id + "/" + fel);
+            if (are) { await s.delete("dmf-fisier/" + id + "/" + fel); rezultat.fisiereSterse++; }
+          } catch { /* piesa nu există — normal */ }
+        }
+        await s.delete(b.key);
+        rezultat.ciorneSterse++;
+      }
+    } catch (err) { rezultat.erori.push("ciorne: " + err.message); }
+
+    return json({ ok: true, ...rezultat });
   }
 
   if (actiune === "membru-sterge" || actiune === "registrator-sterge") {

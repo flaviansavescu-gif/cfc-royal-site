@@ -47,6 +47,18 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     <span class="a-stare" id="a-export-stare"></span>
   </p>
 
+  <h2 class="a-h2">Curățenie</h2>
+  <p class="a-note">
+    Scoate din magazie două feluri de rămășițe: <strong>codurile de acces</strong> rămase
+    în fișele scrise înainte de regula actuală (azi nu se mai păstrează niciunul) și
+    <strong>ciornele abandonate</strong> — formulare DMF începute, cu fișiere încărcate,
+    pe care nimeni nu le-a dus până la capăt de peste o săptămână.
+  </p>
+  <p class="a-copie">
+    <button class="btn btn--outline" type="button" id="a-curatenie">🧹 Curăță magazia</button>
+    <span class="a-stare" id="a-curatenie-stare"></span>
+  </p>
+
   <h2 class="a-h2">Solicitări de acces</h2>
   <p class="a-note">
     Vin din formularul de pe pagina de intrare. Verifică întâi calitatea de membru și cotizația;
@@ -236,6 +248,30 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
         stare.textContent = err.message;
       }
       b.disabled = false; b.textContent = "⬇ Descarcă registrul";
+    });
+
+    // —— Curățenia magaziei ——
+    document.getElementById("a-curatenie").addEventListener("click", async (e) => {
+      const b = e.target;
+      const stare = document.getElementById("a-curatenie-stare");
+      if (!confirm("Șterg codurile rămase în fișe și ciornele abandonate de peste o săptămână?\n" +
+                   "Declarațiile depuse și certificatele NU sunt atinse.")) return;
+      b.disabled = true; b.textContent = "Se curăță…";
+      stare.className = "a-stare";
+      stare.textContent = "";
+      try {
+        const d = await cere({ actiune: "curatenie" });
+        const parti = [];
+        if (d.coduriSterse) parti.push(d.coduriSterse + " coduri scoase din fișe");
+        if (d.ciorneSterse) parti.push(d.ciorneSterse + " ciorne abandonate");
+        if (d.fisiereSterse) parti.push(d.fisiereSterse + " fișiere agățate de ele");
+        stare.className = "a-stare " + (d.erori && d.erori.length ? "is-atentie" : "is-bun");
+        stare.textContent = parti.length ? "✓ " + parti.join(", ") + "." : "✓ Nu era nimic de curățat.";
+      } catch (err) {
+        stare.className = "a-stare is-rau";
+        stare.textContent = err.message;
+      }
+      b.disabled = false; b.textContent = "🧹 Curăță magazia";
     });
 
     // Solicitările vin din formularul public. Textul e scris de străini, deci NUMAI
