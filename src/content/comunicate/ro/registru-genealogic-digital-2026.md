@@ -1,5 +1,5 @@
 ---
-title: "Asociația Club Federal Chinologic – Royal digitalizează chinologia românească"
+title: "Un nou standard digital pentru chinologia românească"
 lang: ro
 category: "comunicat"
 summary: "Registru genealogic online, certificate de origine verificabile prin cod QR, o școală de arbitraj cu platformă proprie și un sistem propriu de conducere a expozițiilor — trei instrumente construite de asociație, puse la dispoziția membrilor."

@@ -1,5 +1,5 @@
 ---
-title: "The Royal Federal Canine Club brings Romanian cynology online"
+title: "A new digital standard for Romanian cynology"
 lang: en
 category: "comunicat"
 summary: "An online stud book, certificates of origin anyone can verify with a QR code, a judging school with its own study platform and a purpose-built system for running dog shows — three tools built by the association, for its members."
