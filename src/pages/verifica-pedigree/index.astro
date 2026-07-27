@@ -14,11 +14,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
 <BaseLayout lang="ro" title="Verificarea certificatului de origine" description="Verifică autenticitatea unui Certificat de Origine emis de Asociația Club Federal Chinologic Royal.">
   <section class="v-sect">
-    <p class="v-limba">
-      <button type="button" class="v-lb is-activ" data-l="ro">Română</button>
-      <button type="button" class="v-lb" data-l="en">English</button>
-    </p>
-
+    {/* Fără comutator propriu: pagina ascultă de cel din antet, comun întregului site. */}
     <p class="v-eyebrow" data-ro="Registrul genealogic" data-en="Stud book">Registrul genealogic</p>
     <h1 class="v-title" data-ro="Verificarea certificatului" data-en="Verify a certificate">Verificarea certificatului</h1>
     <p class="v-sub"
@@ -97,23 +93,56 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         seCauta: "Checking…", butonul: "Verify", esec: "The check failed.",
       },
     };
-    // Limba browserului decide la prima deschidere: cine vine cu telefonul din altă țară
-    // nu trebuie să caute un buton ca să înțeleagă pagina.
-    let limba = (navigator.language || "ro").toLowerCase().startsWith("ro") ? "ro" : "en";
+    // Limba vine din adresă (`?lang=`, pusă de comutatorul din antet); dacă lipsește,
+    // decide limba browserului — cine vine cu telefonul din altă țară, scanând codul QR
+    // de pe certificat, nu trebuie să caute un buton ca să înțeleagă pagina.
+    const limbaCeruta = (new URLSearchParams(location.search).get("lang") || "").toLowerCase();
+    let limba = limbaCeruta === "ro" || limbaCeruta === "en"
+      ? limbaCeruta
+      : ((navigator.language || "ro").toLowerCase().startsWith("ro") ? "ro" : "en");
     const dataRo = (s) => {
       const x = new Date(s);
       return isNaN(x) ? String(s || "") : x.toLocaleDateString(limba === "ro" ? "ro-RO" : "en-GB");
     };
     let ultima = null;   // ultimul certificat afișat, ca să-l putem reface în cealaltă limbă
 
+    /** Comutatorul din antet e construit la generare; îl refacem după limba aleasă aici. */
+    function sincronizeazaAntetul() {
+      const nav = document.querySelector(".langswitch");
+      if (!nav) return;
+      nav.textContent = "";
+      for (const cod of ["ro", "en"]) {
+        if (cod === limba) {
+          const s = document.createElement("span");
+          s.className = "langswitch__item";
+          s.setAttribute("aria-current", "true");
+          s.textContent = cod.toUpperCase();
+          nav.appendChild(s);
+        } else {
+          const p = new URLSearchParams(location.search);
+          p.set("lang", cod);
+          const a = document.createElement("a");
+          a.className = "langswitch__item langswitch__link";
+          a.href = location.pathname + "?" + p.toString();
+          a.hreflang = cod; a.lang = cod;
+          a.textContent = cod.toUpperCase();
+          a.addEventListener("click", (e) => {
+            e.preventDefault();
+            limba = cod;
+            history.replaceState(null, "", a.href);
+            aplicaLimba();
+          });
+          nav.appendChild(a);
+        }
+      }
+    }
+
     function aplicaLimba() {
       document.documentElement.lang = limba;
       document.querySelectorAll("[data-ro]").forEach((x) => {
         x.textContent = x.getAttribute("data-" + limba) || x.textContent;
       });
-      document.querySelectorAll(".v-lb").forEach((b) => {
-        b.classList.toggle("is-activ", b.dataset.l === limba);
-      });
+      sincronizeazaAntetul();
       if (ultima) deseneaza(ultima);
     }
 
@@ -167,9 +196,6 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       btn.disabled = false; btn.textContent = L[limba].butonul;
     }
 
-    document.querySelectorAll(".v-lb").forEach((b) => {
-      b.addEventListener("click", () => { limba = b.dataset.l; aplicaLimba(); });
-    });
     aplicaLimba();
 
     form.addEventListener("submit", (e) => {
@@ -186,10 +212,6 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
 <style>
   .v-sect { max-width: 46rem; margin-inline: auto; padding: 3rem 1.25rem 4rem; }
-  .v-limba { display: flex; gap: 0.3rem; justify-content: flex-end; margin: 0 0 0.5rem; }
-  .v-lb { padding: 0.25rem 0.8rem; border: 1px solid var(--color-border); border-radius: 999px;
-    background: transparent; cursor: pointer; font: inherit; font-size: 0.8rem; color: var(--color-text-muted); }
-  .v-lb.is-activ { background: var(--color-primary); color: #fbfaf7; border-color: var(--color-primary); }
   .v-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
   .v-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
   .v-sub { color: var(--color-text-muted); }

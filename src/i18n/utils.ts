@@ -46,8 +46,20 @@ export function switchLangPath(url: URL, toLang: Lang, fallback?: string): strin
     parts[1] = toLang;
     return parts.join("/") || `/${toLang}/`;
   }
+  // Paginile registrului genealogic („/caine/", „/verifica-pedigree/") stau la rădăcină,
+  // cu o singură adresă în ambele limbi — codul QR de pe certificat duce acolo și nu se
+  // mai poate schimba. Pentru ele, comutatorul păstrează pagina și cere limba prin
+  // `?lang=`, în loc să arunce omul pe prima pagină a celeilalte limbi.
+  if (PAGINI_FARA_LIMBA.some((p) => url.pathname.startsWith(p))) {
+    const cautare = new URLSearchParams(url.search);
+    cautare.set("lang", toLang);
+    return url.pathname + "?" + cautare.toString();
+  }
   return fallback ?? `/${toLang}/`;
 }
+
+/** Pagini care trăiesc la rădăcină și își aleg limba din `?lang=`. */
+export const PAGINI_FARA_LIMBA = ["/caine/", "/verifica-pedigree/"];
 
 export { languages, defaultLang };
 export type { Lang, UiKey };

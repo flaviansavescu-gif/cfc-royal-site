@@ -23,11 +23,9 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
   <script type="application/json" id="k-rase" set:html={JSON.stringify(raseEn)}></script>
 
   <section class="k-sect">
-    <p class="k-limba">
-      <button type="button" class="k-lb is-activ" data-l="ro">Română</button>
-      <button type="button" class="k-lb" data-l="en">English</button>
-    </p>
-
+    {/* Fără comutator propriu de limbă: pagina ascultă de cel din antet, comun întregului
+        site. Două comutatoare pe același ecran se contraziceau — sus scria „RO", în
+        pagină era apăsat „English", și amândouă păreau adevărate. */}
     <p class="k-eyebrow" data-ro="Registrul genealogic" data-en="Stud book">Registrul genealogic</p>
     <h1 class="k-title" data-ro="Cartea de origini" data-en="Stud book">Cartea de origini</h1>
     <p class="k-sub"
@@ -153,7 +151,13 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
         seCauta: "Searching…", butonul: "Search", esec: "The search failed.",
       },
     };
-    let limba = (navigator.language || "ro").toLowerCase().startsWith("ro") ? "ro" : "en";
+    // Limba vine, în ordine: din adresă (`?lang=`, pusă de comutatorul din antet), apoi
+    // din limba browserului — cine deschide codul QR din altă țară trebuie să înțeleagă
+    // pagina fără să caute un buton.
+    const limbaCeruta = (new URLSearchParams(location.search).get("lang") || "").toLowerCase();
+    let limba = limbaCeruta === "ro" || limbaCeruta === "en"
+      ? limbaCeruta
+      : ((navigator.language || "ro").toLowerCase().startsWith("ro") ? "ro" : "en");
     let ultimul = null;   // ultima fișă încărcată, ca s-o putem reface în cealaltă limbă
 
     let RASE_EN = {};
@@ -335,19 +339,50 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
       btn.disabled = false; btn.textContent = L[limba].butonul;
     }
 
+    /**
+     * Comutatorul din antet e construit la generarea paginii, deci nu poate ști ce limbă
+     * s-a ales aici. Îl refacem noi: limba curentă apare apăsată, cealaltă rămâne
+     * legătură — cu adresa completă, ca linkul să poată fi și copiat, și deschis fără JS.
+     */
+    function sincronizeazaAntetul() {
+      const nav = document.querySelector(".langswitch");
+      if (!nav) return;
+      nav.textContent = "";
+      for (const cod of ["ro", "en"]) {
+        if (cod === limba) {
+          const s = document.createElement("span");
+          s.className = "langswitch__item";
+          s.setAttribute("aria-current", "true");
+          s.textContent = cod.toUpperCase();
+          nav.appendChild(s);
+        } else {
+          const p = new URLSearchParams(location.search);
+          p.set("lang", cod);
+          const a = document.createElement("a");
+          a.className = "langswitch__item langswitch__link";
+          a.href = location.pathname + "?" + p.toString();
+          a.hreflang = cod; a.lang = cod;
+          a.textContent = cod.toUpperCase();
+          // Schimbăm limba pe loc, fără reîncărcare: fișa afișată nu trebuie recăutată.
+          a.addEventListener("click", (e) => {
+            e.preventDefault();
+            limba = cod;
+            history.replaceState(null, "", a.href);
+            aplicaLimba();
+          });
+          nav.appendChild(a);
+        }
+      }
+    }
+
     function aplicaLimba() {
       document.documentElement.lang = limba;
       document.querySelectorAll("[data-ro]").forEach((x) => {
         x.textContent = x.getAttribute("data-" + limba) || x.textContent;
       });
-      document.querySelectorAll(".k-lb").forEach((b) => {
-        b.classList.toggle("is-activ", b.dataset.l === limba);
-      });
+      sincronizeazaAntetul();
       if (ultimul) deseneaza(ultimul);
     }
-    document.querySelectorAll(".k-lb").forEach((b) => {
-      b.addEventListener("click", () => { limba = b.dataset.l; aplicaLimba(); });
-    });
     aplicaLimba();
 
     form.addEventListener("submit", (e) => {
@@ -372,10 +407,6 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
 
 <style>
   .k-sect { max-width: 68rem; margin-inline: auto; padding: 3rem 1.25rem 4rem; }
-  .k-limba { display: flex; gap: 0.3rem; justify-content: flex-end; margin: 0 0 0.5rem; }
-  .k-lb { padding: 0.25rem 0.8rem; border: 1px solid var(--color-border); border-radius: 999px;
-    background: transparent; cursor: pointer; font: inherit; font-size: 0.8rem; color: var(--color-text-muted); }
-  .k-lb.is-activ { background: var(--color-primary); color: #fbfaf7; border-color: var(--color-primary); }
   .k-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
   .k-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
   .k-sub { color: var(--color-text-muted); max-width: 44rem; }
