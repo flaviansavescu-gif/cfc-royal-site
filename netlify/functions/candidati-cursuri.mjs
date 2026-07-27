@@ -54,8 +54,10 @@ export default cuLimitareCod(async (req) => {
       const { blobs } = await store.list({ prefix: "candidat/" });
       for (const b of blobs) {
         const c = await store.get(b.key, { type: "json" });
+        // Codul NU se mai întoarce: nu se mai păstrează nicăieri. Rămâne însă tot ce
+        // spune CINE a intrat și când — asta era partea folositoare a listei.
         if (c) lista.push({
-          nume: c.nume, cod: c.cod, creat: c.creat,
+          nume: c.nume, creat: c.creat,
           prima_logare: c.prima_logare || null, ultima_logare: c.ultima_logare || null,
           id: b.key.slice("candidat/".length),
         });
@@ -76,7 +78,7 @@ export default cuLimitareCod(async (req) => {
         const c = await store.get(b.key, { type: "json" });
         if (c) {
           const id = b.key.slice("candidat/".length);
-          cand[id] = { id, nume: c.nume, cod: c.cod, creat: c.creat, progres: {} };
+          cand[id] = { id, nume: c.nume, creat: c.creat, progres: {} };
         }
       }
     } catch (err) {
@@ -117,9 +119,12 @@ export default cuLimitareCod(async (req) => {
     if (exista) return json({ eroare: "Nu am putut genera un cod unic. Reîncearcă." }, 500);
 
     const creat = new Date().toISOString();
-    const candidat = { nume: nume.slice(0, 120), cod, creat };
+    // Fișa nu conține codul — cheia e amprenta lui, și atât. Codul pleacă o singură
+    // dată, în răspunsul ăsta. Aceeași regulă ca la Registrul genealogic: altfel
+    // amprenta n-ar apăra nimic, iar copiile de siguranță ar plimba chei de intrare.
+    const candidat = { nume: nume.slice(0, 120), creat };
     await store.setJSON("candidat/" + id, candidat);
-    return json({ ok: true, candidat: { ...candidat, id } });
+    return json({ ok: true, candidat: { ...candidat, cod, id } });
   }
 
   if (actiune === "sterge") {

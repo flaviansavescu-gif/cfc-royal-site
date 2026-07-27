@@ -446,11 +446,7 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
       info.className = "a-cand-info";
       const nume = document.createElement("strong");
       nume.textContent = c.nume;
-      const cod = document.createElement("code");
-      cod.className = "a-cand-cod";
-      cod.textContent = c.cod;
       info.appendChild(nume);
-      info.appendChild(cod);
 
       // Evidența înscrierii: când a fost adăugat și dacă a intrat deja în platformă.
       const meta = document.createElement("span");
@@ -467,14 +463,9 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
       }
       info.appendChild(meta);
 
-      const copy = document.createElement("button");
-      copy.className = "btn btn--small btn--outline";
-      copy.textContent = "Copiază codul";
-      copy.addEventListener("click", async () => {
-        try { await navigator.clipboard.writeText(c.cod); copy.textContent = "Copiat ✓"; setTimeout(() => (copy.textContent = "Copiază codul"), 1500); }
-        catch (e) { alert("Cod: " + c.cod); }
-      });
-
+      // Codul NU se mai poate arăta aici: nu se mai păstrează nicăieri, ci doar amprenta
+      // lui. Se vede o singură dată, la generare. Cine îl pierde primește altul —
+      // altfel oricine ajunge la stocare sau la o copie de siguranță ar avea o cheie.
       const del = document.createElement("button");
       del.className = "btn btn--small btn--danger";
       del.textContent = "Șterge";
@@ -486,7 +477,6 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
       });
 
       li.appendChild(info);
-      li.appendChild(copy);
       li.appendChild(del);
       return li;
     }
@@ -591,11 +581,7 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
       info.className = "a-cand-info";
       const nume = document.createElement("strong");
       nume.textContent = a.nume;
-      const cod = document.createElement("code");
-      cod.className = "a-cand-cod";
-      cod.textContent = a.cod;
       info.appendChild(nume);
-      info.appendChild(cod);
 
       const meta = document.createElement("span");
       meta.className = "a-cand-meta";
@@ -611,14 +597,7 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
       }
       info.appendChild(meta);
 
-      const copy = document.createElement("button");
-      copy.className = "btn btn--small btn--outline";
-      copy.textContent = "Copiază codul";
-      copy.addEventListener("click", async () => {
-        try { await navigator.clipboard.writeText(a.cod); copy.textContent = "Copiat ✓"; setTimeout(() => (copy.textContent = "Copiază codul"), 1500); }
-        catch (e) { alert("Cod: " + a.cod); }
-      });
-
+      // Codul se vede o singură dată, la generare — vezi comentariul de la candidați.
       const del = document.createElement("button");
       del.className = "btn btn--small btn--danger";
       del.textContent = "Șterge";
@@ -630,7 +609,6 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
       });
 
       li.appendChild(info);
-      li.appendChild(copy);
       li.appendChild(del);
       return li;
     }

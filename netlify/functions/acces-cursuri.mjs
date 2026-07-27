@@ -51,6 +51,7 @@ export default async (req) => {
       const acum = new Date().toISOString();
       if (!cand.prima_logare) cand.prima_logare = acum;
       cand.ultima_logare = acum;
+      delete cand.cod;   // curăță fișele vechi, scrise când codul se păstra
       await getStore("cursuri").setJSON("candidat/" + id, cand);
     } catch (err) { console.error("Nu am putut marca intrarea candidatului:", err); }
     return json({ rol: "candidat", id, nume: cand.nume, dest: "/cursuri/module/" });
@@ -68,6 +69,7 @@ export default async (req) => {
       const acum = new Date().toISOString();
       if (!arb.prima_logare) arb.prima_logare = acum;
       arb.ultima_logare = acum;
+      delete arb.cod;
       await getStore("cursuri").setJSON("arbitru/" + id, arb);
     } catch (err) { console.error("Nu am putut marca intrarea arbitrului:", err); }
     return json({ rol: "arbitru", nume: arb.nume, dest: "/cursuri/arbitru/" });

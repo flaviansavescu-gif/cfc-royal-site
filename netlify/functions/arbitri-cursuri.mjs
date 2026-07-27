@@ -56,8 +56,10 @@ export default cuLimitareCod(async (req) => {
       const { blobs } = await store.list({ prefix: "arbitru/" });
       for (const b of blobs) {
         const a = await store.get(b.key, { type: "json" });
+        // Codul NU se mai întoarce (nu se mai păstrează), dar rămâne tot ce spune CINE
+        // a intrat și când.
         if (a) lista.push({
-          nume: a.nume, cod: a.cod, creat: a.creat,
+          nume: a.nume, creat: a.creat,
           prima_logare: a.prima_logare || null, ultima_logare: a.ultima_logare || null,
           id: b.key.slice("arbitru/".length),
         });
@@ -83,9 +85,10 @@ export default cuLimitareCod(async (req) => {
     if (exista) return json({ eroare: "Nu am putut genera un cod unic. Reîncearcă." }, 500);
 
     const creat = new Date().toISOString();
-    const arbitru = { nume: nume.slice(0, 120), cod, creat };
+    // Fără cod în fișă — aceeași regulă ca la Registrul genealogic.
+    const arbitru = { nume: nume.slice(0, 120), creat };
     await store.setJSON("arbitru/" + id, arbitru);
-    return json({ ok: true, arbitru: { ...arbitru, id } });
+    return json({ ok: true, arbitru: { ...arbitru, cod, id } });
   }
 
   if (actiune === "sterge") {

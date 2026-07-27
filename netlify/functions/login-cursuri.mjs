@@ -56,6 +56,7 @@ export default async (req) => {
     const acum = new Date().toISOString();
     if (!cand.prima_logare) cand.prima_logare = acum;
     cand.ultima_logare = acum;
+    delete cand.cod;   // curăță fișele vechi, scrise când codul se păstra
     await store.setJSON("candidat/" + id, cand);
   } catch (err) {
     console.error("Nu am putut marca intrarea candidatului:", err);
