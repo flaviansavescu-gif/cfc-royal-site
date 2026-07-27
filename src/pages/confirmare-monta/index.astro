@@ -25,7 +25,7 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     <p class="k-intro">
       Sunteți indicat ca <strong>proprietar al masculului</strong> într-o Declarație de Montă și Fătare
       depusă la Registrul genealogic. Vă rugăm să confirmați că monta a avut loc.
-      <span class="k-en">You are named as the <strong>owner of the stud dog</strong> in a Mating and Whelping
+      <span class="k-en" lang="en">You are named as the <strong>owner of the stud dog</strong> in a Mating and Whelping
       Declaration filed with the stud book. Please confirm that the mating took place.</span>
     </p>
 
@@ -36,26 +36,26 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
         <legend>Răspunsul dumneavoastră · Your answer</legend>
         <label class="k-radio">
           <input type="radio" name="raspuns" value="confirm" required />
-          <span><strong>Confirm monta.</strong> <span class="k-en">I confirm the mating.</span></span>
+          <span><strong>Confirm monta.</strong> <span class="k-en" lang="en">I confirm the mating.</span></span>
         </label>
         <label class="k-radio">
           <input type="radio" name="raspuns" value="refuz" />
-          <span><strong>Nu confirm.</strong> <span class="k-en">I do not confirm.</span></span>
+          <span><strong>Nu confirm.</strong> <span class="k-en" lang="en">I do not confirm.</span></span>
         </label>
       </fieldset>
 
-      <label class="k-camp">Numele dumneavoastră <span class="k-en">· Your full name</span>
+      <label class="k-camp">Numele dumneavoastră <span class="k-en" lang="en">· Your full name</span>
         <input name="nume" required autocomplete="name" />
       </label>
 
-      <label class="k-camp" id="k-motiv-camp" hidden>Motivul <span class="k-en">· Reason</span>
+      <label class="k-camp" id="k-motiv-camp" hidden>Motivul <span class="k-en" lang="en">· Reason</span>
         <textarea name="motiv" rows="3"></textarea>
       </label>
 
       <p class="k-legal">
         Răspunsul se înregistrează cu numele scris de dumneavoastră, data, ora și adresa IP, și
         <strong>ține locul semnăturii</strong> de pe formularul tipărit.
-        <span class="k-en">Your answer is recorded with the name you enter, the date, time and IP address,
+        <span class="k-en" lang="en">Your answer is recorded with the name you enter, the date, time and IP address,
         and <strong>stands in for the signature</strong> on the printed form.</span>
       </p>
 
@@ -94,6 +94,7 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
       th.textContent = ro;
       const mic = document.createElement("span");
       mic.className = "k-en";
+      mic.lang = "en";
       mic.textContent = en;
       th.appendChild(mic);
       const td = document.createElement("td");

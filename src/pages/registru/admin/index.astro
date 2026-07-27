@@ -116,6 +116,22 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     fiindcă un număr dat a doua oară altcuiva ar însemna două acte cu aceeași referință.
   </p>
   <ul class="a-lista" id="a-declaratii"><li class="a-gol">Se încarcă…</li></ul>
+
+  <h2 class="a-h2">Jurnalul registrului</h2>
+  <p class="a-note">
+    Cine, ce și când. Se scrie automat la fiecare faptă care schimbă starea registrului:
+    depunere, respingere, confirmare, emitere de certificat, modificare de ascendență,
+    generare sau revocare de acces, descărcarea arhivei. <strong>Ștergerile nu se pot face
+    fără să lase urmă</strong> — dacă intrarea nu poate fi scrisă, ștergerea nu se execută.
+    Codurile de acces nu apar niciodată aici.
+  </p>
+  <div class="a-filtre">
+    <select id="a-j-luna" aria-label="Luna"></select>
+    <select id="a-j-fapta" aria-label="Fapta"><option value="">Toate faptele</option></select>
+    <input id="a-j-cauta" type="search" placeholder="Caută după nume, serie sau detaliu" />
+    <button class="btn btn--outline btn--small" type="button" id="a-j-reincarca">Reîmprospătează</button>
+  </div>
+  <ul class="a-jurnal" id="a-jurnal"><li class="a-gol">Se încarcă…</li></ul>
 </RegistruLayout>
 
 <script is:inline>
@@ -479,10 +495,129 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       finally { btn.disabled = false; btn.textContent = "Generează cod de registratură"; }
     });
 
+    // —— Jurnalul ——
+    // Se citește pe luni, ca peste ani „ce s-a întâmplat ieri" să nu însemne
+    // încărcarea întregului istoric. Filtrarea se face pe server.
+    const selLuna = document.getElementById("a-j-luna");
+    const selFapta = document.getElementById("a-j-fapta");
+    const inpCauta = document.getElementById("a-j-cauta");
+    let fapteIncarcate = false;
+
+    const numeLuna = (l) => {
+      const [an, ln] = String(l).split("-");
+      const luni = ["ianuarie", "februarie", "martie", "aprilie", "mai", "iunie",
+        "iulie", "august", "septembrie", "octombrie", "noiembrie", "decembrie"];
+      return (luni[Number(ln) - 1] || l) + " " + an;
+    };
+    const momentRo = (s) => {
+      const d = new Date(s);
+      return isNaN(d) ? String(s || "") : d.toLocaleString("ro-RO", {
+        day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit",
+      });
+    };
+
+    async function incarcaJurnal() {
+      const ul = document.getElementById("a-jurnal");
+      ul.textContent = "";
+      const asteapta = document.createElement("li");
+      asteapta.className = "a-gol";
+      asteapta.textContent = "Se încarcă…";
+      ul.appendChild(asteapta);
+      try {
+        if (!fapteIncarcate) {
+          const f = await cere({ actiune: "jurnal-fapte" });
+          for (const [cod, eticheta] of Object.entries(f.fapte || {})) {
+            const o = document.createElement("option");
+            o.value = cod; o.textContent = eticheta;
+            selFapta.appendChild(o);
+          }
+          fapteIncarcate = true;
+        }
+        const d = await cere({
+          actiune: "jurnal",
+          luna: selLuna.value || "",
+          fapta: selFapta.value || "",
+          cauta: inpCauta.value.trim(),
+        });
+
+        if (selLuna.options.length !== (d.luni || []).length) {
+          const ales = selLuna.value || d.luna;
+          selLuna.textContent = "";
+          (d.luni || []).forEach((l) => {
+            const o = document.createElement("option");
+            o.value = l; o.textContent = numeLuna(l);
+            selLuna.appendChild(o);
+          });
+          selLuna.value = ales;
+        }
+
+        ul.textContent = "";
+        if (!(d.intrari || []).length) {
+          const gol = document.createElement("li");
+          gol.className = "a-gol";
+          gol.textContent = "Nicio faptă consemnată pentru filtrele alese.";
+          ul.appendChild(gol);
+          return;
+        }
+        // Detaliile vin din dosare scrise de oameni: doar textContent, niciodată innerHTML.
+        d.intrari.forEach((x) => {
+          const li = document.createElement("li");
+          const cap = document.createElement("div");
+          cap.className = "a-j-cap";
+
+          const et = document.createElement("strong");
+          et.textContent = x.eticheta || x.fapta;
+          cap.appendChild(et);
+
+          if (x.obiect) {
+            const ob = document.createElement("span");
+            ob.className = "a-j-obiect";
+            ob.textContent = x.obiect;
+            cap.appendChild(ob);
+          }
+
+          const cand = document.createElement("span");
+          cand.className = "a-j-cand";
+          cand.textContent = momentRo(x.la);
+          cap.appendChild(cand);
+          li.appendChild(cap);
+
+          const cine = document.createElement("span");
+          cine.className = "a-j-cine a-rol-" + (x.actor?.rol || "necunoscut");
+          cine.textContent = (x.actor?.nume || "necunoscut") + " · " + (x.actor?.rol || "");
+          li.appendChild(cine);
+
+          if (x.detalii) {
+            const det = document.createElement("span");
+            det.className = "a-j-detalii";
+            det.textContent = x.detalii;
+            li.appendChild(det);
+          }
+          ul.appendChild(li);
+        });
+      } catch (e) {
+        ul.textContent = "";
+        const er = document.createElement("li");
+        er.className = "a-gol";
+        er.textContent = "Nu am putut încărca jurnalul: " + e.message;
+        ul.appendChild(er);
+      }
+    }
+
+    selLuna.addEventListener("change", incarcaJurnal);
+    selFapta.addEventListener("change", incarcaJurnal);
+    document.getElementById("a-j-reincarca").addEventListener("click", incarcaJurnal);
+    let cronometru = null;
+    inpCauta.addEventListener("input", () => {
+      clearTimeout(cronometru);
+      cronometru = setTimeout(incarcaJurnal, 350);
+    });
+
     incarcaCereri();
     incarcaMembri();
     incarcaRegistratori();
     incarcaDeclaratii();
+    incarcaJurnal();
   })();
 </script>
 
@@ -501,6 +636,29 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     padding: 0.6rem 0.85rem; border: 1px solid var(--color-border);
     border-radius: var(--radius); font: inherit; background: var(--color-surface);
   }
+  /* —— Jurnalul —— */
+  .a-filtre { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin: 0.75rem 0 1rem; }
+  .a-filtre select, .a-filtre input {
+    padding: 0.45rem 0.7rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.9rem; background: var(--color-surface);
+  }
+  .a-filtre input { flex: 1 1 16rem; }
+  .a-jurnal { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.4rem; }
+  .a-jurnal li { display: grid; gap: 0.15rem; padding: 0.6rem 0.8rem;
+    border: 1px solid var(--color-border); border-left: 3px solid var(--color-accent);
+    border-radius: var(--radius); background: var(--color-surface); }
+  .a-jurnal li.a-gol { border-left-color: var(--color-border); color: var(--color-text-muted);
+    font-style: italic; }
+  .a-j-cap { display: flex; gap: 0.6rem; align-items: baseline; flex-wrap: wrap; }
+  .a-j-cap strong { color: var(--color-primary); font-size: 0.95rem; }
+  .a-j-obiect { font-family: var(--font-mono, monospace); font-size: 0.82rem; color: var(--color-accent-dark); }
+  .a-j-cand { margin-left: auto; font-size: 0.78rem; color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums; }
+  .a-j-cine { font-size: 0.82rem; color: var(--color-text-muted); }
+  .a-j-cine.a-rol-admin { color: var(--color-primary); font-weight: 600; }
+  .a-j-cine.a-rol-extern { color: var(--color-accent-dark); }
+  .a-j-detalii { font-size: 0.85rem; color: var(--color-text); }
+
   .a-camp { display: flex; align-items: center; gap: 0.6rem; font-size: 0.9rem; color: var(--color-text-muted); }
   .a-camp input { flex: 1; }
   .a-form .btn { justify-self: start; }

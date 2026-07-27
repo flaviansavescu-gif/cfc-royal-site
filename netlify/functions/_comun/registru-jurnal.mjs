@@ -1,0 +1,182 @@
+// _comun/registru-jurnal.mjs — jurnalul de audit al Registrului genealogic.
+//
+// Un registru genealogic care nu-și poate apăra propriile înregistrări nu e un registru,
+// e o listă. Când cineva contestă o ascendență, o anulare de certificat sau dispariția
+// unui dosar, trebuie să existe un răspuns scris: cine, ce, când.
+//
+// TREI ALEGERI DE FOND:
+//
+//  1. O INTRARE = UN BLOB. Tentația e un singur fișier cu un vector de intrări, dar două
+//     cereri simultane l-ar citi în aceeași stare și a doua ar suprascrie prima — exact
+//     intrarea pe care ai vrea s-o ai. Cheile poartă luna, ca listarea să nu ceară tot
+//     istoricul: jurnal/2026-07/2026-07-27T18:04:11.204Z-a1b2c3
+//
+//  2. CODURILE NU SE SCRIU NICIODATĂ. Jurnalul se citește de administrator și intră în
+//     arhiva descărcabilă; un cod de acces ajuns acolo ar transforma proba în breșă.
+//     Se scrie rolul și numele pe care sistemul îl știe deja (membru, registrator), nu
+//     cheia cu care a intrat.
+//
+//  3. ȘTERGEREA NU SE POATE FACE FĂRĂ URMĂ. Pentru faptele distructive folosește
+//     `jurnalizeazaObligatoriu`: dacă intrarea nu se poate scrie, fapta nu se execută.
+//     Pentru restul, `jurnalizeaza` nu blochează niciodată acțiunea deja reușită.
+//
+// Stocare (store „registru"): jurnal/<AAAA-LL>/<ISO>-<aleator>
+
+const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
+
+/** Faptele consemnate, cu eticheta lor lizibilă. Lista e închisă: ce nu e aici nu se scrie. */
+export const FAPTE = {
+  // Declarații de montă și fătare
+  "dmf-depus": "Declarație depusă",
+  "dmf-respins": "Dosar respins",
+  "dmf-sters": "Dosar șters",
+  "confirmare-trimisa": "Cerere de confirmare retrimisă",
+  "confirmare-adresa": "Adresa masculului corectată",
+  "confirmare-raspuns": "Răspunsul proprietarului masculului",
+  "confirmare-alternativa": "Confirmare acceptată pe dovadă alternativă",
+  // Certificate și ascendență
+  // (anularea unui certificat emis NU are încă mecanism în registru, deși paginile o
+  //  anunță ca urmare a datelor false — de aceea nu există aici o faptă pe care
+  //  nimeni n-o scrie. Se adaugă odată cu acțiunea.)
+  "certificat-emis": "Certificat de origine emis",
+  "ascendenta-modificata": "Ascendență modificată",
+  "numar-wdf": "Număr WDF de cuib înregistrat",
+  "numar-wdf-caine": "Număr WDF individual înregistrat",
+  // Acces
+  "cod-generat": "Cod de acces generat",
+  "cod-sters": "Acces revocat",
+  "cotizatie-actualizata": "Cotizație actualizată",
+  "cerere-stearsa": "Cerere de acces ștearsă",
+  // Administrare
+  "arhiva-descarcata": "Arhiva registrului descărcată",
+  "magazie-curatata": "Curățenie în magazie",
+};
+
+/** Numele sub care apare autorul faptei. Niciodată codul cu care a intrat. */
+export function actorJurnal(eu) {
+  if (!eu) return { rol: "necunoscut", nume: "necunoscut" };
+  if (eu.rol === "admin") return { rol: "admin", nume: "Administrator" };
+  if (eu.rol === "registratura") {
+    return { rol: "registratura", nume: taie(eu.registrator?.nume, 120) || "registratură", id: taie(eu.registrator?.id, 40) };
+  }
+  if (eu.rol === "membru") {
+    return { rol: "membru", nume: taie(eu.membru?.nume, 120) || "membru", id: taie(eu.membru?.id, 40) };
+  }
+  return { rol: taie(eu.rol, 24) || "necunoscut", nume: taie(eu.nume, 120) || "necunoscut" };
+}
+
+/** Actorul din afara sistemului: proprietarul masculului, venit pe link. */
+export function actorExtern(nume) {
+  return { rol: "extern", nume: taie(nume, 120) || "proprietar mascul" };
+}
+
+const aleator = () => Math.random().toString(36).slice(2, 8);
+
+function construieste({ fapta, actor, obiect, detalii, ip }) {
+  const la = new Date().toISOString();
+  return {
+    cheie: `jurnal/${la.slice(0, 7)}/${la}-${aleator()}`,
+    intrare: {
+      la,
+      fapta: taie(fapta, 40),
+      eticheta: FAPTE[fapta] || taie(fapta, 40),
+      actor: actor || { rol: "necunoscut", nume: "necunoscut" },
+      obiect: taie(obiect, 120),      // seria dosarului / certificatului / numele vizat
+      detalii: taie(detalii, 400),
+      ip: taie(ip, 60),
+    },
+  };
+}
+
+/**
+ * Consemnează o faptă. NU aruncă niciodată: acțiunea a reușit deja, iar o eroare de
+ * scriere a jurnalului nu are voie s-o transforme într-un eșec pentru om.
+ * Întoarce true dacă intrarea a fost scrisă.
+ */
+export async function jurnalizeaza(store, date) {
+  try {
+    if (!FAPTE[date?.fapta]) {
+      console.error("Faptă necunoscută în jurnal:", date?.fapta);
+      return false;
+    }
+    const { cheie, intrare } = construieste(date);
+    await store.setJSON(cheie, intrare);
+    return true;
+  } catch (err) {
+    console.error("Scrierea în jurnal a eșuat:", err);
+    return false;
+  }
+}
+
+/**
+ * Consemnează o faptă DISTRUCTIVĂ, înainte de a o executa. Aruncă dacă nu poate scrie —
+ * apelantul trebuie să renunțe la ștergere. Un dosar care dispare fără urmă e mai rău
+ * decât un dosar care rămâne.
+ */
+export async function jurnalizeazaObligatoriu(store, date) {
+  if (!FAPTE[date?.fapta]) throw new Error("Faptă necunoscută: " + date?.fapta);
+  const { cheie, intrare } = construieste(date);
+  await store.setJSON(cheie, intrare);
+  return intrare;
+}
+
+/** Adresa de unde a venit cererea, pentru intrările care o justifică. */
+export function ipCerere(req) {
+  try {
+    return req.headers.get("x-nf-client-connection-ip") || req.headers.get("x-forwarded-for") || "";
+  } catch {
+    return "";
+  }
+}
+
+/** Lunile pe care le acoperă jurnalul, cele mai noi întâi (AAAA-LL). */
+export function luniDinChei(chei) {
+  const luni = new Set();
+  for (const k of chei) {
+    const m = String(k).match(/^jurnal\/(\d{4}-\d{2})\//);
+    if (m) luni.add(m[1]);
+  }
+  return [...luni].sort().reverse();
+}
+
+/** Filtrarea intrărilor: după faptă și după text liber (actor, obiect, detalii). */
+export function filtreaza(intrari, { fapta, cauta } = {}) {
+  const q = String(cauta || "").trim().toLowerCase();
+  return intrari.filter((x) => {
+    if (fapta && x.fapta !== fapta) return false;
+    if (!q) return true;
+    return [x.eticheta, x.actor?.nume, x.actor?.rol, x.obiect, x.detalii]
+      .some((v) => String(v || "").toLowerCase().includes(q));
+  });
+}
+
+/**
+ * Citește jurnalul unei luni (implicit luna curentă), cel mai nou întâi.
+ * Se citește pe luni tocmai ca să nu ajungem, peste ani, să încărcăm tot registrul
+ * ca să vedem ce s-a întâmplat ieri.
+ */
+export async function citesteJurnal(store, { luna, fapta, cauta, limita = 200 } = {}) {
+  const acum = new Date().toISOString().slice(0, 7);
+  const cerut = /^\d{4}-\d{2}$/.test(String(luna || "")) ? luna : acum;
+
+  let toate = [];
+  let luniDisponibile = [];
+  try {
+    const { blobs } = await store.list({ prefix: "jurnal/" });
+    luniDisponibile = luniDinChei(blobs.map((b) => b.key));
+    const aleLunii = blobs.filter((b) => b.key.startsWith(`jurnal/${cerut}/`));
+    // Cheile încep cu marca de timp, deci sortarea lor descrescătoare e chiar ordinea
+    // cronologică inversă — nu e nevoie să citim tot ca să putem tăia lista.
+    aleLunii.sort((a, b) => b.key.localeCompare(a.key));
+    const felii = aleLunii.slice(0, Math.max(1, Math.min(limita, 1000)));
+    for (const b of felii) {
+      const x = await store.get(b.key, { type: "json" }).catch(() => null);
+      if (x) toate.push(x);
+    }
+  } catch (err) {
+    console.error("Citirea jurnalului a eșuat:", err);
+  }
+
+  if (!luniDisponibile.includes(cerut)) luniDisponibile = [cerut, ...luniDisponibile];
+  return { luna: cerut, luni: luniDisponibile, intrari: filtreaza(toate, { fapta, cauta }) };
+}

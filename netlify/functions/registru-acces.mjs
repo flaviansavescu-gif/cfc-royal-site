@@ -29,6 +29,12 @@
 import { getStore } from "@netlify/blobs";
 import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod, ipClient } from "./_comun/limitare.mjs";
+import {
+  jurnalizeaza, jurnalizeazaObligatoriu, ipCerere, citesteJurnal, FAPTE,
+} from "./_comun/registru-jurnal.mjs";
+
+/** Toate acțiunile de aici sunt ale administratorului; actorul e mereu același. */
+const ADMIN = { rol: "admin", nume: "Administrator" };
 
 const store = () => getStore("registru");
 
@@ -299,6 +305,15 @@ export default cuLimitareCod(async (req) => {
     // siguranță. Altfel amprenta n-ar apăra nimic: cine ajunge la stocare ar avea codul.
     const membru = { nume, afix, nrAfix, email, cotizatiePana, creat: new Date().toISOString() };
     await store().setJSON("membru/" + nou.id, membru);
+    // Codul NU se scrie în jurnal — doar faptul că s-a generat unul, și pentru cine.
+    await jurnalizeaza(store(), {
+      fapta: "cod-generat",
+      actor: ADMIN,
+      obiect: nume,
+      detalii: `Acces de membru pentru ${email}` + (afix ? `, afix ${afix}` : "") +
+        `, cotizație până la ${cotizatiePana}`,
+      ip: ipCerere(req),
+    });
     return json({ ok: true, membru: { ...membru, cod: nou.cod, id: nou.id, cotizatieLaZi: cotizatieLaZi(cotizatiePana) } });
   }
 
@@ -312,6 +327,13 @@ export default cuLimitareCod(async (req) => {
     const x = await store().get("membru/" + id, { type: "json" }).catch(() => null);
     if (!x) return json({ eroare: "Membru inexistent." }, 404);
     await store().setJSON("membru/" + id, { ...x, cotizatiePana });
+    await jurnalizeaza(store(), {
+      fapta: "cotizatie-actualizata",
+      actor: ADMIN,
+      obiect: x.nume,
+      detalii: `Cotizație până la ${cotizatiePana}` + (x.cotizatiePana ? ` (era ${x.cotizatiePana})` : ""),
+      ip: ipCerere(req),
+    });
     return json({ ok: true, cotizatiePana, cotizatieLaZi: cotizatieLaZi(cotizatiePana) });
   }
 
@@ -325,6 +347,13 @@ export default cuLimitareCod(async (req) => {
     if (!nou) return json({ eroare: "Nu am putut genera un cod unic. Reîncearcă." }, 500);
     const registrator = { nume, email, creat: new Date().toISOString() };   // fără cod, ca la membri
     await store().setJSON("registrator/" + nou.id, registrator);
+    await jurnalizeaza(store(), {
+      fapta: "cod-generat",
+      actor: ADMIN,
+      obiect: nume,
+      detalii: `Acces de REGISTRATURĂ` + (email ? ` pentru ${email}` : ""),
+      ip: ipCerere(req),
+    });
     return json({ ok: true, registrator: { ...registrator, cod: nou.cod, id: nou.id } });
   }
 
@@ -345,6 +374,19 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "cerere-sterge") {
     const id = taie(body.id, 40);
     if (!id) return json({ eroare: "Lipsește solicitarea." }, 400);
+    const x = await store().get("cerere/" + id, { type: "json" }).catch(() => null);
+    try {
+      await jurnalizeazaObligatoriu(store(), {
+        fapta: "cerere-stearsa",
+        actor: ADMIN,
+        obiect: x?.nume || id,
+        detalii: x ? `Solicitare de acces (${x.email || "fără e-mail"}${x.telefon ? ", " + x.telefon : ""})` : "Solicitare inexistentă la ștergere",
+        ip: ipCerere(req),
+      });
+    } catch (err) {
+      console.error("Jurnalul nu a putut fi scris; ștergerea a fost oprită:", err);
+      return json({ eroare: "Nu am putut consemna ștergerea în jurnal, deci nu am șters nimic." }, 503);
+    }
     try { await store().delete("cerere/" + id); } catch (err) { console.error(err); }
     return json({ ok: true });
   }
@@ -357,13 +399,52 @@ export default cuLimitareCod(async (req) => {
   //   • formularul DMF început și nedus până la capăt lasă ciorna și cele patru fișiere
   //     încărcate, la nesfârșit: scanuri de acte agățate de niciun dosar.
   if (actiune === "curatenie") {
-    return json({ ok: true, ...(await curataMagazia()) });
+    const raport = await curataMagazia();
+    await jurnalizeaza(store(), {
+      fapta: "magazie-curatata",
+      actor: ADMIN,
+      obiect: "magazia registrului",
+      detalii: `Coduri rămase curățate: ${raport.coduriSterse ?? 0}; ciorne șterse: ${raport.ciorneSterse ?? 0}; ` +
+        `fișiere șterse: ${raport.fisiereSterse ?? 0}; ciorne prea recente: ${(raport.ciornePreaRecente || []).length}`,
+      ip: ipCerere(req),
+    });
+    return json({ ok: true, ...raport });
   }
+
+  // —— Jurnalul de audit ——
+  // Se citește pe luni: peste ani, „ce s-a întâmplat ieri" nu trebuie să însemne
+  // încărcarea întregului istoric al registrului.
+  if (actiune === "jurnal") {
+    return json(await citesteJurnal(store(), {
+      luna: taie(body.luna, 7),
+      fapta: taie(body.fapta, 40),
+      cauta: taie(body.cauta, 80),
+      limita: Number(body.limita) || 200,
+    }));
+  }
+
+  if (actiune === "jurnal-fapte") return json({ fapte: FAPTE });
 
   if (actiune === "membru-sterge" || actiune === "registrator-sterge") {
     const id = taie(body.id, 128);
     if (!id) return json({ eroare: "Lipsește înregistrarea." }, 400);
     const prefix = actiune === "membru-sterge" ? "membru/" : "registrator/";
+    const x = await store().get(prefix + id, { type: "json" }).catch(() => null);
+    // Revocarea unui acces se consemnează ÎNAINTE. Dacă jurnalul nu poate fi scris,
+    // nu revocăm: altfel nu s-ar mai ști cine avea acces și de când nu mai are.
+    try {
+      await jurnalizeazaObligatoriu(store(), {
+        fapta: "cod-sters",
+        actor: ADMIN,
+        obiect: x?.nume || id,
+        detalii: (actiune === "membru-sterge" ? "Acces de membru revocat" : "Acces de registratură revocat") +
+          (x?.email ? ` (${x.email})` : ""),
+        ip: ipCerere(req),
+      });
+    } catch (err) {
+      console.error("Jurnalul nu a putut fi scris; revocarea a fost oprită:", err);
+      return json({ eroare: "Nu am putut consemna revocarea în jurnal, deci nu am șters nimic." }, 503);
+    }
     try { await store().delete(prefix + id); } catch (err) { console.error(err); }
     return json({ ok: true });
   }

@@ -9,9 +9,11 @@
 // administratorul care a cerut-o, și nu rămâne nicăieri pe server.
 //
 // POST { cod, maxMB? } -> application/zip
+import { getStore } from "@netlify/blobs";
 import { actorDinCod } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { construiesteArhiva } from "./_comun/registru-arhiva.mjs";
+import { jurnalizeaza, ipCerere } from "./_comun/registru-jurnal.mjs";
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -34,6 +36,16 @@ export default cuLimitareCod(async (req) => {
   try {
     const { zip, rezumat } = await construiesteArhiva({ maxFisiere: maxMB * 1024 * 1024 });
     const nume = "registru-cfcr-" + new Date().toISOString().slice(0, 10) + ".zip";
+    // Scoaterea întregului registru pe un calculator din afara serverului e cea mai
+    // grea faptă din tot sistemul: date personale, scanuri de acte, tot. Se consemnează.
+    await jurnalizeaza(getStore("registru"), {
+      fapta: "arhiva-descarcata",
+      actor: { rol: "admin", nume: "Administrator" },
+      obiect: nume,
+      detalii: `${rezumat.inregistrari} înregistrări, ${rezumat.fisiere} fișiere, ` +
+        `${rezumat.fisiereOmise.length} omise (limită ${maxMB} MB)`,
+      ip: ipCerere(req),
+    });
     return new Response(zip, {
       headers: {
         "Content-Type": "application/zip",

@@ -35,6 +35,9 @@ import { getStore } from "@netlify/blobs";
 import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { membruDinCod, registratorDinCod } from "./registru-acces.mjs";
+import {
+  jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, actorExtern, ipCerere,
+} from "./_comun/registru-jurnal.mjs";
 
 const store = () => getStore("registru");
 
@@ -416,6 +419,14 @@ export default cuLimitareCod(async (req) => {
     // Îl semnalăm registraturii, care decide.
     await s0.setJSON("dmf/" + inv.dmfId, { ...d, confirmare: { ...(d.confirmare || {}), ...urma } });
     await s0.delete(cheie).catch(() => {});   // jeton de unică folosință
+    await jurnalizeaza(s0, {
+      fapta: "confirmare-raspuns",
+      actor: actorExtern(nume),
+      obiect: d.serie,
+      detalii: (urma.stare === "confirmat" ? "A confirmat monta" : "NU a confirmat monta") +
+        ` (${inv.email})` + (motiv ? " — " + motiv : ""),
+      ip: urma.ip,
+    });
     return json({ ok: true, stare: urma.stare });
   }
 
@@ -531,6 +542,14 @@ export default cuLimitareCod(async (req) => {
     const emailTrimis = await trimiteConfirmarea(eu.membru, d);
     const { jeton } = await deschideConfirmarea(ciornaId, d.mascul.email);
     const cerereTrimisa = await trimiteCerereaCatreMascul(d, jeton);
+    await jurnalizeaza(s, {
+      fapta: "dmf-depus",
+      actor: actorJurnal(eu),
+      obiect: serie,
+      detalii: `${d.rasa}, fătare ${d.dataFatarii}, ${d.pui.length} pui` +
+        (d.pesteTermen ? ` — PESTE TERMEN (${d.zileDeLaFatare} zile)` : ""),
+      ip: d.semnaturaUrma.ip,
+    });
     return json({ ok: true, serie, id: ciornaId, pesteTermen: d.pesteTermen, emailTrimis, cerereTrimisa });
   }
 
@@ -572,13 +591,16 @@ export default cuLimitareCod(async (req) => {
       return json({ eroare: "Dosarul are deja un răspuns; adresa nu mai poate fi schimbată." }, 409);
 
     let email = c.email || d.mascul.email;
+    const emailVechi = email;
     const emailNou = taie(body.emailNou, 200).toLowerCase();
     let corectat = !!c.adresaCorectata;
+    let schimbataAcum = false;
     if (emailNou && emailNou !== email) {
       if (corectat) return json({ eroare: "Adresa a fost deja corectată o dată. Scrie secretariatului." }, 409);
       if (!EMAIL_RE.test(emailNou)) return json({ eroare: "Adresa de e-mail nu este validă." }, 400);
       email = emailNou;
       corectat = true;
+      schimbataAcum = true;
     }
 
     const { jeton } = await deschideConfirmarea(id, email);
@@ -588,6 +610,14 @@ export default cuLimitareCod(async (req) => {
       mascul: { ...d.mascul, email },
       confirmare: { ...c, stare: "asteptare", email, trimisLa: new Date().toISOString(),
         trimiteri: (c.trimiteri || 0) + 1, adresaCorectata: corectat },
+    });
+    await jurnalizeaza(s, {
+      fapta: schimbataAcum ? "confirmare-adresa" : "confirmare-trimisa",
+      actor: actorJurnal(eu),
+      obiect: d.serie,
+      detalii: `Cerere trimisă către ${email} (trimiterea ${(c.trimiteri || 0) + 1})` +
+        (schimbataAcum ? ` — adresă corectată, era ${emailVechi}` : ""),
+      ip: ipCerere(req),
     });
     return json({ ok: true, email, trimis, adresaCorectata: corectat });
   }
@@ -651,6 +681,13 @@ export default cuLimitareCod(async (req) => {
         deCatre: eu.rol === "admin" ? "administrator" : (eu.registrator?.nume || "registratură"),
       },
     });
+    await jurnalizeaza(s, {
+      fapta: "dmf-respins",
+      actor: actorJurnal(eu),
+      obiect: d.serie,
+      detalii: `Crescător: ${d.membruNume} — motiv: ${motiv}`,
+      ip: ipCerere(req),
+    });
     return json({ ok: true });
   }
 
@@ -693,6 +730,14 @@ export default cuLimitareCod(async (req) => {
         observatie: taie(body.observatie, 400),
       },
     });
+    await jurnalizeaza(s, {
+      fapta: "confirmare-alternativa",
+      actor: actorJurnal(eu),
+      obiect: d.serie,
+      detalii: `Dovadă semnată acceptată în locul confirmării pe link` +
+        (taie(body.observatie, 400) ? " — " + taie(body.observatie, 400) : ""),
+      ip: ipCerere(req),
+    });
     return json({ ok: true });
   }
 
@@ -728,6 +773,22 @@ export default cuLimitareCod(async (req) => {
     const id = taie(body.id, 40);
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
+
+    // Urma se scrie ÎNAINTE de ștergere și, dacă nu se poate scrie, nu ștergem nimic.
+    // Un dosar care dispare fără urmă e mai rău decât un dosar rămas în plus.
+    try {
+      await jurnalizeazaObligatoriu(s, {
+        fapta: "dmf-sters",
+        actor: actorJurnal(eu),
+        obiect: d.serie,
+        detalii: `Crescător: ${d.membruNume}; ${d.rasa}, fătare ${d.dataFatarii}, ` +
+          `${(d.pui || []).length} pui; stare la ștergere: ${d.stare}`,
+        ip: ipCerere(req),
+      });
+    } catch (err) {
+      console.error("Jurnalul nu a putut fi scris; ștergerea a fost oprită:", err);
+      return json({ eroare: "Nu am putut consemna ștergerea în jurnal, deci nu am șters nimic. Reîncearcă." }, 503);
+    }
 
     for (const fel of Object.keys(TOATE_FELURILE)) {
       await s.delete("dmf-fisier/" + id + "/" + fel).catch(() => {});

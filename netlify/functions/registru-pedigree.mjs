@@ -33,6 +33,7 @@ import QRCode from "qrcode";
 import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { membruDinCod, registratorDinCod } from "./registru-acces.mjs";
+import { jurnalizeaza, actorJurnal, ipCerere } from "./_comun/registru-jurnal.mjs";
 
 const store = () => getStore("registru");
 
@@ -283,6 +284,17 @@ export default cuLimitareCod(async (req) => {
     if (c.numarWDFCaine && c.numarWDFCaine !== numar)
       await s.delete("pedigree-wdf/" + c.numarWDFCaine).catch(() => {});
     await s.setJSON("pedigree/" + serie, { ...c, numarWDFCaine: numar || null });
+    await jurnalizeaza(s, {
+      fapta: "numar-wdf-caine",
+      actor: actorJurnal(eu),
+      obiect: serie,
+      detalii: numar
+        ? `${c.caine?.nume || ""} — număr WDF individual: ${numar}` +
+          (c.numarWDFCaine && c.numarWDFCaine !== numar ? ` (era ${c.numarWDFCaine})` : "")
+        : `${c.caine?.nume || ""} — număr WDF individual șters` +
+          (c.numarWDFCaine ? ` (era ${c.numarWDFCaine})` : ""),
+      ip: ipCerere(req),
+    });
     return json({ ok: true, numarWDFCaine: numar || null });
   }
 
@@ -324,7 +336,26 @@ export default cuLimitareCod(async (req) => {
       asc[cod] = { nume, nr: taie(p.nr, 60), titluri: taie(p.titluri, 120) };
     }
     const t = tipCertificat(asc);
+    // Câte poziții s-au schimbat față de ce era în dosar — o ascendență rescrisă după
+    // emitere e exact genul de lucru pentru care există jurnalul.
+    const inainte = d.ascendenta || {};
+    const schimbate = pozitiiAscendenta().filter(({ cod }) => {
+      const a = inainte[cod], b = asc[cod];
+      return JSON.stringify(a || null) !== JSON.stringify(b || null);
+    }).map(({ cod }) => cod);
+
     await s.setJSON("dmf/" + id, { ...d, ascendenta: asc, stare: "verificat" });
+    if (schimbate.length) {
+      await jurnalizeaza(s, {
+        fapta: "ascendenta-modificata",
+        actor: actorJurnal(eu),
+        obiect: d.serie,
+        detalii: `${Object.keys(asc).length}/30 poziții completate, tip ${t.tip}; ` +
+          `modificate: ${schimbate.slice(0, 12).join(", ")}${schimbate.length > 12 ? " ș.a." : ""}` +
+          (d.stare === "emis" ? " — DOSAR CU CERTIFICATE DEJA EMISE" : ""),
+        ip: ipCerere(req),
+      });
+    }
     return json({ ok: true, tip: t.tip, lipsa: t.lipsa, completate: Object.keys(asc).length });
   }
 
@@ -343,6 +374,13 @@ export default cuLimitareCod(async (req) => {
     const numarWDF = "WDF-" + String(urm).padStart(4, "0");
     await s.setJSON("contor/wdf", { ultim: urm });
     await s.setJSON("dmf/" + id, { ...d, numarWDF });
+    await jurnalizeaza(s, {
+      fapta: "numar-wdf",
+      actor: actorJurnal(eu),
+      obiect: d.serie,
+      detalii: `Cuib înregistrat cu numărul ${numarWDF} (${d.rasa}, crescător ${d.membruNume})`,
+      ip: ipCerere(req),
+    });
     return json({ ok: true, numarWDF });
   }
 
@@ -406,6 +444,17 @@ export default cuLimitareCod(async (req) => {
       emise.push({ index: i, serie, tip: t.tip });
     }
     await s.setJSON("dmf/" + id, { ...(await s.get("dmf/" + id, { type: "json" })), stare: "emis" });
+    const noi = emise.filter((x) => !x.deja);
+    if (noi.length) {
+      await jurnalizeaza(s, {
+        fapta: "certificat-emis",
+        actor: actorJurnal(eu),
+        obiect: d.serie,
+        detalii: `${noi.length} certificat(e) Tip ${t.tip}, cuib ${d.numarWDF}, crescător ${d.membruNume}: ` +
+          noi.map((x) => x.serie).join(", "),
+        ip: ipCerere(req),
+      });
+    }
     return json({ ok: true, tip: t.tip, lipsa: t.lipsa, emise });
   }
 

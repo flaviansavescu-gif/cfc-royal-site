@@ -121,6 +121,10 @@ Făcută la: ${r.facutLa}
     se păstrează nicăieri și sunt scoase din arhivă chiar dacă ar rămâne undeva: de aici
     NU se poate intra în registru. Cine își pierde codul primește altul.
   - \`contor/…\`, \`serie/…\` — evidența numerelor, ca să nu se repete.
+  - \`jurnal/<lună>/<moment>.json\` — jurnalul de audit: cine, ce și când. O intrare pe
+    fișier, cu numele fișierului dat de momentul faptei. Aici se vede cine a depus,
+    cine a respins, cine a emis un certificat, cine a modificat o ascendență și cine a
+    revocat un acces. Codurile NU apar: se scrie rolul și numele, nu cheia de intrare.
 - \`fisiere/\` — piesele încărcate la dosare (pedigree-uri, dovada dreptului de montă,
   dovada plății, dovezile semnate), cu extensia lor reală.
 
