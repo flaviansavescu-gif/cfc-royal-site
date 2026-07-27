@@ -31,14 +31,123 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   </div>
 
   <h2 class="g-h2">Dosare în lucru</h2>
-  <p class="g-gol">Niciun dosar depus încă. Aici vor apărea declarațiile pe măsură ce sosesc.</p>
+  <ul class="g-dosare" id="g-dosare"><li class="g-gol">Se încarcă…</li></ul>
+
+  <div class="g-detaliu" id="g-detaliu" hidden></div>
 </RegistruLayout>
 
 <script is:inline>
   (function () {
+    const F = "/.netlify/functions/registru-dmf";
+    const cod = () => localStorage.getItem("cfcrRegistruCod") || "";
     let r = null;
     try { r = JSON.parse(localStorage.getItem("cfcrRegistru") || "null"); } catch (e) {}
     if (r && r.nume) document.getElementById("g-cine").textContent = "Autentificat: " + r.nume;
+
+    const lista = document.getElementById("g-dosare");
+    const detaliu = document.getElementById("g-detaliu");
+    const dataRo = (s) => { const x = new Date(s); return isNaN(x) ? String(s || "") : x.toLocaleDateString("ro-RO"); };
+    const FELURI = {
+      "pedigree-mascul": "Pedigree mascul", "pedigree-femela": "Pedigree femelă",
+      "drept-monta": "Drept de montă", "plata": "Dovada plății",
+    };
+
+    const post = (b) => fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ cod: cod() }, b)) });
+
+    // Textul dosarelor vine de la crescători: NUMAI textContent, niciodată innerHTML.
+    // Altfel numele unui câine ar putea executa cod în pagina registratorului.
+    const el = (tag, cls, text) => {
+      const x = document.createElement(tag);
+      if (cls) x.className = cls;
+      if (text != null) x.textContent = text;
+      return x;
+    };
+
+    async function deschide(id) {
+      detaliu.hidden = false;
+      detaliu.textContent = "";
+      detaliu.appendChild(el("p", "g-gol", "Se încarcă dosarul…"));
+      const res = await post({ actiune: "dosar", id });
+      const d = (await res.json().catch(() => ({}))).dosar;
+      detaliu.textContent = "";
+      if (!d) { detaliu.appendChild(el("p", "g-gol", "Dosarul nu a putut fi încărcat.")); return; }
+
+      detaliu.appendChild(el("h3", "g-dh", d.serie + " — " + d.rasa));
+      const meta = el("p", "g-dmeta",
+        [d.membruNume, "montă " + dataRo(d.dataMontei), "fătare " + dataRo(d.dataFatarii),
+         "născuți " + (d.nascutiM + d.nascutiF), "rămași " + d.pui.length,
+         d.afix ? "afix " + d.afix : null].filter(Boolean).join(" · "));
+      detaliu.appendChild(meta);
+      if (d.pesteTermen) detaliu.appendChild(el("p", "g-termen", "Depusă după " + d.zileDeLaFatare + " de zile — peste termenul de 90."));
+
+      for (const [cheie, eticheta] of [["mascul", "♂ Masculul"], ["femela", "♀ Femela"]]) {
+        const p = d[cheie];
+        detaliu.appendChild(el("h4", "g-dh4", eticheta + ": " + p.nume));
+        detaliu.appendChild(el("p", "g-dmeta",
+          ["pedigree " + p.pedigree, "microcip " + p.microcip, "n. " + dataRo(p.dataNasterii),
+           "prop. " + p.proprietar, p.email || null].filter(Boolean).join(" · ")));
+      }
+
+      detaliu.appendChild(el("h4", "g-dh4", "Puii (" + d.pui.length + ")"));
+      const ul = el("ul", "g-pui");
+      for (const pu of d.pui) {
+        ul.appendChild(el("li", null,
+          (pu.sex === "M" ? "♂ " : "♀ ") + pu.nume +
+          [pu.culoare, pu.tipPar, pu.identificare, pu.cumparator && pu.cumparator.nume ? "→ " + pu.cumparator.nume : null]
+            .filter(Boolean).map((x) => " · " + x).join("")));
+      }
+      detaliu.appendChild(ul);
+
+      detaliu.appendChild(el("h4", "g-dh4", "Piesele dosarului"));
+      const piese = el("p", "g-piese");
+      for (const fel of Object.keys(FELURI)) {
+        const b = el("button", "btn btn--outline g-piesa", FELURI[fel]);
+        b.type = "button";
+        b.addEventListener("click", async () => {
+          b.disabled = true;
+          try {
+            const rf = await post({ actiune: "vezi-fisier", id, fel });
+            if (!rf.ok) throw new Error("indisponibil");
+            const url = URL.createObjectURL(await rf.blob());
+            window.open(url, "_blank", "noopener");
+            // Eliberăm memoria după ce fereastra a apucat să încarce.
+            setTimeout(() => URL.revokeObjectURL(url), 60000);
+          } catch (e) { b.textContent = FELURI[fel] + " — lipsă"; }
+          b.disabled = false;
+        });
+        piese.appendChild(b);
+      }
+      detaliu.appendChild(piese);
+      detaliu.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    post({ actiune: "dosare" })
+      .then((res) => res.json())
+      .then((d) => {
+        lista.textContent = "";
+        const arr = d.dosare || [];
+        if (!arr.length) {
+          lista.appendChild(el("li", "g-gol", "Niciun dosar depus încă. Aici apar declarațiile pe măsură ce sosesc."));
+          return;
+        }
+        for (const x of arr) {
+          const li = el("li", "g-dosar");
+          const b = el("button", "g-dosar__buton");
+          b.type = "button";
+          b.appendChild(el("strong", "g-dosar__serie", x.serie));
+          b.appendChild(el("span", "g-dosar__det",
+            [x.rasa, x.membruNume, "fătare " + dataRo(x.dataFatarii), x.pui + " pui"].join(" · ")));
+          if (x.pesteTermen) b.appendChild(el("span", "g-dosar__termen", "peste termen"));
+          b.addEventListener("click", () => deschide(x.id));
+          li.appendChild(b);
+          lista.appendChild(li);
+        }
+      })
+      .catch(() => {
+        lista.textContent = "";
+        lista.appendChild(el("li", "g-gol", "Nu am putut încărca lista dosarelor."));
+      });
   })();
 </script>
 
@@ -55,4 +164,23 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     background: var(--color-surface-alt); border: 1px solid var(--color-border);
     border-radius: var(--radius); padding: 0.9rem 1.1rem; }
   .g-gol { color: var(--color-text-muted); font-style: italic; }
+  .g-dosare { list-style: none; padding: 0; display: grid; gap: 0.5rem; max-width: 52rem; }
+  .g-dosar__buton { display: flex; align-items: baseline; gap: 0.9rem; flex-wrap: wrap; width: 100%;
+    text-align: left; padding: 0.7rem 0.9rem; background: var(--color-surface-alt);
+    border: 1px solid var(--color-border); border-radius: var(--radius); cursor: pointer; font: inherit; }
+  .g-dosar__buton:hover { border-color: var(--color-accent); }
+  .g-dosar__serie { font-family: var(--font-mono, monospace); color: var(--color-primary); }
+  .g-dosar__det { color: var(--color-text-muted); font-size: 0.88rem; }
+  .g-dosar__termen { margin-left: auto; font-size: 0.8rem; border: 1px solid #8c1d2f; color: #8c1d2f;
+    border-radius: 999px; padding: 0.2rem 0.7rem; }
+  .g-detaliu[hidden] { display: none; }
+  .g-detaliu { margin-top: 2rem; border-top: 2px solid var(--color-accent); padding-top: 1rem; max-width: 52rem; }
+  .g-dh { font-family: var(--font-serif); color: var(--color-primary); margin: 0 0 0.3rem; }
+  .g-dh4 { font-family: var(--font-serif); color: var(--color-primary); margin: 1.2rem 0 0.2rem; font-size: 1rem; }
+  .g-dmeta { color: var(--color-text-muted); font-size: 0.88rem; margin: 0.2rem 0; }
+  .g-termen { background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f;
+    border-radius: var(--radius); padding: 0.5rem 0.8rem; font-size: 0.88rem; }
+  .g-pui { padding-left: 1.2rem; font-size: 0.9rem; }
+  .g-piese { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .g-piesa { font-size: 0.85rem; }
 </style>

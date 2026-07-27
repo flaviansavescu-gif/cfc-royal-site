@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "verifica": "node scripts/verifica-scripturi.mjs",
+  "prebuild": "node scripts/verifica-scripturi.mjs",
+  "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "postbuild": "pagefind --site dist"

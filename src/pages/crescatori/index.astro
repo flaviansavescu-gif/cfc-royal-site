@@ -26,11 +26,11 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
       pedigree-urilor ambilor părinți, <strong>dovada dreptului de montă al femelei</strong> și dovada plății.
       La depunere primești pe e-mail numărul de înregistrare al cuibului.</p>
     </div>
-    <span class="c-curand">În pregătire</span>
+    <a class="btn btn--primary" href="/crescatori/dmf/" id="c-depune">Depune o declarație →</a>
   </div>
 
   <h2 class="c-h2">Declarațiile mele</h2>
-  <p class="c-gol">Nicio declarație depusă încă.</p>
+  <ul class="c-declaratii" id="c-declaratii"><li class="c-gol">Se încarcă…</li></ul>
 
   <div class="c-ajutor">
     <p><strong>Dreptul de montă al femelei.</strong> Femela trebuie să fi obținut minimum un
@@ -66,8 +66,62 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
         cot.className = "c-cotizatie is-expirat";
         cot.textContent = "⚠ Cotizația a expirat la " + dataRo(r.cotizatiePana) +
           ". Până la reînnoire nu poți depune declarații noi. Scrie secretariatului la contact@cfc-royal.ro.";
+        // Butonul rămâne vizibil, dar nu mai duce nicăieri: mai bine află aici de ce,
+        // decât să completeze tot formularul și să fie oprit la trimitere.
+        const b = document.getElementById("c-depune");
+        b.setAttribute("aria-disabled", "true");
+        b.classList.add("is-oprit");
+        b.addEventListener("click", (e) => e.preventDefault());
       }
     }
+
+    // —— Declarațiile depuse ——
+    const lista = document.getElementById("c-declaratii");
+    const ETICHETE = { depus: "Depusă", "in-verificare": "În verificare", aprobat: "Aprobată", respins: "Respinsă" };
+    fetch("/.netlify/functions/registru-dmf", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cod: localStorage.getItem("cfcrRegistruCod") || "", actiune: "mele" }),
+    })
+      .then((res) => res.json())
+      .then((d) => {
+        lista.textContent = "";
+        const arr = d.declaratii || [];
+        if (!arr.length) {
+          const li = document.createElement("li");
+          li.className = "c-gol";
+          li.textContent = "Nicio declarație depusă încă.";
+          lista.appendChild(li);
+          return;
+        }
+        for (const x of arr) {
+          const li = document.createElement("li");
+          li.className = "c-decl";
+          const serie = document.createElement("strong");
+          serie.className = "c-decl__serie";
+          serie.textContent = x.serie;
+          const det = document.createElement("span");
+          det.className = "c-decl__det";
+          det.textContent = [x.rasa, "fătare " + dataRo(x.dataFatarii), x.pui + " pui"].join(" · ");
+          const st = document.createElement("span");
+          st.className = "c-decl__stare";
+          st.textContent = ETICHETE[x.stare] || x.stare;
+          li.append(serie, det, st);
+          if (x.pesteTermen) {
+            const t = document.createElement("span");
+            t.className = "c-decl__termen";
+            t.textContent = "peste termen";
+            li.appendChild(t);
+          }
+          lista.appendChild(li);
+        }
+      })
+      .catch(() => {
+        lista.textContent = "";
+        const li = document.createElement("li");
+        li.className = "c-gol";
+        li.textContent = "Nu am putut încărca lista declarațiilor.";
+        lista.appendChild(li);
+      });
   })();
 </script>
 
@@ -88,6 +142,16 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   .c-curand { flex: 0 0 auto; font-size: 0.8rem; color: var(--color-accent-dark);
     border: 1px solid var(--color-accent); border-radius: 999px; padding: 0.3rem 0.8rem; }
   .c-gol { color: var(--color-text-muted); font-style: italic; }
+  .c-declaratii { list-style: none; padding: 0; display: grid; gap: 0.5rem; max-width: 52rem; }
+  .c-decl { display: flex; align-items: baseline; gap: 0.9rem; flex-wrap: wrap;
+    padding: 0.7rem 0.9rem; border: 1px solid var(--color-border); border-radius: var(--radius); }
+  .c-decl__serie { font-family: var(--font-mono, monospace); color: var(--color-primary); }
+  .c-decl__det { color: var(--color-text-muted); font-size: 0.88rem; }
+  .c-decl__stare { margin-left: auto; font-size: 0.8rem; border: 1px solid var(--color-accent);
+    color: var(--color-accent-dark); border-radius: 999px; padding: 0.2rem 0.7rem; }
+  .c-decl__termen { font-size: 0.8rem; border: 1px solid #8c1d2f; color: #8c1d2f;
+    border-radius: 999px; padding: 0.2rem 0.7rem; }
+  .btn.is-oprit { opacity: 0.5; cursor: not-allowed; }
   .c-ajutor { margin-top: 2rem; border-top: 1px solid var(--color-border); padding-top: 1rem; max-width: 44rem; }
   .c-ajutor p { font-size: 0.88rem; color: var(--color-text-muted); }
 </style>
