@@ -19,8 +19,31 @@ export function egal(a, b) {
   return timingSafeEqual(x, y);
 }
 
-/** Codul de ADMINISTRATOR — acces total la platformă. */
-export const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
+/**
+ * Codul de ADMINISTRATOR — acces total la platformă.
+ *
+ * AICI ȘI NICĂIERI ALTUNDEVA. Amprenta a fost copiată, la un moment dat, în zece funcții
+ * care nu importau de aici. Consecința nu era vizibilă până în ziua schimbării codului:
+ * ar fi trebuit modificate unsprezece fișiere, iar oricare uitat ar fi continuat să
+ * accepte codul VECHI. O revocare care nu revocă peste tot nu e o revocare.
+ *
+ * `ADMIN_HASH_ENV` permite schimbarea codului DIN NETLIFY, fără atingerea codului sursă
+ * și fără publicare: pui amprenta nouă în variabila de mediu și codul vechi moare în
+ * aceeași clipă, în toate funcțiile deodată. Valoarea de mai jos rămâne ca rezervă, ca
+ * platforma să funcționeze și fără variabilă — dar odată pusă variabila, ea are ultimul
+ * cuvânt.
+ *
+ * Amprenta nouă se obține din codul dorit cu:
+ *   node -e "console.log(require('crypto').createHash('sha256').update('CODUL').digest('hex'))"
+ */
+const ADMIN_HASH_IMPLICIT = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
+
+const dinMediu = String(process.env.ADMIN_HASH || "").trim().toLowerCase();
+export const ADMIN_HASH = /^[0-9a-f]{64}$/.test(dinMediu) ? dinMediu : ADMIN_HASH_IMPLICIT;
+
+if (dinMediu && dinMediu !== ADMIN_HASH) {
+  console.error("ADMIN_HASH din mediu nu e o amprentă SHA-256 validă (64 de cifre hexazecimale) — se folosește cea din cod.");
+}
 
 /** Codul COMUN de candidați (acces la zona de curs fără cod individual). */
 export const ACCES_HASH = "48493761ba33bce0e9919789a88582a482179869fa76dbbaa93be7d67dad5470";
@@ -37,6 +60,16 @@ export const LECTORI = [
   { slug: "andreea-daniela-popescu", nume: "Andreea-Daniela Popescu", hash: "3a7948f0609b92e2a9a46075b909600eec39244f36bc2477c32f9bbc1484f697", grupe: [3, 5, 9] },
   { slug: "alexandru-paul-ciolac", nume: "Alexandru Paul Ciolac", hash: "eb393a27cbaf6fd51833e060e8a421912f17b1b12ea8c499e2084305397cc1d7", grupe: [2, 3, 4, 6, 8] },
 ];
+
+/**
+ * E codul acesta al administratorului?
+ *
+ * De preferat comparației cu `ADMIN_HASH`: primește CODUL, nu amprenta, face singură
+ * hașurarea și compară în timp constant. Cine o folosește nu mai are ce copia greșit.
+ */
+export function esteAdmin(cod) {
+  return egal(sha256(cod || ""), ADMIN_HASH);
+}
 
 export const TOATE_GRUPELE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 

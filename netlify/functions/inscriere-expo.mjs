@@ -9,8 +9,14 @@
 // POST { secret, actiune:"coada", showId }          -> managerul trage înscrierile neimportate
 // POST { secret, actiune:"marcheaza", showId, ids } -> managerul marchează înscrierile ca importate
 import { getStore } from "@netlify/blobs";
+import { eRobot, limiteazaTrimiterile, minuteText } from "./_comun/formular-public.mjs";
 
 const SECRET = process.env.EXPO_SYNC_SECRET || "";
+
+// Cât poate trimite o adresă IP într-o oră. Generos deliberat: o familie cu patru câini
+// trebuie să-i poată înscrie pe toți, iar o canisă mare poate veni cu opt. Peste
+// doisprezece într-o oră, de la aceeași adresă, nu mai e o canisă — e un robot.
+const MAX_INSCRIERI_PE_ORA = 12;
 
 // Clasele WDF și intervalele de vârstă (luni la data expoziției). Trebuie ținute în acord
 // cu lib/domeniu.ts din manager.
@@ -173,6 +179,22 @@ export default async (req) => {
   }
 
   // ——— Public: trimiterea unei înscrieri ———
+  //
+  // De aici încolo, oricine de pe internet scrie în magazie și declanșează un e-mail.
+  // Capcana și limita stau ÎNAINTE de orice validare și înainte de orice citire din
+  // magazie: un robot nu trebuie să ne coste nici măcar o căutare de configurație.
+  if (eRobot(body)) return json({ ok: true, inscriere: { id: "—" } });   // succes prefăcut
+
+  const lim = await limiteazaTrimiterile(store, "inscriere-ip", req, {
+    max: MAX_INSCRIERI_PE_ORA, fereastraMs: 3600e3,
+  });
+  if (!lim.permis) {
+    return json({
+      eroare: `Ai trimis deja ${MAX_INSCRIERI_PE_ORA} înscrieri în ultima oră. ` +
+        `Mai încearcă peste ${minuteText(lim.dupaSecunde)} sau scrie la contact@cfc-royal.ro.`,
+    }, 429);
+  }
+
   const showId = String(body.showId || "");
   const config = await store.get("config/" + showId, { type: "json" });
   if (!config) return json({ eroare: "Expoziție inexistentă." }, 404);

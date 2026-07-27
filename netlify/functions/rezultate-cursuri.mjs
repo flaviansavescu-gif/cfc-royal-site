@@ -4,7 +4,7 @@
 import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
 
-const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
+import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 
 export default async (req) => {
   if (req.method !== "POST")
@@ -17,8 +17,7 @@ export default async (req) => {
     cod = b.cod || "";
     reset = b.reset === true;
   } catch {}
-  const hash = createHash("sha256").update(String(cod)).digest("hex");
-  if (hash !== ADMIN_HASH)
+  if (!esteAdmin(cod))
     return new Response(JSON.stringify({ eroare: "Cod de administrator incorect." }), { status: 401 });
 
   const store = getStore("cursuri");

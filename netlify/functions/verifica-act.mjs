@@ -16,7 +16,17 @@
 import crypto from "node:crypto";
 import { getStore } from "@netlify/blobs";
 
-const SECRET = process.env.EXPO_SYNC_SECRET || "cfcr-verificare-dev";
+// FĂRĂ valoare de rezervă, deliberat.
+//
+// Aici s-a aflat până acum `|| "cfcr-verificare-dev"`. Un secret de rezervă scris în cod
+// pare inofensiv — până în ziua în care variabila lipsește din mediu (deploy nou, ștearsă
+// din greșeală, altă previzualizare). Atunci semnăturile se calculează cu o valoare pe
+// care o cunoaște oricine vede codul, iar oricine poate fabrica un cod QR care se
+// validează drept „certificat autentic". Adică exact minciuna împotriva căreia există
+// verificarea.
+//
+// Mai bine o verificare care spune cinstit că nu poate funcționa decât una care minte.
+const SECRET = process.env.EXPO_SYNC_SECRET || "";
 const CHEIE = "lista";
 
 const json = (body, status = 200) =>
@@ -36,6 +46,16 @@ async function citesteRevocari(store) {
 }
 
 export default async (req) => {
+  // Fără secret nu se poate verifica nimic — și NU inventăm un răspuns. Un „certificat
+  // neconfirmat" ar arunca vina pe hârtia omului; 503 spune adevărul: serviciul e
+  // indisponibil, nu actul e fals.
+  if (!SECRET) {
+    console.error("VERIFICAREA ACTELOR E OPRITĂ: lipsește EXPO_SYNC_SECRET din mediu.");
+    return json({
+      eroare: "Verificarea certificatelor este momentan indisponibilă. Scrie la contact@cfc-royal.ro.",
+    }, 503);
+  }
+
   const store = getStore("acte-revocate");
 
   // ——— Managerul publică lista actelor anulate (protejat cu secret) ———

@@ -5,13 +5,13 @@
 import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
 
-const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
+import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 
 export default async (req) => {
-  const store = getStore("cursuri");
-
+  // Magazia se deschide în fiecare ramură, DUPĂ ce ramura și-a verificat dreptul.
+  // Pe calea publică (GET) e imediat; pe cea de scriere, abia după poarta de cod.
   if (req.method === "GET") {
-    const stare = (await store.get("stare-module", { type: "json" })) || {};
+    const stare = (await getStore("cursuri").get("stare-module", { type: "json" })) || {};
     return Response.json(stare, { headers: { "Cache-Control": "no-store" } });
   }
 
@@ -23,10 +23,10 @@ export default async (req) => {
       return Response.json({ eroare: "Cerere invalidă." }, { status: 400 });
     }
     const { id, online, cod } = date || {};
-    const hash = createHash("sha256").update(String(cod || "")).digest("hex");
-    if (hash !== ADMIN_HASH) return Response.json({ eroare: "Cod de administrator incorect." }, { status: 401 });
+    if (!esteAdmin(cod)) return Response.json({ eroare: "Cod de administrator incorect." }, { status: 401 });
     if (!id || typeof id !== "string") return Response.json({ eroare: "Lipsește modulul." }, { status: 400 });
 
+    const store = getStore("cursuri");
     const stare = (await store.get("stare-module", { type: "json" })) || {};
     stare[id] = !!online;
     await store.setJSON("stare-module", stare);

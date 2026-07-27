@@ -11,7 +11,7 @@ import { createHash } from "node:crypto";
 import { stergeUrmeleCandidatului, curataOrfanii } from "./_comun/curatare.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
-const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
+import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 // Alfabet fără caractere ambigue (0/O, 1/I/L) — codurile se dictează ușor la telefon.
 const ALFABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
@@ -42,7 +42,7 @@ export default cuLimitareCod(async (req) => {
     return json({ eroare: "Cerere invalidă." }, 400);
   }
 
-  if (sha256(body.cod || "") !== ADMIN_HASH)
+  if (!esteAdmin(body.cod))
     return json({ eroare: "Cod de administrator incorect." }, 401);
 
   const store = getStore("cursuri");

@@ -133,6 +133,11 @@ const CLASE = [
       <select id="ie-show" name="showId" required></select>
     </label>
 
+    {/* Capcană: omul nu vede câmpul, deci nu-l completează. Roboții completează tot ce
+        găsesc, iar serverul răspunde cu un succes prefăcut — dacă ar da eroare, robotul
+        ar afla că a fost prins și ar încerca altfel. Merge singură prin FormData. */}
+    <input class="ie-capcana" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
     <fieldset class="ie__fs">
       <legend>{T.dateCaine}</legend>
       <label class="ie__f"><span>{T.numeCaine} <b class="req">*</b></span><input name="numeCaine" required /></label>
@@ -399,6 +404,9 @@ const CLASE = [
   .ie__cum-l li { color: var(--color-text-muted); }
   .ie__cum-l b { color: var(--color-text); }
   .ie__form { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1.5rem; }
+  /* Capcana pentru roboți: scoasă din pagină, nu ascunsă cu `display:none` — unele
+     programe automate sar peste câmpurile ascunse astfel, dar îl completează pe acesta. */
+  .ie-capcana { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
   .ie__fs { border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.9rem; }
   .ie__fs legend { font-weight: 600; color: var(--color-primary); padding: 0 0.4rem; }
   .ie__f { display: flex; flex-direction: column; gap: 0.3rem; }

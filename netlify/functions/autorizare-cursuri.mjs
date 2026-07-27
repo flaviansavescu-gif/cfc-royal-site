@@ -11,7 +11,7 @@ import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
-const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
+import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 const GRUPE_VALIDE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 const sha256 = (s) => createHash("sha256").update(String(s)).digest("hex");
@@ -112,7 +112,7 @@ export default cuLimitareCod(async (req) => {
   }
 
   // ——— De aici, doar administratorul ———
-  if (sha256(body.cod || "") !== ADMIN_HASH)
+  if (!esteAdmin(body.cod))
     return json({ eroare: "Cod de administrator incorect." }, 401);
 
   if (actiune === "admin") {

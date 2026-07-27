@@ -25,7 +25,7 @@ import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
-const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
+import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 const NR_INTREBARI = 25;      // câte se extrag la un examen (sau toată banca, dacă e mai mică)
 const MIN_ACTIV = 10;         // banca minimă pentru ca examenul să fie „activ”
 const PRAG = 75;              // procent minim de promovare
@@ -167,7 +167,7 @@ export default cuLimitareCod(async (req) => {
   // ——— Acțiuni de administrator ———
   const ACTIUNI_ADMIN = ["admin", "reset", "sesiuni", "sesiune-salveaza", "sesiune-sterge", "contestatii", "solutioneaza"];
   if (ACTIUNI_ADMIN.includes(actiune)) {
-    if (sha256(body.cod || "") !== ADMIN_HASH) return json({ eroare: "Cod de administrator incorect." }, 401);
+    if (!esteAdmin(body.cod)) return json({ eroare: "Cod de administrator incorect." }, 401);
     const store = getStore("cursuri");
 
     if (actiune === "reset") {

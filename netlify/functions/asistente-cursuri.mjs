@@ -19,7 +19,7 @@ import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
-const ADMIN_HASH = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
+import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 const NR_ASISTENTE = 5;
 const STARI = ["", "numit", "prezent", "absent"];
 // Scara evaluării prestației (decizie 21.07.2026) + observațiile text ale arbitrului.
@@ -238,7 +238,7 @@ export default cuLimitareCod(async (req) => {
   }
 
   // ——— De aici încolo, doar administratorul ———
-  if (sha256(body.cod || "") !== ADMIN_HASH)
+  if (!esteAdmin(body.cod))
     return json({ eroare: "Cod de administrator incorect." }, 401);
 
   if (actiune === "admin") {
