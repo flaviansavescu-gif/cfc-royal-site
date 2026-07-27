@@ -424,5 +424,37 @@ export default cuLimitareCod(async (req) => {
     });
   }
 
+  // —— Ștergerea unui dosar (doar administratorul) ——
+  //
+  // NUMĂRUL nu se reciclează niciodată: un număr de înregistrare dat altcuiva ar
+  // însemna două acte cu aceeași referință. Singura excepție e ULTIMUL număr dat în anul
+  // curent — acela poate fi luat înapoi, fiindcă nimic nu s-a construit peste el. Așa se
+  // pot șterge curat declarațiile de probă, fără ca registrul real să înceapă de la 2.
+  if (actiune === "dmf-sterge") {
+    if (eu.rol !== "admin") return json({ eroare: "Doar administratorul poate șterge un dosar." }, 403);
+    const id = taie(body.id, 40);
+    const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
+    if (!d) return json({ eroare: "Dosar inexistent." }, 404);
+
+    for (const fel of Object.keys(FELURI)) {
+      await s.delete("dmf-fisier/" + id + "/" + fel).catch(() => {});
+    }
+    await s.delete("dmf-membru/" + d.membruId + "/" + id).catch(() => {});
+    await s.delete("dmf/" + id).catch(() => {});
+
+    let numarEliberat = false;
+    const m = /^CFCR-DMF-(\d{4})-(\d{4})$/.exec(d.serie || "");
+    if (m) {
+      const an = m[1], nr = Number(m[2]);
+      const c = await s.get("contor/dmf-" + an, { type: "json" }).catch(() => null);
+      if (c && c.ultim === nr) {
+        await s.setJSON("contor/dmf-" + an, { ultim: nr - 1 });
+        await s.delete("serie/" + d.serie).catch(() => {});
+        numarEliberat = true;
+      }
+    }
+    return json({ ok: true, serie: d.serie, numarEliberat });
+  }
+
   return json({ eroare: "Acțiune necunoscută." }, 400);
 });

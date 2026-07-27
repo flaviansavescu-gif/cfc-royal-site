@@ -73,6 +73,14 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
   </form>
   <p class="a-cod-nou" id="a-reg-cod" hidden></p>
   <ul class="a-lista" id="a-registratori"><li class="a-gol">Se încarcă…</li></ul>
+
+  <h2 class="a-h2">Declarațiile depuse</h2>
+  <p class="a-note">
+    Ștergerea scoate definitiv dosarul și cele patru piese încărcate. Numărul de înregistrare
+    se eliberează <strong>numai dacă e ultimul dat în anul curent</strong> — altfel rămâne consumat,
+    fiindcă un număr dat a doua oară altcuiva ar însemna două acte cu aceeași referință.
+  </p>
+  <ul class="a-lista" id="a-declaratii"><li class="a-gol">Se încarcă…</li></ul>
 </RegistruLayout>
 
 <script is:inline>
@@ -200,6 +208,58 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       } catch (e) { ul.innerHTML = "<li class='a-gol'>Nu am putut încărca lista.</li>"; }
     }
 
+    // Declarațiile stau în altă funcție (registru-dmf), cu aceeași poartă de administrator.
+    async function cereDmf(payload) {
+      const res = await fetch("/.netlify/functions/registru-dmf", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.eroare || "Eroare de server.");
+      return d;
+    }
+
+    async function incarcaDeclaratii() {
+      const ul = document.getElementById("a-declaratii");
+      ul.innerHTML = "";
+      try {
+        const d = await cereDmf({ actiune: "dosare" });
+        if (!d.dosare.length) { ul.innerHTML = "<li class='a-gol'>Nicio declarație depusă încă.</li>"; return; }
+        d.dosare.forEach((x) => {
+          const li = document.createElement("li");
+          const info = document.createElement("div");
+          const tare = document.createElement("strong");
+          tare.textContent = x.serie;
+          info.appendChild(tare);
+          const meta = document.createElement("span");
+          meta.className = "a-meta";
+          // Datele vin de la crescători: doar textContent, niciodată innerHTML.
+          meta.textContent = [x.membruNume, x.rasa, "fătare " + dataRo(x.dataFatarii),
+            x.pui + " pui", x.pesteTermen ? "peste termen" : null]
+            .filter(Boolean).join(" · ");
+          info.appendChild(meta);
+          li.appendChild(info);
+
+          const del = document.createElement("button");
+          del.className = "btn btn--small btn--danger";
+          del.textContent = "Șterge";
+          del.addEventListener("click", async () => {
+            if (!confirm("Ștergi definitiv dosarul " + x.serie + " și cele patru piese încărcate?")) return;
+            del.disabled = true;
+            try {
+              const r = await cereDmf({ actiune: "dmf-sterge", id: x.id });
+              alert(r.numarEliberat
+                ? "Șters. Numărul " + r.serie + " a fost eliberat: următoarea declarație îl va primi."
+                : "Șters. Numărul " + r.serie + " rămâne consumat — nu era ultimul dat în anul curent.");
+              incarcaDeclaratii();
+            } catch (e) { alert("Nu am putut șterge: " + e.message); del.disabled = false; }
+          });
+          li.appendChild(del);
+          ul.appendChild(li);
+        });
+      } catch (e) { ul.innerHTML = "<li class='a-gol'>Nu am putut încărca declarațiile.</li>"; }
+    }
+
     // Alegerea unei canise completează afixul și numărul (și numele, dacă e gol).
     document.getElementById("a-m-canisa").addEventListener("change", (e) => {
       const o = e.target.selectedOptions[0];
@@ -249,6 +309,7 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
 
     incarcaMembri();
     incarcaRegistratori();
+    incarcaDeclaratii();
   })();
 </script>
 
