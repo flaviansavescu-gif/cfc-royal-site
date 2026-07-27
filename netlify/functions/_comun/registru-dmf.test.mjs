@@ -1,4 +1,4 @@
-import { valideazaDeclaratia } from "./registru-dmf.mjs";
+import { valideazaDeclaratia } from "../registru-dmf.mjs";
 
 let ok = 0, rau = 0;
 const t = (n, c, info) => { if (c) { ok++; console.log("  ok  " + n); } else { rau++; console.log("  RAU " + n + (info ? " -> " + info : "")); } };
@@ -91,6 +91,18 @@ t("fără rasă respins", !!valideazaDeclaratia(baza({ rasa: "" }), membru).eroa
 t("fără nume de pui respins",
   !!valideazaDeclaratia(baza({ pui: [{ nume: "", sex: "M" }, { nume: "b", sex: "M" }, { nume: "c", sex: "M" }, { nume: "d", sex: "F" }, { nume: "e", sex: "F" }] }), membru).eroare);
 t("fără pedigree respins", !!valideazaDeclaratia(baza({ femela: parinte({ pedigree: "" }) }), membru).eroare);
+
+console.log("— afixul: din formular, cu fisa de membru ca valoare prestabilita —");
+const faraCanisa = { nume: "Ion Popescu", afix: "", nrAfix: "", email: "i@p.ro" };
+const scrisDeMana = valideazaDeclaratia(baza({ afix: "de Cerna", nrAfix: "AFX025/2026" }), faraCanisa);
+t("membru fara afix in fisa poate scrie unul",
+  !scrisDeMana.eroare && scrisDeMana.d.afix === "de Cerna" && scrisDeMana.d.nrAfix === "AFX025/2026",
+  scrisDeMana.eroare || (scrisDeMana.d && scrisDeMana.d.afix));
+const dinFisa = valideazaDeclaratia(baza(), membru);
+t("fara nimic in formular se ia din fisa", dinFisa.d && dinFisa.d.afix === "de Cerna");
+const suprascris = valideazaDeclaratia(baza({ afix: "din Banat" }), membru);
+t("ce scrie in formular are intaietate", suprascris.d && suprascris.d.afix === "din Banat");
+t("afixul ramane optional", !valideazaDeclaratia(baza(), faraCanisa).eroare);
 
 console.log(`\n${ok} trecute, ${rau} căzute`);
 process.exit(rau ? 1 : 0);

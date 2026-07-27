@@ -99,10 +99,67 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       }
       detaliu.appendChild(ul);
 
+      // —— Confirmarea proprietarului masculului ——
+      detaliu.appendChild(el("h4", "g-dh4", "Confirmarea montei"));
+      const c = d.confirmare || { stare: "asteptare" };
+      const stare = el("p", "g-conf is-" + c.stare, {
+        asteptare: "⏳ Așteaptă răspunsul proprietarului masculului",
+        confirmat: "✓ Confirmată de proprietarul masculului",
+        refuzat: "⚠ Proprietarul masculului NU a confirmat",
+        alternativ: "✓ Acceptată pe baza dovezii semnate, încărcată de registratură",
+      }[c.stare] || c.stare);
+      detaliu.appendChild(stare);
+      const detConf = [c.email ? "adresa " + c.email : null, c.nume ? "răspuns de " + c.nume : null,
+        c.la ? dataRo(c.la) : null, c.deCatre ? "de " + c.deCatre : null,
+        c.trimiteri > 1 ? c.trimiteri + " trimiteri" : null,
+        c.adresaCorectata ? "adresă corectată o dată" : null].filter(Boolean);
+      if (detConf.length) detaliu.appendChild(el("p", "g-dmeta", detConf.join(" · ")));
+      if (c.motiv) detaliu.appendChild(el("p", "g-motiv", "Motivul invocat: " + c.motiv));
+      if (c.observatie) detaliu.appendChild(el("p", "g-dmeta", "Observația registraturii: " + c.observatie));
+
+      // Dovada semnată pe hârtie: la masculii din străinătate e-mailul se pierde des,
+      // iar dosarul ar rămâne blocat pentru totdeauna.
+      if (c.stare !== "confirmat") {
+        const zona = el("div", "g-alt");
+        zona.appendChild(el("label", "g-alt__eticheta", "Încarcă dovada semnată a montei (JPEG, PNG, WEBP sau PDF):"));
+        const camp = document.createElement("input");
+        camp.type = "file";
+        camp.accept = "image/jpeg,image/png,image/webp,application/pdf";
+        const obs = document.createElement("input");
+        obs.type = "text";
+        obs.placeholder = "observație (opțional)";
+        obs.className = "g-alt__obs";
+        const stareUrcare = el("span", "g-alt__stare");
+        camp.addEventListener("change", async (ev) => {
+          const file = ev.target.files && ev.target.files[0];
+          if (!file) return;
+          if (file.size > 5 * 1024 * 1024) { stareUrcare.textContent = "Fișierul depășește 5 MB."; return; }
+          stareUrcare.textContent = "se încarcă…";
+          try {
+            const b64 = await new Promise((rez, resp) => {
+              const fr = new FileReader();
+              fr.onload = () => rez(String(fr.result).split(",")[1] || "");
+              fr.onerror = resp;
+              fr.readAsDataURL(file);
+            });
+            const r = await post({ actiune: "confirmare-alternativa", id,
+              nume: file.name, tip: file.type, continut: b64, observatie: obs.value.trim() });
+            const dd = await r.json().catch(() => ({}));
+            if (!r.ok) throw new Error(dd.eroare || "Încărcare eșuată.");
+            stareUrcare.textContent = "✓ înregistrată";
+            deschide(id);
+          } catch (e) { stareUrcare.textContent = e.message; }
+        });
+        zona.append(camp, obs, stareUrcare);
+        detaliu.appendChild(zona);
+      }
+
       detaliu.appendChild(el("h4", "g-dh4", "Piesele dosarului"));
       const piese = el("p", "g-piese");
-      for (const fel of Object.keys(FELURI)) {
-        const b = el("button", "btn btn--outline g-piesa", FELURI[fel]);
+      const feluri = Object.assign({}, FELURI);
+      if (c.stare === "alternativ") feluri["confirmare-alternativa"] = "Dovada semnată";
+      for (const fel of Object.keys(feluri)) {
+        const b = el("button", "btn btn--outline g-piesa", feluri[fel]);
         b.type = "button";
         b.addEventListener("click", async () => {
           b.disabled = true;
@@ -113,7 +170,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
             window.open(url, "_blank", "noopener");
             // Eliberăm memoria după ce fereastra a apucat să încarce.
             setTimeout(() => URL.revokeObjectURL(url), 60000);
-          } catch (e) { b.textContent = FELURI[fel] + " — lipsă"; }
+          } catch (e) { b.textContent = feluri[fel] + " — lipsă"; }
           b.disabled = false;
         });
         piese.appendChild(b);
@@ -183,4 +240,17 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .g-pui { padding-left: 1.2rem; font-size: 0.9rem; }
   .g-piese { display: flex; gap: 0.6rem; flex-wrap: wrap; }
   .g-piesa { font-size: 0.85rem; }
+  .g-conf { font-weight: 600; font-size: 0.92rem; margin: 0.3rem 0; }
+  .g-conf.is-asteptare { color: var(--color-accent-dark); }
+  .g-conf.is-confirmat, .g-conf.is-alternativ { color: var(--color-primary); }
+  .g-conf.is-refuzat { color: #8c1d2f; }
+  .g-motiv { background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f;
+    border-radius: var(--radius); padding: 0.6rem 0.9rem; font-size: 0.88rem; }
+  .g-alt { display: grid; gap: 0.4rem; margin-top: 0.7rem; padding: 0.8rem 1rem;
+    background: var(--color-surface-alt); border: 1px solid var(--color-border);
+    border-radius: var(--radius); max-width: 36rem; }
+  .g-alt__eticheta { font-size: 0.85rem; font-weight: 600; color: var(--color-primary); }
+  .g-alt__obs { padding: 0.35rem 0.6rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.85rem; }
+  .g-alt__stare { font-size: 0.82rem; color: var(--color-text-muted); }
 </style>

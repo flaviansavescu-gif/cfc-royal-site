@@ -115,6 +115,14 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
     <!-- ——— Puii ——— -->
     <section class="d-sect">
       <h2 class="d-h2">Puii declarați</h2>
+      <div class="d-grid2 d-afixzona">
+        <label>Afix crescător <span class="d-opt">(opțional)</span>
+          <input name="afix" autocomplete="off" />
+        </label>
+        <label>Nr. afix <span class="d-opt">(opțional)</span>
+          <input name="nrAfix" autocomplete="off" placeholder="ex. AFX025/2026" />
+        </label>
+      </div>
       <p class="d-nota" id="d-afix"></p>
       <div id="d-pui"><p class="d-gol">Completează statistica cuibului ca să apară rândurile.</p></div>
     </section>
@@ -201,6 +209,7 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
     const cod = () => localStorage.getItem("cfcrRegistruCod") || "";
     let membru = null;
     try { membru = JSON.parse(localStorage.getItem("cfcrRegistru") || "null"); } catch (e) {}
+    const g = (n) => form.querySelector('[name="' + n + '"]');
 
     // —— Cotizația: se vede de la început de ce nu merge, nu abia la trimitere ——
     if (membru && membru.cotizatiePana && !membru.cotizatieLaZi) {
@@ -209,16 +218,14 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
       c.textContent = "⚠ Cotizația a expirat. Până la reînnoire nu poți depune declarații. Scrie secretariatului la contact@cfc-royal.ro.";
       form.querySelectorAll("input, textarea, button, select").forEach((el) => { el.disabled = true; });
     }
-    if (membru && membru.afix) {
-      document.getElementById("d-afix").textContent =
-        "Afix crescător: " + membru.afix + (membru.nrAfix ? " · " + membru.nrAfix : "") +
-        " — se trece automat pe declarație.";
-    } else {
-      document.getElementById("d-afix").textContent =
-        "Nu ai afix înregistrat. Declarația se poate depune și fără; puii primesc documente de origine fără prefix de canisă.";
-    }
-
-    const g = (n) => form.querySelector('[name="' + n + '"]');
+    // Afixul e prescris din fișa de membru, dar rămâne editabil: cineva se poate înscrie
+    // fără canisă și să-și înregistreze una un an mai târziu. Dacă fișa nu avea niciunul,
+    // cel scris aici o completează — fără să suprascrie vreodată unul existent.
+    if (membru && membru.afix) g("afix").value = membru.afix;
+    if (membru && membru.nrAfix) g("nrAfix").value = membru.nrAfix;
+    document.getElementById("d-afix").textContent = membru && membru.afix
+      ? "Afixul vine din fișa ta de membru. Îl poți schimba aici dacă între timp s-a modificat."
+      : "În fișa ta de membru nu e trecut niciun afix. Dacă ți-ai înregistrat canisa între timp, scrie-l aici — se va trece pe declarație și în fișa ta.";
 
     // —— Termenul de 90 de zile, calculat în timp ce omul scrie ——
     // „de" se pune după numerele al căror rest la 100 e 0 sau între 20 și 99:
@@ -407,6 +414,7 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
       return {
         cod: cod(), actiune: "depune", ciornaId,
         rasa: val("rasa"), varietate: val("varietate"),
+        afix: val("afix"), nrAfix: val("nrAfix"),
         dataMontei: val("dataMontei"), dataFatarii: val("dataFatarii"),
         nascutiM: Number(val("nascutiM")) || 0, nascutiF: Number(val("nascutiF")) || 0,
         ramasiM: Number(val("ramasiM")) || 0, ramasiF: Number(val("ramasiF")) || 0,

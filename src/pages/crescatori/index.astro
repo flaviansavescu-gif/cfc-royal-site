@@ -78,10 +78,62 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     // —— Declarațiile depuse ——
     const lista = document.getElementById("c-declaratii");
     const ETICHETE = { depus: "Depusă", "in-verificare": "În verificare", aprobat: "Aprobată", respins: "Respinsă" };
-    fetch("/.netlify/functions/registru-dmf", {
+    const cod = () => localStorage.getItem("cfcrRegistruCod") || "";
+    const post = (b) => fetch("/.netlify/functions/registru-dmf", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cod: localStorage.getItem("cfcrRegistruCod") || "", actiune: "mele" }),
-    })
+      body: JSON.stringify(Object.assign({ cod: cod() }, b)),
+    });
+
+    // Confirmarea proprietarului masculului ține locul semnăturii de pe formularul
+    // tipărit. Cât timp nimeni n-a răspuns, crescătorul poate retrimite cererea și —
+    // O SINGURĂ DATĂ — poate corecta adresa: adresa greșită e cel mai probabil motiv
+    // pentru care un dosar rămâne blocat la nesfârșit.
+    function randConfirmare(x) {
+      const box = document.createElement("div");
+      box.className = "c-conf";
+      const eticheta = document.createElement("span");
+      eticheta.className = "c-conf__stare is-" + (x.confirmare || "asteptare");
+      eticheta.textContent = {
+        asteptare: "⏳ Așteaptă confirmarea proprietarului masculului",
+        confirmat: "✓ Monta a fost confirmată de proprietarul masculului",
+        refuzat: "⚠ Proprietarul masculului nu a confirmat — registratura analizează",
+        alternativ: "✓ Confirmare acceptată de registratură pe baza dovezii semnate",
+      }[x.confirmare] || x.confirmare;
+      box.appendChild(eticheta);
+
+      if (x.confirmare !== "asteptare") return box;
+
+      const adresa = document.createElement("span");
+      adresa.className = "c-conf__adresa";
+      adresa.textContent = "trimisă la " + (x.confirmareEmail || "—");
+      box.appendChild(adresa);
+
+      const actiuni = document.createElement("div");
+      actiuni.className = "c-conf__actiuni";
+      const camp = document.createElement("input");
+      camp.type = "email";
+      camp.placeholder = x.adresaCorectata ? "adresa a fost deja corectată" : "altă adresă (o singură dată)";
+      camp.disabled = !!x.adresaCorectata;
+      const buton = document.createElement("button");
+      buton.className = "btn btn--small btn--outline";
+      buton.textContent = "Retrimite cererea";
+      buton.addEventListener("click", async () => {
+        buton.disabled = true; buton.textContent = "Se trimite…";
+        try {
+          const r = await post({ actiune: "confirmare-retrimite", id: x.id, emailNou: camp.value.trim() });
+          const d = await r.json().catch(() => ({}));
+          if (!r.ok) throw new Error(d.eroare || "Nu am putut retrimite.");
+          buton.textContent = d.trimis ? "✓ Trimisă la " + d.email : "Înregistrată, dar e-mailul nu a plecat";
+        } catch (e) {
+          buton.disabled = false; buton.textContent = "Retrimite cererea";
+          alert(e.message);
+        }
+      });
+      actiuni.append(camp, buton);
+      box.appendChild(actiuni);
+      return box;
+    }
+    post({ actiune: "mele" })
       .then((res) => res.json())
       .then((d) => {
         lista.textContent = "";
@@ -96,6 +148,8 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
         for (const x of arr) {
           const li = document.createElement("li");
           li.className = "c-decl";
+          const cap = document.createElement("div");
+          cap.className = "c-decl__cap";
           const serie = document.createElement("strong");
           serie.className = "c-decl__serie";
           serie.textContent = x.serie;
@@ -105,13 +159,15 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
           const st = document.createElement("span");
           st.className = "c-decl__stare";
           st.textContent = ETICHETE[x.stare] || x.stare;
-          li.append(serie, det, st);
+          cap.append(serie, det, st);
           if (x.pesteTermen) {
             const t = document.createElement("span");
             t.className = "c-decl__termen";
             t.textContent = "peste termen";
-            li.appendChild(t);
+            cap.appendChild(t);
           }
+          li.appendChild(cap);
+          li.appendChild(randConfirmare(x));
           lista.appendChild(li);
         }
       })
@@ -143,8 +199,18 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     border: 1px solid var(--color-accent); border-radius: 999px; padding: 0.3rem 0.8rem; }
   .c-gol { color: var(--color-text-muted); font-style: italic; }
   .c-declaratii { list-style: none; padding: 0; display: grid; gap: 0.5rem; max-width: 52rem; }
-  .c-decl { display: flex; align-items: baseline; gap: 0.9rem; flex-wrap: wrap;
+  .c-decl { display: grid; gap: 0.6rem;
     padding: 0.7rem 0.9rem; border: 1px solid var(--color-border); border-radius: var(--radius); }
+  .c-decl__cap { display: flex; align-items: baseline; gap: 0.9rem; flex-wrap: wrap; }
+  .c-conf { display: grid; gap: 0.4rem; border-top: 1px dashed var(--color-border); padding-top: 0.5rem; }
+  .c-conf__stare { font-size: 0.85rem; font-weight: 600; }
+  .c-conf__stare.is-asteptare { color: var(--color-accent-dark); }
+  .c-conf__stare.is-confirmat, .c-conf__stare.is-alternativ { color: var(--color-primary); }
+  .c-conf__stare.is-refuzat { color: #8c1d2f; }
+  .c-conf__adresa { font-size: 0.82rem; color: var(--color-text-muted); }
+  .c-conf__actiuni { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+  .c-conf__actiuni input { padding: 0.35rem 0.6rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.85rem; min-width: 16rem; }
   .c-decl__serie { font-family: var(--font-mono, monospace); color: var(--color-primary); }
   .c-decl__det { color: var(--color-text-muted); font-size: 0.88rem; }
   .c-decl__stare { margin-left: auto; font-size: 0.8rem; border: 1px solid var(--color-accent);

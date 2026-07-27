@@ -1,0 +1,208 @@
+---
+// /confirmare-monta/ — pagina proprietarului masculului.
+//
+// SINGURA pagină a registrului fără cod de acces. Proprietarul masculului poate fi din
+// altă asociație sau din străinătate; un cod l-ar bloca exact pe el, adică exact montele
+// externe. Cheia lui e jetonul din link — 32 de octeți, de unică folosință, valabil 60
+// de zile; în stocare stă doar amprenta.
+//
+// Bilingvă fără comutator: cele două limbi stau una lângă alta, fiindcă nu știm din ce
+// țară vine omul și nu vrem să-l punem să caute un buton.
+//
+// Se arată DOAR ce trebuie ca monta să fie recunoscută. Datele cumpărătorilor, dovada
+// plății și pedigree-urile încărcate nu-l privesc pe proprietarul masculului.
+import RegistruLayout from "../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Confirmarea montei">
+  <p class="k-eyebrow">Asociația Club Federal Chinologic Royal</p>
+  <h1 class="k-title">Confirmarea montei <span>· Confirmation of mating</span></h1>
+
+  <p class="k-stare" id="k-incarcare">Se încarcă… · Loading…</p>
+  <p class="k-eroare" id="k-eroare" role="alert" hidden></p>
+
+  <div id="k-continut" hidden>
+    <p class="k-intro">
+      Sunteți indicat ca <strong>proprietar al masculului</strong> într-o Declarație de Montă și Fătare
+      depusă la Registrul genealogic. Vă rugăm să confirmați că monta a avut loc.
+      <span class="k-en">You are named as the <strong>owner of the stud dog</strong> in a Mating and Whelping
+      Declaration filed with the stud book. Please confirm that the mating took place.</span>
+    </p>
+
+    <table class="k-date" id="k-date"></table>
+
+    <form class="k-form" id="k-form">
+      <fieldset class="k-alegere">
+        <legend>Răspunsul dumneavoastră · Your answer</legend>
+        <label class="k-radio">
+          <input type="radio" name="raspuns" value="confirm" required />
+          <span><strong>Confirm monta.</strong> <span class="k-en">I confirm the mating.</span></span>
+        </label>
+        <label class="k-radio">
+          <input type="radio" name="raspuns" value="refuz" />
+          <span><strong>Nu confirm.</strong> <span class="k-en">I do not confirm.</span></span>
+        </label>
+      </fieldset>
+
+      <label class="k-camp">Numele dumneavoastră <span class="k-en">· Your full name</span>
+        <input name="nume" required autocomplete="name" />
+      </label>
+
+      <label class="k-camp" id="k-motiv-camp" hidden>Motivul <span class="k-en">· Reason</span>
+        <textarea name="motiv" rows="3"></textarea>
+      </label>
+
+      <p class="k-legal">
+        Răspunsul se înregistrează cu numele scris de dumneavoastră, data, ora și adresa IP, și
+        <strong>ține locul semnăturii</strong> de pe formularul tipărit.
+        <span class="k-en">Your answer is recorded with the name you enter, the date, time and IP address,
+        and <strong>stands in for the signature</strong> on the printed form.</span>
+      </p>
+
+      <button class="btn btn--primary" type="submit">Trimite răspunsul · Send answer</button>
+    </form>
+  </div>
+
+  <div id="k-gata" hidden>
+    <h2 class="k-h2" id="k-gata-titlu"></h2>
+    <p id="k-gata-text"></p>
+    <p><a class="k-link" href="/ro/">cfc-royal.ro</a></p>
+  </div>
+</RegistruLayout>
+
+<script is:inline>
+  (function () {
+    const F = "/.netlify/functions/registru-dmf";
+    const jeton = new URLSearchParams(location.search).get("t") || "";
+    const incarcare = document.getElementById("k-incarcare");
+    const eroare = document.getElementById("k-eroare");
+    const continut = document.getElementById("k-continut");
+
+    function arataEroare(mesaj) {
+      incarcare.hidden = true;
+      eroare.hidden = false;
+      eroare.textContent = mesaj;
+    }
+
+    const post = (b) => fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ jeton }, b)) });
+
+    // Datele vin din dosarul unui crescător: doar textContent, niciodată innerHTML.
+    function rand(tabel, ro, en, valoare) {
+      const tr = document.createElement("tr");
+      const th = document.createElement("th");
+      th.textContent = ro;
+      const mic = document.createElement("span");
+      mic.className = "k-en";
+      mic.textContent = en;
+      th.appendChild(mic);
+      const td = document.createElement("td");
+      td.textContent = valoare || "—";
+      tr.append(th, td);
+      tabel.appendChild(tr);
+    }
+
+    if (!jeton) { arataEroare("Link incomplet. · Incomplete link."); return; }
+
+    post({ actiune: "confirmare-vezi" })
+      .then(async (r) => {
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.eroare || "Link invalid. · Invalid link.");
+        const x = d.dosar;
+        const t = document.getElementById("k-date");
+        rand(t, "Mascul ", "· Stud dog", x.mascul.nume);
+        rand(t, "Pedigree mascul ", "· Stud pedigree", x.mascul.pedigree);
+        rand(t, "Microcip mascul ", "· Stud microchip", x.mascul.microcip);
+        rand(t, "Femelă ", "· Dam", x.femela.nume);
+        rand(t, "Pedigree femelă ", "· Dam pedigree", x.femela.pedigree);
+        rand(t, "Rasa ", "· Breed", x.rasa);
+        rand(t, "Data montei ", "· Mating date", x.dataMontei);
+        rand(t, "Data fătării ", "· Whelping date", x.dataFatarii);
+        rand(t, "Pui declarați ", "· Puppies declared", String(x.pui));
+        rand(t, "Crescător ", "· Breeder", x.crescator);
+        rand(t, "Nr. înregistrare ", "· Reference", x.serie);
+        incarcare.hidden = true;
+        continut.hidden = false;
+      })
+      .catch((err) => arataEroare(err.message));
+
+    const form = document.getElementById("k-form");
+    const motivCamp = document.getElementById("k-motiv-camp");
+    form.addEventListener("change", () => {
+      const ales = form.querySelector('input[name="raspuns"]:checked');
+      const refuz = ales && ales.value === "refuz";
+      motivCamp.hidden = !refuz;
+      form.querySelector('[name="motiv"]').required = !!refuz;
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      eroare.hidden = true;
+      const btn = form.querySelector("button[type=submit]");
+      btn.disabled = true; btn.textContent = "Se trimite… · Sending…";
+      try {
+        const ales = form.querySelector('input[name="raspuns"]:checked');
+        const r = await post({
+          actiune: "confirmare-raspuns",
+          raspuns: ales ? ales.value : "",
+          nume: form.querySelector('[name="nume"]').value.trim(),
+          motiv: form.querySelector('[name="motiv"]').value.trim(),
+        });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.eroare || "Trimiterea a eșuat. · Sending failed.");
+        continut.hidden = true;
+        const gata = document.getElementById("k-gata");
+        gata.hidden = false;
+        const confirmat = d.stare === "confirmat";
+        document.getElementById("k-gata-titlu").textContent = confirmat
+          ? "Monta a fost confirmată · Mating confirmed"
+          : "Răspunsul a fost înregistrat · Answer recorded";
+        document.getElementById("k-gata-text").textContent = confirmat
+          ? "Vă mulțumim. Dosarul merge mai departe la registratură. · Thank you. The file proceeds to the registry office."
+          : "Sesizarea dumneavoastră ajunge la registratură, care va analiza dosarul. · Your objection has been sent to the registry office, which will review the file.";
+      } catch (err) {
+        btn.disabled = false; btn.textContent = "Trimite răspunsul · Send answer";
+        eroare.hidden = false;
+        eroare.textContent = err.message;
+      }
+    });
+  })();
+</script>
+
+<style>
+  .k-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .k-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 1rem; }
+  .k-title span { font-size: 0.6em; color: var(--color-text-muted); font-weight: 400; }
+  .k-en { color: var(--color-text-muted); font-weight: 400; }
+  .k-intro { max-width: 46rem; }
+  .k-intro .k-en { display: block; font-size: 0.9rem; margin-top: 0.3rem; }
+  .k-stare { color: var(--color-text-muted); font-style: italic; }
+  .k-stare[hidden], .k-eroare[hidden] { display: none; }
+  .k-eroare { max-width: 46rem; padding: 0.8rem 1rem; border-radius: var(--radius);
+    background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; }
+
+  .k-date { border-collapse: collapse; margin: 1.5rem 0; max-width: 44rem; width: 100%; }
+  .k-date th, .k-date td { border-bottom: 1px solid var(--color-border); padding: 0.5rem 0.7rem;
+    text-align: left; vertical-align: top; font-size: 0.92rem; }
+  .k-date th { color: var(--color-primary); width: 45%; font-weight: 600; }
+  .k-date th .k-en { font-size: 0.85em; margin-left: 0.2rem; }
+
+  .k-form { display: grid; gap: 1.1rem; max-width: 36rem; margin-top: 1.5rem; }
+  .k-alegere { border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.1rem;
+    display: grid; gap: 0.7rem; }
+  .k-alegere legend { font-family: var(--font-serif); color: var(--color-primary); font-weight: 700; padding: 0 0.4rem; }
+  .k-radio { display: grid; grid-template-columns: auto 1fr; gap: 0.6rem; align-items: start; font-size: 0.95rem; }
+  .k-radio input { margin-top: 0.25rem; }
+  .k-camp { display: block; font-weight: 600; color: var(--color-primary); font-size: 0.9rem; }
+  .k-camp[hidden] { display: none; }
+  .k-camp input, .k-camp textarea { display: block; width: 100%; margin-top: 0.25rem;
+    padding: 0.55rem 0.7rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    font: inherit; font-weight: 400; }
+  .k-legal { font-size: 0.85rem; color: var(--color-text-muted); background: var(--color-surface-alt);
+    border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.8rem 1rem; margin: 0; }
+  .k-legal .k-en { display: block; margin-top: 0.35rem; }
+  .k-form button { justify-self: start; }
+  .k-h2 { font-family: var(--font-serif); color: var(--color-primary); }
+  .k-link { color: var(--color-accent-dark); }
+  #k-gata[hidden], #k-continut[hidden] { display: none; }
+</style>

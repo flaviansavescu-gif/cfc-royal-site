@@ -32,7 +32,7 @@
 // POST { cod, actiune:"dosare" | "dosar" }                               (registratură/admin)
 // POST { cod, actiune:"vezi-fisier", id, fel }        -> binar           (proprietar / registratură)
 import { getStore } from "@netlify/blobs";
-import { actorDinCod } from "./_comun/roluri.mjs";
+import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { membruDinCod, registratorDinCod } from "./registru-acces.mjs";
 
@@ -58,7 +58,13 @@ export const FELURI = {
   "plata": "Dovada plății",
 };
 
+/** Piesă suplimentară, urcată de registratură: dovada semnată pe hârtie a montei. */
+export const FEL_ALTERNATIV = "confirmare-alternativa";
+const TOATE_FELURILE = { ...FELURI, [FEL_ALTERNATIV]: "Dovada semnată a montei" };
+
 export const TERMEN_ZILE = 90;
+/** Cât timp e valabil linkul trimis proprietarului masculului. */
+export const CONFIRMARE_ZILE = 60;
 const MAX_FISIER = 5 * 1024 * 1024;          // 5 MB per piesă, după decodare
 const TIPURI_OK = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 const MAX_PUI = 24;
@@ -69,11 +75,26 @@ export function microcipValid(v) {
   return /^\d{15}$/.test(c) || /^\d{10}$/.test(c);
 }
 
-const idNou = () => {
-  const b = new Uint8Array(12);
+const octetiHex = (n) => {
+  const b = new Uint8Array(n);
   crypto.getRandomValues(b);
   return [...b].map((x) => x.toString(16).padStart(2, "0")).join("");
 };
+const idNou = () => octetiHex(12);
+/** 32 de octeți: linkul de confirmare e singura cheie, deci trebuie să fie neghicibil. */
+const jetonNou = () => octetiHex(32);
+
+/**
+ * Deschide (sau reînnoiește) invitația de confirmare pentru proprietarul masculului.
+ * În registru se păstrează doar AMPRENTA jetonului — cine ar citi stocarea nu poate
+ * confirma monta în locul omului.
+ */
+async function deschideConfirmarea(dmfId, email) {
+  const jeton = jetonNou();
+  const expira = new Date(Date.now() + CONFIRMARE_ZILE * 86400000).toISOString();
+  await store().setJSON("confirmare/" + sha256(jeton), { dmfId, email, expira, creat: new Date().toISOString() });
+  return { jeton, expira };
+}
 
 /**
  * Număr de înregistrare unic: CFCR-DMF-<an>-<0001>.
@@ -109,6 +130,61 @@ async function cine(cod) {
 
 const esc = (s) =>
   String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/**
+ * Cererea de confirmare către proprietarul masculului.
+ *
+ * Actul pe hârtie are rubrica „Semnătura" în coloana masculului: fără ea, declarația e
+ * afirmația unilaterală a proprietarului femelei. Online nu putem cere nici semnătură,
+ * nici cod de acces — masculul e adesea din altă asociație sau din străinătate, iar un
+ * cod ar bloca exact montele externe. Rămâne linkul unic pe e-mail, cu răspunsul
+ * înregistrat (cine, când, de unde), asumat ca echivalent al semnăturii.
+ *
+ * Bilingv: proprietarul poate fi din orice țară.
+ */
+async function trimiteCerereaCatreMascul(d, token) {
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) { console.error("BREVO_API_KEY lipsește — cererea de confirmare nu a plecat."); return false; }
+  const link = "https://cfc-royal.ro/confirmare-monta/?t=" + token;
+  const rand = (a, b) =>
+    `<tr><td style="padding:3px 14px 3px 0;color:#666">${esc(a)}</td><td><strong>${esc(b)}</strong></td></tr>`;
+  const html =
+    `<h2 style="margin:0 0 4px;color:#1F4D3A">Confirmarea montei · Confirmation of mating</h2>` +
+    `<p style="color:#666;margin:0 0 18px">Registrul genealogic — Asociația Club Federal Chinologic Royal</p>` +
+    `<p style="font-size:15px">Sunteți indicat ca proprietar al masculului într-o Declarație de Montă și Fătare. ` +
+    `Vă rugăm să confirmați că monta a avut loc.<br>` +
+    `<span style="color:#666">You are named as the owner of the stud dog in a Mating and Whelping Declaration. ` +
+    `Please confirm that the mating took place.</span></p>` +
+    `<table style="border-collapse:collapse;font-size:14px;margin:16px 0">` +
+    rand("Mascul · Stud dog", d.mascul.nume) +
+    rand("Femelă · Dam", d.femela.nume) +
+    rand("Data montei · Mating date", d.dataMontei) +
+    rand("Crescător · Breeder", d.membruNume) +
+    rand("Nr. înregistrare · Reference", d.serie) +
+    `</table>` +
+    `<p style="margin:22px 0"><a href="${link}" style="background:#1F4D3A;color:#fff;text-decoration:none;` +
+    `padding:12px 22px;border-radius:6px;font-weight:600;display:inline-block">Deschide confirmarea · Open confirmation</a></p>` +
+    `<p style="font-size:13px;color:#666">Nu aveți nevoie de cont sau de cod. Linkul e valabil 60 de zile și poate fi folosit o singură dată.<br>` +
+    `No account or code needed. The link is valid for 60 days and can be used once.</p>` +
+    `<p style="font-size:12px;color:#888;word-break:break-all">${esc(link)}</p>` +
+    `<hr style="margin:20px 0;border:none;border-top:1px solid #ddd">` +
+    `<p style="color:#888;font-size:12px">Dacă nu cunoașteți această montă, apăsați linkul și alegeți „Nu confirm" — ` +
+    `sesizarea ajunge la registratură.<br>If you do not recognise this mating, open the link and choose “I do not confirm”.</p>`;
+  try {
+    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        sender: { name: "Registrul genealogic CFC-Royal", email: "newsletter@cfc-royal.ro" },
+        to: [{ email: d.mascul.email }],
+        subject: `[CFC-Royal] Confirmarea montei · Confirmation of mating — ${d.serie}`,
+        htmlContent: html,
+      }),
+    });
+    if (!res.ok) { console.error("Brevo (mascul):", res.status, await res.text()); return false; }
+    return true;
+  } catch (err) { console.error("Cererea de confirmare a eșuat:", err); return false; }
+}
 
 /** Confirmarea către crescător. Eșecul ei nu anulează depunerea deja înregistrată. */
 async function trimiteConfirmarea(membru, d) {
@@ -252,6 +328,12 @@ export function valideazaDeclaratia(body, membru) {
   if (!c.adn || !c.predare60 || !c.gdpr)
     return { eroare: "Toate cele trei declarații pe propria răspundere trebuie bifate." };
 
+  // AFIXUL se poate scrie pe declarație chiar dacă în fișa de membru nu există: cineva
+  // se poate înscrie fără canisă și să-și înregistreze una un an mai târziu. Ce vine din
+  // formular are întâietate; fișa de membru rămâne doar valoarea prestabilită.
+  const afix = taie(body.afix, 120) || taie(membru.afix, 120);
+  const nrAfix = taie(body.nrAfix, 40) || taie(membru.nrAfix, 40);
+
   const zile = zileIntre(dataFatarii, azi());
   return {
     d: {
@@ -259,7 +341,7 @@ export function valideazaDeclaratia(body, membru) {
       nascutiM, nascutiF, ramasiM, ramasiF,
       mascul: m.p, femela: f.p, pui,
       consimtaminte: { adn: true, predare60: true, gdpr: true },
-      afix: membru.afix || "", nrAfix: membru.nrAfix || "",
+      afix, nrAfix,
       zileDeLaFatare: zile,
       pesteTermen: zile > TERMEN_ZILE,
     },
@@ -273,6 +355,60 @@ export default cuLimitareCod(async (req) => {
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
 
   const actiune = taie(body.actiune, 24);
+
+  // —— Confirmarea montei: SINGURELE acțiuni fără cod ——
+  // Proprietarul masculului poate fi din altă asociație sau din străinătate. Cheia lui e
+  // jetonul din link, de 32 de octeți; în stocare stă doar amprenta lui.
+  if (actiune === "confirmare-vezi" || actiune === "confirmare-raspuns") {
+    const jeton = taie(body.jeton, 100);
+    if (!jeton) return json({ eroare: "Link incomplet." }, 400);
+    // Stocarea se deschide DUPĂ verificări, ca în restul funcțiilor: cererile fără cheie
+    // nici n-o ating, iar funcția rămâne testabilă local, fără Blobs.
+    const s0 = store();
+    const cheie = "confirmare/" + sha256(jeton);
+    const inv = await s0.get(cheie, { type: "json" }).catch(() => null);
+    if (!inv) return json({ eroare: "Link invalid sau deja folosit." }, 404);
+    if (inv.expira && inv.expira < new Date().toISOString())
+      return json({ eroare: "Linkul a expirat. Cere crescătorului să-l retrimită." }, 410);
+
+    const d = await s0.get("dmf/" + inv.dmfId, { type: "json" }).catch(() => null);
+    if (!d) return json({ eroare: "Dosarul nu mai există." }, 404);
+
+    if (actiune === "confirmare-vezi") {
+      // Doar ce trebuie ca omul să recunoască monta. Datele cumpărătorilor, dovada plății
+      // și pedigree-urile încărcate nu-l privesc.
+      return json({
+        dosar: {
+          serie: d.serie, rasa: d.rasa, dataMontei: d.dataMontei, dataFatarii: d.dataFatarii,
+          mascul: { nume: d.mascul.nume, pedigree: d.mascul.pedigree, microcip: d.mascul.microcip },
+          femela: { nume: d.femela.nume, pedigree: d.femela.pedigree },
+          crescator: d.membruNume, pui: (d.pui || []).length,
+          stare: d.confirmare?.stare || "asteptare",
+        },
+      });
+    }
+
+    const raspuns = taie(body.raspuns, 10);
+    if (raspuns !== "confirm" && raspuns !== "refuz") return json({ eroare: "Alege o variantă." }, 400);
+    const nume = taie(body.nume, 120);
+    if (nume.length < 3) return json({ eroare: "Scrie numele dumneavoastră." }, 400);
+    const motiv = taie(body.motiv, 600);
+    if (raspuns === "refuz" && motiv.length < 5)
+      return json({ eroare: "Scrie pe scurt de ce nu confirmați." }, 400);
+
+    const urma = {
+      stare: raspuns === "confirm" ? "confirmat" : "refuzat",
+      email: inv.email, nume, motiv,
+      la: new Date().toISOString(),
+      ip: req.headers.get("x-nf-client-connection-ip") || req.headers.get("x-forwarded-for") || "",
+    };
+    // Refuzul NU blochează dosarul: poate fi și o dispută între oameni, nu neapărat un fals.
+    // Îl semnalăm registraturii, care decide.
+    await s0.setJSON("dmf/" + inv.dmfId, { ...d, confirmare: { ...(d.confirmare || {}), ...urma } });
+    await s0.delete(cheie).catch(() => {});   // jeton de unică folosință
+    return json({ ok: true, stare: urma.stare });
+  }
+
   const cod = taie(body.cod, 60);
   const eu = await cine(cod);
   if (!eu) return json({ eroare: "Cod incorect." }, 401);
@@ -348,6 +484,13 @@ export default cuLimitareCod(async (req) => {
       membruNume: eu.membru.nume,
       membruEmail: eu.membru.email,
       creat: new Date().toISOString(),
+      confirmare: {
+        stare: "asteptare",
+        email: v.d.mascul.email,
+        trimisLa: new Date().toISOString(),
+        trimiteri: 1,
+        adresaCorectata: false,
+      },
     };
     await s.setJSON("dmf/" + ciornaId, d);
     await s.setJSON("dmf-membru/" + eu.membru.id + "/" + ciornaId, {
@@ -356,8 +499,22 @@ export default cuLimitareCod(async (req) => {
     });
     await s.delete("ciorna/" + ciornaId).catch(() => {});
 
+    // Afixul scris pe declarație completează fișa de membru dacă acolo nu era niciunul
+    // (canisă înregistrată după înscriere). Nu suprascrie niciodată un afix existent —
+    // acela e dat de asociație, nu de formular.
+    if (v.d.afix && !eu.membru.afix) {
+      try {
+        const fisa = await s.get("membru/" + eu.membru.id, { type: "json" });
+        if (fisa && !fisa.afix) {
+          await s.setJSON("membru/" + eu.membru.id, { ...fisa, afix: v.d.afix, nrAfix: v.d.nrAfix || fisa.nrAfix || "" });
+        }
+      } catch (err) { console.error("Completarea afixului în fișa de membru a eșuat:", err); }
+    }
+
     const emailTrimis = await trimiteConfirmarea(eu.membru, d);
-    return json({ ok: true, serie, id: ciornaId, pesteTermen: d.pesteTermen, emailTrimis });
+    const { jeton } = await deschideConfirmarea(ciornaId, d.mascul.email);
+    const cerereTrimisa = await trimiteCerereaCatreMascul(d, jeton);
+    return json({ ok: true, serie, id: ciornaId, pesteTermen: d.pesteTermen, emailTrimis, cerereTrimisa });
   }
 
   if (actiune === "mele") {
@@ -367,11 +524,55 @@ export default cuLimitareCod(async (req) => {
       const { blobs } = await s.list({ prefix: "dmf-membru/" + eu.membru.id + "/" });
       for (const b of blobs) {
         const x = await s.get(b.key, { type: "json" });
-        if (x) lista.push(x);
+        if (!x) continue;
+        // Starea confirmării se citește din dosarul propriu-zis, nu din rezumat: rezumatul
+        // e scris o singură dată, la depunere, iar confirmarea vine mai târziu.
+        const d = await s.get("dmf/" + x.id, { type: "json" }).catch(() => null);
+        lista.push({
+          ...x,
+          confirmare: d?.confirmare?.stare || "asteptare",
+          confirmareEmail: d?.confirmare?.email || null,
+          adresaCorectata: !!d?.confirmare?.adresaCorectata,
+        });
       }
     } catch (err) { console.error("Listare declarații eșuată:", err); }
     lista.sort((a, b) => String(b.creat).localeCompare(String(a.creat)));
     return json({ declaratii: lista });
+  }
+
+  // —— Retrimiterea cererii, cu o singură corectare de adresă ——
+  // Adresa greșită a masculului e cel mai probabil punct de blocaj: fără ea, dosarul
+  // așteaptă la nesfârșit. Corectarea e permisă O SINGURĂ dată și numai cât timp nimeni
+  // n-a răspuns — altfel s-ar putea căuta o adresă complezentă până iese un „da".
+  if (actiune === "confirmare-retrimite") {
+    if (eu.rol !== "membru") return json({ eroare: "Nepermis." }, 403);
+    const id = taie(body.id, 40);
+    const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
+    if (!d) return json({ eroare: "Dosar inexistent." }, 404);
+    if (d.membruId !== eu.membru.id) return json({ eroare: "Nepermis." }, 403);
+    const c = d.confirmare || {};
+    if (c.stare === "confirmat" || c.stare === "refuzat" || c.stare === "alternativ")
+      return json({ eroare: "Dosarul are deja un răspuns; adresa nu mai poate fi schimbată." }, 409);
+
+    let email = c.email || d.mascul.email;
+    const emailNou = taie(body.emailNou, 200).toLowerCase();
+    let corectat = !!c.adresaCorectata;
+    if (emailNou && emailNou !== email) {
+      if (corectat) return json({ eroare: "Adresa a fost deja corectată o dată. Scrie secretariatului." }, 409);
+      if (!EMAIL_RE.test(emailNou)) return json({ eroare: "Adresa de e-mail nu este validă." }, 400);
+      email = emailNou;
+      corectat = true;
+    }
+
+    const { jeton } = await deschideConfirmarea(id, email);
+    const trimis = await trimiteCerereaCatreMascul({ ...d, mascul: { ...d.mascul, email } }, jeton);
+    await s.setJSON("dmf/" + id, {
+      ...d,
+      mascul: { ...d.mascul, email },
+      confirmare: { ...c, stare: "asteptare", email, trimisLa: new Date().toISOString(),
+        trimiteri: (c.trimiteri || 0) + 1, adresaCorectata: corectat },
+    });
+    return json({ ok: true, email, trimis, adresaCorectata: corectat });
   }
 
   // —— Registratura și administratorul ——
@@ -387,6 +588,7 @@ export default cuLimitareCod(async (req) => {
           id: x.id, serie: x.serie, numarWDF: x.numarWDF || null, rasa: x.rasa,
           dataFatarii: x.dataFatarii, pui: (x.pui || []).length, stare: x.stare,
           pesteTermen: x.pesteTermen, membruNume: x.membruNume, creat: x.creat,
+          confirmare: x.confirmare?.stare || "asteptare",
         });
       }
     } catch (err) { console.error("Listare dosare eșuată:", err); }
@@ -403,12 +605,45 @@ export default cuLimitareCod(async (req) => {
     return json({ dosar: d });
   }
 
+  // —— Dovada alternativă: pagina semnată pe hârtie ——
+  // La masculii din străinătate e-mailul se pierde des, iar dosarul ar rămâne blocat
+  // pentru totdeauna. Registratura poate încărca dovada semnată și trece dosarul mai
+  // departe, pe răspunderea ei — cine a făcut-o și când rămâne scris.
+  if (actiune === "confirmare-alternativa") {
+    if (eu.rol !== "registratura" && eu.rol !== "admin") return json({ eroare: "Nepermis." }, 403);
+    const id = taie(body.id, 40);
+    const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
+    if (!d) return json({ eroare: "Dosar inexistent." }, 404);
+
+    const tip = taie(body.tip, 60);
+    if (!TIPURI_OK.includes(tip)) return json({ eroare: "Acceptăm doar JPEG, PNG, WEBP sau PDF." }, 400);
+    let date;
+    try { date = Buffer.from(String(body.continut || ""), "base64"); }
+    catch { return json({ eroare: "Fișier ilizibil." }, 400); }
+    if (!date.length) return json({ eroare: "Fișier gol." }, 400);
+    if (date.length > MAX_FISIER) return json({ eroare: "Fișierul depășește 5 MB." }, 400);
+
+    await s.set("dmf-fisier/" + id + "/" + FEL_ALTERNATIV, date, {
+      metadata: { nume: taie(body.nume, 160), tip, marime: date.length },
+    });
+    await s.setJSON("dmf/" + id, {
+      ...d,
+      confirmare: {
+        ...(d.confirmare || {}), stare: "alternativ",
+        la: new Date().toISOString(),
+        deCatre: eu.rol === "admin" ? "administrator" : (eu.registrator?.nume || "registratură"),
+        observatie: taie(body.observatie, 400),
+      },
+    });
+    return json({ ok: true });
+  }
+
   // Fișierele nu stau public: ies doar prin funcție, pentru proprietarul dosarului
   // sau pentru registratură. Pedigree-urile și dovada plății sunt date personale.
   if (actiune === "vezi-fisier") {
     const id = taie(body.id, 40);
     const fel = taie(body.fel, 32);
-    if (!FELURI[fel]) return json({ eroare: "Piesă necunoscută." }, 400);
+    if (!TOATE_FELURILE[fel]) return json({ eroare: "Piesă necunoscută." }, 400);
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
     const alMeu = eu.rol === "membru" && d.membruId === eu.membru.id;
@@ -436,7 +671,7 @@ export default cuLimitareCod(async (req) => {
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
 
-    for (const fel of Object.keys(FELURI)) {
+    for (const fel of Object.keys(TOATE_FELURILE)) {
       await s.delete("dmf-fisier/" + id + "/" + fel).catch(() => {});
     }
     await s.delete("dmf-membru/" + d.membruId + "/" + id).catch(() => {});

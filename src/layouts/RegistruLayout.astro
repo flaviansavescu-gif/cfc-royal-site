@@ -28,6 +28,10 @@ const protejat = allowList.length > 0;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
+    {/* Pagina de confirmare a montei poartă jetonul în adresă. Fără asta, adresa ar
+        pleca în antetul Referer către orice resursă externă și ar ajunge în jurnalele
+        altcuiva. Nicio pagină a registrului n-are nevoie să trimită referrer. */}
+    <meta name="referrer" content="no-referrer" />
     <meta name="theme-color" content="#1F4D3A" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="256x256" href="/favicon.png" />
