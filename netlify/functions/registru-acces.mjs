@@ -318,13 +318,27 @@ export default cuLimitareCod(async (req) => {
 
     const r = await registratorDinCod(cod);
     if (r) {
-      if (await dispozitivCunoscut(store(), dispozitiv, "registratura")) {
+      const emailLui = taie(r.email, 200);
+
+      // A DOUA CHEIE SE CERE DOAR UNDE POATE FI LIVRATĂ OMULUI POTRIVIT.
+      //
+      // Prima versiune trimitea codul la adresa asociației când registratorul n-avea
+      // e-mail în fișă. Pe hârtie suna a prudență („cineva de acolo îl dictează"); în
+      // realitate, omul vedea pe ecran că i s-a trimis un cod la adresa altcuiva și
+      // rămânea blocat, așteptând ceva ce nu putea primi. Un al doilea factor pe care
+      // nu-l poți primi nu e o apărare, e o ușă zidită.
+      //
+      // Aceeași regulă ca la lectori: fără adresă proprie în fișă, intri doar cu codul.
+      // Lipsa e VIZIBILĂ în panoul de administrare, ca să poată fi îndreptată.
+      if (!emailLui || await dispozitivCunoscut(store(), dispozitiv, "registratura")) {
         await marcheazaIntrarea("registrator/" + r.id, r);
-        return json({ rol: "registratura", id: r.id, nume: r.nume, dest: "/registru/registratura/" });
+        return json({
+          rol: "registratura", id: r.id, nume: r.nume, dest: "/registru/registratura/",
+          alDoileaFactorLipsa: !emailLui,
+        });
       }
-      // Fără e-mail în fișă, codul pleacă la asociație: cineva de acolo îl dictează.
-      // Mai bine un pas în plus decât o poartă care se deschide singură.
-      const c = await ceruIntrarea("registratura", r.nume, r.email || ADRESA_ASOCIATIEI);
+
+      const c = await ceruIntrarea("registratura", r.nume, emailLui);
       if (c.ocolit) {
         await marcheazaIntrarea("registrator/" + r.id, r);
         return json({ rol: "registratura", id: r.id, nume: r.nume, dest: "/registru/registratura/", alDoileaFactorLipsa: true });
@@ -438,11 +452,37 @@ export default cuLimitareCod(async (req) => {
     return json({ ok: true, cotizatiePana, cotizatieLaZi: cotizatieLaZi(cotizatiePana) });
   }
 
+  // Completarea adresei unui registrator deja existent — PORNEȘTE a doua cheie pentru
+  // el, fără să-i schimbe codul. Fără asta, singura cale ar fi fost ștergerea și
+  // regenerarea codului, adică exact operațiunea care l-a blocat prima dată.
+  if (actiune === "registrator-email") {
+    const id = taie(body.id, 128);
+    const email = taie(body.email, 200).toLowerCase();
+    if (!id) return json({ eroare: "Lipsește persoana." }, 400);
+    if (!EMAIL_RE.test(email)) return json({ eroare: "Scrie o adresă de e-mail validă." }, 400);
+    const x = await store().get("registrator/" + id, { type: "json" }).catch(() => null);
+    if (!x) return json({ eroare: "Registrator inexistent." }, 404);
+    await store().setJSON("registrator/" + id, { ...x, email });
+    await jurnalizeaza(store(), {
+      fapta: "cod-generat",
+      actor: ADMIN,
+      obiect: x.nume,
+      detalii: `Adresă de e-mail completată (${email}) — al doilea factor pornit pentru registratură`,
+      ip: ipCerere(req),
+    });
+    return json({ ok: true, email });
+  }
+
   if (actiune === "registrator-adauga") {
     const nume = taie(body.nume, 120);
     const email = taie(body.email, 200).toLowerCase();
     if (nume.length < 3) return json({ eroare: "Scrie numele persoanei." }, 400);
-    if (email && !EMAIL_RE.test(email)) return json({ eroare: "Adresa de e-mail nu este validă." }, 400);
+    // E-mailul e OBLIGATORIU de acum: acolo pleacă codul de șase cifre al celui de-al
+    // doilea factor. Fără el, persoana ar intra doar cu codul — ceea ce se poate, dar
+    // trebuie să fie o excepție moștenită, nu o alegere făcută din neatenție la un
+    // câmp marcat „opțional".
+    if (!EMAIL_RE.test(email))
+      return json({ eroare: "Scrie adresa de e-mail: acolo pleacă codul de confirmare la fiecare intrare de pe un dispozitiv nou." }, 400);
 
     const nou = await codUnic("REG-", "registrator/");
     if (!nou) return json({ eroare: "Nu am putut genera un cod unic. Reîncearcă." }, 500);

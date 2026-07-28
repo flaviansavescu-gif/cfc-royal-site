@@ -100,10 +100,13 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
   <p class="a-note">
     Persoanele care verifică dosarele (DMF, pedigree-urile părinților, dovada dreptului de montă
     al femelei, dovada plății), extrag ascendența și atribuie numărul de cuib WDF.
+    <strong>E-mailul e obligatoriu</strong>: acolo pleacă codul de confirmare cerut la fiecare
+    intrare de pe un dispozitiv nou. Cine e trecut aici fără adresă intră doar cu codul —
+    apare marcat în listă și se poate îndrepta pe loc, fără să-i schimbi codul.
   </p>
   <form class="a-form a-form--mic" id="a-reg-form">
     <input id="a-reg-nume" type="text" placeholder="Numele persoanei" required />
-    <input id="a-reg-email" type="email" placeholder="E-mail (opțional)" />
+    <input id="a-reg-email" type="email" placeholder="E-mail (obligatoriu — acolo pleacă codul de confirmare)" required />
     <button class="btn btn--primary" type="submit">Generează cod de registratură</button>
   </form>
   <p class="a-cod-nou" id="a-reg-cod" hidden></p>
@@ -408,6 +411,35 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
           meta.textContent = [r.email, r.ultima_logare ? "ultima intrare " + dataRo(r.ultima_logare) : "nu a intrat încă"]
             .filter(Boolean).join(" · ");
           info.appendChild(meta);
+
+          // Fără adresă, persoana intră DOAR cu codul: al doilea factor n-are unde
+          // să ajungă. Se vede, ca să poată fi îndreptat, nu se ascunde.
+          if (!r.email) {
+            const av = document.createElement("span");
+            av.className = "a-cotizatie is-expirat";
+            av.textContent = "⚠ fără e-mail — intră doar cu codul, fără a doua cheie";
+            info.appendChild(av);
+
+            const rand = document.createElement("span");
+            rand.className = "a-adauga-email";
+            const camp = document.createElement("input");
+            camp.type = "email";
+            camp.placeholder = "adresa lui de e-mail";
+            const ok = document.createElement("button");
+            ok.type = "button";
+            ok.className = "btn btn--small btn--outline";
+            ok.textContent = "Pornește a doua cheie";
+            ok.addEventListener("click", async () => {
+              const e = camp.value.trim();
+              if (!e) { camp.focus(); return; }
+              ok.disabled = true;
+              try { await cere({ actiune: "registrator-email", id: r.id, email: e }); incarcaRegistratori(); }
+              catch (er) { alert("Nu am putut salva adresa: " + er.message); ok.disabled = false; }
+            });
+            rand.append(camp, ok);
+            info.appendChild(rand);
+          }
+
           li.appendChild(info);
           const del = document.createElement("button");
           del.className = "btn btn--small btn--danger";
@@ -823,6 +855,10 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     padding: 0.6rem 0.85rem; border: 1px solid var(--color-border);
     border-radius: var(--radius); font: inherit; background: var(--color-surface);
   }
+  .a-adauga-email { display: flex; gap: 0.4rem; margin-top: 0.4rem; flex-wrap: wrap; }
+  .a-adauga-email input { flex: 1 1 14rem; padding: 0.4rem 0.6rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.88rem; }
+
   /* —— Starea sistemului —— */
   .a-monitor { max-width: 44rem; padding: 0.9rem 1.1rem; border: 1px solid var(--color-border);
     border-left: 4px solid var(--color-border); border-radius: var(--radius);
