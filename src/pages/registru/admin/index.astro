@@ -35,18 +35,17 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
   </p>
 
   {/* ——— Ce se vede întotdeauna ———
-       Solicitările sunt oameni care așteaptă un răspuns: ele nu se pliază. Restul se
-       deschid la cerere, iar conținutul lor se încarcă abia atunci — altfel pagina ar
-       cere tot registrul la fiecare deschidere, degeaba. */}
-  <h2 class="a-h2">Solicitări de acces <span class="a-numar" id="a-cereri-numar" hidden></span></h2>
+       Secțiunile se deschid la cerere, iar conținutul lor se încarcă abia atunci —
+       altfel pagina ar cere tot registrul la fiecare deschidere, degeaba. */}
   <p class="a-note">
-    Vin din formularul de pe pagina de intrare. Verifică întâi calitatea de membru și cotizația;
-    apoi apasă <strong>Preia</strong> — datele trec în formularul de mai jos și rămâne doar să
-    alegi data cotizației și să generezi codul.
+    <strong>Solicitările de acces</strong> și <strong>generarea codurilor de membru</strong> se
+    lucrează în <a href="/registru/registratura/">spațiul Registraturii</a>: acolo sunt datele pe
+    care se sprijină — cine e membru și cine are cotizația la zi. Aici rămâne ce ține de
+    autoritatea administratorului: cine e registrator, revocarea accesului, anularea actelor,
+    jurnalul și arhiva.
   </p>
-  <ul class="a-lista" id="a-cereri"><li class="a-gol">Se încarcă…</li></ul>
 
-  <p class="a-indrumar">Restul se deschid la nevoie:</p>
+  <p class="a-indrumar">Se deschid la nevoie:</p>
 
   <details class="a-sectiune" data-sectiune="membri">
   <summary class="a-sumar">
@@ -54,29 +53,10 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     <span class="a-numar" id="a-membri-numar" hidden></span>
   </summary>
   <p class="a-note">
-    Dacă membrul are canisă înregistrată, alege-o din listă — afixul și numărul se completează singure.
-    Dacă nu are, lasă câmpurile goale: dreptul vine din calitatea de membru, nu din afix.
-    <strong>Data cotizației</strong> e obligatorie; după ea, depunerea se blochează până la reînnoire.
+    Lista membrilor cu drept de a depune declarații, cu starea cotizației. Codurile noi și
+    reînnoirea cotizației se fac în <a href="/registru/registratura/">spațiul Registraturii</a>.
+    Aici rămâne <strong>revocarea</strong>: accesul se dă acolo, se ia de aici.
   </p>
-  <form class="a-form" id="a-membru-form">
-    <input id="a-m-nume" type="text" placeholder="Numele și prenumele membrului" required />
-    <input id="a-m-email" type="email" placeholder="E-mail (pe el pleacă numărul de înregistrare)" required />
-    <label class="a-camp">Cotizația achitată până la
-      <input id="a-m-cotizatie" type="date" required />
-    </label>
-    <select id="a-m-canisa">
-      <option value="">— fără canisă înregistrată —</option>
-      {caniseSite.map((c) => (
-        <option value={c.afix} data-nr={c.nrAfix} data-proprietar={c.proprietar}>
-          {c.afix} — {c.proprietar}
-        </option>
-      ))}
-    </select>
-    <input id="a-m-afix" type="text" placeholder="Afix (opțional)" />
-    <input id="a-m-nrafix" type="text" placeholder="Nr. afix (opțional, ex. AFX025/2026)" />
-    <button class="btn btn--primary" type="submit">Generează cod de membru</button>
-  </form>
-  <p class="a-cod-nou" id="a-membru-cod" hidden></p>
   <ul class="a-lista" id="a-membri"><li class="a-gol">Se încarcă…</li></ul>
   </details>
 
@@ -297,19 +277,10 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
           info.appendChild(cot);
           li.appendChild(info);
 
+          // Reînnoirea cotizației se face în spațiul Registraturii, unde se ține
+          // evidența plăților. Aici rămâne revocarea: accesul se dă acolo, se ia de aici.
           const actiuni = document.createElement("div");
           actiuni.className = "a-actiuni";
-          const dataNoua = document.createElement("input");
-          dataNoua.type = "date"; dataNoua.title = "Reînnoiește cotizația până la…";
-          const reinnoieste = document.createElement("button");
-          reinnoieste.className = "btn btn--small btn--outline";
-          reinnoieste.textContent = "Reînnoiește";
-          reinnoieste.addEventListener("click", async () => {
-            if (!dataNoua.value) { dataNoua.focus(); return; }
-            reinnoieste.disabled = true;
-            try { await cere({ actiune: "membru-cotizatie", id: m.id, cotizatiePana: dataNoua.value }); incarcaMembri(); }
-            catch (e) { alert("Nu am putut reînnoi: " + e.message); reinnoieste.disabled = false; }
-          });
           const del = document.createElement("button");
           del.className = "btn btn--small btn--danger";
           del.textContent = "Revocă";
@@ -319,7 +290,7 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
             try { await cere({ actiune: "membru-sterge", id: m.id }); incarcaMembri(); }
             catch (e) { alert("Nu am putut revoca: " + e.message); del.disabled = false; }
           });
-          actiuni.appendChild(dataNoua); actiuni.appendChild(reinnoieste); actiuni.appendChild(del);
+          actiuni.appendChild(del);
           li.appendChild(actiuni);
           ul.appendChild(li);
         });
@@ -406,72 +377,6 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       }
       b.disabled = false; b.textContent = "🧹 Curăță magazia";
     });
-
-    // Solicitările vin din formularul public. Textul e scris de străini, deci NUMAI
-    // textContent — un nume cu marcaj HTML n-are ce executa în pagina administratorului.
-    async function incarcaCereri() {
-      const ul = document.getElementById("a-cereri");
-      ul.innerHTML = "";
-      try {
-        const d = await cere({ actiune: "cereri" });
-        // Numărul, lângă titlu: solicitările sunt oameni care așteaptă, nu o listă
-        // pe care o vezi dacă derulezi până la ea.
-        const numar = document.getElementById("a-cereri-numar");
-        numar.hidden = !d.cereri.length;
-        numar.textContent = d.cereri.length
-          ? (d.cereri.length === 1 ? "1 în așteptare" : d.cereri.length + " în așteptare")
-          : "";
-        if (!d.cereri.length) { ul.innerHTML = "<li class='a-gol'>Nicio solicitare nerezolvată.</li>"; return; }
-        d.cereri.forEach((c) => {
-          const li = document.createElement("li");
-          const info = document.createElement("div");
-          const tare = document.createElement("strong");
-          tare.textContent = c.nume;
-          info.appendChild(tare);
-
-          const meta = document.createElement("span");
-          meta.className = "a-meta";
-          meta.textContent = [c.email, c.telefon, "cerut " + dataRo(c.creat),
-            c.trimiteri > 1 ? c.trimiteri + " trimiteri" : null].filter(Boolean).join(" · ");
-          info.appendChild(meta);
-
-          if (c.mesaj) {
-            const m = document.createElement("span");
-            m.className = "a-mesaj";
-            m.textContent = c.mesaj;
-            info.appendChild(m);
-          }
-          li.appendChild(info);
-
-          const actiuni = document.createElement("div");
-          actiuni.className = "a-actiuni";
-          const preia = document.createElement("button");
-          preia.className = "btn btn--small btn--primary";
-          preia.textContent = "Preia";
-          preia.addEventListener("click", () => {
-            // Formularul stă într-o secțiune care poate fi închisă: fără asta,
-            // butonul ar completa câmpuri pe care omul nu le vede.
-            deschideSectiunea("membri");
-            document.getElementById("a-m-nume").value = c.nume;
-            document.getElementById("a-m-email").value = c.email;
-            document.getElementById("a-m-cotizatie").focus();
-            document.getElementById("a-membru-form").scrollIntoView({ behavior: "smooth", block: "center" });
-          });
-          const gata = document.createElement("button");
-          gata.className = "btn btn--small btn--danger";
-          gata.textContent = "Șterge";
-          gata.addEventListener("click", async () => {
-            if (!confirm("Ștergi solicitarea lui " + c.nume + "?")) return;
-            gata.disabled = true;
-            try { await cere({ actiune: "cerere-sterge", id: c.id }); incarcaCereri(); }
-            catch (e) { alert("Nu am putut șterge: " + e.message); gata.disabled = false; }
-          });
-          actiuni.appendChild(preia); actiuni.appendChild(gata);
-          li.appendChild(actiuni);
-          ul.appendChild(li);
-        });
-      } catch (e) { ul.innerHTML = "<li class='a-gol'>Nu am putut încărca solicitările.</li>"; }
-    }
 
     async function incarcaRegistratori() {
       const ul = document.getElementById("a-registratori");
@@ -614,39 +519,6 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       } catch (e) { ul.innerHTML = "<li class='a-gol'>Nu am putut încărca declarațiile.</li>"; }
     }
 
-    // Alegerea unei canise completează afixul și numărul (și numele, dacă e gol).
-    document.getElementById("a-m-canisa").addEventListener("change", (e) => {
-      const o = e.target.selectedOptions[0];
-      if (!o || !o.value) return;
-      document.getElementById("a-m-afix").value = o.value;
-      document.getElementById("a-m-nrafix").value = o.dataset.nr || "";
-      const nume = document.getElementById("a-m-nume");
-      if (!nume.value.trim()) nume.value = o.dataset.proprietar || "";
-    });
-
-    document.getElementById("a-membru-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const btn = e.target.querySelector("button[type=submit]");
-      btn.disabled = true; btn.textContent = "Se generează…";
-      try {
-        const d = await cere({
-          actiune: "membru-adauga",
-          nume: document.getElementById("a-m-nume").value.trim(),
-          email: document.getElementById("a-m-email").value.trim(),
-          cotizatiePana: document.getElementById("a-m-cotizatie").value,
-          afix: document.getElementById("a-m-afix").value.trim(),
-          nrAfix: document.getElementById("a-m-nrafix").value.trim(),
-        });
-        arataCod(document.getElementById("a-membru-cod"), d.membru.nume, d.membru.cod);
-        e.target.reset();
-        incarcaMembri();
-        // Generarea codului E răspunsul la solicitare: dacă a închis una, lista de
-        // așteptare trebuie să arate asta imediat, nu la următoarea reîncărcare.
-        if (d.solicitareInchisa) incarcaCereri();
-      } catch (err) { alert("Nu am putut genera codul: " + err.message); }
-      finally { btn.disabled = false; btn.textContent = "Generează cod de membru"; }
-    });
-
     document.getElementById("a-reg-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = e.target.querySelector("button[type=submit]");
@@ -660,7 +532,6 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
         arataCod(document.getElementById("a-reg-cod"), d.registrator.nume, d.registrator.cod);
         e.target.reset();
         incarcaRegistratori();
-        if (d.solicitareInchisa) incarcaCereri();
       } catch (err) { alert("Nu am putut genera codul: " + err.message); }
       finally { btn.disabled = false; btn.textContent = "Generează cod de registratură"; }
     });
@@ -996,7 +867,6 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       if (d.open && INCARCATOARE[nume]) { d.dataset.incarcat = "da"; INCARCATOARE[nume](); }
     });
 
-    incarcaCereri();
     incarcaMonitor();   // întotdeauna: verdictul trebuie să se vadă fără să deschizi
   })();
 </script>
