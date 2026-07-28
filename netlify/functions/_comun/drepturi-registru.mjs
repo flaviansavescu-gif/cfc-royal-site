@@ -61,3 +61,14 @@ export function motivRefuz(actiune, eu) {
   }
   return "Nu ai dreptul la această operațiune.";
 }
+
+/**
+ * Antet pus pe refuzurile de DREPT, ca limitatorul să nu le socotească încercări de
+ * spargere.
+ *
+ * „Nu ești cine spui" și „ești cine spui, dar n-ai voie aici" sunt două lucruri diferite.
+ * Primul e semnal de atac și trebuie numărat. Al doilea e un om care apasă un buton la
+ * care nu are drept — dacă îl numărăm, îl împingem spre blocare pentru o greșeală
+ * nevinovată. Dispozitivul nerecunoscut rămâne numărat: acolo chiar e un semnal.
+ */
+export const ANTET_REFUZ_DREPT = "x-refuz-drept";

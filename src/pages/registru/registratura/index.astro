@@ -183,6 +183,13 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       const res = await postA({ actiune: "membri" });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) { ul.appendChild(el("li", "g-gol", d.eroare || "Eroare")); return; }
+      // Dreptul vine cu lista: dacă administratorul l-a dat sau l-a luat între timp,
+      // se vede acum, nu după o nouă autentificare.
+      if (typeof d.poateDaAcces === "boolean" && d.poateDaAcces !== potDaCoduri) {
+        potDaCoduri = d.poateDaAcces;
+        document.getElementById("r-adauga").hidden = !potDaCoduri;
+        document.getElementById("r-fara-drept").hidden = potDaCoduri;
+      }
       const lst = d.membri || [];
       numarSec("r-membri-numar", lst.length, "membru", "membri");
       if (!lst.length) { ul.appendChild(el("li", "g-gol", "Niciun membru încă.")); return; }
@@ -230,7 +237,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       lst.forEach((x) => {
         const li = el("li");
         const info = el("div");
-        info.appendChild(el("strong", null, x.faptaText || x.fapta));
+        info.appendChild(el("strong", null, x.eticheta || x.fapta));
         info.appendChild(el("span", "g-meta",
           [x.obiect, x.detalii, x.la ? new Date(x.la).toLocaleString("ro-RO") : ""].filter(Boolean).join(" · ")));
         li.appendChild(info);

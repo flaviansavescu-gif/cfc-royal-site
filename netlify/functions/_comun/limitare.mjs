@@ -4,6 +4,7 @@
 // singura apărare reală împotriva enumerării este limitarea încercărilor.
 // Contorul stă în Blobs, pe adresa IP a clientului, cu fereastră glisantă.
 import { getStore } from "@netlify/blobs";
+import { ANTET_REFUZ_DREPT } from "./drepturi-registru.mjs";
 import { createHash } from "node:crypto";
 
 const store = () => getStore("acces");
@@ -138,7 +139,10 @@ export function cuLimitareCod(handler) {
 
     if (cheie) {
       try {
-        if (raspuns.status === 401 || raspuns.status === 403) await inregistreazaEsec(cheie);
+        // Refuzul de DREPT nu e o încercare de spargere: omul e cine spune că e, doar
+        // n-are voie la acea acțiune. Numărat, l-ar duce la blocare pentru un clic greșit.
+        const refuzDeDrept = raspuns.headers.get(ANTET_REFUZ_DREPT) === "1";
+        if (!refuzDeDrept && (raspuns.status === 401 || raspuns.status === 403)) await inregistreazaEsec(cheie);
         else if (raspuns.ok) await resetLimita(cheie);
       } catch (err) { console.error("Limitare (numărare) eșuată:", err); }
     }

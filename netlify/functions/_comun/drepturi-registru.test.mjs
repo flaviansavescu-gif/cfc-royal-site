@@ -1,4 +1,4 @@
-import { poateFace, jurnalDoarAleMele, motivRefuz } from "./drepturi-registru.mjs";
+import { poateFace, jurnalDoarAleMele, motivRefuz, ANTET_REFUZ_DREPT } from "./drepturi-registru.mjs";
 import { readFileSync } from "node:fs";
 
 let rau = 0;
@@ -53,6 +53,34 @@ console.log("— mesajul de refuz spune ce se poate face —");
 e("îl trimite la administrator pentru dreptul lipsă",
   motivRefuz("membru-adauga", REG).includes("administratorul"));
 e("mesaj generic în rest", motivRefuz("curatenie", REG) === "Nu ai dreptul la această operațiune.");
+
+console.log("— refuzul de drept se deosebește de o încercare de spargere —");
+{
+  const sursa = readFileSync(new URL("../registru-acces.mjs", import.meta.url), "utf8");
+  e("poarta pune antetul pe refuzul de drept", sursa.includes("ANTET_REFUZ_DREPT"));
+  const lim = readFileSync(new URL("./limitare.mjs", import.meta.url), "utf8");
+  e("limitatorul citește antetul", lim.includes("ANTET_REFUZ_DREPT"));
+  e("și nu mai numără orbește 403", lim.includes("!refuzDeDrept"));
+  // Dispozitivul nerecunoscut e altceva: acolo chiar poate fi un cod furat, folosit de
+  // pe alt calculator. Refuzul acela NU poartă antetul, deci rămâne numărat.
+  const intreCele = sursa.slice(
+    sursa.indexOf("dispozitivCunoscut(store(), dispozitiv, eu.rol)"),
+    sursa.indexOf("poateFace(actiune, eu)"),
+  );
+  e("dispozitivul nerecunoscut RĂMÂNE numărat", !intreCele.includes("ANTET_REFUZ_DREPT"));
+  e("antetul are un nume", typeof ANTET_REFUZ_DREPT === "string" && ANTET_REFUZ_DREPT.length > 3);
+}
+
+console.log("— alerta de cerere ajunge la cine poate rezolva —");
+{
+  const acc = readFileSync(new URL("../registru-acces.mjs", import.meta.url), "utf8");
+  e("cererea strânge adresele registratorilor", acc.includes("anuntaLa"));
+  const jur = readFileSync(new URL("./registru-jurnal.mjs", import.meta.url), "utf8");
+  e("jurnalul le folosește", jur.includes("anunta(intrare, date?.anuntaLa)"));
+  e("adresa asociației rămâne rezervă", jur.includes("destinatari.length ? destinatari.join"));
+  e("textul nu mai trimite la secțiunea scoasă", !jur.includes("Solicitări de acces"));
+  e("textul trimite la spațiul Registraturii", jur.includes("registru/registratura"));
+}
 
 // —— Poarta e chiar folosită, nu doar scrisă ——
 // Un tabel de drepturi frumos, pe care funcția nu-l consultă, e mai rău decât niciunul:

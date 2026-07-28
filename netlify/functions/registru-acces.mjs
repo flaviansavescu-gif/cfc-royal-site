@@ -28,7 +28,7 @@
 // POST { cod, actiune:"registratori" | "registrator-adauga" | "registrator-sterge" }       (admin)
 import { getStore } from "@netlify/blobs";
 import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
-import { poateFace, jurnalDoarAleMele, motivRefuz } from "./_comun/drepturi-registru.mjs";
+import { poateFace, jurnalDoarAleMele, motivRefuz, ANTET_REFUZ_DREPT } from "./_comun/drepturi-registru.mjs";
 import { cuLimitareCod, ipClient } from "./_comun/limitare.mjs";
 import {
   jurnalizeaza, jurnalizeazaObligatoriu, ipCerere, citesteJurnal, actorExtern, FAPTE,
@@ -268,7 +268,20 @@ export default cuLimitareCod(async (req) => {
     // Retrimiterile aceleiași adrese NU redeschid un anunț: prima dată e o veste, a
     // cincea e zgomot.
     if (!veche) {
+      // Vestea pleacă la registratorii care o pot rezolva, nu doar la administrator.
+      // Dacă niciunul n-are adresă în fișă, rămâne adresa asociației.
+      let anuntaLa = [];
+      try {
+        const { blobs } = await s.list({ prefix: "registrator/" });
+        for (const b of blobs) {
+          const r = await s.get(b.key, { type: "json" }).catch(() => null);
+          if (r && r.email) anuntaLa.push(r.email);
+        }
+      } catch (err) {
+        console.error("Nu am putut afla cui să anunț cererea:", err);
+      }
       await jurnalizeaza(s, {
+        anuntaLa,
         fapta: "cerere-acces",
         actor: actorExtern(nume),
         obiect: nume,
@@ -437,7 +450,16 @@ export default cuLimitareCod(async (req) => {
   if (!eu) return json({ eroare: "Nu ai drept de administrare a accesului la registru." }, 401);
   if (!(await dispozitivCunoscut(store(), dispozitiv, eu.rol)))
     return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
-  if (!poateFace(actiune, eu)) return json({ eroare: motivRefuz(actiune, eu) }, 403);
+  if (!poateFace(actiune, eu)) {
+    return new Response(JSON.stringify({ eroare: motivRefuz(actiune, eu) }), {
+      status: 403,
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        "Cache-Control": "no-store",
+        [ANTET_REFUZ_DREPT]: "1",
+      },
+    });
+  }
 
   if (actiune === "membri" || actiune === "registratori") {
     const prefix = actiune === "membri" ? "membru/" : "registrator/";
@@ -453,7 +475,11 @@ export default cuLimitareCod(async (req) => {
       }
     } catch (err) { console.error("Listare eșuată:", err); }
     lista.sort((a, b) => String(a.nume || "").localeCompare(String(b.nume || ""), "ro"));
-    return json(actiune === "membri" ? { membri: lista } : { registratori: lista });
+    // Dreptul curent pleacă odată cu lista: altfel bifa pusă azi de administrator
+    // s-ar vedea abia după ce registratorul iese și intră din nou în registru.
+    return json(actiune === "membri"
+      ? { membri: lista, poateDaAcces: eu.rol === "admin" || eu.poateDaAcces === true }
+      : { registratori: lista });
   }
 
   /**

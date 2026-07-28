@@ -117,7 +117,7 @@ function construieste({ fapta, actor, obiect, detalii, ip }) {
  * Trimite alerta pentru o faptă gravă. Nu așteptăm rezultatul acolo unde e chemată:
  * consemnarea a reușit deja, iar poșta e o treabă separată.
  */
-async function anunta(intrare) {
+async function anunta(intrare, catre) {
   // O solicitare de acces nu e o faptă gravă: e un om care așteaptă un răspuns.
   // Tonul (și culoarea) trebuie să spună asta, altfel avertismentele roșii se
   // amestecă și nu mai atrag atenția niciunul.
@@ -126,8 +126,8 @@ async function anunta(intrare) {
   const culoare = cerere ? "#1F4D3A" : "#8c1d2f";
   const incheiere = cerere
     ? `<p style="font-size:12px;color:#888">Verifică întâi calitatea de membru și cotizația. ` +
-      `Codul se dă din panoul de administrare, la „Solicitări de acces" — butonul ` +
-      `<strong>Preia</strong> completează singur datele în formular.</p>`
+      `Codul se generează din <strong>spațiul Registraturii</strong>, la „Cereri de acces" ` +
+      `(cfc-royal.ro/registru/registratura/) — de către registratorul desemnat.</p>`
     : `<p style="font-size:12px;color:#888">Primești acest mesaj fiindcă e una dintre faptele grave ` +
       `ale registrului. <strong>Dacă nu ai făcut-o tu, schimbă imediat codurile de acces</strong> ` +
       `și verifică jurnalul din panoul de administrare.</p>`;
@@ -146,8 +146,12 @@ async function anunta(intrare) {
     `<hr style="margin:20px 0;border:none;border-top:1px solid #ddd">` +
     incheiere;
 
+  // Alerta trebuie să ajungă la cine POATE rezolva. Cererile de acces se lucrează la
+  // registratură, deci acolo pleacă — altfel omul care primește vestea n-are ce face cu
+  // ea, iar cel care ar avea, n-o află. Adresa asociației rămâne rezerva.
+  const destinatari = (Array.isArray(catre) ? catre : [catre]).filter(Boolean);
   return trimite({
-    catre: ADRESA_ASOCIATIEI,
+    catre: destinatari.length ? destinatari.join(",") : ADRESA_ASOCIATIEI,
     subiect: `[CFC-Royal] ${intrare.eticheta}${intrare.obiect ? " — " + intrare.obiect : ""}`,
     html: pagina(titlu, culoare, corp),
   });
@@ -166,7 +170,7 @@ export async function jurnalizeaza(store, date) {
     }
     const { cheie, intrare } = construieste(date);
     await store.setJSON(cheie, intrare);
-    if (FAPTE_DE_ANUNTAT.has(intrare.fapta)) await anunta(intrare);
+    if (FAPTE_DE_ANUNTAT.has(intrare.fapta)) await anunta(intrare, date?.anuntaLa);
     return true;
   } catch (err) {
     console.error("Scrierea în jurnal a eșuat:", err);
@@ -186,7 +190,7 @@ export async function jurnalizeazaObligatoriu(store, date) {
   // Anunțul vine DUPĂ ce urma e scrisă, și nu poate anula fapta: dacă poșta cade,
   // ștergerea tot are voie să se facă — proba, care contează, există deja.
   if (FAPTE_DE_ANUNTAT.has(intrare.fapta)) {
-    try { await anunta(intrare); } catch (err) { console.error("Alerta n-a plecat:", err); }
+    try { await anunta(intrare, date?.anuntaLa); } catch (err) { console.error("Alerta n-a plecat:", err); }
   }
   return intrare;
 }

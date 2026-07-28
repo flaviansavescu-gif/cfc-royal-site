@@ -844,13 +844,6 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       } catch (e) {}
     }
 
-    /** Deschide o secțiune și o încarcă, dacă n-a fost încărcată încă. */
-    function deschideSectiunea(nume) {
-      const d = document.querySelector('details.a-sectiune[data-sectiune="' + nume + '"]');
-      if (d && !d.open) d.open = true;
-      return d;
-    }
-
     const amintite = sectiuniDeschise();
     document.querySelectorAll("details.a-sectiune").forEach((d) => {
       const nume = d.dataset.sectiune;
