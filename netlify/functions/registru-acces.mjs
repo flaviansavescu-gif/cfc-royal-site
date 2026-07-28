@@ -30,7 +30,7 @@ import { getStore } from "@netlify/blobs";
 import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod, ipClient } from "./_comun/limitare.mjs";
 import {
-  jurnalizeaza, jurnalizeazaObligatoriu, ipCerere, citesteJurnal, FAPTE,
+  jurnalizeaza, jurnalizeazaObligatoriu, ipCerere, citesteJurnal, actorExtern, FAPTE,
 } from "./_comun/registru-jurnal.mjs";
 import {
   dispozitivCunoscut, deschideIntrarea, confirmaIntrarea,
@@ -261,6 +261,22 @@ export default cuLimitareCod(async (req) => {
       actualizat: new Date().toISOString(),
       trimiteri: (veche?.trimiteri || 0) + 1,
     });
+
+    // ANUNȚUL. Solicitarea stătea cuminte în panou și nimeni n-o vedea până când
+    // administratorul se întâmpla să deschidă pagina. De partea cealaltă a ei e un om
+    // care așteaptă un răspuns — și care nu are cum să insiste, fiindcă nici măcar nu
+    // știe dacă a ajuns. O cerere pe care n-o vede nimeni e o cerere refuzată în tăcere.
+    // Retrimiterile aceleiași adrese NU redeschid un anunț: prima dată e o veste, a
+    // cincea e zgomot.
+    if (!veche) {
+      await jurnalizeaza(s, {
+        fapta: "cerere-acces",
+        actor: actorExtern(nume),
+        obiect: nume,
+        detalii: [email, telefon, taie(body.mesaj, 300)].filter(Boolean).join(" · "),
+        ip: ipCerere(req),
+      });
+    }
     return json({ ok: true });
   }
 

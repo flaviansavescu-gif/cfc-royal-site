@@ -61,7 +61,7 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     <span class="a-stare" id="a-curatenie-stare"></span>
   </p>
 
-  <h2 class="a-h2">Solicitări de acces</h2>
+  <h2 class="a-h2">Solicitări de acces <span class="a-numar" id="a-cereri-numar" hidden></span></h2>
   <p class="a-note">
     Vin din formularul de pe pagina de intrare. Verifică întâi calitatea de membru și cotizația;
     apoi apasă <strong>Preia</strong> — datele trec în formularul de mai jos și rămâne doar să
@@ -345,6 +345,13 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       ul.innerHTML = "";
       try {
         const d = await cere({ actiune: "cereri" });
+        // Numărul, lângă titlu: solicitările sunt oameni care așteaptă, nu o listă
+        // pe care o vezi dacă derulezi până la ea.
+        const numar = document.getElementById("a-cereri-numar");
+        numar.hidden = !d.cereri.length;
+        numar.textContent = d.cereri.length
+          ? (d.cereri.length === 1 ? "1 în așteptare" : d.cereri.length + " în așteptare")
+          : "";
         if (!d.cereri.length) { ul.innerHTML = "<li class='a-gol'>Nicio solicitare nerezolvată.</li>"; return; }
         d.cereri.forEach((c) => {
           const li = document.createElement("li");
@@ -855,6 +862,11 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     padding: 0.6rem 0.85rem; border: 1px solid var(--color-border);
     border-radius: var(--radius); font: inherit; background: var(--color-surface);
   }
+  .a-numar { font-family: var(--font-sans, inherit); font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.02em; text-transform: uppercase; vertical-align: middle;
+    background: var(--color-accent); color: #2a2200; border-radius: 999px;
+    padding: 0.15rem 0.6rem; margin-left: 0.5rem; }
+  .a-numar[hidden] { display: none; }
   .a-adauga-email { display: flex; gap: 0.4rem; margin-top: 0.4rem; flex-wrap: wrap; }
   .a-adauga-email input { flex: 1 1 14rem; padding: 0.4rem 0.6rem; border: 1px solid var(--color-border);
     border-radius: var(--radius); font: inherit; font-size: 0.88rem; }

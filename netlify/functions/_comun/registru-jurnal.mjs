@@ -47,6 +47,7 @@ export const FAPTE = {
   "cod-generat": "Cod de acces generat",
   "cod-sters": "Acces revocat",
   "cotizatie-actualizata": "Cotizație actualizată",
+  "cerere-acces": "Solicitare de acces la registru",
   "cerere-stearsa": "Cerere de acces ștearsă",
   // Administrare
   "arhiva-descarcata": "Arhiva registrului descărcată",
@@ -63,6 +64,7 @@ export const FAPTE = {
  * le e locul: o alertă la fiecare declarație depusă ar face alertele invizibile.
  */
 export const FAPTE_DE_ANUNTAT = new Set([
+  "cerere-acces",          // un om așteaptă un răspuns — dacă nu-l vezi, nu-l primește
   "arhiva-descarcata",     // tot registrul, cu scanuri de acte, pe un calculator din afară
   "dmf-sters",             // un dosar dispare
   "certificat-anulat",     // un act eliberat își pierde valabilitatea
@@ -113,6 +115,20 @@ function construieste({ fapta, actor, obiect, detalii, ip }) {
  * consemnarea a reușit deja, iar poșta e o treabă separată.
  */
 async function anunta(intrare) {
+  // O solicitare de acces nu e o faptă gravă: e un om care așteaptă un răspuns.
+  // Tonul (și culoarea) trebuie să spună asta, altfel avertismentele roșii se
+  // amestecă și nu mai atrag atenția niciunul.
+  const cerere = intrare.fapta === "cerere-acces";
+  const titlu = cerere ? "Cineva cere acces la registru" : "Faptă gravă în registru";
+  const culoare = cerere ? "#1F4D3A" : "#8c1d2f";
+  const incheiere = cerere
+    ? `<p style="font-size:12px;color:#888">Verifică întâi calitatea de membru și cotizația. ` +
+      `Codul se dă din panoul de administrare, la „Solicitări de acces" — butonul ` +
+      `<strong>Preia</strong> completează singur datele în formular.</p>`
+    : `<p style="font-size:12px;color:#888">Primești acest mesaj fiindcă e una dintre faptele grave ` +
+      `ale registrului. <strong>Dacă nu ai făcut-o tu, schimbă imediat codurile de acces</strong> ` +
+      `și verifică jurnalul din panoul de administrare.</p>`;
+
   const corp =
     `<p style="font-size:15px"><strong>${escapeHtml(intrare.eticheta)}</strong>` +
     (intrare.obiect ? ` — <code>${escapeHtml(intrare.obiect)}</code>` : "") + `</p>` +
@@ -125,14 +141,12 @@ async function anunta(intrare) {
     (intrare.detalii ? `<tr><td style="padding:3px 14px 3px 0;color:#666;vertical-align:top">Detalii</td><td>${escapeHtml(intrare.detalii)}</td></tr>` : "") +
     `</table>` +
     `<hr style="margin:20px 0;border:none;border-top:1px solid #ddd">` +
-    `<p style="font-size:12px;color:#888">Primești acest mesaj fiindcă e una dintre faptele grave ` +
-    `ale registrului. <strong>Dacă nu ai făcut-o tu, schimbă imediat codurile de acces</strong> ` +
-    `și verifică jurnalul din panoul de administrare.</p>`;
+    incheiere;
 
   return trimite({
     catre: ADRESA_ASOCIATIEI,
     subiect: `[CFC-Royal] ${intrare.eticheta}${intrare.obiect ? " — " + intrare.obiect : ""}`,
-    html: pagina("Faptă gravă în registru", "#8c1d2f", corp),
+    html: pagina(titlu, culoare, corp),
   });
 }
 
