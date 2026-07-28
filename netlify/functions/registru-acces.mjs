@@ -28,6 +28,7 @@
 // POST { cod, actiune:"registratori" | "registrator-adauga" | "registrator-sterge" }       (admin)
 import { getStore } from "@netlify/blobs";
 import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
+import { poateFace, jurnalDoarAleMele, motivRefuz } from "./_comun/drepturi-registru.mjs";
 import { cuLimitareCod, ipClient } from "./_comun/limitare.mjs";
 import {
   jurnalizeaza, jurnalizeazaObligatoriu, ipCerere, citesteJurnal, actorExtern, FAPTE,
@@ -38,8 +39,6 @@ import {
 } from "./_comun/al-doilea-factor.mjs";
 import { trimite, pagina, escapeHtml, ADRESA_ASOCIATIEI, postaConfigurata } from "./_comun/posta.mjs";
 
-/** Toate acțiunile de aici sunt ale administratorului; actorul e mereu același. */
-const ADMIN = { rol: "admin", nume: "Administrator" };
 
 /**
  * CITIRE TARE, dinadins.
@@ -408,10 +407,31 @@ export default cuLimitareCod(async (req) => {
   //
   // Poarta cere AMÂNDOUĂ cheile. O apărare pusă doar la pagina de intrare ar fi teatru:
   // cine are codul cheamă funcția direct și n-a văzut niciodată pagina.
-  if (actorDinCod(cod)?.rol !== "admin")
-    return json({ eroare: "Doar administratorul poate administra accesul la registru." }, 401);
-  if (!(await dispozitivCunoscut(store(), dispozitiv, "admin")))
+  //
+  // Nu mai e „doar administratorul": munca de secretariat — cererile de acces, codurile
+  // de membru, cotizația — s-a mutat la registratură, care are datele pe care se sprijină.
+  // Cine ce poate face stă în _comun/drepturi-registru.mjs, ca tabel citibil dintr-o
+  // privire; aici doar îl consultăm.
+  let eu = null;
+  if (actorDinCod(cod)?.rol === "admin") {
+    eu = { rol: "admin", nume: "Administrator" };
+  } else {
+    const r = await registratorDinCod(cod);
+    if (r) {
+      eu = {
+        rol: "registratura",
+        nume: r.nume || "Registratură",
+        id: r.id,
+        // Dreptul de a da acces e al unui singur registrator, pus de administrator pe
+        // fișa lui. Ceilalți lucrează dosarele, dar nu deschid uși.
+        poateDaAcces: r.poateDaAcces === true,
+      };
+    }
+  }
+  if (!eu) return json({ eroare: "Nu ai drept de administrare a accesului la registru." }, 401);
+  if (!(await dispozitivCunoscut(store(), dispozitiv, eu.rol)))
     return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+  if (!poateFace(actiune, eu)) return json({ eroare: motivRefuz(actiune, eu) }, 403);
 
   if (actiune === "membri" || actiune === "registratori") {
     const prefix = actiune === "membri" ? "membru/" : "registrator/";
@@ -525,7 +545,7 @@ export default cuLimitareCod(async (req) => {
 
     await jurnalizeaza(store(), {
       fapta: "cod-trimis",
-      actor: ADMIN,
+      actor: { rol: eu.rol, nume: eu.nume },
       obiect: cine.nume,
       detalii: `Cod de ${eMembru ? "membru" : "registratură"} trimis la ${catre}`,
       ip: ipCerere(req),
@@ -557,7 +577,7 @@ export default cuLimitareCod(async (req) => {
     // Codul NU se scrie în jurnal — doar faptul că s-a generat unul, și pentru cine.
     await jurnalizeaza(store(), {
       fapta: "cod-generat",
-      actor: ADMIN,
+      actor: { rol: eu.rol, nume: eu.nume },
       obiect: nume,
       detalii: `Acces de membru pentru ${email}` + (afix ? `, afix ${afix}` : "") +
         `, cotizație până la ${cotizatiePana}` +
@@ -582,7 +602,7 @@ export default cuLimitareCod(async (req) => {
     await store().setJSON("membru/" + id, { ...x, cotizatiePana });
     await jurnalizeaza(store(), {
       fapta: "cotizatie-actualizata",
-      actor: ADMIN,
+      actor: { rol: eu.rol, nume: eu.nume },
       obiect: x.nume,
       detalii: `Cotizație până la ${cotizatiePana}` + (x.cotizatiePana ? ` (era ${x.cotizatiePana})` : ""),
       ip: ipCerere(req),
@@ -603,12 +623,33 @@ export default cuLimitareCod(async (req) => {
     await store().setJSON("registrator/" + id, { ...x, email });
     await jurnalizeaza(store(), {
       fapta: "cod-generat",
-      actor: ADMIN,
+      actor: { rol: eu.rol, nume: eu.nume },
       obiect: x.nume,
       detalii: `Adresă de e-mail completată (${email}) — al doilea factor pornit pentru registratură`,
       ip: ipCerere(req),
     });
     return json({ ok: true, email });
+  }
+
+  // Dreptul unui registrator de a genera coduri de membru. Se pune și se ia DOAR de
+  // administrator — de aceea nu e în lista acțiunilor registraturii.
+  if (actiune === "registrator-acces") {
+    const id = taie(body.id, 80);
+    const cheie = "registrator/" + id;
+    const r = await store().get(cheie, { type: "json" });
+    if (!r) return json({ eroare: "Registratorul nu există." }, 404);
+    const poate = body.poateDaAcces === true;
+    await store().setJSON(cheie, { ...r, poateDaAcces: poate });
+    await jurnalizeaza(store(), {
+      fapta: poate ? "cod-generat" : "cod-sters",
+      actor: { rol: eu.rol, nume: eu.nume },
+      obiect: r.nume,
+      detalii: poate
+        ? "I s-a dat dreptul de a genera coduri de acces pentru membri"
+        : "I s-a retras dreptul de a genera coduri de acces pentru membri",
+      ip: ipCerere(req),
+    });
+    return json({ ok: true, poateDaAcces: poate });
   }
 
   if (actiune === "registrator-adauga") {
@@ -629,7 +670,7 @@ export default cuLimitareCod(async (req) => {
     const inchisa = await inchideSolicitarea(email);
     await jurnalizeaza(store(), {
       fapta: "cod-generat",
-      actor: ADMIN,
+      actor: { rol: eu.rol, nume: eu.nume },
       obiect: nume,
       detalii: `Acces de REGISTRATURĂ pentru ${email}` +
         (inchisa ? ` — închide solicitarea lui ${inchisa}` : ""),
@@ -659,7 +700,7 @@ export default cuLimitareCod(async (req) => {
     try {
       await jurnalizeazaObligatoriu(store(), {
         fapta: "cerere-stearsa",
-        actor: ADMIN,
+        actor: { rol: eu.rol, nume: eu.nume },
         obiect: x?.nume || id,
         detalii: x ? `Solicitare de acces (${x.email || "fără e-mail"}${x.telefon ? ", " + x.telefon : ""})` : "Solicitare inexistentă la ștergere",
         ip: ipCerere(req),
@@ -683,7 +724,7 @@ export default cuLimitareCod(async (req) => {
     const raport = await curataMagazia();
     await jurnalizeaza(store(), {
       fapta: "magazie-curatata",
-      actor: ADMIN,
+      actor: { rol: eu.rol, nume: eu.nume },
       obiect: "magazia registrului",
       detalii: `Coduri rămase curățate: ${raport.coduriSterse ?? 0}; ciorne șterse: ${raport.ciorneSterse ?? 0}; ` +
         `fișiere șterse: ${raport.fisiereSterse ?? 0}; ciorne prea recente: ${(raport.ciornePreaRecente || []).length}`,
@@ -696,12 +737,18 @@ export default cuLimitareCod(async (req) => {
   // Se citește pe luni: peste ani, „ce s-a întâmplat ieri" nu trebuie să însemne
   // încărcarea întregului istoric al registrului.
   if (actiune === "jurnal") {
-    return json(await citesteJurnal(store(), {
-      luna: taie(body.luna, 7),
-      fapta: taie(body.fapta, 40),
-      cauta: taie(body.cauta, 80),
-      limita: Number(body.limita) || 200,
-    }));
+    // Registratura își vede faptele ei, nu tot registrul: căutarea se fixează pe numele
+    // ei și nu poate fi înlocuită din cerere.
+    const doarAleMele = jurnalDoarAleMele(eu);
+    return json({
+      ...(await citesteJurnal(store(), {
+        luna: taie(body.luna, 7),
+        fapta: taie(body.fapta, 40),
+        cauta: doarAleMele ? eu.nume : taie(body.cauta, 80),
+        limita: Number(body.limita) || 200,
+      })),
+      doarAleMele,
+    });
   }
 
   if (actiune === "jurnal-fapte") return json({ fapte: FAPTE });
@@ -724,7 +771,7 @@ export default cuLimitareCod(async (req) => {
     try {
       await jurnalizeazaObligatoriu(store(), {
         fapta: "cod-sters",
-        actor: ADMIN,
+        actor: { rol: eu.rol, nume: eu.nume },
         obiect: x?.nume || id,
         detalii: (actiune === "membru-sterge" ? "Acces de membru revocat" : "Acces de registratură revocat") +
           (x?.email ? ` (${x.email})` : ""),
