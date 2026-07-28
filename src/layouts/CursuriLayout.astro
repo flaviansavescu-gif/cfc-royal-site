@@ -84,6 +84,33 @@ const protejat = allowList.length > 0 || candidatOk;
     )}
   </head>
   <body data-pagefind-ignore>
+    {/* A DOUA CHEIE, pusă într-un singur loc.
+        Platforma are peste douăzeci de locuri care trimit codul către funcții, în
+        paisprezece pagini. Adăugarea jetonului în fiecare ar fi însemnat douăzeci de
+        ocazii de a greși — și chiar am greșit de două ori azi, în felul ăsta.
+        Aici, orice cerere care duce un `cod` primește automat și `dispozitiv`.
+        Registrul face acelaşi lucru pe față, în fiecare pagină: acolo sunt cinci locuri,
+        aici sunt douăzeci. */}
+    <script is:inline>
+      (function () {
+        const original = window.fetch;
+        window.fetch = function (intrare, optiuni) {
+          try {
+            const o = optiuni || {};
+            const adresa = typeof intrare === "string" ? intrare : (intrare && intrare.url) || "";
+            // Doar cererile noastre, doar cele cu corp text care poartă un cod.
+            if (adresa.indexOf("/.netlify/functions/") !== -1 && typeof o.body === "string") {
+              const d = JSON.parse(o.body);
+              if (d && typeof d === "object" && d.cod && !d.dispozitiv) {
+                d.dispozitiv = localStorage.getItem("cfcrScoalaDispozitiv") || "";
+                return original(intrare, Object.assign({}, o, { body: JSON.stringify(d) }));
+              }
+            }
+          } catch (e) { /* corp care nu e JSON: îl lăsăm exact cum a venit */ }
+          return original(intrare, optiuni);
+        };
+      })();
+    </script>
     <header class="c-header">
       <div class="c-header__inner">
         <a class="c-brand" href="/cursuri/">
@@ -119,6 +146,8 @@ const protejat = allowList.length > 0 || candidatOk;
             localStorage.removeItem("cfcrAcces"); // cheie veche (curățare)
             localStorage.removeItem("cfcrAccesCod");
             localStorage.removeItem("cfcrCandidat");
+            // Și a doua cheie: „Ieșire" pe un calculator străin trebuie să șteargă tot.
+            localStorage.removeItem("cfcrScoalaDispozitiv");
           } catch (e) {}
           location.href = "/cursuri/";
         });

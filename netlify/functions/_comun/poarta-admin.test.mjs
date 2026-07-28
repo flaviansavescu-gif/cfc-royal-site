@@ -48,29 +48,64 @@ function pareDeclarat(sursa, nume) {
   return tipare.some((t) => t.test(sursa));
 }
 
-test("fiecare apel esteAdmin(...) primește o variabilă care există", () => {
+/** Verifică, pentru o funcție de poartă, că fiecare argument e o variabilă existentă. */
+function verificaApeluri(numeFunctie, minim) {
   const fisiere = readdirSync(FUNCTII).filter((n) => n.endsWith(".mjs"));
+  const tipar = new RegExp(numeFunctie + "\\(([^)]*)\\)", "g");
   let apeluri = 0;
 
   for (const nume of fisiere) {
     const sursa = readFileSync(join(FUNCTII, nume), "utf8");
-    // Sursa fără apelurile de poartă: altfel `esteAdmin(cod)` ar trece drept declarația
+    // Sursa fără apelurile verificate: altfel `esteAdmin(cod)` ar trece drept declarația
     // lui `cod`, iar verificarea s-ar confirma pe ea însăși.
-    const faraApeluri = sursa.replace(/esteAdmin\([^)]*\)/g, "esteAdmin()");
+    const faraApeluri = sursa.replace(new RegExp(numeFunctie + "\\([^)]*\\)", "g"), numeFunctie + "()");
 
-    for (const m of sursa.matchAll(/esteAdmin\(([^)]*)\)/g)) {
-      const arg = m[1].trim();
-      if (!arg || /^["'`]/.test(arg)) continue;     // literal, nu variabilă
-      apeluri++;
-      const r = radacina(arg);
-      assert.ok(
-        pareDeclarat(faraApeluri, r),
-        `${nume}: esteAdmin(${arg}) — „${r}" nu e declarat în fișier. ` +
-        `În producție ar fi ReferenceError, adică 500 pe o poartă de securitate.`,
-      );
+    for (const m of sursa.matchAll(tipar)) {
+      // Argumentele pot fi mai multe; le luăm pe toate, la prima virgulă de nivel 0.
+      for (const arg of m[1].split(",").map((x) => x.trim())) {
+        // Doar identificatori: sărim literalii (șiruri, numere) și constantele scrise cu
+        // majuscule. Argumentele din apeluri imbricate ajung aici tăiate — de aceea
+        // verificăm rădăcina, nu expresia.
+        if (!arg || !/^[A-Za-z_$]/.test(arg)) continue;
+        if (/^[A-Z_]+$/.test(arg)) continue;
+        if (/^(getStore|String|Number|Boolean|await|new)\b/.test(arg)) continue;
+        apeluri++;
+        const r = radacina(arg);
+        assert.ok(
+          pareDeclarat(faraApeluri, r),
+          `${nume}: ${numeFunctie}(${arg}) — „${r}" nu e declarat în fișier. ` +
+          `În producție ar fi ReferenceError, adică 500 pe o poartă de securitate.`,
+        );
+      }
     }
   }
-  assert.ok(apeluri >= 10, `se așteptau cel puțin 10 apeluri de poartă, s-au găsit ${apeluri}`);
+  assert.ok(apeluri >= minim, `se așteptau cel puțin ${minim} apeluri de ${numeFunctie}, s-au găsit ${apeluri}`);
+}
+
+test("fiecare apel esteAdmin(...) primește o variabilă care există", () => {
+  verificaApeluri("esteAdmin", 10);
+});
+
+test("fiecare apel dispozitivCunoscut(...) primește variabile care există", () => {
+  // Aceeași capcană, a doua oară: la extinderea celei de-a doua chei către Școală,
+  // un script a scris `body.dispozitiv` în două funcții care n-au variabila `body`.
+  // Sintaxă validă, 500 în producție pe o poartă de securitate.
+  verificaApeluri("dispozitivCunoscut", 10);
+});
+
+test("mesajul de refuz al dispozitivului folosește un ajutor care există în fișier", () => {
+  const fisiere = readdirSync(FUNCTII).filter((n) => n.endsWith(".mjs"));
+  for (const nume of fisiere) {
+    const sursa = readFileSync(join(FUNCTII, nume), "utf8");
+    if (!sursa.includes("Dispozitiv nerecunoscut")) continue;
+    // Unde se răspunde cu `json(...)`, funcția `json` trebuie să existe în fișier.
+    const foloseste = /return json\(\{ eroare: "Dispozitiv nerecunoscut/.test(sursa);
+    if (!foloseste) continue;
+    assert.ok(
+      /\bconst json = |\bfunction json\(/.test(sursa),
+      `${nume}: răspunde cu json(...) dar nu are funcția json — ReferenceError în producție.`,
+    );
+  }
 });
 
 test("amprenta administratorului există într-un SINGUR loc", () => {

@@ -20,6 +20,7 @@ import { createHash } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
+import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 const NR_ASISTENTE = 5;
 const STARI = ["", "numit", "prezent", "absent"];
 // Scara evaluării prestației (decizie 21.07.2026) + observațiile text ale arbitrului.
@@ -240,6 +241,9 @@ export default cuLimitareCod(async (req) => {
   // ——— De aici încolo, doar administratorul ———
   if (!esteAdmin(body.cod))
     return json({ eroare: "Cod de administrator incorect." }, 401);
+  // A doua cheie: codul singur nu mai deschide administrarea Școlii.
+  if (!(await dispozitivCunoscut(getStore("cursuri"), String(body.dispozitiv || "").trim(), "admin")))
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
 
   if (actiune === "admin") {
     const expozitii = await citesteExpozitii(store);

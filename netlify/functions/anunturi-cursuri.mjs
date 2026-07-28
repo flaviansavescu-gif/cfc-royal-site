@@ -8,6 +8,7 @@ import { createHash } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
+import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 
 const json = (body, status = 200, extra = {}) =>
   new Response(JSON.stringify(body), {
@@ -41,6 +42,9 @@ export default cuLimitareCod(async (req) => {
       return json({ eroare: "Cerere invalidă." }, 400);
     }
     if (!esteAdmin(body.cod)) return json({ eroare: "Cod de administrator incorect." }, 401);
+  // A doua cheie: codul singur nu mai deschide administrarea Școlii.
+  if (!(await dispozitivCunoscut(getStore("cursuri"), String(body.dispozitiv || "").trim(), "admin")))
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
 
     if (body.delete) {
       try {

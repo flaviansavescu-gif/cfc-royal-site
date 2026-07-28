@@ -25,6 +25,20 @@ import CursuriLayout from "../../layouts/CursuriLayout.astro";
     </form>
     <p class="gate__err" id="gate-err" hidden>Cod incorect. Verifică și încearcă din nou.</p>
     <p class="gate__err" id="gate-lim" hidden></p>
+
+    {/* A doua cheie — doar pentru administrator și lectori. Candidații nu trec pe aici. */}
+    <form id="otp-form" autocomplete="off" hidden>
+      <p class="gate__otp-intro" id="otp-intro"></p>
+      <label class="sr-only" for="otp">Codul din e-mail</label>
+      <input id="otp" name="otp" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6"
+             autocomplete="one-time-code" placeholder="6 cifre" required />
+      <button class="btn btn--primary" type="submit">Confirmă</button>
+      <p class="gate__err" id="otp-err" hidden></p>
+      <p class="gate__help">
+        Nu a ajuns? Verifică și în „Spam". Codul e valabil 10 minute.
+        <button type="button" class="gate__linkbtn" id="otp-renunta">Ia-o de la capăt</button>
+      </p>
+    </form>
     <p class="gate__help">Nu ai codul? Scrie-ne la <a href="mailto:contact@cfc-royal.ro">contact@cfc-royal.ro</a>.</p>
   </div>
 </CursuriLayout>
@@ -41,6 +55,68 @@ import CursuriLayout from "../../layouts/CursuriLayout.astro";
     }
   } catch (e) {}
 
+  // —— Ce se ține minte după o intrare reușită ——
+  function tineMinte(data, cod) {
+    try {
+      localStorage.removeItem("cfcrAcces"); // cheie veche
+      if (data.rol === "candidat") {
+        localStorage.setItem("cfcrCandidat", JSON.stringify({ id: data.id, nume: data.nume }));
+        localStorage.removeItem("cfcrRol");
+        localStorage.removeItem("cfcrAccesCod");
+      } else {
+        // Rolul (nesecret) deschide paginile; codul rămâne local, pentru apelurile către funcții.
+        localStorage.setItem("cfcrRol", JSON.stringify({ rol: data.rol, slug: data.slug || "", nume: data.nume || "", dest: data.dest }));
+        // Momentul intrării: de la el se numără cele 12 ore ale rolurilor de
+        // administrare (regula stă în CursuriLayout).
+        localStorage.setItem("cfcrRolLa", new Date().toISOString());
+        localStorage.setItem("cfcrAccesCod", cod);
+        localStorage.removeItem("cfcrCandidat");
+        // Jetonul de dispozitiv: de acum însoțește fiecare cerere (vezi CursuriLayout).
+        if (data.dispozitiv) localStorage.setItem("cfcrScoalaDispozitiv", data.dispozitiv);
+      }
+    } catch (e2) {}
+    location.href = data.dest;
+  }
+
+  // —— A doua cheie ——
+  const otpForm = document.getElementById("otp-form");
+  const otpCamp = document.getElementById("otp");
+  const otpErr = document.getElementById("otp-err");
+  let asteptare = null;   // { intrareId, cod } cât timp se așteaptă codul din e-mail
+
+  otpForm.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    if (!asteptare) return;
+    const b = otpForm.querySelector("button[type=submit]");
+    b.disabled = true; b.textContent = "Se confirmă…";
+    otpErr.hidden = true;
+    try {
+      const res = await fetch("/.netlify/functions/acces-cursuri", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          actiune: "intrare-confirma", intrareId: asteptare.intrareId,
+          otp: otpCamp.value.replace(/\D/g, ""), cod: asteptare.cod,
+        }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.eroare || "Codul nu a putut fi confirmat.");
+      tineMinte(d, asteptare.cod);
+    } catch (er) {
+      b.disabled = false; b.textContent = "Confirmă";
+      otpErr.hidden = false; otpErr.textContent = er.message;
+      otpCamp.select();
+    }
+  });
+
+  document.getElementById("otp-renunta").addEventListener("click", () => {
+    asteptare = null;
+    otpForm.hidden = true;
+    const g = document.getElementById("gate-form");
+    g.hidden = false;
+    g.querySelector("button[type=submit]").disabled = false;
+    document.getElementById("cod").select();
+  });
+
   document.getElementById("gate-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector("button[type=submit]");
@@ -55,28 +131,28 @@ import CursuriLayout from "../../layouts/CursuriLayout.astro";
       const res = await fetch("/.netlify/functions/acces-cursuri", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cod }),
+        body: JSON.stringify({
+          cod,
+          dispozitiv: (function () { try { return localStorage.getItem("cfcrScoalaDispozitiv") || ""; } catch (e3) { return ""; } })(),
+        }),
       });
       const data = await res.json().catch(() => ({}));
 
+      // Rol greu, dispozitiv nerecunoscut: urmează codul de șase cifre de pe e-mail.
+      if (res.ok && data.pas === "cod-email") {
+        asteptare = { intrareId: data.intrareId, cod };
+        e.target.hidden = true;
+        otpForm.hidden = false;
+        document.getElementById("otp-intro").textContent =
+          "Am trimis un cod de șase cifre la " + (data.catre || "adresa asociației") +
+          ". Scrie-l aici ca să încheiem intrarea.";
+        otpCamp.value = "";
+        otpCamp.focus();
+        return;
+      }
+
       if (res.ok && data.dest) {
-        try {
-          localStorage.removeItem("cfcrAcces"); // cheie veche
-          if (data.rol === "candidat") {
-            localStorage.setItem("cfcrCandidat", JSON.stringify({ id: data.id, nume: data.nume }));
-            localStorage.removeItem("cfcrRol");
-            localStorage.removeItem("cfcrAccesCod");
-          } else {
-            // Rolul (nesecret) deschide paginile; codul rămâne local, pentru apelurile către funcții.
-            localStorage.setItem("cfcrRol", JSON.stringify({ rol: data.rol, slug: data.slug || "", nume: data.nume || "", dest: data.dest }));
-            // Momentul intrării: de la el se numără cele 12 ore ale rolurilor de
-            // administrare (regula stă în CursuriLayout).
-            localStorage.setItem("cfcrRolLa", new Date().toISOString());
-            localStorage.setItem("cfcrAccesCod", cod);
-            localStorage.removeItem("cfcrCandidat");
-          }
-        } catch (e2) {}
-        location.href = data.dest;
+        tineMinte(data, cod);
         return;
       }
 
@@ -108,6 +184,11 @@ import CursuriLayout from "../../layouts/CursuriLayout.astro";
   #cod:focus { outline: 2px solid var(--color-primary); }
   .gate__err { color: #8c1d2f; font-weight: 600; margin-top: 0.75rem; }
   .gate__help { margin-top: 1.5rem; font-size: 0.9rem; color: var(--color-text-muted); }
+  .gate__otp-intro { color: var(--color-text-muted); font-size: 0.92rem; margin: 0 0 0.6rem; }
+  #otp { letter-spacing: 0.35em; font-size: 1.3rem; text-align: center; font-variant-numeric: tabular-nums; }
+  .gate__linkbtn { background: none; border: none; padding: 0; font: inherit;
+    color: var(--color-accent-dark); text-decoration: underline; cursor: pointer; }
+  #otp-form[hidden], #gate-form[hidden] { display: none; }
   .sr-only {
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
     overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;

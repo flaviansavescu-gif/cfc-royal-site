@@ -5,6 +5,7 @@ import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
+import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 
 export default async (req) => {
   if (req.method !== "POST")
@@ -12,13 +13,22 @@ export default async (req) => {
 
   let cod = "";
   let reset = false;
+  let dispozitiv = "";
   try {
     const b = await req.json();
     cod = b.cod || "";
     reset = b.reset === true;
+    dispozitiv = String(b.dispozitiv || "").trim();
   } catch {}
   if (!esteAdmin(cod))
     return new Response(JSON.stringify({ eroare: "Cod de administrator incorect." }), { status: 401 });
+  // A doua cheie: codul singur nu mai deschide administrarea Școlii. Aici se poate goli
+  // TOT registrul de rezultate al Școlii — dacă e o cerere care merită două chei, e asta.
+  if (!(await dispozitivCunoscut(getStore("cursuri"), dispozitiv, "admin")))
+    return new Response(
+      JSON.stringify({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }),
+      { status: 403, headers: { "Content-Type": "application/json; charset=utf-8" } },
+    );
 
   const store = getStore("cursuri");
 

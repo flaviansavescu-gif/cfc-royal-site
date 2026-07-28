@@ -26,6 +26,7 @@ import { createHash } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
+import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 const NR_INTREBARI = 25;      // câte se extrag la un examen (sau toată banca, dacă e mai mică)
 const MIN_ACTIV = 10;         // banca minimă pentru ca examenul să fie „activ”
 const PRAG = 75;              // procent minim de promovare
@@ -168,6 +169,9 @@ export default cuLimitareCod(async (req) => {
   const ACTIUNI_ADMIN = ["admin", "reset", "sesiuni", "sesiune-salveaza", "sesiune-sterge", "contestatii", "solutioneaza"];
   if (ACTIUNI_ADMIN.includes(actiune)) {
     if (!esteAdmin(body.cod)) return json({ eroare: "Cod de administrator incorect." }, 401);
+  // A doua cheie: codul singur nu mai deschide administrarea Școlii.
+  if (!(await dispozitivCunoscut(getStore("cursuri"), String(body.dispozitiv || "").trim(), "admin")))
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
     const store = getStore("cursuri");
 
     if (actiune === "reset") {

@@ -6,6 +6,7 @@ import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
+import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 
 export default async (req) => {
   // Magazia se deschide în fiecare ramură, DUPĂ ce ramura și-a verificat dreptul.
@@ -22,8 +23,14 @@ export default async (req) => {
     } catch {
       return Response.json({ eroare: "Cerere invalidă." }, { status: 400 });
     }
-    const { id, online, cod } = date || {};
+    const { id, online, cod, dispozitiv } = date || {};
     if (!esteAdmin(cod)) return Response.json({ eroare: "Cod de administrator incorect." }, { status: 401 });
+    // A doua cheie: codul singur nu mai deschide administrarea Școlii.
+    if (!(await dispozitivCunoscut(getStore("cursuri"), String(dispozitiv || "").trim(), "admin")))
+      return Response.json(
+        { eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." },
+        { status: 403 },
+      );
     if (!id || typeof id !== "string") return Response.json({ eroare: "Lipsește modulul." }, { status: 400 });
 
     const store = getStore("cursuri");

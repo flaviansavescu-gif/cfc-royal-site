@@ -11,6 +11,45 @@
 import { getStore } from "@netlify/blobs";
 import { sha256, rolLaIntrare } from "./_comun/roluri.mjs";
 import { ipClient, verificaLimita, inregistreazaEsec, resetLimita } from "./_comun/limitare.mjs";
+import {
+  dispozitivCunoscut, deschideIntrarea, confirmaIntrarea, OTP_MINUTE, DISPOZITIV_ZILE,
+} from "./_comun/al-doilea-factor.mjs";
+import { trimite, pagina, escapeHtml, ADRESA_ASOCIATIEI, postaConfigurata } from "./_comun/posta.mjs";
+
+/** Adresa, arătată pe jumătate — cine intră trebuie să știe unde să caute codul. */
+function mascheaza(email) {
+  const [nume, gazda] = String(email || "").split("@");
+  if (!gazda) return "adresa asociației";
+  return nume.slice(0, 2) + "•".repeat(Math.max(3, nume.length - 2)) + "@" + gazda;
+}
+
+/**
+ * Trimite codul de șase cifre pentru un rol greu al Școlii.
+ * @returns {{ocolit:true}|{eroare:string}|{intrareId:string,catre:string}}
+ */
+async function ceruIntrarea(store, rol, cine, email) {
+  if (!postaConfigurata()) {
+    console.error("AL DOILEA FACTOR (Școala) NU E OPERAȚIONAL: lipsește BREVO_API_KEY.");
+    return { ocolit: true };
+  }
+  const { id, otp } = await deschideIntrarea(store, { rol, cine, email });
+  const trimis = await trimite({
+    catre: email,
+    subiect: `[CFC-Royal] Cod de intrare în platformă: ${otp}`,
+    html: pagina("Cod de intrare", "#1F4D3A",
+      `<p style="font-size:15px">Cineva intră în platforma Școlii de Arbitraj ca ` +
+      `<strong>${escapeHtml(rol === "admin" ? "administrator" : "lector")}</strong>` +
+      (cine ? ` (${escapeHtml(cine)})` : "") + `, de pe un dispozitiv nerecunoscut.</p>` +
+      `<p style="font-size:32px;letter-spacing:0.18em;font-weight:700;color:#1F4D3A;margin:18px 0">${escapeHtml(otp)}</p>` +
+      `<p style="font-size:14px;color:#666">Codul e valabil ${OTP_MINUTE} minute. După confirmare, ` +
+      `dispozitivul rămâne recunoscut ${DISPOZITIV_ZILE} de zile.</p>` +
+      `<hr style="margin:20px 0;border:none;border-top:1px solid #ddd">` +
+      `<p style="font-size:12px;color:#888"><strong>Dacă nu ai cerut tu această intrare, cineva ` +
+      `îți cunoaște codul.</strong> Schimbă-l cât mai repede.</p>`),
+  });
+  if (!trimis) return { eroare: "Nu am putut trimite codul pe e-mail. Reîncearcă peste un minut." };
+  return { intrareId: id, catre: mascheaza(email) };
+}
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
@@ -29,14 +68,57 @@ export default async (req) => {
   if (!lim.permis)
     return json({ eroare: "Prea multe încercări. Reîncearcă peste " + Math.ceil(lim.dupaSecunde / 60) + " minute." }, 429);
 
+  // —— 0) Confirmarea codului primit pe e-mail ——
+  // ÎNAINTE de recunoașterea codului: cererea de confirmare poartă și codul de acces,
+  // deci altfel ar intra în ramura de mai jos și n-ar ajunge niciodată aici.
+  if (String(body.actiune || "") === "intrare-confirma") {
+    const rez = await confirmaIntrarea(
+      getStore("cursuri"),
+      String(body.intrareId || "").slice(0, 64),
+      String(body.otp || "").slice(0, 10),
+    );
+    if (rez.eroare) return json({ eroare: rez.eroare }, 401);
+    const l = rez.rol === "lector" ? (rolLaIntrare(cod) || {}) : {};
+    return json({
+      ok: true, rol: rez.rol, dispozitiv: rez.jeton, nume: rez.cine, slug: l.slug || "",
+      dest: rez.rol === "admin" ? "/cursuri/admin/" : "/cursuri/lector/" + (l.slug || "") + "/",
+    });
+  }
+
   // —— 1) Coduri fixe: administrator, lector, cod comun de candidați ——
   const fix = rolLaIntrare(cod);
   if (fix) {
     await resetLimita(cheie);
+    const dispozitiv = String(body.dispozitiv || "").trim();
+
+    // A doua cheie, pentru rolurile care administrează. Codul comun de candidați NU
+    // trece pe aici: e dat tuturor cursanților, nu deschide nimic administrativ, iar
+    // un cod pe e-mail la fiecare intrare ar face studiul imposibil.
+    if (fix.rol === "admin" || fix.rol === "lector") {
+      const store = getStore("cursuri");
+      if (!(await dispozitivCunoscut(store, dispozitiv, fix.rol))) {
+        // Lectorul fără adresă scrisă în registru intră mai departe doar cu codul: n-are
+        // rost să ne prefacem că-l apărăm trimițând codul lui altcuiva.
+        const email = fix.rol === "admin" ? ADRESA_ASOCIATIEI : (fix.email || "");
+        if (email) {
+          const r = await ceruIntrarea(store, fix.rol, fix.nume || "administrator", email);
+          if (r.eroare) return json({ eroare: r.eroare }, 503);
+          if (!r.ocolit) {
+            return json({
+              pas: "cod-email", intrareId: r.intrareId, catre: r.catre, rol: fix.rol,
+              dest: fix.rol === "admin" ? "/cursuri/admin/" : "/cursuri/lector/" + fix.slug + "/",
+              slug: fix.slug || "", nume: fix.nume || "",
+            });
+          }
+        }
+      }
+    }
+
     if (fix.rol === "admin") return json({ rol: "admin", dest: "/cursuri/admin/" });
     if (fix.rol === "lector") return json({ rol: "lector", slug: fix.slug, nume: fix.nume, dest: "/cursuri/lector/" + fix.slug + "/" });
     return json({ rol: "acces", dest: "/cursuri/module/" });
   }
+
 
   // —— 2) Cod individual de candidat (registrul din store-ul „cursuri") ——
   const id = sha256(cod);

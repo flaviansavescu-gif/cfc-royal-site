@@ -15,6 +15,7 @@ import { createHash } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
+import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 // Alfabet fără caractere ambigue (0/O, 1/I/L) — codurile se dictează ușor la telefon.
 const ALFABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
@@ -46,6 +47,9 @@ export default cuLimitareCod(async (req) => {
 
   if (!esteAdmin(body.cod))
     return json({ eroare: "Cod de administrator incorect." }, 401);
+  // A doua cheie: codul singur nu mai deschide administrarea Școlii.
+  if (!(await dispozitivCunoscut(getStore("cursuri"), String(body.dispozitiv || "").trim(), "admin")))
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
 
   const store = getStore("cursuri");
   const actiune = body.actiune || "lista";

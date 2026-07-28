@@ -51,9 +51,14 @@ export const ACCES_HASH = "48493761ba33bce0e9919789a88582a482179869fa76dbbaa93be
 /**
  * Lectorii. `grupe` = competențele WDF pe grupe, derivate din prezentările lor
  * (folosite la orientarea candidaților spre lector). "all" = All Breed.
+ *
+ * `email` (opțional) PORNEȘTE A DOUA CHEIE pentru lectorul acela: la intrarea de pe un
+ * dispozitiv nerecunoscut i se trimite un cod de șase cifre. Cine n-are adresă scrisă
+ * aici intră mai departe doar cu codul — nu ne prefacem că-l apărăm trimițând codul
+ * altcuiva. Se completează pe măsură ce adresele sunt confirmate de fiecare în parte.
  */
 export const LECTORI = [
-  { slug: "flavian-savescu", nume: "Flavian-Sergiu Savescu", hash: "1604036be0bc0d666209789a9599257419813a13750b950734da13faa3330d1d", grupe: "all" },
+  { slug: "flavian-savescu", nume: "Flavian-Sergiu Savescu", hash: "1604036be0bc0d666209789a9599257419813a13750b950734da13faa3330d1d", grupe: "all", email: "flavian.savescu@gmail.com" },
   { slug: "mihail-cosmin-neagu", nume: "Mihail Cosmin Neagu", hash: "21048e2893df687a5195519e5d665440c99a6060e11044fb2509b886ca0cc8b9", grupe: "all" },
   { slug: "georgeta-mihaela-chivu", nume: "Georgeta Mihaela Chivu", hash: "ddd1b278ddf55141d8f2bca8857160b38cc64024e3f5b4368cbebee329442817", grupe: "all" },
   { slug: "mihail-sorin-iacob", nume: "Mihail Sorin Iacob", hash: "d3c043092f13a97d4d83dd0df96be08162ec7e26ea7241dc1da685c8d89e1b18", grupe: "all" },
@@ -97,7 +102,7 @@ export function actorDinCod(cod) {
   const h = sha256(cod || "");
   if (egal(h, ADMIN_HASH)) return { rol: "admin", hash: h };
   const l = LECTORI.find((x) => egal(x.hash, h));
-  if (l) return { rol: "lector", slug: l.slug, nume: l.nume, hash: h };
+  if (l) return { rol: "lector", slug: l.slug, nume: l.nume, email: l.email || "", hash: h };
   return null;
 }
 
