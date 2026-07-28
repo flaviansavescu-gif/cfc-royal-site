@@ -15,7 +15,13 @@
 // treaba, nici mai mult (cheile interne ale magaziei nu pleacă niciodată), nici mai puțin.
 //
 // DOUĂ MARCAJE DISTINCTE, fiindcă sunt două verificări diferite: actele („verificat" /
-// „de lămurit") și plata („plata confirmată"). Altfel n-ai ști ce anume s-a controlat.
+// „de lămurit") și plata („plata confirmată"). Una poate exista fără cealaltă — un dosar
+// poate avea actele în regulă și banii neintrați, sau invers.
+//
+// UNDE STĂ MARCAJUL: în blob PROPRIU, `verificare/<showId>/<sufix>`, nu în interiorul
+// înscrierii. Altfel doi scriitori — registratura, care pune marcajul, și managerul, care
+// pune semnul „importat" — ar rescrie aceeași fișă și s-ar putea pierde unul pe altul.
+// Cheia oglindește exact sufixul înscrierii din coadă, deci împerecherea e directă.
 //
 // VERIFICAREA NU BLOCHEAZĂ NIMIC. Dacă registratura n-a apucat să se uite, importul merge
 // mai departe și fișa rămâne doar nemarcată. Altfel, o zi aglomerată a președintelui ar
@@ -23,7 +29,8 @@
 //
 // POST { cod, dispozitiv, actiune:"expozitii" }                 -> expozițiile cu înscrieri
 // POST { cod, dispozitiv, actiune:"inscrieri", showId }         -> înscrierile, filtrate
-// POST { cod, dispozitiv, actiune:"marcheaza", cheie, stare, nota?, membruConfirmat?, plataConfirmata? }
+// POST { cod, dispozitiv, actiune:"marcheaza", cheie, stare?, nota?, membruConfirmat?,
+//                                              plataConfirmata?, sterge? }
 // POST { cod, dispozitiv, actiune:"dovada", cheie }             -> dovada plății (base64)
 // POST { cod, dispozitiv, actiune:"audit", showId }             -> cine ce a verificat
 // =========================================================================
@@ -32,7 +39,7 @@ import { actorDinCod } from "./_comun/roluri.mjs";
 import { registratorDinCod } from "./registru-acces.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
-import { jurnalizeaza, ipCerere, FAPTE } from "./_comun/registru-jurnal.mjs";
+import { jurnalizeaza, ipCerere } from "./_comun/registru-jurnal.mjs";
 
 // Înscrierile stau în magazia expozițiilor; cheile de dispozitiv, în cea a registrului.
 // Nu le amesteca: o căutare de jeton în magazia greșită a ținut deja pe cineva afară.
@@ -50,11 +57,21 @@ const taie = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
 export const STARI = ["verificat", "lamurit"];
 export const LIMITA_NOTA = 300;
 
+/** Tipurile acceptate ca dovadă — aceleași ca la încărcare. Verificate ȘI la ieșire:
+ *  metadatele unei magazii nu sunt o sursă de încredere pentru browser. */
+export const TIPURI_DOVADA = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf"]);
+
+/** `coada/<show>/<sufix>` -> `verificare/<show>/<sufix>`. Cheia marcajului oglindește
+ *  exact înscrierea, deci nu e nevoie de niciun index ca să le împerechem. */
+export function cheiaMarcajului(cheieCoada) {
+  return "verificare/" + String(cheieCoada || "").slice("coada/".length);
+}
+
 /**
  * Ce pleacă spre browserul registratorului. Lista albă, nu neagră: dacă mâine apare un
  * câmp nou în înscriere, el NU ajunge aici din greșeală.
  */
-export function pentruRegistratura(i, cheie) {
+export function pentruRegistratura(i, cheie, verificare) {
   return {
     cheie,
     creat: i.creat || null,
@@ -94,73 +111,31 @@ export function pentruRegistratura(i, cheie) {
       observatie: i.taxaObservatie || null,
     },
     declaraMembru: !!(i.declaratii && i.declaratii.membru),
-    verificare: i.verificare || null,
+    verificare: verificare || null,
   };
 }
 
 /** Rezumatul unei expoziții pentru lista din capul paginii. */
-export function rezumat(inscrieri) {
-  let verificate = 0, lamurit = 0, plati = 0;
-  for (const i of inscrieri) {
-    const v = i.verificare;
-    if (v && v.stare === "verificat") verificate++;
-    else if (v && v.stare === "lamurit") lamurit++;
-    if (v && v.plataConfirmata === true) plati++;
+export function rezumat(marcaje) {
+  let verificate = 0, lamurit = 0, plati = 0, total = 0;
+  for (const v of marcaje) {
+    total++;
+    if (!v) continue;
+    if (v.stare === "verificat") verificate++;
+    else if (v.stare === "lamurit") lamurit++;
+    if (v.plataConfirmata === true) plati++;
   }
   return {
-    total: inscrieri.length, verificate, lamurit,
-    neatinse: inscrieri.length - verificate - lamurit,
+    total, verificate, lamurit,
+    neatinse: total - verificate - lamurit,
     platiConfirmate: plati,
   };
 }
 
-/** Cine cere: registratură sau administrator. Nimeni altcineva. */
-async function cine(cod) {
-  if (actorDinCod(cod)?.rol === "admin") return { rol: "admin", nume: "Administrator" };
-  const r = await registratorDinCod(cod);
-  if (r) return { rol: "registratura", nume: r.nume || "Registratură" };
-  return null;
-}
-
-/**
- * Auditul unei expoziții: cine, când și ce a hotărât.
- *
- * Marcajul de pe fișă spune doar starea de ACUM. Jurnalul spune și cum s-a ajuns la ea —
- * inclusiv când cineva s-a răzgândit. Pentru doi registratori care lucrează la aceeași
- * listă, a doua parte contează la fel de mult ca prima.
- *
- * Citim direct cheile jurnalului: o expoziție se întinde peste una-două luni, iar
- * cititorul obișnuit lucrează pe o singură lună.
- */
-async function auditDin(showId) {
-  const s = registru();
-  const acte = [];
-  try {
-    const { blobs } = await s.list({ prefix: "jurnal/" });
-    blobs.sort((a, b) => b.key.localeCompare(a.key));   // cheia începe cu marca de timp
-    for (const b of blobs.slice(0, 1000)) {
-      const x = await s.get(b.key, { type: "json" }).catch(() => null);
-      if (!x || x.fapta !== "inscriere-verificata") continue;
-      if (!String(x.detalii || "").startsWith(showId)) continue;
-      acte.push({
-        la: x.la,
-        cine: (x.actor && x.actor.nume) || "—",
-        obiect: x.obiect || "",
-        // Primul câmp din detalii e id-ul expoziției; el nu-l interesează pe cititor.
-        ce: String(x.detalii || "").split(" · ").slice(1).join(" · "),
-      });
-    }
-  } catch (err) {
-    console.error("Citirea auditului a eșuat:", err);
-  }
-  return acte;
-}
-
 /** Câte fișe stau, ACUM, în spatele fiecărui registrator. */
-export function peRegistrator(inscrieri) {
+export function peRegistrator(marcaje) {
   const m = new Map();
-  for (const i of inscrieri) {
-    const v = i.verificare;
+  for (const v of marcaje) {
     if (!v || !v.cine) continue;
     const r = m.get(v.cine) || { cine: v.cine, verificate: 0, lamurit: 0, plati: 0 };
     if (v.stare === "verificat") r.verificate++;
@@ -171,16 +146,61 @@ export function peRegistrator(inscrieri) {
   return [...m.values()].sort((a, b) => a.cine.localeCompare(b.cine, "ro"));
 }
 
+/** Cine cere: registratură sau administrator. Nimeni altcineva. */
+async function cine(cod) {
+  if (actorDinCod(cod)?.rol === "admin") return { rol: "admin", nume: "Administrator" };
+  const r = await registratorDinCod(cod);
+  if (r) return { rol: "registratura", nume: r.nume || "Registratură" };
+  return null;
+}
+
+/** Înscrierile unei expoziții, fiecare cu marcajul ei (dacă are). */
 async function inscrieriDin(showId) {
   const s = expo();
   const rezultat = [];
   const { blobs } = await s.list({ prefix: "coada/" + showId + "/" });
   for (const b of blobs) {
     const i = await s.get(b.key, { type: "json" }).catch(() => null);
-    if (i) rezultat.push({ cheie: b.key, i });
+    if (!i) continue;
+    const v = await s.get(cheiaMarcajului(b.key), { type: "json" }).catch(() => null);
+    rezultat.push({ cheie: b.key, i, v });
   }
   rezultat.sort((a, b) => String(a.i.creat || "").localeCompare(String(b.i.creat || "")));
   return rezultat;
+}
+
+/** Doar marcajele, fără fișele înscrierilor — pentru rezumate și audit. */
+async function marcajeDin(showId) {
+  const s = expo();
+  const { blobs } = await s.list({ prefix: "coada/" + showId + "/" });
+  const marcaje = [];
+  for (const b of blobs) {
+    marcaje.push(await s.get(cheiaMarcajului(b.key), { type: "json" }).catch(() => null));
+  }
+  return marcaje;
+}
+
+/**
+ * Auditul unei expoziții: cine, când și ce a hotărât.
+ *
+ * Marcajul de pe fișă spune doar starea de ACUM. Aici stă și cum s-a ajuns la ea, inclusiv
+ * când cineva s-a răzgândit. Faptele se scriu sub `audit/<showId>/`, deci se citesc exact
+ * cele ale expoziției cerute — nu tot jurnalul asociației, filtrat pe urmă.
+ */
+async function auditDin(showId) {
+  const s = expo();
+  const acte = [];
+  try {
+    const { blobs } = await s.list({ prefix: "audit/" + showId + "/" });
+    blobs.sort((a, b) => b.key.localeCompare(a.key));   // cheia începe cu marca de timp
+    for (const b of blobs.slice(0, 400)) {
+      const x = await s.get(b.key, { type: "json" }).catch(() => null);
+      if (x) acte.push(x);
+    }
+  } catch (err) {
+    console.error("Citirea auditului a eșuat:", err);
+  }
+  return acte;
 }
 
 export default cuLimitareCod(async (req) => {
@@ -213,11 +233,11 @@ export default cuLimitareCod(async (req) => {
       for (const b of blobs) {
         const c = await s.get(b.key, { type: "json" }).catch(() => null);
         if (!c || !c.showId) continue;
-        const lista = (await inscrieriDin(c.showId)).map((x) => x.i);
-        if (!lista.length) continue;
+        const marcaje = await marcajeDin(c.showId);
+        if (!marcaje.length) continue;
         expozitii.push({
           showId: c.showId, nume: c.nume, data: c.data, locatie: c.locatie || "",
-          termen: c.termen || null, ...rezumat(lista),
+          termen: c.termen || null, ...rezumat(marcaje),
         });
       }
     } catch (err) {
@@ -234,7 +254,7 @@ export default cuLimitareCod(async (req) => {
     if (!showId) return json({ eroare: "Expoziție lipsă." }, 400);
     try {
       const brute = await inscrieriDin(showId);
-      return json({ inscrieri: brute.map((x) => pentruRegistratura(x.i, x.cheie)) });
+      return json({ inscrieri: brute.map((x) => pentruRegistratura(x.i, x.cheie, x.v)) });
     } catch (err) {
       console.error("Citirea înscrierilor a eșuat:", err);
       return json({ eroare: "Nu am putut citi înscrierile." }, 500);
@@ -249,21 +269,27 @@ export default cuLimitareCod(async (req) => {
     if (stare && !STARI.includes(stare)) return json({ eroare: "Stare necunoscută." }, 400);
 
     const s = expo();
-    // Recitim chiar înainte de scriere: între timp managerul poate fi marcat înscrierea
-    // ca importată, iar noi n-avem voie să pierdem acel semn.
     const i = await s.get(cheie, { type: "json" }).catch(() => null);
     if (!i) return json({ eroare: "Înscrierea nu mai există." }, 404);
 
-    // Plata se marchează separat de acte: sunt două verificări diferite, iar una poate
-    // exista fără cealaltă. Ce nu se trimite acum rămâne cum era.
-    const vechi = i.verificare || {};
+    const cheieV = cheiaMarcajului(cheie);
+    const vechi = (await s.get(cheieV, { type: "json" }).catch(() => null)) || {};
+
+    // „Șterge marcajul" înseamnă TOT marcajul — și actele, și plata. Un buton care lasă
+    // ceva în urmă e un buton care minte.
+    const sterge = body.sterge === true;
+
     const plata = typeof body.plataConfirmata === "boolean"
       ? body.plataConfirmata
       : (typeof vechi.plataConfirmata === "boolean" ? vechi.plataConfirmata : null);
 
-    const verificare = (stare || plata !== null)
+    // Marcajul există dacă s-a hotărât ceva despre acte SAU despre plată. Cele două sunt
+    // independente: se poate confirma plata fără a atinge actele, iar atunci `stare`
+    // rămâne null — un marcaj perfect valid, pe care managerul trebuie să-l primească.
+    const stareFinala = stare || vechi.stare || null;
+    const verificare = (!sterge && (stareFinala || plata !== null))
       ? {
-          stare: stare || vechi.stare || null,
+          stare: stareFinala,
           nota: body.nota !== undefined ? (taie(body.nota, LIMITA_NOTA) || null) : (vechi.nota ?? null),
           // `null` = nu s-a pronunțat; true/false = a confirmat sau a infirmat.
           membruConfirmat: typeof body.membruConfirmat === "boolean"
@@ -273,29 +299,45 @@ export default cuLimitareCod(async (req) => {
           cine: eu.nume,
           cand: new Date().toISOString(),
         }
-      : null;   // nimic de reținut = marcajul se șterge
+      : null;
 
-    await s.setJSON(cheie, { ...i, verificare });
+    // Marcajul are blobul lui: scrierea asta nu atinge fișa înscrierii, deci nu se poate
+    // ciocni cu managerul, care pune pe ea semnul „importat".
+    if (verificare) await s.setJSON(cheieV, verificare);
+    else await s.delete(cheieV).catch(() => {});
 
-    // Urma faptei, în jurnalul registrului: cine, când, la ce exemplar și ce a hotărât.
-    // Din ea se face auditul din spațiul registraturii — marcajul de pe fișă spune doar
-    // starea de acum, jurnalul spune și cum s-a ajuns la ea.
+    // Urma faptei: o dată în auditul expoziției (de unde se citește repede, fără să
+    // răscolim tot jurnalul) și o dată în jurnalul registrului, unde stau la un loc toate
+    // faptele asociației.
+    const la = new Date().toISOString();
+    const ce = [
+      verificare
+        ? (verificare.stare === "verificat" ? "acte verificate"
+          : verificare.stare === "lamurit" ? "acte de lămurit" : "actele neatinse")
+        : "marcaj șters",
+      verificare && verificare.membruConfirmat === true ? "membru confirmat" : "",
+      verificare && verificare.membruConfirmat === false ? "NU e membru" : "",
+      verificare && verificare.plataConfirmata === true ? "plată confirmată" : "",
+      verificare && verificare.plataConfirmata === false ? "plata nu se regăsește" : "",
+      verificare && verificare.nota ? verificare.nota : "",
+    ].filter(Boolean).join(" · ");
+    const obiect = (i.numeCaine || "exemplar") + (i.rasaNumeRo ? " · " + i.rasaNumeRo : "");
+    const showId = cheie.split("/")[1] || "";
+
+    try {
+      await s.setJSON("audit/" + showId + "/" + la + "-" + Math.random().toString(36).slice(2, 8),
+        { la, cine: eu.nume, obiect, ce });
+    } catch (err) {
+      console.error("Fapta nu s-a putut scrie în auditul expoziției:", err);
+    }
     await jurnalizeaza(registru(), {
       fapta: "inscriere-verificata",
       actor: { rol: eu.rol, nume: eu.nume },
-      obiect: (i.numeCaine || "exemplar") + " · " + (i.rasaNumeRo || ""),
-      detalii: [
-        cheie.split("/")[1] || "",
-        verificare ? (verificare.stare === "verificat" ? "acte verificate"
-          : verificare.stare === "lamurit" ? "acte de lămurit" : "acte neatinse") : "marcaj șters",
-        verificare && verificare.membruConfirmat === true ? "membru confirmat" : "",
-        verificare && verificare.membruConfirmat === false ? "NU e membru" : "",
-        verificare && verificare.plataConfirmata === true ? "plată confirmată" : "",
-        verificare && verificare.plataConfirmata === false ? "plată neconfirmată" : "",
-        verificare && verificare.nota ? verificare.nota : "",
-      ].filter(Boolean).join(" · "),
+      obiect,
+      detalii: showId + " · " + ce,
       ip: ipCerere(req),
     });
+
     return json({ ok: true, verificare });
   }
 
@@ -303,11 +345,11 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "audit") {
     const showId = taie(body.showId, 60);
     if (!showId) return json({ eroare: "Expoziție lipsă." }, 400);
-    const brute = (await inscrieriDin(showId)).map((x) => x.i);
+    const marcaje = await marcajeDin(showId);
     return json({
       acte: await auditDin(showId),
-      registratori: peRegistrator(brute),
-      ...rezumat(brute),
+      registratori: peRegistrator(marcaje),
+      ...rezumat(marcaje),
     });
   }
 
@@ -326,9 +368,15 @@ export default cuLimitareCod(async (req) => {
     if (!r || !r.data) {
       return json({ eroare: "Dovada a fost deja preluată în manager și ștearsă din cloud." }, 404);
     }
+    // Tipul se verifică ȘI la ieșire. La încărcare e restrâns, dar browserul n-are voie
+    // să se încreadă în metadatele unei magazii: ce nu e imagine sau PDF nu se deschide.
+    const tip = (r.metadata && r.metadata.tip) || "";
+    if (!TIPURI_DOVADA.has(tip)) {
+      return json({ eroare: "Dovada are un tip de fișier neacceptat și nu se poate deschide." }, 415);
+    }
     return json({
       base64: Buffer.from(r.data).toString("base64"),
-      tip: (r.metadata && r.metadata.tip) || "application/octet-stream",
+      tip,
       nume: (r.metadata && r.metadata.nume) || "dovada",
     });
   }

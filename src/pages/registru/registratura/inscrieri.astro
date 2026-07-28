@@ -250,15 +250,18 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       actiuni.appendChild(bLam);
       if (i.verificare) {
         const bSterge = el("button", "i-btn is-sters", "Șterge marcajul");
-        bSterge.addEventListener("click", () => marcheaza(i, "", null, ""));
+        bSterge.addEventListener("click", () => marcheaza(i, "", null, "", undefined, true));
         actiuni.appendChild(bSterge);
       }
       card.appendChild(actiuni);
       return card;
     }
 
-    async function marcheaza(i, stare, membruConfirmat, nota, plataConfirmata) {
+    async function marcheaza(i, stare, membruConfirmat, nota, plataConfirmata, sterge) {
       const corp = { actiune: "marcheaza", cheie: i.cheie, stare: stare === null ? "" : stare };
+      // Ștergerea e un gest explicit: altfel serverul păstrează ce era, iar butonul
+      // ar lăsa în urmă marcajul de plată.
+      if (sterge) { corp.sterge = true; }
       // `stare: null` înseamnă „nu atinge actele" — se marchează doar plata. Serverul
       // păstrează atunci starea dinainte.
       if (stare === null) delete corp.stare;

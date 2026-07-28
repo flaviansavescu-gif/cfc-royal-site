@@ -1,4 +1,4 @@
-import { pentruRegistratura, rezumat, peRegistrator, STARI } from "../verificare-inscrieri.mjs";
+import { pentruRegistratura, rezumat, peRegistrator, cheiaMarcajului, TIPURI_DOVADA, STARI } from "../verificare-inscrieri.mjs";
 
 let rau = 0;
 const e = (nume, bun, detaliu) => {
@@ -57,16 +57,12 @@ e("adresa, pentru documente", v.proprietar.adresa === "Str. Exemplu 5, Reșița"
 
 console.log("— marcajul —");
 e("stările sunt doar cele două", STARI.length === 2 && STARI.includes("verificat") && STARI.includes("lamurit"));
-e("marcajul existent se vede", pentruRegistratura({ ...INSCRIERE, verificare: { stare: "verificat" } }, "k").verificare.stare === "verificat");
+e("marcajul existent se vede", pentruRegistratura(INSCRIERE, "k", { stare: "verificat" }).verificare.stare === "verificat");
 e("fără marcaj -> null", v.verificare === null);
 
 console.log("— rezumatul unei expoziții —");
 const r = rezumat([
-  { verificare: { stare: "verificat" } },
-  { verificare: { stare: "verificat" } },
-  { verificare: { stare: "lamurit" } },
-  {},
-  { verificare: null },
+  { stare: "verificat" }, { stare: "verificat" }, { stare: "lamurit" }, null, null,
 ]);
 e("total", r.total === 5, r);
 e("verificate", r.verificate === 2, r);
@@ -75,22 +71,34 @@ e("neatinse", r.neatinse === 2, r);
 e("expoziție goală", JSON.stringify(rezumat([])) ===
   JSON.stringify({ total: 0, verificate: 0, lamurit: 0, neatinse: 0, platiConfirmate: 0 }));
 e("plățile confirmate se numără separat de acte",
-  rezumat([{ verificare: { stare: "lamurit", plataConfirmata: true } }, { verificare: { stare: "verificat" } }]).platiConfirmate === 1);
+  rezumat([{ stare: "lamurit", plataConfirmata: true }, { stare: "verificat" }]).platiConfirmate === 1);
+e("o plată confirmată FĂRĂ starea actelor e tot un marcaj",
+  rezumat([{ stare: null, plataConfirmata: true }]).platiConfirmate === 1);
 
 console.log("— auditul: cine ce ține în spate acum —");
 {
   const r = peRegistrator([
-    { verificare: { stare: "verificat", cine: "Ion", plataConfirmata: true } },
-    { verificare: { stare: "verificat", cine: "Ion" } },
-    { verificare: { stare: "lamurit", cine: "Maria" } },
-    { verificare: null },
-    { verificare: { stare: "verificat" } },   // fara nume: nu se poate atribui
+    { stare: "verificat", cine: "Ion", plataConfirmata: true },
+    { stare: "verificat", cine: "Ion" },
+    { stare: "lamurit", cine: "Maria" },
+    null,
+    { stare: "verificat" },   // fara nume: nu se poate atribui
   ]);
   e("doi registratori", r.length === 2, r);
   e("Ion: 2 verificate, o plată", r[0].cine === "Ion" && r[0].verificate === 2 && r[0].plati === 1, r);
   e("Maria: una de lămurit", r[1].cine === "Maria" && r[1].lamurit === 1, r);
   e("listă goală", peRegistrator([]).length === 0);
 }
+
+console.log("— cheia marcajului oglindește înscrierea —");
+e("coada -> verificare", cheiaMarcajului("coada/SHOW/abc") === "verificare/SHOW/abc");
+e("cheie goală nu strică nimic", cheiaMarcajului("") === "verificare/");
+
+console.log("— tipul dovezii se verifică și la ieșire —");
+e("imaginile trec", TIPURI_DOVADA.has("image/jpeg") && TIPURI_DOVADA.has("image/png"));
+e("PDF trece", TIPURI_DOVADA.has("application/pdf"));
+e("HTML NU trece", !TIPURI_DOVADA.has("text/html"));
+e("SVG NU trece (poate conține script)", !TIPURI_DOVADA.has("image/svg+xml"));
 
 console.log(rau ? rau + " căzute" : "toate trecute");
 process.exit(rau ? 1 : 0);
