@@ -45,6 +45,48 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     </p>
   </div>
 
+  {/* Munca de secretariat a accesului la registru, mutată aici de la administrator:
+      cererile se sprijină pe date pe care le are registratura — cine e membru și cine
+      are cotizația la zi. Secțiuni pliabile, ca pagina să rămână limpede. */}
+  <details class="r-sectiune" data-sectiune="cereri">
+    <summary class="r-sumar">
+      <span class="r-sumar__titlu">Cereri de acces</span>
+      <span class="r-numar" id="r-cereri-numar" hidden></span>
+    </summary>
+    <p class="g-nota">Oameni care au cerut cod de acces la registru. După ce le generezi codul,
+    cererea se închide singură.</p>
+    <ul class="r-lista" id="r-cereri"></ul>
+  </details>
+
+  <details class="r-sectiune" data-sectiune="membri">
+    <summary class="r-sumar">
+      <span class="r-sumar__titlu">Membri cu drept de solicitare</span>
+      <span class="r-numar" id="r-membri-numar" hidden></span>
+    </summary>
+    <div id="r-adauga" hidden>
+      <p class="g-nota">Codul se generează o singură dată și se arată o singură dată. Trimite-l pe
+      e-mail din butonul de lângă el, sau notează-l pe loc.</p>
+      <div class="r-form">
+        <input id="r-nume" type="text" placeholder="Numele complet al membrului" />
+        <input id="r-email" type="email" placeholder="E-mail" />
+        <input id="r-afix" type="text" placeholder="Afix (opțional)" />
+        <button id="r-adauga-btn" class="btn btn--outline" type="button">Generează codul</button>
+      </div>
+      <p class="r-cod" id="r-cod" hidden></p>
+    </div>
+    <p class="g-nota" id="r-fara-drept" hidden>Codurile de acces le generează registratorul desemnat.
+    Tu poți vedea lista și starea cotizațiilor. Dacă ai nevoie de acest drept, cere-i administratorului.</p>
+    <ul class="r-lista" id="r-membri"></ul>
+  </details>
+
+  <details class="r-sectiune" data-sectiune="jurnal">
+    <summary class="r-sumar">
+      <span class="r-sumar__titlu">Faptele mele în registru</span>
+    </summary>
+    <p class="g-nota">Ce ai făcut tu în registru — nu tot jurnalul asociației.</p>
+    <ul class="r-lista" id="r-jurnal"></ul>
+  </details>
+
   <h2 class="g-h2">Dosare</h2>
   <p class="g-filtre">
     <button class="g-filtru is-activ" type="button" data-f="lucru">În lucru <span id="g-nr-lucru"></span></button>
@@ -90,6 +132,150 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       if (text != null) x.textContent = text;
       return x;
     };
+
+    // ——— Accesul la registru: cereri, membri, faptele proprii ———
+    // Serverul hotărăște ce am voie: dacă n-am dreptul de a genera coduri, butonul
+    // nici nu apare. Poarta e acolo, nu aici — asta e doar politețe față de ochi.
+    const A = "/.netlify/functions/registru-acces";
+    const postA = (b) => fetch(A, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ cod: cod(), dispozitiv: dispozitiv() }, b)) });
+    let potDaCoduri = false;
+
+    function numarSec(id, n, singular, plural) {
+      const x = document.getElementById(id);
+      if (!x) return;
+      x.hidden = !n;
+      x.textContent = n ? n + " " + (n === 1 ? singular : plural) : "";
+    }
+
+    async function incarcaCereri() {
+      const ul = document.getElementById("r-cereri");
+      ul.textContent = "";
+      const res = await postA({ actiune: "cereri" });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { ul.appendChild(el("li", "g-gol", d.eroare || "Eroare")); return; }
+      const lst = d.cereri || [];
+      numarSec("r-cereri-numar", lst.length, "cerere", "cereri");
+      if (!lst.length) { ul.appendChild(el("li", "g-gol", "Nicio cerere în așteptare.")); return; }
+      lst.forEach((c) => {
+        const li = el("li");
+        const info = el("div");
+        info.appendChild(el("strong", null, c.nume));
+        info.appendChild(el("span", "g-meta", [c.email, c.telefon, c.mesaj].filter(Boolean).join(" · ")));
+        li.appendChild(info);
+        const b = el("button", "btn btn--outline", "Închide cererea");
+        b.addEventListener("click", async () => {
+          if (!confirm("Închizi cererea lui " + c.nume + "?")) return;
+          await postA({ actiune: "cerere-sterge", id: c.id });
+          incarcaCereri();
+        });
+        li.appendChild(b);
+        ul.appendChild(li);
+      });
+    }
+
+    async function incarcaMembri() {
+      const ul = document.getElementById("r-membri");
+      ul.textContent = "";
+      const res = await postA({ actiune: "membri" });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { ul.appendChild(el("li", "g-gol", d.eroare || "Eroare")); return; }
+      const lst = d.membri || [];
+      numarSec("r-membri-numar", lst.length, "membru", "membri");
+      if (!lst.length) { ul.appendChild(el("li", "g-gol", "Niciun membru încă.")); return; }
+      lst.forEach((m) => {
+        const li = el("li");
+        const info = el("div");
+        info.appendChild(el("strong", null, m.nume + (m.afix ? " · " + m.afix : "")));
+        info.appendChild(el("span", "g-meta", m.email || "fără e-mail"));
+        const c = el("span", m.cotizatieLaZi ? "r-cotizatie is-ok" : "r-cotizatie is-rau",
+          m.cotizatieLaZi ? "cotizație la zi" + (m.cotizatiePana ? " până la " + dataRo(m.cotizatiePana) : "")
+                          : "cotizație expirată");
+        info.appendChild(c);
+        li.appendChild(info);
+        if (potDaCoduri) {
+          const zi = el("button", "btn btn--outline", "Cotizație la zi (+12 luni)");
+          zi.addEventListener("click", async () => {
+            zi.disabled = true;
+            await postA({ actiune: "membru-cotizatie", id: m.id });
+            incarcaMembri();
+          });
+          li.appendChild(zi);
+        }
+        ul.appendChild(li);
+      });
+    }
+
+    async function incarcaJurnalulMeu() {
+      const ul = document.getElementById("r-jurnal");
+      ul.textContent = "";
+      const res = await postA({ actiune: "jurnal", limita: 100 });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { ul.appendChild(el("li", "g-gol", d.eroare || "Eroare")); return; }
+      const lst = d.intrari || [];
+      if (!lst.length) { ul.appendChild(el("li", "g-gol", "Nicio faptă consemnată luna aceasta.")); return; }
+      lst.forEach((x) => {
+        const li = el("li");
+        const info = el("div");
+        info.appendChild(el("strong", null, x.faptaText || x.fapta));
+        info.appendChild(el("span", "g-meta",
+          [x.obiect, x.detalii, x.la ? new Date(x.la).toLocaleString("ro-RO") : ""].filter(Boolean).join(" · ")));
+        li.appendChild(info);
+        ul.appendChild(li);
+      });
+    }
+
+    document.getElementById("r-adauga-btn").addEventListener("click", async () => {
+      const nume = document.getElementById("r-nume").value.trim();
+      const email = document.getElementById("r-email").value.trim();
+      const afix = document.getElementById("r-afix").value.trim();
+      if (nume.length < 3) { alert("Scrie numele complet al membrului."); return; }
+      const btn = document.getElementById("r-adauga-btn");
+      btn.disabled = true;
+      try {
+        const res = await postA({ actiune: "membru-adauga", nume, email, afix });
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok) { alert(d.eroare || "Nu am putut genera codul."); return; }
+        const zona = document.getElementById("r-cod");
+        zona.hidden = false;
+        zona.textContent = "";
+        zona.appendChild(el("span", null, "Codul lui " + nume + ": "));
+        zona.appendChild(el("code", "r-cod__val", d.cod || "—"));
+        if (email) {
+          const t = el("button", "btn btn--outline", "✉ Trimite codul pe e-mail");
+          t.addEventListener("click", async () => {
+            t.disabled = true;
+            const r2 = await postA({ actiune: "trimite-cod", codNou: d.cod });
+            const d2 = await r2.json().catch(() => ({}));
+            t.textContent = r2.ok ? "✓ trimis" : (d2.eroare || "nu s-a putut trimite");
+          });
+          zona.appendChild(t);
+        }
+        document.getElementById("r-nume").value = "";
+        document.getElementById("r-email").value = "";
+        document.getElementById("r-afix").value = "";
+        incarcaMembri(); incarcaCereri();
+      } finally { btn.disabled = false; }
+    });
+
+    // Secțiunile se încarcă abia la deschidere: pagina nu trebuie să ceară de la server
+    // liste pe care nimeni nu le-a cerut.
+    const INCARCATOARE = { cereri: incarcaCereri, membri: incarcaMembri, jurnal: incarcaJurnalulMeu };
+    document.querySelectorAll("details.r-sectiune").forEach((det) => {
+      det.addEventListener("toggle", () => {
+        if (!det.open || det.dataset.incarcat === "da") return;
+        det.dataset.incarcat = "da";
+        const f = INCARCATOARE[det.dataset.sectiune];
+        if (f) f();
+      });
+    });
+
+    // Dreptul de a genera coduri vine de la server, la intrare, și e reținut în sesiune.
+    // Aici îl folosim DOAR ca să nu arătăm un formular care oricum ar fi refuzat: poarta
+    // adevărată e pe server, iar o sesiune modificată în browser nu deschide nimic.
+    potDaCoduri = !!(r && r.poateDaAcces);
+    document.getElementById("r-adauga").hidden = !potDaCoduri;
+    document.getElementById("r-fara-drept").hidden = potDaCoduri;
 
     async function deschide(id) {
       detaliu.hidden = false;
@@ -336,6 +522,34 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     background: var(--color-surface-alt); border: 1px solid var(--color-border);
     border-radius: var(--radius); padding: 0.9rem 1.1rem; }
   .g-gol { color: var(--color-text-muted); font-style: italic; }
+  .g-meta { display: block; font-size: 0.85rem; color: var(--color-text-muted); }
+
+  .r-sectiune { border-bottom: 1px solid var(--color-border); max-width: 52rem; }
+  .r-sectiune[open] { padding-bottom: 1.25rem; }
+  .r-sumar { cursor: pointer; list-style: none; display: flex; align-items: baseline;
+    gap: 0.6rem; flex-wrap: wrap; padding: 0.8rem 0.2rem; }
+  .r-sumar::-webkit-details-marker { display: none; }
+  .r-sumar::before { content: "▸"; color: var(--color-accent-dark); font-size: 0.8rem; }
+  .r-sectiune[open] > .r-sumar::before { content: "▾"; }
+  .r-sumar__titlu { font-family: var(--font-serif); color: var(--color-primary);
+    font-size: 1.15rem; font-weight: 700; }
+  .r-numar { font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+    background: var(--color-accent); color: #2a2200; border-radius: 999px; padding: 0.15rem 0.6rem; }
+  .r-numar[hidden] { display: none; }
+  .r-lista { list-style: none; padding: 0; margin: 0.5rem 0 0; display: grid; gap: 0.5rem; }
+  .r-lista li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem;
+    justify-content: space-between; border: 1px solid var(--color-border);
+    border-radius: var(--radius); background: var(--color-surface); padding: 0.6rem 0.9rem; }
+  .r-form { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.6rem 0; }
+  .r-form input { flex: 1 1 12rem; padding: 0.45rem 0.7rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; }
+  .r-cod { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem;
+    background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.7rem 1rem; }
+  .r-cod__val { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700;
+    color: var(--color-primary); letter-spacing: 0.06em; }
+  .r-cotizatie { display: block; font-size: 0.82rem; }
+  .r-cotizatie.is-ok { color: var(--color-success); }
+  .r-cotizatie.is-rau { color: var(--color-danger); font-weight: 600; }
   .g-unelte { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; max-width: 48rem; }
   .g-unelte span { font-size: 0.85rem; color: var(--color-text-muted); }
   .g-filtre { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; max-width: 52rem; }

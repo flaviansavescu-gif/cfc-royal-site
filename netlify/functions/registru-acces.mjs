@@ -363,6 +363,9 @@ export default cuLimitareCod(async (req) => {
         await marcheazaIntrarea("registrator/" + r.id, r);
         return json({
           rol: "registratura", id: r.id, nume: r.nume, dest: "/registru/registratura/",
+          // Ce poate face se spune de la intrare, ca pagina să nu ghicească și să nu
+          // trebuiască să întrebe printr-o cerere respinsă. Poarta rămâne pe server.
+          poateDaAcces: r.poateDaAcces === true,
           alDoileaFactorLipsa: !emailLui,
         });
       }
@@ -400,6 +403,9 @@ export default cuLimitareCod(async (req) => {
     return json({
       ok: true, rol: "registratura", dispozitiv: rez.jeton,
       id: r?.id || null, nume: r?.nume || rez.cine, dest: "/registru/registratura/",
+      // Și pe calea cu a doua cheie: altfel registratorul care intră de pe un dispozitiv
+      // nou ar rămâne, în pagină, fără dreptul pe care serverul i-l recunoaște.
+      poateDaAcces: r?.poateDaAcces === true,
     });
   }
 

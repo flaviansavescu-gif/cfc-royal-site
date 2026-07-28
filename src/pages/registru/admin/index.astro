@@ -492,6 +492,31 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
             .filter(Boolean).join(" · ");
           info.appendChild(meta);
 
+          // Dreptul de a genera coduri de membru: al unui SINGUR registrator, nu al
+          // funcției. Se pune și se ia doar de aici — registratura dă acces, dar
+          // nu-și dă singură dreptul de a-l da.
+          const dr = document.createElement("label");
+          dr.className = "a-drept";
+          const bifa = document.createElement("input");
+          bifa.type = "checkbox";
+          bifa.checked = r.poateDaAcces === true;
+          const et = document.createElement("span");
+          et.textContent = bifa.checked
+            ? "poate genera coduri de acces pentru membri"
+            : "nu generează coduri (doar verifică dosare)";
+          bifa.addEventListener("change", async () => {
+            bifa.disabled = true;
+            try {
+              await cere({ actiune: "registrator-acces", id: r.id, poateDaAcces: bifa.checked });
+              incarcaRegistratori();
+            } catch (e) {
+              bifa.checked = !bifa.checked;
+              alert("Nu am putut schimba dreptul: " + e.message);
+            } finally { bifa.disabled = false; }
+          });
+          dr.appendChild(bifa); dr.appendChild(et);
+          info.appendChild(dr);
+
           // Fără adresă, persoana intră DOAR cu codul: al doilea factor n-are unde
           // să ajungă. Se vede, ca să poată fi îndreptat, nu se ascunde.
           if (!r.email) {
@@ -1018,6 +1043,9 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     padding: 0.15rem 0.6rem; margin-left: 0.5rem; }
   .a-numar[hidden] { display: none; }
   .a-adauga-email { display: flex; gap: 0.4rem; margin-top: 0.4rem; flex-wrap: wrap; }
+  .a-drept { display: flex; align-items: center; gap: 0.45rem; margin-top: 0.3rem;
+    font-size: 0.85rem; color: var(--color-text-muted); cursor: pointer; }
+  .a-drept input:checked + span { color: var(--color-primary); font-weight: 600; }
   .a-adauga-email input { flex: 1 1 14rem; padding: 0.4rem 0.6rem; border: 1px solid var(--color-border);
     border-radius: var(--radius); font: inherit; font-size: 0.88rem; }
 
