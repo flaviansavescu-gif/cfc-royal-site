@@ -154,13 +154,17 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
 
     form.addEventListener("submit", (e) => { e.preventDefault(); intra(input.value.trim(), false); });
 
-    // Adus aici de o sesiune moartă (cod revocat sau schimbat, dispozitiv expirat):
-    // spunem limpede de ce, altfel pare că pagina l-a aruncat afară fără motiv.
-    if (new URLSearchParams(location.search).get("motiv") === "sesiune") {
+    // Adus aici de o sesiune moartă: spunem limpede CARE din cele două motive, altfel
+    // pare că pagina l-a aruncat afară fără temei — sau, mai rău, îi spunem că i s-a
+    // revocat codul când de fapt nu i s-a revocat nimic.
+    const motiv = new URLSearchParams(location.search).get("motiv");
+    if (motiv === "cod" || motiv === "dispozitiv" || motiv === "sesiune") {
       eroare.hidden = false;
-      eroare.textContent =
-        "Intrarea păstrată în acest browser nu mai este valabilă — codul a fost " +
-        "schimbat sau revocat. Scrie codul actual ca să intri din nou.";
+      eroare.textContent = motiv === "dispozitiv"
+        ? "Acest browser nu mai e recunoscut (au trecut 30 de zile sau s-a apăsat " +
+          "butonul de ieșire). Scrie codul din nou — primești un cod de confirmare pe e-mail."
+        : "Codul păstrat în acest browser nu mai este valabil — a fost schimbat sau " +
+          "revocat. Scrie codul actual ca să intri din nou.";
       history.replaceState(null, "", "/registru/");
     }
 

@@ -30,7 +30,9 @@ export default cuLimitareCod(async (req) => {
 
   if (!esteAdmin(body.cod)) return json({ eroare: "Cod de administrator incorect." }, 401);
   // A doua cheie: codul singur nu mai deschide administrarea Școlii.
-  if (!(await dispozitivCunoscut(getStore("paa"), String(body.dispozitiv || "").trim(), "admin")))
+  // Jetoanele de dispozitiv stau în magazia PLATFORMEI („cursuri"), nu în cea a acestei
+  // funcții — vezi explicația din breed-instalare.mjs.
+  if (!(await dispozitivCunoscut(getStore("cursuri"), String(body.dispozitiv || "").trim(), "admin")))
     return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
 
   if (actiune === "lista") {

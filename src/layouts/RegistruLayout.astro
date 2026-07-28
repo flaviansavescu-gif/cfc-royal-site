@@ -114,12 +114,16 @@ const protejat = allowList.length > 0;
               }
               if (moarta) {
                 plecam = true;
+                // Motivul se spune pe nume: „cod respins" și „dispozitiv nerecunoscut"
+                // sunt lucruri diferite, iar omul trebuie să știe care din ele l-a scos.
+                const motiv = raspuns.status === 401 ? "cod" : "dispozitiv";
                 try {
                   localStorage.removeItem("cfcrRegistru");
                   localStorage.removeItem("cfcrRegistruCod");
                   localStorage.removeItem("cfcrRegistruLa");
+                  if (motiv === "dispozitiv") localStorage.removeItem("cfcrRegistruDispozitiv");
                 } catch (e) {}
-                location.replace("/registru/?motiv=sesiune");
+                location.replace("/registru/?motiv=" + motiv);
               }
             } catch (e) { /* orice greșeală aici nu are voie să strice răspunsul */ }
             return raspuns;

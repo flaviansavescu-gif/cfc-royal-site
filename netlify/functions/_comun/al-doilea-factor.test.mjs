@@ -7,7 +7,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   codNumeric, jetonNou, amprenta, dispozitivValid, verificaOtp,
-  deschideIntrarea, confirmaIntrarea, expiraLa,
+  deschideIntrarea, confirmaIntrarea, expiraLa, dispozitivCunoscut, operational,
   OTP_INCERCARI, OTP_MINUTE, DISPOZITIV_ZILE, DISPOZITIV_MS, OTP_MS,
 } from "./al-doilea-factor.mjs";
 
@@ -164,4 +164,64 @@ test("dispozitivul se naște cu termen de 30 de zile", async () => {
 
 test("expiraLa calculează de la momentul dat", () => {
   assert.equal(expiraLa(60e3, T0), new Date(T0 + 60e3).toISOString());
+});
+
+// ————————————————————— invariantul care s-a rupt în producție —————————————————————
+//
+// Poarta de INTRARE spunea „nu pot trimite codul pe e-mail, intră fără el", iar poarta
+// ACȚIUNILOR spunea „n-ai dispozitiv recunoscut, ieși". Administratorul intra și era dat
+// afară imediat, la prima cerere — cu un mesaj care îi spunea, pe deasupra, că i s-a
+// revocat codul. O apărare pe jumătate pornită nu apără nimic și blochează pe toată
+// lumea. Testul de aici ține cele două porți legate.
+
+test("dacă mecanismul NU e operațional, poarta acțiunilor nu-l cere", async () => {
+  const cheieVeche = process.env.BREVO_API_KEY;
+  const opritVechi = process.env.FARA_AL_DOILEA_FACTOR;
+  try {
+    delete process.env.BREVO_API_KEY;          // fără poștă nu se poate trimite niciun cod
+    delete process.env.FARA_AL_DOILEA_FACTOR;
+    assert.equal(operational(), false, "fără poștă, mecanismul nu e operațional");
+    // Magazie care ar ARUNCA dacă ar fi întrebată: dovedește că nici n-o atingem.
+    const interzisa = { async get() { throw new Error("nu trebuia întrebată magazia"); } };
+    assert.equal(await dispozitivCunoscut(interzisa, "", "admin"), true);
+    assert.equal(await dispozitivCunoscut(interzisa, "", "registratura"), true);
+  } finally {
+    if (cheieVeche === undefined) delete process.env.BREVO_API_KEY; else process.env.BREVO_API_KEY = cheieVeche;
+    if (opritVechi === undefined) delete process.env.FARA_AL_DOILEA_FACTOR; else process.env.FARA_AL_DOILEA_FACTOR = opritVechi;
+  }
+});
+
+test("oprit din mediu: la fel, poarta acțiunilor nu cere nimic", async () => {
+  const cheieVeche = process.env.BREVO_API_KEY;
+  const opritVechi = process.env.FARA_AL_DOILEA_FACTOR;
+  try {
+    process.env.BREVO_API_KEY = "cheie-de-proba";
+    process.env.FARA_AL_DOILEA_FACTOR = "1";
+    assert.equal(operational(), false);
+    const interzisa = { async get() { throw new Error("nu trebuia întrebată magazia"); } };
+    assert.equal(await dispozitivCunoscut(interzisa, "orice", "admin"), true);
+  } finally {
+    if (cheieVeche === undefined) delete process.env.BREVO_API_KEY; else process.env.BREVO_API_KEY = cheieVeche;
+    if (opritVechi === undefined) delete process.env.FARA_AL_DOILEA_FACTOR; else process.env.FARA_AL_DOILEA_FACTOR = opritVechi;
+  }
+});
+
+test("operațional: poarta CHIAR cere dispozitivul", async () => {
+  const cheieVeche = process.env.BREVO_API_KEY;
+  const opritVechi = process.env.FARA_AL_DOILEA_FACTOR;
+  try {
+    process.env.BREVO_API_KEY = "cheie-de-proba";
+    delete process.env.FARA_AL_DOILEA_FACTOR;
+    assert.equal(operational(), true);
+    const s = magazie();
+    assert.equal(await dispozitivCunoscut(s, "", "admin"), false, "fără jeton, refuz");
+    assert.equal(await dispozitivCunoscut(s, "inventat", "admin"), false, "jeton inventat, refuz");
+
+    const { id, otp } = await deschideIntrarea(s, { rol: "admin", cine: "A", email: "a@b.ro" });
+    const r = await confirmaIntrarea(s, id, otp);
+    assert.equal(await dispozitivCunoscut(s, r.jeton, "admin"), true, "jetonul născut aici trebuie acceptat");
+  } finally {
+    if (cheieVeche === undefined) delete process.env.BREVO_API_KEY; else process.env.BREVO_API_KEY = cheieVeche;
+    if (opritVechi === undefined) delete process.env.FARA_AL_DOILEA_FACTOR; else process.env.FARA_AL_DOILEA_FACTOR = opritVechi;
+  }
 });

@@ -22,6 +22,7 @@
 // Netlify oprește mecanismul. E o variabilă de mediu dinadins: ca s-o pui, îți trebuie
 // deja contul Netlify — adică o cheie mai tare decât cea pe care o ocolești.
 import { createHash, randomBytes, randomInt, timingSafeEqual } from "node:crypto";
+import { postaConfigurata } from "./posta.mjs";
 
 const sha256 = (s) => createHash("sha256").update(String(s)).digest("hex");
 
@@ -36,6 +37,19 @@ export const OTP_INCERCARI = 5;
 export const ROLURI_PROTEJATE = ["admin", "registratura"];
 
 export const opritDinMediu = () => String(process.env.FARA_AL_DOILEA_FACTOR || "") === "1";
+
+/**
+ * Poate mecanismul să funcționeze, cu adevărat?
+ *
+ * REGULA CARE LIPSEA, ȘI CARE A ÎNCUIAT ADMINISTRATORUL AFARĂ. Poarta de intrare
+ * spunea „nu pot trimite codul, intră fără el", iar poarta acțiunilor spunea „n-ai
+ * dispozitiv recunoscut, ieși". Omul intra și era dat afară imediat, la prima cerere.
+ *
+ * O apărare pe jumătate pornită e mai rea decât una oprită: nu apără nimic și blochează
+ * pe toată lumea. Dacă nu e operațională, e OPRITĂ PESTE TOT — la intrare și la acțiuni,
+ * deodată.
+ */
+export const operational = () => !opritDinMediu() && postaConfigurata();
 
 /** Șase cifre, din generatorul criptografic — nu din Math.random. */
 export function codNumeric() {
@@ -109,7 +123,8 @@ export const DISPOZITIV_MS = DISPOZITIV_ZILE * 24 * 3600e3;
  * care are deja acces la Netlify.
  */
 export async function dispozitivCunoscut(store, jeton, rol) {
-  if (opritDinMediu()) return true;
+  // Nu cerem a doua cheie acolo unde nu o putem da. Vezi `operational`.
+  if (!operational()) return true;
   const j = String(jeton || "").trim();
   if (!j) return false;
   try {

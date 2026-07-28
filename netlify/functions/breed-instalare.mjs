@@ -45,7 +45,11 @@ export default cuLimitareCod(async (req) => {
   // —— Restul: doar administrator ——
   if (!esteAdmin(body.cod)) return json({ eroare: "Cod de administrator incorect." }, 401);
   // A doua cheie: codul singur nu mai deschide administrarea Școlii.
-  if (!(await dispozitivCunoscut(getStore("breed"), String(body.dispozitiv || "").trim(), "admin")))
+  // Jetoanele de dispozitiv stau în magazia PLATFORMEI („cursuri"), nu în magazia
+  // acestei funcții. Un jeton născut la intrare într-un loc și căutat în altul nu se
+  // găsește niciodată: funcția ar răspunde 403 la fiecare cerere, iar panoul l-ar da
+  // pe administrator afară. Exact asta s-a întâmplat.
+  if (!(await dispozitivCunoscut(getStore("cursuri"), String(body.dispozitiv || "").trim(), "admin")))
     return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
 
   if (actiune === "lista") {

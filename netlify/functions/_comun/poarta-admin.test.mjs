@@ -108,6 +108,31 @@ test("mesajul de refuz al dispozitivului folosește un ajutor care există în f
   }
 });
 
+test("jetonul de dispozitiv se caută acolo unde a fost scris", () => {
+  // Jetonul se naște la INTRARE și se scrie într-o singură magazie per platformă:
+  // „registru" pentru registrul genealogic, „cursuri" pentru Școală. Două funcții ale
+  // Școlii îl căutau în magaziile lor proprii („breed", „paa") — unde nu ajunge
+  // niciodată. Răspundeau 403 la fiecare cerere, iar panoul dădea administratorul
+  // afară, spunându-i că i s-a revocat codul. Platforma de lector mergea, fiindcă ea
+  // nu cheamă acele două funcții: exact felul de defect care pare „la întâmplare".
+  const PERMISE = new Set(["registru", "cursuri"]);
+  const fisiere = readdirSync(FUNCTII).filter((n) => n.endsWith(".mjs"));
+  let gasite = 0;
+
+  for (const nume of fisiere) {
+    const sursa = readFileSync(join(FUNCTII, nume), "utf8");
+    for (const m of sursa.matchAll(/dispozitivCunoscut\(\s*getStore\(\s*["']([a-z-]+)["']\s*\)/g)) {
+      gasite++;
+      assert.ok(
+        PERMISE.has(m[1]),
+        `${nume}: caută dispozitivul în magazia „${m[1]}", dar jetoanele se scriu doar ` +
+        `în „registru" sau „cursuri". Ar răspunde 403 la fiecare cerere.`,
+      );
+    }
+  }
+  assert.ok(gasite >= 3, `se așteptau cel puțin 3 verificări de dispozitiv, s-au găsit ${gasite}`);
+});
+
 test("amprenta administratorului există într-un SINGUR loc", () => {
   const fisiere = readdirSync(FUNCTII).filter((n) => n.endsWith(".mjs"));
   const copii = fisiere.filter((n) => readFileSync(join(FUNCTII, n), "utf8").includes(ADMIN_HASH));
