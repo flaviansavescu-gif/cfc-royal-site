@@ -1,0 +1,297 @@
+---
+// /registru/registratura/inscrieri/ — verificarea documentară a înscrierilor în expoziții,
+// înainte ca ele să fie importate în managerul de expoziții.
+//
+// Managerul nu are cartea de origini: el nu poate spune dacă un număr de pedigree există
+// cu adevărat sau dacă omul e într-adevăr membru. Registratura poate. Iar înscrierile stau
+// oricum câteva zile în coadă înainte de import — exact fereastra în care se verifică.
+//
+// Verificarea NU blochează importul. Ce n-a fost văzut rămâne doar nemarcat.
+import RegistruLayout from "../../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Verificarea înscrierilor" allow={["registratura"]}>
+  <p class="g-eyebrow">Registrul genealogic · Registratura</p>
+  <h1 class="g-title">Verificarea înscrierilor în expoziții</h1>
+  <p class="g-sub">
+    Înscrierile trimise de pe site, înainte de a fi preluate în managerul de expoziții.
+    Se verifică actele exemplarului — numărul de pedigree, microcipul, potrivirea clasei cu
+    vârsta — și calitatea de membru declarată la plata taxei.
+  </p>
+  <p class="g-nota">
+    Verificarea nu oprește nimic: dacă o înscriere n-a fost văzută până la import, ea intră
+    oricum în manager, doar fără mențiune. Marcajul se poate pune și după import — ajunge în
+    manager la următoarea preluare.
+  </p>
+
+  <p class="g-unelte">
+    <a class="btn btn--outline" href="https://rou.pedigree-database.org/en/" target="_blank" rel="noopener">
+      🌐 Baza de pedigree WDF ↗
+    </a>
+    <span>Pentru căutarea exemplarului după numărul de pedigree sau microcip.</span>
+  </p>
+
+  <label class="i-alege">
+    <span>Expoziția</span>
+    <select id="i-expo"><option value="">Se încarcă…</option></select>
+  </label>
+
+  <p class="i-rezumat" id="i-rezumat" hidden></p>
+
+  <p class="g-filtre" id="i-filtre" hidden>
+    <button class="g-filtru is-activ" type="button" data-f="toate">Toate</button>
+    <button class="g-filtru" type="button" data-f="neatinse">Neverificate</button>
+    <button class="g-filtru" type="button" data-f="verificat">Verificate</button>
+    <button class="g-filtru" type="button" data-f="lamurit">De lămurit</button>
+  </p>
+
+  <div id="i-lista" class="i-lista"></div>
+</RegistruLayout>
+
+<script is:inline>
+  (function () {
+    const F = "/.netlify/functions/verificare-inscrieri";
+    const cod = () => localStorage.getItem("cfcrRegistruCod") || "";
+    const dispozitiv = () => localStorage.getItem("cfcrRegistruDispozitiv") || "";
+    const post = (b) => fetch(F, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ cod: cod(), dispozitiv: dispozitiv() }, b)),
+    });
+
+    const expoSel = document.getElementById("i-expo");
+    const rezumatEl = document.getElementById("i-rezumat");
+    const filtreEl = document.getElementById("i-filtre");
+    const lista = document.getElementById("i-lista");
+    let inscrieri = [];
+    let filtru = "toate";
+
+    // Datele vin de la expozanți: NUMAI textContent, niciodată innerHTML. Altfel numele
+    // unui câine ar putea executa cod în pagina registratorului.
+    const el = (tag, cls, text) => {
+      const x = document.createElement(tag);
+      if (cls) x.className = cls;
+      if (text != null) x.textContent = text;
+      return x;
+    };
+    const dataRo = (s) => { const x = new Date(s); return isNaN(x) ? String(s || "—") : x.toLocaleDateString("ro-RO"); };
+    const CLASE = {
+      baby: "Baby", puppy: "Puppy", very_young: "Foarte tineri", young: "Tineret",
+      intermediara: "Intermediară", deschisa: "Deschisă", working: "Lucru",
+      winner: "Winner", champion: "Campioni", foreign_champion: "Campioni străini",
+      veterani: "Veterani",
+    };
+
+    async function incarcaExpozitii() {
+      const res = await post({ actiune: "expozitii" });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { expoSel.innerHTML = ""; expoSel.appendChild(el("option", null, d.eroare || "Eroare")); return; }
+      const lst = d.expozitii || [];
+      expoSel.textContent = "";
+      if (!lst.length) { expoSel.appendChild(el("option", null, "Nicio expoziție cu înscrieri")); return; }
+      lst.forEach((x) => {
+        const o = el("option", null, x.nume + " · " + dataRo(x.data) +
+          "  (" + x.neatinse + " neverificate din " + x.total + ")");
+        o.value = x.showId;
+        expoSel.appendChild(o);
+      });
+      incarcaInscrieri();
+    }
+
+    async function incarcaInscrieri() {
+      const showId = expoSel.value;
+      if (!showId) return;
+      lista.textContent = "";
+      lista.appendChild(el("p", "g-gol", "Se încarcă înscrierile…"));
+      const res = await post({ actiune: "inscrieri", showId });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { lista.textContent = ""; lista.appendChild(el("p", "g-gol", d.eroare || "Eroare")); return; }
+      inscrieri = d.inscrieri || [];
+      randeaza();
+    }
+
+    function starea(i) { return (i.verificare && i.verificare.stare) || "neatinse"; }
+
+    function randeaza() {
+      const v = inscrieri.filter((s) => starea(s) === "verificat").length;
+      const l = inscrieri.filter((s) => starea(s) === "lamurit").length;
+      rezumatEl.hidden = false;
+      rezumatEl.textContent = inscrieri.length + " înscrieri · " + v + " verificate · " +
+        l + " de lămurit · " + (inscrieri.length - v - l) + " neatinse";
+      filtreEl.hidden = inscrieri.length === 0;
+
+      const vazute = inscrieri.filter((s) => filtru === "toate" || starea(s) === filtru);
+      lista.textContent = "";
+      if (!vazute.length) { lista.appendChild(el("p", "g-gol", "Nimic aici.")); return; }
+      vazute.forEach((i) => lista.appendChild(fisa(i)));
+    }
+
+    function rand(parinte, eticheta, valoare) {
+      const d = el("div", "i-rand");
+      d.appendChild(el("span", "i-et", eticheta));
+      d.appendChild(el("span", "i-val", valoare == null || valoare === "" ? "—" : String(valoare)));
+      parinte.appendChild(d);
+    }
+
+    function fisa(i) {
+      const st = starea(i);
+      const card = el("div", "i-fisa is-" + st);
+
+      const cap = el("div", "i-cap");
+      cap.appendChild(el("strong", null, i.caine.nume));
+      cap.appendChild(el("span", "i-rasa", i.caine.rasa + " · " + (i.caine.sex === "M" ? "mascul" : "femelă")));
+      if (i.importat) cap.appendChild(el("span", "i-eticheta", "importat în manager"));
+      if (st === "verificat") cap.appendChild(el("span", "i-eticheta is-ok", "✓ verificat"));
+      if (st === "lamurit") cap.appendChild(el("span", "i-eticheta is-rau", "! de lămurit"));
+      card.appendChild(cap);
+
+      const date = el("div", "i-date");
+      rand(date, "Data nașterii", dataRo(i.caine.dataNasterii));
+      rand(date, "Clasa", CLASE[i.caine.clasa] || i.caine.clasa);
+      rand(date, "Microcip", i.caine.microcip);
+      rand(date, "Pedigree", i.caine.pedigreeTipicitate ? "— (cere pedigree de tipicitate)" : i.caine.pedigree);
+      rand(date, "Crescător", i.caine.crescator);
+      rand(date, "Tatăl", i.caine.tata);
+      rand(date, "Mama", i.caine.mama);
+      rand(date, "Culoarea robei", i.caine.culoareRoba);
+      card.appendChild(date);
+
+      const prop = el("div", "i-date");
+      rand(prop, "Proprietar", i.proprietar.nume);
+      rand(prop, "Telefon", i.proprietar.telefon);
+      rand(prop, "E-mail", i.proprietar.email);
+      rand(prop, "Țara", i.proprietar.tara);
+      card.appendChild(prop);
+
+      // Calitatea de membru: singurul lucru din zona taxei care ajunge aici, fiindcă
+      // e singurul pe care registratura îl poate confirma.
+      const m = el("div", "i-membru");
+      m.appendChild(el("span", "i-et", i.declaraMembru
+        ? "A declarat că este MEMBRU al asociației:"
+        : "A declarat că NU este membru."));
+      if (i.declaraMembru) {
+        const da = el("button", "i-btn", "Confirm — este membru");
+        const nu = el("button", "i-btn is-sters", "Nu este membru");
+        const acum = i.verificare && i.verificare.membruConfirmat;
+        if (acum === true) da.classList.add("is-ales");
+        if (acum === false) nu.classList.add("is-ales");
+        da.addEventListener("click", () => marcheaza(i, st === "neatinse" ? "verificat" : st, true));
+        nu.addEventListener("click", () => marcheaza(i, "lamurit", false));
+        m.appendChild(da); m.appendChild(nu);
+      }
+      card.appendChild(m);
+
+      if (i.verificare) {
+        const u = el("p", "i-urma",
+          (i.verificare.stare === "verificat" ? "Verificat" : "Marcat de lămurit") +
+          " de " + (i.verificare.cine || "—") + " la " + dataRo(i.verificare.cand) +
+          (i.verificare.nota ? " — " + i.verificare.nota : ""));
+        card.appendChild(u);
+      }
+
+      const nota = el("input", "i-nota");
+      nota.type = "text";
+      nota.maxLength = 300;
+      nota.placeholder = "Notă scurtă (ce nu se potrivește)";
+      nota.value = (i.verificare && i.verificare.nota) || "";
+      card.appendChild(nota);
+
+      const actiuni = el("div", "i-actiuni");
+      const bVerif = el("button", "i-btn is-primar", "✓ Verificat");
+      bVerif.addEventListener("click", () => marcheaza(i, "verificat", null, nota.value));
+      const bLam = el("button", "i-btn", "! De lămurit");
+      bLam.addEventListener("click", () => marcheaza(i, "lamurit", null, nota.value));
+      actiuni.appendChild(bVerif);
+      actiuni.appendChild(bLam);
+      if (i.verificare) {
+        const bSterge = el("button", "i-btn is-sters", "Șterge marcajul");
+        bSterge.addEventListener("click", () => marcheaza(i, "", null, ""));
+        actiuni.appendChild(bSterge);
+      }
+      card.appendChild(actiuni);
+      return card;
+    }
+
+    async function marcheaza(i, stare, membruConfirmat, nota) {
+      const corp = { actiune: "marcheaza", cheie: i.cheie, stare };
+      if (nota !== undefined) corp.nota = nota;
+      if (typeof membruConfirmat === "boolean") corp.membruConfirmat = membruConfirmat;
+      else if (i.verificare && typeof i.verificare.membruConfirmat === "boolean") {
+        corp.membruConfirmat = i.verificare.membruConfirmat;
+      }
+      const res = await post(corp);
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { alert(d.eroare || "Nu am putut salva marcajul."); return; }
+      i.verificare = d.verificare;
+      randeaza();
+    }
+
+    filtreEl.addEventListener("click", (ev) => {
+      const b = ev.target.closest("[data-f]");
+      if (!b) return;
+      filtru = b.dataset.f;
+      [...filtreEl.querySelectorAll("[data-f]")].forEach((x) => x.classList.toggle("is-activ", x === b));
+      randeaza();
+    });
+    expoSel.addEventListener("change", incarcaInscrieri);
+    incarcaExpozitii();
+  })();
+</script>
+
+<style>
+  /* Clasele „g-" sunt definite pe fiecare pagină a registrului: stilurile Astro sunt
+     legate de componentă, deci nu se moștenesc din pagina vecină. Identice cu cele din
+     /registru/registratura/. */
+  .g-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .g-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.2rem; }
+  .g-sub { color: var(--color-text-muted); margin-top: 0; max-width: 46rem; }
+  .g-nota { max-width: 46rem; font-size: 0.9rem; color: var(--color-text-muted);
+    background: var(--color-surface-alt); border: 1px solid var(--color-border);
+    border-radius: var(--radius); padding: 0.9rem 1.1rem; }
+  .g-gol { color: var(--color-text-muted); font-style: italic; }
+  .g-unelte { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; max-width: 48rem; }
+  .g-unelte span { font-size: 0.85rem; color: var(--color-text-muted); }
+  .g-filtre { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; max-width: 52rem; }
+  .g-filtru { padding: 0.4rem 0.9rem; border: 1px solid var(--color-border); border-radius: 999px;
+    background: var(--color-surface-alt); cursor: pointer; font: inherit; font-size: 0.88rem;
+    color: var(--color-text-muted); }
+  .g-filtru.is-activ { background: var(--color-primary); color: var(--color-text-inverse);
+    border-color: var(--color-primary); font-weight: 600; }
+
+  .i-btn { font: inherit; font-size: 0.85rem; padding: 0.35rem 0.8rem; cursor: pointer;
+    border: 1px solid var(--color-border); border-radius: var(--radius);
+    background: var(--color-surface); color: var(--color-text); }
+  .i-btn:hover { border-color: var(--color-accent-dark); }
+  .i-btn.is-primar { background: var(--color-primary); border-color: var(--color-primary);
+    color: var(--color-text-inverse); font-weight: 600; }
+  .i-btn.is-sters { color: var(--color-text-muted); }
+
+  .i-alege { display: flex; align-items: center; gap: 0.6rem; margin: 1.5rem 0 0.5rem; flex-wrap: wrap; }
+  .i-alege select { padding: 0.4rem 0.6rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); max-width: 100%; }
+  .i-rezumat { color: var(--color-text-muted); font-size: 0.9rem; margin: 0.25rem 0 0; }
+  .i-lista { display: grid; gap: 0.9rem; margin-top: 1rem; }
+  .i-fisa { border: 1px solid var(--color-border); border-left: 4px solid var(--color-border);
+    border-radius: var(--radius); background: var(--color-surface); padding: 0.9rem 1.1rem; }
+  .i-fisa.is-verificat { border-left-color: var(--color-success); }
+  .i-fisa.is-lamurit { border-left-color: var(--color-danger); }
+  .i-cap { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem; }
+  .i-cap strong { color: var(--color-primary); font-size: 1.05rem; }
+  .i-rasa { color: var(--color-text-muted); font-size: 0.9rem; }
+  .i-eticheta { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em;
+    border: 1px solid var(--color-border); border-radius: 999px; padding: 0.1rem 0.5rem;
+    color: var(--color-text-muted); }
+  .i-eticheta.is-ok { border-color: var(--color-success); color: var(--color-success); }
+  .i-eticheta.is-rau { border-color: var(--color-danger); color: var(--color-danger); }
+  .i-date { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 0.1rem 1.2rem; margin-top: 0.6rem; }
+  .i-rand { display: flex; gap: 0.4rem; font-size: 0.9rem; }
+  .i-et { color: var(--color-text-muted); }
+  .i-val { font-weight: 600; }
+  .i-membru { margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px dotted var(--color-border);
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
+  .i-membru .is-ales { outline: 2px solid var(--color-accent-dark); }
+  .i-urma { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--color-text-muted); }
+  .i-nota { width: 100%; margin-top: 0.6rem; padding: 0.4rem 0.6rem;
+    border: 1px solid var(--color-border); border-radius: var(--radius); font-size: 0.9rem; }
+  .i-actiuni { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
+</style>

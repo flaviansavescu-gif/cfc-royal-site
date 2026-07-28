@@ -166,6 +166,23 @@ export default async (req) => {
       }
       return json({ inscrieri });
     }
+    if (body.actiune === "verificari") {
+      // Verificările registraturii, pentru TOATE înscrierile expoziției — inclusiv cele
+      // deja importate. „coada" le ascunde pe cele importate, ca să nu intre de două ori;
+      // aici avem nevoie tocmai de ele, fiindcă registratura se poate uita peste o
+      // înscriere și după ce ea a ajuns în manager.
+      const verificari = [];
+      try {
+        const { blobs } = await store.list({ prefix: "coada/" + body.showId + "/" });
+        for (const b of blobs) {
+          const i = await store.get(b.key, { type: "json" }).catch(() => null);
+          if (i && i.verificare) verificari.push({ cheie: b.key, verificare: i.verificare });
+        }
+      } catch (err) {
+        console.error("Citirea verificărilor a eșuat:", err);
+      }
+      return json({ verificari });
+    }
     if (body.actiune === "marcheaza") {
       for (const key of body.chei || []) {
         try {
