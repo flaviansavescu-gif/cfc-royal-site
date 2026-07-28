@@ -32,7 +32,15 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
     <a class="btn btn--outline" href="/registru/?din=cursuri">🧬 Registrul genealogic (coduri de membru) →</a>
   </p>
 
-  <h2 class="a-h2">Modulele candidaților — online / ascuns</h2>
+  {/* ——— Secțiunile lungi se pliază ———
+       Cele patru de aici sunt listele care cresc: 17 module, candidații, arbitrii din
+       formarea continuă, profilurile de interese. Ținute deschise, împing tot restul
+       panoului sub linia ecranului. Conținutul se aduce ABIA la deschidere. */}
+  <details class="a-sectiune" data-sectiune="module">
+  <summary class="a-sumar">
+    <span class="a-sumar__titlu">Modulele candidaților — online / ascuns</span>
+    <span class="a-numar">{MODULE.length} module</span>
+  </summary>
   <p class="a-stare" id="a-stare">Se încarcă starea modulelor…</p>
   <ul class="a-module">
     {MODULE.map((m) => (
@@ -48,6 +56,8 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
       </li>
     ))}
   </ul>
+
+  </details>
 
   <h2 class="a-h2">Anunțuri pentru candidați</h2>
   <p class="a-anunt-info">Anunțurile apar imediat pe tabloul candidaților („📢 Noutăți"). Cel mai nou apare primul.</p>
@@ -73,7 +83,11 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
   <p class="a-cand-feedback" id="a-bul-feedback" role="status" hidden></p>
   <ul class="a-anunt-list" id="a-bul-list"></ul>
 
-  <h2 class="a-h2">Candidați — coduri individuale de acces</h2>
+  <details class="a-sectiune" data-sectiune="candidati">
+  <summary class="a-sumar">
+    <span class="a-sumar__titlu">Candidați — coduri individuale de acces</span>
+    <span class="a-numar" id="a-cand-numar" hidden></span>
+  </summary>
   <p class="a-anunt-info">Fiecare candidat primește codul lui personal. Progresul (testele promovate) se salvează pe cont, vizibil de pe orice dispozitiv. Adaugi un candidat, îi trimiți codul generat, iar el intră cu el pe platformă.</p>
   <div class="a-cand-form">
     <input id="a-cand-nume" type="text" placeholder="Numele complet al candidatului" />
@@ -91,6 +105,8 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
     <button id="a-orfani" class="btn btn--outline" type="button">🧹 Curăță datele rămase de la candidați șterși</button>
     <span id="a-orfani-msg" class="a-int-msg"></span>
   </p>
+
+  </details>
 
   <h2 class="a-h2">Arbitri — acces de studiu (fără teste)</h2>
   <p class="a-anunt-info">Membrii <strong>Colegiului de Arbitri care nu sunt lectori</strong> primesc un cod personal
@@ -114,11 +130,17 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
     <ul class="a-cand-list" id="a-ce-list"></ul>
   </details>
 
-  <h2 class="a-h2">Formarea continuă — situația anului</h2>
+  <details class="a-sectiune" data-sectiune="formare">
+  <summary class="a-sumar">
+    <span class="a-sumar__titlu">Formarea continuă — situația anului</span>
+    <span class="a-numar" id="a-form-numar" hidden></span>
+  </summary>
   <p class="a-anunt-info">Toți arbitrii Colegiului (lectori + arbitri cu cod de studiu) trebuie să parcurgă anual
   <a href="/cursuri/arbitru/formare/">modulul de actualizare</a> și mini-testul. Aici vezi cine l-a promovat.</p>
   <p class="a-cand-count" id="a-form-count" hidden></p>
   <ul class="a-cand-list" id="a-form-list"></ul>
+
+  </details>
 
   <h2 class="a-h2">Coduri de instalare — Breed Standards Explorer</h2>
   <p class="a-anunt-info">Aplicația se poate <strong>instala</strong> pe dispozitiv doar cu un cod de instalare — diferit de codul de acces în platformă. Generezi un cod și îl dai persoanei care instalează. Consultarea online rămâne liberă pentru candidați.</p>
@@ -137,7 +159,11 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
   </div>
   <ul class="a-cand-list" id="a-paa-list"></ul>
 
-  <h2 class="a-h2" id="interese">Interese pe rase — orientarea către lectori</h2>
+  <details class="a-sectiune" data-sectiune="interese" id="interese">
+  <summary class="a-sumar">
+    <span class="a-sumar__titlu">Interese pe rase — orientarea către lectori</span>
+    <span class="a-numar" id="a-int-numar" hidden></span>
+  </summary>
   <p class="a-anunt-info">Candidații își aleg grupele și rasele care îi interesează (minim 2 grupe). Aici vezi profilul fiecăruia, primești o <strong>sugestie de lector</strong> după suprapunerea de grupe (la egalitate, cel cu mai puțini candidați) și repartizezi <strong>lectorul principal</strong>. Marchează grupele cu <strong>deficit de arbitri</strong> — candidații le văd evidențiate și sunt încurajați să aleagă larg.</p>
 
   <div class="a-int-deficit">
@@ -149,6 +175,8 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
 
   <div id="a-int-agg" class="a-int-agg" hidden></div>
   <div id="a-int-list" class="a-int-list">Se încarcă profilurile de interese…</div>
+
+  </details>
 
   <h2 class="a-h2">Spațiile lectorilor</h2>
   <ul class="a-list">
@@ -185,16 +213,27 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
       });
     }
 
-    try {
-      const res = await fetch("/.netlify/functions/stare-cursuri");
-      aplica(await res.json());
-      stareEl.hidden = true;
-    } catch (e) {
-      stareEl.textContent = "Nu am putut încărca starea. Reîncarcă pagina.";
-      return;
+    // Starea modulelor se aduce la deschiderea secțiunii, nu la deschiderea paginii.
+    async function incarcaModule() {
+      try {
+        const res = await fetch("/.netlify/functions/stare-cursuri");
+        aplica(await res.json());
+        stareEl.hidden = true;
+      } catch (e) {
+        stareEl.hidden = false;
+        stareEl.textContent = "Nu am putut încărca starea. Reîncarcă pagina.";
+      }
     }
 
     // ——— Anunțuri ———
+    /** Pastila cu numarul de fise din titlul sectiunii, ca sa se vada fara deschidere. */
+    function numarSectiune(id, n, singular, plural) {
+      const e = document.getElementById(id);
+      if (!e) return;
+      e.hidden = !n;
+      e.textContent = n ? n + " " + (n === 1 ? singular : plural) : "";
+    }
+
     function codAdmin() {
       let c = null;
       try { c = localStorage.getItem("cfcrAccesCod"); } catch (e) {}
@@ -436,6 +475,7 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
       countEl.textContent =
         candidati.length + (candidati.length === 1 ? " candidat înregistrat" : " candidați înregistrați") +
         " · " + intrati + " au intrat deja în platformă";
+      numarSectiune("a-cand-numar", candidati.length, "candidat", "candidați");
       candidati.forEach((c) => list.appendChild(randCandidat(c, c.id === highlightId)));
     }
 
@@ -516,6 +556,7 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
         inp.value = "";
         if (data.candidat) {
           feedbackCandidat(data.candidat);
+          deschideSectiunea("candidati");
           await incarcaCandidati(data.candidat.id);
         } else {
           await incarcaCandidati();
@@ -529,7 +570,6 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
       finally { btn.disabled = false; btn.textContent = "Adaugă candidat"; }
     });
 
-    incarcaCandidati();
 
     // ——— Arbitri (Colegiul — acces de studiu, fără teste) ———
     // Aceeași mecanică cu a candidaților, dar pe registrul `arbitru/` (arbitri-cursuri).
@@ -700,9 +740,10 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
     })();
 
     // ——— Formarea continuă: situația anului (cine a promovat modulul de actualizare) ———
-    (async function () {
+    async function incarcaFormare() {
       const list = document.getElementById("a-form-list");
       const countEl = document.getElementById("a-form-count");
+      list.textContent = "";
       try {
         const res = await fetch("/.netlify/functions/formare-arbitri", {
           method: "POST", headers: { "Content-Type": "application/json" },
@@ -713,6 +754,7 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
         const promovati = d.arbitri.filter((a) => a.promovat).length;
         countEl.hidden = false;
         countEl.textContent = "Anul " + d.an + ": " + promovati + " din " + d.arbitri.length + " arbitri au îndeplinit formarea.";
+        numarSectiune("a-form-numar", d.arbitri.length, "arbitru", "arbitri");
         d.arbitri.forEach((a) => {
           const li = document.createElement("li");
           const info = document.createElement("div");
@@ -737,7 +779,7 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
         li.textContent = "Nu am putut încărca situația formării.";
         list.appendChild(li);
       }
-    })();
+    }
 
     // ——— Curățare retroactivă a datelor rămase de la candidați șterși ———
     document.getElementById("a-orfani").addEventListener("click", async () => {
@@ -939,6 +981,7 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
       randDeficitBoxes(d.deficit);
       randAgregare(d);
       list.textContent = "";
+      numarSectiune("a-int-numar", d.candidati.length, "profil", "profiluri");
       if (!d.candidati.length) { list.textContent = "Niciun candidat nu și-a exprimat încă interesele."; return; }
       d.candidati.forEach((c) => list.appendChild(randCandidatInteres(c, d.deficit)));
     }
@@ -950,7 +993,6 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
       catch (err) { msg.textContent = err.message; msg.className = "a-int-msg is-err"; }
       finally { btn.disabled = false; }
     });
-    incarcaInterese();
 
     inputs.forEach((inp) => {
       inp.addEventListener("change", async () => {
@@ -976,10 +1018,91 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
         }
       });
     });
+
+    // ——— Secțiuni pliabile ———
+    // Panoul are patru liste care cresc: cele 17 module, candidații, situația
+    // formării continue și profilurile de interese. Ținute toate desfășurate, ele
+    // împing restul paginii sub linia de plutire și cer de la server, la fiecare
+    // deschidere, liste pe care nimeni nu le citește. Așa că detaliul se aduce ABIA
+    // la prima deschidere, iar numărul de fișe stă în titlu, vizibil și închis.
+    const INCARCATOARE = {
+      module: incarcaModule,
+      candidati: incarcaCandidati,
+      formare: incarcaFormare,
+      interese: incarcaInterese,
+    };
+    const CHEIE_SECTIUNI = "cfcrScoalaSectiuni";
+
+    function sectiuniDeschise() {
+      try { return JSON.parse(localStorage.getItem(CHEIE_SECTIUNI) || "[]"); } catch (e) { return []; }
+    }
+    function tineMinteSectiunile() {
+      try {
+        const deschise = [].slice.call(document.querySelectorAll("details.a-sectiune[open]"))
+          .map((d) => d.dataset.sectiune);
+        localStorage.setItem(CHEIE_SECTIUNI, JSON.stringify(deschise));
+      } catch (e) {}
+    }
+
+    /** Deschide o secțiune (și o încarcă, prin ascultătorul de „toggle"). */
+    function deschideSectiunea(nume) {
+      const d = document.querySelector('details.a-sectiune[data-sectiune="' + nume + '"]');
+      if (d && !d.open) d.open = true;
+      return d;
+    }
+
+    const amintite = sectiuniDeschise();
+    document.querySelectorAll("details.a-sectiune").forEach((d) => {
+      const nume = d.dataset.sectiune;
+      if (amintite.indexOf(nume) !== -1) d.open = true;
+
+      d.addEventListener("toggle", () => {
+        tineMinteSectiunile();
+        if (!d.open || d.dataset.incarcat === "da") return;
+        const f = INCARCATOARE[nume];
+        if (f) { d.dataset.incarcat = "da"; f(); }
+      });
+
+      // Secțiunile ținute minte de la vizita trecută se încarcă acum.
+      if (d.open && INCARCATOARE[nume]) { d.dataset.incarcat = "da"; INCARCATOARE[nume](); }
+    });
+
+    // Butonul din capul paginii duce la #interese: ancora nu deschide singură
+    // secțiunea, așa că o deschidem noi — și la intrarea directă pe adresă.
+    function urmeazaAncora() {
+      const nume = (location.hash || "").replace("#", "");
+      const d = nume && deschideSectiunea(nume);
+      if (d) d.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    window.addEventListener("hashchange", urmeazaAncora);
+    if (location.hash) urmeazaAncora();
   })();
 </script>
 
 <style>
+  /* Secțiuni pliabile — aceleași ca la registrul genealogic.
+     `details` nativ: merge cu tastatura, merge fără JavaScript, iar căutarea din
+     browser (Ctrl+F) deschide singură secțiunea în care găsește textul. */
+  .a-sectiune { border-bottom: 1px solid var(--color-border); }
+  .a-sectiune > :not(summary) { margin-left: 0.1rem; }
+  .a-sectiune[open] { padding-bottom: 1.5rem; }
+  .a-sumar { cursor: pointer; list-style: none; display: flex; align-items: baseline;
+    gap: 0.6rem; flex-wrap: wrap; padding: 0.85rem 0.2rem; }
+  .a-sumar::-webkit-details-marker { display: none; }
+  .a-sumar::before { content: "▸"; color: var(--color-accent-dark); font-size: 0.8rem;
+    transition: transform 0.15s ease; display: inline-block; }
+  .a-sectiune[open] > .a-sumar::before { transform: rotate(90deg); }
+  .a-sumar:hover .a-sumar__titlu { color: var(--color-accent-dark); }
+  .a-sumar:focus-visible { outline: 2px solid var(--color-accent-dark); outline-offset: 2px; }
+  .a-sumar__titlu { font-family: var(--font-serif); color: var(--color-primary);
+    font-size: 1.15rem; font-weight: 700; }
+  .a-numar { font-family: var(--font-sans, inherit); font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.02em; text-transform: uppercase; vertical-align: middle;
+    background: var(--color-accent); color: #2a2200; border-radius: 999px;
+    padding: 0.15rem 0.6rem; }
+  .a-numar[hidden] { display: none; }
+  @media (prefers-reduced-motion: reduce) { .a-sumar::before { transition: none; } }
+
   .a-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
   .a-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
   .a-sub { color: var(--color-text-muted); max-width: 46rem; }
