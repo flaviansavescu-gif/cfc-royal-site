@@ -41,4 +41,11 @@ Fill in the form below to submit your membership application.
 - [Mating and whelping declaration](/en/documente/declaratie-monta-fatare/)
 - [Data processing agreement (GDPR)](/en/documente/acord-prelucrare-date/)
 
+## Other charges
+
+Besides the membership fee, the association charges for pedigrees, kennel names, performance
+booklets, show entries and appeals — at reduced rates for members. See the full list under
+[Fees and charges](/en/tarife/). Students receive a 10% discount, and people resident abroad pay no
+membership fee for the first 12 months.
+
 Questions? [Contact us](/en/contact/).

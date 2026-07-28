@@ -1,0 +1,14 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Tarife from "../../components/Tarife.astro";
+const lang = "en" as const;
+---
+<BaseLayout
+  title="Fees and charges"
+  lang={lang}
+  description="Every charge applied by the Club Federal Chinologic – Royal Association: membership, stud book documents, dog show entries and appeals. In force since 1 January 2026."
+>
+  <div class="container" style="padding-block: 3rem;">
+    <Tarife lang={lang} />
+  </div>
+</BaseLayout>

@@ -40,4 +40,11 @@ Completează formularul de mai jos pentru a-ți depune cererea de înscriere ca 
 - [Declarația de montă și fătare](/ro/documente/declaratie-monta-fatare/)
 - [Acord de prelucrare a datelor (GDPR)](/ro/documente/acord-prelucrare-date/)
 
+## Ce mai costă
+
+Pe lângă cotizație, asociația percepe taxe pentru pedigree, afix de crescător, carnete de
+performanță, înscrierea în expoziții și contestații — cu tarife reduse pentru membri. Vezi lista
+completă la [Tarife și taxe](/ro/tarife/). Studenții beneficiază de o reducere de 10%, iar
+persoanele cu rezidența în altă țară sunt scutite de cotizație în primele 12 luni.
+
 Ai întrebări? [Contactează-ne](/ro/contact/).

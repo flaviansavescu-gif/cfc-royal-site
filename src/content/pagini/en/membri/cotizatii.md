@@ -17,3 +17,10 @@ Directors. The registration fee also represents the annual membership fee, valid
 After payment, send proof together with the registration request via WhatsApp to **0741 387 026** or
 by e-mail to **contact@cfc-royal.ro**. See the full steps at
 [Become a member](/en/membri/devino-membru/).
+
+## All other charges
+
+The membership fee is only one of the association's charges. Pedigrees, kennel names, performance
+booklets, show entries and appeals each have their own tariff, and students and members receive
+discounts. The full list, in force since 1 January 2026:
+[Fees and charges](/en/tarife/).

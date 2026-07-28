@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "verifica": "node scripts/verifica-scripturi.mjs",
-    "prebuild": "node scripts/verifica-scripturi.mjs",
+    "verifica": "node scripts/verifica-scripturi.mjs && node scripts/verifica-tarife.mjs",
+    "prebuild": "node scripts/verifica-scripturi.mjs && node scripts/verifica-tarife.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",

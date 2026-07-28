@@ -17,3 +17,10 @@ Consiliului Director. Taxa de înscriere reprezintă totodată cotizația anual�
 După plată, transmite dovada împreună cu cererea de înscriere pe WhatsApp la **0741 387 026** sau pe
 e-mail la **contact@cfc-royal.ro**. Vezi pașii compleți la
 [Devino membru](/ro/membri/devino-membru/).
+
+## Celelalte taxe
+
+Cotizația este una singură dintre taxele asociației. Pedigreele, afixul de crescător, carnetele de
+performanță, înscrierea în expoziții și contestațiile au tarife proprii, iar studenții și membrii
+beneficiază de reduceri. Lista completă, în vigoare de la 1 ianuarie 2026:
+[Tarife și taxe](/ro/tarife/).

@@ -1,0 +1,220 @@
+---
+// Tarife.astro — lista publică de tarife, randată din src/data/tarife.ts.
+// Aceeași componentă la /ro/tarife/ și /en/tarife/; limba se fixează la generare,
+// ca antetul și corpul paginii să spună același lucru.
+//
+// Cifrele NU se scriu aici. Orice sumă vine din fișierul de date: e singurul loc
+// unde se schimbă un tarif.
+import type { Lang } from "../i18n/ui";
+import { GRUPE, REGULI, VALABIL_DE, pret, tarif } from "../data/tarife";
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const T = (ro: string, en: string) => (lang === "en" ? en : ro);
+const L = lang === "en" ? "en" : "ro";
+
+const dataValabil = new Date(VALABIL_DE).toLocaleDateString(L === "en" ? "en-GB" : "ro-RO", {
+  day: "numeric", month: "long", year: "numeric",
+});
+
+// Expozițiile se citesc mult mai ușor ca tabel cu două intrări (membru/nemembru,
+// primul câine/următorii) decât ca opt rânduri de listă. Datele rămân aceleași.
+const MATRICE = [
+  { tip: "C.A.C.", randuri: [
+    { et: T("Primul câine", "First dog"), membru: "expo-cac-primul-membru", nemembru: "expo-cac-primul-nemembru" },
+    { et: T("Fiecare câine următor al aceluiași proprietar", "Each further dog of the same owner"), membru: "expo-cac-urmatorii-membru", nemembru: "expo-cac-urmatorii-nemembru" },
+  ] },
+  { tip: "C.A.C.I.B.", randuri: [
+    { et: T("Primul câine", "First dog"), membru: "expo-cacib-primul-membru", nemembru: "expo-cacib-primul-nemembru" },
+    { et: T("Fiecare câine următor al aceluiași proprietar", "Each further dog of the same owner"), membru: "expo-cacib-urmatorii-membru", nemembru: "expo-cacib-urmatorii-nemembru" },
+  ] },
+];
+const ID_MATRICE = new Set(MATRICE.flatMap((m) => m.randuri.flatMap((r) => [r.membru, r.nemembru])));
+---
+
+<section class="t-sect">
+  <p class="t-eyebrow">{T("Asociația Club Federal Chinologic – Royal", "Club Federal Chinologic – Royal Association")}</p>
+  <h1 class="t-title">{T("Tarife și taxe", "Fees and charges")}</h1>
+  <p class="t-sub">
+    {T(
+      "Toate taxele percepute de asociație, într-un singur loc: calitatea de membru, documentele registrului genealogic, înscrierea în expoziții și contestațiile.",
+      "Every charge applied by the association, in one place: membership, stud book documents, show entries and appeals.",
+    )}
+  </p>
+  <p class="t-valabil">
+    <strong>{T("În vigoare de la", "In force since")} {dataValabil}.</strong>
+    {" "}
+    {T(
+      "Prețurile sunt finale — asociația nu este plătitoare de TVA.",
+      "The prices are final — the association is not registered for VAT.",
+    )}
+  </p>
+
+  <nav class="t-cuprins" aria-label={T("Cuprinsul paginii", "Page contents")}>
+    {GRUPE.map((g) => <a href={`#${g.id}`}>{g.titlu[L]}</a>)}
+    <a href="#plata">{T("Cum se plătește", "How to pay")}</a>
+  </nav>
+
+  {GRUPE.map((g) => (
+    <div class="t-grupa" id={g.id}>
+      <h2 class="t-h2">{g.titlu[L]}</h2>
+      {g.intro && <p class="t-intro">{g.intro[L]}</p>}
+
+      {g.id === "expozitii" && (
+        <div class="t-matrice-zona">
+          {MATRICE.map((m) => (
+            <div class="t-tabel-scroll">
+              <table class="t-tabel">
+                <caption>{T("Expoziție de tip", "Show type")} {m.tip}</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{T("Câine înscris", "Dog entered")}</th>
+                    <th scope="col">{T("Membru", "Member")}</th>
+                    <th scope="col">{T("Nemembru", "Non-member")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {m.randuri.map((r) => (
+                    <tr>
+                      <th scope="row">{r.et}</th>
+                      <td class="t-suma">{pret(tarif(r.membru), L)}</td>
+                      <td class="t-suma">{pret(tarif(r.nemembru), L)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <dl class="t-lista">
+        {g.tarife.filter((t) => !ID_MATRICE.has(t.id)).map((t) => (
+          <div class={"t-rand" + (t.fel === "reducere" ? " is-reducere" : "")}>
+            <dt>
+              {t.eticheta[L]}
+              {t.nota && <span class="t-nota">{t.nota[L]}</span>}
+            </dt>
+            <dd class={"t-suma" + (t.fel === "gratuit" ? " is-gratuit" : "")}>{pret(t, L)}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  ))}
+
+  <div class="t-grupa">
+    <h2 class="t-h2">{T("Reguli de aplicare", "Rules")}</h2>
+    <ul class="t-reguli">
+      {REGULI.map((r) => (
+        <li class={r.accent ? "is-accent" : undefined}>{r.text[L]}</li>
+      ))}
+    </ul>
+  </div>
+
+  <div class="t-grupa" id="plata">
+    <h2 class="t-h2">{T("Cum se plătește", "How to pay")}</h2>
+    <p class="t-intro">
+      {T(
+        "Plata se face prin transfer bancar în contul asociației. După plată, transmite dovada odată cu cererea.",
+        "Payments are made by bank transfer to the association's account. After paying, send the proof together with your request.",
+      )}
+    </p>
+    <dl class="t-cont">
+      <div class="t-rand">
+        <dt>{T("Titular cont", "Account holder")}</dt>
+        <dd>Club Federal Chinologic – Royal</dd>
+      </div>
+      <div class="t-rand">
+        <dt>IBAN</dt>
+        <dd><code class="t-iban">RO07 RNCB 0263 1767 9657 0001</code></dd>
+      </div>
+      <div class="t-rand">
+        <dt>{T("Banca", "Bank")}</dt>
+        <dd>{T("Banca Comercială Română (BCR)", "Banca Comercială Română (BCR)")}</dd>
+      </div>
+    </dl>
+    <p class="t-intro">
+      {T("Dovada plății se trimite pe WhatsApp la ", "Send the payment proof on WhatsApp to ")}
+      <strong>0741 387 026</strong>
+      {T(" sau pe e-mail la ", " or by e-mail to ")}
+      <a href="mailto:contact@cfc-royal.ro">contact@cfc-royal.ro</a>.
+    </p>
+    <p class="t-legaturi">
+      <a class="btn btn--outline" href={L === "en" ? "/en/membri/devino-membru/" : "/ro/membri/devino-membru/"}>
+        {T("Devino membru →", "Become a member →")}
+      </a>
+      <a class="btn btn--outline" href={L === "en" ? "/en/inscriere-expozitie/" : "/ro/inscriere-expozitie/"}>
+        {T("Înscriere în expoziție →", "Enter a dog show →")}
+      </a>
+    </p>
+  </div>
+
+  <p class="t-final">
+    {T(
+      "Tarifele se stabilesc prin hotărârea Consiliului Director. Pentru orice nelămurire, scrie la ",
+      "Fees are set by decision of the Board. For any question, write to ",
+    )}
+    <a href="mailto:contact@cfc-royal.ro">contact@cfc-royal.ro</a>.
+  </p>
+</section>
+
+<style>
+  .t-sect { max-width: 52rem; }
+  .t-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem;
+    color: var(--color-accent-dark); margin: 0; }
+  .t-title { font-family: var(--font-serif); color: var(--color-primary);
+    margin: 0.35rem 0 0.5rem; text-wrap: balance; }
+  .t-sub { color: var(--color-text-muted); max-width: 46rem; }
+  .t-valabil { background: var(--color-surface-alt); border-left: 4px solid var(--color-accent);
+    border-radius: var(--radius); padding: 0.75rem 1rem; margin: 1.25rem 0 0; font-size: 0.95rem; }
+
+  .t-cuprins { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.5rem 0 0.5rem; }
+  .t-cuprins a { font-size: 0.85rem; padding: 0.3rem 0.75rem; border-radius: 999px;
+    border: 1px solid var(--color-border); background: var(--color-surface);
+    color: var(--color-text); text-decoration: none; }
+  .t-cuprins a:hover { border-color: var(--color-accent-dark); color: var(--color-accent-dark); }
+
+  .t-grupa { margin-top: 2.5rem; scroll-margin-top: 5rem; }
+  .t-h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.4rem;
+    margin: 0 0 0.35rem; padding-bottom: 0.4rem; border-bottom: 2px solid var(--color-accent); }
+  .t-intro { color: var(--color-text-muted); font-size: 0.95rem; margin: 0.5rem 0 1rem; }
+
+  /* Lista de tarife: etichetă la stânga, suma la dreapta, cu linie punctată între
+     ele — se citește ca o listă de prețuri, nu ca un tabel de date. */
+  .t-lista, .t-cont { margin: 0; }
+  .t-rand { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap;
+    padding: 0.6rem 0; border-bottom: 1px dotted var(--color-border); }
+  .t-rand dt { flex: 1 1 18rem; margin: 0; }
+  .t-rand dd { margin: 0; white-space: nowrap; font-weight: 700; color: var(--color-primary);
+    font-variant-numeric: tabular-nums; }
+  .t-rand.is-reducere dd { color: var(--color-accent-dark); }
+  .t-suma.is-gratuit { color: var(--color-success); text-transform: uppercase; font-size: 0.9rem;
+    letter-spacing: 0.04em; }
+  .t-nota { display: block; font-size: 0.85rem; color: var(--color-text-muted); margin-top: 0.15rem; }
+
+  .t-matrice-zona { display: grid; gap: 1.25rem; margin-bottom: 1.5rem; }
+  .t-tabel-scroll { overflow-x: auto; }
+  .t-tabel { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+  .t-tabel caption { text-align: left; font-weight: 700; color: var(--color-primary);
+    padding-bottom: 0.4rem; }
+  .t-tabel th, .t-tabel td { padding: 0.55rem 0.7rem; border: 1px solid var(--color-border);
+    text-align: left; }
+  .t-tabel thead th { background: var(--color-surface-alt); font-size: 0.85rem;
+    text-transform: uppercase; letter-spacing: 0.03em; }
+  .t-tabel tbody th { font-weight: 400; }
+  .t-tabel td.t-suma { font-weight: 700; color: var(--color-primary); white-space: nowrap;
+    font-variant-numeric: tabular-nums; text-align: right; }
+
+  .t-reguli { padding-left: 1.1rem; display: grid; gap: 0.6rem; }
+  .t-reguli li.is-accent { list-style: none; margin-left: -1.1rem; background: var(--color-surface-alt);
+    border-left: 4px solid var(--color-danger); border-radius: var(--radius); padding: 0.75rem 1rem; }
+
+  .t-iban { font-family: var(--font-mono); font-size: 0.95rem; }
+  .t-legaturi { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; }
+  .t-final { margin-top: 2.5rem; font-size: 0.9rem; color: var(--color-text-muted); }
+
+  @media print {
+    .t-cuprins, .t-legaturi { display: none; }
+    .t-grupa { break-inside: avoid; }
+  }
+</style>
