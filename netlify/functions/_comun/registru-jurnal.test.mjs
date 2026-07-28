@@ -142,3 +142,49 @@ test("textele lungi se taie, ca o intrare să nu poată umple magazia", async ()
   assert.equal(x.obiect.length, 120);
   assert.equal(x.detalii.length, 400);
 });
+
+// ——— Filtrul pe AUTOR ———
+//
+// Registratura își vede în panou doar propriile fapte. Prima variantă folosea căutarea
+// liberă pe numele ei — care se uită și în obiectul și detaliile faptei. Un registrator
+// pe nume „Paul" vedea astfel orice intrare în care apărea „Paul": un câine, un membru,
+// un coleg pe nume „Paulina". Filtrul trebuie să fie o potrivire exactă pe autor.
+const TREI = [
+  { fapta: "cod-generat", actor: { rol: "registratura", nume: "Paul" },
+    obiect: "Ion Popescu", detalii: "Acces de membru" },
+  { fapta: "dmf-depus", actor: { rol: "registratura", nume: "Paulina" },
+    obiect: "Canisa X", detalii: "Dosar nou" },
+  { fapta: "certificat-emis", actor: { rol: "admin", nume: "Administrator" },
+    obiect: "Paul de la Munte", detalii: "Certificat pentru câinele Paul" },
+];
+
+test("filtrul pe autor e potrivire exactă, nu căutare de text", () => {
+  const alePaul = filtreaza(TREI, { actor: "Paul" });
+  assert.equal(alePaul.length, 1);
+  assert.equal(alePaul[0].fapta, "cod-generat");
+});
+
+test("un nume care se cuprinde în altul nu deschide faptele celuilalt", () => {
+  assert.equal(filtreaza(TREI, { actor: "Paul" }).some((x) => x.actor.nume === "Paulina"), false);
+  assert.equal(filtreaza(TREI, { actor: "Paulina" }).length, 1);
+});
+
+test("un câine cu numele registratorului nu-i intră în panou", () => {
+  assert.equal(filtreaza(TREI, { actor: "Paul" }).some((x) => x.fapta === "certificat-emis"), false);
+});
+
+test("fără autor se vede tot; căutarea liberă rămâne pentru administrator", () => {
+  assert.equal(filtreaza(TREI, {}).length, 3);
+  assert.equal(filtreaza(TREI, { cauta: "paul" }).length, 3);
+});
+
+test("autorul și căutarea se pot combina", () => {
+  assert.equal(filtreaza(TREI, { actor: "Paul", cauta: "membru" }).length, 1);
+  assert.equal(filtreaza(TREI, { actor: "Paul", cauta: "canisa" }).length, 0);
+});
+
+test("date lipsă nu aruncă", () => {
+  assert.equal(filtreaza([], { actor: "Paul" }).length, 0);
+  assert.equal(filtreaza([{ fapta: "x" }], { actor: "Paul" }).length, 0);
+  assert.equal(filtreaza(TREI).length, 3);
+});

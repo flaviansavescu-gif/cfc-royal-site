@@ -743,14 +743,15 @@ export default cuLimitareCod(async (req) => {
   // Se citește pe luni: peste ani, „ce s-a întâmplat ieri" nu trebuie să însemne
   // încărcarea întregului istoric al registrului.
   if (actiune === "jurnal") {
-    // Registratura își vede faptele ei, nu tot registrul: căutarea se fixează pe numele
-    // ei și nu poate fi înlocuită din cerere.
+    // Registratura își vede faptele ei, nu tot registrul. Filtrul e pe AUTOR, exact,
+    // și se pune aici — nu poate fi înlocuit din cerere.
     const doarAleMele = jurnalDoarAleMele(eu);
     return json({
       ...(await citesteJurnal(store(), {
         luna: taie(body.luna, 7),
         fapta: taie(body.fapta, 40),
-        cauta: doarAleMele ? eu.nume : taie(body.cauta, 80),
+        cauta: taie(body.cauta, 80),
+        actor: doarAleMele ? eu.nume : null,
         limita: Number(body.limita) || 200,
       })),
       doarAleMele,

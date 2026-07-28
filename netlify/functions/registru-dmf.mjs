@@ -40,7 +40,13 @@ import {
 } from "./_comun/registru-jurnal.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
 
-const store = () => getStore("registru");
+// CITIRE TARE, ca la poarta de acces.
+//
+// Aici se lucrează dosarele și se EMIT acte. Cu citire obișnuită, un cod revocat ar
+// mai fi recunoscut zeci de secunde din copia veche a magaziei — adică exact atât cât
+// îi trebuie cuiva căruia tocmai i-ai luat dreptul ca să mai emită un certificat.
+// O revocare care nu revocă imediat nu e o revocare.
+const store = () => getStore({ name: "registru", consistency: "strong" });
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {

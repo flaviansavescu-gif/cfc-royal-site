@@ -69,6 +69,9 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       <div class="r-form">
         <input id="r-nume" type="text" placeholder="Numele complet al membrului" />
         <input id="r-email" type="email" placeholder="E-mail" />
+        <label class="r-camp">Cotizația achitată până la
+          <input id="r-cotizatie" type="date" />
+        </label>
         <input id="r-afix" type="text" placeholder="Afix (opțional)" />
         <button id="r-adauga-btn" class="btn btn--outline" type="button">Generează codul</button>
       </div>
@@ -194,13 +197,23 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
         info.appendChild(c);
         li.appendChild(info);
         if (potDaCoduri) {
-          const zi = el("button", "btn btn--outline", "Cotizație la zi (+12 luni)");
+          // Serverul cere data până la care e achitată, nu un „+12 luni" presupus:
+          // cotizația se plătește pe perioade care nu încep neapărat azi.
+          const rand = el("span", "r-reinnoire");
+          const data = document.createElement("input");
+          data.type = "date";
+          data.value = m.cotizatiePana || "";
+          const zi = el("button", "btn btn--outline", "Reînnoiește");
           zi.addEventListener("click", async () => {
+            if (!data.value) { data.focus(); return; }
             zi.disabled = true;
-            await postA({ actiune: "membru-cotizatie", id: m.id });
+            const res2 = await postA({ actiune: "membru-cotizatie", id: m.id, cotizatiePana: data.value });
+            const d2 = await res2.json().catch(() => ({}));
+            if (!res2.ok) { alert(d2.eroare || "Nu am putut reînnoi."); zi.disabled = false; return; }
             incarcaMembri();
           });
-          li.appendChild(zi);
+          rand.appendChild(data); rand.appendChild(zi);
+          li.appendChild(rand);
         }
         ul.appendChild(li);
       });
@@ -229,23 +242,26 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       const nume = document.getElementById("r-nume").value.trim();
       const email = document.getElementById("r-email").value.trim();
       const afix = document.getElementById("r-afix").value.trim();
+      const cotizatiePana = document.getElementById("r-cotizatie").value;
       if (nume.length < 3) { alert("Scrie numele complet al membrului."); return; }
+      if (!email) { alert("Scrie adresa de e-mail: pe ea pleacă numărul de înregistrare."); return; }
+      if (!cotizatiePana) { alert("Scrie data până la care e achitată cotizația."); return; }
       const btn = document.getElementById("r-adauga-btn");
       btn.disabled = true;
       try {
-        const res = await postA({ actiune: "membru-adauga", nume, email, afix });
+        const res = await postA({ actiune: "membru-adauga", nume, email, afix, cotizatiePana });
         const d = await res.json().catch(() => ({}));
         if (!res.ok) { alert(d.eroare || "Nu am putut genera codul."); return; }
         const zona = document.getElementById("r-cod");
         zona.hidden = false;
         zona.textContent = "";
         zona.appendChild(el("span", null, "Codul lui " + nume + ": "));
-        zona.appendChild(el("code", "r-cod__val", d.cod || "—"));
+        zona.appendChild(el("code", "r-cod__val", (d.membru && d.membru.cod) || "—"));
         if (email) {
           const t = el("button", "btn btn--outline", "✉ Trimite codul pe e-mail");
           t.addEventListener("click", async () => {
             t.disabled = true;
-            const r2 = await postA({ actiune: "trimite-cod", codNou: d.cod });
+            const r2 = await postA({ actiune: "trimite-cod", codNou: d.membru && d.membru.cod });
             const d2 = await r2.json().catch(() => ({}));
             t.textContent = r2.ok ? "✓ trimis" : (d2.eroare || "nu s-a putut trimite");
           });
@@ -254,6 +270,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
         document.getElementById("r-nume").value = "";
         document.getElementById("r-email").value = "";
         document.getElementById("r-afix").value = "";
+        document.getElementById("r-cotizatie").value = "";
         incarcaMembri(); incarcaCereri();
       } finally { btn.disabled = false; }
     });
@@ -543,6 +560,11 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .r-form { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.6rem 0; }
   .r-form input { flex: 1 1 12rem; padding: 0.45rem 0.7rem; border: 1px solid var(--color-border);
     border-radius: var(--radius); font: inherit; }
+  .r-camp { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.82rem;
+    color: var(--color-text-muted); flex: 1 1 12rem; }
+  .r-reinnoire { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
+  .r-reinnoire input { padding: 0.35rem 0.55rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.85rem; }
   .r-cod { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem;
     background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.7rem 1rem; }
   .r-cod__val { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700;

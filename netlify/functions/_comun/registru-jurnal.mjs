@@ -211,10 +211,15 @@ export function luniDinChei(chei) {
 }
 
 /** Filtrarea intrărilor: după faptă și după text liber (actor, obiect, detalii). */
-export function filtreaza(intrari, { fapta, cauta } = {}) {
+export function filtreaza(intrari, { fapta, cauta, actor } = {}) {
   const q = String(cauta || "").trim().toLowerCase();
+  // `actor` e o potrivire EXACTĂ pe numele autorului, nu o căutare de text: un
+  // registrator pe nume „Paul" n-are ce căuta în faptele altcuiva doar fiindcă un
+  // câine sau un coleg poartă același nume undeva în text.
+  const a = String(actor || "").trim();
   return intrari.filter((x) => {
     if (fapta && x.fapta !== fapta) return false;
+    if (a && String(x.actor?.nume || "") !== a) return false;
     if (!q) return true;
     return [x.eticheta, x.actor?.nume, x.actor?.rol, x.obiect, x.detalii]
       .some((v) => String(v || "").toLowerCase().includes(q));
@@ -226,7 +231,7 @@ export function filtreaza(intrari, { fapta, cauta } = {}) {
  * Se citește pe luni tocmai ca să nu ajungem, peste ani, să încărcăm tot registrul
  * ca să vedem ce s-a întâmplat ieri.
  */
-export async function citesteJurnal(store, { luna, fapta, cauta, limita = 200 } = {}) {
+export async function citesteJurnal(store, { luna, fapta, cauta, actor, limita = 200 } = {}) {
   const acum = new Date().toISOString().slice(0, 7);
   const cerut = /^\d{4}-\d{2}$/.test(String(luna || "")) ? luna : acum;
 
@@ -249,5 +254,5 @@ export async function citesteJurnal(store, { luna, fapta, cauta, limita = 200 } 
   }
 
   if (!luniDisponibile.includes(cerut)) luniDisponibile = [cerut, ...luniDisponibile];
-  return { luna: cerut, luni: luniDisponibile, intrari: filtreaza(toate, { fapta, cauta }) };
+  return { luna: cerut, luni: luniDisponibile, intrari: filtreaza(toate, { fapta, cauta, actor }) };
 }
