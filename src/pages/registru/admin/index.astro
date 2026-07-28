@@ -541,6 +541,9 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
         arataCod(document.getElementById("a-membru-cod"), d.membru.nume, d.membru.cod);
         e.target.reset();
         incarcaMembri();
+        // Generarea codului E răspunsul la solicitare: dacă a închis una, lista de
+        // așteptare trebuie să arate asta imediat, nu la următoarea reîncărcare.
+        if (d.solicitareInchisa) incarcaCereri();
       } catch (err) { alert("Nu am putut genera codul: " + err.message); }
       finally { btn.disabled = false; btn.textContent = "Generează cod de membru"; }
     });
@@ -558,6 +561,7 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
         arataCod(document.getElementById("a-reg-cod"), d.registrator.nume, d.registrator.cod);
         e.target.reset();
         incarcaRegistratori();
+        if (d.solicitareInchisa) incarcaCereri();
       } catch (err) { alert("Nu am putut genera codul: " + err.message); }
       finally { btn.disabled = false; btn.textContent = "Generează cod de registratură"; }
     });

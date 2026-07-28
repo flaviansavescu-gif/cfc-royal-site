@@ -430,6 +430,32 @@ export default cuLimitareCod(async (req) => {
     return json(actiune === "membri" ? { membri: lista } : { registratori: lista });
   }
 
+  /**
+   * Închide solicitarea venită de la aceeași adresă, dacă există.
+   *
+   * Generarea codului ESTE răspunsul la solicitare — a le ține separate înseamnă că
+   * administratorul face lucrul de două ori și că lista de așteptare minte: arată
+   * oameni care au primit deja ce au cerut. Legătura se face pe adresa de e-mail,
+   * fiindcă tot pe ea e construit și identificatorul cererii.
+   *
+   * Dacă adresa din formular diferă de cea din solicitare (o corectură de tastare, de
+   * pildă), cererea rămâne — nu avem cum să ghicim că e vorba de același om, iar o
+   * ștergere greșită ar face să dispară o cerere neonorată.
+   */
+  async function inchideSolicitarea(email) {
+    try {
+      const idCerere = sha256(email).slice(0, 16);
+      const c = await store().get("cerere/" + idCerere, { type: "json" });
+      if (!c) return null;
+      await store().delete("cerere/" + idCerere);
+      return c.nume || email;
+    } catch (err) {
+      // Codul s-a generat deja; o solicitare rămasă în listă e o supărare, nu o pagubă.
+      console.error("Închiderea solicitării a eșuat:", err);
+      return null;
+    }
+  }
+
   if (actiune === "membru-adauga") {
     const nume = taie(body.nume, 120);
     const email = taie(body.email, 200).toLowerCase();
@@ -450,16 +476,21 @@ export default cuLimitareCod(async (req) => {
     // siguranță. Altfel amprenta n-ar apăra nimic: cine ajunge la stocare ar avea codul.
     const membru = { nume, afix, nrAfix, email, cotizatiePana, creat: new Date().toISOString() };
     await store().setJSON("membru/" + nou.id, membru);
+    const inchisa = await inchideSolicitarea(email);
     // Codul NU se scrie în jurnal — doar faptul că s-a generat unul, și pentru cine.
     await jurnalizeaza(store(), {
       fapta: "cod-generat",
       actor: ADMIN,
       obiect: nume,
       detalii: `Acces de membru pentru ${email}` + (afix ? `, afix ${afix}` : "") +
-        `, cotizație până la ${cotizatiePana}`,
+        `, cotizație până la ${cotizatiePana}` +
+        (inchisa ? ` — închide solicitarea lui ${inchisa}` : ""),
       ip: ipCerere(req),
     });
-    return json({ ok: true, membru: { ...membru, cod: nou.cod, id: nou.id, cotizatieLaZi: cotizatieLaZi(cotizatiePana) } });
+    return json({
+      ok: true, solicitareInchisa: !!inchisa,
+      membru: { ...membru, cod: nou.cod, id: nou.id, cotizatieLaZi: cotizatieLaZi(cotizatiePana) },
+    });
   }
 
   // Reînnoirea cotizației — anual, fără să se schimbe codul. Altfel oamenii ar primi
@@ -518,14 +549,16 @@ export default cuLimitareCod(async (req) => {
     if (!nou) return json({ eroare: "Nu am putut genera un cod unic. Reîncearcă." }, 500);
     const registrator = { nume, email, creat: new Date().toISOString() };   // fără cod, ca la membri
     await store().setJSON("registrator/" + nou.id, registrator);
+    const inchisa = await inchideSolicitarea(email);
     await jurnalizeaza(store(), {
       fapta: "cod-generat",
       actor: ADMIN,
       obiect: nume,
-      detalii: `Acces de REGISTRATURĂ` + (email ? ` pentru ${email}` : ""),
+      detalii: `Acces de REGISTRATURĂ pentru ${email}` +
+        (inchisa ? ` — închide solicitarea lui ${inchisa}` : ""),
       ip: ipCerere(req),
     });
-    return json({ ok: true, registrator: { ...registrator, cod: nou.cod, id: nou.id } });
+    return json({ ok: true, solicitareInchisa: !!inchisa, registrator: { ...registrator, cod: nou.cod, id: nou.id } });
   }
 
   // —— Solicitările de acces, pentru administrator ——
