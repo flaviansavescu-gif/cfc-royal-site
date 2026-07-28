@@ -1,4 +1,4 @@
-import { pentruRegistratura, rezumat, STARI } from "../verificare-inscrieri.mjs";
+import { pentruRegistratura, rezumat, peRegistrator, STARI } from "../verificare-inscrieri.mjs";
 
 let rau = 0;
 const e = (nume, bun, detaliu) => {
@@ -37,17 +37,23 @@ e("cheia, ca să poată marca", v.cheie === "coada/SHOW/abc");
 console.log("— ce NU pleacă niciodată spre browserul lui —");
 const text = JSON.stringify(v);
 const interzise = [
-  ["taxa", "120"],
-  ["dovada plății (cheia)", "dovada/SHOW/abc"],
-  ["numele fișierului cu dovada", "transfer.jpg"],
-  ["adresa proprietarului", "Str. Exemplu 5"],
-  ["observația despre taxă", "al 2-lea"],
+  ["cheia interna a dovezii din magazie", "dovada/SHOW/abc"],
 ];
 for (const [nume, bucata] of interzise) {
   e("nu conține " + nume, !text.includes(bucata), text.length > 400 ? "(prea lung)" : text);
 }
-e("nu conține declarația de student", v.declaratii === undefined && !("student" in v));
-e("nu conține bifa de plată", !("amPlatit" in v) && !("taxa" in v));
+e("cheile magaziei nu pleacă niciodată spre browser", !("dovadaKey" in v) && !("dovadaTip" in v));
+
+console.log("— dosarul plății, pentru confirmarea din extrasul de cont —");
+e("suma", v.plata.taxa === 120);
+e("a declarat că a plătit", v.plata.aDeclaratPlata === true);
+e("are dovadă atașată", v.plata.areDovada === true);
+e("numele fișierului, ca să știe ce deschide", v.plata.dovadaNume === "transfer.jpg");
+e("declarația de membru explică suma", v.plata.membru === true);
+e("declarația de student explică suma", v.plata.student === true);
+e("al câtelea câine e", v.plata.caineNr === 2);
+e("observația despre taxă", String(v.plata.observatie).includes("al 2-lea"));
+e("adresa, pentru documente", v.proprietar.adresa === "Str. Exemplu 5, Reșița");
 
 console.log("— marcajul —");
 e("stările sunt doar cele două", STARI.length === 2 && STARI.includes("verificat") && STARI.includes("lamurit"));
@@ -66,7 +72,25 @@ e("total", r.total === 5, r);
 e("verificate", r.verificate === 2, r);
 e("de lămurit", r.lamurit === 1, r);
 e("neatinse", r.neatinse === 2, r);
-e("expoziție goală", JSON.stringify(rezumat([])) === JSON.stringify({ total: 0, verificate: 0, lamurit: 0, neatinse: 0 }));
+e("expoziție goală", JSON.stringify(rezumat([])) ===
+  JSON.stringify({ total: 0, verificate: 0, lamurit: 0, neatinse: 0, platiConfirmate: 0 }));
+e("plățile confirmate se numără separat de acte",
+  rezumat([{ verificare: { stare: "lamurit", plataConfirmata: true } }, { verificare: { stare: "verificat" } }]).platiConfirmate === 1);
+
+console.log("— auditul: cine ce ține în spate acum —");
+{
+  const r = peRegistrator([
+    { verificare: { stare: "verificat", cine: "Ion", plataConfirmata: true } },
+    { verificare: { stare: "verificat", cine: "Ion" } },
+    { verificare: { stare: "lamurit", cine: "Maria" } },
+    { verificare: null },
+    { verificare: { stare: "verificat" } },   // fara nume: nu se poate atribui
+  ]);
+  e("doi registratori", r.length === 2, r);
+  e("Ion: 2 verificate, o plată", r[0].cine === "Ion" && r[0].verificate === 2 && r[0].plati === 1, r);
+  e("Maria: una de lămurit", r[1].cine === "Maria" && r[1].lamurit === 1, r);
+  e("listă goală", peRegistrator([]).length === 0);
+}
 
 console.log(rau ? rau + " căzute" : "toate trecute");
 process.exit(rau ? 1 : 0);

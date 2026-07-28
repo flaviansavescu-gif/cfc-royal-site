@@ -36,6 +36,8 @@ export const FAPTE = {
   "confirmare-adresa": "Adresa masculului corectată",
   "confirmare-raspuns": "Răspunsul proprietarului masculului",
   "confirmare-alternativa": "Confirmare acceptată pe dovadă alternativă",
+  // Verificarea înscrierilor în expoziții (acte + plată), făcută de registratură
+  "inscriere-verificata": "Înscriere în expoziție verificată",
   // Certificate și ascendență
   "certificat-emis": "Certificat de origine emis",
   "certificat-anulat": "Certificat ANULAT",

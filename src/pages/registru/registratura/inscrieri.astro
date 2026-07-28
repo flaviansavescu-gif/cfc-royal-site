@@ -15,8 +15,9 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   <h1 class="g-title">Verificarea înscrierilor în expoziții</h1>
   <p class="g-sub">
     Înscrierile trimise de pe site, înainte de a fi preluate în managerul de expoziții.
-    Se verifică actele exemplarului — numărul de pedigree, microcipul, potrivirea clasei cu
-    vârsta — și calitatea de membru declarată la plata taxei.
+    Se verifică <strong>actele exemplarului</strong> — numărul de pedigree, microcipul,
+    potrivirea clasei cu vârsta — și, separat, <strong>plata</strong>: suma, declarațiile care o
+    explică și dovada transferului, de confruntat cu extrasul de cont.
   </p>
   <p class="g-nota">
     Verificarea nu oprește nimic: dacă o înscriere n-a fost văzută până la import, ea intră
@@ -44,6 +45,13 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     <button class="g-filtru" type="button" data-f="verificat">Verificate</button>
     <button class="g-filtru" type="button" data-f="lamurit">De lămurit</button>
   </p>
+
+  {/* Auditul stă strâns într-un „details": ocupă un rând cât nu-l deschizi, iar
+      înăuntru încape tot ce s-a întâmplat la expoziția aleasă. */}
+  <details class="i-audit" id="i-audit" hidden>
+    <summary class="i-audit__sumar">🧾 Audit — cine ce a verificat la această expoziție</summary>
+    <div class="i-audit__corp" id="i-audit-corp">Se încarcă…</div>
+  </details>
 
   <div id="i-lista" class="i-lista"></div>
 </RegistruLayout>
@@ -106,6 +114,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       const d = await res.json().catch(() => ({}));
       if (!res.ok) { lista.textContent = ""; lista.appendChild(el("p", "g-gol", d.eroare || "Eroare")); return; }
       inscrieri = d.inscrieri || [];
+      auditEl.hidden = false;
       randeaza();
     }
 
@@ -162,8 +171,42 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       rand(prop, "Țara", i.proprietar.tara);
       card.appendChild(prop);
 
-      // Calitatea de membru: singurul lucru din zona taxei care ajunge aici, fiindcă
-      // e singurul pe care registratura îl poate confirma.
+      // ——— Dosarul plății ———
+      // Suma, declarațiile care o explică (fără ele n-ai ști de ce e 90 și nu 100) și
+      // dovada transferului, de confruntat cu extrasul de cont.
+      if (i.plata) {
+        const pl = el("div", "i-plata");
+        const sus = el("div", "i-plata__sus");
+        sus.appendChild(el("strong", null, "Taxa: " + i.plata.taxa + " lei"));
+        const explicatii = [];
+        explicatii.push(i.plata.membru ? "membru" : "nemembru");
+        if (i.plata.student) explicatii.push("student −10%");
+        explicatii.push(i.plata.caineNr && i.plata.caineNr > 1 ? "câinele nr. " + i.plata.caineNr : "primul câine");
+        sus.appendChild(el("span", "i-et", "(" + explicatii.join(" · ") + ")"));
+        sus.appendChild(el("span", i.plata.aDeclaratPlata ? "i-eticheta is-ok" : "i-eticheta is-rau",
+          i.plata.aDeclaratPlata ? "a declarat că a plătit" : "nu a declarat plata"));
+        pl.appendChild(sus);
+        if (i.plata.observatie) pl.appendChild(el("p", "i-et", i.plata.observatie));
+
+        const jos = el("div", "i-actiuni");
+        if (i.plata.areDovada) {
+          const bD = el("button", "i-btn", "📎 Vezi dovada" + (i.plata.dovadaNume ? " (" + i.plata.dovadaNume + ")" : ""));
+          bD.addEventListener("click", () => vaziDovada(i, pl));
+          jos.appendChild(bD);
+        } else {
+          jos.appendChild(el("span", "i-et", "fără dovadă atașată"));
+        }
+        const platit = i.verificare && i.verificare.plataConfirmata;
+        const bDa = el("button", "i-btn" + (platit === true ? " is-primar" : ""), "💶 Plata confirmată");
+        bDa.addEventListener("click", () => marcheaza(i, null, undefined, undefined, true));
+        const bNu = el("button", "i-btn" + (platit === false ? " is-primar" : ""), "Plata NU se regăsește");
+        bNu.addEventListener("click", () => marcheaza(i, "lamurit", undefined, undefined, false));
+        jos.appendChild(bDa); jos.appendChild(bNu);
+        pl.appendChild(jos);
+        card.appendChild(pl);
+      }
+
+      // Calitatea de membru: pe ea o poate confirma doar registratura, care ține lista.
       const m = el("div", "i-membru");
       m.appendChild(el("span", "i-et", i.declaraMembru
         ? "A declarat că este MEMBRU al asociației:"
@@ -182,7 +225,10 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
 
       if (i.verificare) {
         const u = el("p", "i-urma",
-          (i.verificare.stare === "verificat" ? "Verificat" : "Marcat de lămurit") +
+          (i.verificare.stare === "verificat" ? "Acte verificate"
+            : i.verificare.stare === "lamurit" ? "Marcat de lămurit" : "Însemnat") +
+          (i.verificare.plataConfirmata === true ? ", plată confirmată" : "") +
+          (i.verificare.plataConfirmata === false ? ", plata NU se regăsește" : "") +
           " de " + (i.verificare.cine || "—") + " la " + dataRo(i.verificare.cand) +
           (i.verificare.nota ? " — " + i.verificare.nota : ""));
         card.appendChild(u);
@@ -211,9 +257,13 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       return card;
     }
 
-    async function marcheaza(i, stare, membruConfirmat, nota) {
-      const corp = { actiune: "marcheaza", cheie: i.cheie, stare };
+    async function marcheaza(i, stare, membruConfirmat, nota, plataConfirmata) {
+      const corp = { actiune: "marcheaza", cheie: i.cheie, stare: stare === null ? "" : stare };
+      // `stare: null` înseamnă „nu atinge actele" — se marchează doar plata. Serverul
+      // păstrează atunci starea dinainte.
+      if (stare === null) delete corp.stare;
       if (nota !== undefined) corp.nota = nota;
+      if (typeof plataConfirmata === "boolean") corp.plataConfirmata = plataConfirmata;
       if (typeof membruConfirmat === "boolean") corp.membruConfirmat = membruConfirmat;
       else if (i.verificare && typeof i.verificare.membruConfirmat === "boolean") {
         corp.membruConfirmat = i.verificare.membruConfirmat;
@@ -223,6 +273,83 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       if (!res.ok) { alert(d.eroare || "Nu am putut salva marcajul."); return; }
       i.verificare = d.verificare;
       randeaza();
+      if (auditEl.open) incarcaAudit(true); else auditAdus = "";
+    }
+
+    // Dovada se cere abia când e chiar deschisă: sunt poze de telefon, n-are rost să
+    // le cărăm pe toate în listare.
+    async function vaziDovada(i, unde) {
+      const vechi = unde.querySelector(".i-dovada");
+      if (vechi) { vechi.remove(); return; }
+      const zona = el("div", "i-dovada", "Se aduce dovada…");
+      unde.appendChild(zona);
+      const res = await post({ actiune: "dovada", cheie: i.cheie });
+      const d = await res.json().catch(() => ({}));
+      zona.textContent = "";
+      if (!res.ok) { zona.appendChild(el("p", "i-et", d.eroare || "Nu am putut aduce dovada.")); return; }
+      const url = "data:" + d.tip + ";base64," + d.base64;
+      if (String(d.tip).startsWith("image/")) {
+        const img = document.createElement("img");
+        img.src = url; img.alt = "Dovada plății"; img.className = "i-dovada__img";
+        zona.appendChild(img);
+      } else {
+        const a = el("a", "i-btn", "Deschide " + (d.nume || "documentul"));
+        a.href = url; a.target = "_blank"; a.rel = "noopener";
+        zona.appendChild(a);
+      }
+    }
+
+    // ——— Auditul ———
+    // Se aduce ABIA la deschidere: cât stă strâns, nu costă nimic.
+    const auditEl = document.getElementById("i-audit");
+    const auditCorp = document.getElementById("i-audit-corp");
+    let auditAdus = "";
+    auditEl.addEventListener("toggle", () => { if (auditEl.open) incarcaAudit(); });
+
+    async function incarcaAudit(fortat) {
+      const showId = expoSel.value;
+      if (!showId || (!fortat && auditAdus === showId)) return;
+      auditAdus = showId;
+      auditCorp.textContent = "Se încarcă…";
+      const res = await post({ actiune: "audit", showId });
+      const d = await res.json().catch(() => ({}));
+      auditCorp.textContent = "";
+      if (!res.ok) { auditCorp.appendChild(el("p", "g-gol", d.eroare || "Eroare")); return; }
+
+      auditCorp.appendChild(el("p", "i-audit__rezumat",
+        d.total + " înscrieri · " + d.verificate + " cu actele verificate · " + d.lamurit +
+        " de lămurit · " + d.platiConfirmate + " cu plata confirmată · " + d.neatinse + " neatinse"));
+
+      auditCorp.appendChild(el("h3", "i-audit__h", "Ce ține fiecare registrator în spate acum"));
+      if (!(d.registratori || []).length) {
+        auditCorp.appendChild(el("p", "g-gol", "Nimeni n-a marcat nimic încă."));
+      } else {
+        const ul = el("ul", "i-audit__lista");
+        d.registratori.forEach((r) => {
+          ul.appendChild(el("li", null, r.cine + " — " + r.verificate + " verificate, " +
+            r.lamurit + " de lămurit, " + r.plati + " plăți confirmate"));
+        });
+        auditCorp.appendChild(ul);
+      }
+
+      auditCorp.appendChild(el("h3", "i-audit__h", "Toate faptele, în ordine inversă"));
+      if (!(d.acte || []).length) {
+        auditCorp.appendChild(el("p", "g-gol", "Nicio faptă consemnată."));
+      } else {
+        const t = el("table", "i-audit__tabel");
+        const cap = el("tr");
+        ["Când", "Cine", "Exemplarul", "Ce a hotărât"].forEach((x) => cap.appendChild(el("th", null, x)));
+        t.appendChild(cap);
+        d.acte.forEach((a) => {
+          const tr = el("tr");
+          tr.appendChild(el("td", null, new Date(a.la).toLocaleString("ro-RO")));
+          tr.appendChild(el("td", null, a.cine));
+          tr.appendChild(el("td", null, a.obiect));
+          tr.appendChild(el("td", null, a.ce));
+          t.appendChild(tr);
+        });
+        auditCorp.appendChild(t);
+      }
     }
 
     filtreEl.addEventListener("click", (ev) => {
@@ -232,7 +359,11 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       [...filtreEl.querySelectorAll("[data-f]")].forEach((x) => x.classList.toggle("is-activ", x === b));
       randeaza();
     });
-    expoSel.addEventListener("change", incarcaInscrieri);
+    expoSel.addEventListener("change", () => {
+      incarcaInscrieri();
+      auditEl.hidden = false;
+      if (auditEl.open) incarcaAudit(true); else auditAdus = "";
+    });
     incarcaExpozitii();
   })();
 </script>
@@ -294,4 +425,30 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .i-nota { width: 100%; margin-top: 0.6rem; padding: 0.4rem 0.6rem;
     border: 1px solid var(--color-border); border-radius: var(--radius); font-size: 0.9rem; }
   .i-actiuni { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
+  .i-plata { margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px dotted var(--color-border); }
+  .i-plata__sus { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem; }
+  .i-plata__sus strong { color: var(--color-primary); }
+  .i-dovada { margin-top: 0.6rem; }
+  .i-dovada__img { max-width: 100%; border: 1px solid var(--color-border); border-radius: var(--radius); }
+
+  .i-audit { margin-top: 1.25rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); background: var(--color-surface); }
+  .i-audit[hidden] { display: none; }
+  .i-audit__sumar { cursor: pointer; padding: 0.7rem 1rem; font-weight: 600;
+    color: var(--color-primary); list-style: none; }
+  .i-audit__sumar::-webkit-details-marker { display: none; }
+  .i-audit__sumar::before { content: "▸ "; color: var(--color-accent-dark); }
+  .i-audit[open] > .i-audit__sumar::before { content: "▾ "; }
+  .i-audit__corp { padding: 0 1rem 1rem; }
+  .i-audit__rezumat { margin: 0 0 0.5rem; font-size: 0.9rem; color: var(--color-text-muted); }
+  .i-audit__h { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--color-accent-dark); margin: 1rem 0 0.35rem; }
+  .i-audit__lista { margin: 0; padding-left: 1.1rem; font-size: 0.9rem; display: grid; gap: 0.2rem; }
+  .i-audit__tabel { width: 100%; border-collapse: collapse; font-size: 0.85rem; display: block;
+    overflow-x: auto; }
+  .i-audit__tabel th { text-align: left; text-transform: uppercase; font-size: 0.72rem;
+    letter-spacing: 0.03em; color: var(--color-text-muted); padding: 0.3rem 0.5rem;
+    border-bottom: 1px solid var(--color-border); }
+  .i-audit__tabel td { padding: 0.3rem 0.5rem; border-bottom: 1px solid var(--color-border);
+    vertical-align: top; }
 </style>
