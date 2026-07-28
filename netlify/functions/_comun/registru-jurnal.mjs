@@ -45,6 +45,7 @@ export const FAPTE = {
   "numar-wdf-caine": "Număr WDF individual înregistrat",
   // Acces
   "cod-generat": "Cod de acces generat",
+  "cod-trimis": "Cod de acces trimis pe e-mail",
   "cod-sters": "Acces revocat",
   "cotizatie-actualizata": "Cotizație actualizată",
   "cerere-acces": "Solicitare de acces la registru",

@@ -34,33 +34,10 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     <span>Registrele sunt separate: aici sunt membrii și registratura, acolo candidații, lectorii și arbitrii.</span>
   </p>
 
-  <h2 class="a-h2">Copie de siguranță</h2>
-  <p class="a-note">
-    Registrul trăiește într-un singur loc. Butonul descarcă <strong>tot</strong> —
-    declarații, certificate, scanurile încărcate — într-o arhivă ZIP obișnuită, care se
-    deschide cu orice program, fără parolă și fără acest site. Ține una pe un disc al tău.
-    În plus, duminică noaptea pleacă automat o copie criptată pe ramura privată
-    <code>backup-registru</code>.
-  </p>
-  <p class="a-copie">
-    <button class="btn btn--primary" type="button" id="a-export">⬇ Descarcă registrul</button>
-    <span class="a-stare" id="a-export-stare"></span>
-  </p>
-
-  <h2 class="a-h2">Curățenie</h2>
-  <p class="a-note">
-    Scoate din magazie două feluri de rămășițe: <strong>codurile de acces</strong> rămase
-    în fișele scrise înainte de regula actuală (azi nu se mai păstrează niciunul) și
-    <strong>ciornele abandonate</strong> — formulare DMF începute, cu fișiere încărcate,
-    pe care nimeni nu le-a dus până la capăt de peste o săptămână. Cele mai recente NU se
-    ating: cineva poate chiar acum completează formularul. Aceeași curățenie se face și
-    singură, duminică noaptea, odată cu copia de siguranță.
-  </p>
-  <p class="a-copie">
-    <button class="btn btn--outline" type="button" id="a-curatenie">🧹 Curăță magazia</button>
-    <span class="a-stare" id="a-curatenie-stare"></span>
-  </p>
-
+  {/* ——— Ce se vede întotdeauna ———
+       Solicitările sunt oameni care așteaptă un răspuns: ele nu se pliază. Restul se
+       deschid la cerere, iar conținutul lor se încarcă abia atunci — altfel pagina ar
+       cere tot registrul la fiecare deschidere, degeaba. */}
   <h2 class="a-h2">Solicitări de acces <span class="a-numar" id="a-cereri-numar" hidden></span></h2>
   <p class="a-note">
     Vin din formularul de pe pagina de intrare. Verifică întâi calitatea de membru și cotizația;
@@ -69,7 +46,13 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
   </p>
   <ul class="a-lista" id="a-cereri"><li class="a-gol">Se încarcă…</li></ul>
 
-  <h2 class="a-h2">Membri cu drept de solicitare</h2>
+  <p class="a-indrumar">Restul se deschid la nevoie:</p>
+
+  <details class="a-sectiune" data-sectiune="membri">
+  <summary class="a-sumar">
+    <span class="a-sumar__titlu">Membri cu drept de solicitare</span>
+    <span class="a-numar" id="a-membri-numar" hidden></span>
+  </summary>
   <p class="a-note">
     Dacă membrul are canisă înregistrată, alege-o din listă — afixul și numărul se completează singure.
     Dacă nu are, lasă câmpurile goale: dreptul vine din calitatea de membru, nu din afix.
@@ -95,8 +78,13 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
   </form>
   <p class="a-cod-nou" id="a-membru-cod" hidden></p>
   <ul class="a-lista" id="a-membri"><li class="a-gol">Se încarcă…</li></ul>
+  </details>
 
-  <h2 class="a-h2">Registratura</h2>
+  <details class="a-sectiune" data-sectiune="registratori">
+  <summary class="a-sumar">
+    <span class="a-sumar__titlu">Registratura</span>
+    <span class="a-numar" id="a-registratori-numar" hidden></span>
+  </summary>
   <p class="a-note">
     Persoanele care verifică dosarele (DMF, pedigree-urile părinților, dovada dreptului de montă
     al femelei, dovada plății), extrag ascendența și atribuie numărul de cuib WDF.
@@ -111,16 +99,29 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
   </form>
   <p class="a-cod-nou" id="a-reg-cod" hidden></p>
   <ul class="a-lista" id="a-registratori"><li class="a-gol">Se încarcă…</li></ul>
+  </details>
 
-  <h2 class="a-h2">Declarațiile depuse</h2>
+  <details class="a-sectiune" data-sectiune="declaratii">
+  <summary class="a-sumar">
+    <span class="a-sumar__titlu">Declarațiile depuse</span>
+    <span class="a-numar" id="a-declaratii-numar" hidden></span>
+  </summary>
   <p class="a-note">
     Ștergerea scoate definitiv dosarul și cele patru piese încărcate. Numărul de înregistrare
     se eliberează <strong>numai dacă e ultimul dat în anul curent</strong> — altfel rămâne consumat,
     fiindcă un număr dat a doua oară altcuiva ar însemna două acte cu aceeași referință.
   </p>
   <ul class="a-lista" id="a-declaratii"><li class="a-gol">Se încarcă…</li></ul>
+  </details>
 
-  <h2 class="a-h2">Starea sistemului</h2>
+  {/* Starea sistemului se încarcă ÎNTOTDEAUNA, chiar închisă: verdictul stă în titlu.
+      O secțiune de sănătate pe care trebuie s-o deschizi ca să afli că e o problemă nu
+      e o secțiune de sănătate. */}
+  <details class="a-sectiune" data-sectiune="monitor">
+  <summary class="a-sumar">
+    <span class="a-sumar__titlu">Starea sistemului</span>
+    <span class="a-numar a-numar--stare" id="a-monitor-numar" hidden></span>
+  </summary>
   <p class="a-note">
     Fluxul critic se verifică singur la fiecare 15 minute: verificarea certificatelor,
     fișa publică a câinelui, poarta declarațiilor, pagina de verificare și prospețimea
@@ -128,8 +129,12 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     o reamintire la fiecare 6 ore cât ține problema, și unul la revenire.
   </p>
   <div class="a-monitor" id="a-monitor">Se încarcă…</div>
+  </details>
 
-  <h2 class="a-h2">Anularea unui certificat</h2>
+  <details class="a-sectiune" data-sectiune="anulare">
+  <summary class="a-sumar">
+    <span class="a-sumar__titlu">Anularea unui certificat</span>
+  </summary>
   <p class="a-note">
     Declararea de date false atrage anularea documentelor eliberate. Certificatul
     <strong>nu se șterge și nu se rescrie</strong> — actul există, e tipărit și e în mâna
@@ -143,8 +148,12 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     <button class="btn btn--outline" type="submit">Caută certificatul</button>
   </form>
   <div class="a-cert" id="a-anul-cert" hidden></div>
+  </details>
 
-  <h2 class="a-h2">Jurnalul registrului</h2>
+  <details class="a-sectiune" data-sectiune="jurnal">
+  <summary class="a-sumar">
+    <span class="a-sumar__titlu">Jurnalul registrului</span>
+  </summary>
   <p class="a-note">
     Cine, ce și când. Se scrie automat la fiecare faptă care schimbă starea registrului:
     depunere, respingere, confirmare, emitere de certificat, modificare de ascendență,
@@ -159,6 +168,37 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     <button class="btn btn--outline btn--small" type="button" id="a-j-reincarca">Reîmprospătează</button>
   </div>
   <ul class="a-jurnal" id="a-jurnal"><li class="a-gol">Se încarcă…</li></ul>
+  </details>
+
+  <details class="a-sectiune" data-sectiune="intretinere">
+  <summary class="a-sumar">
+    <span class="a-sumar__titlu">Copie de siguranță și curățenie</span>
+  </summary>
+  <p class="a-note">
+    Registrul trăiește într-un singur loc. Butonul descarcă <strong>tot</strong> —
+    declarații, certificate, scanurile încărcate — într-o arhivă ZIP obișnuită, care se
+    deschide cu orice program, fără parolă și fără acest site. Ține una pe un disc al tău.
+    În plus, duminică noaptea pleacă automat o copie criptată pe ramura privată
+    <code>backup-registru</code>.
+  </p>
+  <p class="a-copie">
+    <button class="btn btn--primary" type="button" id="a-export">⬇ Descarcă registrul</button>
+    <span class="a-stare" id="a-export-stare"></span>
+  </p>
+
+  <p class="a-note">
+    <strong>Curățenia</strong> scoate din magazie două feluri de rămășițe: codurile de acces
+    rămase în fișele scrise înainte de regula actuală (azi nu se mai păstrează niciunul) și
+    <strong>ciornele abandonate</strong> — formulare DMF începute, cu fișiere încărcate,
+    pe care nimeni nu le-a dus până la capăt de peste o săptămână. Cele mai recente NU se
+    ating: cineva poate chiar acum completează formularul. Aceeași curățenie se face și
+    singură, duminică noaptea, odată cu copia de siguranță.
+  </p>
+  <p class="a-copie">
+    <button class="btn btn--outline" type="button" id="a-curatenie">🧹 Curăță magazia</button>
+    <span class="a-stare" id="a-curatenie-stare"></span>
+  </p>
+  </details>
 </RegistruLayout>
 
 <script is:inline>
@@ -166,6 +206,14 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     // A doua cheie. Însoțește FIECARE cerere privilegiată: o apărare pusă doar la pagina
     // de intrare ar fi teatru, fiindcă cine are codul cheamă funcțiile direct.
     const dispozitivAdmin = () => localStorage.getItem("cfcrRegistruDispozitiv") || "";
+
+    /** Numărul de lângă titlul unei secțiuni închise — cât e înăuntru, fără s-o deschizi. */
+    function numarSectiune(id, n, singular, plural) {
+      const e = document.getElementById(id);
+      if (!e) return;
+      e.hidden = !n;
+      e.textContent = n ? n + " " + (n === 1 ? singular : plural) : "";
+    }
 
     function codAdmin() {
       let c = null;
@@ -205,6 +253,7 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       ul.innerHTML = "";
       try {
         const d = await cere({ actiune: "membri" });
+        numarSectiune("a-membri-numar", d.membri.length, "membru", "membri");
         if (!d.membri.length) { ul.innerHTML = "<li class='a-gol'>Niciun membru cu drept de solicitare încă.</li>"; return; }
         d.membri.forEach((m) => {
           const li = document.createElement("li");
@@ -380,6 +429,9 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
           preia.className = "btn btn--small btn--primary";
           preia.textContent = "Preia";
           preia.addEventListener("click", () => {
+            // Formularul stă într-o secțiune care poate fi închisă: fără asta,
+            // butonul ar completa câmpuri pe care omul nu le vede.
+            deschideSectiunea("membri");
             document.getElementById("a-m-nume").value = c.nume;
             document.getElementById("a-m-email").value = c.email;
             document.getElementById("a-m-cotizatie").focus();
@@ -406,6 +458,7 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       ul.innerHTML = "";
       try {
         const d = await cere({ actiune: "registratori" });
+        numarSectiune("a-registratori-numar", d.registratori.length, "persoană", "persoane");
         if (!d.registratori.length) { ul.innerHTML = "<li class='a-gol'>Niciun cont de registratură încă.</li>"; return; }
         d.registratori.forEach((r) => {
           const li = document.createElement("li");
@@ -479,6 +532,7 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       ul.innerHTML = "";
       try {
         const d = await cereDmf({ actiune: "dosare" });
+        numarSectiune("a-declaratii-numar", (d.dosare || []).length, "dosar", "dosare");
         if (!d.dosare.length) { ul.innerHTML = "<li class='a-gol'>Nicio declarație depusă încă.</li>"; return; }
         d.dosare.forEach((x) => {
           const li = document.createElement("li");
@@ -591,6 +645,10 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
         }
         const bun = m.stare === "bun";
         zona.className = "a-monitor " + (bun ? "is-bun" : "is-rau");
+        const semn = document.getElementById("a-monitor-numar");
+        semn.hidden = false;
+        semn.className = "a-numar a-numar--stare " + (bun ? "is-bun" : "is-rau");
+        semn.textContent = bun ? "✓ totul funcționează" : "⚠ ceva nu funcționează";
 
         const cap = document.createElement("div");
         cap.className = "a-monitor__cap";
@@ -842,12 +900,59 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       cronometru = setTimeout(incarcaJurnal, 350);
     });
 
+    // ——— Secțiunile pliabile ———
+    //
+    // Pagina asta va crește: azi are trei membri și două declarații, la anul are
+    // trei sute. Ținute toate deschise, ar deveni un zid prin care nu mai găsești
+    // nimic — și, mai rău, fiecare deschidere ar cere de la server liste pe care nu
+    // le citește nimeni. Așa că detaliul se aduce ABIA la prima deschidere.
+    //
+    // Ce rămâne la vedere: solicitările (oameni care așteaptă) și verdictul stării
+    // sistemului, care stă în titlu chiar cu secțiunea închisă.
+    const INCARCATOARE = {
+      membri: incarcaMembri,
+      registratori: incarcaRegistratori,
+      declaratii: incarcaDeclaratii,
+      jurnal: incarcaJurnal,
+    };
+    const CHEIE_SECTIUNI = "cfcrAdminSectiuni";
+
+    function sectiuniDeschise() {
+      try { return JSON.parse(localStorage.getItem(CHEIE_SECTIUNI) || "[]"); } catch (e) { return []; }
+    }
+    function tineMinteSectiunile() {
+      try {
+        const deschise = [...document.querySelectorAll("details.a-sectiune[open]")]
+          .map((d) => d.dataset.sectiune);
+        localStorage.setItem(CHEIE_SECTIUNI, JSON.stringify(deschise));
+      } catch (e) {}
+    }
+
+    /** Deschide o secțiune și o încarcă, dacă n-a fost încărcată încă. */
+    function deschideSectiunea(nume) {
+      const d = document.querySelector('details.a-sectiune[data-sectiune="' + nume + '"]');
+      if (d && !d.open) d.open = true;
+      return d;
+    }
+
+    const amintite = sectiuniDeschise();
+    document.querySelectorAll("details.a-sectiune").forEach((d) => {
+      const nume = d.dataset.sectiune;
+      if (amintite.includes(nume)) d.open = true;
+
+      d.addEventListener("toggle", () => {
+        tineMinteSectiunile();
+        if (!d.open || d.dataset.incarcat === "da") return;
+        const f = INCARCATOARE[nume];
+        if (f) { d.dataset.incarcat = "da"; f(); }
+      });
+
+      // Secțiunile deja deschise (ținute minte de la vizita trecută) se încarcă acum.
+      if (d.open && INCARCATOARE[nume]) { d.dataset.incarcat = "da"; INCARCATOARE[nume](); }
+    });
+
     incarcaCereri();
-    incarcaMembri();
-    incarcaRegistratori();
-    incarcaDeclaratii();
-    incarcaMonitor();
-    incarcaJurnal();
+    incarcaMonitor();   // întotdeauna: verdictul trebuie să se vadă fără să deschizi
   })();
 </script>
 
@@ -866,6 +971,27 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     padding: 0.6rem 0.85rem; border: 1px solid var(--color-border);
     border-radius: var(--radius); font: inherit; background: var(--color-surface);
   }
+  /* —— Secțiuni pliabile ——
+     `details` nativ: merge cu tastatura, merge fără JavaScript, iar căutarea din
+     browser (Ctrl+F) deschide singură secțiunea în care găsește textul. */
+  .a-indrumar { margin: 2.5rem 0 0.5rem; font-size: 0.85rem; color: var(--color-text-muted);
+    text-transform: uppercase; letter-spacing: 0.06em; }
+  .a-sectiune { border-bottom: 1px solid var(--color-border); }
+  .a-sectiune > :not(summary) { margin-left: 0.1rem; }
+  .a-sectiune[open] { padding-bottom: 1.5rem; }
+  .a-sumar { cursor: pointer; list-style: none; display: flex; align-items: baseline;
+    gap: 0.6rem; flex-wrap: wrap; padding: 0.85rem 0.2rem; }
+  .a-sumar::-webkit-details-marker { display: none; }
+  .a-sumar::before { content: "▸"; color: var(--color-accent-dark); font-size: 0.8rem;
+    transition: transform 0.15s ease; display: inline-block; }
+  .a-sectiune[open] > .a-sumar::before { transform: rotate(90deg); }
+  .a-sumar:hover .a-sumar__titlu { color: var(--color-accent-dark); }
+  .a-sumar:focus-visible { outline: 2px solid var(--color-accent-dark); outline-offset: 2px; }
+  .a-sumar__titlu { font-family: var(--font-serif); color: var(--color-primary);
+    font-size: 1.15rem; font-weight: 700; }
+  .a-numar--stare.is-bun { background: #eef5f0; color: var(--color-primary); }
+  .a-numar--stare.is-rau { background: #f9efef; color: #8c1d2f; }
+
   .a-numar { font-family: var(--font-sans, inherit); font-size: 0.72rem; font-weight: 700;
     letter-spacing: 0.02em; text-transform: uppercase; vertical-align: middle;
     background: var(--color-accent); color: #2a2200; border-radius: 999px;
