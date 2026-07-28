@@ -35,6 +35,19 @@ const T = {
     taxaEste: "Taxa pentru clasa aleasă:",
     faraTaxa: "Clasa aleasă nu are taxă de înscriere.",
     lei: "lei",
+    intrebariTitlu: "Trei întrebări care hotărăsc taxa",
+    intrebariNota: "Taxele asociației sunt mai mici pentru membri și pentru al doilea câine al aceluiași proprietar. Secretariatul verifică declarațiile la validarea înscrierii.",
+    membruIntrebare: "Ești membru al asociației?",
+    membruDa: "Sunt membru",
+    membruNu: "Nu sunt membru",
+    primulIntrebare: "Este primul câine pe care îl înscrii la această expoziție?",
+    primulDa: "Da, este primul",
+    primulNu: "Nu, am mai înscris un câine",
+    studentBifa: "Sunt student (reducere suplimentară)",
+    studentNota: "Reducerea se acordă pe baza carnetului de student sau a unei adeverințe, prezentate la secretariat.",
+    taxaTa: "Taxa ta de înscriere:",
+    taxaDetaliu: "Aceasta este suma pe care o achiți acum.",
+    vezeTarife: "Vezi toate tarifele asociației",
     plataCum: "Plata se face prin transfer bancar, înainte de trimiterea înscrierii:",
     titularCont: "Titular: Club Federal Chinologic – Royal · Banca Comercială Română (BCR)",
     plataDetalii: "La detaliile plății scrie numele câinelui.",
@@ -74,6 +87,19 @@ const T = {
     taxaEste: "Fee for the selected class:",
     faraTaxa: "The selected class has no entry fee.",
     lei: "RON",
+    intrebariTitlu: "Three questions that set your fee",
+    intrebariNota: "The association charges less for members and for each further dog of the same owner. The secretariat checks these answers when validating the entry.",
+    membruIntrebare: "Are you a member of the association?",
+    membruDa: "I am a member",
+    membruNu: "I am not a member",
+    primulIntrebare: "Is this the first dog you are entering in this show?",
+    primulDa: "Yes, this is the first",
+    primulNu: "No, I have already entered a dog",
+    studentBifa: "I am a student (additional discount)",
+    studentNota: "The discount is granted on presentation of a student card or certificate at the secretariat.",
+    taxaTa: "Your entry fee:",
+    taxaDetaliu: "This is the amount you pay now.",
+    vezeTarife: "See all the association fees",
     plataCum: "Payment is made by bank transfer, before submitting the entry:",
     titularCont: "Account holder: Club Federal Chinologic – Royal · Banca Comercială Română (BCR)",
     plataDetalii: "Write the dog's name in the payment details.",
@@ -191,6 +217,30 @@ const CLASE = [
          plata — secretariatul o verifică în extras; aici doar o aducem lângă înscriere. -->
     <fieldset class="ie__fs" id="ie-plata" hidden>
       <legend>{T.plataTitlu}</legend>
+
+      {/* Grila nouă: taxa depinde de calitatea de membru și de al câtelea câine e,
+          nu de clasa de concurs. Întrebările apar doar la expozițiile publicate cu
+          grila nouă (`ie-intrebari`); cele vechi, pe clase, rămân cum erau. */}
+      <div class="ie__intrebari" id="ie-intrebari" hidden>
+        <p class="ie__intrebari-t">{T.intrebariTitlu}</p>
+
+        <fieldset class="ie__grup">
+          <legend>{T.membruIntrebare} <b class="req">*</b></legend>
+          <label class="ie__radio"><input type="radio" name="esteMembru" value="1" /> <span>{T.membruDa}</span></label>
+          <label class="ie__radio"><input type="radio" name="esteMembru" value="0" checked /> <span>{T.membruNu}</span></label>
+        </fieldset>
+
+        <fieldset class="ie__grup">
+          <legend>{T.primulIntrebare} <b class="req">*</b></legend>
+          <label class="ie__radio"><input type="radio" name="primulCaine" value="1" checked /> <span>{T.primulDa}</span></label>
+          <label class="ie__radio"><input type="radio" name="primulCaine" value="0" /> <span>{T.primulNu}</span></label>
+        </fieldset>
+
+        <label class="ie__consim"><input type="checkbox" name="esteStudent" value="1" /> <span>{T.studentBifa}</span></label>
+        <p class="ie__gdpr" id="ie-student-nota" hidden>{T.studentNota}</p>
+        <p class="ie__gdpr">{T.intrebariNota}</p>
+      </div>
+
       <p class="ie__taxa" id="ie-taxa-text">{T.taxaAlege}</p>
       <div class="ie__plata-info">
         <p>{T.plataCum}</p>
@@ -203,6 +253,7 @@ const CLASE = [
         <input type="file" name="dovada" id="ie-dovada" accept="image/jpeg,image/png,image/webp,application/pdf" />
       </label>
       <p class="ie__gdpr">{T.dovadaNota}</p>
+      <p class="ie__gdpr"><a href={lang === "en" ? "/en/tarife/" : "/ro/tarife/"}>{T.vezeTarife} →</a></p>
     </fieldset>
 
     <fieldset class="ie__fs">
@@ -215,7 +266,7 @@ const CLASE = [
   </form>
 </section>
 
-<script is:inline define:vars={{ txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit }}>
+<script is:inline define:vars={{ txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit }}>
   (async function () {
     const form = document.getElementById("ie-form");
     const loading = document.getElementById("ie-loading");
@@ -278,25 +329,67 @@ const CLASE = [
     const clasaSel = form.querySelector('select[name="clasa"]');
     const bifaPlatit = document.getElementById("ie-amplatit");
     const campDovada = document.getElementById("ie-dovada");
+    const zonaIntrebari = document.getElementById("ie-intrebari");
+    const notaStudent = document.getElementById("ie-student-nota");
+    const bifaStudent = form.querySelector('input[name="esteStudent"]');
+    const ales = (nume) => {
+      const b = form.querySelector('input[name="' + nume + '"]:checked');
+      return b ? b.value : "";
+    };
+
     function expoCurenta() { return expozitii.find((x) => x.showId === showSel.value); }
+
+    // Aceeași aritmetică ca pe server (netlify/functions/_comun/taxa-expo.mjs). Copiată
+    // aici fiindcă scriptul e `is:inline` și nu poate importa module. Suma afișată e
+    // orientativă: serverul o recalculează la trimitere și el are ultimul cuvânt.
+    function taxaDinGrila(grila) {
+      if (!grila) return 0;
+      if ((grila.scutite || []).indexOf(clasaSel.value) !== -1) return 0;
+      const col = ales("esteMembru") === "1" ? grila.membru : grila.nemembru;
+      const baza = Number((col || {})[ales("primulCaine") === "0" ? "urmatorii" : "primul"]) || 0;
+      if (!baza) return 0;
+      const red = bifaStudent && bifaStudent.checked ? Math.min(100, Number(grila.student) || 0) : 0;
+      return Math.round((baza * (100 - red)) / 100);
+    }
+
+    function grilaAreTaxe(g) {
+      if (!g) return false;
+      const v = [g.membru, g.nemembru].filter(Boolean);
+      return v.some((c) => Number(c.primul) > 0 || Number(c.urmatorii) > 0);
+    }
+
     function taxaCurenta() {
       const e = expoCurenta();
+      if (e && e.tarif) return taxaDinGrila(e.tarif);
       return Number(((e && e.taxe) || {})[clasaSel.value] || 0);
     }
+
     function actualizeazaPlata() {
       const e = expoCurenta();
-      const areTaxe = !!(e && e.taxe && Object.values(e.taxe).some((v) => Number(v) > 0));
+      const grilaNoua = e && e.tarif && grilaAreTaxe(e.tarif) ? e.tarif : null;
+      const areTaxe = !!grilaNoua ||
+        !!(e && e.taxe && Object.values(e.taxe).some((v) => Number(v) > 0));
       plataFs.hidden = !areTaxe;
+      zonaIntrebari.hidden = !grilaNoua;
+      // Ascunse înseamnă și neîntrebate: la expozițiile cu grila veche, răspunsurile
+      // n-ar avea ce hotărî, așa că nu plecăm cu ele în cerere.
+      zonaIntrebari.querySelectorAll("input").forEach((i) => { i.disabled = !grilaNoua; });
+      if (notaStudent) notaStudent.hidden = !(bifaStudent && bifaStudent.checked);
+
       const t = areTaxe ? taxaCurenta() : 0;
       bifaPlatit.required = areTaxe && t > 0;
       campDovada.required = areTaxe && t > 0;
       if (!areTaxe) return;
       if (!clasaSel.value) taxaText.textContent = txtTaxaAlege;
-      else if (t > 0) taxaText.innerHTML = txtTaxaEste + " <b>" + t + " " + txtLei + "</b>";
-      else taxaText.textContent = txtFaraTaxa;
+      else if (t > 0) {
+        taxaText.innerHTML = (grilaNoua ? txtTaxaTa : txtTaxaEste) +
+          " <b>" + t + " " + txtLei + "</b>" +
+          (grilaNoua ? " <span class='ie__taxa-nota'>" + txtTaxaDetaliu + "</span>" : "");
+      } else taxaText.textContent = txtFaraTaxa;
     }
     showSel.addEventListener("change", actualizeazaPlata);
     clasaSel.addEventListener("change", actualizeazaPlata);
+    zonaIntrebari.addEventListener("change", actualizeazaPlata);
     actualizeazaPlata();
 
     // Data nasterii se TASTEAZA (zz.ll.aaaa) — calendarul de pe telefon era greoi.
@@ -421,6 +514,16 @@ const CLASE = [
   .ie__tip small { color: var(--color-text-muted); }
   .ie__gdpr { margin: 0; font-size: 0.88rem; color: var(--color-text-muted); }
   .ie__taxa { margin: 0; font-size: 0.95rem; }
+  .ie__taxa-nota { display: block; font-size: 0.85rem; color: var(--color-text-muted); font-weight: 400; }
+  .ie__intrebari { display: flex; flex-direction: column; gap: 0.85rem;
+    background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.9rem 1.1rem; }
+  .ie__intrebari[hidden] { display: none; }
+  .ie__intrebari-t { margin: 0; font-weight: 700; color: var(--color-primary); font-size: 0.95rem; }
+  .ie__grup { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap;
+    align-items: baseline; gap: 0.4rem 1.1rem; }
+  .ie__grup legend { font-weight: 400; color: var(--color-text); padding: 0;
+    font-size: 0.92rem; float: left; width: 100%; margin-bottom: 0.3rem; }
+  .ie__radio { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; cursor: pointer; }
   .ie__plata-info { background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
   .ie__plata-info p { margin: 0.15rem 0; font-size: 0.9rem; color: var(--color-text-muted); }
   .ie__iban { font-family: var(--font-mono, monospace); font-weight: 700; font-size: 1.05rem; color: var(--color-text) !important; letter-spacing: 0.03em; }
