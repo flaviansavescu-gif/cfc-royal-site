@@ -245,6 +245,26 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
         navigator.clipboard?.writeText(cod).then(() => { b.textContent = "copiat ✓"; });
       });
       el.appendChild(b);
+
+      // Trimiterea pe e-mail e o ALEGERE, nu ceva ce se face singur: un cod ajuns în
+      // cutia poștală rămâne acolo, în clar. Butonul e pentru când e mai comod așa.
+      // Serverul îl trimite doar la adresa din fișă — nu la una scrisă aici.
+      const t = document.createElement("button");
+      t.type = "button"; t.className = "a-copiaza"; t.textContent = "✉ trimite pe e-mail";
+      t.addEventListener("click", async () => {
+        if (!confirm("Trimiți codul pe e-mailul din fișa lui „" + eticheta + "”?\n\n" +
+                     "Codul va rămâne în cutia lui poștală. Dacă preferi, dictează-l.")) return;
+        t.disabled = true; t.textContent = "se trimite…";
+        try {
+          const d = await cere({ actiune: "trimite-cod", codNou: cod });
+          t.textContent = "trimis ✓ la " + (d.catre || "adresa din fișă");
+        } catch (err) {
+          t.disabled = false; t.textContent = "✉ trimite pe e-mail";
+          alert("Nu am putut trimite: " + err.message);
+        }
+      });
+      el.appendChild(t);
+
       el.appendChild(document.createTextNode(" — notează-l acum, nu mai poate fi recuperat."));
     }
 

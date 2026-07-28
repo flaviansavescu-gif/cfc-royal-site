@@ -456,6 +456,83 @@ export default cuLimitareCod(async (req) => {
     }
   }
 
+  /**
+   * Trimite un cod proaspăt generat, pe e-mail, LA ALEGEREA administratorului.
+   *
+   * Nu se face automat la generare: transmiterea personală rămâne varianta implicită,
+   * fiindcă un cod ajuns în cutia poștală rămâne acolo, în clar, pentru totdeauna.
+   * Butonul e pentru cazurile în care e mai comod — iar de azi un cod furat din e-mail
+   * nu mai e singur de ajuns pentru rolurile grele, fiindcă există a doua cheie.
+   *
+   * DOUĂ REGULI STRICTE, altfel acțiunea ar deveni „trimite orice text oriunde":
+   *   1. Codul trebuie să existe cu adevărat în registru. Se caută după amprenta lui;
+   *      dacă nu e al nimănui, nu plecă nimic.
+   *   2. Destinatarul NU vine din cerere, ci din fișa găsită. Adresa scrisă de client
+   *      nici măcar nu se citește.
+   */
+  if (actiune === "trimite-cod") {
+    const codNou = taie(body.codNou, 60);
+    if (!codNou) return json({ eroare: "Lipsește codul." }, 400);
+
+    const m = await membruDinCod(codNou);
+    const r = m ? null : await registratorDinCod(codNou);
+    const cine = m || r;
+    if (!cine) return json({ eroare: "Codul nu aparține niciunei fișe din registru." }, 404);
+
+    const catre = taie(cine.email, 200);
+    if (!catre) {
+      return json({ eroare: "Persoana nu are e-mail în fișă — completează-l întâi." }, 400);
+    }
+
+    const eMembru = !!m;
+    const corp =
+      `<p style="font-size:15px">Bună ziua, <strong>${escapeHtml(cine.nume)}</strong>!</p>` +
+      `<p style="font-size:15px">Ați primit acces la Registrul genealogic al Asociației ` +
+      `Club Federal Chinologic – Royal.</p>` +
+      `<table style="border-collapse:collapse;font-size:15px;margin:18px 0">` +
+      `<tr><td style="padding:4px 14px 4px 0;color:#666">Adresa</td>` +
+      `<td><a href="https://cfc-royal.ro/registru/">cfc-royal.ro/registru/</a></td></tr>` +
+      `<tr><td style="padding:4px 14px 4px 0;color:#666">Codul dumneavoastră</td>` +
+      `<td style="font-family:monospace;font-size:19px;font-weight:700;letter-spacing:0.06em;` +
+      `color:#1F4D3A">${escapeHtml(codNou)}</td></tr>` +
+      `</table>` +
+      (eMembru
+        ? `<p style="font-size:15px">Cu el depuneți <strong>Declarația de Montă și Fătare</strong> ` +
+          `direct din cont, primiți numărul de înregistrare pe loc, urmăriți stadiul dosarului ` +
+          `și solicitați Certificatele de Origine pentru pui.</p>` +
+          (cine.cotizatiePana
+            ? `<p style="font-size:14px;color:#666">Depunerea declarațiilor este posibilă cât timp ` +
+              `cotizația este la zi — la dumneavoastră, până la ` +
+              `<strong>${escapeHtml(cine.cotizatiePana)}</strong>.</p>`
+            : "")
+        : `<p style="font-size:15px">La prima intrare de pe un calculator sau telefon nou veți primi ` +
+          `pe e-mail un cod de șase cifre, de confirmare. Îl scrieți și gata — dispozitivul rămâne ` +
+          `recunoscut 30 de zile.</p>` +
+          `<p style="font-size:15px">Cu acest acces verificați dosarele depuse, completați ascendența, ` +
+          `atribuiți numărul de cuib WDF și pregătiți emiterea certificatelor.</p>`) +
+      `<hr style="margin:22px 0;border:none;border-top:1px solid #ddd">` +
+      `<p style="font-size:13px;color:#666"><strong>Codul este personal.</strong> Vă rugăm să nu îl ` +
+      `transmiteți mai departe — cu el se lucrează în registru în numele dumneavoastră.</p>` +
+      `<p style="font-size:13px;color:#666">Nu poate fi recuperat dacă se pierde: nu se păstrează ` +
+      `nicăieri în sistem. Dacă se întâmplă, scrieți-ne și generăm altul.</p>`;
+
+    const trimis = await trimite({
+      catre,
+      subiect: "Accesul dumneavoastră la Registrul genealogic CFC-Royal",
+      html: pagina("Acces la Registrul genealogic", "#1F4D3A", corp),
+    });
+    if (!trimis) return json({ eroare: "Nu am putut trimite e-mailul. Reîncearcă peste un minut." }, 503);
+
+    await jurnalizeaza(store(), {
+      fapta: "cod-trimis",
+      actor: ADMIN,
+      obiect: cine.nume,
+      detalii: `Cod de ${eMembru ? "membru" : "registratură"} trimis la ${catre}`,
+      ip: ipCerere(req),
+    });
+    return json({ ok: true, catre: mascheaza(catre) });
+  }
+
   if (actiune === "membru-adauga") {
     const nume = taie(body.nume, 120);
     const email = taie(body.email, 200).toLowerCase();

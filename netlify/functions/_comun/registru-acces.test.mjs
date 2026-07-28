@@ -17,5 +17,21 @@ await t("capcana umpluta -> tacere (200)", { actiune: "cerere", nume: "Robot Bot
 console.log("— poarta administrarii —");
 await t("listare cereri fara cod", { actiune: "cereri" }, 401);
 await t("stergere cerere fara cod", { actiune: "cerere-sterge", id: "x" }, 401);
+await t("trimitere cod fara drept de administrator", { actiune: "trimite-cod", codNou: "MBR-XXXX" }, 401);
+
+// —— Destinatarul nu vine NICIODATA din cerere ——
+// Trimiterea unui cod pe e-mail e cu un pas de „trimite orice text oriunde": daca
+// adresa ar putea fi scrisa de client, functia ar deveni o unealta de expediere in
+// numele asociatiei. Adresa se ia din fisa gasita dupa amprenta codului. Verificarea
+// de aici prinde regresia in care cineva ar lega `catre` de corpul cererii.
+{
+  const { readFileSync } = await import("node:fs");
+  const sursa = readFileSync(new URL("../registru-acces.mjs", import.meta.url), "utf8");
+  const periculos = /catre:\s*(taie\()?body\./.test(sursa);
+  if (periculos) rau++;
+  console.log((periculos ? "  RAU " : "  ok  ") +
+    "destinatarul e-mailului NU se ia din corpul cererii");
+}
+
 console.log(rau ? rau + " cazute" : "toate trecute");
 process.exit(rau ? 1 : 0);
