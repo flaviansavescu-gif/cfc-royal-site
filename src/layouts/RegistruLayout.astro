@@ -76,6 +76,57 @@ const protejat = allowList.length > 0;
     )}
   </head>
   <body data-pagefind-ignore>
+    {protejat && (
+      <script is:inline>
+        // SESIUNE MOARTĂ = IEȘIRE, nu ecran plin de erori.
+        //
+        // Până acum, cine avea în browser o intrare veche (cod revocat, cod schimbat,
+        // dispozitiv expirat) rămânea BLOCAT ÎNTRE PAGINI: poarta din pagină vedea rolul
+        // păstrat local și deschidea pagina, dar fiecare cerere primea 401 de la server.
+        // Omul vedea o pagină care pare deschisă și nu funcționează, fără nicio cale
+        // înapoi la formularul de cod — pe care nici nu-l mai vedea.
+        //
+        // Mai rău: fiecare încărcare de pagină trimitea o mână de cereri cu codul mort,
+        // iar apărarea împotriva ghicirii le număra pe toate ca încercări greșite. După
+        // câteva reîncărcări, adresa omului era blocată 5 minute — și nici codul NOU,
+        // perfect valabil, nu mai intra de pe ea. Exact ce a pățit primul registrator
+        // căruia i s-a schimbat codul.
+        //
+        // Acum, la prima acreditare respinsă, ștergem sesiunea locală și ducem omul la
+        // formular, cu un mesaj care spune ce s-a întâmplat.
+        (function () {
+          const original = window.fetch;
+          let plecam = false;
+          window.fetch = async function (intrare, optiuni) {
+            const raspuns = await original(intrare, optiuni);
+            try {
+              if (plecam) return raspuns;
+              const adresa = typeof intrare === "string" ? intrare : (intrare && intrare.url) || "";
+              if (adresa.indexOf("/.netlify/functions/") === -1) return raspuns;
+              if (raspuns.status !== 401 && raspuns.status !== 403) return raspuns;
+              // 401 = acreditare respinsă, mereu. 403 poate însemna și „acțiune
+              // nepermisă rolului tău" — acolo NU dăm pe nimeni afară; doar
+              // dispozitivul nerecunoscut e o sesiune moartă.
+              let moarta = raspuns.status === 401;
+              if (!moarta) {
+                const t = await raspuns.clone().text();
+                moarta = t.indexOf("Dispozitiv nerecunoscut") !== -1;
+              }
+              if (moarta) {
+                plecam = true;
+                try {
+                  localStorage.removeItem("cfcrRegistru");
+                  localStorage.removeItem("cfcrRegistruCod");
+                  localStorage.removeItem("cfcrRegistruLa");
+                } catch (e) {}
+                location.replace("/registru/?motiv=sesiune");
+              }
+            } catch (e) { /* orice greșeală aici nu are voie să strice răspunsul */ }
+            return raspuns;
+          };
+        })();
+      </script>
+    )}
     <header class="c-header">
       <div class="c-header__inner">
         <a class="c-brand" href="/registru/">

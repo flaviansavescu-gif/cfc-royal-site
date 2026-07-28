@@ -94,20 +94,56 @@ const protejat = allowList.length > 0 || candidatOk;
     <script is:inline>
       (function () {
         const original = window.fetch;
-        window.fetch = function (intrare, optiuni) {
+        let plecam = false;
+
+        // SESIUNE MOARTĂ = IEȘIRE. Când codul păstrat local a fost între timp schimbat
+        // sau revocat, fiecare cerere ar primi 401, iar limitarea de încercări le-ar
+        // număra pe toate — până blochează adresa omului, cu tot cu codul lui NOU.
+        // La prima acreditare respinsă pe codul din localStorage, ștergem sesiunea și
+        // ducem omul la formular. Doar pentru codul PĂSTRAT: cine tastează un cod greșit
+        // în formularul de intrare nu are ce sesiune să piardă.
+        function sesiuneMoarta(codTrimis, raspuns, text) {
+          if (raspuns.status !== 401 && raspuns.status !== 403) return false;
+          if (raspuns.status === 403 && text.indexOf("Dispozitiv nerecunoscut") === -1) return false;
+          const pastrat = localStorage.getItem("cfcrAccesCod");
+          return !!pastrat && codTrimis === pastrat;
+        }
+
+        window.fetch = async function (intrare, optiuni) {
+          let codTrimis = null;
+          let cerere = [intrare, optiuni];
           try {
             const o = optiuni || {};
             const adresa = typeof intrare === "string" ? intrare : (intrare && intrare.url) || "";
             // Doar cererile noastre, doar cele cu corp text care poartă un cod.
             if (adresa.indexOf("/.netlify/functions/") !== -1 && typeof o.body === "string") {
               const d = JSON.parse(o.body);
-              if (d && typeof d === "object" && d.cod && !d.dispozitiv) {
-                d.dispozitiv = localStorage.getItem("cfcrScoalaDispozitiv") || "";
-                return original(intrare, Object.assign({}, o, { body: JSON.stringify(d) }));
+              if (d && typeof d === "object" && d.cod) {
+                codTrimis = d.cod;
+                if (!d.dispozitiv) {
+                  d.dispozitiv = localStorage.getItem("cfcrScoalaDispozitiv") || "";
+                  cerere = [intrare, Object.assign({}, o, { body: JSON.stringify(d) })];
+                }
               }
             }
           } catch (e) { /* corp care nu e JSON: îl lăsăm exact cum a venit */ }
-          return original(intrare, optiuni);
+
+          const raspuns = await original(cerere[0], cerere[1]);
+          try {
+            if (!plecam && codTrimis) {
+              const text = raspuns.status === 403 ? await raspuns.clone().text() : "";
+              if (sesiuneMoarta(codTrimis, raspuns, text)) {
+                plecam = true;
+                try {
+                  localStorage.removeItem("cfcrRol");
+                  localStorage.removeItem("cfcrRolLa");
+                  localStorage.removeItem("cfcrAccesCod");
+                } catch (e) {}
+                location.replace("/cursuri/?motiv=sesiune");
+              }
+            }
+          } catch (e) { /* orice greșeală aici nu are voie să strice răspunsul */ }
+          return raspuns;
         };
       })();
     </script>

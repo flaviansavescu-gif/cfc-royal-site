@@ -154,6 +154,16 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
 
     form.addEventListener("submit", (e) => { e.preventDefault(); intra(input.value.trim(), false); });
 
+    // Adus aici de o sesiune moartă (cod revocat sau schimbat, dispozitiv expirat):
+    // spunem limpede de ce, altfel pare că pagina l-a aruncat afară fără motiv.
+    if (new URLSearchParams(location.search).get("motiv") === "sesiune") {
+      eroare.hidden = false;
+      eroare.textContent =
+        "Intrarea păstrată în acest browser nu mai este valabilă — codul a fost " +
+        "schimbat sau revocat. Scrie codul actual ca să intri din nou.";
+      history.replaceState(null, "", "/registru/");
+    }
+
     otpForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!asteptare) return;

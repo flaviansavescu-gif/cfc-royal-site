@@ -108,6 +108,16 @@ import CursuriLayout from "../../layouts/CursuriLayout.astro";
     }
   });
 
+  // Adus aici de o sesiune moartă (cod schimbat sau revocat): spunem de ce.
+  if (new URLSearchParams(location.search).get("motiv") === "sesiune") {
+    const err = document.getElementById("gate-err");
+    err.hidden = false;
+    err.textContent =
+      "Intrarea păstrată în acest browser nu mai este valabilă — codul a fost " +
+      "schimbat sau revocat. Scrie codul actual ca să intri din nou.";
+    history.replaceState(null, "", "/cursuri/");
+  }
+
   document.getElementById("otp-renunta").addEventListener("click", () => {
     asteptare = null;
     otpForm.hidden = true;
