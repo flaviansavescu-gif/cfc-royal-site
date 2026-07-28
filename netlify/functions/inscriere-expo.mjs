@@ -10,6 +10,8 @@
 // POST { secret, actiune:"marcheaza", showId, ids } -> managerul marchează înscrierile ca importate
 import { getStore } from "@netlify/blobs";
 import { eRobot, limiteazaTrimiterile, minuteText } from "./_comun/formular-public.mjs";
+import { calculeazaTaxa, taxaVeche } from "./_comun/taxa-expo.mjs";
+import { createHash } from "node:crypto";
 
 const SECRET = process.env.EXPO_SYNC_SECRET || "";
 
@@ -63,8 +65,18 @@ function inchisPentruInscrieri(config) {
   return new Date() > limita;
 }
 
+/** Câți câini a mai înscris adresa asta la expoziția asta.
+ *  Un contor propriu, nu o numărătoare peste toată coada: la o expoziție cu două
+ *  sute de înscrieri, fiecare trimitere ar citi două sute de fișe ca să afle un
+ *  singur număr. Citirea e „strong" fiindcă de ea depinde o sumă de bani. */
+const cheieProprietar = (showId, email) =>
+  "proprietar/" + showId + "/" + createHash("sha256").update(email).digest("hex").slice(0, 32);
+
 export default async (req) => {
-  const store = getStore("expozitii");
+  // Consistență tare: contorul de câini pe proprietar decide cât plătește omul.
+  // Cu citire eventuală, al doilea câine trimis la un minut după primul putea să
+  // apară tot ca „primul" și să fie taxat dublu.
+  const store = getStore({ name: "expozitii", consistency: "strong" });
 
   // ——— Public: calendarul competițional (?calendar=1) ———
   // Viitoare = publicate și deschise pentru înscrieri; trecute = DOAR cele cu rezultate
@@ -100,7 +112,14 @@ export default async (req) => {
       for (const b of blobs) {
         const c = await store.get(b.key, { type: "json" });
         if (c && !inchisPentruInscrieri(c)) {
-          expozitii.push({ showId: c.showId, nume: c.nume, data: c.data, termen: c.termen, locatie: c.locatie, rase: c.rase || [], taxe: c.taxe || null });
+          expozitii.push({
+            showId: c.showId, nume: c.nume, data: c.data, termen: c.termen, locatie: c.locatie,
+            rase: c.rase || [],
+            // `tarif` = grila nouă (membru/nemembru × primul/următorii). `taxe` = calea
+            // veche, pe clase; expozițiile publicate înainte de schimbare o păstrează.
+            tarif: c.tarif || null,
+            taxe: c.taxe || null,
+          });
         }
       }
     } catch (err) {
@@ -234,7 +253,35 @@ export default async (req) => {
   // ——— Taxa de înscriere: când expoziția are taxă pe clasa aleasă, cerem declarația de
   // plată și dovada (poză/PDF). Dovada NU confirmă plata — secretariatul o verifică și
   // abia el marchează plata drept confirmată în manager.
-  const taxa = Number((config.taxe || {})[clasa] ?? 0);
+  //
+  // Grila nouă taxează după trei lucruri, nu după clasa de concurs: e membru, e
+  // primul lui câine la această expoziție, e student. Declarațiile vin din formular,
+  // dar suma NU: ea se recalculează aici, altfel oricine ar putea trimite „taxa: 0".
+  const declaraMembru = String(body.esteMembru || "") === "1";
+  const declaraStudent = String(body.esteStudent || "") === "1";
+  const declaraPrimul = String(body.primulCaine || "1") === "1";
+
+  const grila = config.tarif || null;
+  let inainte = 0;
+  if (grila) {
+    const fisa = await store.get(cheieProprietar(showId, email), { type: "json" }).catch(() => null);
+    inainte = Number(fisa && fisa.caini) || 0;
+  }
+  // Adevărul îl spune contorul, nu bifa. Cine zice „nu e primul" fără să fi înscris
+  // nimic ar plăti mai puțin decât trebuie — pe ăsta îl oprim, cu suma corectă în
+  // mesaj, fiindcă e informație despre propriile lui înscrieri.
+  const primul = inainte === 0;
+  if (!declaraPrimul && primul && grila) {
+    const corecta = calculeazaTaxa(grila, { membru: declaraMembru, primul: true, student: declaraStudent, clasa });
+    return json({
+      eroare: "Aceasta este prima ta înscriere la această expoziție, deci taxa este de " +
+        corecta + " lei, nu cea pentru al doilea câine. Corectează răspunsul și reia plata dacă e nevoie.",
+    }, 400);
+  }
+
+  const taxa = grila
+    ? calculeazaTaxa(grila, { membru: declaraMembru, primul, student: declaraStudent, clasa })
+    : taxaVeche(config.taxe, clasa);
   const amPlatit = String(body.amPlatit || "") === "1";
   const TIPURI_DOVADA = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf"]);
   let dovadaBuf = null;
@@ -298,6 +345,38 @@ export default async (req) => {
   }
   inscriere.amPlatit = amPlatit;
   inscriere.taxa = taxa;
+  if (grila) {
+    // Declarațiile se păstrează lângă înscriere: secretariatul le vede la import și
+    // le confirmă. Nu verificăm aici calitatea de membru — registrul de acces al
+    // asociației conține doar membrii cărora li s-a emis cod, deci o „nepotrivire"
+    // n-ar dovedi nimic, în schimb ar refuza prețul corect unui membru real.
+    inscriere.declaratii = {
+      membru: declaraMembru,
+      student: declaraStudent,
+      primulDeclarat: declaraPrimul,
+      caineNr: inainte + 1,
+    };
+    // Cine bifează „primul câine" deși mai are înscrieri plătește mai mult decât
+    // trebuie. Nu-l oprim din drum — îi reținem suma corectă și lăsăm o notă, ca
+    // secretariatul să-i întoarcă diferența.
+    if (declaraPrimul && !primul) {
+      const cePlatise = calculeazaTaxa(grila, { membru: declaraMembru, primul: true, student: declaraStudent, clasa });
+      if (cePlatise !== taxa) {
+        inscriere.taxaObservatie =
+          "A declarat primul câine, dar este al " + (inainte + 1) + "-lea: a putut plăti " +
+          cePlatise + " lei în loc de " + taxa + " lei.";
+      }
+    }
+    try {
+      await store.setJSON(cheieProprietar(showId, email), {
+        caini: inainte + 1, nume: inscriere.numeProprietar, actualizat: inscriere.creat,
+      });
+    } catch (err) {
+      // Contorul e o comoditate, nu o poartă: dacă scrierea cade, înscrierea rămâne
+      // validă și al doilea câine va fi taxat ca primul — secretariatul corectează.
+      console.error("Contorul de câini pe proprietar nu s-a putut actualiza:", err);
+    }
+  }
   await store.setJSON(key, inscriere);
 
   // Email de confirmare (Brevo), dacă e configurat.
@@ -305,6 +384,7 @@ export default async (req) => {
   if (apiKey) {
     const html = `<p>Bună, ${numeProp.replace(/</g, "&lt;")},</p>
       <p>Am primit înscrierea câinelui <b>${numeCaine.replace(/</g, "&lt;")}</b> (${rasa.numeRo}) la expoziția <b>${config.nume}</b> (${config.data}).</p>
+      ${taxa > 0 ? `<p>Taxa de înscriere pentru această fișă: <b>${taxa} lei</b>.</p>` : ""}
       <p>După verificarea de către secretariat vei primi e-mailul de validare, iar la închiderea catalogului — numărul de concurs și ecusonul de tipărit.</p>
       <p>— Club Federal Chinologic Royal · World Dog Federation</p>`;
     try {
