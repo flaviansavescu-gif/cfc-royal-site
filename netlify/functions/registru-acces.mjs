@@ -41,7 +41,21 @@ import { trimite, pagina, escapeHtml, ADRESA_ASOCIATIEI, postaConfigurata } from
 /** Toate acțiunile de aici sunt ale administratorului; actorul e mereu același. */
 const ADMIN = { rol: "admin", nume: "Administrator" };
 
-const store = () => getStore("registru");
+/**
+ * CITIRE TARE, dinadins.
+ *
+ * Magazia răspunde, în mod obișnuit, cu o copie care poate fi veche de câteva zeci de
+ * secunde. Pentru date obișnuite e un compromis bun; aici, nu. Două motive:
+ *
+ *   • ACCESUL. Un cod revocat citit dintr-o copie veche ar continua să deschidă
+ *     registrul. O revocare care nu revocă imediat nu e o revocare.
+ *   • ADEVĂRUL DIN PANOU. Administratorul completează o adresă de e-mail, lista se
+ *     reîncarcă și îi arată tot starea veche — pare că sistemul i-a ignorat comanda.
+ *     Exact asta s-a întâmplat la prima completare de adresă.
+ *
+ * Costă câteva zeci de milisecunde pe cerere. Merită.
+ */
+const store = () => getStore({ name: "registru", consistency: "strong" });
 
 // Alfabet fără caractere confundabile (O/0, I/1) — codurile se dictează la telefon.
 const ALFABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
