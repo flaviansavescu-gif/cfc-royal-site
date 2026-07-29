@@ -40,10 +40,13 @@ jobs:
 
     steps:
       - name: Ia codul
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
+      # Node 20, ca la Netlify (`NODE_VERSION` din netlify.toml). Verificarea trebuie să
+      # ruleze pe aceeași temelie ca publicarea; altfel dovedește altceva decât ce se pune
+      # pe site. Când schimbi versiunea acolo, schimb-o și aici.
       - name: Pune Node 20
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "20"
           cache: npm
