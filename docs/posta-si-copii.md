@@ -107,6 +107,32 @@ Cere parola de la tastatură. Iese un ZIP obișnuit, cu `CUPRINS.md` înăuntru 
 e fiecare lucru. **Parola trebuie să existe și în afara sistemului** — pe telefon, în seif.
 O copie pe care n-o poți descifra nu e o copie.
 
+### Copie ACUM, în afara programului
+
+Copiile automate cad duminica. Când vrei una pe loc — după ce ai schimbat parola de
+criptare, înaintea probei anuale, sau înaintea unei schimbări mari — există funcția
+`copie-acum.mjs`. Rulează exact aceeași logică (registrul + celelalte magazii), apoi
+**aduce arhivele înapoi de pe ramură și le descifrează cu parola de acum**: răspunsul nu
+spune doar „am scris o arhivă", ci „am scris o arhivă pe care parola de acum chiar o
+deschide".
+
+E protejată cu secretul comun `EXPO_SYNC_SECRET` (cel dintre manager și site), printr-un
+POST — nu în adresă, ca să nu rămână în jurnale. Cel mai simplu se apasă de pe laptop:
+dublu-clic pe `Copie acum (site).cmd` din folderul de operare (secretul se ia singur din
+`.env`-ul managerului).
+
+### Schimbarea unei parole de criptare
+
+O parolă nouă **nu** deschide arhivele vechi — sunt criptate cu cea veche. Ordinea contează:
+
+1. Pune parola nouă în Netlify (`BACKUP_REGISTRU_PAROLA`) **și pe telefon, în aceeași clipă**.
+2. Redeploy (schimbarea unei variabile intră în funcții doar la următorul deploy).
+3. Rulează **Copie acum** → arhive proaspete, criptate cu parola nouă, auto-verificate.
+4. Șterge de pe ramură arhivele vechi: nimeni nu le mai poate deschide, iar dacă rămân par
+   copii de nădejde când nu sunt.
+
+Datele vii nu se ating niciodată — se schimbă doar cheia copiilor de aici înainte.
+
 ### Proba anuală
 
 O dată pe an, deschide o copie adevărată de pe ramură și uită-te în ea. Lanțul întreg —
