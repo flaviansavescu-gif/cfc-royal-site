@@ -15,6 +15,7 @@
 //   -> managerul publică lista completă a actelor anulate (o înlocuiește pe cea veche)
 import crypto from "node:crypto";
 import { getStore } from "@netlify/blobs";
+import { felActului, etichetaCod, textStare, notaValid, motivAnulare } from "./_comun/verificare-text.mjs";
 
 // FĂRĂ valoare de rezervă, deliberat.
 //
@@ -84,7 +85,7 @@ export default async (req) => {
   try {
     okSig = sig.length === asteptat.length && crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(asteptat));
   } catch { okSig = false; }
-  if (!okSig) return json({ valid: false, motiv: "Semnătură invalidă — acest certificat nu poate fi confirmat ca autentic." });
+  if (!okSig) return json({ valid: false, motiv: "Semnătură invalidă — acest cod nu poate fi confirmat ca autentic." });
 
   let p;
   try { p = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")); }
@@ -92,8 +93,14 @@ export default async (req) => {
 
   // „fel" deosebește un certificat numerotat de un rezultat împărtășit. Codurile vechi
   // n-au câmpul și rămân certificate — ce e deja tipărit nu-și schimbă înțelesul.
+  //
+  // Pentru rezultate, „s" e codul prin care ele POT FI ANULATE (REZ/expoziție/nr. catalog).
+  // Verificarea de mai jos e aceeași pentru amândouă felurile, tocmai fiindcă amândouă au
+  // acum un nume propriu.
+  const fel = felActului(p);
   const act = {
-    fel: p.k === "rezultat" ? "rezultat" : "certificat",
+    fel,
+    etichetaCod: etichetaCod(fel),
     serie: p.s || "",
     catalog: p.c || "",
     titlu: p.t || "", caine: p.n || "", rasa: p.r || "", expozitie: p.e || "", data: p.d || "",
@@ -105,10 +112,11 @@ export default async (req) => {
     return json({
       valid: false,
       anulat: true,
-      motiv: `Actul ${act.serie} a fost ANULAT de delegatul World Dog Federation. Certificatul nu mai este valabil.`,
+      stareText: textStare(fel, "anulat"),
+      motiv: motivAnulare(fel, act.serie),
       act,
     });
   }
 
-  return json({ valid: true, act });
+  return json({ valid: true, act, stareText: textStare(fel, "valid"), nota: notaValid(fel) });
 };

@@ -54,9 +54,11 @@ const lang = "ro" as const;
     // Arătăm despre ce act e vorba, ca lucrurile să fie limpezi.
     if (d.anulat) {
       card.dataset.stare = "anulat";
-      stare.textContent = "⚠ Certificat ANULAT";
+      // Cuvintele vin de la server: el știe dacă e certificat sau rezultat. Rândul de
+      // rezervă e pentru codurile vechi, dinaintea acestei deosebiri.
+      stare.textContent = d.stareText || "⚠ Certificat ANULAT";
       const a = d.act || {};
-      rand("Serie", a.serie);
+      rand(a.etichetaCod || "Serie", a.serie);
       rand("Titlu / Premiu", a.titlu);
       rand("Câine", a.caine);
       rand("Expoziție", a.expozitie);
@@ -76,11 +78,8 @@ const lang = "ro" as const;
 
     card.dataset.stare = "valid";
     const a = d.act;
-    // Un rezultat NU e un certificat. Confirmăm ce e adevărat: rezultatul a fost
-    // înregistrat de asociație. Certificatele au serie și se verifică după ea.
-    const eRezultat = a.fel === "rezultat";
-    stare.textContent = eRezultat ? "✓ Rezultat confirmat" : "✓ Certificat autentic";
-    rand("Serie", a.serie);
+    stare.textContent = d.stareText || "✓ Certificat autentic";
+    rand(a.etichetaCod || "Serie", a.serie);
     rand("Nr. catalog", a.catalog);
     rand("Titlu / Premiu", a.titlu);
     rand("Câine", a.caine);
@@ -89,9 +88,7 @@ const lang = "ro" as const;
     rand("Data", a.data);
     detalii.hidden = false;
     nota.hidden = false;
-    nota.textContent = eRezultat
-      ? "Acest rezultat a fost înregistrat de Asociația Club Federal Chinologic – Royal la expoziția de mai sus și confirmat prin semnătură digitală. Arată situația din ziua expoziției: un titlu retras ulterior de delegatul World Dog Federation NU se vede aici. Situația la zi a exemplarului se vede pe fișa lui din cartea de origini, iar certificatele oficiale se verifică separat, după seria lor."
-      : "Acest certificat a fost emis de Asociația Club Federal Chinologic – Royal și confirmat prin semnătură digitală.";
+    nota.textContent = d.nota || "Acest certificat a fost emis de Asociația Club Federal Chinologic – Royal și confirmat prin semnătură digitală.";
   })();
 </script>
 
