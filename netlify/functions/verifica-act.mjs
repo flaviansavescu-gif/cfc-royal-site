@@ -90,7 +90,14 @@ export default async (req) => {
   try { p = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")); }
   catch { return json({ valid: false, motiv: "Cod de verificare corupt." }); }
 
-  const act = { serie: p.s || "", titlu: p.t || "", caine: p.n || "", rasa: p.r || "", expozitie: p.e || "", data: p.d || "" };
+  // „fel" deosebește un certificat numerotat de un rezultat împărtășit. Codurile vechi
+  // n-au câmpul și rămân certificate — ce e deja tipărit nu-și schimbă înțelesul.
+  const act = {
+    fel: p.k === "rezultat" ? "rezultat" : "certificat",
+    serie: p.s || "",
+    catalog: p.c || "",
+    titlu: p.t || "", caine: p.n || "", rasa: p.r || "", expozitie: p.e || "", data: p.d || "",
+  };
 
   // Semnătura e bună, dar actul poate fi între timp invalidat de delegatul WDF.
   const revocate = await citesteRevocari(store);

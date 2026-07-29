@@ -75,9 +75,13 @@ const lang = "ro" as const;
     }
 
     card.dataset.stare = "valid";
-    stare.textContent = "✓ Certificat autentic";
     const a = d.act;
+    // Un rezultat NU e un certificat. Confirmăm ce e adevărat: rezultatul a fost
+    // înregistrat de asociație. Certificatele au serie și se verifică după ea.
+    const eRezultat = a.fel === "rezultat";
+    stare.textContent = eRezultat ? "✓ Rezultat confirmat" : "✓ Certificat autentic";
     rand("Serie", a.serie);
+    rand("Nr. catalog", a.catalog);
     rand("Titlu / Premiu", a.titlu);
     rand("Câine", a.caine);
     rand("Rasă", a.rasa);
@@ -85,7 +89,9 @@ const lang = "ro" as const;
     rand("Data", a.data);
     detalii.hidden = false;
     nota.hidden = false;
-    nota.textContent = "Acest certificat a fost emis de Clubul Federal Chinologic – Royal și confirmat prin semnătură digitală.";
+    nota.textContent = eRezultat
+      ? "Acest rezultat a fost înregistrat de Asociația Club Federal Chinologic – Royal la expoziția de mai sus și confirmat prin semnătură digitală. Certificatele oficiale se verifică separat, după seria lor."
+      : "Acest certificat a fost emis de Asociația Club Federal Chinologic – Royal și confirmat prin semnătură digitală.";
   })();
 </script>
 
