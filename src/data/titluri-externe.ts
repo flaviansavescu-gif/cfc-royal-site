@@ -17,11 +17,29 @@
 // cum se cere o îndreptare.
 // =========================================================================
 
-export type Titlu = "RO_CH" | "RO_JR_CH";
+/**
+ * Titlurile acordate în afara României își poartă numele lor, deosebit de al celor
+ * câștigate acasă: „Abroad" face parte din denumirea oficială, nu e o lămurire adăugată
+ * de noi. Așa scrie și pe fișa semnată de arbitru și confirmată de organizator.
+ */
+export type Titlu = "RO_CH_ABROAD" | "RO_JR_CH_ABROAD";
 
+/**
+ * Denumirea NU se traduce. Un titlu e un nume propriu: el circulă la fel în catalogul
+ * unei expoziții din Polonia, într-un pedigree din Cehia și pe pagina asta. Tradus, ar
+ * deveni de negăsit tocmai acolo unde trebuie recunoscut.
+ */
 export const NUME_TITLU: Record<Titlu, { ro: string; en: string; scurt: string }> = {
-  RO_CH: { ro: "Campion al României", en: "Romanian Champion", scurt: "RO. CH." },
-  RO_JR_CH: { ro: "Campion Junior al României", en: "Romanian Junior Champion", scurt: "RO. JR. CH." },
+  RO_CH_ABROAD: {
+    ro: "Romanian Beauty Champion Abroad",
+    en: "Romanian Beauty Champion Abroad",
+    scurt: "Ro.Ch.Abroad",
+  },
+  RO_JR_CH_ABROAD: {
+    ro: "Romanian Junior Beauty Champion Abroad",
+    en: "Romanian Junior Beauty Champion Abroad",
+    scurt: "Ro.Jr.Ch.Abroad",
+  },
 };
 
 export interface Exemplar {
@@ -64,19 +82,19 @@ export const FISE: FisaTitluri[] = [
     calitate: { ro: "Federated Expert Judge WDF", en: "Federated Expert Judge WDF" },
     dovada: "/documente/fisa-titluri-polonia-2026-06-21.pdf",
     exemplare: [
-      { nr: 1, caine: "Hakim Benito del Gusto", rasa: { ro: "Yorkshire Terrier", en: "Yorkshire Terrier", original: "chocolate YT" }, sex: "M", titlu: "RO_CH" },
-      { nr: 2, caine: "Nikita Lejdis", rasa: { ro: "Caniche Toy", en: "Toy Poodle", original: "pudel toy" }, sex: "F", titlu: "RO_CH" },
-      { nr: 3, caine: "Zerrin z Różanego Ogrodu", rasa: { ro: "Yorkshire Terrier", en: "Yorkshire Terrier", original: "chocolate YT" }, sex: "F", titlu: "RO_CH" },
-      { nr: 4, caine: "Teodor Amato Cane", rasa: { ro: "Caniche Miniatură", en: "Miniature Poodle", original: "pudel miniatura" }, sex: "M", titlu: "RO_CH" },
-      { nr: 5, caine: "Pro-Euro", rasa: { ro: "Teckel miniatură cu păr scurt", en: "Miniature Smooth-haired Dachshund", original: "jamnik miniaturowy krótkowłosy" }, sex: "F", titlu: "RO_CH" },
-      { nr: 6, caine: "Herkules Royalbulls", rasa: { ro: "Buldog Englez Vechi", en: "Olde English Bulldogge", original: "buldog staroangielski" }, sex: "M", titlu: "RO_CH" },
-      { nr: 7, caine: "Oto Bajers", rasa: { ro: "Boston Terrier", en: "Boston Terrier", original: "boston terrier" }, sex: "M", titlu: "RO_CH" },
-      { nr: 8, caine: "Hazal z Różanego Ogrodu", rasa: { ro: "Ciobănesc German cu păr lung", en: "German Shepherd, long-haired", original: "owczarek niemiecki długowłosy" }, sex: "F", titlu: "RO_CH" },
-      { nr: 9, caine: "Elektra Szachty Litewskie", rasa: { ro: "Ciobănesc German cu păr lung", en: "German Shepherd, long-haired", original: "owczarek niemiecki długowłosy" }, sex: "F", titlu: "RO_CH" },
-      { nr: 10, caine: "Brita Ranczo u Jacka", rasa: { ro: "Ciobănesc German cu păr scurt", en: "German Shepherd, short-haired", original: "owczarek niemiecki krótkowłosy" }, sex: "F", titlu: "RO_CH" },
-      { nr: 11, caine: "Roza Zoti Funella", rasa: { ro: "Caniche Miniatură", en: "Miniature Poodle", original: "pudel miniatura" }, sex: "F", titlu: "RO_JR_CH" },
-      { nr: 12, caine: "Marie Zofie Spero Meliora", rasa: { ro: "Ratier de Praga", en: "Prague Ratter", original: "ratler praski" }, sex: "F", titlu: "RO_JR_CH" },
-      { nr: 13, caine: "Amy", rasa: { ro: "Doberman", en: "Dobermann", original: "doberman" }, sex: "F", titlu: "RO_CH" },
+      { nr: 1, caine: "Hakim Benito del Gusto", rasa: { ro: "Yorkshire Terrier", en: "Yorkshire Terrier", original: "chocolate YT" }, sex: "M", titlu: "RO_CH_ABROAD" },
+      { nr: 2, caine: "Nikita Lejdis", rasa: { ro: "Caniche Toy", en: "Toy Poodle", original: "pudel toy" }, sex: "F", titlu: "RO_CH_ABROAD" },
+      { nr: 3, caine: "Zerrin z Różanego Ogrodu", rasa: { ro: "Yorkshire Terrier", en: "Yorkshire Terrier", original: "chocolate YT" }, sex: "F", titlu: "RO_CH_ABROAD" },
+      { nr: 4, caine: "Teodor Amato Cane", rasa: { ro: "Caniche Miniatură", en: "Miniature Poodle", original: "pudel miniatura" }, sex: "M", titlu: "RO_CH_ABROAD" },
+      { nr: 5, caine: "Pro-Euro", rasa: { ro: "Teckel miniatură cu păr scurt", en: "Miniature Smooth-haired Dachshund", original: "jamnik miniaturowy krótkowłosy" }, sex: "F", titlu: "RO_CH_ABROAD" },
+      { nr: 6, caine: "Herkules Royalbulls", rasa: { ro: "Buldog Englez Vechi", en: "Olde English Bulldogge", original: "buldog staroangielski" }, sex: "M", titlu: "RO_CH_ABROAD" },
+      { nr: 7, caine: "Oto Bajers", rasa: { ro: "Boston Terrier", en: "Boston Terrier", original: "boston terrier" }, sex: "M", titlu: "RO_CH_ABROAD" },
+      { nr: 8, caine: "Hazal z Różanego Ogrodu", rasa: { ro: "Ciobănesc German cu păr lung", en: "German Shepherd, long-haired", original: "owczarek niemiecki długowłosy" }, sex: "F", titlu: "RO_CH_ABROAD" },
+      { nr: 9, caine: "Elektra Szachty Litewskie", rasa: { ro: "Ciobănesc German cu păr lung", en: "German Shepherd, long-haired", original: "owczarek niemiecki długowłosy" }, sex: "F", titlu: "RO_CH_ABROAD" },
+      { nr: 10, caine: "Brita Ranczo u Jacka", rasa: { ro: "Ciobănesc German cu păr scurt", en: "German Shepherd, short-haired", original: "owczarek niemiecki krótkowłosy" }, sex: "F", titlu: "RO_CH_ABROAD" },
+      { nr: 11, caine: "Roza Zoti Funella", rasa: { ro: "Caniche Miniatură", en: "Miniature Poodle", original: "pudel miniatura" }, sex: "F", titlu: "RO_JR_CH_ABROAD" },
+      { nr: 12, caine: "Marie Zofie Spero Meliora", rasa: { ro: "Ratier de Praga", en: "Prague Ratter", original: "ratler praski" }, sex: "F", titlu: "RO_JR_CH_ABROAD" },
+      { nr: 13, caine: "Amy", rasa: { ro: "Doberman", en: "Dobermann", original: "doberman" }, sex: "F", titlu: "RO_CH_ABROAD" },
     ],
   },
 ];
@@ -84,7 +102,7 @@ export const FISE: FisaTitluri[] = [
 /** Câte titluri de fiecare fel are o fișă. Se calculează, nu se scrie de mână: numărul
  *  scris de mână pe hârtie și lista de mai sus trebuie să spună același lucru. */
 export function numaraTitluri(fisa: FisaTitluri) {
-  const n = { RO_CH: 0, RO_JR_CH: 0 };
+  const n = { RO_CH_ABROAD: 0, RO_JR_CH_ABROAD: 0 };
   for (const e of fisa.exemplare) n[e.titlu]++;
   return { ...n, total: fisa.exemplare.length };
 }
@@ -94,8 +112,8 @@ export function totalTitluri() {
   return FISE.reduce(
     (t, f) => {
       const n = numaraTitluri(f);
-      return { RO_CH: t.RO_CH + n.RO_CH, RO_JR_CH: t.RO_JR_CH + n.RO_JR_CH, total: t.total + n.total };
+      return { RO_CH_ABROAD: t.RO_CH_ABROAD + n.RO_CH_ABROAD, RO_JR_CH_ABROAD: t.RO_JR_CH_ABROAD + n.RO_JR_CH_ABROAD, total: t.total + n.total };
     },
-    { RO_CH: 0, RO_JR_CH: 0, total: 0 },
+    { RO_CH_ABROAD: 0, RO_JR_CH_ABROAD: 0, total: 0 },
   );
 }

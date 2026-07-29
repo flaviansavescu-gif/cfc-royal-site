@@ -27,7 +27,8 @@ const T = {
     acasaCalendar: "Vezi calendarul expozițional →",
 
     afaraTitlu: "Titluri obținute în afara României",
-    afaraIntro: "Titluri de campion al României acordate de arbitri ai asociației, la expoziții organizate de federații partenere din alte țări. Fiecare eveniment se încheie cu o fișă de evidență semnată de arbitru și confirmată de organizator.",
+    afaraIntro: "Titluri acordate de arbitri ai asociației la expoziții organizate de federații partenere din alte țări. Fiecare eveniment se încheie cu o fișă de evidență semnată de arbitru și confirmată de organizator.",
+    legendaNota: "Denumirile de mai sus sunt cele oficiale ale titlurilor și nu se traduc: un titlu e un nume propriu, care trebuie recunoscut la fel în catalogul unei expoziții din altă țară și într-un pedigree străin.",
 
     capTabel: { nr: "Nr.", caine: "Numele câinelui", rasa: "Rasa", sex: "Sex", titlu: "Titlul acordat" },
     masculin: "mascul", feminin: "femelă",
@@ -53,7 +54,8 @@ const T = {
     acasaCalendar: "See the show calendar →",
 
     afaraTitlu: "Titles obtained outside Romania",
-    afaraIntro: "Romanian champion titles awarded by the association's judges at shows organised by partner federations in other countries. Every event concludes with a record sheet signed by the judge and confirmed by the organiser.",
+    afaraIntro: "Titles awarded by the association's judges at shows organised by partner federations in other countries. Every event concludes with a record sheet signed by the judge and confirmed by the organiser.",
+    legendaNota: "The names above are the official title designations and are not translated: a title is a proper name, which must be recognised the same way in another country's show catalogue and in a foreign pedigree.",
 
     capTabel: { nr: "No.", caine: "Dog's name", rasa: "Breed", sex: "Sex", titlu: "Title awarded" },
     masculin: "male", feminin: "female",
@@ -79,8 +81,8 @@ const linkCalendar = lang === "en" ? "/en/calendar-expozitional" : "/ro/calendar
 const rezumat = (f: FisaTitluri) => {
   const n = numaraTitluri(f);
   const parti: string[] = [];
-  if (n.RO_CH) parti.push(`${n.RO_CH} × ${NUME_TITLU.RO_CH[lang]}`);
-  if (n.RO_JR_CH) parti.push(`${n.RO_JR_CH} × ${NUME_TITLU.RO_JR_CH[lang]}`);
+  if (n.RO_CH_ABROAD) parti.push(`${n.RO_CH_ABROAD} × ${NUME_TITLU.RO_CH_ABROAD[lang]}`);
+  if (n.RO_JR_CH_ABROAD) parti.push(`${n.RO_JR_CH_ABROAD} × ${NUME_TITLU.RO_JR_CH_ABROAD[lang]}`);
   return parti.join(" · ");
 };
 ---
@@ -107,9 +109,20 @@ const rezumat = (f: FisaTitluri) => {
     <p class="cp__lead">{T.afaraIntro}</p>
 
     <p class="cp__total">
-      <strong>{total.total}</strong> {T.totalul.toLowerCase()} — {total.RO_CH} × {NUME_TITLU.RO_CH[lang]},
-      {" "}{total.RO_JR_CH} × {NUME_TITLU.RO_JR_CH[lang]}
+      <strong>{total.total}</strong> {T.totalul.toLowerCase()} — {total.RO_CH_ABROAD} × {NUME_TITLU.RO_CH_ABROAD[lang]},
+      {" "}{total.RO_JR_CH_ABROAD} × {NUME_TITLU.RO_JR_CH_ABROAD[lang]}
     </p>
+
+    {/* Legenda prescurtărilor, o singură dată. În tabel apare doar eticheta scurtă. */}
+    <dl class="cp__legenda">
+      {(Object.keys(NUME_TITLU) as (keyof typeof NUME_TITLU)[]).map((k) => (
+        <div>
+          <dt><span class="cp__titlu-eticheta">{NUME_TITLU[k].scurt}</span></dt>
+          <dd>{NUME_TITLU[k][lang]}</dd>
+        </div>
+      ))}
+    </dl>
+    <p class="cp__legenda-nota">{T.legendaNota}</p>
 
     {FISE.map((f) => (
       <div class="cp__fisa">
@@ -144,7 +157,10 @@ const rezumat = (f: FisaTitluri) => {
                     {e.rasa.original && <span class="cp__original"> · {T.peFisa}: {e.rasa.original}</span>}
                   </td>
                   <td>{e.sex === "M" ? T.masculin : T.feminin}</td>
-                  <td><span class="cp__titlu-eticheta">{NUME_TITLU[e.titlu].scurt}</span> {NUME_TITLU[e.titlu][lang]}</td>
+                  {/* Doar prescurtarea: numele întreg, repetat de treisprezece ori, ar face
+                      coloana de trei ori mai lată decât tot restul tabelului. Se citește în
+                      legenda de deasupra, unde stă o singură dată. */}
+                  <td><span class="cp__titlu-eticheta" title={NUME_TITLU[e.titlu][lang]}>{NUME_TITLU[e.titlu].scurt}</span></td>
                 </tr>
               ))}
             </tbody>
@@ -186,6 +202,11 @@ const rezumat = (f: FisaTitluri) => {
 
   .cp__total { margin: 1.2rem 0 0; font-size: 1.02rem; }
   .cp__total strong { color: var(--color-primary); font-size: 1.3rem; }
+
+  .cp__legenda { display: grid; gap: 0.5rem 1rem; grid-template-columns: auto 1fr; align-items: baseline; margin: 1rem 0 0.6rem; }
+  .cp__legenda > div { display: contents; }
+  .cp__legenda dd { margin: 0; color: var(--color-text); font-size: 0.95rem; }
+  .cp__legenda-nota { margin: 0; color: var(--color-text-muted); font-size: var(--fs-300); font-style: italic; max-width: 52rem; }
 
   .cp__fisa { margin-top: 2rem; border: 1px solid var(--color-border); border-top: 4px solid var(--color-primary); border-radius: var(--radius); padding: 1.5rem 1.4rem; background: var(--color-surface); }
   .cp__fisa-titlu { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.2rem; margin: 0 0 0.3rem; line-height: 1.35; }
