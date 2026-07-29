@@ -1,0 +1,216 @@
+---
+// Campioni.astro — pagina „Câini campioni", cu două spații despărțite:
+//   1. titluri de campion al României obținute ÎN România — încă gol;
+//   2. titluri de campion al României obținute ÎN AFARA României, de arbitrii asociației.
+//
+// De ce două spații și nu o listă: sunt două fluxuri care nu seamănă. Primul vine din
+// Managerul de Expoziții, unde titlul se naște din calificativele din ring și e deja în
+// sistem. Al doilea vine pe hârtie, de la o federație străină, și are nevoie de un
+// document justificativ ca să însemne ceva.
+//
+// Spațiul gol NU se ascunde. O secțiune care lipsește lasă impresia că lista e completă;
+// una goală, cu explicație, spune adevărul: n-am organizat încă expoziția din care să
+// iasă primul campion.
+import { FISE, NUME_TITLU, numaraTitluri, totalTitluri, type FisaTitluri } from "../data/titluri-externe";
+
+interface Props { lang: "ro" | "en"; }
+const { lang } = Astro.props;
+
+const T = {
+  ro: {
+    kicker: "Expoziții",
+    titlu: "Câini campioni",
+    intro: "Câini de rasă cu titluri de campion acordate de Asociația Club Federal Chinologic – Royal, ca organizație afiliată World Dog Federation.",
+
+    acasaTitlu: "Titluri obținute în România",
+    acasaGol: "Nu există încă titluri acordate la expoziții organizate în România. Primele vor apărea aici după prima expoziție a asociației din care rezultă un titlu de campion, cu evidența lor ținută în Managerul de Expoziții.",
+    acasaCalendar: "Vezi calendarul expozițional →",
+
+    afaraTitlu: "Titluri obținute în afara României",
+    afaraIntro: "Titluri de campion al României acordate de arbitri ai asociației, la expoziții organizate de federații partenere din alte țări. Fiecare eveniment se încheie cu o fișă de evidență semnată de arbitru și confirmată de organizator.",
+
+    capTabel: { nr: "Nr.", caine: "Numele câinelui", rasa: "Rasa", sex: "Sex", titlu: "Titlul acordat" },
+    masculin: "mascul", feminin: "femelă",
+    peFisa: "pe fișă",
+
+    eveniment: "Evenimentul", organizator: "Organizator", locul: "Locul", data: "Data",
+    tip: "Tip expoziție", arbitru: "Arbitru", licenta: "Licență WDF",
+    totalul: "Titluri acordate",
+    dovadaTitlu: "Documentul justificativ",
+    dovadaText: "Fișa de evidență semnată de arbitru și confirmată de organizator. Coloanele „Nume Proprietar\" și „Microcip\" au fost acoperite înainte de publicare: sunt date cu caracter personal, iar rezultatele publice cuprind doar titlurile.",
+    dovadaBtn: "Deschide fișa (PDF)",
+
+    notaTitlu: "Despre transcriere",
+    notaText: "Fișele se completează de mână, la fața locului, iar numele străine pot fi citite greșit. Dacă un nume de câine sau o rasă din tabelele de mai sus e scris greșit, scrie-ne la contact@cfc-royal.ro și îl îndreptăm — documentul semnat rămâne sursa de adevăr.",
+  },
+  en: {
+    kicker: "Dog shows",
+    titlu: "Champion dogs",
+    intro: "Purebred dogs holding champion titles awarded by the Royal Federal Canine Club, as an organisation affiliated to the World Dog Federation.",
+
+    acasaTitlu: "Titles obtained in Romania",
+    acasaGol: "There are no titles yet from shows held in Romania. The first will appear here after the association's first show that produces a champion title, their record kept in the Exhibition Manager.",
+    acasaCalendar: "See the show calendar →",
+
+    afaraTitlu: "Titles obtained outside Romania",
+    afaraIntro: "Romanian champion titles awarded by the association's judges at shows organised by partner federations in other countries. Every event concludes with a record sheet signed by the judge and confirmed by the organiser.",
+
+    capTabel: { nr: "No.", caine: "Dog's name", rasa: "Breed", sex: "Sex", titlu: "Title awarded" },
+    masculin: "male", feminin: "female",
+    peFisa: "on the sheet",
+
+    eveniment: "Event", organizator: "Organiser", locul: "Place", data: "Date",
+    tip: "Show type", arbitru: "Judge", licenta: "WDF licence",
+    totalul: "Titles awarded",
+    dovadaTitlu: "Supporting document",
+    dovadaText: "The record sheet signed by the judge and confirmed by the organiser. The \"Owner's name\" and \"Microchip\" columns were covered before publication: they are personal data, and published results cover titles only.",
+    dovadaBtn: "Open the sheet (PDF)",
+
+    notaTitlu: "About the transcription",
+    notaText: "The sheets are filled in by hand, on site, and foreign names can be misread. If a dog's name or a breed in the tables above is wrong, write to contact@cfc-royal.ro and we will correct it — the signed document remains the source of truth.",
+  },
+}[lang];
+
+const total = totalTitluri();
+const dataLunga = (iso: string) =>
+  new Date(iso).toLocaleDateString(lang === "en" ? "en-GB" : "ro-RO", { day: "numeric", month: "long", year: "numeric" });
+const linkCalendar = lang === "en" ? "/en/calendar-expozitional" : "/ro/calendar-expozitional";
+
+const rezumat = (f: FisaTitluri) => {
+  const n = numaraTitluri(f);
+  const parti: string[] = [];
+  if (n.RO_CH) parti.push(`${n.RO_CH} × ${NUME_TITLU.RO_CH[lang]}`);
+  if (n.RO_JR_CH) parti.push(`${n.RO_JR_CH} × ${NUME_TITLU.RO_JR_CH[lang]}`);
+  return parti.join(" · ");
+};
+---
+
+<article class="cp">
+  <header class="cp__hero">
+    <p class="cp__kicker">{T.kicker}</p>
+    <h1 class="cp__titlu">{T.titlu}</h1>
+    <p class="cp__intro">{T.intro}</p>
+  </header>
+
+  {/* ——— 1. În România ——— */}
+  <section class="cp__sect">
+    <h2 class="cp__h2">{T.acasaTitlu}</h2>
+    <div class="cp__gol">
+      <p>{T.acasaGol}</p>
+      <a href={linkCalendar}>{T.acasaCalendar}</a>
+    </div>
+  </section>
+
+  {/* ——— 2. În afara României ——— */}
+  <section class="cp__sect">
+    <h2 class="cp__h2">{T.afaraTitlu}</h2>
+    <p class="cp__lead">{T.afaraIntro}</p>
+
+    <p class="cp__total">
+      <strong>{total.total}</strong> {T.totalul.toLowerCase()} — {total.RO_CH} × {NUME_TITLU.RO_CH[lang]},
+      {" "}{total.RO_JR_CH} × {NUME_TITLU.RO_JR_CH[lang]}
+    </p>
+
+    {FISE.map((f) => (
+      <div class="cp__fisa">
+        <h3 class="cp__fisa-titlu">{f.eveniment}</h3>
+        <p class="cp__fisa-rezumat">{f.localitate}, {f.tara[lang]} · {dataLunga(f.data)} · {rezumat(f)}</p>
+
+        <dl class="cp__meta">
+          <div><dt>{T.organizator}</dt><dd>{f.organizator}</dd></div>
+          <div><dt>{T.tip}</dt><dd>{f.tipExpozitie}</dd></div>
+          <div><dt>{T.arbitru}</dt><dd>{f.arbitru}</dd></div>
+          <div><dt>{T.licenta}</dt><dd>{f.licentaWdf} · {f.calitate[lang]}</dd></div>
+        </dl>
+
+        <div class="cp__tabel-inv">
+          <table class="cp__tabel">
+            <thead>
+              <tr>
+                <th scope="col">{T.capTabel.nr}</th>
+                <th scope="col">{T.capTabel.caine}</th>
+                <th scope="col">{T.capTabel.rasa}</th>
+                <th scope="col">{T.capTabel.sex}</th>
+                <th scope="col">{T.capTabel.titlu}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {f.exemplare.map((e) => (
+                <tr>
+                  <td class="cp__nr">{e.nr}</td>
+                  <td class="cp__caine">{e.caine}</td>
+                  <td>
+                    {e.rasa[lang]}
+                    {e.rasa.original && <span class="cp__original"> · {T.peFisa}: {e.rasa.original}</span>}
+                  </td>
+                  <td>{e.sex === "M" ? T.masculin : T.feminin}</td>
+                  <td><span class="cp__titlu-eticheta">{NUME_TITLU[e.titlu].scurt}</span> {NUME_TITLU[e.titlu][lang]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cp__dovada">
+          <h4>{T.dovadaTitlu}</h4>
+          <p>{T.dovadaText}</p>
+          <a class="btn btn--outline" href={f.dovada} target="_blank" rel="noopener">{T.dovadaBtn} ↗</a>
+        </div>
+      </div>
+    ))}
+  </section>
+
+  <aside class="cp__nota">
+    <h2>{T.notaTitlu}</h2>
+    <p>{T.notaText}</p>
+  </aside>
+</article>
+
+<style>
+  .cp { max-width: 62rem; margin-inline: auto; }
+
+  .cp__hero { max-width: 48rem; }
+  .cp__kicker { text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.8rem; font-weight: 700; color: var(--color-accent-dark); margin: 0 0 0.5rem; }
+  .cp__titlu { font-family: var(--font-serif); color: var(--color-primary); font-size: clamp(1.9rem, 4vw, 2.7rem); line-height: 1.1; margin: 0 0 0.6rem; }
+  .cp__intro { color: var(--color-text-muted); font-size: 1.06rem; line-height: 1.65; }
+
+  .cp__sect { margin-top: 3rem; }
+  .cp__h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.55rem; margin: 0 0 0.7rem; padding-bottom: 0.4rem; border-bottom: 2px solid var(--color-border); }
+  .cp__lead { color: var(--color-text-muted); line-height: 1.65; max-width: 52rem; }
+
+  /* Spațiul gol: se vede că e gol dinadins, nu că s-a stricat ceva. */
+  .cp__gol { background: var(--color-surface-alt); border: 1px dashed var(--color-border); border-radius: var(--radius); padding: 1.5rem 1.4rem; }
+  .cp__gol p { margin: 0 0 0.8rem; color: var(--color-text-muted); line-height: 1.65; }
+  .cp__gol a { color: var(--color-link); font-weight: 600; text-decoration: none; }
+  .cp__gol a:hover { text-decoration: underline; }
+
+  .cp__total { margin: 1.2rem 0 0; font-size: 1.02rem; }
+  .cp__total strong { color: var(--color-primary); font-size: 1.3rem; }
+
+  .cp__fisa { margin-top: 2rem; border: 1px solid var(--color-border); border-top: 4px solid var(--color-primary); border-radius: var(--radius); padding: 1.5rem 1.4rem; background: var(--color-surface); }
+  .cp__fisa-titlu { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.2rem; margin: 0 0 0.3rem; line-height: 1.35; }
+  .cp__fisa-rezumat { margin: 0 0 1.2rem; color: var(--color-text-muted); font-size: 0.95rem; }
+
+  .cp__meta { display: grid; gap: 0.7rem 1.5rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); margin: 0 0 1.3rem; padding: 1rem 1.1rem; background: var(--color-surface-alt); border-radius: var(--radius); }
+  .cp__meta dt { font-size: var(--fs-300); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .cp__meta dd { margin: 0.1rem 0 0; font-weight: 600; }
+
+  /* Tabelul își derulează singur lățimea pe telefon, ca să nu împingă pagina. */
+  .cp__tabel-inv { overflow-x: auto; }
+  .cp__tabel { width: 100%; border-collapse: collapse; font-size: var(--fs-300); min-width: 34rem; }
+  .cp__tabel th, .cp__tabel td { border: 1px solid var(--color-border); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
+  .cp__tabel th { background: var(--color-primary); color: #fbfaf7; font-weight: 600; }
+  .cp__tabel tbody tr:nth-child(even) { background: var(--color-surface-alt); }
+  .cp__nr { text-align: right; color: var(--color-text-muted); font-variant-numeric: tabular-nums; width: 2.5rem; }
+  .cp__caine { font-weight: 600; }
+  .cp__original { color: var(--color-text-muted); font-size: 0.85em; font-style: italic; }
+  .cp__titlu-eticheta { display: inline-block; background: var(--color-accent); color: #fff; font-weight: 700; font-size: 0.8em; padding: 0.1rem 0.4rem; border-radius: 4px; margin-right: 0.35rem; white-space: nowrap; }
+
+  .cp__dovada { margin-top: 1.3rem; padding-top: 1.2rem; border-top: 1px solid var(--color-border); }
+  .cp__dovada h4 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.05rem; margin: 0 0 0.4rem; }
+  .cp__dovada p { margin: 0 0 0.9rem; color: var(--color-text-muted); font-size: 0.93rem; line-height: 1.6; max-width: 46rem; }
+
+  .cp__nota { margin-top: 3rem; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1.5rem 1.4rem; }
+  .cp__nota h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.15rem; margin: 0 0 0.5rem; }
+  .cp__nota p { margin: 0; color: var(--color-text-muted); line-height: 1.65; max-width: 52rem; }
+</style>

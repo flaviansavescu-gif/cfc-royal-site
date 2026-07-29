@@ -1,0 +1,10 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Campioni from "../../components/Campioni.astro";
+const lang = "ro" as const;
+---
+<BaseLayout title="Câini campioni" lang={lang} description="Câini de rasă cu titluri de campion acordate de Asociația Club Federal Chinologic – Royal: titluri obținute în România și titluri obținute în afara României, cu documentele justificative.">
+  <div class="container" style="padding-block: 3rem;">
+    <Campioni lang={lang} />
+  </div>
+</BaseLayout>

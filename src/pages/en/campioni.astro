@@ -1,0 +1,10 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Campioni from "../../components/Campioni.astro";
+const lang = "en" as const;
+---
+<BaseLayout title="Champion dogs" lang={lang} description="Purebred dogs holding champion titles awarded by the Royal Federal Canine Club: titles obtained in Romania and titles obtained abroad, with the supporting documents.">
+  <div class="container" style="padding-block: 3rem;">
+    <Campioni lang={lang} />
+  </div>
+</BaseLayout>

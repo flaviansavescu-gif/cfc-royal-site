@@ -14,7 +14,7 @@ const lang = "ro" as const;
 export function getStaticPaths() {
   // „arbitri" are pagină-index dedicată (registrul cu filtrare pe grupe): src/pages/ro/arbitri.astro
   return collectionDefs
-    .filter((def) => def.slug !== "arbitri")
+    .filter((def) => def.slug !== "arbitri" && def.slug !== "campioni")
     .map((def) => ({ params: { collection: def.slug }, props: { def } }));
 }
 

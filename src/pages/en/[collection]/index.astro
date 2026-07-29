@@ -14,7 +14,7 @@ const lang = "en" as const;
 export function getStaticPaths() {
   // „arbitri" has a dedicated index page (registry with per-group filter): src/pages/en/arbitri.astro
   return collectionDefs
-    .filter((def) => def.slug !== "arbitri")
+    .filter((def) => def.slug !== "arbitri" && def.slug !== "campioni")
     .map((def) => ({ params: { collection: def.slug }, props: { def } }));
 }
 
