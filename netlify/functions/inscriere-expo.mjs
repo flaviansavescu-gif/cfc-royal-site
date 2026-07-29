@@ -17,7 +17,7 @@ import { calculeazaTaxa, taxaVeche } from "./_comun/taxa-expo.mjs";
 // merge ÎNTRU TOTUL ca una adevărată — doar că nu apare public. Regulile stau în modulul
 // lor, ca să poată fi probate pe fapte, nu citite cu ochii.
 import {
-  eRepetitie, poateSterge, prefixeleExpozitiei, cheileExpozitiei,
+  eRepetitie, poateSterge, poateMarca, prefixeleExpozitiei, cheileExpozitiei,
   seVedeInFormular, seVedeInCalendar,
 } from "./_comun/repetitie.mjs";
 import { createHash } from "node:crypto";
@@ -238,10 +238,30 @@ export default async (req) => {
     }
     // ——— Repetiția generală ———
     if (body.actiune === "repetitie") {
-      const c = await store.get("config/" + body.showId, { type: "json" });
-      if (!c) return json({ eroare: "Expoziția nu e publicată online." }, 404);
-      await store.setJSON("config/" + body.showId, { ...c, repetitie: body.pornit !== false });
-      return json({ ok: true, repetitie: body.pornit !== false });
+      const showId = String(body.showId || "");
+      const pornit = body.pornit !== false;
+      const c = await store.get("config/" + showId, { type: "json" });
+
+      // Câte înscrieri are deja. Dacă listarea cade, socotim că are — mai bine refuzăm
+      // o marcare bună decât s-o îngăduim pe cea care duce la ștergerea unei expoziții
+      // adevărate.
+      let cate = 0;
+      if (pornit) {
+        try {
+          const { blobs } = await store.list({ prefix: "coada/" + showId + "/" });
+          cate = blobs.length;
+        } catch (err) {
+          console.error("Nu am putut număra înscrierile înainte de marcare:", err);
+          cate = 1;
+        }
+      }
+
+      const verdict = poateMarca(c, cate, pornit);
+      if (!verdict.ok) return json({ eroare: verdict.eroare }, verdict.status);
+
+      await store.setJSON("config/" + showId, { ...c, repetitie: pornit });
+      console.log(`Expoziția „${showId}" a fost marcată ca repetiție: ${pornit ? "DA" : "nu"}.`);
+      return json({ ok: true, repetitie: pornit });
     }
 
     if (body.actiune === "repetitie-sterge") {

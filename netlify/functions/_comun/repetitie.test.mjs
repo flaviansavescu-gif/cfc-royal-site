@@ -9,7 +9,7 @@
 //
 // Rulează: node netlify/functions/_comun/repetitie.test.mjs
 import {
-  eRepetitie, poateSterge, prefixeleExpozitiei, cheileExpozitiei,
+  eRepetitie, poateSterge, poateMarca, prefixeleExpozitiei, cheileExpozitiei,
   seVedeInFormular, seVedeInCalendar,
 } from "./repetitie.mjs";
 import { readFileSync } from "node:fs";
@@ -36,6 +36,23 @@ console.log("— ștergerea refuză orice expoziție care nu e marcată ca repet
   const inexistenta = poateSterge(null);
   e("o expoziție inexistentă nu e tratată ca repetiție", inexistenta.ok === false);
   e("și primește 404", inexistenta.status === 404, String(inexistenta.status));
+}
+
+console.log("— marcajul NU se pune peste o expoziție care are înscrieri —");
+{
+  // Paza de la ștergere oprea accidentul dintr-un pas. Nu-l oprea pe cel din DOI: un
+  // showId tastat greșit la marcare, apoi curățenia — și dispărea o expoziție adevărată,
+  // cu tot cu dovezile de plată.
+  e("o expoziție goală se poate marca", poateMarca(ADEVARATA, 0).ok === true);
+  const r = poateMarca(ADEVARATA, 137);
+  e("una cu înscrieri NU se poate marca", r.ok === false);
+  e("și se spune câte are", /137/.test(r.eroare), r.eroare);
+  e("cu 409, nu cu 403", r.status === 409, String(r.status));
+  e("mesajul trimite omul să verifice showId-ul", /showId/i.test(r.eroare));
+
+  e("o singură înscriere e de ajuns ca să refuze", poateMarca(ADEVARATA, 1).ok === false);
+  e("scoaterea marcajului rămâne mereu îngăduită", poateMarca(REPETITIE, 900, false).ok === true);
+  e("expoziția nepublicată dă 404", poateMarca(null, 0).status === 404);
 }
 
 console.log("— marcajul trebuie să fie exact „true\", nu ceva care seamănă —");
@@ -100,6 +117,9 @@ console.log("— regulile sunt chemate acolo unde contează —");
   const sursa = readFileSync(new URL("../inscriere-expo.mjs", import.meta.url), "utf8");
   e("funcția importă modulul", sursa.includes('from "./_comun/repetitie.mjs"'));
   e("ștergerea cheamă paza", /const verdict = poateSterge\(c\)/.test(sursa));
+  e("marcarea cheamă și ea paza ei", /poateMarca\(c, cate, pornit\)/.test(sursa));
+  e("marcarea numără înscrierile înainte", /list\(\{ prefix: "coada\/" \+ showId \+ "\/" \}\)/.test(sursa));
+  e("dacă numărătoarea cade, socotim că are înscrieri", /cate = 1;/.test(sursa));
   e("și se oprește la refuz", /if \(!verdict\.ok\) return json/.test(sursa));
   e("nu mai există o a doua definiție a marcajului, în funcție",
     !/const eRepetitie = \(config\) =>/.test(sursa));

@@ -59,8 +59,29 @@ export const PREFIXE_DERIVATE = [
   "material-studiu/", // paginile-imagine scoase din PDF-ul de studiu
 ];
 
+/**
+ * Cheile care țin FIȘIERE, nu JSON. Se știu din vreme, dinadins.
+ *
+ * Prima scriere nu avea lista asta: încerca să citească orice cheie ca JSON, iar ce nu se
+ * citea așa era socotit fișier. Curat ca idee, ruinător în fapt — o dovadă de plată de
+ * 4 MB se descărca o dată ca să eșueze parsarea și încă o dată ca fișier. La o expoziție
+ * cu două sute de înscrieri: peste un gigabyte descărcat ca să salvăm zece megaocteți,
+ * iar funcția rămânea fără memorie tocmai la magazia cu cele mai multe date personale.
+ *
+ * Ce nu e în listă se încearcă tot ca JSON — o cheie nouă, necunoscută, e tratată ca dată,
+ * adică se salvează. Greșeala rămâne în partea sigură.
+ */
+export const PREFIXE_FISIERE = [
+  "dovada/",      // dovezile de plată de la înscrieri
+  "image/",       // imaginile exercițiilor Photo Anatomy Annotator
+  "dmf-fisier/",  // piesele depuse la dosarele de montă și fătare
+  "media/",
+  "fisier/",
+];
+
 export const eSarita = (cheie) => PREFIXE_SARITE.some((p) => cheie.startsWith(p));
 export const eDerivata = (cheie) => PREFIXE_DERIVATE.some((p) => cheie.startsWith(p));
+export const eFisier = (cheie) => PREFIXE_FISIERE.some((p) => cheie.startsWith(p));
 
 const EXTENSII = {
   "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "application/pdf": "pdf",
@@ -103,9 +124,10 @@ export async function arhiveazaMagazia(magazie, { maxFisiere = 10 * 1024 * 1024,
   }
 
   // Întâi datele, apoi fișierele — dacă rămâne loc. Dacă mărimea taie ceva, să taie
-  // scanurile, nu fișele.
-  const binare = [];
-  for (const cheie of depastrat) {
+  // scanurile, nu fișele. Cheile cunoscute ca fișiere nici măcar nu se încearcă drept
+  // JSON: altfel s-ar descărca de două ori, o dată degeaba.
+  const binare = depastrat.filter(eFisier);
+  for (const cheie of depastrat.filter((k) => !eFisier(k))) {
     try {
       const x = await s.get(cheie, { type: "json" });
       if (x == null) { binare.push(cheie); continue; }
@@ -117,12 +139,21 @@ export async function arhiveazaMagazia(magazie, { maxFisiere = 10 * 1024 * 1024,
   }
 
   for (const cheie of binare) {
+    // Odată atinsă limita, NU mai descărcăm nimic. Prima scriere continua să aducă
+    // fiecare fișier doar ca să-l treacă pe lista celor omise — adică plătea tot prețul
+    // ca să scrie „n-am luat asta".
+    if (rezumat.octetiFisiere >= maxFisiere) {
+      rezumat.fisiereOmise.push(cheie);
+      continue;
+    }
     try {
       const f = await s.getWithMetadata(cheie, { type: "arrayBuffer" });
       if (!f || !f.data) continue;
       const octeti = new Uint8Array(f.data);
       if (rezumat.octetiFisiere + octeti.length > maxFisiere) {
         rezumat.fisiereOmise.push(cheie + " (" + Math.round(octeti.length / 1024) + " KB)");
+        // Marcăm limita ca atinsă: următoarele nici nu se mai cer.
+        rezumat.octetiFisiere = maxFisiere;
         continue;
       }
       const ext = EXTENSII[f.metadata?.tip] || EXTENSII[f.metadata?.contentType] || "bin";

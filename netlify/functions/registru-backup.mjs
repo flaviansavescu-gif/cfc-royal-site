@@ -21,7 +21,10 @@ import { construiesteArhiva } from "./_comun/registru-arhiva.mjs";
 import { curataMagazia } from "./registru-acces.mjs";
 // Criptarea și trimiterea stau în modul comun, împreună cu copia celorlalte magazii:
 // formatul fișierului e contractul cu unealta de descifrare și se ține într-un loc.
-import { cripteaza, asiguraRamura, puneCopia, configurareLipsa } from "./_comun/copie-cifrata.mjs";
+import {
+  cripteaza, asiguraRamura, puneCopia, configurareLipsa,
+  stergeCopiiVechi, LUNI_DE_PASTRARE,
+} from "./_comun/copie-cifrata.mjs";
 
 /** Cât încape într-un fișier trimis prin API-ul GitHub, cu marjă. */
 const MAX_FISIERE_AUTO = 15 * 1024 * 1024;
@@ -65,9 +68,23 @@ export default async () => {
       console.warn(`Copie făcută, dar ${rezumat.fisiereOmise.length} fișiere au depășit limita ` +
         `automată de ${MAX_FISIERE_AUTO / 1048576} MB. Folosește exportul manual pentru arhiva completă.`);
     }
+    // Curățenia copiilor vechi, DUPĂ ce cea nouă e sus: dacă ștergerea cade, măcar
+    // copia de azi există. Politica de confidențialitate promite că o informație ștearsă
+    // iese din copii în cel mult 12 luni — aici se ține promisiunea, nu în vorbe.
+    let vechi = null;
+    try {
+      vechi = await stergeCopiiVechi();
+      if (vechi.sterse.length) {
+        console.log(`Copii mai vechi de ${LUNI_DE_PASTRARE} luni, șterse: ${vechi.sterse.join(", ")}`);
+      }
+      if (vechi.erori.length) console.error("Curățenia copiilor vechi, cu erori:", vechi.erori);
+    } catch (err) {
+      console.error("Curățenia copiilor vechi a eșuat:", err);
+    }
+
     console.log(`Copia registrului: ${cale} · ${rezumat.inregistrari} înregistrări · ` +
       `${rezumat.fisiere} fișiere · ${(cifrat.length / 1048576).toFixed(1)} MB criptați`);
-    return json({ ok: true, cale, ...rezumat, curatenie });
+    return json({ ok: true, cale, ...rezumat, curatenie, copiiVechiSterse: vechi?.sterse?.length ?? 0 });
   } catch (err) {
     console.error("COPIA REGISTRULUI A EȘUAT:", err);
     return json({ ok: false, eroare: err.message }, 500);

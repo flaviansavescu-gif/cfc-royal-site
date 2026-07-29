@@ -7,7 +7,7 @@
 //   3. Ce sare, sare pentru un motiv scris, nu din întâmplare.
 //
 // Rulează: node netlify/functions/_comun/magazie-arhiva.test.mjs
-import { arhiveazaMagazia, eSarita, eDerivata, PREFIXE_SARITE, MAGAZII } from "./magazie-arhiva.mjs";
+import { arhiveazaMagazia, eSarita, eDerivata, eFisier, PREFIXE_SARITE, PREFIXE_FISIERE, MAGAZII } from "./magazie-arhiva.mjs";
 import { unzipSync } from "fflate";
 
 let rau = 0;
@@ -18,10 +18,12 @@ const e = (nume, bun, info) => {
 const text = (u8) => new TextDecoder().decode(u8);
 
 /** Magazie prefăcută, cu aceeași înfățișare ca @netlify/blobs. */
-function magaziePrefacuta(intrari) {
+function magaziePrefacuta(intrari, contor) {
+  const numara = (fel, cheie) => { if (contor) contor.push(fel + " " + cheie); };
   return {
     async list() { return { blobs: Object.keys(intrari).map((key) => ({ key })) }; },
     async get(cheie, { type } = {}) {
+      numara("get", cheie);
       const v = intrari[cheie];
       if (v === undefined) return null;
       if (type === "json") {
@@ -31,6 +33,7 @@ function magaziePrefacuta(intrari) {
       return v;
     },
     async getWithMetadata(cheie) {
+      numara("bin", cheie);
       const v = intrari[cheie];
       if (v === undefined) return null;
       return { data: v instanceof Uint8Array ? v.buffer : null, metadata: { tip: "image/jpeg" } };
@@ -120,6 +123,44 @@ console.log("— lista magaziilor acoperă tot ce nu e registrul —");
     e("magazia „" + m + "\" e în listă", nume.includes(m));
   e("registrul NU e aici (are copia lui)", !nume.includes("registru"));
   e("fiecare magazie are scris ce ține", MAGAZII.every((m) => m.ce && m.ce.length > 20));
+}
+
+// ——————————————————————————————————————————————————————————————————
+console.log("— fișierele cunoscute NU se descarcă de două ori —");
+{
+  // Prima scriere încerca fiecare cheie ca JSON. O dovadă de plată de 4 MB se descărca o
+  // dată ca să eșueze parsarea și încă o dată ca fișier: la o expoziție cu 200 de
+  // înscrieri, peste un gigabyte adus degeaba, iar funcția rămânea fără memorie.
+  const urme = [];
+  const st = magaziePrefacuta({
+    "coada/expo/1": { numeCaine: "Rex" },
+    "dovada/expo/1": mare(300),
+    "dovada/expo/2": mare(300),
+  }, urme);
+  const r = await arhiveazaMagazia("expozitii", { maxFisiere: 10_000, store: st });
+  e("fișa s-a citit ca JSON", urme.includes("get coada/expo/1"));
+  e("dovada NU s-a încercat ca JSON", !urme.includes("get dovada/expo/1"), urme.join(" | "));
+  e("dovada s-a adus o singură dată", urme.filter((u) => u === "bin dovada/expo/1").length === 1);
+  e("amândouă dovezile au intrat", r.rezumat.fisiere === 2, String(r.rezumat.fisiere));
+  for (const pre of PREFIXE_FISIERE) e("prefix de fișier recunoscut: " + pre, eFisier(pre + "x"));
+  e("o cheie obișnuită nu e fișier", !eFisier("candidat/ana"));
+}
+
+console.log("— odată atinsă limita, nu se mai descarcă nimic —");
+{
+  const urme = [];
+  const st = magaziePrefacuta({
+    "dovada/expo/1": mare(400),
+    "dovada/expo/2": mare(400),
+    "dovada/expo/3": mare(400),
+    "dovada/expo/4": mare(400),
+  }, urme);
+  // Limita e 500: intră primul, al doilea o depășește, restul nici nu se mai cer.
+  const r = await arhiveazaMagazia("expozitii", { maxFisiere: 500, store: st });
+  e("un singur fișier a intrat", r.rezumat.fisiere === 1, String(r.rezumat.fisiere));
+  e("celelalte trei sunt trecute ca omise", r.rezumat.fisiereOmise.length === 3, JSON.stringify(r.rezumat.fisiereOmise));
+  const aduse = urme.filter((u) => u.startsWith("bin ")).length;
+  e("s-au adus DOAR două fișiere, nu toate patru", aduse === 2, "aduse: " + aduse);
 }
 
 console.log(rau ? rau + " căzute" : "toate trecute");

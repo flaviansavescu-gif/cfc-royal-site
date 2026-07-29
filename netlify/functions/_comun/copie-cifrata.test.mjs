@@ -6,7 +6,10 @@
 // că unealta de descifrare nu mai potrivește antetul. Proba asta ține formatul locului.
 //
 // Rulează: node netlify/functions/_comun/copie-cifrata.test.mjs
-import { cripteaza, descifreaza, MARCA, configurareLipsa } from "./copie-cifrata.mjs";
+import {
+  cripteaza, descifreaza, MARCA, configurareLipsa,
+  ePreaVeche, dataDinNume, LUNI_DE_PASTRARE,
+} from "./copie-cifrata.mjs";
 import { readFileSync } from "node:fs";
 
 let rau = 0;
@@ -86,6 +89,38 @@ console.log("— amândouă copiile folosesc același modul —");
   e("copia magaziilor îl importă", mag.includes('from "./_comun/copie-cifrata.mjs"'));
   e("copia registrului nu mai are criptare proprie", !reg.includes("PBKDF2"));
   e("nici trimitere proprie", !reg.includes("api.github.com"));
+}
+
+console.log("— copiile mai vechi de un an se șterg, cum scrie în politică —");
+{
+  // Politica de confidențialitate publicată promite că o informație ștearsă din sistem
+  // iese și din copii în cel mult 12 luni. Fără curățenia asta, promisiunea era vorbă:
+  // fiecare arhivă săptămânală rămânea pe ramură la nesfârșit.
+  const acum = new Date("2027-03-15T00:00:00Z");
+  e("pragul e de un an", LUNI_DE_PASTRARE === 12, String(LUNI_DE_PASTRARE));
+
+  e("data se citește din nume", dataDinNume("registru-2026-08-02.zip.enc")?.toISOString().slice(0, 10) === "2026-08-02");
+  e("un nume străin nu dă dată", dataDinNume("citeste-ma.txt") === null);
+
+  e("o copie de acum două luni RĂMÂNE", !ePreaVeche("cursuri-2027-01-10.zip.enc", acum));
+  e("una de acum unsprezece luni RĂMÂNE", !ePreaVeche("cursuri-2026-04-20.zip.enc", acum));
+  e("una de acum treisprezece luni SE ȘTERGE", ePreaVeche("cursuri-2026-02-01.zip.enc", acum));
+  e("una de acum doi ani SE ȘTERGE", ePreaVeche("registru-2025-03-15.zip.enc", acum));
+
+  // Un fișier cu nume neînțeles NU se șterge: mai bine o copie în plus decât una
+  // pierdută dintr-o potrivire nereușită.
+  e("un nume pe care nu-l înțelegem NU se șterge", !ePreaVeche("CITESTE-MA.md", acum));
+  e("nici unul fără extensia noastră", !ePreaVeche("registru-2020-01-01.zip", acum));
+}
+
+console.log("— curățenia e chemată de copia săptămânală —");
+{
+  const reg = readFileSync(new URL("../registru-backup.mjs", import.meta.url), "utf8");
+  e("copia registrului cheamă curățenia", reg.includes("stergeCopiiVechi()"));
+  // DUPĂ punerea copiei noi: dacă ștergerea cade, măcar copia de azi există.
+  e("o cheamă DUPĂ ce a pus copia de azi",
+    reg.indexOf("await puneCopia(") < reg.indexOf("stergeCopiiVechi()"));
+  e("o eroare la curățenie nu doboară copia", /catch \(err\) \{\s*console\.error\("Curățenia copiilor vechi a eșuat/.test(reg));
 }
 
 console.log(rau ? rau + " căzute" : "toate trecute");

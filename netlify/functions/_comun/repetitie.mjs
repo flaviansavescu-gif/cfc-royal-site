@@ -33,6 +33,35 @@ export function poateSterge(config) {
 }
 
 /**
+ * Se poate PUNE marcajul de repetiție?
+ *
+ * Paza de la ștergere e reală, dar oprește doar accidentul dintr-un singur pas: fără
+ * marcaj nu se șterge nimic. Nu-l oprea pe cel din DOI pași — un showId tastat greșit la
+ * marcare, urmat de curățenie, mătura o expoziție adevărată cu tot cu dovezile de plată.
+ *
+ * De aceea marcajul se refuză dacă expoziția are deja înscrieri. O repetiție se marchează
+ * ÎNAINTE să vină vreuna — așa scrie și în foaia de lucru — deci regula nu încurcă
+ * niciodată fluxul adevărat, dar face imposibilă greșeala care doare.
+ *
+ * Scoaterea marcajului rămâne mereu îngăduită: nu strică nimic, doar readuce expoziția
+ * sub ochii publicului.
+ */
+export function poateMarca(config, numarInscrieri, pornit = true) {
+  if (!config) return { ok: false, status: 404, eroare: "Expoziția nu e publicată online." };
+  if (!pornit) return { ok: true };
+  if (numarInscrieri > 0) {
+    return {
+      ok: false,
+      status: 409,
+      eroare:
+        `Expoziția are deja ${numarInscrieri} înscrieri. O repetiție se marchează înainte de ` +
+        "prima înscriere. Dacă ai greșit expoziția, verifică showId-ul.",
+    };
+  }
+  return { ok: true };
+}
+
+/**
  * Tot ce ține de o expoziție, pe prefixe. Fiecare e legat de showId: un prefix rămas
  * fără showId ar mătura toate expozițiile deodată.
  */

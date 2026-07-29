@@ -111,6 +111,72 @@ export async function puneCopia(cale, octeti, mesaj) {
   return cale;
 }
 
+/**
+ * Câte luni se păstrează o copie. Politica de confidențialitate publicată pe site spune
+ * că o informație ștearsă din sistem iese și din copii în cel mult 12 luni — iar o
+ * promisiune scrisă trebuie ținută de cod, nu de bunăvoință. Fără curățenia asta, fiecare
+ * arhivă săptămânală ar rămâne pe ramură la nesfârșit, iar o dată ștearsă la cererea
+ * cuiva ar trăi mai departe în toate.
+ */
+export const LUNI_DE_PASTRARE = 12;
+
+/** Data din numele fișierului: `copii/registru-2026-08-02.zip.enc` -> 2026-08-02. */
+export function dataDinNume(nume) {
+  const m = String(nume).match(/(\d{4})-(\d{2})-(\d{2})\.zip\.enc$/);
+  if (!m) return null;
+  const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
+  return isNaN(d.getTime()) ? null : d;
+}
+
+/** E mai veche decât pragul? Funcție pură, ca să poată fi probată fără GitHub. */
+export function ePreaVeche(nume, acum, luni = LUNI_DE_PASTRARE) {
+  const d = dataDinNume(nume);
+  if (!d) return false; // un nume pe care nu-l înțelegem NU se șterge
+  const prag = new Date(acum);
+  prag.setUTCMonth(prag.getUTCMonth() - luni);
+  return d < prag;
+}
+
+/**
+ * Șterge de pe ramura de copii tot ce e mai vechi decât pragul.
+ *
+ * Ce nu se poate citi sau nu se poate șterge NU oprește restul: o curățenie care se
+ * oprește la prima piatră lasă în urmă exact ce trebuia să ia.
+ */
+export async function stergeCopiiVechi(acum = new Date(), luni = LUNI_DE_PASTRARE) {
+  const rezultat = { sterse: [], erori: [] };
+  let lista;
+  try {
+    const r = await github(`/repos/${REPO()}/contents/copii?ref=${RAMURA()}`);
+    if (r.status === 404) return rezultat; // încă nu există nicio copie
+    if (!r.ok) throw new Error("listare " + r.status);
+    lista = await r.json();
+  } catch (err) {
+    rezultat.erori.push("Nu am putut citi lista copiilor: " + err.message);
+    return rezultat;
+  }
+  if (!Array.isArray(lista)) return rezultat;
+
+  for (const f of lista) {
+    if (f.type !== "file" || !ePreaVeche(f.name, acum, luni)) continue;
+    try {
+      const sters = await github(`/repos/${REPO()}/contents/copii/${f.name}`, {
+        method: "DELETE",
+        body: JSON.stringify({
+          message: `Curățenie: copia ${f.name} a depășit ${luni} luni`,
+          sha: f.sha,
+          branch: RAMURA(),
+        }),
+      });
+      if (!sters.ok) throw new Error(String(sters.status));
+      rezultat.sterse.push(f.name);
+    } catch (err) {
+      rezultat.erori.push(f.name + ": " + err.message);
+    }
+  }
+  return rezultat;
+}
+
 /** Lipsesc cheile? Spune-o o dată, limpede, la fel pentru toți cei care fac copii. */
 export function configurareLipsa() {
   const lipsa = [

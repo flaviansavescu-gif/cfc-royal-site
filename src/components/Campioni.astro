@@ -11,7 +11,9 @@
 // Spațiul gol NU se ascunde. O secțiune care lipsește lasă impresia că lista e completă;
 // una goală, cu explicație, spune adevărul: n-am organizat încă expoziția din care să
 // iasă primul campion.
+import { getCollection } from "astro:content";
 import { FISE, NUME_TITLU, numaraTitluri, totalTitluri, type FisaTitluri } from "../data/titluri-externe";
+import { isLang, entrySlug } from "../i18n/content";
 
 interface Props { lang: "ro" | "en"; }
 const { lang } = Astro.props;
@@ -41,6 +43,8 @@ const T = {
     dovadaText: "Fișa de evidență semnată de arbitru și confirmată de organizator. Coloanele „Nume Proprietar\" și „Microcip\" au fost acoperite înainte de publicare: sunt date cu caracter personal, iar rezultatele publice cuprind doar titlurile.",
     dovadaBtn: "Deschide fișa (PDF)",
 
+    fiseTitlu: "Fișele exemplarelor",
+    fiseIntro: "Câini campioni cu fișă proprie pe site: rasă, crescător, pedigree și diplomă de campion.",
     notaTitlu: "Despre transcriere",
     notaText: "Fișele se completează de mână, la fața locului, iar numele străine pot fi citite greșit. Dacă un nume de câine sau o rasă din tabelele de mai sus e scris greșit, scrie-ne la contact@cfc-royal.ro și îl îndreptăm — documentul semnat rămâne sursa de adevăr.",
   },
@@ -68,10 +72,18 @@ const T = {
     dovadaText: "The record sheet signed by the judge and confirmed by the organiser. The \"Owner's name\" and \"Microchip\" columns were covered before publication: they are personal data, and published results cover titles only.",
     dovadaBtn: "Open the sheet (PDF)",
 
+    fiseTitlu: "Individual records",
+    fiseIntro: "Champion dogs with their own page on the site: breed, breeder, pedigree and champion diploma.",
     notaTitlu: "About the transcription",
     notaText: "The sheets are filled in by hand, on site, and foreign names can be misread. If a dog's name or a breed in the tables above is wrong, write to contact@cfc-royal.ro and we will correct it — the signed document remains the source of truth.",
   },
 }[lang];
+
+// Fișele individuale de campion din colecție. Paginile lor se generează oricum
+// (`/<limbă>/campioni/<slug>/`); dacă n-am lega de aici, ar exista fără să se poată
+// ajunge la ele — pagini orfane, descoperite abia de un motor de căutare.
+const fise = (await getCollection("campioni", (x: any) => isLang(x.id, lang) && !x.data.draft))
+  .sort((a: any, b: any) => a.data.title.localeCompare(b.data.title, "ro"));
 
 const total = totalTitluri();
 const dataLunga = (iso: string) =>
@@ -176,6 +188,23 @@ const rezumat = (f: FisaTitluri) => {
     ))}
   </section>
 
+  {fise.length > 0 && (
+    <section class="cp__sect">
+      <h2 class="cp__h2">{T.fiseTitlu}</h2>
+      <p class="cp__lead">{T.fiseIntro}</p>
+      <ul class="cp__fise" role="list">
+        {fise.map((f: any) => (
+          <li>
+            <a href={`/${lang}/campioni/${entrySlug(f.id)}`}>
+              <strong>{f.data.title}</strong>
+              <span>{[f.data.breed, f.data.championTitle].filter(Boolean).join(" · ")}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
   <aside class="cp__nota">
     <h2>{T.notaTitlu}</h2>
     <p>{T.notaText}</p>
@@ -230,6 +259,12 @@ const rezumat = (f: FisaTitluri) => {
   .cp__dovada { margin-top: 1.3rem; padding-top: 1.2rem; border-top: 1px solid var(--color-border); }
   .cp__dovada h4 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.05rem; margin: 0 0 0.4rem; }
   .cp__dovada p { margin: 0 0 0.9rem; color: var(--color-text-muted); font-size: 0.93rem; line-height: 1.6; max-width: 46rem; }
+
+  .cp__fise { display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); margin-top: 1.3rem; padding: 0; list-style: none; }
+  .cp__fise a { display: block; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.9rem 1.1rem; text-decoration: none; }
+  .cp__fise a:hover { border-color: var(--color-primary); }
+  .cp__fise strong { display: block; color: var(--color-primary); font-family: var(--font-serif); font-size: 1.05rem; }
+  .cp__fise span { color: var(--color-text-muted); font-size: 0.9rem; }
 
   .cp__nota { margin-top: 3rem; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1.5rem 1.4rem; }
   .cp__nota h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.15rem; margin: 0 0 0.5rem; }
