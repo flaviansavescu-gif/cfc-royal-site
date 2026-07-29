@@ -154,6 +154,13 @@ const CLASE = [
   <form class="ie__form" id="ie-form" hidden autocomplete="off">
     <p class="ie__err" id="ie-err" hidden></p>
 
+    <p class="ie__repetitie" id="ie-repetitie" hidden role="status">
+      <strong>REPETIȚIE TEHNICĂ.</strong> Expoziția aleasă nu este una adevărată — este o probă
+      a sistemului, făcută înaintea unei expoziții reale. Înscrierile de aici se șterg la
+      sfârșit. Dacă ai ajuns aici din greșeală, întoarce-te la
+      <a href="/ro/inscriere-expozitie/">formularul obișnuit</a>.
+    </p>
+
     <label class="ie__f">
       <span>{T.expozitie} <b class="req">*</b></span>
       <select id="ie-show" name="showId" required></select>
@@ -278,9 +285,14 @@ const CLASE = [
     const err = document.getElementById("ie-err");
     const succes = document.getElementById("ie-succes");
 
+    // Repetiția generală: cu „?repetitie=1" în adresă, formularul vede și expozițiile de
+    // repetiție. Fără el — și așa intră publicul — nu există. Nu e o parolă; e un fel de a
+    // nu pune „REPETIȚIE TEHNICĂ" lângă expozițiile adevărate.
+    const eRepetitie = new URLSearchParams(location.search).get("repetitie") === "1";
+
     let expozitii = [];
     try {
-      const r = await fetch("/.netlify/functions/inscriere-expo");
+      const r = await fetch("/.netlify/functions/inscriere-expo" + (eRepetitie ? "?repetitie=1" : ""));
       expozitii = (await r.json()).expozitii || [];
     } catch (e) {}
 
@@ -288,8 +300,17 @@ const CLASE = [
     if (!expozitii.length) { gol.hidden = false; return; }
 
     showSel.innerHTML = expozitii
-      .map((e) => `<option value="${e.showId}">${e.nume} — ${new Date(e.data).toLocaleDateString()}</option>`)
+      .map((e) => `<option value="${e.showId}">${(e.repetitie ? "[REPETIȚIE] " : "") + e.nume} — ${new Date(e.data).toLocaleDateString()}</option>`)
       .join("");
+
+    // Banda de avertizare, ca nimeni să nu completeze din greșeală un formular de probă.
+    const bandaRepetitie = document.getElementById("ie-repetitie");
+    function aratBanda() {
+      const e = expozitii.find((x) => x.showId === showSel.value);
+      if (bandaRepetitie) bandaRepetitie.hidden = !e?.repetitie;
+    }
+    showSel.addEventListener("change", aratBanda);
+    aratBanda();
 
     function populeazaRase() {
       const e = expozitii.find((x) => x.showId === showSel.value);
@@ -530,6 +551,18 @@ const CLASE = [
   .ie__consim { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.92rem; }
   .ie__consim input { margin-top: 0.2rem; }
   .ie__err { color: #8c1d2f; font-weight: 600; background: #f9efef; border: 1px solid #8c1d2f; border-radius: var(--radius); padding: 0.6rem 0.9rem; }
+
+  /* Banda de repetiție: dungi, ca la un șantier. Trebuie să nu semene cu nimic din
+     formularul adevărat, ca nimeni să nu completeze din greșeală o probă. */
+  .ie__repetitie {
+    border: 2px dashed #9a6b00;
+    background: repeating-linear-gradient(45deg, #fff8e6, #fff8e6 12px, #fdf1cf 12px, #fdf1cf 24px);
+    color: #4a3600;
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+    font-size: var(--fs-300);
+  }
+  .ie__repetitie a { color: #6b4a00; }
   .ie__succes { background: #eef5f0; border: 1px solid var(--color-primary); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
   .ie__succes p { margin: 0 0 0.75rem; color: var(--color-primary); font-weight: 600; }
   @media (max-width: 560px) { .ie__row { grid-template-columns: 1fr; } }

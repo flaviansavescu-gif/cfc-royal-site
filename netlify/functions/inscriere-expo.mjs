@@ -11,6 +11,15 @@
 import { getStore } from "@netlify/blobs";
 import { eRobot, limiteazaTrimiterile, minuteText } from "./_comun/formular-public.mjs";
 import { calculeazaTaxa, taxaVeche } from "./_comun/taxa-expo.mjs";
+// MODUL REPETIȚIE. Lanțul înscriere → verificare → import → catalog → ring → rezultate
+// n-a trecut niciodată printr-o expoziție adevărată. Repetiția generală îl trece, cu date
+// născocite care nu au ce căuta sub ochii publicului. O expoziție marcată ca repetiție
+// merge ÎNTRU TOTUL ca una adevărată — doar că nu apare public. Regulile stau în modulul
+// lor, ca să poată fi probate pe fapte, nu citite cu ochii.
+import {
+  eRepetitie, poateSterge, prefixeleExpozitiei, cheileExpozitiei,
+  seVedeInFormular, seVedeInCalendar,
+} from "./_comun/repetitie.mjs";
 import { createHash } from "node:crypto";
 
 const SECRET = process.env.EXPO_SYNC_SECRET || "";
@@ -65,6 +74,12 @@ function inchisPentruInscrieri(config) {
   return new Date() > limita;
 }
 
+/** Cererea vrea să vadă și repetițiile? `?repetitie=1`. */
+function vedeRepetitiile(req) {
+  try { return new URL(req.url).searchParams.get("repetitie") === "1"; }
+  catch { return false; }
+}
+
 /** Câți câini a mai înscris adresa asta la expoziția asta.
  *  Un contor propriu, nu o numărătoare peste toată coada: la o expoziție cu două
  *  sute de înscrieri, fiecare trimitere ar citi două sute de fișe ca să afle un
@@ -87,6 +102,9 @@ export default async (req) => {
       const { blobs } = await store.list({ prefix: "config/" });
       for (const b of blobs) {
         const c = await store.get(b.key, { type: "json" }).catch(() => null);
+        // Calendarul e pagina publică a asociației. Repetițiile nu apar niciodată acolo,
+        // nici măcar cu `?repetitie=1`: acolo se uită lumea, nu noi.
+        if (c && !seVedeInCalendar(c)) continue;
         if (c && !inchisPentruInscrieri(c)) {
           intrari.set(c.showId, { showId: c.showId, nume: c.nume, data: c.data, locatie: c.locatie, termen: c.termen, stare: "inscrieri" });
         }
@@ -107,13 +125,16 @@ export default async (req) => {
   // ——— Public: lista expozițiilor deschise ———
   if (req.method === "GET") {
     const expozitii = [];
+    const cuRepetitii = vedeRepetitiile(req);
     try {
       const { blobs } = await store.list({ prefix: "config/" });
       for (const b of blobs) {
         const c = await store.get(b.key, { type: "json" });
+        if (c && !seVedeInFormular(c, cuRepetitii)) continue;
         if (c && !inchisPentruInscrieri(c)) {
           expozitii.push({
             showId: c.showId, nume: c.nume, data: c.data, termen: c.termen, locatie: c.locatie,
+            repetitie: eRepetitie(c) || undefined,
             rase: c.rase || [],
             // `tarif` = grila nouă (membru/nemembru × primul/următorii). `taxe` = calea
             // veche, pe clase; expozițiile publicate înainte de schimbare o păstrează.
@@ -215,6 +236,43 @@ export default async (req) => {
         nume: r.metadata?.nume || "dovada",
       });
     }
+    // ——— Repetiția generală ———
+    if (body.actiune === "repetitie") {
+      const c = await store.get("config/" + body.showId, { type: "json" });
+      if (!c) return json({ eroare: "Expoziția nu e publicată online." }, 404);
+      await store.setJSON("config/" + body.showId, { ...c, repetitie: body.pornit !== false });
+      return json({ ok: true, repetitie: body.pornit !== false });
+    }
+
+    if (body.actiune === "repetitie-sterge") {
+      const showId = String(body.showId || "");
+      const c = await store.get("config/" + showId, { type: "json" });
+
+      // PAZA, întrebată ÎNAINTE de prima ștergere. Nu întreabă omul „ești sigur?" —
+      // întreabă magazia. Fără marcajul de repetiție, pus dinainte printr-o altă
+      // acțiune, nu se atinge nimic.
+      const verdict = poateSterge(c);
+      if (!verdict.ok) return json({ eroare: verdict.eroare }, verdict.status);
+
+      const sterse = { coada: 0, dovezi: 0, verificari: 0, audit: 0, proprietari: 0, config: 0 };
+      for (const { prefix, camp } of prefixeleExpozitiei(showId)) {
+        try {
+          const { blobs } = await store.list({ prefix });
+          for (const b of blobs) {
+            await store.delete(b.key).catch(() => {});
+            sterse[camp]++;
+          }
+        } catch (err) {
+          console.error("Curățenia repetiției a eșuat la " + prefix + ":", err);
+        }
+      }
+      for (const cheie of cheileExpozitiei(showId)) await store.delete(cheie).catch(() => {});
+      sterse.config = 1;
+
+      console.log(`Repetiția „${showId}" a fost ștearsă:`, sterse);
+      return json({ ok: true, sterse });
+    }
+
     return json({ eroare: "Acțiune necunoscută." }, 400);
   }
 
@@ -332,6 +390,10 @@ export default async (req) => {
 
   const inscriere = {
     showId,
+    // Marcajul călătorește cu înscrierea, nu se deduce din configurație: registratura și
+    // managerul trebuie să vadă „e o repetiție" chiar dacă se uită la fișă peste o
+    // săptămână, când configurația a fost deja ștearsă.
+    ...(eRepetitie(config) ? { repetitie: true } : {}),
     numeCaine: numeCaine.slice(0, 120),
     rasaId,
     rasaNumeRo: rasa.numeRo,
