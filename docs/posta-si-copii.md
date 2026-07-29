@@ -28,37 +28,33 @@ Se rulează când schimbi ceva la DNS sau la furnizorul de e-mail, și o dată p
 
 ### Starea la 29 iulie 2026
 
-- **SPF:** `v=spf1 include:zohomail.eu ~all` — cuprinde Zoho, **nu** cuprinde Brevo.
-- **DKIM:** configurat pentru amândouă (`brevo1`, `brevo2`, `zmail`). Mesajele automate se
-  dovedesc, așadar, prin DKIM.
+- **SPF:** `v=spf1 include:zohomail.eu include:spf.brevo.com ~all` — cuprinde amândoi
+  expeditorii. ✔ pus în ziua de 29 iulie 2026.
+- **DKIM:** configurat pentru amândouă (`brevo1`, `brevo2`, `zmail`).
 - **DMARC:** `v=DMARC1; p=none; rua=mailto:rua@dmarc.brevo.com` — se raportează, dar nu se
-  oprește nimic.
-
-Nu e stricat: DKIM aliniat e de ajuns ca DMARC să treacă. Dar totul stă într-un singur
-picior, iar rapoartele nu opresc pe nimeni.
+  oprește nimic. **Rămas de urcat la `quarantine` după 29 august 2026.**
 
 ### Ce e de schimbat, în DNS-ul de la Netlify
 
 **Netlify → Domains → cfc-royal.ro → DNS records.**
 
-#### Pasul 1, acum: Brevo intră și în SPF
+#### ✔ Pasul 1 — FĂCUT la 29 iulie 2026: Brevo a intrat și în SPF
 
-Modifică înregistrarea TXT existentă pentru `cfc-royal.ro`:
+Valoarea de acum, pe `cfc-royal.ro` (rădăcină):
 
-| | |
-|---|---|
-| Tip | TXT |
-| Nume | `cfc-royal.ro` (rădăcina) |
-| Valoare veche | `v=spf1 include:zohomail.eu ~all` |
-| **Valoare nouă** | `v=spf1 include:zohomail.eu include:spf.brevo.com ~all` |
+```
+v=spf1 include:zohomail.eu include:spf.brevo.com ~all
+```
 
-**O singură înregistrare SPF pe domeniu.** Două se anulează reciproc — nu adăuga una nouă,
-modific-o pe cea existentă.
+Mesajele automate se dovedesc de-acum și prin SPF, nu doar prin DKIM: dacă mâine cheia
+DKIM de la Brevo se schimbă din greșeală, mesajele tot ajung.
 
-Efect: mesajele automate se dovedesc și prin SPF, nu doar prin DKIM. Dacă mâine cheia DKIM
-de la Brevo se schimbă din greșeală, mesajele tot ajung.
+**O singură înregistrare SPF pe domeniu.** Două se anulează reciproc. Netlify nu dă „Edit"
+pe TXT — se șterge cea veche și se adaugă cea nouă, în ordinea asta: cât timp nu există
+niciuna, DKIM ține locul; dacă ar exista două deodată, SPF-ul ar fi invalid.
+La câmpul Name se scrie numele întreg, `cfc-royal.ro`, nu se lasă gol.
 
-#### Pasul 2, peste o lună: DMARC se face lucrativ
+#### Pasul 2, după 29 august 2026: DMARC se face lucrativ
 
 Intră în Brevo → *Senders, Domains & Dedicated IPs* → raportul DMARC și uită-te o lună la
 el. Cauți un singur lucru: **trimite cineva în numele domeniului fără să fie noi?** Dacă
