@@ -1,0 +1,253 @@
+<!--
+  Teleprompter pentru cursuri online
+  ----------------------------------
+  Proiect static (HTML/CSS/JS vanilla). Fără backend, fără pași de build.
+  Se deschide direct în browser (file://) sau de pe orice hosting static.
+
+  Scripturile JS sunt încărcate ca script-uri clasice (nu ES modules) tocmai
+  pentru a funcționa la dublu-click pe fișier în Chrome. Fiecare fișier adaugă
+  câte un modul pe obiectul global `TP`. Ordinea de încărcare contează:
+  storage -> markdown -> library/settings/prompter -> extensii -> app.
+-->
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Sufler — Teleprompter pentru cursuri online</title>
+  <!-- Favicon „S" înglobat (SVG, fără fișier extern) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMxNjE4MWMiLz48dGV4dCB4PSIzMiIgeT0iNDYiIGZvbnQtZmFtaWx5PSJTZWdvZSBVSSxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjQ0IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjNGY5ZGZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TPC90ZXh0Pjwvc3ZnPg==" />
+  <meta name="description" content="Sufler — teleprompter pentru predarea cursurilor online. Rulează complet în browser." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-theme="dark">
+
+  <!-- ================= ECRANUL 1: EDITOR / BIBLIOTECĂ ================= -->
+  <main id="screen-editor" class="screen screen--editor is-active">
+    <header class="topbar">
+      <div class="topbar__brand">
+        <h1 class="topbar__title">Sufler</h1>
+        <span class="topbar__tagline">textul tău, pe furiș</span>
+      </div>
+      <div class="topbar__actions">
+        <button id="btn-open-settings" class="btn btn--ghost" type="button" title="Setări text (S)">Setări</button>
+        <button id="btn-start-prompter" class="btn btn--primary" type="button">Pornește prompterul ▸</button>
+      </div>
+    </header>
+
+    <div class="editor-layout">
+      <!-- Coloana stângă: biblioteca de scripturi salvate -->
+      <aside class="library" aria-label="Bibliotecă de scripturi">
+        <div class="library__head">
+          <h2>Scripturi</h2>
+          <button id="btn-new-script" class="btn btn--small" type="button">+ Nou</button>
+        </div>
+        <button id="btn-platform-course" class="btn btn--small btn--platform" type="button" title="Alege un curs din programa lectorilor">
+          📚 Încarcă un curs din platformă
+        </button>
+        <ul id="script-list" class="script-list" role="listbox" aria-label="Listă scripturi"></ul>
+        <p class="library__hint">Scripturile se salvează local, în acest browser.</p>
+      </aside>
+
+      <!-- Coloana dreaptă: editorul scriptului activ -->
+      <section class="editor" aria-label="Editor script">
+        <div class="editor__toolbar">
+          <input
+            id="script-name"
+            class="input input--name"
+            type="text"
+            placeholder="Numele scriptului"
+            aria-label="Numele scriptului"
+          />
+          <div class="editor__toolbar-actions">
+            <label class="btn btn--small" for="file-import" title="Importă .txt sau .md">
+              Import fișier
+              <input id="file-import" type="file" accept=".txt,.md,text/plain,text/markdown" hidden />
+            </label>
+            <button id="btn-save-script" class="btn btn--small" type="button">Salvează</button>
+            <button id="btn-delete-script" class="btn btn--small btn--danger" type="button">Șterge</button>
+          </div>
+        </div>
+
+        <textarea
+          id="script-text"
+          class="editor__textarea"
+          placeholder="Lipește sau scrie aici textul cursului...&#10;&#10;## Titlurile de secțiune încep cu ## și apar evidențiate&#10;**Textul îngroșat** se scrie între steluțe duble.&#10;&#10;Paragrafele goale separă ideile."
+          spellcheck="false"
+        ></textarea>
+
+        <footer class="editor__stats">
+          <span id="stat-words">0 cuvinte</span>
+          <span id="stat-time">~0 min de citit</span>
+          <span class="editor__stats-spacer"></span>
+          <label class="inline-field">
+            Viteză estimare:
+            <input id="estimate-wpm" class="input input--tiny" type="number" min="60" max="300" step="5" />
+            cuv/min
+          </label>
+        </footer>
+      </section>
+    </div>
+
+    <!-- Note despre extensii viitoare (telecomandă, urmărire vocală) -->
+    <div id="ext-status" class="ext-status" hidden></div>
+  </main>
+
+  <!-- ================= ECRANUL 2: MODUL PROMPTER ================= -->
+  <section id="screen-prompter" class="screen screen--prompter" aria-label="Mod prompter" hidden>
+    <!-- Wrapper pe care se aplică oglindirea (scaleX), separat de track pentru
+         ca translateY-ul derulării să nu fie afectat de mirror. -->
+    <div id="prompter-mirror" class="prompter__mirror">
+      <div id="prompter-track" class="prompter__track" aria-live="off"></div>
+    </div>
+
+    <!-- Linia de ghidaj (indicatorul de citire) + gradientele de estompare -->
+    <div id="reading-guide" class="reading-guide" aria-hidden="true">
+      <span class="reading-guide__marker reading-guide__marker--left"></span>
+      <span class="reading-guide__line"></span>
+      <span class="reading-guide__marker reading-guide__marker--right"></span>
+    </div>
+    <div class="fade fade--top" aria-hidden="true"></div>
+    <div class="fade fade--bottom" aria-hidden="true"></div>
+
+    <!-- Bară de progres discretă -->
+    <div class="progress" aria-hidden="true"><div id="progress-bar" class="progress__bar"></div></div>
+
+    <!-- Bară de control jos (se ascunde când e inactivă) -->
+    <div id="prompter-controls" class="prompter-controls">
+      <button id="ctl-exit" class="ctl-btn" type="button" title="Ieșire (Esc)">✕ Ieșire</button>
+      <button id="ctl-restart" class="ctl-btn" type="button" title="Început (Home)">⟲ Început</button>
+      <button id="ctl-play" class="ctl-btn ctl-btn--play" type="button" title="Play/Pauză (Spațiu)">▶ Start</button>
+      <div class="ctl-speed">
+        <span class="ctl-speed__label">Viteză</span>
+        <input id="ctl-speed" class="ctl-speed__slider" type="range" min="40" max="320" step="1" />
+        <span id="ctl-speed-val" class="ctl-speed__val">130</span>
+        <span class="ctl-speed__unit">cuv/min</span>
+      </div>
+      <button id="ctl-mirror" class="ctl-btn" type="button" title="Oglindire (M)">⇋ Oglindă</button>
+      <button id="ctl-fullscreen" class="ctl-btn" type="button" title="Ecran complet (F)">⛶ Fullscreen</button>
+      <button id="ctl-help" class="ctl-btn" type="button" title="Scurtături (?)">? Taste</button>
+    </div>
+
+    <!-- Numărătoarea inversă -->
+    <div id="countdown" class="countdown" hidden><span id="countdown-num">3</span></div>
+
+    <!-- Overlay cu scurtăturile de tastatură -->
+    <div id="shortcuts" class="shortcuts" hidden>
+      <div class="shortcuts__card">
+        <h2>Scurtături de tastatură</h2>
+        <ul class="shortcuts__list">
+          <li><kbd>Spațiu</kbd> Play / Pauză</li>
+          <li><kbd>↑</kbd> / <kbd>↓</kbd> Viteză − / +</li>
+          <li><kbd>←</kbd> / <kbd>→</kbd> Salt înapoi / înainte câteva rânduri</li>
+          <li><kbd>Home</kbd> Înapoi la început</li>
+          <li><kbd>F</kbd> Ecran complet</li>
+          <li><kbd>M</kbd> Oglindire orizontală</li>
+          <li><kbd>Esc</kbd> Ieșire din prompter</li>
+          <li><kbd>?</kbd> Afișează / ascunde acest ajutor</li>
+          <li><span class="shortcuts__note">Click pe orice paragraf = salt la acel punct</span></li>
+        </ul>
+        <button id="shortcuts-close" class="btn btn--small" type="button">Închide</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PANOUL DE SETĂRI (drawer) ================= -->
+  <div id="settings-panel" class="settings-panel" hidden>
+    <div class="settings-panel__backdrop" data-close-settings></div>
+    <div class="settings-panel__drawer" role="dialog" aria-label="Setări text" aria-modal="true">
+      <div class="settings-panel__head">
+        <h2>Setări text</h2>
+        <button id="settings-close" class="btn btn--small" type="button" data-close-settings>Închide</button>
+      </div>
+
+      <div class="settings-panel__body">
+        <label class="field">
+          <span class="field__label">Dimensiune font: <b id="val-font-size">64</b> px</span>
+          <input id="set-font-size" type="range" min="24" max="120" step="1" />
+        </label>
+
+        <label class="field">
+          <span class="field__label">Familie de font</span>
+          <select id="set-font-family">
+            <option value="var(--f-sans)">Sans-serif (lizibil)</option>
+            <option value="var(--f-serif)">Serif</option>
+            <option value="var(--f-mono)">Monospace</option>
+            <option value="var(--f-humanist)">Humanist (Verdana)</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="field__label">Înălțime rând: <b id="val-line-height">1.5</b></span>
+          <input id="set-line-height" type="range" min="1.1" max="2.4" step="0.05" />
+        </label>
+
+        <label class="field">
+          <span class="field__label">Lățime coloană: <b id="val-column">80</b> %</span>
+          <input id="set-column" type="range" min="40" max="100" step="1" />
+        </label>
+
+        <label class="field">
+          <span class="field__label">Poziție linie de ghidaj: <b id="val-guide">40</b> %</span>
+          <input id="set-guide" type="range" min="15" max="75" step="1" />
+        </label>
+
+        <div class="field">
+          <span class="field__label">Aliniere</span>
+          <div class="segmented" role="group" aria-label="Aliniere text">
+            <button class="segmented__btn" data-align="left" type="button">Stânga</button>
+            <button class="segmented__btn" data-align="center" type="button">Centrat</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="field__label">Temă de culoare</span>
+          <div class="themes">
+            <button class="theme-swatch" data-theme-name="dark"  style="--sw-bg:#000;--sw-fg:#f2f2f2" type="button" title="Deschis pe negru">Aa</button>
+            <button class="theme-swatch" data-theme-name="navy"  style="--sw-bg:#0a1a33;--sw-fg:#ffffff" type="button" title="Alb pe albastru închis">Aa</button>
+            <button class="theme-swatch" data-theme-name="light" style="--sw-bg:#f7f7f7;--sw-fg:#111" type="button" title="Negru pe alb">Aa</button>
+            <button class="theme-swatch" data-theme-name="hc"    style="--sw-bg:#000;--sw-fg:#ffe100" type="button" title="Galben pe negru (contrast ridicat)">Aa</button>
+          </div>
+        </div>
+
+        <label class="field field--switch">
+          <span class="field__label">Numărătoare inversă (3-2-1)</span>
+          <input id="set-countdown" type="checkbox" />
+        </label>
+
+        <label class="field field--switch">
+          <span class="field__label">Oglindire orizontală (beamsplitter)</span>
+          <input id="set-mirror" type="checkbox" />
+        </label>
+
+        <button id="settings-reset" class="btn btn--small btn--danger" type="button">Resetează setările</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dialog: alegerea unui curs din programa lectorilor (platforma CFC-Royal) -->
+  <div id="platform-dialog" class="platform-dialog" hidden>
+    <div class="platform-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="platform-dialog-title">
+      <div class="platform-dialog__head">
+        <h2 id="platform-dialog-title">Cursurile din platformă</h2>
+        <button id="platform-dialog-close" class="btn btn--small" type="button">Închide ✕</button>
+      </div>
+      <p class="platform-dialog__hint">Alege un curs — se adaugă în biblioteca ta și se deschide în editor.</p>
+      <div id="platform-dialog-list" class="platform-dialog__list">Se încarcă programa…</div>
+    </div>
+  </div>
+
+  <!-- Notificare scurtă (toast) -->
+  <div id="toast" class="toast" hidden></div>
+
+  <!-- Module JS (ordinea contează) -->
+  <script src="js/storage.js"></script>
+  <script src="js/markdown.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/library.js"></script>
+  <script src="js/prompter.js"></script>
+  <script src="js/remote.js"></script>
+  <script src="js/voice.js"></script>
+  <script src="js/platform.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

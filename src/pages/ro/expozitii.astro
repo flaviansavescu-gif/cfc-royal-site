@@ -1,0 +1,10 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import CalendarExpo from "../../components/CalendarExpo.astro";
+const lang = "ro" as const;
+---
+<BaseLayout title="Calendar competițional" lang={lang} description="Expozițiile Clubului Federal Chinologic – Royal: înscrieri deschise și rezultate publicate.">
+  <div class="container" style="padding-block: 3rem;">
+    <CalendarExpo lang={lang} />
+  </div>
+</BaseLayout>

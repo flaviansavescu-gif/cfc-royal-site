@@ -1,0 +1,195 @@
+---
+// /registru/ — intrarea în Registrul genealogic.
+// Un singur câmp: codul primit. Serverul spune ce rol are și unde îl duce —
+// membru (depune declarații), registratură (verifică dosare) sau administrator.
+import RegistruLayout from "../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Intrare">
+  <p class="r-eyebrow">Asociația Club Federal Chinologic Royal</p>
+  <h1 class="r-title">Registrul genealogic</h1>
+  <p class="r-sub">
+    Aici se depun <strong>Declarațiile de Montă și Fătare</strong> și se emit
+    <strong>Certificatele Pedigree</strong>. Accesul se face cu codul primit de la secretariat.
+  </p>
+
+  <form class="r-form" id="r-form">
+    <label for="r-cod">Codul de acces</label>
+    <input id="r-cod" name="cod" type="text" autocomplete="off" autocapitalize="characters"
+           spellcheck="false" placeholder="ex. MBR-XXXXXXXX" required />
+    <button class="btn btn--primary" type="submit">Intră</button>
+    <p class="r-eroare" id="r-eroare" role="alert" hidden></p>
+  </form>
+
+  <div class="r-info">
+    <p><strong>Membrii</strong> primesc un cod care începe cu <code>MBR-</code>. Cu el se depune
+    declarația pentru fiecare cuib și se urmărește stadiul dosarului. Dreptul ține de calitatea de
+    membru cu <strong>cotizația la zi</strong>, nu de existența unei canise.</p>
+    <p><strong>Proprietarul masculului</strong> nu are nevoie de cod: primește pe e-mail un link
+    unic prin care confirmă monta — inclusiv dacă este dintr-o altă asociație sau din străinătate.</p>
+  </div>
+
+  <!-- ——— Solicitarea de acces ———
+       Cine n-are cod trebuie să poată cere unul aici, nu să caute o adresă de e-mail
+       prin site. Se cer doar numele, e-mailul și telefonul: atât îi trebuie
+       secretariatului ca să verifice calitatea de membru și să sune. Codul NU se dă
+       automat — cotizația și dreptul se verifică de om. -->
+  <section class="r-cerere">
+    <h2 class="r-h2">Nu ai cod de acces?</h2>
+    <p class="r-cerere__intro">
+      Lasă-ne datele tale și te căutăm. Codul se dă după verificarea calității de membru și a
+      cotizației — nu se eliberează automat de pe această pagină.
+    </p>
+
+    <form class="r-form2" id="r-cerere-form">
+      <label>Numele și prenumele
+        <input name="nume" autocomplete="name" required />
+      </label>
+      <label>E-mail
+        <input name="email" type="email" autocomplete="email" required />
+      </label>
+      <label>Telefon
+        <input name="telefon" type="tel" autocomplete="tel" required />
+      </label>
+      <label>Pe scurt, ce te interesează <span class="r-opt">(opțional)</span>
+        <textarea name="mesaj" rows="2" placeholder="ex. am o canisă și vreau să depun declarații"></textarea>
+      </label>
+      <!-- Câmp-capcană pentru roboți: rămâne gol la oameni, fiindcă nu-l văd. -->
+      <input class="r-capcana" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <button class="btn btn--outline" type="submit">Trimite solicitarea</button>
+      <p class="r-stare" id="r-cerere-stare" role="status"></p>
+    </form>
+
+    <p class="r-cerere__nota">
+      Poți scrie oricând direct la <a href="mailto:contact@cfc-royal.ro">contact@cfc-royal.ro</a>.
+      Datele lăsate aici se folosesc doar pentru a te contacta în legătură cu accesul la registru.
+    </p>
+  </section>
+</RegistruLayout>
+
+<script is:inline>
+  (function () {
+    const form = document.getElementById("r-form");
+    const input = document.getElementById("r-cod");
+    const eroare = document.getElementById("r-eroare");
+
+    async function intra(cod, tacut) {
+      if (!cod) { input.focus(); return; }
+      const btn = form.querySelector("button[type=submit]");
+      btn.disabled = true; btn.textContent = "Se verifică…";
+      eroare.hidden = true;
+      try {
+        const res = await fetch("/.netlify/functions/registru-acces", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ actiune: "intrare", cod }),
+        });
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(d.eroare || "Nu am putut verifica codul.");
+        // Rolul (care nu e secret) deschide paginile; codul rămâne pentru apelurile
+        // următoare, unde serverul îl verifică din nou.
+        localStorage.setItem("cfcrRegistru", JSON.stringify(d));
+        localStorage.setItem("cfcrRegistruCod", cod);
+        location.href = d.dest || "/registru/";
+      } catch (err) {
+        btn.disabled = false; btn.textContent = "Intră";
+        // La încercarea automată (puntea din Școala de Arbitraj) nu arătăm eroarea:
+        // omul n-a cerut nimic, ar fi un mesaj roșu apărut din senin.
+        if (!tacut) {
+          eroare.hidden = false;
+          eroare.textContent = err.message;
+          input.select();
+        }
+      }
+    }
+
+    form.addEventListener("submit", (e) => { e.preventDefault(); intra(input.value.trim(), false); });
+
+    // —— Solicitarea de acces ——
+    const cerereForm = document.getElementById("r-cerere-form");
+    const cerereStare = document.getElementById("r-cerere-stare");
+    cerereForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = cerereForm.querySelector("button[type=submit]");
+      const val = (n) => cerereForm.querySelector('[name="' + n + '"]').value.trim();
+      btn.disabled = true; btn.textContent = "Se trimite…";
+      cerereStare.className = "r-stare";
+      cerereStare.textContent = "";
+      try {
+        const res = await fetch("/.netlify/functions/registru-acces", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            actiune: "cerere", nume: val("nume"), email: val("email"),
+            telefon: val("telefon"), mesaj: val("mesaj"), website: val("website"),
+          }),
+        });
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(d.eroare || "Nu am putut trimite solicitarea.");
+        cerereForm.reset();
+        cerereStare.className = "r-stare is-bun";
+        cerereStare.textContent = "✓ Solicitarea a ajuns la secretariat. Te contactăm pe e-mail sau telefon.";
+      } catch (err) {
+        cerereStare.className = "r-stare is-rau";
+        cerereStare.textContent = err.message;
+      }
+      btn.disabled = false; btn.textContent = "Trimite solicitarea";
+    });
+
+    // Puntea dinspre Școala de Arbitraj: e același cod de administrator, păstrat de
+    // browser pe aceeași origine. Îl folosim ca să nu fie tastat a doua oară.
+    //
+    // Pornește DOAR pe `?din=cursuri`, adică numai când omul chiar a apăsat butonul
+    // punții. Când mergea la orice vizită, „Ieșire" devenea inutil: butonul ștergea
+    // sesiunea, aducea aici, iar pagina reautentifica pe loc și îl arunca înapoi în
+    // panou — părea că butonul nu face nimic.
+    //
+    // Rolul memorat se verifică nu ca autoritate (serverul decide oricum), ci ca să nu
+    // pornim o încercare sortită eșecului pentru un candidat sau un lector, care i-ar
+    // consuma degeaba din încercările permise.
+    try {
+      const dinCursuri = new URLSearchParams(location.search).get("din") === "cursuri";
+      const rol = JSON.parse(localStorage.getItem("cfcrRol") || "null");
+      const cod = localStorage.getItem("cfcrAccesCod");
+      if (dinCursuri && rol && rol.rol === "admin" && cod) intra(cod, true);
+    } catch (e) {}
+  })();
+</script>
+
+<style>
+  .r-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .r-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
+  .r-sub { color: var(--color-text-muted); max-width: 44rem; }
+  .r-form { display: grid; gap: 0.6rem; max-width: 22rem; margin: 2rem 0; }
+  .r-form label { font-weight: 600; color: var(--color-primary); }
+  .r-form input {
+    padding: 0.7rem 0.9rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    font-size: 1.05rem; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .r-form .btn { justify-self: start; }
+  .r-eroare { margin: 0; padding: 0.6rem 0.9rem; border-radius: var(--radius);
+    background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; font-size: 0.9rem; }
+  .r-eroare[hidden] { display: none; }
+  .r-info { max-width: 44rem; border-top: 1px solid var(--color-border); padding-top: 1.25rem; }
+  .r-info p { font-size: 0.9rem; color: var(--color-text-muted); }
+  .r-info code { background: var(--color-surface-alt); padding: 0.1rem 0.35rem; border-radius: 4px; }
+  .r-info a { color: var(--color-accent-dark); }
+
+  .r-cerere { max-width: 30rem; margin-top: 2.5rem; border-top: 2px solid var(--color-accent); padding-top: 1.25rem; }
+  .r-h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.15rem; margin: 0 0 0.4rem; }
+  .r-cerere__intro { font-size: 0.9rem; color: var(--color-text-muted); }
+  .r-form2 { display: grid; gap: 0.7rem; margin: 1.2rem 0; }
+  .r-form2 label { display: block; font-weight: 600; color: var(--color-primary); font-size: 0.88rem; }
+  .r-form2 input, .r-form2 textarea {
+    display: block; width: 100%; margin-top: 0.2rem; padding: 0.5rem 0.7rem;
+    border: 1px solid var(--color-border); border-radius: var(--radius);
+    font: inherit; font-weight: 400; text-transform: none; letter-spacing: normal;
+  }
+  .r-form2 .btn { justify-self: start; }
+  .r-opt { color: var(--color-text-muted); font-weight: 400; font-size: 0.85em; }
+  /* Câmpul-capcană: scos din pagină, dar nu cu display:none — unii roboți îl caută anume. */
+  .r-capcana { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .r-stare { margin: 0; font-size: 0.88rem; }
+  .r-stare.is-bun { color: var(--color-primary); font-weight: 600; }
+  .r-stare.is-rau { color: #8c1d2f; font-weight: 600; }
+  .r-cerere__nota { font-size: 0.82rem; color: var(--color-text-muted); }
+  .r-cerere__nota a { color: var(--color-accent-dark); }
+</style>

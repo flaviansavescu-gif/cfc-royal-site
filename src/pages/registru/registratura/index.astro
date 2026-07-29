@@ -1,0 +1,383 @@
+---
+// /registru/registratura/ — spațiul de lucru al Registraturii.
+// Aici ajung dosarele depuse de canise: verificarea pieselor, extragerea ascendenței
+// din pedigree-urile părinților, atribuirea numărului de cuib WDF și pregătirea
+// Certificatelor Pedigree Tip A și B.
+import RegistruLayout from "../../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Registratura" allow={["registratura"]}>
+  <p class="g-eyebrow">Registrul genealogic · Registratura</p>
+  <h1 class="g-title">Dosarele de înregistrare</h1>
+  <p class="g-sub" id="g-cine"></p>
+
+  <p class="g-unelte">
+    <a class="btn btn--outline" href="https://rou.pedigree-database.org/en/" target="_blank" rel="noopener">
+      🌐 Baza de pedigree WDF ↗
+    </a>
+    <span>Pentru căutarea exemplarelor după număr de pedigree sau microcip, la verificarea dosarelor
+    și la transcrierea ascendenței.</span>
+  </p>
+
+  <div class="g-flux">
+    <h2 class="g-h2">Ce se verifică la fiecare dosar</h2>
+    <ol class="g-lista">
+      <li><strong>Declarația de Montă și Fătare</strong> — completă, în termenul de 90 de zile de la fătare, confirmată de proprietarul masculului.</li>
+      <li><strong>Pedigree-ul masculului</strong> — copie digitală lizibilă.</li>
+      <li><strong>Pedigree-ul femelei</strong> — copie digitală lizibilă.</li>
+      <li><strong>Dovada dreptului de montă al femelei</strong> — fișa de arbitraj sau imaginea din
+      carnetul de performanță, care atestă minimum un calificativ „Bun". După ce expozițiile trec
+      prin registrul propriu, verificarea se va putea face automat din rezultate.</li>
+      <li><strong>Dovada plății.</strong></li>
+    </ol>
+    <p class="g-nota">
+      Din pedigree-urile părinților se extrage ascendența pe patru generații — părinți, bunici,
+      străbunici și stră-străbunici — pentru înregistrarea cuibului în baza World Dog Federation.
+      Tipul certificatului rezultă din date: <strong>Tip A</strong> dacă toate pozițiile au detalii
+      de înregistrare, <strong>Tip B</strong> dacă lipsește oricare, pe oricare dintre linii.
+    </p>
+  </div>
+
+  <h2 class="g-h2">Dosare</h2>
+  <p class="g-filtre">
+    <button class="g-filtru is-activ" type="button" data-f="lucru">În lucru <span id="g-nr-lucru"></span></button>
+    <button class="g-filtru" type="button" data-f="arhiva">Arhivă <span id="g-nr-arhiva"></span></button>
+    <button class="g-filtru" type="button" data-f="toate">Toate</button>
+    <input id="g-cauta" type="search" placeholder="caută serie, rasă sau crescător…" />
+  </p>
+  <p class="g-explic">
+    Un dosar iese din lista de lucru când i s-au emis certificatele sau când a fost respins.
+    <strong>Nu se șterge niciodată</strong>: e dovada din spatele actelor eliberate.
+  </p>
+  <ul class="g-dosare" id="g-dosare"><li class="g-gol">Se încarcă…</li></ul>
+
+  <div class="g-detaliu" id="g-detaliu" hidden></div>
+</RegistruLayout>
+
+<script is:inline>
+  (function () {
+    const F = "/.netlify/functions/registru-dmf";
+    const cod = () => localStorage.getItem("cfcrRegistruCod") || "";
+    let r = null;
+    try { r = JSON.parse(localStorage.getItem("cfcrRegistru") || "null"); } catch (e) {}
+    if (r && r.nume) document.getElementById("g-cine").textContent = "Autentificat: " + r.nume;
+
+    const lista = document.getElementById("g-dosare");
+    const detaliu = document.getElementById("g-detaliu");
+    const dataRo = (s) => { const x = new Date(s); return isNaN(x) ? String(s || "") : x.toLocaleDateString("ro-RO"); };
+    const FELURI = {
+      "pedigree-mascul": "Pedigree mascul", "pedigree-femela": "Pedigree femelă",
+      "drept-monta": "Drept de montă", "plata": "Dovada plății",
+    };
+
+    const post = (b) => fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ cod: cod() }, b)) });
+
+    // Textul dosarelor vine de la crescători: NUMAI textContent, niciodată innerHTML.
+    // Altfel numele unui câine ar putea executa cod în pagina registratorului.
+    const el = (tag, cls, text) => {
+      const x = document.createElement(tag);
+      if (cls) x.className = cls;
+      if (text != null) x.textContent = text;
+      return x;
+    };
+
+    async function deschide(id) {
+      detaliu.hidden = false;
+      detaliu.textContent = "";
+      detaliu.appendChild(el("p", "g-gol", "Se încarcă dosarul…"));
+      const res = await post({ actiune: "dosar", id });
+      const d = (await res.json().catch(() => ({}))).dosar;
+      detaliu.textContent = "";
+      if (!d) { detaliu.appendChild(el("p", "g-gol", "Dosarul nu a putut fi încărcat.")); return; }
+
+      detaliu.appendChild(el("h3", "g-dh", d.serie + " — " + d.rasa));
+      const catre = document.createElement("a");
+      catre.className = "btn btn--primary btn--small";
+      catre.href = "/registru/registratura/ascendenta/?id=" + encodeURIComponent(id);
+      catre.textContent = d.numarWDF
+        ? "Ascendența și certificatele (" + d.numarWDF + ") →"
+        : "Ascendența, numărul de cuib și certificatele →";
+      detaliu.appendChild(catre);
+      const meta = el("p", "g-dmeta",
+        [d.membruNume, "montă " + dataRo(d.dataMontei), "fătare " + dataRo(d.dataFatarii),
+         "născuți " + (d.nascutiM + d.nascutiF), "rămași " + d.pui.length,
+         d.afix ? "afix " + d.afix : null].filter(Boolean).join(" · "));
+      detaliu.appendChild(meta);
+      if (d.pesteTermen) detaliu.appendChild(el("p", "g-termen", "Depusă după " + d.zileDeLaFatare + " de zile — peste termenul de 90."));
+
+      for (const [cheie, eticheta] of [["mascul", "♂ Masculul"], ["femela", "♀ Femela"]]) {
+        const p = d[cheie];
+        detaliu.appendChild(el("h4", "g-dh4", eticheta + ": " + p.nume));
+        detaliu.appendChild(el("p", "g-dmeta",
+          ["pedigree " + p.pedigree, "microcip " + p.microcip, "n. " + dataRo(p.dataNasterii),
+           "prop. " + p.proprietar, p.email || null].filter(Boolean).join(" · ")));
+      }
+
+      detaliu.appendChild(el("h4", "g-dh4", "Puii (" + d.pui.length + ")"));
+      const ul = el("ul", "g-pui");
+      for (const pu of d.pui) {
+        ul.appendChild(el("li", null,
+          (pu.sex === "M" ? "♂ " : "♀ ") + pu.nume +
+          [pu.culoare, pu.tipPar, pu.identificare, pu.cumparator && pu.cumparator.nume ? "→ " + pu.cumparator.nume : null]
+            .filter(Boolean).map((x) => " · " + x).join("")));
+      }
+      detaliu.appendChild(ul);
+
+      if (d.stare === "respins" && d.respingere) {
+        detaliu.appendChild(el("p", "g-motiv",
+          "Dosar respins la " + dataRo(d.respingere.la) + " de " + d.respingere.deCatre +
+          ". Motivul: " + d.respingere.motiv));
+      }
+
+      // —— Semnătura declarantului ——
+      // Ține locul rubricii „Semnătura" de pe formularul tipărit. Fără urma asta,
+      // declarația ar fi doar un formular trimis de un cont.
+      const sem = d.semnaturaUrma;
+      if (sem) {
+        detaliu.appendChild(el("h4", "g-dh4", "Semnătura declarantului"));
+        detaliu.appendChild(el("p", "g-semn", "✍ " + sem.nume));
+        detaliu.appendChild(el("p", "g-dmeta",
+          ["asumată la " + dataRo(sem.la), sem.ip ? "de la " + sem.ip : null].filter(Boolean).join(" · ")));
+      }
+
+      // —— Confirmarea proprietarului masculului ——
+      detaliu.appendChild(el("h4", "g-dh4", "Confirmarea montei"));
+      const c = d.confirmare || { stare: "asteptare" };
+      const stare = el("p", "g-conf is-" + c.stare, {
+        asteptare: "⏳ Așteaptă răspunsul proprietarului masculului",
+        confirmat: "✓ Confirmată de proprietarul masculului",
+        refuzat: "⚠ Proprietarul masculului NU a confirmat",
+        alternativ: "✓ Acceptată pe baza dovezii semnate, încărcată de registratură",
+      }[c.stare] || c.stare);
+      detaliu.appendChild(stare);
+      const detConf = [c.email ? "adresa " + c.email : null, c.nume ? "răspuns de " + c.nume : null,
+        c.la ? dataRo(c.la) : null, c.deCatre ? "de " + c.deCatre : null,
+        c.trimiteri > 1 ? c.trimiteri + " trimiteri" : null,
+        c.adresaCorectata ? "adresă corectată o dată" : null].filter(Boolean);
+      if (detConf.length) detaliu.appendChild(el("p", "g-dmeta", detConf.join(" · ")));
+      if (c.motiv) detaliu.appendChild(el("p", "g-motiv", "Motivul invocat: " + c.motiv));
+      if (c.observatie) detaliu.appendChild(el("p", "g-dmeta", "Observația registraturii: " + c.observatie));
+
+      // Dovada semnată pe hârtie: la masculii din străinătate e-mailul se pierde des,
+      // iar dosarul ar rămâne blocat pentru totdeauna.
+      if (c.stare !== "confirmat") {
+        const zona = el("div", "g-alt");
+        zona.appendChild(el("label", "g-alt__eticheta", "Încarcă dovada semnată a montei (JPEG, PNG, WEBP sau PDF):"));
+        const camp = document.createElement("input");
+        camp.type = "file";
+        camp.accept = "image/jpeg,image/png,image/webp,application/pdf";
+        const obs = document.createElement("input");
+        obs.type = "text";
+        obs.placeholder = "observație (opțional)";
+        obs.className = "g-alt__obs";
+        const stareUrcare = el("span", "g-alt__stare");
+        camp.addEventListener("change", async (ev) => {
+          const file = ev.target.files && ev.target.files[0];
+          if (!file) return;
+          if (file.size > 5 * 1024 * 1024) { stareUrcare.textContent = "Fișierul depășește 5 MB."; return; }
+          stareUrcare.textContent = "se încarcă…";
+          try {
+            const b64 = await new Promise((rez, resp) => {
+              const fr = new FileReader();
+              fr.onload = () => rez(String(fr.result).split(",")[1] || "");
+              fr.onerror = resp;
+              fr.readAsDataURL(file);
+            });
+            const r = await post({ actiune: "confirmare-alternativa", id,
+              nume: file.name, tip: file.type, continut: b64, observatie: obs.value.trim() });
+            const dd = await r.json().catch(() => ({}));
+            if (!r.ok) throw new Error(dd.eroare || "Încărcare eșuată.");
+            stareUrcare.textContent = "✓ înregistrată";
+            deschide(id);
+          } catch (e) { stareUrcare.textContent = e.message; }
+        });
+        zona.append(camp, obs, stareUrcare);
+        detaliu.appendChild(zona);
+      }
+
+      detaliu.appendChild(el("h4", "g-dh4", "Piesele dosarului"));
+      const piese = el("p", "g-piese");
+      const feluri = Object.assign({}, FELURI);
+      if (c.stare === "alternativ") feluri["confirmare-alternativa"] = "Dovada semnată";
+      for (const fel of Object.keys(feluri)) {
+        const b = el("button", "btn btn--outline g-piesa", feluri[fel]);
+        b.type = "button";
+        b.addEventListener("click", async () => {
+          b.disabled = true;
+          try {
+            const rf = await post({ actiune: "vezi-fisier", id, fel });
+            if (!rf.ok) throw new Error("indisponibil");
+            const url = URL.createObjectURL(await rf.blob());
+            window.open(url, "_blank", "noopener");
+            // Eliberăm memoria după ce fereastra a apucat să încarce.
+            setTimeout(() => URL.revokeObjectURL(url), 60000);
+          } catch (e) { b.textContent = feluri[fel] + " — lipsă"; }
+          b.disabled = false;
+        });
+        piese.appendChild(b);
+      }
+      detaliu.appendChild(piese);
+
+      // Respingerea motivată e singura cale de a scoate din lucru un dosar care nu se
+      // poate soluționa. Certificatele emise o blochează: ele nu se pot desface.
+      if (d.stare !== "emis" && d.stare !== "respins") {
+        const zonaR = el("div", "g-respinge");
+        zonaR.appendChild(el("label", "g-respinge__eticheta",
+          "Dacă dosarul nu poate fi soluționat, respinge-l motivat — trece în arhivă:"));
+        const motiv = document.createElement("input");
+        motiv.type = "text";
+        motiv.placeholder = "motivul respingerii";
+        motiv.className = "g-respinge__motiv";
+        const bR = el("button", "btn btn--small btn--danger", "Respinge dosarul");
+        bR.type = "button";
+        bR.addEventListener("click", async () => {
+          if (!motiv.value.trim()) { motiv.focus(); return; }
+          if (!confirm("Respingi definitiv dosarul " + d.serie + "?")) return;
+          bR.disabled = true;
+          try {
+            const rr = await post({ actiune: "dosar-respinge", id, motiv: motiv.value.trim() });
+            const dd = await rr.json().catch(() => ({}));
+            if (!rr.ok) throw new Error(dd.eroare || "Nu am putut respinge dosarul.");
+            deschide(id);
+            incarcaDosare();
+          } catch (e) { alert(e.message); bR.disabled = false; }
+        });
+        zonaR.append(motiv, bR);
+        detaliu.appendChild(zonaR);
+      }
+
+      detaliu.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    const ETICHETA_STARE = {
+      depus: "depusă", verificat: "verificată", emis: "certificate emise", respins: "respinsă",
+    };
+    let filtru = "lucru";
+
+    function incarcaDosare() {
+      const cauta = document.getElementById("g-cauta").value.trim();
+      lista.textContent = "";
+      lista.appendChild(el("li", "g-gol", "Se încarcă…"));
+      post({ actiune: "dosare", filtru, cauta })
+        .then((res) => res.json())
+        .then((d) => {
+          document.getElementById("g-nr-lucru").textContent = "(" + (d.inLucru || 0) + ")";
+          document.getElementById("g-nr-arhiva").textContent = "(" + (d.arhivate || 0) + ")";
+          lista.textContent = "";
+          const arr = d.dosare || [];
+          if (!arr.length) {
+            lista.appendChild(el("li", "g-gol", cauta
+              ? "Niciun dosar care să se potrivească."
+              : filtru === "arhiva"
+                ? "Arhiva e goală: niciun dosar soluționat încă."
+                : "Niciun dosar în lucru. Aici apar declarațiile pe măsură ce sosesc."));
+            return;
+          }
+          for (const x of arr) {
+            const li = el("li", "g-dosar");
+            const b = el("button", "g-dosar__buton" + (x.arhivat ? " is-arhivat" : ""));
+            b.type = "button";
+            b.appendChild(el("strong", "g-dosar__serie", x.serie));
+            b.appendChild(el("span", "g-dosar__det",
+              [x.rasa, x.membruNume, "fătare " + dataRo(x.dataFatarii), x.pui + " pui",
+               x.numarWDF || null].filter(Boolean).join(" · ")));
+            b.appendChild(el("span", "g-dosar__stare", ETICHETA_STARE[x.stare] || x.stare));
+            if (x.pesteTermen) b.appendChild(el("span", "g-dosar__termen", "peste termen"));
+            b.addEventListener("click", () => deschide(x.id));
+            li.appendChild(b);
+            lista.appendChild(li);
+          }
+        })
+        .catch(() => {
+          lista.textContent = "";
+          lista.appendChild(el("li", "g-gol", "Nu am putut încărca lista dosarelor."));
+        });
+    }
+
+    document.querySelectorAll(".g-filtru").forEach((b) => {
+      b.addEventListener("click", () => {
+        document.querySelectorAll(".g-filtru").forEach((x) => x.classList.remove("is-activ"));
+        b.classList.add("is-activ");
+        filtru = b.dataset.f;
+        incarcaDosare();
+      });
+    });
+    // Căutarea așteaptă o clipă după ultima tastă: altfel pleacă o cerere la fiecare literă.
+    let ceas = null;
+    document.getElementById("g-cauta").addEventListener("input", () => {
+      clearTimeout(ceas);
+      ceas = setTimeout(incarcaDosare, 300);
+    });
+
+    incarcaDosare();
+  })();
+</script>
+
+<style>
+  .g-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .g-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.2rem; }
+  .g-sub { color: var(--color-text-muted); margin-top: 0; font-weight: 600; }
+  .g-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2rem 0 0.5rem;
+    font-size: 1.3rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem; }
+  .g-flux { margin-top: 1.5rem; }
+  .g-lista { padding-left: 1.2rem; display: grid; gap: 0.4rem; max-width: 46rem; }
+  .g-lista strong { color: var(--color-primary); }
+  .g-nota { max-width: 46rem; font-size: 0.9rem; color: var(--color-text-muted);
+    background: var(--color-surface-alt); border: 1px solid var(--color-border);
+    border-radius: var(--radius); padding: 0.9rem 1.1rem; }
+  .g-gol { color: var(--color-text-muted); font-style: italic; }
+  .g-unelte { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; max-width: 48rem; }
+  .g-unelte span { font-size: 0.85rem; color: var(--color-text-muted); }
+  .g-filtre { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; max-width: 52rem; }
+  .g-filtru { padding: 0.4rem 0.9rem; border: 1px solid var(--color-border); border-radius: 999px;
+    background: var(--color-surface-alt); cursor: pointer; font: inherit; font-size: 0.88rem;
+    color: var(--color-text-muted); }
+  .g-filtru.is-activ { background: var(--color-primary); color: #fbfaf7; border-color: var(--color-primary); font-weight: 600; }
+  .g-filtre input { flex: 1 1 14rem; padding: 0.4rem 0.7rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.88rem; }
+  .g-explic { font-size: 0.85rem; color: var(--color-text-muted); max-width: 48rem; }
+  .g-dosar__stare { font-size: 0.78rem; color: var(--color-text-muted);
+    border: 1px solid var(--color-border); border-radius: 999px; padding: 0.15rem 0.6rem; }
+  .g-dosar__buton.is-arhivat { opacity: 0.72; }
+  .g-respinge { display: grid; gap: 0.4rem; margin-top: 1.5rem; padding: 0.9rem 1.1rem;
+    border: 1px solid #8c1d2f; border-radius: var(--radius); background: #fdf7f7; max-width: 40rem; }
+  .g-respinge__eticheta { font-size: 0.85rem; font-weight: 600; color: #8c1d2f; }
+  .g-respinge__motiv { padding: 0.4rem 0.6rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.88rem; }
+  .g-respinge button { justify-self: start; }
+  .g-dosare { list-style: none; padding: 0; display: grid; gap: 0.5rem; max-width: 52rem; }
+  .g-dosar__buton { display: flex; align-items: baseline; gap: 0.9rem; flex-wrap: wrap; width: 100%;
+    text-align: left; padding: 0.7rem 0.9rem; background: var(--color-surface-alt);
+    border: 1px solid var(--color-border); border-radius: var(--radius); cursor: pointer; font: inherit; }
+  .g-dosar__buton:hover { border-color: var(--color-accent); }
+  .g-dosar__serie { font-family: var(--font-mono, monospace); color: var(--color-primary); }
+  .g-dosar__det { color: var(--color-text-muted); font-size: 0.88rem; }
+  .g-dosar__termen { margin-left: auto; font-size: 0.8rem; border: 1px solid #8c1d2f; color: #8c1d2f;
+    border-radius: 999px; padding: 0.2rem 0.7rem; }
+  .g-detaliu[hidden] { display: none; }
+  .g-detaliu { margin-top: 2rem; border-top: 2px solid var(--color-accent); padding-top: 1rem; max-width: 52rem; }
+  .g-dh { font-family: var(--font-serif); color: var(--color-primary); margin: 0 0 0.3rem; }
+  .g-dh4 { font-family: var(--font-serif); color: var(--color-primary); margin: 1.2rem 0 0.2rem; font-size: 1rem; }
+  .g-dmeta { color: var(--color-text-muted); font-size: 0.88rem; margin: 0.2rem 0; }
+  .g-termen { background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f;
+    border-radius: var(--radius); padding: 0.5rem 0.8rem; font-size: 0.88rem; }
+  .g-pui { padding-left: 1.2rem; font-size: 0.9rem; }
+  .g-piese { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .g-piesa { font-size: 0.85rem; }
+  .g-semn { font-family: var(--font-serif); font-size: 1.05rem; color: var(--color-primary);
+    margin: 0.2rem 0; }
+  .g-conf { font-weight: 600; font-size: 0.92rem; margin: 0.3rem 0; }
+  .g-conf.is-asteptare { color: var(--color-accent-dark); }
+  .g-conf.is-confirmat, .g-conf.is-alternativ { color: var(--color-primary); }
+  .g-conf.is-refuzat { color: #8c1d2f; }
+  .g-motiv { background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f;
+    border-radius: var(--radius); padding: 0.6rem 0.9rem; font-size: 0.88rem; }
+  .g-alt { display: grid; gap: 0.4rem; margin-top: 0.7rem; padding: 0.8rem 1rem;
+    background: var(--color-surface-alt); border: 1px solid var(--color-border);
+    border-radius: var(--radius); max-width: 36rem; }
+  .g-alt__eticheta { font-size: 0.85rem; font-weight: 600; color: var(--color-primary); }
+  .g-alt__obs { padding: 0.35rem 0.6rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.85rem; }
+  .g-alt__stare { font-size: 0.82rem; color: var(--color-text-muted); }
+</style>

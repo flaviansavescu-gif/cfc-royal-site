@@ -1,0 +1,66 @@
+---
+// /cursuri/admin/anatomie/ — exerciții de anatomie (Photo Anatomy Annotator), spațiu comun lectori.
+import CursuriLayout from "../../../../layouts/CursuriLayout.astro";
+const allow = ["lector"];
+---
+
+<CursuriLayout title="Exerciții de anatomie" allow={allow}>
+  <p class="j-eyebrow">Photo Anatomy Annotator · Lector</p>
+  <h1 class="j-title">Exerciții de anatomie</h1>
+  <p class="j-sub">Încarci o fotografie de referință, o aloci candidaților, ei o adnotează și trimit rezolvarea, iar tu verifici cu feedback și calificativ. Spațiu comun — orice lector poate crea și verifica.</p>
+  <p class="j-actiuni">
+    <a class="btn btn--outline" href="/cursuri/admin/">← Panoul platformei</a>
+    <a class="btn btn--outline" href="/photo-annotator/" target="_blank" rel="noopener">📐 Deschide aplicația ↗</a>
+    <button class="btn btn--primary" id="j-nou" type="button">+ Exercițiu nou</button>
+  </p>
+  <p class="j-stare" id="j-stare">Se încarcă…</p>
+  <ul class="j-list" id="j-list" hidden></ul>
+</CursuriLayout>
+
+<script is:inline>
+  (function () {
+    var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); };
+    var STATUS = { draft: "Schiță", published: "Publicat", closed: "Închis", archived: "Arhivat" };
+    function cod() { try { return localStorage.getItem("cfcrAccesCod"); } catch (e) { return null; } }
+    async function api(p) { var r = await fetch("/.netlify/functions/paa-exercitii", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ cod: cod() }, p)) }); var d = await r.json().catch(function () { return {}; }); if (!r.ok) throw new Error(d.eroare || "Eroare"); return d; }
+    async function incarca() {
+      try {
+        var d = await api({ actiune: "lista" }); var list = document.getElementById("j-list"); list.innerHTML = "";
+        if (!d.exercitii.length) { document.getElementById("j-stare").textContent = "Niciun exercițiu creat încă."; document.getElementById("j-stare").hidden = false; list.hidden = true; return; }
+        document.getElementById("j-stare").hidden = true; list.hidden = false;
+        d.exercitii.forEach(function (e) {
+          var li = document.createElement("li"); li.className = "j-card";
+          li.innerHTML = '<div class="j-card__body"><strong>' + esc(e.titlu) + '</strong><span class="j-meta">' + [e.rasa, e.lectorNume].filter(Boolean).map(esc).join(" · ") + (e.termen ? " · termen " + esc(e.termen) : "") + '</span><span class="j-urma">' + (e.lectorNume ? 'creat de ' + esc(e.lectorNume) : '') + (e.actualizatDe && e.actualizatDe !== e.lectorNume ? ' · ultima modificare: ' + esc(e.actualizatDe) + (e.ultimaActiune ? ' (' + esc(e.ultimaActiune) + ')' : '') : '') + '</span><span class="j-badges"><span class="j-badge st-' + e.status + '">' + (STATUS[e.status] || e.status) + '</span></span></div>' +
+            '<a class="btn btn--small" href="/cursuri/admin/anatomie/exercitiu/?e=' + encodeURIComponent(e.id) + '">Deschide →</a>';
+          list.appendChild(li);
+        });
+      } catch (err) { document.getElementById("j-stare").textContent = "Nu am putut încărca: " + err.message; }
+    }
+    document.getElementById("j-nou").addEventListener("click", async function () {
+      var titlu = prompt("Titlul exercițiului:"); if (!titlu || titlu.trim().length < 3) return;
+      try { var d = await api({ actiune: "creaza", exercitiu: { titlu: titlu.trim() } }); location.href = "/cursuri/admin/anatomie/exercitiu/?e=" + encodeURIComponent(d.exercitiu.id); }
+      catch (err) { alert("Nu am putut crea: " + err.message); }
+    });
+    incarca();
+  })();
+</script>
+
+<style>
+  .j-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .j-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
+  .j-sub { color: var(--color-text-muted); max-width: 48rem; }
+  .j-actiuni { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 1.25rem 0; }
+  .j-stare { color: var(--color-text-muted); font-style: italic; }
+  .j-list { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 0.7rem; }
+  .j-card { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.9rem 1.2rem; }
+  .j-card__body { flex: 1 1 16rem; display: flex; flex-direction: column; gap: 0.3rem; }
+  .j-card__body strong { color: var(--color-primary); }
+  .j-meta { font-size: 0.85rem; color: var(--color-text-muted); }
+  .j-urma { font-size: 0.78rem; color: var(--color-text-muted); font-style: italic; display: block; }
+  .j-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .j-badge { font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); }
+  .j-badge.st-published { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
+  .j-badge.st-closed { background: var(--color-surface-alt); }
+  .j-badge.st-draft { background: #fdf4e3; border-color: #e6cf9a; color: #8a6d1f; }
+  .btn--small { font-size: 0.85rem; padding: 0.45rem 0.9rem; }
+</style>

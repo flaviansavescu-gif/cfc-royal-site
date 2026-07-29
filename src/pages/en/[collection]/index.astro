@@ -1,0 +1,96 @@
+---
+// Archive of any collection (EN) — one page per registered collection.
+// Supports grouping by category (def.groupBy).
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Section from "../../../components/Section.astro";
+import Card from "../../../components/Card.astro";
+import { getCollection } from "astro:content";
+import { collectionDefs, type CollectionDef } from "../../../data/collections";
+import { localizePath } from "../../../i18n/utils";
+import { isLang, entrySlug } from "../../../i18n/content";
+
+const lang = "en" as const;
+
+export function getStaticPaths() {
+  // „arbitri" has a dedicated index page (registry with per-group filter): src/pages/en/arbitri.astro
+  return collectionDefs
+    .filter((def) => def.slug !== "arbitri")
+    .map((def) => ({ params: { collection: def.slug }, props: { def } }));
+}
+
+const { def } = Astro.props as { def: CollectionDef };
+const entries = await getCollection(def.name as any, (e: any) => isLang(e.id, lang) && !e.data.draft);
+const sorted = def.sort ? [...entries].sort((a, b) => def.sort!(a.data, b.data)) : entries;
+
+const renderCard = (e: any) => {
+  const c = def.card(e.data, lang);
+  return { c, href: localizePath(`${def.slug}/${entrySlug(e.id)}`, lang) };
+};
+
+let groups: { title: string; items: any[] }[] = [];
+if (def.groupBy) {
+  const order = def.groupOrder ?? [];
+  const map = new Map<string, any[]>();
+  for (const e of sorted) {
+    const g = def.groupBy(e.data);
+    if (!map.has(g)) map.set(g, []);
+    map.get(g)!.push(e);
+  }
+  const keys = [...map.keys()].sort((a, b) => {
+    const ia = order.indexOf(a), ib = order.indexOf(b);
+    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+  });
+  groups = keys.map((k) => ({ title: k, items: map.get(k)! }));
+}
+---
+<BaseLayout title={def.label[lang]} lang={lang}>
+  <Section eyebrow={def.eyebrow[lang]} title={def.label[lang]} intro={def.intro[lang]}>
+    {def.extraLink && (
+      <div class="archive-actions">
+        <a
+          class="btn btn--outline"
+          href={typeof def.extraLink.url === "string" ? def.extraLink.url : def.extraLink.url[lang]}
+          {...(def.extraLink.external === false ? {} : { target: "_blank", rel: "noopener" })}
+        >{def.extraLink.label[lang]} {def.extraLink.external === false ? "→" : "↗"}</a>
+        {def.extraLink.note && <p class="archive-actions__note">{def.extraLink.note[lang]}</p>}
+      </div>
+    )}
+    {def.banner && (
+      <figure class="archive-banner">
+        <img src={def.banner.src} alt={def.banner.alt[lang]} width="1400" height="840" loading="lazy" />
+      </figure>
+    )}
+    {sorted.length === 0 ? (
+      <p class="muted-note">{def.empty[lang]}</p>
+    ) : def.groupBy ? (
+      groups.map((g) => (
+        <div class="group">
+          <h3 class="group__title">{def.groupLabel ? def.groupLabel(g.title, lang) : g.title}</h3>
+          <div class="grid grid--3">
+            {g.items.map((e) => { const { c, href } = renderCard(e); return (
+              <Card title={c.title} href={href} meta={c.meta} excerpt={c.excerpt} tag={c.tag} image={c.image} />
+            ); })}
+          </div>
+        </div>
+      ))
+    ) : (
+      <>
+        {def.itemsHeading && <h3 class="group__title">{def.itemsHeading[lang]}</h3>}
+        <div class="grid grid--3">
+          {sorted.map((e) => { const { c, href } = renderCard(e); return (
+            <Card title={c.title} href={href} meta={c.meta} excerpt={c.excerpt} tag={c.tag} image={c.image} />
+          ); })}
+        </div>
+      </>
+    )}
+  </Section>
+</BaseLayout>
+
+<style>
+  .group + .group { margin-top: 2.5rem; }
+  .group__title { color: var(--color-primary); font-size: var(--fs-600); margin-bottom: 1rem; padding-bottom: 0.4rem; border-bottom: 2px solid var(--color-border); }
+  .archive-actions { margin: -0.5rem 0 1.75rem; }
+  .archive-actions__note { margin: 0.5rem 0 0; font-size: var(--fs-300); color: var(--color-text-muted); font-style: italic; }
+  .archive-banner { margin: 0 0 2rem; }
+  .archive-banner img { display: block; width: 100%; height: auto; border-radius: var(--radius); border: 1px solid var(--color-border); }
+</style>

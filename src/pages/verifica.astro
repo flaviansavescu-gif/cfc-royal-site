@@ -1,0 +1,108 @@
+---
+// /verifica?c=... — verificarea publică a autenticității unui certificat CFC-Royal.
+// Accesată prin codul QR de pe certificat. Confirmă semnătura prin funcția verifica-act.
+import BaseLayout from "../layouts/BaseLayout.astro";
+const lang = "ro" as const;
+---
+<BaseLayout title="Verificare certificat" lang={lang} description="Verifică autenticitatea unui certificat emis de Clubul Federal Chinologic – Royal (WDF).">
+  <div class="container" style="padding-block: 3rem;">
+    <section class="vf">
+      <p class="vf__eyebrow">Club Federal Chinologic Royal · World Dog Federation</p>
+      <h1 class="vf__title">Verificarea autenticității certificatului</h1>
+
+      <div class="vf__card" id="vf-card" data-stare="loading">
+        <p class="vf__stare" id="vf-stare">Se verifică certificatul…</p>
+        <dl class="vf__detalii" id="vf-detalii" hidden></dl>
+        <p class="vf__nota" id="vf-nota" hidden></p>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  (async function () {
+    const card = document.getElementById("vf-card");
+    const stare = document.getElementById("vf-stare");
+    const detalii = document.getElementById("vf-detalii");
+    const nota = document.getElementById("vf-nota");
+
+    const c = new URLSearchParams(location.search).get("c");
+    if (!c) {
+      card.dataset.stare = "invalid";
+      stare.textContent = "Lipsește codul de verificare. Scanează codul QR de pe certificat.";
+      return;
+    }
+
+    let d;
+    try {
+      const res = await fetch("/.netlify/functions/verifica-act?c=" + encodeURIComponent(c));
+      d = await res.json();
+    } catch (e) {
+      card.dataset.stare = "invalid";
+      stare.textContent = "Nu am putut verifica acum. Reîncearcă mai târziu.";
+      return;
+    }
+
+    const rand = (et, val) => {
+      if (!val) return;
+      const dt = document.createElement("dt"); dt.textContent = et;
+      const dd = document.createElement("dd"); dd.textContent = val;
+      detalii.appendChild(dt); detalii.appendChild(dd);
+    };
+
+    // Act anulat de delegat: semnătura e validă, dar titlul a fost invalidat.
+    // Arătăm despre ce act e vorba, ca lucrurile să fie limpezi.
+    if (d.anulat) {
+      card.dataset.stare = "anulat";
+      stare.textContent = "⚠ Certificat ANULAT";
+      const a = d.act || {};
+      rand("Serie", a.serie);
+      rand("Titlu / Premiu", a.titlu);
+      rand("Câine", a.caine);
+      rand("Expoziție", a.expozitie);
+      detalii.hidden = false;
+      nota.hidden = false;
+      nota.textContent = d.motiv || "Acest act a fost anulat și nu mai este valabil.";
+      return;
+    }
+
+    if (!d.valid) {
+      card.dataset.stare = "invalid";
+      stare.textContent = "✕ Certificat neconfirmat";
+      nota.hidden = false;
+      nota.textContent = d.motiv || "Codul nu a putut fi validat.";
+      return;
+    }
+
+    card.dataset.stare = "valid";
+    stare.textContent = "✓ Certificat autentic";
+    const a = d.act;
+    rand("Serie", a.serie);
+    rand("Titlu / Premiu", a.titlu);
+    rand("Câine", a.caine);
+    rand("Rasă", a.rasa);
+    rand("Expoziție", a.expozitie);
+    rand("Data", a.data);
+    detalii.hidden = false;
+    nota.hidden = false;
+    nota.textContent = "Acest certificat a fost emis de Clubul Federal Chinologic – Royal și confirmat prin semnătură digitală.";
+  })();
+</script>
+
+<style>
+  .vf { max-width: 44rem; margin: 0 auto; text-align: center; }
+  .vf__eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .vf__title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.4rem 0 1.5rem; }
+  .vf__card { border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); padding: 2rem; text-align: left; }
+  .vf__card[data-stare="valid"] { border-color: #1F7A4D; background: #f0f7f2; }
+  .vf__card[data-stare="invalid"] { border-color: #8c1d2f; background: #f9efef; }
+  .vf__card[data-stare="anulat"] { border-color: #b45309; background: #fdf6ec; }
+  .vf__stare { margin: 0; text-align: center; font-family: var(--font-serif); font-size: 1.5rem; font-weight: 700; color: var(--color-text); }
+  .vf__card[data-stare="valid"] .vf__stare { color: #1F7A4D; }
+  .vf__card[data-stare="invalid"] .vf__stare { color: #8c1d2f; }
+  .vf__card[data-stare="anulat"] .vf__stare { color: #b45309; }
+  .vf__detalii { display: grid; grid-template-columns: max-content 1fr; gap: 0.5rem 1.25rem; margin: 1.5rem 0 0; }
+  .vf__detalii dt { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); align-self: center; }
+  .vf__detalii dd { margin: 0; font-weight: 600; color: var(--color-text); }
+  .vf__nota { margin: 1.25rem 0 0; font-size: 0.85rem; color: var(--color-text-muted); text-align: center; }
+</style>

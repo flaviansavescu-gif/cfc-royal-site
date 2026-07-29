@@ -1,0 +1,236 @@
+---
+// /cursuri/manual/ — manualul vizual pentru studiu individual (128 de pagini).
+// Spațiu COMUN: candidați (cod individual sau comun), lectori și administrator.
+//
+// Paginile nu se descarcă: nu există fișier public: fiecare pagină vine ca imagine
+// de la funcția `material-protejat`, filigranată pe server cu numele cititorului.
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import { MANUAL } from "../../../data/cursuri";
+---
+
+<CursuriLayout title="Manual de studiu individual" allow={["lector", "arbitru", "acces"]} candidat>
+  <p class="m-eyebrow">Material comun · studiu individual</p>
+  <h1 class="m-title">{MANUAL.titlu}</h1>
+  <p class="m-sub">{MANUAL.descriere}</p>
+
+  <div class="m-bara">
+    <label class="m-sel">
+      Modul
+      <select id="m-modul">
+        <option value="1">Copertă</option>
+        {MANUAL.module.map((m) => (
+          <option value={m.start}>{`${m.nr}. ${m.titlu} (p. ${m.start}–${m.sfarsit})`}</option>
+        ))}
+      </select>
+    </label>
+    <div class="m-nav">
+      <button class="m-btn" id="m-prev" type="button" aria-label="Pagina anterioară">‹ Înapoi</button>
+      <span class="m-poz"><input id="m-nr" type="number" min="1" value="1" aria-label="Număr pagină" /> / {MANUAL.pagini}</span>
+      <button class="m-btn" id="m-next" type="button" aria-label="Pagina următoare">Înainte ›</button>
+      <button class="m-btn" id="m-full" type="button" title="Citește pe tot ecranul">⛶ Ecran complet</button>
+    </div>
+  </div>
+
+  <div class="m-scena" id="m-scena">
+    <img id="m-pagina" alt="" draggable="false" />
+    <p class="m-stare" id="m-stare">Se încarcă pagina…</p>
+  </div>
+
+  <p class="m-avert">
+    🔒 Material intern al Școlii de Arbitraj CFC-Royal, marcat cu numele cititorului.
+    Este destinat exclusiv studiului individual — nu se redistribuie.
+  </p>
+
+  <div class="m-test" id="m-test-card">
+    <div>
+      <strong>📝 Testul manualului</strong>
+      <p>După parcurgerea materialului, susține testul de verificare. Pragul de promovare este 70%,
+      iar rezultatul ajunge automat la secretariatul Școlii.</p>
+    </div>
+    <a class="btn btn--primary" href="/cursuri/manual/test/">Deschide testul →</a>
+  </div>
+</CursuriLayout>
+
+<script is:inline define:vars={{ TOTAL: MANUAL.pagini }}>
+  (function () {
+    var img = document.getElementById("m-pagina");
+    var stare = document.getElementById("m-stare");
+    var nrIn = document.getElementById("m-nr");
+    var sel = document.getElementById("m-modul");
+    // Arbitrii au acces de studiu, fără teste — cardul testului dispare pentru ei.
+    try {
+      var rolCurent = JSON.parse(localStorage.getItem("cfcrRol") || "null") || {};
+      if (rolCurent.rol === "arbitru") {
+        var card = document.getElementById("m-test-card");
+        if (card) card.remove();
+      }
+    } catch (e) {}
+
+    var n = 1;
+    var urlCurent = null;
+    var cache = {}; // pagini deja aduse (obiect URL), ca răsfoirea înapoi să fie instantanee
+    var inZbor = {};
+
+    function acreditare() {
+      var d = {};
+      try {
+        var c = JSON.parse(localStorage.getItem("cfcrCandidat") || "null");
+        if (c && c.id) d.cid = c.id;
+      } catch (e) {}
+      try {
+        var cod = localStorage.getItem("cfcrAccesCod");
+        if (cod) d.cod = cod;
+      } catch (e) {}
+      return d;
+    }
+
+    function adu(p) {
+      if (cache[p]) return Promise.resolve(cache[p]);
+      if (inZbor[p]) return inZbor[p];
+      var corp = acreditare();
+      corp.actiune = "pagina";
+      corp.n = p;
+      var pr = fetch("/.netlify/functions/material-protejat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(corp),
+      })
+        .then(function (r) {
+          if (!r.ok) {
+            // Răspunsul de eroare nu e neapărat JSON (ex. o pagină 404 de la server),
+            // așa că nu ne bazăm pe el: arătăm un mesaj pe înțelesul cititorului.
+            return r.json().catch(function () { return {}; }).then(function (j) {
+              throw new Error(
+                j.eroare ||
+                  (r.status === 403
+                    ? "Sesiunea a expirat. Intră din nou cu codul tău de acces."
+                    : "Pagina nu a putut fi adusă. Reîncarcă pagina sau încearcă din nou.")
+              );
+            });
+          }
+          return r.blob();
+        })
+        .then(function (b) {
+          var u = URL.createObjectURL(b);
+          cache[p] = u;
+          delete inZbor[p];
+          // Ținem în memorie doar o fereastră mică de pagini.
+          var chei = Object.keys(cache);
+          if (chei.length > 6) {
+            chei.sort(function (a, b2) { return Math.abs(a - n) - Math.abs(b2 - n); });
+            var vechi = chei[chei.length - 1];
+            URL.revokeObjectURL(cache[vechi]);
+            delete cache[vechi];
+          }
+          return u;
+        })
+        .catch(function (e) { delete inZbor[p]; throw e; });
+      inZbor[p] = pr;
+      return pr;
+    }
+
+    function arata(p) {
+      p = Math.min(TOTAL, Math.max(1, p | 0));
+      n = p;
+      nrIn.value = p;
+      stare.textContent = "Se încarcă pagina " + p + "…";
+      stare.hidden = false;
+      adu(p)
+        .then(function (u) {
+          if (n !== p) return; // utilizatorul a mers mai departe între timp
+          urlCurent = u;
+          img.src = u;
+          stare.hidden = true;
+          if (p < TOTAL) adu(p + 1).catch(function () {}); // pregătim următoarea
+        })
+        .catch(function (e) {
+          stare.hidden = false;
+          stare.textContent = e.message || "Pagina nu a putut fi afișată.";
+        });
+    }
+
+    document.getElementById("m-prev").addEventListener("click", function () { arata(n - 1); });
+    document.getElementById("m-next").addEventListener("click", function () { arata(n + 1); });
+
+    // Ecran complet: pagina umple tot ecranul; săgețile de la tastatură merg în continuare.
+    var btnFull = document.getElementById("m-full");
+    btnFull.addEventListener("click", function () {
+      var scena = document.getElementById("m-scena");
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else if (scena.requestFullscreen) {
+        scena.requestFullscreen().catch(function () {});
+      }
+    });
+    document.addEventListener("fullscreenchange", function () {
+      btnFull.textContent = document.fullscreenElement ? "✕ Ieși din ecran complet" : "⛶ Ecran complet";
+    });
+    nrIn.addEventListener("change", function () { arata(parseInt(nrIn.value, 10) || 1); });
+    sel.addEventListener("change", function () { arata(parseInt(sel.value, 10) || 1); });
+    document.addEventListener("keydown", function (e) {
+      if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+      if (e.key === "ArrowLeft" || e.key === "PageUp") { arata(n - 1); e.preventDefault(); }
+      if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") { arata(n + 1); e.preventDefault(); }
+    });
+
+    // Fără salvare/tipărire cu un click. Nu e o barieră absolută (nimic din ce se vede
+    // în browser nu este), dar scoate căile simple; protecția reală e filigranul + poarta.
+    var scena = document.getElementById("m-scena");
+    scena.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+    scena.addEventListener("dragstart", function (e) { e.preventDefault(); });
+    document.addEventListener("keydown", function (e) {
+      if ((e.ctrlKey || e.metaKey) && ["s", "p"].indexOf(e.key.toLowerCase()) >= 0) e.preventDefault();
+    });
+
+    arata(1);
+  })();
+</script>
+
+<style>
+  .m-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .m-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.25rem; }
+  .m-sub { color: var(--color-text-muted); max-width: 48rem; margin-top: 0; }
+
+  .m-bara {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    margin: 1.5rem 0 0.75rem; padding: 0.75rem 1rem;
+    background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius);
+  }
+  .m-sel { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--color-text-muted); }
+  .m-sel select { padding: 0.35rem 0.5rem; border: 1px solid var(--color-border); border-radius: 6px; background: var(--color-surface); font: inherit; max-width: 22rem; }
+  .m-nav { display: flex; align-items: center; gap: 0.6rem; }
+  .m-btn { font: inherit; font-weight: 600; cursor: pointer; padding: 0.45rem 0.9rem; border-radius: 6px;
+    border: 1px solid var(--color-accent); background: var(--color-surface); color: var(--color-primary); }
+  .m-btn:hover { border-color: var(--color-primary); }
+  .m-poz { font-size: 0.9rem; color: var(--color-text-muted); white-space: nowrap; }
+  .m-poz input { width: 4rem; padding: 0.35rem; border: 1px solid var(--color-border); border-radius: 6px; font: inherit; text-align: right; }
+
+  .m-scena { position: relative; background: #0f1a15; border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; min-height: 12rem; }
+  /* Coloana platformei are 62rem; pagina de manual merită mai mult. Bara și scena „ies”
+     din coloană și folosesc aproape toată lățimea ferestrei, rămânând centrate. */
+  .m-bara, .m-scena {
+    width: min(96vw, 105rem);
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+  /* În ecran complet, pagina se așază pe mijloc, cât încape fără să se deformeze. */
+  .m-scena:fullscreen { display: grid; place-items: center; border: 0; border-radius: 0; }
+  .m-scena:fullscreen img { width: auto; height: auto; max-width: 100vw; max-height: 100vh; }
+  .m-scena img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+  .m-stare { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; color: #cfd8d2; font-size: 0.9rem; background: #0f1a15; }
+  /* `display: grid` de mai sus bate regula implicită a browserului pentru [hidden],
+     așa că mesajul de încărcare rămânea agățat peste pagină. Îl ascundem explicit. */
+  .m-stare[hidden] { display: none; }
+
+  .m-avert { margin: 0.75rem 0 0; font-size: 0.85rem; color: var(--color-text-muted); }
+
+  .m-test {
+    display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap;
+    margin-top: 1.75rem; padding: 1.1rem 1.4rem;
+    background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius);
+  }
+  .m-test p { margin: 0.3rem 0 0; font-size: 0.9rem; color: var(--color-text-muted); max-width: 34rem; }
+
+  /* Materialul nu se tipărește. */
+  @media print { .m-scena, .m-bara { display: none !important; } }
+</style>

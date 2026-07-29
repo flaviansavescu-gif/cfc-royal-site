@@ -1,0 +1,1090 @@
+---
+// /cursuri/admin/ — panoul administratorului (acces total la platformă).
+// Accesibil DOAR cu codul de administrator. De aici se comută modulele
+// online/ascuns pentru candidați (bifa are efect instant).
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import { LECTORI, MODULE } from "../../../data/cursuri";
+---
+
+<CursuriLayout title="Administrare" allow={["admin"]}>
+  <p class="a-eyebrow">Administrare</p>
+  <h1 class="a-title">Panoul platformei</h1>
+  <p class="a-sub">Ai acces la toate zonele. Bifează un modul ca să devină vizibil candidaților — efectul e imediat; debifat, modulul apare „încuiat”.</p>
+
+  <p class="a-actiuni">
+    <a class="btn btn--primary" href="/cursuri/lector/flavian-savescu/">Spațiul meu de lector →</a>
+    <a class="btn btn--outline" href="/cursuri/module/">Zona candidaților →</a>
+    <a class="btn btn--outline" href="/cursuri/admin/rezultate/">📋 Registrul rezultatelor →</a>
+    <a class="btn btn--outline" href="/cursuri/admin/progres/">📊 Progresul candidaților →</a>
+    <a class="btn btn--outline" href="/cursuri/admin/analiza/">🧭 Sala de analiză (Judge Comparison Room) →</a>
+    <a class="btn btn--outline" href="/cursuri/admin/anatomie/">📐 Exerciții de anatomie →</a>
+    <a class="btn btn--outline" href="#interese">🐾 Interese pe rase (orientare lectori) →</a>
+    <a class="btn btn--outline" href="/cursuri/materiale/">📚 Biblioteca comună (toate cursurile) →</a>
+    <a class="btn btn--outline" href="/breed-explorer/" target="_blank" rel="noopener">📖 CFCR Breed Standards Explorer ↗</a>
+    <a class="btn btn--outline" href="/photo-annotator/" target="_blank" rel="noopener">📐 Photo Anatomy Annotator ↗</a>
+    <a class="btn btn--outline" href="https://arbitraj.cfc-royal.ro" target="_blank" rel="noopener">🎯 Exerciții de arbitraj ↗</a>
+    <a class="btn btn--outline" href="/cursuri/admin/asistente/">🎗️ Asistențe de ring →</a>
+    <a class="btn btn--outline" href="/cursuri/admin/certificare/">🎓 Certificare (grupe + examen) →</a>
+    <a class="btn btn--outline" href="/cursuri/teleprompter/" target="_blank" rel="noopener">🎬 Teleprompter ↗</a>
+    {/* `?din=cursuri` pornește intrarea automată cu codul păstrat de browser. Fără el,
+        pagina de intrare nu reautentifică nimic — altfel butonul „Ieșire" din registru
+        ar fi anulat pe loc de o nouă autentificare. */}
+    <a class="btn btn--outline" href="/registru/?din=cursuri">🧬 Registrul genealogic (coduri de membru) →</a>
+  </p>
+
+  <h2 class="a-h2">Modulele candidaților — online / ascuns</h2>
+  <p class="a-stare" id="a-stare">Se încarcă starea modulelor…</p>
+  <ul class="a-module">
+    {MODULE.map((m) => (
+      <li class="a-modul">
+        <label class="a-switch">
+          <input type="checkbox" data-slug={m.slug} disabled />
+          <span class="a-switch__track" aria-hidden="true"></span>
+        </label>
+        <a class="a-modul__link" href={`/cursuri/${m.slug}/`}>
+          <strong>Modul {m.nr}</strong> — {m.titlu}
+        </a>
+        <span class="a-modul__badge" data-badge={m.slug}>…</span>
+      </li>
+    ))}
+  </ul>
+
+  <h2 class="a-h2">Anunțuri pentru candidați</h2>
+  <p class="a-anunt-info">Anunțurile apar imediat pe tabloul candidaților („📢 Noutăți"). Cel mai nou apare primul.</p>
+  <div class="a-anunt-form">
+    <textarea id="a-anunt-text" rows="3" placeholder="Ex. Modulul 3 se predă joi, 18 iulie, ora 19:00, pe Zoom. Link: ..."></textarea>
+    <button id="a-anunt-add" class="btn btn--primary" type="button">Publică anunțul</button>
+  </div>
+  <ul class="a-anunt-list" id="a-anunt-list"></ul>
+
+  <h2 class="a-h2">Buletinul Școlii — newsletter intern</h2>
+  <p class="a-anunt-info">Buletinul apare în <a href="/cursuri/buletin/">arhiva din platformă</a> (o văd toți membrii:
+  candidați, arbitri, lectori) și pleacă <strong>pe e-mail</strong> către cei abonați din pagina buletinului.
+  <span id="a-bul-abonati">Se numără abonații…</span></p>
+  <details class="a-bul-abonati-det" id="a-bul-abonati-det" hidden>
+    <summary>Vezi lista abonaților</summary>
+    <ul class="a-cand-list" id="a-bul-abonati-list"></ul>
+  </details>
+  <div class="a-anunt-form">
+    <input id="a-bul-titlu" type="text" placeholder="Titlul buletinului — ex. Noutățile lunii august" />
+    <textarea id="a-bul-text" rows="6" placeholder="Conținutul buletinului. Paragrafele se păstrează așa cum le scrii."></textarea>
+    <button id="a-bul-add" class="btn btn--primary" type="button">Publică buletinul</button>
+  </div>
+  <p class="a-cand-feedback" id="a-bul-feedback" role="status" hidden></p>
+  <ul class="a-anunt-list" id="a-bul-list"></ul>
+
+  <h2 class="a-h2">Candidați — coduri individuale de acces</h2>
+  <p class="a-anunt-info">Fiecare candidat primește codul lui personal. Progresul (testele promovate) se salvează pe cont, vizibil de pe orice dispozitiv. Adaugi un candidat, îi trimiți codul generat, iar el intră cu el pe platformă.</p>
+  <div class="a-cand-form">
+    <input id="a-cand-nume" type="text" placeholder="Numele complet al candidatului" />
+    <button id="a-cand-add" class="btn btn--primary" type="button">Adaugă candidat</button>
+  </div>
+  <p class="a-cand-feedback" id="a-cand-feedback" role="status" hidden></p>
+  <p class="a-cand-count" id="a-cand-count" hidden></p>
+  <ul class="a-cand-list" id="a-cand-list"></ul>
+  <p class="a-anunt-info">
+    Ștergerea unui candidat îi înlătură acum <strong>toate</strong> urmele: răspunsurile din Sala de analiză
+    și de la exercițiile de anatomie, sesiunile și imaginile lui, apartenența la exerciții și profilul de interese.
+    Butonul de mai jos face aceeași curățare <strong>retroactiv</strong>, pentru candidații șterși înainte de această schimbare.
+  </p>
+  <p>
+    <button id="a-orfani" class="btn btn--outline" type="button">🧹 Curăță datele rămase de la candidați șterși</button>
+    <span id="a-orfani-msg" class="a-int-msg"></span>
+  </p>
+
+  <h2 class="a-h2">Arbitri — acces de studiu (fără teste)</h2>
+  <p class="a-anunt-info">Membrii <strong>Colegiului de Arbitri care nu sunt lectori</strong> primesc un cod personal
+  (prefix <code>COL-</code>) cu care intră în <a href="/cursuri/arbitru/">spațiul arbitrului</a>: manualul de studiu,
+  conținutul modulelor <strong>fără teste</strong>, biblioteca lectorilor și aplicațiile. Nu apar la progres sau examen.</p>
+  <div class="a-cand-form">
+    <input id="a-arb-nume" type="text" placeholder="Numele complet al arbitrului" />
+    <button id="a-arb-add" class="btn btn--primary" type="button">Adaugă arbitru</button>
+  </div>
+  <p class="a-cand-feedback" id="a-arb-feedback" role="status" hidden></p>
+  <p class="a-cand-count" id="a-arb-count" hidden></p>
+  <ul class="a-cand-list" id="a-arb-list"></ul>
+
+  <h2 class="a-h2">Codul Etic — asumări</h2>
+  <p class="a-anunt-info">La prima intrare în platformă, fiecare candidat, arbitru și lector confirmă că a citit
+  și își asumă <a href="/ro/documente/cod-etic/" target="_blank" rel="noopener">Codul Etic</a>. Confirmarea se
+  înregistrează cu numele și data — actul pe care se sprijină procedura disciplinară.
+  <span id="a-ce-sumar"></span></p>
+  <details class="a-bul-abonati-det" id="a-ce-det" hidden>
+    <summary>Vezi cine a asumat și cine nu</summary>
+    <ul class="a-cand-list" id="a-ce-list"></ul>
+  </details>
+
+  <h2 class="a-h2">Formarea continuă — situația anului</h2>
+  <p class="a-anunt-info">Toți arbitrii Colegiului (lectori + arbitri cu cod de studiu) trebuie să parcurgă anual
+  <a href="/cursuri/arbitru/formare/">modulul de actualizare</a> și mini-testul. Aici vezi cine l-a promovat.</p>
+  <p class="a-cand-count" id="a-form-count" hidden></p>
+  <ul class="a-cand-list" id="a-form-list"></ul>
+
+  <h2 class="a-h2">Coduri de instalare — Breed Standards Explorer</h2>
+  <p class="a-anunt-info">Aplicația se poate <strong>instala</strong> pe dispozitiv doar cu un cod de instalare — diferit de codul de acces în platformă. Generezi un cod și îl dai persoanei care instalează. Consultarea online rămâne liberă pentru candidați.</p>
+  <div class="a-cand-form">
+    <input id="a-inst-eticheta" type="text" placeholder="Etichetă (opțional): pentru cine / ce dispozitiv" />
+    <button id="a-inst-gen" class="btn btn--primary" type="button">Generează cod de instalare</button>
+  </div>
+  <ul class="a-cand-list" id="a-inst-list"></ul>
+
+  <h2 class="a-h2">Photo Anatomy Annotator — instalare și standard demo</h2>
+  <p class="a-anunt-info">Coduri de instalare <strong>PAA</strong> (separate de Breed Explorer) și standardul <strong>demonstrativ</strong> pentru aplicația de adnotare anatomică.</p>
+  <div class="a-cand-form">
+    <input id="a-paa-eticheta" type="text" placeholder="Etichetă (opțional)" />
+    <button id="a-paa-gen" class="btn btn--primary" type="button">Generează cod de instalare (PAA)</button>
+    <button id="a-paa-seed" class="btn btn--outline" type="button">Încarcă standardul demo</button>
+  </div>
+  <ul class="a-cand-list" id="a-paa-list"></ul>
+
+  <h2 class="a-h2" id="interese">Interese pe rase — orientarea către lectori</h2>
+  <p class="a-anunt-info">Candidații își aleg grupele și rasele care îi interesează (minim 2 grupe). Aici vezi profilul fiecăruia, primești o <strong>sugestie de lector</strong> după suprapunerea de grupe (la egalitate, cel cu mai puțini candidați) și repartizezi <strong>lectorul principal</strong>. Marchează grupele cu <strong>deficit de arbitri</strong> — candidații le văd evidențiate și sunt încurajați să aleagă larg.</p>
+
+  <div class="a-int-deficit">
+    <div class="a-int-deficit__lbl">Grupe cu deficit de arbitri:</div>
+    <div id="a-int-def-boxes" class="a-int-defrow">Se încarcă…</div>
+    <button id="a-int-def-save" class="btn btn--small btn--primary" type="button">Salvează deficitul</button>
+    <span id="a-int-def-msg" class="a-int-msg"></span>
+  </div>
+
+  <div id="a-int-agg" class="a-int-agg" hidden></div>
+  <div id="a-int-list" class="a-int-list">Se încarcă profilurile de interese…</div>
+
+  <h2 class="a-h2">Spațiile lectorilor</h2>
+  <ul class="a-list">
+    {LECTORI.map((l) => (
+      <li>
+        <a href={`/cursuri/lector/${l.slug}/`}>{l.nume} →</a>
+        <span class="a-meta">{l.materiale.length ? `${l.materiale.length} materiale` : "fără materiale încă"}</span>
+      </li>
+    ))}
+  </ul>
+
+  <h2 class="a-h2">Cum publici un curs nou</h2>
+  <ol class="a-pasi">
+    <li>Primești materialul de la lector (PDF, prezentare, document).</li>
+    <li>Îl pui în folderul de lucru și îi spui lui Claude în ce spațiu de lector (și, opțional, în ce modul) să-l publice.</li>
+    <li>Când modulul se predă, îl bifezi aici — candidații îl văd instant.</li>
+  </ol>
+</CursuriLayout>
+
+<script is:inline>
+  (async function () {
+    const stareEl = document.getElementById("a-stare");
+    const inputs = [...document.querySelectorAll("input[data-slug]")];
+    const badge = (slug) => document.querySelector('[data-badge="' + slug + '"]');
+
+    function aplica(stare) {
+      inputs.forEach((inp) => {
+        const on = !!stare[inp.dataset.slug];
+        inp.checked = on;
+        inp.disabled = false;
+        const b = badge(inp.dataset.slug);
+        b.textContent = on ? "Online" : "Ascuns";
+        b.className = "a-modul__badge " + (on ? "is-on" : "is-off");
+      });
+    }
+
+    try {
+      const res = await fetch("/.netlify/functions/stare-cursuri");
+      aplica(await res.json());
+      stareEl.hidden = true;
+    } catch (e) {
+      stareEl.textContent = "Nu am putut încărca starea. Reîncarcă pagina.";
+      return;
+    }
+
+    // ——— Anunțuri ———
+    function codAdmin() {
+      let c = null;
+      try { c = localStorage.getItem("cfcrAccesCod"); } catch (e) {}
+      return c || prompt("Confirmă codul de administrator:");
+    }
+
+    async function incarcaAnunturi() {
+      const list = document.getElementById("a-anunt-list");
+      list.textContent = "";
+      let anunturi = [];
+      try { anunturi = await (await fetch("/.netlify/functions/anunturi-cursuri")).json(); } catch (e) {}
+      if (!anunturi.length) {
+        const li = document.createElement("li");
+        li.className = "a-anunt-empty";
+        li.textContent = "Niciun anunț publicat.";
+        list.appendChild(li);
+        return;
+      }
+      anunturi.forEach((a) => {
+        const li = document.createElement("li");
+        const d = a.data ? new Date(a.data).toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" }) : "";
+        const wrap = document.createElement("div");
+        wrap.innerHTML = "<span class='a-anunt-date'>" + d + "</span>";
+        const p = document.createElement("p");
+        p.className = "a-anunt-txt";
+        p.textContent = a.text;
+        wrap.appendChild(p);
+        const del = document.createElement("button");
+        del.className = "btn btn--small btn--danger";
+        del.textContent = "Șterge";
+        del.addEventListener("click", async () => {
+          if (!confirm("Ștergi acest anunț?")) return;
+          del.disabled = true;
+          try {
+            const res = await fetch("/.netlify/functions/anunturi-cursuri", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ cod: codAdmin(), delete: a.key }),
+            });
+            if (!res.ok) throw new Error((await res.json()).eroare || "Eroare");
+            incarcaAnunturi();
+          } catch (err) { alert("Nu am putut șterge: " + err.message); del.disabled = false; }
+        });
+        li.appendChild(wrap);
+        li.appendChild(del);
+        list.appendChild(li);
+      });
+    }
+
+    document.getElementById("a-anunt-add").addEventListener("click", async () => {
+      const ta = document.getElementById("a-anunt-text");
+      const text = ta.value.trim();
+      if (!text) { ta.focus(); return; }
+      const btn = document.getElementById("a-anunt-add");
+      btn.disabled = true; btn.textContent = "Se publică…";
+      try {
+        const res = await fetch("/.netlify/functions/anunturi-cursuri", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cod: codAdmin(), text }),
+        });
+        if (!res.ok) throw new Error((await res.json()).eroare || "Eroare");
+        ta.value = "";
+        incarcaAnunturi();
+      } catch (err) { alert("Nu am putut publica: " + err.message); }
+      finally { btn.disabled = false; btn.textContent = "Publică anunțul"; }
+    });
+
+    incarcaAnunturi();
+
+    // ——— Buletinul Școlii (newsletter intern) ———
+    async function buletinCere(payload) {
+      const res = await fetch("/.netlify/functions/buletin-cursuri", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.eroare || "Eroare de server.");
+      return data;
+    }
+
+    async function incarcaBuletine() {
+      const list = document.getElementById("a-bul-list");
+      list.innerHTML = "";
+      try {
+        const d = await buletinCere({ actiune: "lista" });
+        if (!d.buletine.length) {
+          const li = document.createElement("li");
+          li.className = "a-cand-empty";
+          li.textContent = "Niciun buletin publicat încă.";
+          list.appendChild(li);
+          return;
+        }
+        d.buletine.forEach((b) => {
+          const li = document.createElement("li");
+          const info = document.createElement("div");
+          info.className = "a-cand-info";
+          const t = document.createElement("strong");
+          t.textContent = b.titlu;
+          const meta = document.createElement("span");
+          meta.className = "a-cand-meta";
+          meta.textContent = fmtData(b.data, true) + " · " + b.text.slice(0, 120) + (b.text.length > 120 ? "…" : "");
+          info.appendChild(t); info.appendChild(meta);
+          const del = document.createElement("button");
+          del.className = "btn btn--small btn--danger";
+          del.textContent = "Șterge";
+          del.addEventListener("click", async () => {
+            if (!confirm("Ștergi buletinul „" + b.titlu + "” din arhivă? (E-mailurile deja trimise rămân trimise.)")) return;
+            del.disabled = true;
+            try { await buletinCere({ actiune: "sterge", key: b.key }); incarcaBuletine(); }
+            catch (err) { alert("Nu am putut șterge: " + err.message); del.disabled = false; }
+          });
+          li.appendChild(info); li.appendChild(del);
+          list.appendChild(li);
+        });
+      } catch (e) {
+        const li = document.createElement("li");
+        li.className = "a-cand-empty";
+        li.textContent = "Nu am putut încărca buletinele.";
+        list.appendChild(li);
+      }
+    }
+
+    async function numaraAbonati() {
+      const el = document.getElementById("a-bul-abonati");
+      const det = document.getElementById("a-bul-abonati-det");
+      const list = document.getElementById("a-bul-abonati-list");
+      try {
+        const d = await buletinCere({ actiune: "abonati" });
+        if (!d.abonati.length) {
+          el.textContent = "Nimeni nu s-a abonat încă pe e-mail — buletinul rămâne vizibil în platformă.";
+          det.hidden = true;
+          return;
+        }
+        el.textContent = "Abonați pe e-mail acum: " + d.abonati.length + ".";
+        det.hidden = false;
+        list.innerHTML = "";
+        d.abonati.forEach((a) => {
+          const li = document.createElement("li");
+          const info = document.createElement("div");
+          info.className = "a-cand-info";
+          const em = document.createElement("strong");
+          em.textContent = a.email;
+          const meta = document.createElement("span");
+          meta.className = "a-cand-meta";
+          meta.textContent =
+            (a.nume ? a.nume + (a.rol ? " (" + a.rol + ")" : "") + " · " : "") +
+            (a.creat ? "abonat " + fmtData(a.creat, true) : "");
+          info.appendChild(em); info.appendChild(meta);
+          const del = document.createElement("button");
+          del.className = "btn btn--small btn--danger";
+          del.textContent = "Scoate";
+          del.addEventListener("click", async () => {
+            if (!confirm("Scoți adresa " + a.email + " de la buletin? Nu va mai primi e-mailuri.")) return;
+            del.disabled = true;
+            try { await buletinCere({ actiune: "dezaboneaza", email: a.email }); numaraAbonati(); }
+            catch (e2) { alert("Nu am putut scoate adresa: " + e2.message); del.disabled = false; }
+          });
+          li.appendChild(info); li.appendChild(del);
+          list.appendChild(li);
+        });
+      } catch (e) { el.textContent = ""; det.hidden = true; }
+    }
+
+    document.getElementById("a-bul-add").addEventListener("click", async () => {
+      const inTitlu = document.getElementById("a-bul-titlu");
+      const inText = document.getElementById("a-bul-text");
+      const titlu = inTitlu.value.trim();
+      const text = inText.value.trim();
+      if (titlu.length < 3) { inTitlu.focus(); return; }
+      if (text.length < 10) { inText.focus(); return; }
+      if (!confirm("Publici buletinul „" + titlu + "”? Va apărea în platformă și va pleca pe e-mail către abonați.")) return;
+      const btn = document.getElementById("a-bul-add");
+      const fb = document.getElementById("a-bul-feedback");
+      btn.disabled = true; btn.textContent = "Se publică…";
+      try {
+        const d = await buletinCere({ actiune: "publica", titlu, text });
+        inTitlu.value = ""; inText.value = "";
+        fb.hidden = false;
+        fb.className = "a-cand-feedback is-ok";
+        fb.textContent = "✓ Buletin publicat. E-mailuri trimise: " + (d.trimise || 0) +
+          (d.esuate ? " · eșuate: " + d.esuate + " (vezi jurnalul funcției)" : "") + ".";
+        incarcaBuletine();
+      } catch (err) {
+        fb.hidden = false;
+        fb.className = "a-cand-feedback is-err";
+        fb.textContent = "Nu am putut publica: " + err.message;
+      }
+      finally { btn.disabled = false; btn.textContent = "Publică buletinul"; }
+    });
+
+    incarcaBuletine();
+    numaraAbonati();
+
+    // ——— Candidați (coduri individuale) ———
+    async function candidatiCere(payload) {
+      const res = await fetch("/.netlify/functions/candidati-cursuri", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.eroare || "Eroare");
+      return data;
+    }
+
+    function fmtData(iso, cuOra) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (isNaN(d)) return "";
+      const opt = cuOra
+        ? { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }
+        : { day: "numeric", month: "long", year: "numeric" };
+      return d.toLocaleString("ro-RO", opt);
+    }
+
+    async function incarcaCandidati(highlightId) {
+      const list = document.getElementById("a-cand-list");
+      const countEl = document.getElementById("a-cand-count");
+      list.textContent = "";
+      let candidati = [];
+      try { candidati = await candidatiCere({ actiune: "lista" }); } catch (e) {
+        countEl.hidden = true;
+        const li = document.createElement("li");
+        li.className = "a-cand-empty";
+        li.textContent = "Nu am putut încărca lista candidaților.";
+        list.appendChild(li);
+        return;
+      }
+      if (!candidati.length) {
+        countEl.hidden = true;
+        const li = document.createElement("li");
+        li.className = "a-cand-empty";
+        li.textContent = "Niciun candidat adăugat încă.";
+        list.appendChild(li);
+        return;
+      }
+      // Cei mai recent înregistrați apar primii.
+      candidati.sort((a, b) => String(b.creat || "").localeCompare(String(a.creat || "")));
+      const intrati = candidati.filter((c) => c.prima_logare).length;
+      countEl.hidden = false;
+      countEl.textContent =
+        candidati.length + (candidati.length === 1 ? " candidat înregistrat" : " candidați înregistrați") +
+        " · " + intrati + " au intrat deja în platformă";
+      candidati.forEach((c) => list.appendChild(randCandidat(c, c.id === highlightId)));
+    }
+
+    function randCandidat(c, evidentiaza) {
+      const li = document.createElement("li");
+      if (evidentiaza) li.className = "is-nou";
+      const info = document.createElement("div");
+      info.className = "a-cand-info";
+      const nume = document.createElement("strong");
+      nume.textContent = c.nume;
+      info.appendChild(nume);
+
+      // Evidența înscrierii: când a fost adăugat și dacă a intrat deja în platformă.
+      const meta = document.createElement("span");
+      meta.className = "a-cand-meta";
+      const adaugat = c.creat ? "Înregistrat: " + fmtData(c.creat, false) : "";
+      if (c.prima_logare) {
+        meta.innerHTML =
+          (adaugat ? "<span>" + adaugat + "</span>" : "") +
+          "<span class='a-cand-intrat'>✓ A intrat: " + fmtData(c.prima_logare, true) + "</span>";
+      } else {
+        meta.innerHTML =
+          (adaugat ? "<span>" + adaugat + "</span>" : "") +
+          "<span class='a-cand-neintrat'>● Nu a intrat încă</span>";
+      }
+      info.appendChild(meta);
+
+      // Codul NU se mai poate arăta aici: nu se mai păstrează nicăieri, ci doar amprenta
+      // lui. Se vede o singură dată, la generare. Cine îl pierde primește altul —
+      // altfel oricine ajunge la stocare sau la o copie de siguranță ar avea o cheie.
+      const del = document.createElement("button");
+      del.className = "btn btn--small btn--danger";
+      del.textContent = "Șterge";
+      del.addEventListener("click", async () => {
+        if (!confirm("Ștergi candidatul „" + c.nume + "”? Codul și progresul lui se pierd.")) return;
+        del.disabled = true;
+        try { await candidatiCere({ actiune: "sterge", id: c.id }); incarcaCandidati(); }
+        catch (err) { alert("Nu am putut șterge: " + err.message); del.disabled = false; }
+      });
+
+      li.appendChild(info);
+      li.appendChild(del);
+      return li;
+    }
+
+    function feedbackCandidat(candidat) {
+      const fb = document.getElementById("a-cand-feedback");
+      fb.className = "a-cand-feedback is-ok";
+      fb.hidden = false;
+      fb.innerHTML = "";
+      const t = document.createElement("span");
+      t.innerHTML = "✓ <strong>" + candidat.nume + "</strong> a fost înregistrat. Cod personal: ";
+      const code = document.createElement("code");
+      code.className = "a-cand-cod";
+      code.textContent = candidat.cod;
+      const copy = document.createElement("button");
+      copy.type = "button";
+      copy.className = "btn btn--small btn--outline";
+      copy.textContent = "Copiază codul";
+      copy.addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(candidat.cod); copy.textContent = "Copiat ✓"; setTimeout(() => (copy.textContent = "Copiază codul"), 1500); }
+        catch (e) { /* clipboard indisponibil — codul e vizibil oricum */ }
+      });
+      const hint = document.createElement("span");
+      hint.className = "a-cand-feedback__hint";
+      hint.textContent = "Trimite-i acest cod — cu el intră pe platformă. Îl vezi și mai jos, în listă.";
+      fb.appendChild(t); fb.appendChild(code); fb.appendChild(copy); fb.appendChild(hint);
+    }
+
+    document.getElementById("a-cand-add").addEventListener("click", async () => {
+      const inp = document.getElementById("a-cand-nume");
+      const nume = inp.value.trim();
+      if (nume.length < 3) { inp.focus(); return; }
+      const btn = document.getElementById("a-cand-add");
+      btn.disabled = true; btn.textContent = "Se adaugă…";
+      try {
+        const data = await candidatiCere({ actiune: "adauga", nume });
+        inp.value = "";
+        if (data.candidat) {
+          feedbackCandidat(data.candidat);
+          await incarcaCandidati(data.candidat.id);
+        } else {
+          await incarcaCandidati();
+        }
+      } catch (err) {
+        const fb = document.getElementById("a-cand-feedback");
+        fb.className = "a-cand-feedback is-err";
+        fb.hidden = false;
+        fb.textContent = "Nu am putut adăuga candidatul: " + err.message;
+      }
+      finally { btn.disabled = false; btn.textContent = "Adaugă candidat"; }
+    });
+
+    incarcaCandidati();
+
+    // ——— Arbitri (Colegiul — acces de studiu, fără teste) ———
+    // Aceeași mecanică cu a candidaților, dar pe registrul `arbitru/` (arbitri-cursuri).
+    async function arbitriCere(payload) {
+      const res = await fetch("/.netlify/functions/arbitri-cursuri", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.eroare || "Eroare de server.");
+      return data;
+    }
+
+    async function incarcaArbitri(highlightId) {
+      const list = document.getElementById("a-arb-list");
+      const countEl = document.getElementById("a-arb-count");
+      list.innerHTML = "";
+      let arbitri = [];
+      try { arbitri = await arbitriCere({ actiune: "lista" }); } catch (e) {
+        countEl.hidden = true;
+        const li = document.createElement("li");
+        li.className = "a-cand-empty";
+        li.textContent = "Nu am putut încărca lista arbitrilor.";
+        list.appendChild(li);
+        return;
+      }
+      if (!arbitri.length) {
+        countEl.hidden = true;
+        const li = document.createElement("li");
+        li.className = "a-cand-empty";
+        li.textContent = "Niciun arbitru adăugat încă.";
+        list.appendChild(li);
+        return;
+      }
+      arbitri.sort((a, b) => String(b.creat || "").localeCompare(String(a.creat || "")));
+      const intrati = arbitri.filter((a) => a.prima_logare).length;
+      countEl.hidden = false;
+      countEl.textContent =
+        arbitri.length + (arbitri.length === 1 ? " arbitru înregistrat" : " arbitri înregistrați") +
+        " · " + intrati + " au intrat deja în platformă";
+      arbitri.forEach((a) => list.appendChild(randArbitru(a, a.id === highlightId)));
+    }
+
+    function randArbitru(a, evidentiaza) {
+      const li = document.createElement("li");
+      if (evidentiaza) li.className = "is-nou";
+      const info = document.createElement("div");
+      info.className = "a-cand-info";
+      const nume = document.createElement("strong");
+      nume.textContent = a.nume;
+      info.appendChild(nume);
+
+      const meta = document.createElement("span");
+      meta.className = "a-cand-meta";
+      const adaugat = a.creat ? "Înregistrat: " + fmtData(a.creat, false) : "";
+      if (a.prima_logare) {
+        meta.innerHTML =
+          (adaugat ? "<span>" + adaugat + "</span>" : "") +
+          "<span class='a-cand-intrat'>✓ A intrat: " + fmtData(a.prima_logare, true) + "</span>";
+      } else {
+        meta.innerHTML =
+          (adaugat ? "<span>" + adaugat + "</span>" : "") +
+          "<span class='a-cand-neintrat'>● Nu a intrat încă</span>";
+      }
+      info.appendChild(meta);
+
+      // Codul se vede o singură dată, la generare — vezi comentariul de la candidați.
+      const del = document.createElement("button");
+      del.className = "btn btn--small btn--danger";
+      del.textContent = "Șterge";
+      del.addEventListener("click", async () => {
+        if (!confirm("Ștergi arbitrul „" + a.nume + "”? Codul lui de acces se pierde.")) return;
+        del.disabled = true;
+        try { await arbitriCere({ actiune: "sterge", id: a.id }); incarcaArbitri(); }
+        catch (err) { alert("Nu am putut șterge: " + err.message); del.disabled = false; }
+      });
+
+      li.appendChild(info);
+      li.appendChild(del);
+      return li;
+    }
+
+    document.getElementById("a-arb-add").addEventListener("click", async () => {
+      const inp = document.getElementById("a-arb-nume");
+      const nume = inp.value.trim();
+      if (nume.length < 3) { inp.focus(); return; }
+      const btn = document.getElementById("a-arb-add");
+      btn.disabled = true; btn.textContent = "Se adaugă…";
+      const fb = document.getElementById("a-arb-feedback");
+      try {
+        const data = await arbitriCere({ actiune: "adauga", nume });
+        inp.value = "";
+        if (data.arbitru) {
+          fb.className = "a-cand-feedback is-ok";
+          fb.hidden = false;
+          fb.innerHTML = "";
+          const t = document.createElement("span");
+          t.innerHTML = "✓ <strong>" + data.arbitru.nume + "</strong> a fost înregistrat. Cod de acces: ";
+          const code = document.createElement("code");
+          code.className = "a-cand-cod";
+          code.textContent = data.arbitru.cod;
+          const copy = document.createElement("button");
+          copy.type = "button";
+          copy.className = "btn btn--small btn--outline";
+          copy.textContent = "Copiază codul";
+          copy.addEventListener("click", async () => {
+            try { await navigator.clipboard.writeText(data.arbitru.cod); copy.textContent = "Copiat ✓"; setTimeout(() => (copy.textContent = "Copiază codul"), 1500); }
+            catch (e) {}
+          });
+          const hint = document.createElement("span");
+          hint.className = "a-cand-feedback__hint";
+          hint.textContent = "Trimite-i acest cod — cu el intră în spațiul arbitrului, fără teste.";
+          fb.appendChild(t); fb.appendChild(code); fb.appendChild(copy); fb.appendChild(hint);
+          await incarcaArbitri(data.arbitru.id);
+        } else {
+          await incarcaArbitri();
+        }
+      } catch (err) {
+        fb.className = "a-cand-feedback is-err";
+        fb.hidden = false;
+        fb.textContent = "Nu am putut adăuga arbitrul: " + err.message;
+      }
+      finally { btn.disabled = false; btn.textContent = "Adaugă arbitru"; }
+    });
+
+    incarcaArbitri();
+
+    // ——— Codul Etic: cine și l-a asumat ———
+    (async function () {
+      const sumar = document.getElementById("a-ce-sumar");
+      const det = document.getElementById("a-ce-det");
+      const list = document.getElementById("a-ce-list");
+      try {
+        const res = await fetch("/.netlify/functions/cod-etic", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cod: codAdmin(), actiune: "situatie" }),
+        });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.eroare || "Eroare");
+        const asumati = d.membri.filter((m) => m.asumat).length;
+        sumar.textContent = " Versiunea în vigoare: " + d.versiune + " — " + asumati + " din " + d.membri.length + " membri au asumat.";
+        if (!d.membri.length) return;
+        det.hidden = false;
+        list.innerHTML = "";
+        d.membri.forEach((m) => {
+          const li = document.createElement("li");
+          const info = document.createElement("div");
+          info.className = "a-cand-info";
+          const nm = document.createElement("strong");
+          nm.textContent = m.nume;
+          const meta = document.createElement("span");
+          meta.className = "a-cand-meta";
+          meta.innerHTML = m.asumat
+            ? "<span class='a-cand-intrat'>✓ Asumat: " + fmtData(m.data, true) + "</span>"
+            : m.anterior
+              // A semnat textul vechi: nu e om care ignoră Codul, ci unul de reconfirmat.
+              ? "<span class='a-cand-neintrat'>◑ De reconfirmat — asumase versiunea " + m.anterior.versiune + " la " + fmtData(m.anterior.data, true) + "</span>"
+              : "<span class='a-cand-neintrat'>● Nu a asumat încă</span>";
+          info.appendChild(nm); info.appendChild(meta);
+          const rol = document.createElement("span");
+          rol.className = "a-cand-meta";
+          rol.textContent = m.rol;
+          li.appendChild(info); li.appendChild(rol);
+          list.appendChild(li);
+        });
+      } catch (e) { sumar.textContent = ""; }
+    })();
+
+    // ——— Formarea continuă: situația anului (cine a promovat modulul de actualizare) ———
+    (async function () {
+      const list = document.getElementById("a-form-list");
+      const countEl = document.getElementById("a-form-count");
+      try {
+        const res = await fetch("/.netlify/functions/formare-arbitri", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cod: codAdmin(), actiune: "situatie" }),
+        });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.eroare || "Eroare");
+        const promovati = d.arbitri.filter((a) => a.promovat).length;
+        countEl.hidden = false;
+        countEl.textContent = "Anul " + d.an + ": " + promovati + " din " + d.arbitri.length + " arbitri au îndeplinit formarea.";
+        d.arbitri.forEach((a) => {
+          const li = document.createElement("li");
+          const info = document.createElement("div");
+          info.className = "a-cand-info";
+          const nm = document.createElement("strong");
+          nm.textContent = a.nume;
+          const meta = document.createElement("span");
+          meta.className = "a-cand-meta";
+          meta.innerHTML = a.promovat
+            ? "<span class='a-cand-intrat'>✓ Promovat — " + a.procent + "% (" + a.data + ")</span>"
+            : "<span class='a-cand-neintrat'>● Neîndeplinită</span>";
+          info.appendChild(nm); info.appendChild(meta);
+          const rol = document.createElement("span");
+          rol.className = "a-cand-meta";
+          rol.textContent = a.rol === "lector" ? "lector" : "arbitru";
+          li.appendChild(info); li.appendChild(rol);
+          list.appendChild(li);
+        });
+      } catch (e) {
+        const li = document.createElement("li");
+        li.className = "a-cand-empty";
+        li.textContent = "Nu am putut încărca situația formării.";
+        list.appendChild(li);
+      }
+    })();
+
+    // ——— Curățare retroactivă a datelor rămase de la candidați șterși ———
+    document.getElementById("a-orfani").addEventListener("click", async () => {
+      const btn = document.getElementById("a-orfani"), msg = document.getElementById("a-orfani-msg");
+      if (!confirm("Caut datele rămase de la candidații care nu mai există și le șterg definitiv. Continui?")) return;
+      btn.disabled = true; msg.className = "a-int-msg"; msg.textContent = "Se caută…";
+      try {
+        const d = await candidatiCere({ actiune: "curata-orfane" });
+        if (d.oprit) {
+          msg.className = "a-int-msg is-err";
+          msg.textContent = "Oprit: registrul candidaților nu s-a putut citi. Nu am șters nimic.";
+        } else if (!d.orfani) {
+          msg.className = "a-int-msg is-ok";
+          msg.textContent = "✓ Nimic de curățat — nu există date orfane.";
+        } else {
+          msg.className = "a-int-msg is-ok";
+          msg.textContent = "✓ " + d.orfani + " candidat(i) șterși: " + d.sterse + " intrări eliminate, " + d.actualizate + " liste actualizate" + (d.esuate ? ", " + d.esuate + " eșecuri" : "") + ".";
+        }
+      } catch (err) { msg.className = "a-int-msg is-err"; msg.textContent = err.message; }
+      finally { btn.disabled = false; }
+    });
+
+    // ——— Coduri de instalare (Breed Standards Explorer) ———
+    async function instCere(payload) {
+      const res = await fetch("/.netlify/functions/breed-instalare", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.eroare || "Eroare");
+      return data;
+    }
+    async function incarcaInstalare() {
+      const list = document.getElementById("a-inst-list");
+      list.textContent = "";
+      let coduri = [];
+      try { coduri = await instCere({ actiune: "lista" }); } catch (e) {
+        const li = document.createElement("li"); li.className = "a-cand-empty"; li.textContent = "Nu am putut încărca codurile de instalare."; list.appendChild(li); return;
+      }
+      if (!coduri.length) { const li = document.createElement("li"); li.className = "a-cand-empty"; li.textContent = "Niciun cod de instalare generat încă."; list.appendChild(li); return; }
+      coduri.forEach((c) => list.appendChild(randInstalare(c)));
+    }
+    function randInstalare(c) {
+      const li = document.createElement("li");
+      const info = document.createElement("div"); info.className = "a-cand-info";
+      const cod = document.createElement("code"); cod.className = "a-cand-cod"; cod.textContent = c.cod;
+      info.appendChild(cod);
+      if (c.eticheta) { const et = document.createElement("span"); et.className = "a-cand-meta"; et.innerHTML = "<span>" + c.eticheta.replace(/[&<>]/g, "") + "</span>"; info.appendChild(et); }
+      const copy = document.createElement("button"); copy.className = "btn btn--small btn--outline"; copy.textContent = "Copiază";
+      copy.addEventListener("click", async () => { try { await navigator.clipboard.writeText(c.cod); copy.textContent = "Copiat ✓"; setTimeout(() => (copy.textContent = "Copiază"), 1500); } catch (e) { alert("Cod: " + c.cod); } });
+      const del = document.createElement("button"); del.className = "btn btn--small btn--danger"; del.textContent = "Revocă";
+      del.addEventListener("click", async () => { if (!confirm("Revoci codul „" + c.cod + "”? Nu va mai permite instalarea.")) return; del.disabled = true; try { await instCere({ actiune: "revoca", id: c.id }); incarcaInstalare(); } catch (err) { alert("Nu am putut revoca: " + err.message); del.disabled = false; } });
+      li.appendChild(info); li.appendChild(copy); li.appendChild(del);
+      return li;
+    }
+    document.getElementById("a-inst-gen").addEventListener("click", async () => {
+      const btn = document.getElementById("a-inst-gen"); btn.disabled = true; btn.textContent = "Se generează…";
+      try {
+        const d = await instCere({ actiune: "genereaza", eticheta: document.getElementById("a-inst-eticheta").value.trim() });
+        document.getElementById("a-inst-eticheta").value = "";
+        incarcaInstalare();
+        if (d.cod) alert("Cod de instalare generat:\n\n" + d.cod.cod + "\n\nDă-l persoanei care instalează aplicația. Cu el, din butonul „Install app”, aplicația se poate instala pe dispozitiv.");
+      } catch (err) { alert("Nu am putut genera: " + err.message); }
+      finally { btn.disabled = false; btn.textContent = "Generează cod de instalare"; }
+    });
+    incarcaInstalare();
+
+    // ——— Photo Anatomy Annotator: coduri PAA + seed standard demo ———
+    async function paaCere(payload) {
+      const res = await fetch("/.netlify/functions/paa-instalare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cod: codAdmin(), ...payload }) });
+      const d = await res.json().catch(() => ({})); if (!res.ok) throw new Error(d.eroare || "Eroare"); return d;
+    }
+    async function incarcaPaa() {
+      const list = document.getElementById("a-paa-list"); list.textContent = "";
+      let coduri = []; try { coduri = await paaCere({ actiune: "lista" }); } catch (e) { const li = document.createElement("li"); li.className = "a-cand-empty"; li.textContent = "Nu am putut încărca codurile PAA."; list.appendChild(li); return; }
+      if (!coduri.length) { const li = document.createElement("li"); li.className = "a-cand-empty"; li.textContent = "Niciun cod PAA generat încă."; list.appendChild(li); return; }
+      coduri.forEach((c) => list.appendChild(randPaa(c)));
+    }
+    function randPaa(c) {
+      const li = document.createElement("li"); const info = document.createElement("div"); info.className = "a-cand-info";
+      const cod = document.createElement("code"); cod.className = "a-cand-cod"; cod.textContent = c.cod; info.appendChild(cod);
+      if (c.eticheta) { const et = document.createElement("span"); et.className = "a-cand-meta"; et.innerHTML = "<span>" + c.eticheta.replace(/[&<>]/g, "") + "</span>"; info.appendChild(et); }
+      const copy = document.createElement("button"); copy.className = "btn btn--small btn--outline"; copy.textContent = "Copiază"; copy.addEventListener("click", async () => { try { await navigator.clipboard.writeText(c.cod); copy.textContent = "Copiat ✓"; setTimeout(() => (copy.textContent = "Copiază"), 1500); } catch (e) { alert("Cod: " + c.cod); } });
+      const del = document.createElement("button"); del.className = "btn btn--small btn--danger"; del.textContent = "Revocă"; del.addEventListener("click", async () => { if (!confirm("Revoci codul „" + c.cod + "”?")) return; del.disabled = true; try { await paaCere({ actiune: "revoca", id: c.id }); incarcaPaa(); } catch (err) { alert("Nu am putut revoca: " + err.message); del.disabled = false; } });
+      li.appendChild(info); li.appendChild(copy); li.appendChild(del); return li;
+    }
+    document.getElementById("a-paa-gen").addEventListener("click", async () => {
+      const btn = document.getElementById("a-paa-gen"); btn.disabled = true; btn.textContent = "Se generează…";
+      try { const d = await paaCere({ actiune: "genereaza", eticheta: document.getElementById("a-paa-eticheta").value.trim() }); document.getElementById("a-paa-eticheta").value = ""; incarcaPaa(); if (d.cod) alert("Cod de instalare PAA:\n\n" + d.cod.cod + "\n\nDă-l persoanei care instalează Photo Anatomy Annotator."); }
+      catch (err) { alert("Nu am putut genera: " + err.message); } finally { btn.disabled = false; btn.textContent = "Generează cod de instalare (PAA)"; }
+    });
+    document.getElementById("a-paa-seed").addEventListener("click", async () => {
+      try { const res = await fetch("/.netlify/functions/paa-standarde", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cod: codAdmin(), actiune: "seed-demo" }) }); const d = await res.json(); if (res.ok) alert(d.existent ? "Standardul demo există deja." : "Standardul demonstrativ a fost încărcat."); else alert(d.eroare || "Eroare"); }
+      catch (e) { alert("Nu am putut încărca standardul demo."); }
+    });
+    incarcaPaa();
+
+    // ——— Interese pe rase: profiluri, sugestii de lector, repartizare, deficit ———
+    async function interCere(payload) {
+      const res = await fetch("/.netlify/functions/interese-rase", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.eroare || "Eroare");
+      return d;
+    }
+    let INT_GRUPE = {}, INT_LECTORI = [];
+    function chip(txt, cls) { const s = document.createElement("span"); s.className = "a-int-chip" + (cls ? " " + cls : ""); s.textContent = txt; return s; }
+    function grupaScurt(g) { return (INT_GRUPE[g] || ("Grupa " + g)); }
+
+    function randCandidatInteres(c, deficit) {
+      const setDef = {}; (deficit || []).forEach((g) => (setDef[g] = 1));
+      const card = document.createElement("div"); card.className = "a-int-card";
+      const head = document.createElement("div"); head.className = "a-int-card__head";
+      const nm = document.createElement("strong"); nm.textContent = c.nume || "(fără nume)"; head.appendChild(nm);
+      const nG = (c.grupe || []).length;
+      const br = chip(nG + (nG === 1 ? " grupă" : " grupe") + " · " + (c.rase || []).length + " rase", nG >= 4 ? "is-larg" : "is-focal");
+      br.title = nG >= 4 ? "Interes larg — bun pentru autorizare extinsă" : "Interes focalizat — poate fi încurajat spre mai multe grupe";
+      head.appendChild(br);
+      card.appendChild(head);
+
+      const gr = document.createElement("div"); gr.className = "a-int-grupe";
+      (c.grupe || []).forEach((g) => { const ch = chip(grupaScurt(g), setDef[g] ? "is-def" : ""); if (setDef[g]) ch.title = "grupă cu deficit de arbitri"; gr.appendChild(ch); });
+      card.appendChild(gr);
+
+      if ((c.rase || []).length) {
+        const rz = document.createElement("div"); rz.className = "a-int-rase";
+        rz.textContent = "Rase: " + c.rase.map((r) => r.ro).join(", ");
+        card.appendChild(rz);
+      }
+      if (c.nota) { const nt = document.createElement("div"); nt.className = "a-int-nota"; nt.textContent = "„" + c.nota + "”"; card.appendChild(nt); }
+
+      const asg = document.createElement("div"); asg.className = "a-int-assign";
+      const sg = document.createElement("span"); sg.className = "a-int-sug"; sg.textContent = "Sugestie: ";
+      (c.sugestii || []).forEach((s) => { const ch = chip(s.nume + " (" + s.overlap + ")" + (s.allBreed ? " ·AB" : ""), "is-sug"); sg.appendChild(ch); });
+      asg.appendChild(sg);
+
+      const sel = document.createElement("select"); sel.className = "a-int-sel";
+      const opt0 = document.createElement("option"); opt0.value = ""; opt0.textContent = "— nerepartizat —"; sel.appendChild(opt0);
+      INT_LECTORI.forEach((l) => { const o = document.createElement("option"); o.value = l.slug; o.textContent = l.nume + (l.allBreed ? " (All Breed)" : " (gr. " + l.grupe.join(",") + ")"); sel.appendChild(o); });
+      sel.value = c.alocare ? c.alocare.lectorSlug : "";
+      const st = document.createElement("span"); st.className = "a-int-alocst";
+      st.textContent = c.alocare ? "repartizat: " + c.alocare.lectorNume : "";
+      sel.addEventListener("change", async () => {
+        sel.disabled = true;
+        try {
+          const d = await interCere({ actiune: "aloca", tinta: c.cid, lectorSlug: sel.value });
+          c.alocare = d.alocare;
+          st.textContent = d.alocare ? "repartizat: " + d.alocare.lectorNume : "";
+          st.classList.add("is-ok"); setTimeout(() => st.classList.remove("is-ok"), 1200);
+        } catch (err) { alert("Nu am putut repartiza: " + err.message); sel.value = c.alocare ? c.alocare.lectorSlug : ""; }
+        finally { sel.disabled = false; }
+      });
+      const wrap = document.createElement("label"); wrap.className = "a-int-selwrap"; wrap.appendChild(document.createTextNode("Lector principal: ")); wrap.appendChild(sel);
+      asg.appendChild(wrap); asg.appendChild(st);
+      card.appendChild(asg);
+      return card;
+    }
+
+    function randAgregare(d) {
+      const box = document.getElementById("a-int-agg");
+      box.textContent = "";
+      const cg = d.cerereGrupe || {}, cr = d.cerereRase || {};
+      const grupeSort = Object.keys(cg).map(Number).sort((a, b) => cg[b] - cg[a]);
+      const raseSort = Object.keys(cr).sort((a, b) => cr[b] - cr[a]).slice(0, 12);
+      if (!grupeSort.length && !raseSort.length) { box.hidden = true; return; }
+      box.hidden = false;
+      const h = document.createElement("div"); h.className = "a-int-agg__t"; h.textContent = "Cerere agregată (pentru prioritatea Breed Explorer)"; box.appendChild(h);
+      if (grupeSort.length) {
+        const row = document.createElement("div"); row.className = "a-int-agg__row";
+        grupeSort.forEach((g) => row.appendChild(chip(grupaScurt(g) + " — " + cg[g])));
+        box.appendChild(row);
+      }
+      if (raseSort.length) {
+        const row = document.createElement("div"); row.className = "a-int-agg__row";
+        raseSort.forEach((k) => { const ro = k.split("|").slice(1).join("|"); row.appendChild(chip(ro + " — " + cr[k], "is-rasa")); });
+        box.appendChild(row);
+      }
+    }
+
+    function randDeficitBoxes(deficit) {
+      const box = document.getElementById("a-int-def-boxes"); box.textContent = "";
+      const setDef = {}; (deficit || []).forEach((g) => (setDef[g] = 1));
+      for (let g = 1; g <= 10; g++) {
+        const lab = document.createElement("label"); lab.className = "a-int-defbox";
+        const cb = document.createElement("input"); cb.type = "checkbox"; cb.value = String(g); cb.checked = !!setDef[g]; cb.className = "a-int-defcb";
+        lab.appendChild(cb); lab.appendChild(document.createTextNode(" Gr. " + g));
+        box.appendChild(lab);
+      }
+    }
+
+    async function incarcaInterese() {
+      const list = document.getElementById("a-int-list");
+      let d;
+      try { d = await interCere({ actiune: "toate" }); }
+      catch (e) { list.textContent = "Nu am putut încărca profilurile: " + e.message; return; }
+      INT_GRUPE = d.grupe || {}; INT_LECTORI = d.lectori || [];
+      randDeficitBoxes(d.deficit);
+      randAgregare(d);
+      list.textContent = "";
+      if (!d.candidati.length) { list.textContent = "Niciun candidat nu și-a exprimat încă interesele."; return; }
+      d.candidati.forEach((c) => list.appendChild(randCandidatInteres(c, d.deficit)));
+    }
+    document.getElementById("a-int-def-save").addEventListener("click", async () => {
+      const btn = document.getElementById("a-int-def-save"), msg = document.getElementById("a-int-def-msg");
+      const grupe = Array.prototype.slice.call(document.querySelectorAll(".a-int-defcb")).filter((c) => c.checked).map((c) => parseInt(c.value, 10));
+      btn.disabled = true; msg.textContent = "Se salvează…"; msg.className = "a-int-msg";
+      try { await interCere({ actiune: "deficit", grupe }); msg.textContent = "✓ salvat"; msg.className = "a-int-msg is-ok"; incarcaInterese(); }
+      catch (err) { msg.textContent = err.message; msg.className = "a-int-msg is-err"; }
+      finally { btn.disabled = false; }
+    });
+    incarcaInterese();
+
+    inputs.forEach((inp) => {
+      inp.addEventListener("change", async () => {
+        const slug = inp.dataset.slug;
+        const online = inp.checked;
+        inp.disabled = true;
+        let cod = null;
+        try { cod = localStorage.getItem("cfcrAccesCod"); } catch (e) {}
+        if (!cod) cod = prompt("Confirmă codul de administrator:");
+        try {
+          const res = await fetch("/.netlify/functions/stare-cursuri", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: slug, online, cod }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.eroare || "Eroare");
+          aplica(data.stare);
+        } catch (err) {
+          alert("Nu am putut salva: " + err.message);
+          inp.checked = !online; // revenim
+          inp.disabled = false;
+        }
+      });
+    });
+  })();
+</script>
+
+<style>
+  .a-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .a-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
+  .a-sub { color: var(--color-text-muted); max-width: 46rem; }
+  .a-actiuni { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1.25rem 0 0.5rem; }
+  .a-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2.25rem 0 0.75rem; font-size: 1.35rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.35rem; }
+  .a-stare { color: var(--color-text-muted); font-style: italic; }
+
+  .a-module { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+  .a-modul {
+    display: flex; align-items: center; gap: 0.9rem;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius); padding: 0.7rem 1rem;
+  }
+  .a-modul__link { text-decoration: none; color: var(--color-text); }
+  .a-modul__link strong { color: var(--color-primary); }
+  .a-modul__badge { margin-left: auto; font-size: 0.75rem; letter-spacing: 0.04em; padding: 0.25rem 0.65rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); white-space: nowrap; }
+  .a-modul__badge.is-on { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
+  .a-modul__badge.is-off { background: var(--color-surface-alt); }
+
+  /* Comutator */
+  .a-switch { position: relative; display: inline-block; flex: 0 0 auto; }
+  .a-switch input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; margin: 0; }
+  .a-switch__track {
+    display: block; width: 2.9rem; height: 1.55rem; border-radius: 999px;
+    background: var(--color-border); transition: background 0.15s ease; position: relative;
+  }
+  .a-switch__track::after {
+    content: ""; position: absolute; top: 0.17rem; left: 0.2rem; width: 1.2rem; height: 1.2rem;
+    border-radius: 50%; background: #fff; transition: transform 0.15s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+  }
+  .a-switch input:checked + .a-switch__track { background: var(--color-primary); }
+  .a-switch input:checked + .a-switch__track::after { transform: translateX(1.3rem); }
+  .a-switch input:disabled + .a-switch__track { opacity: 0.55; }
+
+  .a-anunt-info { color: var(--color-text-muted); margin: 0 0 0.85rem; }
+  .a-anunt-form { display: flex; flex-direction: column; gap: 0.6rem; max-width: 44rem; }
+  .a-anunt-form textarea,
+  .a-anunt-form input { width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; resize: vertical; }
+  .a-anunt-form .btn { align-self: flex-start; }
+  .a-anunt-list { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid; gap: 0.6rem; max-width: 44rem; }
+  .a-anunt-list li { display: flex; align-items: flex-start; gap: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.7rem 1rem; }
+  .a-anunt-list li > div { flex: 1; }
+  .a-anunt-date { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-accent-dark); }
+  .a-anunt-txt { margin: 0.2rem 0 0; white-space: pre-line; }
+  .a-anunt-empty { color: var(--color-text-muted); font-style: italic; border: 0 !important; background: transparent !important; padding: 0 !important; }
+  .a-cand-form { display: flex; flex-wrap: wrap; gap: 0.6rem; max-width: 44rem; }
+  .a-cand-form input { flex: 1 1 18rem; padding: 0.65rem 0.9rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
+  .a-cand-feedback { max-width: 44rem; margin: 0.9rem 0 0; padding: 0.7rem 1rem; border-radius: var(--radius); display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; }
+  .a-cand-feedback.is-ok { background: #eaf5ec; border: 1px solid #b6dcbf; color: #1f5130; }
+  .a-cand-feedback.is-err { background: #fbeaec; border: 1px solid #e2b6bd; color: #8c1d2f; }
+  .a-cand-feedback__hint { flex-basis: 100%; font-size: 0.85rem; color: var(--color-text-muted); }
+  .a-cand-count { max-width: 44rem; margin: 1.1rem 0 0; font-size: 0.9rem; color: var(--color-accent-dark); font-weight: 600; }
+  .a-cand-list { list-style: none; margin: 0.6rem 0 0; padding: 0; display: grid; gap: 0.6rem; max-width: 44rem; }
+  .a-cand-list li { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.7rem 1rem; }
+  .a-cand-list li.is-nou { border-color: #b6dcbf; box-shadow: 0 0 0 2px #eaf5ec; }
+  .a-cand-info { flex: 1 1 14rem; display: flex; flex-direction: column; gap: 0.2rem; }
+  .a-cand-meta { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; font-size: 0.8rem; color: var(--color-text-muted); margin-top: 0.15rem; }
+  .a-cand-intrat { color: #1f5130; font-weight: 600; }
+  .a-cand-neintrat { color: var(--color-text-muted); }
+  .a-cand-cod { font-family: var(--font-mono, monospace); font-size: 1rem; letter-spacing: 0.08em; color: var(--color-accent-dark); background: var(--color-surface-alt); padding: 0.1rem 0.5rem; border-radius: 6px; align-self: flex-start; }
+  .a-cand-empty { color: var(--color-text-muted); font-style: italic; border: 0 !important; background: transparent !important; padding: 0 !important; }
+  .a-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+  .a-list a { color: var(--color-accent-dark); font-weight: 600; text-decoration: none; }
+  .a-list a:hover { text-decoration: underline; }
+  .a-meta { margin-left: 0.6rem; font-size: 0.82rem; color: var(--color-text-muted); }
+  .a-pasi { max-width: 44rem; display: grid; gap: 0.4rem; padding-left: 1.2rem; }
+
+  /* Interese pe rase */
+  .a-int-deficit { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; margin: 0.5rem 0 1rem;
+    padding: 0.75rem 1rem; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); }
+  .a-int-deficit__lbl { font-weight: 600; color: var(--color-primary); }
+  .a-int-defrow { display: flex; flex-wrap: wrap; gap: 0.35rem 0.75rem; }
+  .a-int-defbox { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.88rem; cursor: pointer; }
+  .a-int-defcb { accent-color: var(--color-primary); }
+  .a-int-msg { font-size: 0.85rem; }
+  .a-int-msg.is-ok { color: var(--color-primary); font-weight: 600; }
+  .a-int-msg.is-err { color: #8c1d2f; font-weight: 600; }
+  .a-int-agg { margin: 0 0 1rem; padding: 0.75rem 1rem; background: #fbf6e6; border: 1px solid var(--color-accent); border-radius: var(--radius); }
+  .a-int-agg__t { font-weight: 700; color: var(--color-primary); margin-bottom: 0.5rem; font-size: 0.92rem; }
+  .a-int-agg__row { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.4rem; }
+  .a-int-list { display: grid; gap: 0.75rem; }
+  .a-int-card { border: 1px solid var(--color-border); border-left: 4px solid var(--color-primary); border-radius: var(--radius);
+    background: var(--color-surface); padding: 0.85rem 1.1rem; }
+  .a-int-card__head { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+  .a-int-card__head strong { color: var(--color-primary); font-size: 1.02rem; }
+  .a-int-grupe { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.5rem 0 0.35rem; }
+  .a-int-chip { display: inline-block; font-size: 0.78rem; padding: 0.15rem 0.55rem; border-radius: 999px;
+    background: var(--color-surface-alt); border: 1px solid var(--color-border); color: var(--color-text); }
+  .a-int-chip.is-def { background: #f7e2e2; border-color: #e0b4b4; color: #8c1d2f; font-weight: 600; }
+  .a-int-chip.is-larg { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; font-weight: 600; }
+  .a-int-chip.is-focal { background: #fbf3d9; border-color: var(--color-accent); color: var(--color-accent-dark); }
+  .a-int-chip.is-sug { background: #eef4ee; border-color: #b9d3b9; color: var(--color-primary); }
+  .a-int-chip.is-rasa { background: var(--color-surface); }
+  .a-int-rase { font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 0.35rem; }
+  .a-int-nota { font-size: 0.88rem; color: var(--color-text); font-style: italic; margin-bottom: 0.4rem; }
+  .a-int-assign { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.75rem; margin-top: 0.5rem;
+    padding-top: 0.5rem; border-top: 1px dashed var(--color-border); }
+  .a-int-sug { font-size: 0.82rem; color: var(--color-text-muted); display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; }
+  .a-int-selwrap { font-size: 0.85rem; color: var(--color-text-muted); }
+  .a-int-sel { font: inherit; font-size: 0.85rem; padding: 0.3rem 0.5rem; border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); }
+  .a-int-alocst { font-size: 0.82rem; color: var(--color-text-muted); }
+  .a-int-alocst.is-ok { color: var(--color-primary); font-weight: 600; }
+
+  .a-bul-abonati-det { margin: 0.5rem 0 1rem; }
+  .a-bul-abonati-det[hidden] { display: none; }
+  .a-bul-abonati-det summary { cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--color-accent-dark); }
+  .a-bul-abonati-det .a-cand-list { margin-top: 0.6rem; }
+</style>

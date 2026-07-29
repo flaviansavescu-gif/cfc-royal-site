@@ -1,0 +1,399 @@
+// =========================================================================
+// collections.ts — registru central al colecțiilor de conținut.
+// Fiecare colecție declară: slug URL, etichete RO/EN, cum se construiește cardul
+// (arhivă), rândurile de meta (pagina de detaliu), JSON-LD opțional și sortarea.
+// Rutele dinamice [collection]/index și [collection]/[slug] folosesc acest registru,
+// deci adăugarea unei colecții = o intrare aici (nu fișiere noi de pagină).
+// =========================================================================
+import type { Lang } from "../i18n/ui";
+import { formatDate } from "../i18n/content";
+
+type Data = Record<string, any>;
+export interface MetaRow { label: string; value: string; wide?: boolean }
+export interface CardData { title: string; meta?: string; excerpt?: string; tag?: string; image?: string }
+
+export interface CollectionDef {
+  name: string; // cheia colecției din content.config.ts
+  slug: string; // baza URL (sub /ro/ și /en/)
+  label: Record<Lang, string>;
+  intro: Record<Lang, string>;
+  empty: Record<Lang, string>;
+  eyebrow: Record<Lang, string>;
+  card: (d: Data, lang: Lang) => CardData;
+  metaRows?: (d: Data, lang: Lang) => MetaRow[];
+  jsonLd?: (d: Data, lang: Lang) => Record<string, unknown>;
+  sort?: (a: Data, b: Data) => number;
+  /** Grupare în arhivă pe categorii (ex. regulamente). */
+  groupBy?: (d: Data) => string;
+  groupOrder?: string[];
+  /** Traduce eticheta unui grup (cheia categoriei -> text localizat). */
+  groupLabel?: (key: string, lang: Lang) => string;
+  /** Portret/poză afișat(ă) pe pagina de detaliu (ex. arbitri, membri). */
+  portrait?: (d: Data) => string | undefined;
+  /** Subtitlu deasupra listei din arhivă (ex. „Rase autohtone românești”). */
+  itemsHeading?: Record<Lang, string>;
+  /** Buton în arhivă (ex. link extern către standardele WDF, sau intern către un regulament).
+   *  url: string unic (același pentru ambele limbi) sau pe limbi. external=false → link intern (fără target _blank).
+   *  note: mențiune scurtă afișată sub buton (ex. cui îi este rezervat accesul). */
+  extraLink?: { label: Record<Lang, string>; url: string | Record<Lang, string>; external?: boolean; note?: Record<Lang, string> };
+  /** Imagine banner afișată în arhivă, sub intro (ex. calendar expozițional). */
+  banner?: { src: string; alt: Record<Lang, string> };
+}
+
+// Categorii regulamente: cheia (RO, din schema) -> etichetă localizată
+const REG_CATS: Record<string, Record<Lang, string>> = {
+  "Titluri": { ro: "Titluri", en: "Titles" },
+  "Proceduri de arbitraj": { ro: "Proceduri de arbitraj", en: "Judging procedures" },
+  "Etică și conduită": { ro: "Etică și conduită", en: "Ethics & conduct" },
+  "Contestații și abateri": { ro: "Contestații și abateri", en: "Appeals & violations" },
+  "Roluri": { ro: "Roluri", en: "Roles" },
+};
+const regCat = (key: string, lang: Lang) => REG_CATS[key]?.[lang] ?? key;
+
+// Categorii documente: docType (RO, din schema) -> etichetă localizată (grup)
+const DOC_CATS: Record<string, Record<Lang, string>> = {
+  "statut": { ro: "Statut", en: "Statute" },
+  "regulament": { ro: "Regulamente", en: "Regulations" },
+  "formular": { ro: "Formulare", en: "Forms" },
+  "hotărâre": { ro: "Hotărâri", en: "Decisions" },
+  "financiar": { ro: "Financiar", en: "Financial" },
+  "altele": { ro: "Altele", en: "Other" },
+};
+const docCat = (key: string, lang: Lang) => DOC_CATS[key]?.[lang] ?? key;
+
+// helper bilingv scurt
+const L = (lang: Lang, ro: string, en: string) => (lang === "en" ? en : ro);
+const fmt = (date: Date | undefined, lang: Lang) => (date ? formatDate(date, lang) : "");
+const row = (label: string, value: unknown, wide = false): MetaRow | null =>
+  value ? { label, value: String(value), wide } : null;
+const rows = (...items: (MetaRow | null)[]): MetaRow[] => items.filter((x): x is MetaRow => !!x);
+
+export const collectionDefs: CollectionDef[] = [
+  {
+    name: "campioni",
+    slug: "campioni",
+    label: { ro: "Câini campioni", en: "Champion dogs" },
+    intro: { ro: "Câini de rasă cu titluri de campion recunoscute de Club Federal Chinologic – Royal și de World Dog Federation.", en: "Purebred dogs holding champion titles recognised by the Royal Federal Canine Club and the World Dog Federation." },
+    empty: { ro: "Niciun câine campion publicat momentan.", en: "No champion dogs published yet." },
+    eyebrow: { ro: "Expoziții", en: "Dog shows" },
+    sort: (a, b) => a.title.localeCompare(b.title, "ro"),
+    portrait: (d) => d.photo,
+    card: (d, lang) => ({
+      title: d.title,
+      meta: d.breed,
+      tag: d.championTitle,
+      excerpt: d.owner ? `${L(lang, "Proprietar", "Owner")}: ${d.owner}` : d.breeder,
+      image: d.photo,
+    }),
+    metaRows: (d, lang) =>
+      rows(
+        row(L(lang, "Rasă", "Breed"), d.breed),
+        row(L(lang, "Titlu de campion", "Champion title"), d.championTitle),
+        row(L(lang, "Crescător", "Breeder"), d.breeder),
+        row(L(lang, "Proprietar", "Owner"), d.owner),
+        row(L(lang, "Pedigree (serie / nr.)", "Pedigree (series / no.)"), d.pedigree),
+        row(L(lang, "Diplomă de campion (serie / nr.)", "Champion diploma (series / no.)"), d.championDiploma),
+      ),
+  },
+  {
+    name: "expozitii",
+    slug: "expozitii",
+    label: { ro: "Expoziții", en: "Dog Shows" },
+    intro: { ro: "Expoziții canine organizate sub egida clubului.", en: "Dog shows held under the club's aegis." },
+    empty: { ro: "Nicio expoziție publicată momentan.", en: "No shows published yet." },
+    eyebrow: { ro: "Expoziții 2026", en: "2026 dog shows" },
+    sort: (a, b) => a.startDate.getTime() - b.startDate.getTime(),
+    card: (d, lang) => ({
+      title: d.title,
+      meta: `${d.city} · ${fmt(d.startDate, lang)}`,
+      tag: d.showType,
+      excerpt: d.summary,
+    }),
+    metaRows: (d, lang) =>
+      rows(
+        row(L(lang, "Dată", "Date"), d.endDate ? `${fmt(d.startDate, lang)} – ${fmt(d.endDate, lang)}` : fmt(d.startDate, lang)),
+        row(L(lang, "Locație", "Venue"), d.venue),
+        row(L(lang, "Oraș / Județ", "City / County"), `${d.city}, ${d.county}`),
+        row(L(lang, "Tip expoziție", "Show type"), d.showType),
+        row(L(lang, "Organizator", "Organiser"), d.organizer),
+        row(L(lang, "Înscrieri", "Registration"), d.registration?.open ? L(lang, "Deschise", "Open") : L(lang, "Închise", "Closed")),
+      ),
+    jsonLd: (d) => {
+      const iso = (date: Date) => date.toISOString().slice(0, 10);
+      return {
+        "@context": "https://schema.org",
+        "@type": "Event",
+        name: d.title,
+        startDate: iso(d.startDate),
+        ...(d.endDate ? { endDate: iso(d.endDate) } : {}),
+        eventStatus: "https://schema.org/EventScheduled",
+        eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+        location: { "@type": "Place", name: d.venue, address: { "@type": "PostalAddress", addressLocality: d.city, addressRegion: d.county, addressCountry: d.country } },
+        organizer: { "@type": "Organization", name: d.organizer },
+        ...(d.summary ? { description: d.summary } : {}),
+      };
+    },
+  },
+
+  {
+    name: "arbitri",
+    slug: "arbitri",
+    label: { ro: "Colegiul de arbitri", en: "Panel of judges" },
+    intro: { ro: "Arbitri licențiați ai clubului.", en: "The club's licensed judges." },
+    empty: { ro: "Niciun arbitru publicat momentan.", en: "No judges published yet." },
+    eyebrow: { ro: "Organizația", en: "Organization" },
+    extraLink: {
+      label: { ro: "Regulamentul Colegiului de Arbitri", en: "Regulations of the Panel of Judges" },
+      url: {
+        ro: "/ro/documente/regulamentul-colegiului-de-arbitri/",
+        en: "/en/documente/regulamentul-colegiului-de-arbitri/",
+      },
+      external: false,
+    },
+    // Întâi arbitrii All Breed (all rounder), apoi cei pe grupe. În cadrul fiecărei
+    // categorii: cei cu funcție (ex. Președinte) primii, apoi alfabetic.
+    sort: (a, b) => {
+      const allBreed = (d: Data) => ((d.qualifications || []).some((q: string) => /all\s*breed/i.test(q)) ? 0 : 1);
+      const ra = allBreed(a), rb = allBreed(b);
+      if (ra !== rb) return ra - rb;
+      const fa = a.role ? 0 : 1, fb = b.role ? 0 : 1;
+      if (fa !== fb) return fa - fb;
+      return a.title.localeCompare(b.title, "ro");
+    },
+    portrait: (d) => d.photo,
+    card: (d) => ({
+      title: d.title,
+      meta: d.role || d.country,
+      excerpt: (d.qualifications || []).join(", ") || d.summary,
+      image: d.photo,
+    }),
+    metaRows: (d, lang) =>
+      rows(
+        row(L(lang, "Funcție", "Role"), d.role),
+        row(L(lang, "Calificare", "Qualification"), (d.qualifications || []).join(", ")),
+        row(L(lang, "Țară", "Country"), d.country),
+        row(L(lang, "Oraș", "City"), d.city),
+        row(L(lang, "Afiliere", "Affiliation"), d.affiliation),
+        row(L(lang, "Nr. licență", "Licence no."), d.licenseNumber),
+        row(L(lang, "Status", "Status"), d.status),
+      ),
+  },
+
+  {
+    name: "canise",
+    slug: "canise",
+    label: { ro: "Canise înregistrate", en: "Registered kennels" },
+    intro: { ro: "Canise înregistrate la club.", en: "Kennels registered with the club." },
+    empty: { ro: "Nicio canisă publicată momentan.", en: "No kennels published yet." },
+    eyebrow: { ro: "Organizația", en: "Organization" },
+    extraLink: {
+      label: { ro: "Registrul oficial WDF al crescătorilor", en: "Official WDF breeders' register" },
+      url: "https://wdf-international.org/breeds/wdf-registered-breeders/",
+      note: {
+        ro: "Canisele înregistrate prin Club Federal Chinologic – Royal și recunoscute de World Dog Federation figurează și în registrul internațional oficial al crescătorilor WDF.",
+        en: "Kennels registered through the Royal Federal Canine Club and recognised by the World Dog Federation are also listed in the WDF's official international breeders' register.",
+      },
+    },
+    banner: {
+      src: "/images/canise-banner.webp",
+      alt: { ro: "Câine tânăr de rasă odihnindu-se în iarbă", en: "Young purebred dog resting in the grass" },
+    },
+    sort: (a, b) => a.title.localeCompare(b.title, "ro"),
+    card: (d) => ({ title: d.title, meta: [d.city, d.county].filter(Boolean).join(", "), excerpt: (d.breeds || []).join(", ") }),
+    metaRows: (d, lang) =>
+      rows(
+        row(L(lang, "Afix", "Affix"), d.affix),
+        row(L(lang, "Proprietar", "Owner"), d.owner),
+        row(L(lang, "Rase", "Breeds"), (d.breeds || []).join(", ")),
+        row(L(lang, "Nr. înregistrare", "Reg. no."), d.registrationNumber),
+        row(L(lang, "Localitate", "Location"), [d.city, d.county].filter(Boolean).join(", ")),
+        row(L(lang, "Status", "Status"), d.status),
+      ),
+  },
+
+  {
+    name: "standarde-rasa",
+    slug: "standarde-rasa",
+    label: { ro: "Standarde de rasă", en: "Breed standards" },
+    intro: {
+      ro: "Standardele de rasă ale raselor autohtone românești, redactate pe nomenclatura CFCR – WDF. Pentru standardele tuturor raselor, consultă registrul WDF.",
+      en: "The breed standards of the Romanian native breeds, drawn up on the CFCR – WDF nomenclature. For the standards of all breeds, see the WDF register.",
+    },
+    empty: { ro: "Niciun standard publicat momentan.", en: "No standards published yet." },
+    eyebrow: { ro: "Chinologie", en: "Cynology" },
+    itemsHeading: { ro: "Rasele autohtone românești", en: "Romanian native breeds" },
+    extraLink: { label: { ro: "Toate standardele de rasă (WDF)", en: "All breed standards (WDF)" }, url: "https://wdf-international.org/breeds/" },
+    banner: {
+      src: "/images/standarde-banner.webp",
+      alt: { ro: "Câine ciobănesc românesc alb cu negru, în mers", en: "Black-and-white Romanian shepherd dog walking" },
+    },
+    sort: (a, b) => a.title.localeCompare(b.title, "ro"),
+    card: (d) => ({ title: d.title, meta: d.originCountry || d.breedGroup, excerpt: d.summary }),
+    metaRows: (d, lang) =>
+      rows(
+        row(L(lang, "Nume original", "Original name"), d.nameOriginal),
+        row(L(lang, "Grupă", "Group"), d.breedGroup),
+        row(L(lang, "Țară de origine", "Country of origin"), d.originCountry),
+        row(L(lang, "Recunoaștere", "Recognition"), d.recognition),
+        row(L(lang, "Talie (M)", "Height (M)"), d.heightMales),
+        row(L(lang, "Talie (F)", "Height (F)"), d.heightFemales),
+      ),
+  },
+
+  {
+    name: "organizatii-afiliate",
+    slug: "membrii",
+    label: { ro: "Asociații membre", en: "Member associations" },
+    intro: { ro: "Organizații care activează sub egida clubului.", en: "Organisations operating under the club's aegis." },
+    empty: { ro: "Nicio asociație membră publicată momentan.", en: "No member associations published yet." },
+    eyebrow: { ro: "Asociații membre", en: "Member associations" },
+    sort: (a, b) => a.title.localeCompare(b.title, "ro"),
+    card: (d) => ({ title: d.title, meta: d.county, excerpt: d.summary, image: d.logo }),
+    metaRows: (d, lang) =>
+      rows(
+        row(L(lang, "Președinte", "President"), d.president),
+        row(L(lang, "Localitate", "Location"), [d.city, d.county].filter(Boolean).join(", ")),
+        row(L(lang, "Adresă", "Address"), d.address),
+        row(L(lang, "Telefon", "Phone"), d.phone),
+        row(L(lang, "E-mail", "Email"), d.contactEmail),
+        row("CIF", d.cif),
+        row("IBAN", d.iban),
+        row("Facebook", d.facebook ? d.facebook.replace(/^https?:\/\//, "").replace(/\/$/, "") : undefined, true),
+        row(L(lang, "Website", "Website"), d.website ? d.website.replace(/^https?:\/\//, "").replace(/\/$/, "") : undefined, true),
+      ),
+  },
+
+  {
+    name: "comunicate",
+    slug: "comunicate",
+    label: { ro: "Comunicate", en: "Press releases" },
+    intro: { ro: "Comunicate oficiale ale clubului.", en: "Official press releases." },
+    empty: { ro: "Niciun comunicat publicat momentan.", en: "No press releases yet." },
+    eyebrow: { ro: "Noutăți", en: "News" },
+    sort: (a, b) => (b.publishedAt?.getTime() || 0) - (a.publishedAt?.getTime() || 0),
+    card: (d, lang) => ({ title: d.title, meta: fmt(d.publishedAt, lang), tag: d.category, excerpt: d.summary }),
+    metaRows: (d, lang) =>
+      rows(
+        row(L(lang, "Categorie", "Category"), d.category),
+        row(L(lang, "Publicat", "Published"), fmt(d.publishedAt, lang)),
+      ),
+  },
+
+  {
+    name: "articole",
+    slug: "articole",
+    label: { ro: "Articole", en: "Articles" },
+    intro: { ro: "Articole, interviuri și editoriale.", en: "Articles, interviews and editorials." },
+    empty: { ro: "Niciun articol publicat momentan.", en: "No articles published yet." },
+    eyebrow: { ro: "Noutăți", en: "News" },
+    sort: (a, b) => (b.publishedAt?.getTime() || 0) - (a.publishedAt?.getTime() || 0),
+    card: (d, lang) => ({ title: d.title, meta: fmt(d.publishedAt, lang), tag: d.category, excerpt: d.summary }),
+    metaRows: (d, lang) =>
+      rows(
+        row(L(lang, "Categorie", "Category"), d.category),
+        row(L(lang, "Publicat", "Published"), fmt(d.publishedAt, lang)),
+      ),
+  },
+
+  {
+    name: "evenimente",
+    slug: "evenimente",
+    label: { ro: "Evenimente", en: "Events" },
+    intro: { ro: "Evenimente organizate de club.", en: "Events organised by the club." },
+    empty: { ro: "Niciun eveniment publicat momentan.", en: "No events published yet." },
+    eyebrow: { ro: "Noutăți", en: "News" },
+    sort: (a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0),
+    card: (d, lang) => ({ title: d.title, meta: fmt(d.date, lang), excerpt: d.summary }),
+    metaRows: (d, lang) =>
+      rows(
+        row(L(lang, "Dată", "Date"), fmt(d.date, lang)),
+        row(L(lang, "Locație", "Location"), d.location),
+      ),
+  },
+
+  {
+    name: "membri-onoare",
+    slug: "membri-onoare",
+    label: { ro: "Membri de onoare", en: "Honorary members" },
+    intro: { ro: "Personalități recunoscute de club.", en: "Personalities recognised by the club." },
+    empty: { ro: "Niciun membru de onoare publicat momentan.", en: "No honorary members yet." },
+    eyebrow: { ro: "Organizația", en: "Organization" },
+    // Ordine: 1) Ciro Boiano, 2) Kaci-Chaouche, 3) ceilalți CU fotografie (alfabetic),
+    // 4) cei FĂRĂ fotografie (alfabetic).
+    sort: (a, b) => {
+      const rank = (d: Data) =>
+        d.title === "Ciro Boiano" ? 0 : d.title === "Gabriel Djibril Kaci-Chaouche" ? 1 : d.photo ? 2 : 3;
+      return rank(a) - rank(b) || a.title.localeCompare(b.title, "ro");
+    },
+    portrait: (d) => d.photo,
+    card: (d) => ({ title: d.title, meta: d.role, excerpt: d.summary, image: d.photo }),
+    metaRows: (d, lang) => rows(row(L(lang, "Distincție", "Distinction"), d.role)),
+  },
+
+  {
+    name: "cursuri",
+    slug: "cursuri",
+    label: { ro: "Cursuri", en: "Courses" },
+    intro: {
+      ro: "Cursuri și programe de formare. Candidații Școlii de Arbitraj își accesează modulele și testele în platforma dedicată.",
+      en: "Courses and training programmes. Judging School candidates access their modules and tests on the dedicated platform.",
+    },
+    empty: { ro: "Niciun curs public momentan.", en: "No public courses at the moment." },
+    eyebrow: { ro: "Educație", en: "Education" },
+    extraLink: {
+      label: { ro: "Intră în platforma Școlii de Arbitraj", en: "Enter the Judging School platform" },
+      url: "/cursuri/",
+      external: false,
+      note: {
+        ro: "Acces rezervat lectorilor și candidaților Școlii de Arbitraj, pe bază de cod.",
+        en: "Access reserved for the Judging School's lecturers and candidates, using an access code.",
+      },
+    },
+    sort: (a, b) => a.title.localeCompare(b.title, "ro"),
+    card: (d) => ({ title: d.title, meta: d.level, excerpt: d.summary }),
+    metaRows: (d, lang) =>
+      rows(
+        row(L(lang, "Nivel", "Level"), d.level),
+        row(L(lang, "Durată", "Duration"), d.duration),
+      ),
+  },
+
+  {
+    name: "regulamente",
+    slug: "regulamente",
+    label: { ro: "Regulamente WDF", en: "WDF Regulations" },
+    intro: { ro: "Proceduri de arbitraj, titluri și conduită — regulamentul WDF (World Dog Federation).", en: "Judging procedures, titles and conduct — the WDF (World Dog Federation) regulations." },
+    empty: { ro: "Niciun regulament publicat momentan.", en: "No regulations published yet." },
+    eyebrow: { ro: "Expoziții", en: "Dog Shows" },
+    sort: (a, b) => (a.order ?? 999) - (b.order ?? 999) || a.title.localeCompare(b.title, "ro"),
+    groupBy: (d) => d.category,
+    groupOrder: ["Titluri", "Proceduri de arbitraj", "Etică și conduită", "Contestații și abateri", "Roluri"],
+    groupLabel: regCat,
+    card: (d, lang) => ({ title: d.title, tag: regCat(d.category, lang), excerpt: d.summary }),
+    metaRows: (d, lang) => rows(row(L(lang, "Categorie", "Category"), regCat(d.category, lang))),
+  },
+
+  {
+    name: "documente",
+    slug: "documente",
+    label: { ro: "Documente", en: "Documents" },
+    intro: { ro: "Documente publice ale clubului.", en: "The club's public documents." },
+    empty: { ro: "Niciun document publicat momentan.", en: "No documents published yet." },
+    eyebrow: { ro: "Transparență", en: "Transparency" },
+    sort: (a, b) => a.title.localeCompare(b.title, "ro"),
+    groupBy: (d) => d.docType,
+    groupOrder: ["statut", "regulament", "formular", "hotărâre", "financiar", "altele"],
+    groupLabel: docCat,
+    card: (d) => ({ title: d.title, tag: d.docType, excerpt: d.summary }),
+    metaRows: (d, lang) =>
+      rows(
+        row(L(lang, "Tip document", "Document type"), d.docType),
+        row(L(lang, "Fișier", "File"), d.file),
+      ),
+  },
+];
+
+/** Caută definiția după slug-ul URL. */
+export function defBySlug(slug: string): CollectionDef | undefined {
+  return collectionDefs.find((d) => d.slug === slug);
+}

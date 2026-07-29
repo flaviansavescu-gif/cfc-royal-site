@@ -1,0 +1,302 @@
+---
+// /registru/pedigree/?s=CFCR-P-2026-0001 — Certificatul de Origine, gata de tipărit.
+//
+// Forma digitală a actului pe care asociația îl va imprima. Tot ce e obligatoriu pe un
+// certificat de origine stă aici: emitentul, tipul, seria, identitatea câinelui, cuibul,
+// crescătorul, proprietarul, ascendența pe patru generații, data emiterii, locurile
+// pentru semnătură și ștampilă, codul QR de verificare și mențiunea legală.
+//
+// La tipărire (Ctrl+P) dispar antetul, subsolul și butoanele: rămâne doar actul, pe A4
+// orientat culcat — patru generații nu încap citeț pe lățimea unei pagini în picioare.
+import RegistruLayout from "../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Certificat de origine" allow={["registratura", "membru"]}>
+  <p class="c-eroare" id="c-eroare" role="alert" hidden></p>
+  <p class="c-incarcare" id="c-incarcare">Se încarcă certificatul…</p>
+
+  <p class="c-bara" id="c-bara" hidden>
+    <button class="btn btn--primary" type="button" id="c-tipar">🖨 Tipărește</button>
+    <a class="btn btn--outline" href="/registru/registratura/">← Registratura</a>
+    <span class="c-hint">Se tipărește pe A4 culcat. În fereastra de tipărire lasă bifată opțiunea de imagini de fundal.</span>
+  </p>
+
+  <article class="act" id="c-act" hidden>
+    <header class="act__cap">
+      <img class="act__stema" src="/images/logo-royal.webp" alt="" width="90" height="90" />
+      <div class="act__emitent">
+        <p class="act__asociatie">Asociația Club Federal Chinologic — Royal</p>
+        <p class="act__forum">membru World Dog Federation</p>
+        <p class="act__adresa">Str. Mihai Eminescu nr. 43, Bloc C11, sc. A, et. 8, ap. 33 · Râmnicu Vâlcea, jud. Vâlcea · cfc-royal.ro</p>
+      </div>
+      <div class="act__tip">
+        <span class="act__tip-eticheta">Certificat</span>
+        <strong class="act__tip-litera" id="c-tip">—</strong>
+      </div>
+    </header>
+
+    <h1 class="act__titlu">Certificat de Origine <span>· Pedigree</span></h1>
+    <p class="act__serie" id="c-serie"></p>
+
+    <section class="act__caine">
+      <h2 class="act__h2">Câinele</h2>
+      <table class="act__tabel" id="c-caine"></table>
+    </section>
+
+    <section class="act__parti">
+      <div>
+        <h2 class="act__h2">Crescător</h2>
+        <table class="act__tabel" id="c-crescator"></table>
+      </div>
+      <div>
+        <h2 class="act__h2">Proprietar</h2>
+        <table class="act__tabel" id="c-proprietar"></table>
+      </div>
+    </section>
+
+    <section class="act__asc">
+      {/* Antetul verso-ului: se vede doar la tipărire. Dacă foaia se desparte de restul
+          dosarului, spatele trebuie să spună singur al cui certificat e. */}
+      <p class="act__cap2"><span id="c-cap2"></span></p>
+      <h2 class="act__h2">Ascendența pe patru generații</h2>
+      <div class="asc" id="c-asc"></div>
+      <p class="act__lipsa" id="c-lipsa" hidden></p>
+    </section>
+
+    <footer class="act__subsol">
+      <div class="act__qr">
+        <img id="c-qr" alt="Cod de verificare" width="110" height="110" />
+        <p class="act__qr-text">Verifică autenticitatea:<br /><span id="c-adresa"></span></p>
+      </div>
+      <div class="act__semnaturi">
+        <p class="act__emis" id="c-emis"></p>
+        <div class="act__semn">
+          <span>Președinte</span>
+          <span>Registratură</span>
+          <span>Ștampila</span>
+        </div>
+      </div>
+      <p class="act__legal">
+        Prezentul certificat atestă <strong>originea</strong> câinelui, pe baza declarației de montă și
+        fătare înregistrate și a documentelor de origine ale părinților. Nu atestă calitatea, sănătatea
+        sau aptitudinile exemplarului. Falsificarea sau declararea necorespunzătoare a datelor atrage
+        anularea certificatului și răspunderea celui vinovat.
+      </p>
+    </footer>
+  </article>
+</RegistruLayout>
+
+<script is:inline>
+  (function () {
+    const F = "/.netlify/functions/registru-pedigree";
+    const serie = (new URLSearchParams(location.search).get("s") || "").toUpperCase();
+    const cod = () => localStorage.getItem("cfcrRegistruCod") || "";
+    const eroare = document.getElementById("c-eroare");
+    const incarcare = document.getElementById("c-incarcare");
+
+    // Datele vin din dosarele crescătorilor: doar textContent, niciodată innerHTML.
+    const el = (tag, cls, text) => {
+      const x = document.createElement(tag);
+      if (cls) x.className = cls;
+      if (text != null) x.textContent = text;
+      return x;
+    };
+    function rand(tabel, eticheta, valoare) {
+      const tr = document.createElement("tr");
+      tr.appendChild(el("th", null, eticheta));
+      tr.appendChild(el("td", null, valoare || "—"));
+      tabel.appendChild(tr);
+    }
+    const dataRo = (s) => { const x = new Date(s); return isNaN(x) ? String(s || "") : x.toLocaleDateString("ro-RO"); };
+
+    if (!serie) {
+      incarcare.hidden = true;
+      eroare.hidden = false;
+      eroare.textContent = "Lipsește seria certificatului.";
+      return;
+    }
+
+    fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cod: cod(), actiune: "certificat", serie }) })
+      .then(async (r) => {
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.eroare || "Nu am putut încărca certificatul.");
+        const c = d.certificat;
+
+        document.getElementById("c-tip").textContent = "Tip " + c.tip;
+        document.getElementById("c-tip").className = "act__tip-litera is-" + c.tip.toLowerCase();
+        document.getElementById("c-serie").textContent = "Seria " + c.serie + " · Cuib " + c.numarWDF +
+          " · Declarația " + c.dmfSerie;
+
+        const t1 = document.getElementById("c-caine");
+        rand(t1, "Numele câinelui", c.caine.nume);
+        rand(t1, "Rasa", c.caine.rasa);
+        if (c.caine.varietate) rand(t1, "Varietatea", c.caine.varietate);
+        rand(t1, "Sexul", c.caine.sex === "M" ? "mascul" : "femelă");
+        rand(t1, "Data nașterii", dataRo(c.caine.dataNasterii));
+        rand(t1, "Culoarea", c.caine.culoare);
+        rand(t1, "Tipul de păr", c.caine.tipPar);
+        rand(t1, "Microcip / tatuaj", c.caine.microcip);
+        rand(t1, "Nr. cuib WDF", c.numarWDF);
+
+        const t2 = document.getElementById("c-crescator");
+        rand(t2, "Nume", c.crescator.nume);
+        rand(t2, "Afix", c.crescator.afix);
+        rand(t2, "Nr. afix", c.crescator.nrAfix);
+
+        const t3 = document.getElementById("c-proprietar");
+        rand(t3, "Nume", c.proprietar.nume);
+        rand(t3, "Adresa", c.proprietar.adresa);
+        rand(t3, "Localitate", [c.proprietar.localitate, c.proprietar.judet].filter(Boolean).join(", "));
+        rand(t3, "Țara", c.proprietar.tara);
+
+        // Ascendența: patru coloane, fiecare generație dublând numărul de căsuțe.
+        const zona = document.getElementById("c-asc");
+        zona.textContent = "";
+        for (let gen = 1; gen <= 4; gen++) {
+          const col = el("div", "asc__col");
+          col.appendChild(el("p", "asc__titlu",
+            { 1: "Părinți", 2: "Bunici", 3: "Străbunici", 4: "Stră-străbunici" }[gen]));
+          for (const p of d.pozitii.filter((x) => x.generatie === gen)) {
+            const a = (c.ascendenta || {})[p.cod];
+            const cutie = el("div", "asc__cutie" + (p.cod[0] === "T" ? " is-t" : " is-m"));
+            if (a && a.nume) {
+              cutie.appendChild(el("strong", "asc__nume", a.nume));
+              if (a.titluri) cutie.appendChild(el("span", "asc__titluri", a.titluri));
+              cutie.appendChild(el("span", "asc__nr", a.nr || "fără nr. de înregistrare"));
+              if (!a.nr) cutie.classList.add("is-incomplet");
+            } else {
+              cutie.classList.add("is-gol");
+              cutie.appendChild(el("span", "asc__nr", "necunoscut"));
+            }
+            col.appendChild(cutie);
+          }
+          zona.appendChild(col);
+        }
+
+        if (c.tip === "B") {
+          const p = document.getElementById("c-lipsa");
+          p.hidden = false;
+          p.textContent = "Certificat de Tip B: " + (c.lipsaAscendenta || []).length +
+            " din 30 de poziții ale ascendenței nu au detalii complete de înregistrare.";
+        }
+
+        document.getElementById("c-cap2").textContent =
+          c.serie + " · " + c.caine.nume + " · " + c.caine.rasa + " — verso";
+
+        if (d.qr) document.getElementById("c-qr").src = d.qr;
+        document.getElementById("c-adresa").textContent = d.adresaVerificare || "";
+        document.getElementById("c-emis").textContent =
+          "Emis la " + dataRo(c.emis) + " de " + c.emisDe + ", Râmnicu Vâlcea.";
+
+        incarcare.hidden = true;
+        document.getElementById("c-bara").hidden = false;
+        document.getElementById("c-act").hidden = false;
+      })
+      .catch((err) => {
+        incarcare.hidden = true;
+        eroare.hidden = false;
+        eroare.textContent = err.message;
+      });
+
+    document.getElementById("c-tipar").addEventListener("click", () => window.print());
+  })();
+</script>
+
+<style>
+  .c-eroare { max-width: 46rem; padding: 0.8rem 1rem; border-radius: var(--radius);
+    background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; }
+  .c-eroare[hidden], .c-incarcare[hidden], .c-bara[hidden], .act[hidden] { display: none; }
+  .c-incarcare { color: var(--color-text-muted); font-style: italic; }
+  .c-bara { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+  .c-hint { font-size: 0.82rem; color: var(--color-text-muted); }
+
+  /* ——— Actul ——— */
+  .act { margin-top: 1.5rem; padding: 1.6rem 1.8rem; background: #fff;
+    border: 3px double var(--color-primary); border-radius: 2px; color: #1a1a1a; }
+  .act__cap { display: grid; grid-template-columns: auto 1fr auto; gap: 1.2rem; align-items: center;
+    border-bottom: 2px solid var(--color-accent); padding-bottom: 0.9rem; }
+  .act__stema { display: block; }
+  .act__emitent p { margin: 0; }
+  .act__asociatie { font-family: var(--font-serif); font-weight: 700; font-size: 1.05rem; color: var(--color-primary); }
+  .act__forum { font-size: 0.85rem; color: var(--color-accent-dark); font-weight: 600; }
+  .act__adresa { font-size: 0.72rem; color: #555; margin-top: 0.2rem !important; }
+  .act__tip { text-align: center; }
+  .act__tip-eticheta { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: #666; }
+  .act__tip-litera { font-family: var(--font-serif); font-size: 1.5rem; padding: 0.1rem 0.7rem;
+    border: 2px solid var(--color-primary); border-radius: 4px; color: var(--color-primary); display: inline-block; }
+  .act__tip-litera.is-b { border-color: var(--color-accent-dark); color: var(--color-accent-dark); }
+
+  .act__titlu { font-family: var(--font-serif); text-align: center; color: var(--color-primary);
+    margin: 1rem 0 0.2rem; font-size: 1.7rem; letter-spacing: 0.02em; }
+  .act__titlu span { font-size: 0.6em; color: #666; font-weight: 400; }
+  .act__serie { text-align: center; font-family: var(--font-mono, monospace); font-size: 0.9rem;
+    color: var(--color-primary); margin: 0 0 1.2rem; }
+
+  .act__h2 { font-family: var(--font-serif); font-size: 0.95rem; color: var(--color-primary);
+    text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 0.3rem;
+    border-bottom: 1px solid var(--color-border); padding-bottom: 0.15rem; }
+  .act__tabel { border-collapse: collapse; width: 100%; }
+  .act__tabel th, .act__tabel td { text-align: left; padding: 0.18rem 0.4rem; font-size: 0.82rem;
+    border-bottom: 1px dotted #ccc; vertical-align: top; }
+  .act__tabel th { color: #555; font-weight: 600; width: 38%; }
+  .act__parti { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem; }
+  .act__caine { margin-top: 0.5rem; }
+  .act__asc { margin-top: 1.2rem; }
+
+  .asc { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35rem; align-items: stretch; }
+  .asc__titlu { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: #666; margin: 0 0 0.25rem; text-align: center; }
+  .asc__col { display: flex; flex-direction: column; gap: 0.25rem; }
+  .asc__cutie { flex: 1; display: flex; flex-direction: column; justify-content: center;
+    border: 1px solid #bbb; border-radius: 2px; padding: 0.25rem 0.4rem; min-height: 2.2rem; }
+  .asc__cutie.is-t { background: #f4f7f5; }
+  .asc__cutie.is-m { background: #faf7f2; }
+  .asc__cutie.is-gol, .asc__cutie.is-incomplet { border-style: dashed; }
+  .asc__nume { font-size: 0.74rem; line-height: 1.2; }
+  .asc__titluri { font-size: 0.64rem; color: var(--color-accent-dark); }
+  .asc__nr { font-size: 0.64rem; color: #666; font-family: var(--font-mono, monospace); }
+  .asc__cutie.is-gol .asc__nr { font-style: italic; }
+  .act__lipsa { margin-top: 0.6rem; font-size: 0.78rem; color: var(--color-accent-dark);
+    background: #fdf6e8; border: 1px solid var(--color-accent); border-radius: 2px; padding: 0.4rem 0.7rem; }
+
+  .act__subsol { margin-top: 1.2rem; border-top: 2px solid var(--color-accent); padding-top: 0.8rem;
+    display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: start; }
+  .act__qr { text-align: center; }
+  .act__qr img { display: block; }
+  .act__qr-text { font-size: 0.62rem; color: #555; margin: 0.25rem 0 0; word-break: break-all; }
+  .act__emis { font-size: 0.78rem; color: #555; margin: 0 0 1.4rem; }
+  .act__semn { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .act__semn span { border-top: 1px solid #888; padding-top: 0.2rem; font-size: 0.72rem;
+    color: #555; text-align: center; }
+  .act__legal { grid-column: 1 / -1; font-size: 0.66rem; color: #555; line-height: 1.45;
+    margin: 0.9rem 0 0; border-top: 1px dotted #bbb; padding-top: 0.5rem; }
+
+  /* Antetul verso-ului: doar la tipărire. */
+  .act__cap2 { display: none; }
+
+  /* ——— Tipărire ———
+     O coală A4 culcată, tipărită față-verso, ca un pedigree de hârtie:
+       • fața  — emitentul, identitatea câinelui, crescătorul, proprietarul;
+       • versoul — ascendența pe patru generații, semnăturile, codul QR.
+     Măsurat pe un certificat plin, fața ocupă ~580px din cei ~718 disponibili, iar
+     versoul ~745 — de aceea versoul se strânge puțin mai mult decât fața. */
+  @media print {
+    @page { size: A4 landscape; margin: 10mm; }
+    :global(.c-header), :global(.c-footer), .c-bara, .c-incarcare { display: none !important; }
+    :global(.c-main) { max-width: none; padding: 0; }
+    .act { border-width: 2px; padding: 0.8rem 1rem; margin: 0; }
+    .act__titlu { font-size: 1.4rem; margin-top: 0.5rem; }
+
+    .act__asc { break-before: page; page-break-before: always; margin-top: 0; }
+    .act__cap2 { display: block; font-size: 0.7rem; color: #555; margin: 0 0 0.5rem;
+      border-bottom: 1px solid var(--color-accent); padding-bottom: 0.25rem;
+      font-family: var(--font-mono, monospace); }
+    .asc__nume { font-size: 0.68rem; }
+    .asc__nr, .asc__titluri { font-size: 0.58rem; }
+    .act__subsol { margin-top: 0.7rem; padding-top: 0.5rem; break-inside: avoid; }
+    .act__emis { margin-bottom: 0.9rem; }
+    .act__legal { margin-top: 0.5rem; font-size: 0.6rem; }
+    .act__qr img { width: 90px; height: 90px; }
+  }
+</style>

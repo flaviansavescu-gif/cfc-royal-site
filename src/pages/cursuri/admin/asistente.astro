@@ -1,0 +1,259 @@
+---
+// /cursuri/admin/asistente/ — administrarea stagiului practic (5 asistențe de ring).
+// Adminul stabilește cele 5 expoziții + arbitrul coordonator al fiecăreia și numește
+// candidații (numit / prezent / absent) la fiecare asistență.
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+---
+
+<CursuriLayout title="Asistențe de ring — administrare" allow={["admin"]}>
+  <p class="a-crumb"><a href="/cursuri/admin/">← Panoul platformei</a></p>
+  <p class="a-eyebrow">Administrare · stagiu practic</p>
+  <h1 class="a-title">Asistențe de ring</h1>
+  <p class="a-sub">
+    Stabilește cele 5 expoziții la care candidații își fac asistențele și arbitrul care coordonează
+    ringul în fiecare zi. Apoi numește candidații și marchează-le prezența. Modificările se salvează pe server
+    și devin vizibile imediat în spațiul candidaților.
+  </p>
+
+  <h2 class="a-h2">Cele 5 expoziții de asistență</h2>
+  <p class="a-note">Lasă câmpurile goale până când expoziția e stabilită — candidații văd „ce urmează a fi stabilită”.</p>
+  <div class="a-expo" id="a-expo">
+    {Array.from({ length: 5 }).map((_, i) => (
+      <div class="a-expo__card" data-nr={i + 1}>
+        <span class="a-expo__nr">Asistența {i + 1}</span>
+        <label>Denumirea expoziției <input type="text" data-f="nume" placeholder="ex. Expoziția Națională CFC-Royal Reșița" /></label>
+        <div class="a-expo__row">
+          <label>Data <input type="date" data-f="data" /></label>
+          <label>Localitate <input type="text" data-f="locatie" placeholder="ex. Reșița" /></label>
+        </div>
+        <label>Arbitru coordonator (cel care arbitrează în ziua respectivă)
+          <input type="text" data-f="arbitru" placeholder="ex. Flavian Savescu" /></label>
+      </div>
+    ))}
+  </div>
+  <p class="a-save-row">
+    <button id="a-expo-save" class="btn btn--primary" type="button">Salvează expozițiile</button>
+    <span class="a-status" id="a-expo-status"></span>
+  </p>
+
+  <h2 class="a-h2">Numirea candidaților</h2>
+  <p class="a-note">Pentru fiecare candidat, alege starea la fiecare asistență. Se salvează pe rând (fiecare candidat separat).</p>
+  <p class="a-legenda">
+    <span class="a-lg a-lg--none">Neatribuită</span>
+    <span class="a-lg a-lg--numit">Numit</span>
+    <span class="a-lg a-lg--prezent">Prezent (efectuată)</span>
+    <span class="a-lg a-lg--absent">Absent</span>
+  </p>
+  <div class="a-matrice-wrap">
+    <table class="a-matrice" id="a-matrice">
+      <thead>
+        <tr>
+          <th class="a-mx-cand">Candidat</th>
+          <th>Asist. 1</th><th>Asist. 2</th><th>Asist. 3</th><th>Asist. 4</th><th>Asist. 5</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="a-matrice-body">
+        <tr><td colspan="7" class="a-mx-empty">Se încarcă…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</CursuriLayout>
+
+<script is:inline>
+  (function () {
+    const STARI = ["", "numit", "prezent", "absent"];
+    const ETICHETE = { "": "— neatribuită", numit: "Numit", prezent: "Prezent ✓", absent: "Absent" };
+
+    function codAdmin() {
+      let c = null;
+      try { c = localStorage.getItem("cfcrAccesCod"); } catch (e) {}
+      return c || prompt("Confirmă codul de administrator:");
+    }
+
+    async function cere(payload) {
+      const res = await fetch("/.netlify/functions/asistente-cursuri", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.eroare || "Eroare");
+      return data;
+    }
+
+    // ——— Expozițiile ———
+    function aplicaExpozitii(expozitii) {
+      (expozitii || []).forEach((ex) => {
+        const card = document.querySelector('.a-expo__card[data-nr="' + ex.nr + '"]');
+        if (!card) return;
+        card.querySelector('[data-f="nume"]').value = ex.nume || "";
+        card.querySelector('[data-f="data"]').value = ex.data || "";
+        card.querySelector('[data-f="locatie"]').value = ex.locatie || "";
+        card.querySelector('[data-f="arbitru"]').value = ex.arbitru || "";
+      });
+    }
+
+    function citesteExpozitii() {
+      return [...document.querySelectorAll(".a-expo__card")].map((card) => ({
+        nr: Number(card.dataset.nr),
+        nume: card.querySelector('[data-f="nume"]').value.trim(),
+        data: card.querySelector('[data-f="data"]').value.trim(),
+        locatie: card.querySelector('[data-f="locatie"]').value.trim(),
+        arbitru: card.querySelector('[data-f="arbitru"]').value.trim(),
+      }));
+    }
+
+    document.getElementById("a-expo-save").addEventListener("click", async () => {
+      const btn = document.getElementById("a-expo-save");
+      const st = document.getElementById("a-expo-status");
+      btn.disabled = true; st.textContent = "Se salvează…"; st.className = "a-status";
+      try {
+        const data = await cere({ actiune: "salveaza-expozitii", expozitii: citesteExpozitii() });
+        aplicaExpozitii(data.expozitii);
+        st.textContent = "Salvat ✓"; st.className = "a-status is-ok";
+      } catch (err) { st.textContent = "Eroare: " + err.message; st.className = "a-status is-err"; }
+      finally { btn.disabled = false; setTimeout(() => (st.textContent = ""), 3000); }
+    });
+
+    // ——— Matricea de numire ———
+    let candidati = [];
+    let numiri = {};
+    let evaluari = {};
+
+    async function incarca() {
+      // Lista candidaților (cu nume) + numirile — două surse.
+      try {
+        candidati = await (await fetch("/.netlify/functions/candidati-cursuri", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cod: codAdmin(), actiune: "lista" }),
+        })).json();
+        if (!Array.isArray(candidati)) candidati = [];
+      } catch (e) { candidati = []; }
+
+      try {
+        const d = await cere({ actiune: "admin" });
+        aplicaExpozitii(d.expozitii);
+        numiri = d.numiri || {};
+        evaluari = d.evaluari || {};
+      } catch (e) { numiri = {}; evaluari = {}; }
+
+      randMatrice();
+    }
+
+    function randMatrice() {
+      const body = document.getElementById("a-matrice-body");
+      body.textContent = "";
+      if (!candidati.length) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = '<td colspan="7" class="a-mx-empty">Niciun candidat înscris. Adaugă candidați din <a href="/cursuri/admin/">panoul platformei</a>.</td>';
+        body.appendChild(tr);
+        return;
+      }
+      candidati.forEach((c) => {
+        const tr = document.createElement("tr");
+        const nume = document.createElement("td");
+        nume.className = "a-mx-cand";
+        nume.innerHTML = "<strong>" + c.nume + "</strong>";
+        tr.appendChild(nume);
+
+        const curent = numiri[c.id] || {};
+        const evC = evaluari[c.id] || {};
+        for (let i = 1; i <= 5; i++) {
+          const td = document.createElement("td");
+          const sel = document.createElement("select");
+          sel.dataset.nr = i;
+          STARI.forEach((s) => {
+            const o = document.createElement("option");
+            o.value = s; o.textContent = ETICHETE[s];
+            if ((curent[i] || "") === s) o.selected = true;
+            sel.appendChild(o);
+          });
+          sel.className = "a-mx-sel is-" + (curent[i] || "none");
+          sel.addEventListener("change", () => {
+            sel.className = "a-mx-sel is-" + (sel.value || "none");
+          });
+          td.appendChild(sel);
+          // Evaluarea arbitrului de bază (vine din Expo Manager) — doar afișare aici.
+          const ev = evC[i];
+          if (ev && ev.calificativ) {
+            const CAL = { foarte_bine: "Foarte bine", bine: "Bine", satisfacator: "Satisfăcător", nesatisfacator: "Nesatisfăcător" };
+            const b = document.createElement("div");
+            b.className = "a-mx-eval is-" + ev.calificativ;
+            b.textContent = CAL[ev.calificativ] || ev.calificativ;
+            b.title = (ev.arbitru ? "Arbitru: " + ev.arbitru + "\n" : "") + (ev.observatii || "");
+            td.appendChild(b);
+          }
+          tr.appendChild(td);
+        }
+
+        const tdBtn = document.createElement("td");
+        const btn = document.createElement("button");
+        btn.className = "btn btn--small btn--outline";
+        btn.textContent = "Salvează";
+        btn.addEventListener("click", async () => {
+          const noi = {};
+          [...tr.querySelectorAll("select")].forEach((s) => { noi[s.dataset.nr] = s.value; });
+          btn.disabled = true; btn.textContent = "…";
+          try {
+            await cere({ actiune: "salveaza-numire", candidatId: c.id, numiri: noi });
+            numiri[c.id] = noi;
+            btn.textContent = "Salvat ✓";
+            setTimeout(() => (btn.textContent = "Salvează"), 2000);
+          } catch (err) { alert("Nu am putut salva: " + err.message); btn.textContent = "Salvează"; }
+          finally { btn.disabled = false; }
+        });
+        tdBtn.appendChild(btn);
+        tr.appendChild(tdBtn);
+        body.appendChild(tr);
+      });
+    }
+
+    incarca();
+  })();
+</script>
+
+<style>
+  .a-crumb { margin: 0 0 1.25rem; }
+  .a-crumb a { text-decoration: none; color: var(--color-text-muted); }
+  .a-crumb a:hover { color: var(--color-primary); }
+  .a-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .a-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
+  .a-sub { color: var(--color-text-muted); max-width: 48rem; }
+  .a-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2.25rem 0 0.5rem; font-size: 1.35rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.35rem; }
+  .a-note { color: var(--color-text-muted); margin: 0 0 1rem; max-width: 48rem; }
+
+  .a-expo { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); }
+  .a-expo__card { display: flex; flex-direction: column; gap: 0.6rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.15rem; }
+  .a-expo__nr { font-weight: 700; color: var(--color-primary); font-family: var(--font-serif); }
+  .a-expo__card label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.82rem; color: var(--color-text-muted); }
+  .a-expo__card input { padding: 0.55rem 0.75rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; color: var(--color-text); }
+  .a-expo__row { display: flex; gap: 0.6rem; }
+  .a-expo__row label { flex: 1; }
+  .a-save-row { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
+  .a-status { font-size: 0.9rem; }
+  .a-status.is-ok { color: var(--color-primary); font-weight: 600; }
+  .a-status.is-err { color: #8c1d2f; font-weight: 600; }
+
+  .a-legenda { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 1rem; }
+  .a-lg { font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid var(--color-border); }
+  .a-lg--numit { background: #f7f1df; border-color: var(--color-accent); color: var(--color-accent-dark); }
+  .a-lg--prezent { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
+  .a-lg--absent { background: #f9efef; border-color: #8c1d2f; color: #8c1d2f; }
+
+  .a-matrice-wrap { overflow-x: auto; }
+  .a-matrice { border-collapse: collapse; width: 100%; min-width: 46rem; }
+  .a-matrice th, .a-matrice td { border: 1px solid var(--color-border); padding: 0.5rem 0.6rem; text-align: center; }
+  .a-matrice th { background: var(--color-surface-alt); font-size: 0.8rem; }
+  .a-mx-cand { text-align: left !important; }
+  .a-mx-empty { text-align: center; color: var(--color-text-muted); font-style: italic; }
+  .a-mx-sel { padding: 0.35rem 0.4rem; border: 1px solid var(--color-border); border-radius: 6px; font: inherit; font-size: 0.82rem; background: #fff; }
+  .a-mx-sel.is-numit { background: #f7f1df; }
+  .a-mx-sel.is-prezent { background: #e7f0ea; }
+  .a-mx-sel.is-absent { background: #f9efef; }
+  /* Evaluarea arbitrului de bază (vine din Expo Manager); observațiile în tooltip. */
+  .a-mx-eval { margin-top: 0.25rem; font-size: 0.72rem; font-weight: 700; text-align: center; border-radius: 3px; padding: 0.1rem 0.25rem; cursor: help; }
+  .a-mx-eval.is-foarte_bine { background: var(--color-primary); color: #fbfaf7; }
+  .a-mx-eval.is-bine { background: #e7f0ea; color: var(--color-primary); }
+  .a-mx-eval.is-satisfacator { background: #f7f1df; color: #6b5416; }
+  .a-mx-eval.is-nesatisfacator { background: #f9efef; color: #8c1d2f; }
+</style>

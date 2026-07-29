@@ -1,0 +1,425 @@
+---
+// InscriereExpo.astro — formular public de înscriere la expoziții (bilingv RO/EN).
+// Încarcă expozițiile deschise din funcția inscriere-expo și trimite înscrierea în coadă.
+interface Props { lang: "ro" | "en"; }
+const { lang } = Astro.props;
+
+const T = {
+  ro: {
+    titlu: "Înscriere la expoziție", intro: "Completează formularul pentru a înscrie un câine la o expoziție a Clubului Federal Chinologic – Royal.",
+    faraExpo: "Momentan nu sunt expoziții cu înscrieri deschise. Revino mai târziu.",
+    expozitie: "Expoziția", dateCaine: "Datele câinelui", numeCaine: "Numele complet al câinelui", rasa: "Rasa", rasaPh: "Scrie și alege rasa…",
+    sex: "Sex", mascul: "Mascul", femela: "Femelă", dataN: "Data nașterii", dataPh: "zz.ll.aaaa", dataInvalida: "Data nașterii este invalidă — scrie-o ca zi.lună.an, de exemplu 22.10.2021.", pedigree: "Număr pedigree", microcip: "Microcip", crescator: "Crescător",
+    clasa: "Clasa de concurs", dateProp: "Datele proprietarului", numeProp: "Nume și prenume", email: "Email", telefon: "Telefon", adresa: "Adresă", tara: "Țara",
+    tipicitate: "Doresc pedigree de tipicitate", tipicitateDesc: "Bifează dacă acest câine de rasă nu are pedigree și dorești obținerea unui pedigree de tipicitate (evaluare de tipicitate în ring).",
+    optional: "opțional", trimite: "Trimite înscrierea", seTrimite: "Se trimite…",
+    culoareRoba: "Culoarea robei", tata: "Tatăl (nume complet)", mama: "Mama (nume complet)",
+    faraPedigree: "Bifează dacă exemplarul nu are pedigree — atunci numărul de pedigree nu se mai cere.",
+    cumTitlu: "Cum funcționează înscrierea",
+    cum1t: "Pregătește datele câinelui",
+    cum1: "numărul de pedigree, microcipul, data nașterii, numele părinților și culoarea robei. Clasa de concurs se alege după vârsta câinelui la data expoziției, nu la data înscrierii.",
+    cum2t: "Microcipul este obligatoriu",
+    cum2: "la expoziție, datele lui trebuie să corespundă exact cu documentele prezentate. Fără microcip, înscrierea nu poate fi trimisă.",
+    cum3t: "Câine de rasă fără pedigree?",
+    cum3: "bifează „Doresc pedigree de tipicitate”. Atunci numărul de pedigree nu se mai cere. Exemplarul este evaluat în ring și poate concura pentru BOB și Best in Show, dar nu poate primi certificate (CAJC, CAC, CACIB).",
+    cum4t: "Culoarea robei și părinții",
+    cum4: "se tipăresc în catalogul oficial al expoziției. Dacă nu le cunoști la înscriere, secretariatul le poate completa până la închiderea catalogului.",
+    cum5t: "După trimitere",
+    cum5: "primești un e-mail de confirmare. După verificarea înscrierii de către secretariat primești numărul de catalog. Înscrierile se închid înainte de expoziție, odată cu tipărirea catalogului.",
+    succes: "Înscrierea a fost trimisă!", succesDetaliu: "a intrat în coada secretariatului. După verificare vei primi pe e-mail confirmarea validării, iar la închiderea catalogului — numărul de concurs și ecusonul de tipărit.", inca: "Trimite o nouă înscriere",
+    gdprTitlu: "Protecția datelor (GDPR)",
+    gdprText: "Datele tale și ale câinelui sunt folosite exclusiv pentru organizarea expoziției (catalog, arbitraj, rezultate, comunicări legate de eveniment). Nu le vindem și nu le transmitem terților în scop comercial. Le păstrăm cât e necesar pentru evidența expozițională. Poți cere accesul, corectarea sau ștergerea datelor scriind la contact@cfc-royal.ro.",
+    gdprAccept: "Am citit și sunt de acord cu prelucrarea datelor mele personale în scopul organizării expoziției.",
+    plataTitlu: "Taxa de înscriere",
+    taxaAlege: "Alege clasa de concurs ca să vezi taxa.",
+    taxaEste: "Taxa pentru clasa aleasă:",
+    faraTaxa: "Clasa aleasă nu are taxă de înscriere.",
+    lei: "lei",
+    plataCum: "Plata se face prin transfer bancar, înainte de trimiterea înscrierii:",
+    titularCont: "Titular: Club Federal Chinologic – Royal · Banca Comercială Română (BCR)",
+    plataDetalii: "La detaliile plății scrie numele câinelui.",
+    amPlatit: "Am plătit taxa de înscriere",
+    dovada: "Dovada plății (poză sau PDF, max. 4 MB)",
+    dovadaMare: "Fișierul cu dovada plății depășește 4 MB — fă o poză mai mică sau exportă un PDF.",
+    dovadaTipGresit: "Dovada plății trebuie să fie imagine (JPG/PNG/WebP) sau PDF.",
+    dovadaNota: "Secretariatul verifică plata în extras înainte de validare — dovada atașată grăbește verificarea.",
+  },
+  en: {
+    titlu: "Show entry", intro: "Fill in the form to enter a dog in a show of Club Federal Chinologic – Royal.",
+    faraExpo: "There are currently no shows open for entry. Please check back later.",
+    expozitie: "Show", dateCaine: "Dog details", numeCaine: "Dog's full name", rasa: "Breed", rasaPh: "Type and pick the breed…",
+    sex: "Sex", mascul: "Male", femela: "Female", dataN: "Date of birth", dataPh: "dd.mm.yyyy", dataInvalida: "The date of birth is invalid — write it as day.month.year, e.g. 22.10.2021.", pedigree: "Pedigree number", microcip: "Microchip", crescator: "Breeder",
+    clasa: "Competition class", dateProp: "Owner details", numeProp: "Full name", email: "Email", telefon: "Phone", adresa: "Address", tara: "Country",
+    tipicitate: "I want a typicity pedigree", tipicitateDesc: "Tick this if the purebred dog has no pedigree and you wish to obtain a typicity pedigree (typicity assessment in the ring).",
+    optional: "optional", trimite: "Submit entry", seTrimite: "Sending…",
+    culoareRoba: "Coat colour", tata: "Sire (full name)", mama: "Dam (full name)",
+    faraPedigree: "Tick if the dog has no pedigree — the pedigree number is then not required.",
+    cumTitlu: "How entry works",
+    cum1t: "Have the dog's details ready",
+    cum1: "pedigree number, microchip, date of birth, the parents' names and the coat colour. The competition class is based on the dog's age on the show date, not on the entry date.",
+    cum2t: "The microchip is mandatory",
+    cum2: "at the show, its data must match the documents presented exactly. Without a microchip the entry cannot be submitted.",
+    cum3t: "Purebred dog without a pedigree?",
+    cum3: "tick “I want a typicity pedigree”. The pedigree number is then not required. The dog is assessed in the ring and may compete for BOB and Best in Show, but cannot receive certificates (CAJC, CAC, CACIB).",
+    cum4t: "Coat colour and parents",
+    cum4: "are printed in the official show catalogue. If you do not know them at entry, the secretariat can complete them until the catalogue closes.",
+    cum5t: "After you submit",
+    cum5: "you receive a confirmation email. Once the secretariat checks your entry you receive the catalogue number. Entries close before the show, when the catalogue is printed.",
+    succes: "Your entry has been sent!", succesDetaliu: "is now in the secretariat queue. After it is checked you will receive the validation email, and when the catalogue closes — your competition number and printable armband.", inca: "Submit another entry",
+    gdprTitlu: "Data protection (GDPR)",
+    gdprText: "Your data and your dog's data are used solely for organising the show (catalogue, judging, results, event-related communications). We do not sell or share them with third parties for commercial purposes. We keep them as long as needed for show records. You may request access, correction or deletion by writing to contact@cfc-royal.ro.",
+    gdprAccept: "I have read and agree to the processing of my personal data for the purpose of organising the show.",
+    plataTitlu: "Entry fee",
+    taxaAlege: "Choose the competition class to see the fee.",
+    taxaEste: "Fee for the selected class:",
+    faraTaxa: "The selected class has no entry fee.",
+    lei: "RON",
+    plataCum: "Payment is made by bank transfer, before submitting the entry:",
+    titularCont: "Account holder: Club Federal Chinologic – Royal · Banca Comercială Română (BCR)",
+    plataDetalii: "Write the dog's name in the payment details.",
+    amPlatit: "I have paid the entry fee",
+    dovada: "Proof of payment (photo or PDF, max. 4 MB)",
+    dovadaMare: "The payment proof file exceeds 4 MB — take a smaller photo or export a PDF.",
+    dovadaTipGresit: "The payment proof must be an image (JPG/PNG/WebP) or a PDF.",
+    dovadaNota: "The secretariat checks the payment in the bank statement before validation — an attached proof speeds this up.",
+  },
+}[lang];
+
+// Clasele WDF (aceleași ca în manager). Etichete + interval de vârstă (luni).
+const CLASE = [
+  { v: "baby", ro: "Baby (3–6 luni)", en: "Baby (3–6 months)" },
+  { v: "puppy", ro: "Puppy (6–9 luni)", en: "Puppy (6–9 months)" },
+  { v: "very_young", ro: "Very Young (9–12 luni)", en: "Very Young (9–12 months)" },
+  { v: "young", ro: "Young / Junior (12–18 luni)", en: "Young / Junior (12–18 months)" },
+  { v: "intermediara", ro: "Intermediară (15–24 luni)", en: "Intermediate (15–24 months)" },
+  { v: "deschisa", ro: "Deschisă / Open (18+ luni)", en: "Open (18+ months)" },
+  { v: "working", ro: "Working / Lucru (18+ luni)", en: "Working (18+ months)" },
+  { v: "winner", ro: "Winner (4 CAC)", en: "Winner (4 CAC)" },
+  { v: "champion", ro: "Champion", en: "Champion" },
+  { v: "foreign_champion", ro: "Foreign Champion", en: "Foreign Champion" },
+  { v: "veterani", ro: "Veterani (10+ ani)", en: "Veteran (10+ years)" },
+];
+---
+
+<section class="ie">
+  <h1 class="ie__titlu">{T.titlu}</h1>
+  <p class="ie__intro">{T.intro}</p>
+
+  <section class="ie__cum">
+    <h2 class="ie__cum-t">{T.cumTitlu}</h2>
+    <ol class="ie__cum-l">
+      <li><b>{T.cum1t}</b> — {T.cum1}</li>
+      <li><b>{T.cum2t}</b> — {T.cum2}</li>
+      <li><b>{T.cum3t}</b> — {T.cum3}</li>
+      <li><b>{T.cum4t}</b> — {T.cum4}</li>
+      <li><b>{T.cum5t}</b> — {T.cum5}</li>
+    </ol>
+  </section>
+
+  <p class="ie__stare" id="ie-loading">…</p>
+  <p class="ie__gol" id="ie-gol" hidden>{T.faraExpo}</p>
+
+  <div class="ie__succes" id="ie-succes" hidden>
+    <p><b>✅ {T.succes}</b></p>
+    <p id="ie-succes-rezumat"></p>
+    <button class="btn btn--primary" id="ie-reset" type="button">{T.inca}</button>
+  </div>
+
+  <form class="ie__form" id="ie-form" hidden autocomplete="off">
+    <p class="ie__err" id="ie-err" hidden></p>
+
+    <label class="ie__f">
+      <span>{T.expozitie} <b class="req">*</b></span>
+      <select id="ie-show" name="showId" required></select>
+    </label>
+
+    <fieldset class="ie__fs">
+      <legend>{T.dateCaine}</legend>
+      <label class="ie__f"><span>{T.numeCaine} <b class="req">*</b></span><input name="numeCaine" required /></label>
+      <label class="ie__f"><span>{T.rasa} <b class="req">*</b></span>
+        <input id="ie-rasa" name="rasaText" list="ie-rase" placeholder={T.rasaPh} required />
+        <datalist id="ie-rase"></datalist>
+        <input type="hidden" name="rasaId" id="ie-rasaId" />
+      </label>
+      <div class="ie__row">
+        <label class="ie__f"><span>{T.sex} <b class="req">*</b></span>
+          <div class="ie__radios">
+            <label><input type="radio" name="sex" value="M" required /> {T.mascul}</label>
+            <label><input type="radio" name="sex" value="F" /> {T.femela}</label>
+          </div>
+        </label>
+        <label class="ie__f"><span>{T.dataN} <b class="req">*</b></span><input id="ie-data" name="dataNasterii" inputmode="numeric" autocomplete="off" placeholder={T.dataPh} maxlength="10" required /></label>
+      </div>
+      <label class="ie__f"><span>{T.clasa} <b class="req">*</b></span>
+        <select name="clasa" required>
+          <option value="">—</option>
+          {CLASE.map((c) => <option value={c.v}>{lang === "en" ? c.en : c.ro}</option>)}
+        </select>
+      </label>
+      <div class="ie__row">
+        <label class="ie__f"><span>{T.pedigree} *</span><input name="pedigree" required data-cere-pedigree /></label>
+        <label class="ie__f"><span>{T.microcip} *</span><input name="microcip" required minlength="6" /></label>
+      </div>
+      <label class="ie__f"><span>{T.crescator} ({T.optional})</span><input name="crescator" /></label>
+      <div class="ie__row">
+        <label class="ie__f"><span>{T.culoareRoba}</span><input name="culoareRoba" /></label>
+        <label class="ie__f"><span>{T.tata}</span><input name="tata" /></label>
+      </div>
+      <label class="ie__f"><span>{T.mama}</span><input name="mama" /></label>
+      <label class="ie__tip"><input type="checkbox" name="pedigreeTipicitate" value="1" /> <span><b>{T.tipicitate}</b><br /><small>{T.tipicitateDesc}</small></span></label>
+    </fieldset>
+
+    <fieldset class="ie__fs">
+      <legend>{T.dateProp}</legend>
+      <div class="ie__row">
+        <label class="ie__f"><span>{T.numeProp} <b class="req">*</b></span><input name="numeProprietar" required /></label>
+        <label class="ie__f"><span>{T.email} <b class="req">*</b></span><input name="email" type="email" required /></label>
+      </div>
+      <div class="ie__row">
+        <label class="ie__f"><span>{T.telefon} ({T.optional})</span><input name="telefon" /></label>
+        <label class="ie__f"><span>{T.tara} ({T.optional})</span><input name="tara" /></label>
+      </div>
+      <label class="ie__f"><span>{T.adresa} ({T.optional})</span><input name="adresa" /></label>
+    </fieldset>
+
+    <!-- Plata taxei: apare doar când expoziția are taxe configurate. Dovada nu confirmă
+         plata — secretariatul o verifică în extras; aici doar o aducem lângă înscriere. -->
+    <fieldset class="ie__fs" id="ie-plata" hidden>
+      <legend>{T.plataTitlu}</legend>
+      <p class="ie__taxa" id="ie-taxa-text">{T.taxaAlege}</p>
+      <div class="ie__plata-info">
+        <p>{T.plataCum}</p>
+        <p class="ie__iban">RO07 RNCB 0263 1767 9657 0001</p>
+        <p>{T.titularCont}</p>
+        <p><b>{T.plataDetalii}</b></p>
+      </div>
+      <label class="ie__consim"><input type="checkbox" name="amPlatit" value="1" id="ie-amplatit" /> <span><b>{T.amPlatit}</b> <b class="req">*</b></span></label>
+      <label class="ie__f"><span>{T.dovada} <b class="req">*</b></span>
+        <input type="file" name="dovada" id="ie-dovada" accept="image/jpeg,image/png,image/webp,application/pdf" />
+      </label>
+      <p class="ie__gdpr">{T.dovadaNota}</p>
+    </fieldset>
+
+    <fieldset class="ie__fs">
+      <legend>{T.gdprTitlu}</legend>
+      <p class="ie__gdpr">{T.gdprText}</p>
+      <label class="ie__consim"><input type="checkbox" name="gdpr" value="1" required /> <span>{T.gdprAccept} <b class="req">*</b></span></label>
+    </fieldset>
+
+    <button class="btn btn--primary" type="submit" id="ie-submit">{T.trimite}</button>
+  </form>
+</section>
+
+<script is:inline define:vars={{ txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit }}>
+  (async function () {
+    const form = document.getElementById("ie-form");
+    const loading = document.getElementById("ie-loading");
+    const gol = document.getElementById("ie-gol");
+    const showSel = document.getElementById("ie-show");
+    const raseList = document.getElementById("ie-rase");
+    const rasaInput = document.getElementById("ie-rasa");
+    const rasaId = document.getElementById("ie-rasaId");
+    const err = document.getElementById("ie-err");
+    const succes = document.getElementById("ie-succes");
+
+    let expozitii = [];
+    try {
+      const r = await fetch("/.netlify/functions/inscriere-expo");
+      expozitii = (await r.json()).expozitii || [];
+    } catch (e) {}
+
+    loading.hidden = true;
+    if (!expozitii.length) { gol.hidden = false; return; }
+
+    showSel.innerHTML = expozitii
+      .map((e) => `<option value="${e.showId}">${e.nume} — ${new Date(e.data).toLocaleDateString()}</option>`)
+      .join("");
+
+    function populeazaRase() {
+      const e = expozitii.find((x) => x.showId === showSel.value);
+      raseList.innerHTML = (e?.rase || [])
+        .map((r) => `<option data-id="${r.id}" value="${r.numeRo}">${r.numeEn} · Gr. ${r.grupa}</option>`)
+        .join("");
+    }
+    function rezolvaRasa() {
+      const e = expozitii.find((x) => x.showId === showSel.value);
+      const g = (e?.rase || []).find((r) => r.numeRo === rasaInput.value.trim());
+      rasaId.value = g ? g.id : "";
+    }
+    showSel.addEventListener("change", () => { populeazaRase(); rasaId.value = ""; rasaInput.value = ""; });
+    rasaInput.addEventListener("input", rezolvaRasa);
+    populeazaRase();
+    form.hidden = false;
+
+    // Numarul de pedigree e obligatoriu daca exemplarul are pedigree. Singurul caz in
+    // care nu-l are e calea pedigree-ului de tipicitate — caine de rasa fara acte —
+    // iar acela se declara prin casuta de mai jos. Deci: obligatoriu, mai putin cand
+    // expozantul bifeaza ca nu are acte.
+    const bifaTipicitate = form.querySelector('input[name="pedigreeTipicitate"]');
+    const campPedigree = form.querySelector('input[name="pedigree"]');
+    if (bifaTipicitate && campPedigree) {
+      const sincronizeaza = () => {
+        campPedigree.required = !bifaTipicitate.checked;
+        campPedigree.closest(".ie__f").style.opacity = bifaTipicitate.checked ? "0.55" : "";
+      };
+      bifaTipicitate.addEventListener("change", sincronizeaza);
+      sincronizeaza();
+    }
+
+    // Plata taxei: sectiunea apare doar cand expozitia are taxe; bifa + dovada devin
+    // obligatorii doar cand clasa aleasa are taxa > 0 (regula e impusa si pe server).
+    const plataFs = document.getElementById("ie-plata");
+    const taxaText = document.getElementById("ie-taxa-text");
+    const clasaSel = form.querySelector('select[name="clasa"]');
+    const bifaPlatit = document.getElementById("ie-amplatit");
+    const campDovada = document.getElementById("ie-dovada");
+    function expoCurenta() { return expozitii.find((x) => x.showId === showSel.value); }
+    function taxaCurenta() {
+      const e = expoCurenta();
+      return Number(((e && e.taxe) || {})[clasaSel.value] || 0);
+    }
+    function actualizeazaPlata() {
+      const e = expoCurenta();
+      const areTaxe = !!(e && e.taxe && Object.values(e.taxe).some((v) => Number(v) > 0));
+      plataFs.hidden = !areTaxe;
+      const t = areTaxe ? taxaCurenta() : 0;
+      bifaPlatit.required = areTaxe && t > 0;
+      campDovada.required = areTaxe && t > 0;
+      if (!areTaxe) return;
+      if (!clasaSel.value) taxaText.textContent = txtTaxaAlege;
+      else if (t > 0) taxaText.innerHTML = txtTaxaEste + " <b>" + t + " " + txtLei + "</b>";
+      else taxaText.textContent = txtFaraTaxa;
+    }
+    showSel.addEventListener("change", actualizeazaPlata);
+    clasaSel.addEventListener("change", actualizeazaPlata);
+    actualizeazaPlata();
+
+    // Data nasterii se TASTEAZA (zz.ll.aaaa) — calendarul de pe telefon era greoi.
+    // Punctele se pun singure; la trimitere data e validata si convertita in ISO,
+    // formatul pe care il asteapta serverul.
+    const campData = document.getElementById("ie-data");
+    campData.addEventListener("input", () => {
+      const cifre = campData.value.replace(/\D/g, "").slice(0, 8);
+      let v = cifre;
+      if (cifre.length > 4) v = cifre.slice(0, 2) + "." + cifre.slice(2, 4) + "." + cifre.slice(4);
+      else if (cifre.length > 2) v = cifre.slice(0, 2) + "." + cifre.slice(2);
+      campData.value = v;
+    });
+    function dataISO(v) {
+      const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(v.trim());
+      if (!m) return null;
+      const [, z, l, a] = m;
+      const d = new Date(Number(a), Number(l) - 1, Number(z));
+      if (d.getFullYear() !== Number(a) || d.getMonth() !== Number(l) - 1 || d.getDate() !== Number(z)) return null;
+      if (d > new Date() || Number(a) < 1990) return null;
+      return a + "-" + l + "-" + z;
+    }
+
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      err.hidden = true;
+      rezolvaRasa();
+      const iso = dataISO(campData.value);
+      if (!iso) {
+        err.textContent = txtDataInvalida; err.hidden = false;
+        campData.focus();
+        err.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      // Dovada platii: validata inainte de a bloca butonul, citita ca base64 (JSON-ul
+      // nu duce fisiere). Obiectul File din FormData se scoate din payload.
+      const fisier = campDovada && campDovada.files && campDovada.files[0];
+      if (fisier) {
+        if (fisier.size > 4 * 1024 * 1024) {
+          err.textContent = txtDovadaMare; err.hidden = false;
+          err.scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
+        if (!["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(fisier.type)) {
+          err.textContent = txtDovadaTipGresit; err.hidden = false;
+          err.scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
+      }
+      const btn = document.getElementById("ie-submit");
+      btn.disabled = true; btn.textContent = txtSe;
+      const fd = new FormData(form);
+      const payload = Object.fromEntries(fd.entries());
+      payload.dataNasterii = iso;
+      delete payload.dovada;
+      if (fisier) {
+        const dataUrl = await new Promise((res, rej) => {
+          const fr = new FileReader();
+          fr.onload = () => res(fr.result);
+          fr.onerror = rej;
+          fr.readAsDataURL(fisier);
+        });
+        payload.dovadaBase64 = String(dataUrl).split(",")[1] || "";
+        payload.dovadaNume = fisier.name;
+        payload.dovadaTip = fisier.type;
+      }
+      try {
+        const res = await fetch("/.netlify/functions/inscriere-expo", {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.eroare || "Eroare");
+        // Confirmarea trebuie VAZUTA: aratam exact ce s-a trimis si derulam la mesaj —
+        // dupa un formular lung, utilizatorul e jos in pagina si mesajul aparea sus.
+        const rez = document.getElementById("ie-succes-rezumat");
+        const showSel = document.getElementById("ie-show");
+        const numeExpo = showSel && showSel.selectedIndex >= 0 ? showSel.options[showSel.selectedIndex].text : "";
+        rez.innerHTML = "<b>" + (payload.numeCaine || "") + "</b> — " + numeExpo + " — " + succesDetaliu;
+        form.hidden = true; succes.hidden = false; form.reset();
+        succes.scrollIntoView({ behavior: "smooth", block: "center" });
+      } catch (e2) {
+        err.textContent = e2.message; err.hidden = false;
+      } finally {
+        btn.disabled = false; btn.textContent = txtTrimite;
+      }
+    });
+
+    document.getElementById("ie-reset").addEventListener("click", () => {
+      form.reset(); succes.hidden = true; form.hidden = false; populeazaRase(); actualizeazaPlata();
+    });
+  })();
+</script>
+
+<style>
+  .ie { max-width: 44rem; margin-inline: auto; }
+  .ie__titlu { font-family: var(--font-serif); color: var(--color-primary); }
+  .ie__intro { color: var(--color-text-muted); }
+  .ie__stare, .ie__gol { color: var(--color-text-muted); font-style: italic; }
+  /* Informarea expozantului: ce are de pregatit si ce se intampla dupa trimitere.
+     Sta intre intro si starea formularului, ca sa se vada si cand nu sunt expozitii
+     deschise — atunci oamenii afla din timp ce le trebuie. */
+  .ie__cum { margin-block: 1.25rem; background: var(--color-surface-alt); border-radius: var(--radius); padding: 1rem 1.15rem; }
+  .ie__cum-t { font-size: 1.05rem; margin: 0 0 0.5rem; }
+  .ie__cum-l { margin: 0; padding-left: 1.15rem; display: grid; gap: 0.45rem; font-size: 0.94rem; line-height: 1.55; }
+  .ie__cum-l li { color: var(--color-text-muted); }
+  .ie__cum-l b { color: var(--color-text); }
+  .ie__form { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1.5rem; }
+  .ie__fs { border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.9rem; }
+  .ie__fs legend { font-weight: 600; color: var(--color-primary); padding: 0 0.4rem; }
+  .ie__f { display: flex; flex-direction: column; gap: 0.3rem; }
+  .ie__f > span { font-weight: 600; font-size: 0.92rem; }
+  .req { color: #8c1d2f; }
+  .ie__f input, .ie__f select { padding: 0.6rem 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
+  .ie__f input:focus, .ie__f select:focus { outline: 2px solid var(--color-primary); }
+  .ie__row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+  .ie__radios { display: flex; gap: 1.25rem; padding-top: 0.4rem; }
+  .ie__tip { display: flex; align-items: flex-start; gap: 0.5rem; background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
+  .ie__tip input { margin-top: 0.25rem; }
+  .ie__tip small { color: var(--color-text-muted); }
+  .ie__gdpr { margin: 0; font-size: 0.88rem; color: var(--color-text-muted); }
+  .ie__taxa { margin: 0; font-size: 0.95rem; }
+  .ie__plata-info { background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
+  .ie__plata-info p { margin: 0.15rem 0; font-size: 0.9rem; color: var(--color-text-muted); }
+  .ie__iban { font-family: var(--font-mono, monospace); font-weight: 700; font-size: 1.05rem; color: var(--color-text) !important; letter-spacing: 0.03em; }
+  .ie__consim { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.92rem; }
+  .ie__consim input { margin-top: 0.2rem; }
+  .ie__err { color: #8c1d2f; font-weight: 600; background: #f9efef; border: 1px solid #8c1d2f; border-radius: var(--radius); padding: 0.6rem 0.9rem; }
+  .ie__succes { background: #eef5f0; border: 1px solid var(--color-primary); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
+  .ie__succes p { margin: 0 0 0.75rem; color: var(--color-primary); font-weight: 600; }
+  @media (max-width: 560px) { .ie__row { grid-template-columns: 1fr; } }
+</style>

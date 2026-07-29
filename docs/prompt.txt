@@ -1,0 +1,60 @@
+CONTEXT
+Construiesc un site instituțional pentru o asociație chinologică națională (RO), bilingv RO/EN.
+Site-urile mele sunt statice, publicate pe Netlify, fără WordPress și fără bază de date.
+ATENȚIE: acest site NU folosește estetica literară a site-urilor mele de artă (Garamond).
+Vrem un ton instituțional, oficial, credibil. Tipografia și paleta sunt deja definite în fișiere (vezi mai jos).
+Conținutul crește permanent (expoziții, arbitri, canise, standarde de rasă, articole), fiecare
+înregistrare cu propria pagină din același șablon. Eu adaug conținutul editând fișiere (fără CMS).
+
+FIȘIERE DEJA PREGĂTITE (sunt în folder — folosește-le ca atare, nu le rescrie)
+- src/styles/tokens.css        -> paleta de culori + fonturile (variabile CSS)
+- src/content.config.ts        -> schemele complete ale colecțiilor (Astro 5+, loader: glob)
+- docs/structura-site.md       -> structura / arhitectura informațională a site-ului
+- CLAUDE.md                     -> regulile proiectului
+(Dacă vreunul lipsește din folder, cere-mi-l și ți-l dau.)
+
+OBIECTIV
+Construiește un site Astro (output static pur), cu content collections pentru conținutul care crește,
+componente reutilizabile pentru header/footer/carduri și i18n RO/EN. Deploy pe Netlify.
+
+STACK & CONVENȚII
+- Astro 5+ (content.config.ts cu loader: glob), TypeScript, zero JS inutil pe client.
+- i18n cu rute /ro/ și /en/ (RO implicit).
+- Conținut ca fișiere Markdown/MDX în src/content/<colecție>/.
+- Componente .astro reutilizabile; un singur RecordLayout pentru paginile individuale.
+- TIPOGRAFIE & PALETĂ: aplică DOAR variabilele din src/styles/tokens.css — fără culori/fonturi hardcodate.
+  Titluri: Source Serif 4. Text/UI: Source Sans 3. CIF/IBAN/registru: IBM Plex Mono.
+  Diacritice RO corecte (ș/ț cu virgulă). font-display: swap; self-host în public/fonts/ preferabil.
+- Formulare prin Netlify Forms (data-netlify="true" + form ascuns de detecție).
+- Accesibil (WCAG 2.1 AA), performant, SEO (meta + schema.org Organization/Event), pregătit GDPR
+  (banner consimțământ cookie; orice pixel/analytics doar după consimțământ).
+
+CONTENT COLLECTIONS
+- Folosește schemele din src/content.config.ts (deja în folder).
+- Colecții: expozitii, arbitri, canise, standarde-rasa, comunicate, evenimente, organizatii-afiliate,
+  membri-onoare, cursuri, documente, articole.
+- Pentru fiecare colecție generează archive (listă, cu filtre/sortare unde are sens) + [slug]
+  (pagina individuală), folosind același RecordLayout.
+
+PAGINI / STRUCTURA (src/pages/, sub /ro/ și /en/) — vezi docs/structura-site.md:
+- index: hero, prezentare asociație, calendar evenimente, ultimele noutăți, "Devino membru",
+  afiliați, standarde de rasă, educație, statistici, galerie multimedia, newsletter, parteneri.
+- Header: bară superioară (selector limbă RO/EN, căutare, Magazin, Contul meu) + meniu principal
+  (Acasă, Organizația, Membri, Expoziții, Chinologie, Educație, Afiliați, Noutăți, Magazin, Contact).
+- Footer: coloane (Organizația, Activități, Membri, Informații juridice, Date oficiale, Social, Newsletter).
+- Secțiuni: Organizația, Membri, Expoziții, Chinologie, Educație, Afiliați, Noutăți, Contact
+  (cu subpaginile din docs/structura-site.md).
+- 404, căutare, pagini juridice (confidențialitate, cookie-uri, termeni).
+
+MAGAZIN
+Lasă Magazinul ca modul separat, pentru mai târziu (pe static: Snipcart sau Stripe, nu WooCommerce).
+Pune doar un loc în navigație acum.
+
+PROCES (important)
+1. Întâi propune un PLAN.md (structura de foldere, lista de fișiere, ordinea). Așteaptă confirmarea
+   mea înainte să scrii cod.
+2. Implementează incremental: întâi scheletul (astro.config, layout de bază, header, footer, i18n),
+   apoi front-page, apoi câte o colecție (1-2 fișiere demo + archive + [slug]).
+3. După fiecare modul: rezumă ce ai făcut și ce urmează. Commit logic, mesaje clare.
+4. Pregătește netlify.toml (build: astro build, publish: dist) și formularele Netlify, dar nu
+   publica nimic online în locul meu — spune-mi pașii de deploy.

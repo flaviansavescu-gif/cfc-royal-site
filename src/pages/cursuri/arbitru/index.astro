@@ -1,0 +1,138 @@
+---
+// /cursuri/arbitru/ — spațiul arbitrilor care NU sunt lectori.
+// Membrii Colegiului de Arbitri primesc acces de STUDIU: manualul, conținutul
+// modulelor (fără teste), biblioteca lectorilor și aplicațiile. Nu au progres,
+// teste sau examen — nu sunt candidați.
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import AsumareCodEtic from "../../../components/AsumareCodEtic.astro";
+import { MODULE, MANUAL } from "../../../data/cursuri";
+---
+
+<CursuriLayout title="Spațiul arbitrului" allow={["arbitru"]}>
+  <p class="a-eyebrow">Colegiul de Arbitri · acces de studiu</p>
+  <h1 class="a-title">Bine ai venit<span id="a-nume"></span>!</h1>
+  <p class="a-sub">
+    Ai acces la materialele de studiu ale Școlii de Arbitraj: manualul, conținutul modulelor,
+    biblioteca lectorilor și aplicațiile. Testele și examenul aparțin parcursului candidaților
+    și nu apar în spațiul tău.
+  </p>
+
+  <AsumareCodEtic />
+
+  <div class="a-card">
+    <div>
+      <strong>📖 Manualul de studiu individual</strong>
+      <p>{MANUAL.titlu} — {MANUAL.pagini} de pagini, {MANUAL.module.length} module.
+      Se citește online, marcat cu numele tău; nu se descarcă și nu se redistribuie.</p>
+    </div>
+    <a class="btn btn--primary" href="/cursuri/manual/">Deschide manualul →</a>
+  </div>
+
+  <div class="a-card">
+    <div>
+      <strong>📚 Biblioteca lectorilor</strong>
+      <p>Programa și toate suporturile de curs încărcate de lectorii Școlii, într-un singur loc.</p>
+    </div>
+    <a class="btn btn--primary" href="/cursuri/materiale/">Deschide biblioteca →</a>
+  </div>
+
+  <div class="a-card">
+    <div>
+      <strong>🎓 Formarea continuă anuală</strong>
+      <p>Modulul de actualizare al Colegiului: lecturile anului și mini-testul (10 întrebări, prag 70%).
+      Promovarea se înregistrează în evidența Colegiului.</p>
+    </div>
+    <a class="btn btn--primary" href="/cursuri/arbitru/formare/">Deschide formarea →</a>
+  </div>
+
+  <div class="a-card">
+    <div>
+      <strong>📬 Buletinul Școlii</strong>
+      <p>Noutățile Școlii de Arbitraj și ale Colegiului — arhiva completă și abonarea pe e-mail.</p>
+    </div>
+    <a class="btn btn--primary" href="/cursuri/buletin/">Deschide buletinul →</a>
+  </div>
+
+  <h2 class="a-h2">Modulele de curs — pentru studiu</h2>
+  <p class="a-hint">Lecturile fiecărui modul, fără teste.</p>
+  <ol class="a-module">
+    {MODULE.map((m) => (
+      <li>
+        <a class="a-modul" href={`/cursuri/${m.slug}/`}>
+          <span class="a-nr">{m.nr}</span>
+          <span class="a-modul__body">
+            <strong>{m.titlu}</strong>
+            <span>{m.obiectiv}</span>
+          </span>
+        </a>
+      </li>
+    ))}
+  </ol>
+
+  <h2 class="a-h2">Aplicațiile Școlii</h2>
+  <div class="a-apps">
+    <a class="a-app" href="/breed-explorer/">
+      <strong>Breed Standards Explorer</strong>
+      <span>Standardele de rasă orientate WDF — studiu comparativ; se instalează pe telefon și merge offline.</span>
+    </a>
+    <a class="a-app" href="/photo-annotator/" target="_blank" rel="noopener">
+      <strong>Photo Anatomy Annotator ↗</strong>
+      <span>Adnotarea fotografiilor pentru anatomie și exterior.</span>
+    </a>
+    <a class="a-app" href="https://arbitraj.cfc-royal.ro" target="_blank" rel="noopener">
+      <strong>Exerciții de Arbitraj ↗</strong>
+      <span>Scenarii de evaluare și clasare cu scor determinist. Cont separat (e-mail + parolă).</span>
+    </a>
+  </div>
+</CursuriLayout>
+
+<script is:inline>
+  // Numele arbitrului, din rolul stabilit la intrare.
+  try {
+    const r = JSON.parse(localStorage.getItem("cfcrRol") || "null");
+    if (r && r.rol === "arbitru" && r.nume)
+      document.getElementById("a-nume").textContent = ", " + r.nume;
+  } catch (e) {}
+</script>
+
+<style>
+  .a-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .a-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.25rem; }
+  .a-sub { color: var(--color-text-muted); max-width: 48rem; margin-top: 0; }
+  .a-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2.25rem 0 0.5rem; font-size: 1.35rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.35rem; }
+  .a-hint { color: var(--color-text-muted); font-size: 0.9rem; margin-top: 0; }
+
+  .a-card {
+    display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap;
+    margin-top: 1.25rem; padding: 1.1rem 1.4rem;
+    background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius);
+  }
+  .a-card p { margin: 0.3rem 0 0; font-size: 0.9rem; color: var(--color-text-muted); max-width: 34rem; }
+  .a-card .btn { flex: 0 0 auto; }
+
+  .a-module { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 0.7rem; }
+  .a-modul {
+    display: flex; align-items: center; gap: 1rem; text-decoration: none;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius); padding: 0.85rem 1.1rem;
+  }
+  .a-modul:hover { border-color: var(--color-primary); }
+  .a-nr {
+    flex: 0 0 auto; width: 2.3rem; height: 2.3rem; display: grid; place-items: center;
+    background: var(--color-primary); color: #fbfaf7; border-radius: 50%;
+    font-family: var(--font-serif); font-size: 1.05rem;
+  }
+  .a-modul__body { display: flex; flex-direction: column; gap: 0.15rem; }
+  .a-modul__body strong { color: var(--color-primary); }
+  .a-modul__body span { font-size: 0.85rem; color: var(--color-text-muted); }
+
+  .a-apps { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.85rem; margin-top: 1rem; }
+  .a-app {
+    display: flex; flex-direction: column; gap: 0.3rem; text-decoration: none;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary); border-radius: var(--radius); padding: 1rem 1.15rem;
+  }
+  .a-app:hover { border-color: var(--color-primary); }
+  .a-app strong { color: var(--color-primary); }
+  .a-app span { font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.45; }
+</style>

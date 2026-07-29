@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CFC-ROYAL.RO — În curând</title>
+<meta name="description" content="Casa chinologiei din România își deschide porțile. Abonează-te și primești gratuit Calendarul Expozițiilor Canine 2026." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Marcellus+SC&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --bg:#ECE4D3;
+    --bg-deep:#E2D7BF;
+    --paper:#F6F1E6;
+    --ink:#14233B;
+    --ink-soft:#41506A;
+    --brass:#A8812B;
+    --gold:#C49A3A;
+    --rosette:#6E1F2A;
+    --rosette-dark:#54141d;
+    --line:rgba(20,35,59,.16);
+    --line-strong:rgba(20,35,59,.32);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(120% 80% at 50% -10%, #F1EADA 0%, var(--bg) 45%, var(--bg-deep) 100%);
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;opacity:.05;z-index:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .frame{
+    flex:1;
+    width:100%;
+    max-width:760px;
+    margin:0 auto;
+    padding:clamp(20px,4vw,40px);
+    display:flex;
+    flex-direction:column;
+    position:relative;z-index:1;
+  }
+
+  .rule{border:0;height:0;border-top:1.5px solid var(--line-strong);position:relative}
+  .rule::after{content:"";position:absolute;left:0;right:0;top:3px;border-top:.5px solid var(--line)}
+
+  .topbar{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:16px;padding:6px 2px 18px;
+  }
+  .wordmark{
+    font-family:'Marcellus SC',serif;
+    font-size:clamp(22px,4vw,28px);
+    letter-spacing:.14em;
+    color:var(--ink);
+  }
+  .wordmark .dot{color:var(--brass)}
+  .catalog{
+    font-family:'Inter',sans-serif;
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--ink-soft);white-space:nowrap;
+  }
+
+  .hero{
+    flex:1;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:clamp(28px,6vw,56px) 0;
+    text-align:center;
+  }
+  .eyebrow{
+    font-size:12px;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--brass);font-weight:600;margin-bottom:22px;
+  }
+  .eyebrow .sep{color:var(--line-strong);margin:0 .5em}
+  h1{
+    font-family:'Marcellus',serif;
+    font-weight:400;
+    font-size:clamp(34px,7.5vw,60px);
+    line-height:1.08;
+    letter-spacing:.005em;
+    color:var(--ink);
+    margin-bottom:20px;
+    text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--rosette)}
+  .lede{
+    font-size:clamp(15px,2.4vw,18px);
+    color:var(--ink-soft);
+    max-width:46ch;margin:0 auto 38px;
+    text-wrap:pretty;
+  }
+
+  .plaque{
+    align-self:center;
+    background:linear-gradient(#FBF7EE,var(--paper));
+    border:1.5px solid var(--brass);
+    box-shadow:inset 0 0 0 4px var(--paper), inset 0 0 0 5px rgba(168,129,43,.35), 0 14px 30px -22px rgba(20,35,59,.6);
+    border-radius:3px;
+    padding:18px clamp(14px,3vw,30px) 14px;
+    margin-bottom:40px;
+  }
+  .plaque-label{
+    font-size:10px;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--ink-soft);margin-bottom:12px;
+  }
+  .clock{display:flex;gap:clamp(10px,3vw,26px);justify-content:center}
+  .unit{display:flex;flex-direction:column;align-items:center;min-width:54px}
+  .unit .val{
+    font-family:'Marcellus',serif;
+    font-size:clamp(30px,7vw,48px);
+    line-height:1;color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+  .unit .name{
+    font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--brass);margin-top:9px;font-weight:600;
+  }
+  .unit + .unit{position:relative}
+  .unit + .unit::before{
+    content:":";position:absolute;left:calc(-1 * clamp(10px,3vw,26px)/2);
+    transform:translateX(-50%);top:2px;
+    font-family:'Marcellus',serif;font-size:clamp(26px,6vw,40px);
+    color:var(--line-strong);
+  }
+
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:4px;
+    box-shadow:0 18px 44px -30px rgba(20,35,59,.55);
+    padding:clamp(22px,4vw,34px);
+    max-width:520px;margin:0 auto 30px;
+    position:relative;overflow:hidden;
+  }
+  .card::before{
+    content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;
+    background:
+      repeating-conic-gradient(from 0deg, rgba(110,31,42,.06) 0deg 9deg, transparent 9deg 18deg);
+    border-radius:50%;pointer-events:none;
+  }
+  .card h2{
+    font-family:'Marcellus',serif;font-weight:400;
+    font-size:clamp(19px,3vw,23px);margin-bottom:8px;position:relative;
+  }
+  .gift{color:var(--rosette);font-style:italic}
+  .card p.sub{font-size:14px;color:var(--ink-soft);margin-bottom:20px;position:relative}
+
+  form{display:flex;gap:10px;position:relative}
+  @media (max-width:520px){form{flex-direction:column}}
+  input[type=email]{
+    flex:1;font-family:'Inter',sans-serif;font-size:16px;
+    padding:14px 16px;border:1.5px solid var(--line-strong);
+    border-radius:3px;background:#fff;color:var(--ink);min-width:0;
+  }
+  input[type=email]:focus{outline:none;border-color:var(--brass);box-shadow:0 0 0 3px rgba(196,154,58,.25)}
+  button.cta{
+    font-family:'Inter',sans-serif;font-weight:600;font-size:15px;letter-spacing:.01em;
+    color:#FBF3E2;background:var(--rosette);
+    border:none;border-radius:3px;padding:14px 22px;cursor:pointer;white-space:nowrap;
+    transition:background .18s ease, transform .12s ease;
+  }
+  button.cta:hover{background:var(--rosette-dark)}
+  button.cta:active{transform:translateY(1px)}
+  button.cta:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .consent{
+    display:flex;gap:9px;align-items:flex-start;
+    font-size:12px;color:var(--ink-soft);margin-top:14px;position:relative;
+  }
+  .consent input{margin-top:2px;accent-color:var(--rosette)}
+  .consent a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
+  .microcopy{font-size:12px;color:var(--ink-soft);margin-top:12px;position:relative}
+
+  .success{
+    display:none;text-align:center;padding:8px 0;position:relative;
+  }
+  .success .seal{
+    width:54px;height:54px;border-radius:50%;margin:0 auto 14px;
+    border:2px solid var(--brass);display:grid;place-items:center;
+    color:var(--rosette);font-family:'Marcellus',serif;font-size:26px;
+  }
+  .success h2{margin-bottom:6px}
+  form.sent, .card.sent .sub, .card.sent .consent, .card.sent .microcopy{display:none}
+  .card.sent .success{display:block}
+
+  .chips{display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:center;margin-bottom:30px}
+  .chip{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft)}
+  .chip .ic{color:var(--brass);font-family:'Marcellus',serif;font-size:16px;line-height:1}
+
+  footer{
+    padding:18px 2px 6px;
+    display:flex;gap:8px 18px;flex-wrap:wrap;justify-content:space-between;align-items:center;
+    font-size:12px;color:var(--ink-soft);
+  }
+  footer a{color:var(--ink-soft);text-decoration:none;border-bottom:1px solid var(--line)}
+  footer a:hover{color:var(--ink)}
+
+  @keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .anim{animation:up .7s cubic-bezier(.2,.7,.2,1) both}
+  .anim.d1{animation-delay:.08s}.anim.d2{animation-delay:.18s}
+  .anim.d3{animation-delay:.30s}.anim.d4{animation-delay:.42s}
+  @media (prefers-reduced-motion:reduce){.anim{animation:none}}
+</style>
+</head>
+<body>
+  <div class="frame">
+    <hr class="rule" />
+    <div class="topbar">
+      <div class="wordmark">CFC&#8209;ROYAL<span class="dot">.</span></div>
+      <div class="catalog">Lansare &middot; Nr. 001</div>
+    </div>
+
+    <main class="hero">
+      <div class="eyebrow anim">Chinologie<span class="sep">&middot;</span>Educație<span class="sep">&middot;</span>Comunitate</div>
+      <h1 class="anim d1">Casa chinologiei din România<br />își deschide <em>porțile</em>.</h1>
+      <p class="lede anim d2">Calendar de expoziții, standarde de rasă explicate, educație și bunăstare canină — în curând, într-un singur loc.</p>
+
+      <div class="plaque anim d2">
+        <div class="plaque-label">Porțile se deschid în</div>
+        <div class="clock" id="clock" aria-live="polite">
+          <div class="unit"><span class="val" id="d">--</span><span class="name">Zile</span></div>
+          <div class="unit"><span class="val" id="h">--</span><span class="name">Ore</span></div>
+          <div class="unit"><span class="val" id="m">--</span><span class="name">Min</span></div>
+          <div class="unit"><span class="val" id="s">--</span><span class="name">Sec</span></div>
+        </div>
+      </div>
+
+      <section class="card anim d3" id="card">
+        <h2>Abonează-te și primești <span class="gift">Calendarul Expozițiilor 2026</span></h2>
+        <p class="sub">Gratuit, în ziua lansării. Fără algoritm, direct în inbox.</p>
+
+        <form id="subscribeForm" novalidate>
+          <input type="email" id="email" name="email" placeholder="adresa ta de email" required autocomplete="email" aria-label="Adresa de email" />
+          <button type="submit" class="cta">Vreau Calendarul &rarr;</button>
+        </form>
+        <label class="consent">
+          <input type="checkbox" id="consent" required />
+          <span>Sunt de acord să primesc newsletter-ul CFC&#8209;ROYAL și am citit <a href="/ro/juridic/confidentialitate/" target="_blank" rel="noopener">politica de confidențialitate</a>.</span>
+        </label>
+        <p class="microcopy">Gratuit pentru totdeauna. Te dezabonezi oricând, cu un click.</p>
+
+        <div class="success" role="status">
+          <div class="seal">&#10003;</div>
+          <h2>Ești pe listă!</h2>
+          <p class="sub" style="display:block">Verifică-ți emailul și confirmă abonarea. Calendarul 2026 ajunge la tine în ziua lansării.</p>
+        </div>
+      </section>
+
+      <div class="chips anim d4">
+        <span class="chip"><span class="ic">&#9670;</span> Calendar de expoziții</span>
+        <span class="chip"><span class="ic">&#9670;</span> Standarde explicate</span>
+        <span class="chip"><span class="ic">&#9670;</span> Educație &amp; bunăstare</span>
+      </div>
+    </main>
+
+    <hr class="rule" />
+    <footer>
+      <span>&copy; 2026 CFC&#8209;ROYAL &middot; Asociație chinologică</span>
+      <span><a href="mailto:contact@cfc-royal.ro">contact@cfc-royal.ro</a></span>
+    </footer>
+  </div>
+
+<script>
+  const LAUNCH_DATE = new Date(2026, 6, 1, 9, 0, 0);
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const el = { d: document.getElementById("d"), h: document.getElementById("h"),
+               m: document.getElementById("m"), s: document.getElementById("s") };
+
+  function tick(){
+    const diff = LAUNCH_DATE - new Date();
+    if (diff <= 0){
+      el.d.textContent = el.h.textContent = el.m.textContent = el.s.textContent = "00";
+      document.querySelector(".plaque-label").textContent = "Porțile sunt deschise";
+      return;
+    }
+    const sec = Math.floor(diff/1000);
+    el.d.textContent = pad(Math.floor(sec/86400));
+    el.h.textContent = pad(Math.floor(sec%86400/3600));
+    el.m.textContent = pad(Math.floor(sec%3600/60));
+    el.s.textContent = pad(sec%60);
+  }
+  tick(); setInterval(tick, 1000);
+
+  const form = document.getElementById("subscribeForm");
+  const card = document.getElementById("card");
+  form.addEventListener("submit", async function(e){
+    e.preventDefault();
+    const email = document.getElementById("email");
+    const consent = document.getElementById("consent");
+    if (!email.checkValidity()){ email.focus(); email.style.borderColor = "#6E1F2A"; return; }
+    if (!consent.checked){ consent.focus(); return; }
+    try {
+      await fetch("/.netlify/functions/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ email: email.value })
+      });
+    } catch (err) {}
+    card.classList.add("sent");
+    form.classList.add("sent");
+  });
+</script>
+</body>
+</html>

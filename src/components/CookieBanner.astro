@@ -1,0 +1,52 @@
+---
+// CookieBanner.astro — GDPR. Acum folosim doar cookie-uri esențiale; bannerul e informativ
+// și pregătește terenul pentru analytics „doar după consimțământ" (M7+).
+// Alegerea se reține în localStorage; bannerul nu blochează conținutul.
+import { useTranslations, localizePath, type Lang } from "../i18n/utils";
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+<div id="cookie-banner" class="cookie" role="region" aria-label="Cookie" hidden>
+  <div class="container cookie__inner">
+    <p class="cookie__text">
+      {t("cookie.message")}
+      <a href={localizePath("juridic/cookie-uri", lang)}>{t("cookie.more")}</a>
+    </p>
+    <div class="cookie__actions">
+      <button type="button" data-cookie="essential" class="btn btn--ghost">{t("cookie.reject")}</button>
+      <button type="button" data-cookie="all" class="btn btn--solid">{t("cookie.accept")}</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cookie {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 200;
+    background: var(--color-surface); border-top: 2px solid var(--color-primary);
+    box-shadow: 0 -6px 24px rgba(0,0,0,0.1);
+  }
+  .cookie__inner { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; padding-block: 1rem; }
+  .cookie__text { max-width: 70ch; font-size: var(--fs-300); margin: 0; }
+  .cookie__actions { display: flex; gap: 0.6rem; }
+  .btn { padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 600; font-size: var(--fs-300); border: 1px solid var(--color-primary); cursor: pointer; }
+  .btn--solid { background: var(--color-primary); color: var(--color-text-inverse); }
+  .btn--ghost { background: transparent; color: var(--color-primary); }
+  .btn--ghost:hover { background: var(--color-surface-alt); }
+</style>
+
+<script>
+  const KEY = "cookie-consent";
+  const banner = document.getElementById("cookie-banner");
+  if (banner && !localStorage.getItem(KEY)) {
+    banner.hidden = false;
+  }
+  banner?.querySelectorAll<HTMLButtonElement>("[data-cookie]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      localStorage.setItem(KEY, btn.dataset.cookie || "essential");
+      if (banner) banner.hidden = true;
+      // Hook pentru viitor: dacă === "all", încarcă analytics aici (după consimțământ).
+    });
+  });
+</script>

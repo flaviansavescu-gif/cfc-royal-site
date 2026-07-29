@@ -1,0 +1,154 @@
+---
+// /cursuri/admin/progres/ — tabloul de progres al candidaților (candidat × module + manual).
+// Arată, pentru fiecare candidat, ce module a promovat și cu ce procent. Datele vin din
+// registrul candidaților + progresul personal (Netlify Blobs), într-un singur apel.
+//
+// Testul manualului de studiu individual se salvează pe aceeași cheie de progres ca
+// modulele (progres/<id>/manual-studiu), dar are coloana lui: nu e modul de curs, ci
+// verificarea materialului parcurs individual — de aceea nu intră nici în „Total".
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import { MODULE, MANUAL } from "../../../data/cursuri";
+
+const module = MODULE.map((m) => ({ slug: m.slug, nr: m.nr, titlu: m.titlu }));
+const manual = { slug: MANUAL.slug, titlu: "Manual de studiu individual — " + MANUAL.titlu };
+---
+
+<CursuriLayout title="Progresul candidaților" allow={["admin"]}>
+  <p class="a-crumb"><a href="/cursuri/admin/">← Panoul de administrare</a></p>
+  <p class="a-eyebrow">Administrare</p>
+  <h1 class="a-title">Progresul candidaților</h1>
+  <p class="a-sub">Fiecare candidat și modulele promovate. <span class="lg lg--pass">✅ promovat</span> · <span class="lg lg--try">procent</span> = susținut, încă nepromovat · <span class="lg lg--none">–</span> = nesusținut.</p>
+  <p class="a-sub a-sub--mic">Coloana <strong>📖 Manual</strong> este testul manualului de studiu individual. Nu e modul de curs, ci verificarea materialului parcurs pe cont propriu — de aceea are coloană separată și nu intră în „Total module".</p>
+
+  <p class="a-info" id="a-info">Se încarcă…</p>
+
+  <div class="a-tablewrap" id="a-tablewrap" hidden>
+    <table class="a-table">
+      <thead>
+        <tr>
+          <th class="a-th-name">Candidat</th>
+          {module.map((m) => (
+            <th class="a-th-mod" title={m.titlu}>M{m.nr}</th>
+          ))}
+          <th class="a-th-man" title={manual.titlu}>📖 Manual</th>
+          <th class="a-th-tot">Total module</th>
+        </tr>
+      </thead>
+      <tbody id="a-tbody"></tbody>
+    </table>
+  </div>
+</CursuriLayout>
+
+<script is:inline define:vars={{ module, manual }}>
+  (async function () {
+    const info = document.getElementById("a-info");
+    const wrap = document.getElementById("a-tablewrap");
+    const tbody = document.getElementById("a-tbody");
+
+    function codAdmin() {
+      let c = null;
+      try { c = localStorage.getItem("cfcrAccesCod"); } catch (e) {}
+      return c || prompt("Confirmă codul de administrator:");
+    }
+
+    let candidati = [];
+    try {
+      const res = await fetch("/.netlify/functions/candidati-cursuri", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod: codAdmin(), actiune: "progres" }),
+      });
+      if (!res.ok) throw new Error((await res.json()).eroare || "Eroare");
+      candidati = await res.json();
+    } catch (err) {
+      info.textContent = "Nu am putut încărca progresul: " + err.message;
+      return;
+    }
+
+    if (!candidati.length) {
+      info.textContent = "Niciun candidat adăugat încă. Adaugă candidați din panoul de administrare.";
+      return;
+    }
+
+    candidati.forEach((c) => {
+      const tr = document.createElement("tr");
+      const tdName = document.createElement("td");
+      tdName.className = "a-td-name";
+      tdName.textContent = c.nume;
+      tr.appendChild(tdName);
+
+      // O celulă de progres: nesusținut / susținut-nepromovat / promovat.
+      function celula(rezultat, etichetaTitlu) {
+        const td = document.createElement("td");
+        if (!rezultat) {
+          td.className = "cell cell--none";
+          td.textContent = "–";
+          td.title = etichetaTitlu + " — nesusținut";
+        } else if (rezultat.promovat) {
+          td.className = "cell cell--pass";
+          td.innerHTML = "✅<span class='cell__pct'>" + rezultat.procent + "%</span>";
+          td.title = etichetaTitlu + " — promovat" + (rezultat.data ? ", " + rezultat.data : "");
+        } else {
+          td.className = "cell cell--try";
+          td.textContent = rezultat.procent + "%";
+          td.title = etichetaTitlu + " — susținut, nepromovat";
+        }
+        return td;
+      }
+
+      let promovate = 0;
+      module.forEach((m) => {
+        const r = c.progres && c.progres[m.slug];
+        if (r && r.promovat) promovate++;
+        tr.appendChild(celula(r, "Modulul " + m.nr));
+      });
+
+      // Manualul de studiu individual — coloană proprie, în afara totalului pe module.
+      const tdMan = celula(c.progres && c.progres[manual.slug], manual.titlu);
+      tdMan.classList.add("cell--man");
+      tr.appendChild(tdMan);
+
+      const tdTot = document.createElement("td");
+      tdTot.className = "a-td-tot" + (promovate === module.length ? " is-full" : "");
+      tdTot.textContent = promovate + "/" + module.length;
+      tr.appendChild(tdTot);
+
+      tbody.appendChild(tr);
+    });
+
+    info.hidden = true;
+    wrap.hidden = false;
+  })();
+</script>
+
+<style>
+  .a-crumb { margin: 0 0 1.25rem; }
+  .a-crumb a { text-decoration: none; color: var(--color-text-muted); }
+  .a-crumb a:hover { color: var(--color-primary); }
+  .a-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .a-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
+  .a-sub { color: var(--color-text-muted); max-width: 46rem; }
+  .lg { padding: 0.05rem 0.4rem; border-radius: 999px; font-size: 0.82rem; white-space: nowrap; }
+  .lg--pass { background: var(--color-primary); color: #fbfaf7; }
+  .lg--try { background: #f7eccf; color: var(--color-accent-dark); }
+  .lg--none { color: var(--color-text-muted); }
+  .a-info { color: var(--color-text-muted); font-style: italic; margin-top: 1.5rem; }
+
+  .a-tablewrap { margin-top: 1.5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .a-table { border-collapse: collapse; width: 100%; min-width: 40rem; }
+  .a-table th, .a-table td { border: 1px solid var(--color-border); padding: 0.55rem 0.6rem; text-align: center; }
+  .a-th-name { text-align: left; background: var(--color-surface-alt); position: sticky; left: 0; z-index: 1; }
+  .a-th-mod { background: var(--color-surface-alt); font-size: 0.85rem; width: 3.4rem; }
+  .a-th-man { background: #f7f1df; font-size: 0.85rem; white-space: nowrap; border-left: 2px solid var(--color-accent) !important; }
+  .a-th-tot { background: var(--color-surface-alt); }
+  .a-sub--mic { font-size: 0.85rem; margin-top: -0.25rem; }
+  .a-td-name { text-align: left; font-weight: 600; color: var(--color-primary); background: var(--color-surface); position: sticky; left: 0; white-space: nowrap; }
+  .cell { font-size: 0.9rem; }
+  .cell--none { color: var(--color-text-muted); }
+  .cell--pass { background: #eef5f0; }
+  .cell--pass .cell__pct { display: block; font-size: 0.72rem; color: var(--color-primary); }
+  .cell--try { background: #fbf6e8; color: var(--color-accent-dark); font-weight: 600; }
+  .cell--man { border-left: 2px solid var(--color-accent) !important; }
+  .a-td-tot { font-weight: 700; color: var(--color-text-muted); }
+  .a-td-tot.is-full { color: var(--color-primary); }
+</style>

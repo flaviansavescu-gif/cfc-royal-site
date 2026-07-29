@@ -1,0 +1,13 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import RegistruArbitri from "../../components/RegistruArbitri.astro";
+import { getCollection } from "astro:content";
+import { isLang } from "../../i18n/content";
+const lang = "ro" as const;
+const entries = await getCollection("arbitri", (e: any) => isLang(e.id, lang) && !e.data.draft);
+---
+<BaseLayout title="Colegiul de arbitri" lang={lang} description="Registrul public al arbitrilor Clubului Federal Chinologic – Royal (WDF) și grupele pe care le pot arbitra.">
+  <div class="container" style="padding-block: 3rem;">
+    <RegistruArbitri lang={lang} entries={entries} />
+  </div>
+</BaseLayout>

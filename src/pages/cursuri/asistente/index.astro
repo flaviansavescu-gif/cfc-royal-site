@@ -1,0 +1,156 @@
+---
+// /cursuri/asistente/ — stagiul practic al candidatului: cele 5 asistențe de ring.
+// Candidatul își vede numirile proprii (dacă a intrat cu codul personal) și arbitrul
+// care coordonează ringul la fiecare expoziție.
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+---
+
+<CursuriLayout title="Asistențe de ring" candidat>
+  <p class="as-crumb"><a href="/cursuri/module/">← Modulele mele</a></p>
+  <h1 class="as-title">Asistențe de ring — stagiul practic</h1>
+  <p class="as-sub">
+    Pe lângă modulele teoretice, fiecare candidat trebuie să efectueze <strong>5 asistențe de ring</strong>,
+    lângă un arbitru care coordonează activitatea în ziua respectivă. Aici vezi expozițiile stabilite,
+    arbitrul coordonator și dacă ai fost numit sau ți-ai efectuat asistența.
+  </p>
+
+  <p class="as-progres" id="as-progres" hidden></p>
+  <p class="as-hint" id="as-hint" hidden>
+    Intră cu <strong>codul tău personal</strong> (din <a href="/cursuri/">pagina de acces</a>) ca să-ți vezi
+    numirile proprii. Mai jos vezi programul general al asistențelor.
+  </p>
+
+  <ol class="as-list" id="as-list">
+    {Array.from({ length: 5 }).map((_, i) => (
+      <li class="as-card" data-nr={i + 1}>
+        <span class="as-card__nr">{i + 1}</span>
+        <div class="as-card__body">
+          <strong class="as-card__nume" data-nume>Expoziție ce urmează a fi stabilită</strong>
+          <span class="as-card__meta" data-meta hidden></span>
+          <span class="as-card__arbitru" data-arbitru hidden></span>
+          <span class="as-card__evaluare" data-evaluare hidden></span>
+        </div>
+        <span class="as-card__stare" data-stare hidden></span>
+      </li>
+    ))}
+  </ol>
+</CursuriLayout>
+
+<script is:inline>
+  (async function () {
+    const ETICHETE = {
+      "":        { txt: "Neatribuită",              cls: "is-none" },
+      numit:     { txt: "Numit — te prezinți",      cls: "is-numit" },
+      prezent:   { txt: "✅ Asistență efectuată",   cls: "is-prezent" },
+      absent:    { txt: "Absent — de recuperat",    cls: "is-absent" },
+    };
+
+    let cand = null;
+    try { cand = JSON.parse(localStorage.getItem("cfcrCandidat") || "null"); } catch (e) {}
+
+    let date = { expozitii: [], numiri: {} };
+    try {
+      const res = await fetch("/.netlify/functions/asistente-cursuri", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ actiune: "eu", id: cand && cand.id ? cand.id : "" }),
+      });
+      if (res.ok) date = await res.json();
+    } catch (e) {}
+
+    const areCod = !!(cand && cand.id);
+    const dataRo = (s) => {
+      if (!s) return "";
+      const d = new Date(s);
+      return isNaN(d) ? s : d.toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" });
+    };
+
+    (date.expozitii || []).forEach((ex) => {
+      const card = document.querySelector('.as-card[data-nr="' + ex.nr + '"]');
+      if (!card) return;
+      const stabilita = !!(ex.nume || ex.data || ex.locatie);
+      const numeEl = card.querySelector("[data-nume]");
+      numeEl.textContent = ex.nume || (stabilita ? "Expoziție" : "Expoziție ce urmează a fi stabilită");
+      if (!stabilita) card.classList.add("is-tbd");
+
+      const metaBits = [dataRo(ex.data), ex.locatie].filter(Boolean);
+      const metaEl = card.querySelector("[data-meta]");
+      if (metaBits.length) { metaEl.textContent = metaBits.join(" · "); metaEl.hidden = false; }
+
+      const arbEl = card.querySelector("[data-arbitru]");
+      arbEl.textContent = ex.arbitru ? "Arbitru coordonator: " + ex.arbitru : "Arbitru coordonator: de anunțat";
+      arbEl.hidden = false;
+
+      if (areCod) {
+        const stare = (date.numiri && date.numiri[ex.nr]) || "";
+        const et = ETICHETE[stare] || ETICHETE[""];
+        const stEl = card.querySelector("[data-stare]");
+        stEl.textContent = et.txt;
+        stEl.className = "as-card__stare " + et.cls;
+        stEl.hidden = false;
+
+        // Evaluarea prestației, dată de arbitrul de bază în ziua asistenței.
+        const ev = date.evaluari && date.evaluari[ex.nr];
+        if (ev && ev.calificativ) {
+          const CAL = { foarte_bine: "Foarte bine", bine: "Bine", satisfacator: "Satisfăcător", nesatisfacator: "Nesatisfăcător" };
+          const evEl = card.querySelector("[data-evaluare]");
+          let text = "Evaluarea arbitrului: " + (CAL[ev.calificativ] || ev.calificativ);
+          if (ev.arbitru) text += " — " + ev.arbitru;
+          evEl.textContent = text;
+          if (ev.observatii) {
+            const obs = document.createElement("em");
+            obs.textContent = " „" + ev.observatii + "”";
+            evEl.appendChild(obs);
+          }
+          evEl.hidden = false;
+        }
+      }
+    });
+
+    if (areCod) {
+      const efectuate = Object.values(date.numiri || {}).filter((s) => s === "prezent").length;
+      const p = document.getElementById("as-progres");
+      p.textContent = "Ai efectuat " + efectuate + " din 5 asistențe de ring.";
+      p.className = "as-progres " + (efectuate >= 5 ? "is-complet" : "");
+      p.hidden = false;
+    } else {
+      document.getElementById("as-hint").hidden = false;
+    }
+  })();
+</script>
+
+<style>
+  .as-crumb { margin: 0 0 1.5rem; }
+  .as-crumb a { text-decoration: none; color: var(--color-text-muted); }
+  .as-crumb a:hover { color: var(--color-primary); }
+  .as-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0 0 0.5rem; }
+  .as-sub { color: var(--color-text-muted); max-width: 48rem; }
+  .as-progres { margin: 1.25rem 0 0; font-weight: 600; color: var(--color-accent-dark);
+    background: #f7f1df; border: 1px solid var(--color-accent); border-radius: var(--radius); padding: 0.7rem 1.1rem; display: inline-block; }
+  .as-progres.is-complet { background: #eef5f0; border-color: var(--color-primary); color: var(--color-primary); }
+  .as-hint { margin: 1.25rem 0 0; max-width: 48rem; color: var(--color-text-muted);
+    background: var(--color-surface); border: 1px dashed var(--color-border); border-radius: var(--radius); padding: 0.8rem 1.1rem; }
+  .as-hint a { color: var(--color-accent-dark); }
+
+  .as-list { list-style: none; margin: 2rem 0 0; padding: 0; display: grid; gap: 0.85rem; }
+  .as-card { display: flex; align-items: center; gap: 1.1rem;
+    background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.25rem; }
+  .as-card.is-tbd { opacity: 0.72; }
+  .as-card__nr { flex: 0 0 auto; width: 2.6rem; height: 2.6rem; display: grid; place-items: center;
+    background: var(--color-primary); color: #fbfaf7; border-radius: 50%; font-family: var(--font-serif); font-size: 1.2rem; }
+  .as-card__body { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
+  .as-card__nume { color: var(--color-primary); }
+  .as-card__meta { font-size: 0.88rem; color: var(--color-text-muted); }
+  .as-card__arbitru { font-size: 0.85rem; color: var(--color-text); font-weight: 600; }
+  .as-card__stare { margin-left: auto; flex: 0 0 auto; font-size: 0.75rem; letter-spacing: 0.03em;
+    padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); white-space: nowrap; }
+  .as-card__stare.is-numit { background: #f7f1df; border-color: var(--color-accent); color: var(--color-accent-dark); }
+  .as-card__stare.is-prezent { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
+  .as-card__stare.is-absent { background: #f9efef; border-color: #8c1d2f; color: #8c1d2f; }
+  .as-card__evaluare { display: block; margin-top: 0.35rem; font-size: 0.88rem; color: var(--color-primary); font-weight: 600; }
+  .as-card__evaluare em { font-weight: 400; color: var(--color-text-muted); }
+  @media (max-width: 640px) {
+    .as-card { flex-wrap: wrap; }
+    .as-card__stare { margin-left: 3.7rem; }
+  }
+</style>

@@ -1,0 +1,93 @@
+---
+// /cursuri/analiza/comparatie/?s=<id> — comparația individuală a cursantului vs barem.
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+---
+
+<CursuriLayout title="Comparație" candidat>
+  <p class="j-actiuni"><a class="btn btn--outline btn--small" href="/cursuri/analiza/">← Sesiunile mele</a></p>
+  <p class="j-eyebrow">Judge Comparison Room</p>
+  <h1 class="j-title">Comparația ta cu baremul</h1>
+  <p class="j-stare" id="j-stare">Se încarcă comparația…</p>
+  <div id="j-out" hidden></div>
+</CursuriLayout>
+
+<script is:inline>
+  (async function () {
+    const $ = (id) => document.getElementById(id);
+    const id = new URLSearchParams(location.search).get("s");
+    let cid = null; try { cid = JSON.parse(localStorage.getItem("cfcrCandidat") || "null")?.id || null; } catch (e) {}
+    const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const STAT = { "acord": "✓ Acord", "acord-parțial": "≈ Parțial", "dezacord": "✗ Dezacord", "omis": "✗ Omis", "suplimentar": "+ Suplimentar", "acoperit": "✓ Acoperit", "neabordat": "✗ Neabordat", "indisponibil": "—", "necompletat": "—", "necomparabil": "—" };
+    if (!id || !cid) { $("j-stare").textContent = "Sesiune sau cont invalid."; return; }
+    async function api(fn, p) { const r = await fetch("/.netlify/functions/" + fn, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) }); const d = await r.json().catch(() => ({})); if (!r.ok) throw new Error(d.eroare || "Eroare"); return d; }
+
+    let cmp;
+    try { cmp = await api("jcr-comparatie", { actiune: "a-mea", cid, id }); }
+    catch (err) { $("j-stare").textContent = err.message; return; }
+    const c = cmp.comparatie;
+    $("j-stare").hidden = true; $("j-out").hidden = false;
+
+    let html = "";
+    // Calificativ
+    html += '<section class="j-sec"><h2 class="j-h2">Calificativ</h2><p class="j-line">Tu: <strong>' + esc(c.calificativ.student || "—") + '</strong> · Barem: <strong>' + esc(c.calificativ.referinta || "—") + '</strong> ' + badge(c.calificativ.status) + '</p><p class="j-motiv">' + esc(c.calificativ.motiv) + '</p></section>';
+
+    // Defecte
+    html += '<section class="j-sec"><h2 class="j-h2">Defecte</h2>';
+    if (c.defecte.detalii.length) {
+      html += '<table class="j-tab"><thead><tr><th>Cod</th><th>Statut</th><th>Gravitate (tu / barem)</th><th>Motiv</th></tr></thead><tbody>';
+      c.defecte.detalii.forEach((d) => { html += '<tr><td>' + esc(d.cod) + '</td><td>' + badge(d.status) + '</td><td>' + esc(d.gravitateStudent || "—") + ' / ' + esc(d.gravitateReferinta || "—") + '</td><td class="j-motiv">' + esc(d.motiv) + '</td></tr>'; });
+      html += '</tbody></table>';
+    } else html += '<p class="j-motiv">Fără defecte în barem.</p>';
+    html += '<p class="j-sumar">Acord: ' + c.defecte.sumar.acord + ' · Parțial: ' + c.defecte.sumar.partial + ' · Omise: ' + c.defecte.sumar.omise + ' · Suplimentare: ' + c.defecte.sumar.suplimentare + '</p></section>';
+
+    // Clasament
+    html += '<section class="j-sec"><h2 class="j-h2">Clasament</h2>';
+    if (c.clasament.status === "indisponibil") html += '<p class="j-motiv">' + esc(c.clasament.motiv) + '</p>';
+    else html += '<p class="j-line">' + badge(c.clasament.status) + ' Spearman ρ = <strong>' + c.clasament.spearman + '</strong>' + (c.clasament.kendall != null ? ' · Kendall τ = <strong>' + c.clasament.kendall + '</strong>' : '') + '</p><p class="j-motiv">' + esc(c.clasament.motiv) + '</p>';
+    html += '</section>';
+
+    // Observații pe criterii
+    if (c.observatii.detalii.length) {
+      html += '<section class="j-sec"><h2 class="j-h2">Observații pe criterii</h2><ul class="j-obs">';
+      c.observatii.detalii.forEach((o) => { html += '<li>' + badge(o.status) + ' ' + esc(o.eticheta || o.criteriuId) + '</li>'; });
+      html += '</ul><p class="j-sumar">Acoperite: ' + c.observatii.sumar.acoperite + ' / ' + c.observatii.sumar.total + '</p></section>';
+    }
+    $("j-out").innerHTML = html;
+
+    // Feedback
+    try {
+      const fb = await api("jcr-feedback", { actiune: "citeste-cursant", cid, id });
+      if (fb.individual || fb.grup) {
+        const sec = document.createElement("section"); sec.className = "j-sec j-fb";
+        sec.innerHTML = "<h2 class='j-h2'>Feedback</h2>" + (fb.individual ? "<h3>Individual</h3><p>" + esc(fb.individual.text) + "</p>" : "") + (fb.grup ? "<h3>Colectiv</h3><p>" + esc(fb.grup.text) + "</p>" : "");
+        $("j-out").appendChild(sec);
+      }
+    } catch (e) {}
+
+    function badge(st) { const cls = st && (st.indexOf("acord") === 0 || st === "acoperit") ? "ok" : (st === "acord-parțial" ? "warn" : (st === "indisponibil" || st === "necompletat" ? "muted" : "bad")); return '<span class="b b-' + cls + '">' + (STAT[st] || st) + '</span>'; }
+  })();
+</script>
+
+<style>
+  .j-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .j-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.75rem; }
+  .j-actiuni { margin: 0 0 1rem; }
+  .j-stare { color: var(--color-text-muted); font-style: italic; }
+  .j-sec { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .j-h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.1rem; margin: 0 0 0.6rem; }
+  .j-line { margin: 0 0 0.3rem; }
+  .j-motiv { font-size: 0.88rem; color: var(--color-text-muted); margin: 0.2rem 0; }
+  .j-sumar { font-size: 0.85rem; font-weight: 600; color: var(--color-accent-dark); margin-top: 0.5rem; }
+  .j-tab { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .j-tab th, .j-tab td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+  .j-tab th { color: var(--color-primary); }
+  .j-obs { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.3rem; }
+  .b { display: inline-block; font-size: 0.75rem; padding: 0.1rem 0.5rem; border-radius: 999px; border: 1px solid; }
+  .b-ok { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
+  .b-warn { background: #fdf4e3; border-color: #e6cf9a; color: #8a6d1f; }
+  .b-bad { background: #fbeaec; border-color: #e2b6bd; color: #8c1d2f; }
+  .b-muted { background: var(--color-surface-alt); border-color: var(--color-border); color: var(--color-text-muted); }
+  .j-fb h3 { font-size: 0.95rem; color: var(--color-primary); margin: 0.6rem 0 0.2rem; }
+  .j-fb p { white-space: pre-line; margin: 0; }
+  .btn--small { font-size: 0.85rem; padding: 0.4rem 0.8rem; }
+</style>

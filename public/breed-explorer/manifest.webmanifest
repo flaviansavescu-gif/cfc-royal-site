@@ -1,0 +1,36 @@
+{
+  "name": "CFCR Breed Standards Explorer",
+  "short_name": "CFCR Standards",
+  "description": "A WDF-oriented breed standards explorer for judge education, breed analysis, and professional cynology reference.",
+  "lang": "en",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./wdf-breed-standards-explorer.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "any",
+  "theme_color": "#2f5d50",
+  "background_color": "#f4f5f3",
+  "categories": ["education", "reference", "productivity"],
+  "icons": [
+    { "src": "assets/icons/favicon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Breed List",
+      "short_name": "Breeds",
+      "url": "./wdf-breed-standards-explorer.html#list",
+      "description": "Open the searchable breed list"
+    },
+    {
+      "name": "Compare Breeds",
+      "short_name": "Compare",
+      "url": "./wdf-breed-standards-explorer.html#compare",
+      "description": "Open side-by-side breed comparison"
+    }
+  ]
+}

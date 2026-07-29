@@ -1,0 +1,42 @@
+---
+// Section.astro — înveliș de secțiune cu eyebrow + titlu + intro opțional + link „vezi tot".
+// `alt` = fundal alternant. Conținutul vine în slot.
+interface Props {
+  id?: string;
+  title: string;
+  intro?: string;
+  eyebrow?: string;
+  viewAllLabel?: string;
+  viewAllHref?: string;
+  alt?: boolean;
+}
+const { id, title, intro, eyebrow, viewAllLabel, viewAllHref, alt = false } = Astro.props;
+---
+<section id={id} class={`section${alt ? " section--alt" : ""}`}>
+  <div class="container">
+    <div class="section__head">
+      <div>
+        {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+        <h2 class="section__title">{title}</h2>
+        {intro && <p class="section__intro">{intro}</p>}
+      </div>
+      {viewAllLabel && viewAllHref && (
+        <a class="section__viewall" href={viewAllHref}>{viewAllLabel} →</a>
+      )}
+    </div>
+    <slot />
+  </div>
+</section>
+
+<style>
+  .section { padding-block: clamp(2.5rem, 6vw, 4.5rem); }
+  .section--alt { background: var(--color-surface-alt); }
+  .section__head {
+    display: flex; flex-wrap: wrap; gap: 1rem; align-items: end; justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  .section__title { color: var(--color-primary); }
+  .section__intro { margin-top: 0.5rem; color: var(--color-text-muted); max-width: 60ch; }
+  .section__viewall { font-weight: 600; color: var(--color-link); text-decoration: none; white-space: nowrap; }
+  .section__viewall:hover { color: var(--color-link-hover); text-decoration: underline; }
+</style>

@@ -1,0 +1,355 @@
+/* =====================================================================
+   Teleprompter — stiluri
+   Design sobru, profesional, dark-mode implicit.
+   Variabilele --tp-* țin de UI-ul aplicației.
+   Variabilele --text-* / --bg țin de prezentarea textului în prompter
+   și sunt controlate din panoul de setări prin data-theme + inline vars.
+   ===================================================================== */
+
+:root {
+  /* Familii de font pentru textul prompterului */
+  --f-sans: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  --f-serif: Georgia, "Times New Roman", Cambria, serif;
+  --f-mono: "Cascadia Code", "Consolas", ui-monospace, monospace;
+  --f-humanist: Verdana, "Trebuchet MS", Geneva, sans-serif;
+
+  /* UI (fix, indiferent de tema textului) */
+  --tp-bg: #16181c;
+  --tp-panel: #1e2127;
+  --tp-panel-2: #262a32;
+  --tp-border: #333944;
+  --tp-fg: #e7e9ee;
+  --tp-fg-dim: #9aa1ad;
+  --tp-accent: #4f9dff;
+  --tp-accent-2: #2f6fd0;
+  --tp-danger: #e0574f;
+  --tp-radius: 10px;
+
+  /* Valori de text controlate din setări (implicite) */
+  --text-size: 64px;
+  --text-family: var(--f-sans);
+  --text-line: 1.5;
+  --text-column: 80%;
+  --text-align: left;
+  --guide-pos: 40%;      /* poziția verticală a liniei de ghidaj */
+
+  /* Culorile temei active (suprascrise de [data-theme]) */
+  --bg: #000000;
+  --fg: #f2f2f2;
+  --accent-text: #4f9dff; /* culoarea titlurilor de secțiune */
+}
+
+/* --- Temele de culoare pentru prompter --------------------------------- */
+[data-theme="dark"]  { --bg:#000000; --fg:#f2f2f2; --accent-text:#5aa9ff; }
+[data-theme="navy"]  { --bg:#0a1a33; --fg:#ffffff; --accent-text:#7fd0ff; }
+[data-theme="light"] { --bg:#f7f7f7; --fg:#111111; --accent-text:#0b62c9; }
+[data-theme="hc"]    { --bg:#000000; --fg:#ffe100; --accent-text:#ffffff; }
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--tp-bg);
+  color: var(--tp-fg);
+  font-family: var(--f-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select, textarea { font-family: inherit; }
+
+/* Ecrane */
+.screen { display: none; }
+.screen.is-active { display: flex; }
+.screen--editor { flex-direction: column; min-height: 100vh; }
+
+/* =====================  BUTOANE / CÂMPURI  ===================== */
+.btn {
+  border: 1px solid var(--tp-border);
+  background: var(--tp-panel-2);
+  color: var(--tp-fg);
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  transition: background .15s, border-color .15s, transform .05s;
+}
+.btn:hover { background: #2f343d; border-color: #414855; }
+.btn:active { transform: translateY(1px); }
+.btn--primary { background: var(--tp-accent); border-color: var(--tp-accent); color: #071018; font-weight: 600; }
+.btn--primary:hover { background: #6aacff; }
+.btn--ghost { background: transparent; }
+.btn--small { padding: 6px 10px; font-size: 13px; }
+.btn--danger { color: #ffd7d4; border-color: #5a3230; background: #3a2422; }
+.btn--danger:hover { background: #4a2b28; }
+
+.input, select {
+  background: var(--tp-panel);
+  border: 1px solid var(--tp-border);
+  color: var(--tp-fg);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+}
+.input:focus, select:focus, textarea:focus { outline: 2px solid var(--tp-accent-2); outline-offset: 0; }
+.input--name { flex: 1; font-size: 15px; }
+.input--tiny { width: 64px; padding: 4px 6px; }
+
+/* =====================  TOPBAR  ===================== */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; border-bottom: 1px solid var(--tp-border);
+  background: var(--tp-panel);
+}
+.topbar__brand { display: flex; flex-direction: column; gap: 1px; }
+.topbar__title { font-size: 18px; margin: 0; letter-spacing: .3px; }
+.topbar__tagline { font-size: 12px; color: var(--tp-fg-dim); letter-spacing: .2px; }
+.topbar__actions { display: flex; gap: 10px; }
+
+/* =====================  LAYOUT EDITOR  ===================== */
+.editor-layout {
+  flex: 1; display: grid; grid-template-columns: 280px 1fr; gap: 1px;
+  background: var(--tp-border); min-height: 0;
+}
+.library, .editor { background: var(--tp-bg); min-height: 0; display: flex; flex-direction: column; }
+.library { padding: 16px; gap: 12px; }
+.library__head { display: flex; align-items: center; justify-content: space-between; }
+.library__head h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .08em; color: var(--tp-fg-dim); margin: 0; }
+.library__hint { font-size: 12px; color: var(--tp-fg-dim); margin: 4px 0 0; }
+
+.script-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.script-list__item {
+  padding: 10px 12px; border: 1px solid var(--tp-border); border-radius: 8px;
+  cursor: pointer; background: var(--tp-panel); display: flex; flex-direction: column; gap: 2px;
+}
+.script-list__item:hover { border-color: #465063; }
+.script-list__item.is-active { border-color: var(--tp-accent); background: #1b2635; }
+.script-list__name { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.script-list__meta { font-size: 11px; color: var(--tp-fg-dim); }
+
+/* Editor */
+.editor { padding: 16px; gap: 12px; }
+.editor__toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.editor__toolbar-actions { display: flex; gap: 8px; }
+.editor__textarea {
+  flex: 1; resize: none; min-height: 240px;
+  background: var(--tp-panel); border: 1px solid var(--tp-border); color: var(--tp-fg);
+  border-radius: var(--tp-radius); padding: 16px; font-size: 15px; line-height: 1.6;
+}
+.editor__stats { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--tp-fg-dim); }
+.editor__stats-spacer { flex: 1; }
+.inline-field { display: inline-flex; align-items: center; gap: 6px; }
+
+/* =====================  PROMPTER  ===================== */
+.screen--prompter {
+  display: block; /* vizibil când nu are atributul [hidden] (vezi regula de mai jos) */
+  position: fixed; inset: 0; background: var(--bg); color: var(--fg);
+  overflow: hidden; z-index: 50;
+}
+.screen--prompter[hidden] { display: none; }
+
+/* Wrapperul care primește oglindirea */
+.prompter__mirror {
+  position: absolute; inset: 0;
+  transition: transform .2s ease;
+  transform: scaleX(1);
+}
+.screen--prompter.is-mirrored .prompter__mirror { transform: scaleX(-1); }
+
+/* Track-ul care se translatează pe verticală (derularea propriu-zisă).
+   translateY este setat din JS. will-change pentru fluiditate. */
+.prompter__track {
+  position: absolute; left: 0; right: 0; top: 0;
+  margin: 0 auto;
+  width: var(--text-column);
+  max-width: var(--text-column);
+  padding: 0 4vw;
+  transform: translateY(0);
+  will-change: transform;
+  font-family: var(--text-family);
+  font-size: var(--text-size);
+  line-height: var(--text-line);
+  text-align: var(--text-align);
+}
+
+/* Elementele de text generate din markdown */
+.prompter__track p { margin: 0 0 .7em; cursor: pointer; }
+.prompter__track p:hover { opacity: .82; }
+.prompter__track h2.tp-section {
+  color: var(--accent-text); font-weight: 700; margin: 1.1em 0 .5em;
+  cursor: pointer; letter-spacing: .01em;
+}
+.prompter__track strong { font-weight: 800; }
+.prompter__track .tp-para--active { text-shadow: 0 0 1px currentColor; }
+
+/* Linia de ghidaj orizontală (indicator de citire) */
+.reading-guide {
+  position: absolute; left: 0; right: 0; top: var(--guide-pos);
+  display: flex; align-items: center; gap: 8px; padding: 0 12px;
+  pointer-events: none; z-index: 3; opacity: .55;
+}
+.reading-guide__line { flex: 1; height: 2px; background: var(--accent-text); }
+.reading-guide__marker {
+  width: 0; height: 0; border-top: 9px solid transparent; border-bottom: 9px solid transparent;
+}
+.reading-guide__marker--left  { border-left: 14px solid var(--accent-text); }
+.reading-guide__marker--right { border-right: 14px solid var(--accent-text); }
+
+/* Gradiente de estompare sus/jos */
+.fade { position: absolute; left: 0; right: 0; height: 22vh; pointer-events: none; z-index: 2; }
+.fade--top { top: 0; background: linear-gradient(to bottom, var(--bg) 12%, transparent); }
+.fade--bottom { bottom: 0; background: linear-gradient(to top, var(--bg) 12%, transparent); }
+
+/* Bară de progres */
+.progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(127,127,127,.18); z-index: 4; }
+.progress__bar { height: 100%; width: 0%; background: var(--accent-text); transition: width .08s linear; }
+
+/* Bara de control */
+.prompter-controls {
+  position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;
+  background: rgba(20, 22, 26, .82); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 10px 14px;
+  z-index: 6; max-width: 94vw; color: #e7e9ee;
+  transition: opacity .3s;
+}
+.screen--prompter.controls-hidden .prompter-controls { opacity: 0; pointer-events: none; }
+.ctl-btn {
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+  color: #e7e9ee; border-radius: 8px; padding: 8px 12px; font-size: 13px; cursor: pointer; white-space: nowrap;
+}
+.ctl-btn:hover { background: rgba(255,255,255,.14); }
+.ctl-btn--play { min-width: 96px; font-weight: 600; background: var(--tp-accent); border-color: var(--tp-accent); color: #071018; }
+.ctl-btn.is-active { background: var(--tp-accent); border-color: var(--tp-accent); color: #071018; }
+.ctl-speed { display: flex; align-items: center; gap: 8px; padding: 0 4px; }
+.ctl-speed__label { font-size: 12px; color: #b7bdc9; }
+.ctl-speed__slider { width: 170px; }
+.ctl-speed__val { min-width: 34px; text-align: right; font-variant-numeric: tabular-nums; }
+.ctl-speed__unit { font-size: 12px; color: #b7bdc9; }
+
+/* Numărătoarea inversă */
+.countdown {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.55); z-index: 8; font-family: var(--text-family);
+}
+.countdown[hidden] { display: none; }
+.countdown span { font-size: 24vh; font-weight: 800; color: var(--fg); animation: pulse .9s ease; }
+@keyframes pulse { from { transform: scale(.6); opacity: .2; } to { transform: scale(1); opacity: 1; } }
+
+/* Overlay scurtături */
+.shortcuts {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.6); z-index: 9;
+}
+.shortcuts[hidden] { display: none; }
+.shortcuts__card {
+  background: var(--tp-panel); color: var(--tp-fg); border: 1px solid var(--tp-border);
+  border-radius: 14px; padding: 24px 28px; max-width: 440px; width: 90%;
+}
+.shortcuts__card h2 { margin: 0 0 14px; font-size: 18px; }
+.shortcuts__list { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 10px; font-size: 14px; }
+.shortcuts__note { color: var(--tp-fg-dim); }
+kbd {
+  display: inline-block; min-width: 26px; text-align: center; padding: 2px 7px; margin-right: 6px;
+  background: var(--tp-panel-2); border: 1px solid var(--tp-border); border-bottom-width: 2px;
+  border-radius: 6px; font-family: var(--f-mono); font-size: 12px;
+}
+
+/* =====================  PANOU SETĂRI  ===================== */
+.settings-panel { position: fixed; inset: 0; z-index: 60; }
+.settings-panel[hidden] { display: none; }
+.settings-panel__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.5); }
+.settings-panel__drawer {
+  position: absolute; top: 0; right: 0; height: 100%; width: 360px; max-width: 92vw;
+  background: var(--tp-panel); border-left: 1px solid var(--tp-border);
+  display: flex; flex-direction: column; box-shadow: -12px 0 40px rgba(0,0,0,.4);
+  animation: slideIn .2s ease;
+}
+@keyframes slideIn { from { transform: translateX(20px); opacity: .4; } to { transform: none; opacity: 1; } }
+.settings-panel__head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--tp-border); }
+.settings-panel__head h2 { margin: 0; font-size: 16px; }
+.settings-panel__body { padding: 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
+
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field__label { font-size: 13px; color: var(--tp-fg-dim); }
+.field__label b { color: var(--tp-fg); }
+.field input[type="range"] { width: 100%; }
+.field--switch { flex-direction: row; align-items: center; justify-content: space-between; }
+.field--switch input { width: 20px; height: 20px; }
+
+.segmented { display: inline-flex; border: 1px solid var(--tp-border); border-radius: 8px; overflow: hidden; }
+.segmented__btn { background: var(--tp-panel-2); border: 0; color: var(--tp-fg); padding: 8px 16px; cursor: pointer; font-size: 13px; }
+.segmented__btn.is-active { background: var(--tp-accent); color: #071018; font-weight: 600; }
+
+.themes { display: flex; gap: 10px; }
+.theme-swatch {
+  width: 46px; height: 46px; border-radius: 10px; cursor: pointer;
+  background: var(--sw-bg); color: var(--sw-fg); border: 2px solid var(--tp-border);
+  font-weight: 700; font-size: 16px;
+}
+.theme-swatch.is-active { border-color: var(--tp-accent); box-shadow: 0 0 0 2px var(--tp-accent-2); }
+
+/* =====================  TOAST  ===================== */
+.toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+  background: var(--tp-panel-2); color: var(--tp-fg); border: 1px solid var(--tp-border);
+  padding: 10px 16px; border-radius: 10px; z-index: 100; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.4);
+}
+.toast[hidden] { display: none; }
+
+/* Status extensii (telecomandă/voce) — momentan doar informativ */
+.ext-status { padding: 8px 20px; font-size: 12px; color: var(--tp-fg-dim); border-top: 1px solid var(--tp-border); }
+.ext-status[hidden] { display: none; }
+
+/* =====================  RESPONSIVE (tabletă)  ===================== */
+@media (max-width: 820px) {
+  .editor-layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .library { max-height: 34vh; }
+  .ctl-speed__slider { width: 120px; }
+  .prompter-controls { gap: 6px; padding: 8px 10px; bottom: 10px; }
+  .ctl-btn { padding: 8px 10px; }
+}
+@media (max-width: 560px) {
+  .topbar__title { font-size: 16px; }
+  .ctl-speed__label, .ctl-speed__unit { display: none; }
+}
+
+/* =====================================================================
+   Platforma CFC-Royal — butonul „Încarcă un curs" + dialogul de programă
+   ===================================================================== */
+.btn--platform {
+  width: 100%;
+  margin: 0 0 10px;
+  border-color: var(--tp-accent-2);
+  color: var(--tp-accent);
+  text-align: center;
+}
+.btn--platform:hover { background: rgba(79, 157, 255, 0.12); }
+
+.platform-dialog {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.6); padding: 20px;
+}
+.platform-dialog[hidden] { display: none; }
+.platform-dialog__panel {
+  width: min(560px, 100%); max-height: 80vh; overflow: auto;
+  background: var(--tp-panel); border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius); padding: 18px 20px;
+}
+.platform-dialog__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.platform-dialog__head h2 { margin: 0; font-size: 18px; color: var(--tp-fg); }
+.platform-dialog__hint { margin: 6px 0 14px; font-size: 13px; color: var(--tp-fg-dim); }
+.platform-dialog__list { display: grid; gap: 16px; color: var(--tp-fg-dim); }
+.platform-dialog__group h3 {
+  margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--tp-fg-dim); border-bottom: 1px solid var(--tp-border); padding-bottom: 4px;
+}
+.platform-dialog__item {
+  display: block; width: 100%; text-align: left; margin: 0 0 6px;
+  background: var(--tp-panel-2); border: 1px solid var(--tp-border); color: var(--tp-fg);
+  border-radius: var(--tp-radius); padding: 10px 12px; font-size: 14px; cursor: pointer;
+}
+.platform-dialog__item:hover { border-color: var(--tp-accent-2); }
+.platform-dialog__item:disabled { opacity: 0.6; cursor: wait; }

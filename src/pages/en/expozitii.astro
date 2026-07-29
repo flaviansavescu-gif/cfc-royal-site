@@ -1,0 +1,10 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import CalendarExpo from "../../components/CalendarExpo.astro";
+const lang = "en" as const;
+---
+<BaseLayout title="Show calendar" lang={lang} description="The shows of Club Federal Chinologic – Royal: open entries and published results.">
+  <div class="container" style="padding-block: 3rem;">
+    <CalendarExpo lang={lang} />
+  </div>
+</BaseLayout>

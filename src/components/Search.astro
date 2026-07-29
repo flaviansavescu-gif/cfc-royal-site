@@ -1,0 +1,43 @@
+---
+// Search.astro — interfață de căutare peste indexul Pagefind (generat la build).
+// În `npm run dev` indexul nu există; afișăm o notă. Funcționează după build/preview și pe Netlify.
+import { useTranslations, type Lang } from "../i18n/utils";
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+<section class="container search-page">
+  <p class="eyebrow">{t("search.title")}</p>
+  <h1>{t("search.title")}</h1>
+  <p class="lead">{t("search.intro")}</p>
+  <div id="search" class="pf"></div>
+  <p class="muted-note" id="search-devnote" hidden>{t("search.devNote")}</p>
+</section>
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+<script is:inline src="/pagefind/pagefind-ui.js"></script>
+<script is:inline>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (window.PagefindUI) {
+      new window.PagefindUI({ element: "#search", showSubResults: true, showImages: false });
+    } else {
+      const n = document.getElementById("search-devnote");
+      if (n) n.hidden = false;
+    }
+  });
+</script>
+
+<style>
+  .search-page { padding-block: clamp(2rem, 5vw, 3.5rem); max-width: 48rem; }
+  .search-page h1 { color: var(--color-primary); }
+  .search-page .lead { margin: 0.5rem 0 1.5rem; color: var(--color-text-muted); }
+  .pf {
+    --pagefind-ui-primary: var(--color-primary);
+    --pagefind-ui-text: var(--color-text);
+    --pagefind-ui-background: var(--color-surface);
+    --pagefind-ui-border: var(--color-border);
+    --pagefind-ui-tag: var(--color-surface-alt);
+    --pagefind-ui-border-radius: var(--radius);
+    --pagefind-ui-font: var(--font-sans);
+  }
+</style>

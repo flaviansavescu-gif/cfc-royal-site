@@ -1,0 +1,113 @@
+---
+// CursuriLayout.astro — învelișul platformei de cursuri (Școala de Arbitraj).
+// Separat de BaseLayout: fără meniul site-ului, fără indexare (noindex + pagefind-ignore).
+//
+// POARTA DE ACCES: pagina se deschide pe baza ROLULUI stabilit de server la intrare
+// (funcția `acces-cursuri`). NU mai punem amprente de coduri în HTML — erau publice și
+// permiteau spargerea offline a unui cod scurt. Rolul nu e secret, deci poate sta în pagină.
+//
+// Autoritatea reală rămâne, ca până acum, pe server: fiecare funcție își verifică
+// singură codul. Poarta de aici doar îndrumă utilizatorul spre zona lui.
+//
+// `allow` acceptă: "admin" · "lector" (oricare) · "lector:<slug>" · "arbitru" (membru al
+// Colegiului care nu e lector — acces de studiu) · "acces" (codul comun).
+// Administratorul intră peste tot, fără să fie trecut explicit.
+import "../styles/global.css";
+// Cadrul (antet · coloană centrată · subsol) e comun cu Registrul genealogic — vezi panou.css.
+import "../styles/panou.css";
+
+interface Props {
+  title: string;
+  /** Rolurile care deblochează pagina. Lipsă = pagină publică (ex. intrarea). */
+  allow?: string[];
+  /** Pagină deschisă candidaților (orice cod individual valid) — și administratorului. */
+  candidat?: boolean;
+}
+const { title, allow, candidat } = Astro.props;
+const allowList = allow ?? [];
+const candidatOk = !!candidat;
+const protejat = allowList.length > 0 || candidatOk;
+---
+
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#1F4D3A" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="256x256" href="/favicon.png" />
+    <title>{title} — Școala de Arbitraj CFC-Royal</title>
+    {protejat && (
+      <script is:inline define:vars={{ allow: allowList, candidatOk }}>
+        // Poartă de acces: fără rolul potrivit, înapoi la intrare.
+        try {
+          let ok = false;
+          let r = null;
+          try { r = JSON.parse(localStorage.getItem("cfcrRol") || "null"); } catch (e) {}
+
+          if (r && r.rol) {
+            if (r.rol === "admin") ok = true;                                   // adminul intră peste tot
+            else if (r.rol === "lector") {
+              ok = allow.includes("lector") || allow.includes("lector:" + r.slug);
+            } else if (r.rol === "arbitru") {
+              ok = allow.includes("arbitru");
+            } else if (r.rol === "acces") {
+              ok = candidatOk || allow.includes("acces");
+            }
+          }
+          // Candidat cu cod individual.
+          if (!ok && candidatOk) {
+            const c = localStorage.getItem("cfcrCandidat");
+            if (c && JSON.parse(c).id) ok = true;
+          }
+          if (!ok) location.replace("/cursuri/");
+        } catch (e) {
+          location.replace("/cursuri/");
+        }
+      </script>
+    )}
+  </head>
+  <body data-pagefind-ignore>
+    <header class="c-header">
+      <div class="c-header__inner">
+        <a class="c-brand" href="/cursuri/">
+          <img src="/images/centrul-competentelor.webp" alt="Centrul de Dezvoltare a Competențelor Chinologice" width="56" height="60" loading="eager" />
+          <span class="c-brand__text">
+            <strong>Școala de Arbitraj</strong>
+            <span>Centrul de Dezvoltare a Competențelor Chinologice · CFC-Royal</span>
+          </span>
+        </a>
+        <div class="c-header__actions">
+          <a class="c-sitelink" href="/ro/">← Site-ul asociației</a>
+          {protejat && (
+            <button class="c-logout" id="c-logout" type="button">Ieșire</button>
+          )}
+        </div>
+      </div>
+    </header>
+
+    <main class="c-main">
+      <slot />
+    </main>
+
+    <footer class="c-footer">
+      <p>© Asociația Club Federal Chinologic – Royal · membru World Dog Federation · <a href="/ro/">cfc-royal.ro</a></p>
+    </footer>
+
+    {protejat && (
+      <script is:inline>
+        document.getElementById("c-logout")?.addEventListener("click", () => {
+          try {
+            localStorage.removeItem("cfcrRol");
+            localStorage.removeItem("cfcrAcces"); // cheie veche (curățare)
+            localStorage.removeItem("cfcrAccesCod");
+            localStorage.removeItem("cfcrCandidat");
+          } catch (e) {}
+          location.href = "/cursuri/";
+        });
+      </script>
+    )}
+  </body>
+</html>

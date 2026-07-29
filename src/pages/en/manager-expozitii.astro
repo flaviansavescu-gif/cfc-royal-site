@@ -1,0 +1,15 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ManagerExpozitii from "../../components/ManagerExpozitii.astro";
+const lang = "en" as const;
+---
+<BaseLayout
+  title="Exhibition Manager"
+  lang={lang}
+  description="The dedicated platform of Club Federal Chinologic – Royal for organising dog shows: professionalism and quality service for members, on World Dog Federation regulations."
+  image="/images/manager-expozitii-hero.webp"
+>
+  <div class="container" style="padding-block: 3rem;">
+    <ManagerExpozitii lang={lang} />
+  </div>
+</BaseLayout>

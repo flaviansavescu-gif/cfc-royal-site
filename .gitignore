@@ -1,0 +1,28 @@
+# build
+dist/
+.astro/
+
+# deps
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# env
+.env
+.env.production
+.env.*.local
+
+# os / editor
+.DS_Store
+Thumbs.db
+*.local
+
+# netlify
+.netlify/
+
+# codurile de acces personale (local, niciodată în git)
+CODURILE-MELE.txt

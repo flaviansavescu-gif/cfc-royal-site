@@ -1,0 +1,418 @@
+---
+// /cursuri/admin/certificare/ — administrarea certificării:
+//  A) autorizarea candidaților pe grupe WDF (1–10);
+//  B) starea examenului final + resetarea dreptului de examinare.
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import { GRUPE_WDF } from "../../../data/grupe-wdf";
+---
+
+<CursuriLayout title="Certificare — administrare" allow={["admin"]}>
+  <p class="c-crumb"><a href="/cursuri/admin/">← Panoul platformei</a></p>
+  <p class="c-eyebrow">Administrare · certificare</p>
+  <h1 class="c-title">Certificarea arbitrilor</h1>
+  <p class="c-sub">
+    Autorizează candidații pe grupele WDF pentru care s-au format și gestionează examenul final.
+    Denumirile grupelor sunt cele oficiale World Dog Federation.
+  </p>
+
+  <p class="c-linkpublic"><a href="/arbitri/" target="_blank" rel="noopener">🌐 Vezi registrul public al arbitrilor ↗</a> — arbitrii bifați „Public” apar automat acolo, alături de colegiul editorial.</p>
+
+  <h2 class="c-h2">A. Autorizarea pe grupe WDF</h2>
+  <p class="c-legenda">
+    {GRUPE_WDF.map((g) => (<span class="c-lg"><strong>{g.nr}</strong> = {g.ro}</span>))}
+  </p>
+  <div class="c-matrice-wrap">
+    <table class="c-matrice" id="c-matrice">
+      <thead>
+        <tr>
+          <th class="c-mx-cand">Candidat</th>
+          {GRUPE_WDF.map((g) => (<th title={g.ro}>Gr. {g.nr}</th>))}
+          <th title="Apare în registrul public de arbitri">Public</th>
+          <th>Localitate</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="c-matrice-body">
+        <tr><td colspan={GRUPE_WDF.length + 4} class="c-mx-empty">Se încarcă…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="c-h2">B. Examenul final</h2>
+  <p class="c-note">
+    Banca de întrebări stă pe server (o extind lectorii). Aici vezi cine a promovat și poți reseta dreptul de
+    examinare al unui candidat (de ex. dacă vrei să-l lași să reia mai devreme de pauza de 7 zile).
+  </p>
+  <ul class="c-examen-list" id="c-examen-list">
+    <li class="c-ex-empty">Se încarcă…</li>
+  </ul>
+
+  <h2 class="c-h2">C. Sesiunile de examen și comisia de examinare</h2>
+  <p class="c-note">
+    Examenul final se susține <strong>doar în sesiunile de aici</strong> (de regulă două pe an).
+    Fiecare sesiune are comisia ei: un președinte și, opțional, membri. Candidații văd sesiunea
+    activă / următoarea și componența comisiei pe pagina examenului.
+  </p>
+  <form class="c-ses-form" id="c-ses-form">
+    <input id="c-ses-nume" type="text" placeholder="Numele sesiunii (ex. Sesiunea de toamnă 2026)" required />
+    <div class="c-ses-rand">
+      <label>De la <input id="c-ses-start" type="date" required /></label>
+      <label>până la <input id="c-ses-sfarsit" type="date" required /></label>
+    </div>
+    <input id="c-ses-presedinte" type="text" placeholder="Președintele comisiei de examinare" required />
+    <input id="c-ses-membri" type="text" placeholder="Membrii comisiei, despărțiți prin virgulă (opțional)" />
+    <button class="btn btn--primary" type="submit">Adaugă sesiunea</button>
+  </form>
+  <ul class="c-examen-list" id="c-ses-list">
+    <li class="c-ex-empty">Se încarcă…</li>
+  </ul>
+
+  <h2 class="c-h2">D. Contestațiile rezultatelor</h2>
+  <p class="c-note">
+    Candidatul poate contesta ultima încercare nepromovată în cel mult <strong>3 zile</strong> de la rezultat.
+    Contestația <strong>admisă</strong> anulează încercarea: nu mai contează la pauza de reîncercare, iar candidatul
+    poate susține din nou examenul în sesiune. Motivarea deciziei ajunge la candidat, pe pagina examenului.
+  </p>
+  <ul class="c-examen-list" id="c-contest-list">
+    <li class="c-ex-empty">Se încarcă…</li>
+  </ul>
+</CursuriLayout>
+
+<script is:inline define:vars={{ GRUPE: GRUPE_WDF }}>
+  (function () {
+    function codAdmin() {
+      let c = null;
+      try { c = localStorage.getItem("cfcrAccesCod"); } catch (e) {}
+      return c || prompt("Confirmă codul de administrator:");
+    }
+    async function cere(fn, payload) {
+      const res = await fetch("/.netlify/functions/" + fn, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.eroare || "Eroare");
+      return data;
+    }
+
+    let candidati = [];
+    let autorizari = {};
+    let examene = {};
+
+    async function incarca() {
+      try {
+        candidati = await (await fetch("/.netlify/functions/candidati-cursuri", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cod: codAdmin(), actiune: "lista" }),
+        })).json();
+        if (!Array.isArray(candidati)) candidati = [];
+      } catch (e) { candidati = []; }
+
+      try { autorizari = (await cere("autorizare-cursuri", { actiune: "admin" })).autorizari || {}; } catch (e) { autorizari = {}; }
+      try { examene = (await cere("examen-final", { actiune: "admin" })).candidati || {}; } catch (e) { examene = {}; }
+
+      randMatrice();
+      randExamene();
+    }
+
+    // ——— A. Matricea de autorizare ———
+    function randMatrice() {
+      const body = document.getElementById("c-matrice-body");
+      body.textContent = "";
+      if (!candidati.length) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = '<td colspan="' + (GRUPE.length + 4) + '" class="c-mx-empty">Niciun candidat înscris. Adaugă din <a href="/cursuri/admin/">panoul platformei</a>.</td>';
+        body.appendChild(tr);
+        return;
+      }
+      candidati.forEach((c) => {
+        const tr = document.createElement("tr");
+        const nume = document.createElement("td");
+        nume.className = "c-mx-cand";
+        nume.innerHTML = "<strong>" + c.nume + "</strong>";
+        tr.appendChild(nume);
+
+        const a = autorizari[c.id] || {};
+        const curent = a.grupe || [];
+        GRUPE.forEach((g) => {
+          const td = document.createElement("td");
+          const cb = document.createElement("input");
+          cb.type = "checkbox"; cb.dataset.grupa = g.nr;
+          cb.checked = curent.includes(g.nr);
+          td.appendChild(cb);
+          tr.appendChild(td);
+        });
+
+        // Public în registru
+        const tdPub = document.createElement("td");
+        const pub = document.createElement("input");
+        pub.type = "checkbox"; pub.className = "c-mx-public"; pub.checked = !!a.public;
+        tdPub.appendChild(pub);
+        tr.appendChild(tdPub);
+
+        // Localitate
+        const tdLoc = document.createElement("td");
+        const loc = document.createElement("input");
+        loc.type = "text"; loc.className = "c-mx-loc"; loc.placeholder = "ex. Reșița"; loc.value = a.localitate || "";
+        tdLoc.appendChild(loc);
+        tr.appendChild(tdLoc);
+
+        const tdBtn = document.createElement("td");
+        const btn = document.createElement("button");
+        btn.className = "btn btn--small btn--outline";
+        btn.textContent = "Salvează";
+        btn.addEventListener("click", async () => {
+          const grupe = [...tr.querySelectorAll("input[type=checkbox][data-grupa]:checked")].map((cb) => Number(cb.dataset.grupa));
+          const payload = { actiune: "salveaza", candidatId: c.id, grupe, public: pub.checked, localitate: loc.value.trim() };
+          btn.disabled = true; btn.textContent = "…";
+          try {
+            await cere("autorizare-cursuri", payload);
+            autorizari[c.id] = { grupe, public: pub.checked, localitate: loc.value.trim() };
+            btn.textContent = "Salvat ✓";
+            setTimeout(() => (btn.textContent = "Salvează"), 2000);
+          } catch (err) { alert("Nu am putut salva: " + err.message); btn.textContent = "Salvează"; }
+          finally { btn.disabled = false; }
+        });
+        tdBtn.appendChild(btn);
+        tr.appendChild(tdBtn);
+        body.appendChild(tr);
+      });
+    }
+
+    // ——— B. Examenul final ———
+    function dataRo(s) {
+      if (!s) return "";
+      const d = new Date(s);
+      return isNaN(d) ? s : d.toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" });
+    }
+
+    function randExamene() {
+      const list = document.getElementById("c-examen-list");
+      list.textContent = "";
+      const cuExamen = candidati.filter((c) => examene[c.id]);
+      if (!cuExamen.length) {
+        const li = document.createElement("li");
+        li.className = "c-ex-empty";
+        li.textContent = "Niciun candidat nu a susținut încă examenul final.";
+        list.appendChild(li);
+        return;
+      }
+      cuExamen.forEach((c) => {
+        const e = examene[c.id];
+        const li = document.createElement("li");
+        const info = document.createElement("div");
+        const stare = e.promovat
+          ? "<span class='c-badge c-badge--pass'>Promovat ✓</span>"
+          : "<span class='c-badge c-badge--fail'>Nepromovat</span> — reîncercare de la " + dataRo(new Date(new Date(e.ultimaData).getTime() + 7 * 864e5).toISOString());
+        info.innerHTML = "<strong>" + c.nume + "</strong> · " + stare + " <span class='c-ex-meta'>(" + e.incercari + " încercări)</span>";
+        li.appendChild(info);
+
+        const btn = document.createElement("button");
+        btn.className = "btn btn--small btn--danger";
+        btn.textContent = "Resetează dreptul";
+        btn.addEventListener("click", async () => {
+          if (!confirm("Resetezi examenul lui „" + c.nume + "”? Se șterge starea (promovat/pauză) și poate susține din nou imediat.")) return;
+          btn.disabled = true;
+          try {
+            await cere("examen-final", { actiune: "reset", candidatId: c.id });
+            delete examene[c.id];
+            randExamene();
+          } catch (err) { alert("Nu am putut reseta: " + err.message); btn.disabled = false; }
+        });
+        li.appendChild(btn);
+        list.appendChild(li);
+      });
+    }
+
+    incarca();
+
+    // ——— C. Sesiunile de examen + comisia ———
+    const dataRo = (s) => {
+      const d = new Date(s);
+      return isNaN(d) ? s : d.toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" });
+    };
+
+    async function incarcaSesiuni() {
+      const list = document.getElementById("c-ses-list");
+      list.innerHTML = "";
+      try {
+        const d = await cere("examen-final", { actiune: "sesiuni" });
+        if (!d.sesiuni.length) {
+          list.innerHTML = "<li class='c-ex-empty'>Nicio sesiune definită — examenul NU poate fi susținut până nu adaugi una.</li>";
+          return;
+        }
+        const azi = new Date().toISOString().slice(0, 10);
+        d.sesiuni.forEach((s) => {
+          const li = document.createElement("li");
+          const info = document.createElement("div");
+          const stare = s.start <= azi && azi <= s.sfarsit ? " 🟢 în desfășurare" : s.start > azi ? " · viitoare" : " · încheiată";
+          // Ca și la contestații: numele și comisia se pun ca text, nu ca HTML.
+          const capS = document.createElement("div");
+          const nmS = document.createElement("strong");
+          nmS.textContent = s.nume;
+          capS.appendChild(nmS);
+          capS.appendChild(document.createTextNode(" — " + dataRo(s.start) + " – " + dataRo(s.sfarsit) + stare));
+          const comS = document.createElement("span");
+          comS.className = "c-ses-comisie";
+          comS.style.display = "block";
+          comS.textContent = "Președinte: " + s.presedinte +
+            ((s.membri || []).length ? " · Membri: " + s.membri.join(", ") : "");
+          info.appendChild(capS);
+          info.appendChild(comS);
+          const del = document.createElement("button");
+          del.className = "btn btn--small btn--danger";
+          del.textContent = "Șterge";
+          del.addEventListener("click", async () => {
+            if (!confirm("Ștergi sesiunea „" + s.nume + "”?")) return;
+            del.disabled = true;
+            try { await cere("examen-final", { actiune: "sesiune-sterge", id: s.id }); incarcaSesiuni(); }
+            catch (e) { alert("Nu am putut șterge: " + e.message); del.disabled = false; }
+          });
+          li.appendChild(info);
+          li.appendChild(del);
+          list.appendChild(li);
+        });
+      } catch (e) {
+        list.innerHTML = "<li class='c-ex-empty'>Nu am putut încărca sesiunile.</li>";
+      }
+    }
+
+    document.getElementById("c-ses-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector("button[type=submit]");
+      btn.disabled = true; btn.textContent = "Se salvează…";
+      try {
+        await cere("examen-final", {
+          actiune: "sesiune-salveaza",
+          nume: document.getElementById("c-ses-nume").value.trim(),
+          start: document.getElementById("c-ses-start").value,
+          sfarsit: document.getElementById("c-ses-sfarsit").value,
+          presedinte: document.getElementById("c-ses-presedinte").value.trim(),
+          membri: document.getElementById("c-ses-membri").value.split(",").map((m) => m.trim()).filter(Boolean),
+        });
+        e.target.reset();
+        incarcaSesiuni();
+      } catch (err) { alert("Nu am putut salva sesiunea: " + err.message); }
+      finally { btn.disabled = false; btn.textContent = "Adaugă sesiunea"; }
+    });
+
+    incarcaSesiuni();
+
+    // ——— D. Contestațiile ———
+    async function incarcaContestatii() {
+      const list = document.getElementById("c-contest-list");
+      list.innerHTML = "";
+      try {
+        const d = await cere("examen-final", { actiune: "contestatii" });
+        if (!d.contestatii.length) {
+          list.innerHTML = "<li class='c-ex-empty'>Nicio contestație depusă.</li>";
+          return;
+        }
+        d.contestatii.forEach((c) => {
+          const li = document.createElement("li");
+          li.className = "c-contest-item";
+          const info = document.createElement("div");
+          const eticheta = c.status === "depusa" ? "🔶 ÎN AȘTEPTARE" : c.status === "admisa" ? "✅ admisă" : "❌ respinsă";
+          // Motivul e scris LIBER de candidat. Se pune ca TEXT, niciodată ca HTML:
+          // pagina asta e a administratorului, iar în localStorage-ul lui stă codul de
+          // administrator — un „<img onerror=…>" într-o contestație l-ar putea fura.
+          const cap = document.createElement("div");
+          const nm = document.createElement("strong");
+          nm.textContent = c.nume;
+          cap.appendChild(nm);
+          cap.appendChild(document.createTextNode(
+            " — încercarea din " + dataRo(c.dataIncercare) + " (" + c.procent + "%) · " + eticheta
+          ));
+          info.appendChild(cap);
+
+          function randText(eticheta, continut) {
+            const s = document.createElement("span");
+            s.className = "c-ses-comisie";
+            s.style.display = "block";
+            s.textContent = eticheta + " „" + continut + "”";
+            return s;
+          }
+          info.appendChild(randText("Motivul candidatului:", c.motiv));
+          if (c.motivare) info.appendChild(randText("Motivarea comisiei:", c.motivare));
+          li.appendChild(info);
+          if (c.status === "depusa") {
+            const zona = document.createElement("div");
+            zona.className = "c-contest-zona";
+            const motivare = document.createElement("input");
+            motivare.type = "text";
+            motivare.placeholder = "Motivarea deciziei (obligatorie — o vede candidatul)";
+            const admite = document.createElement("button");
+            admite.className = "btn btn--small btn--primary";
+            admite.textContent = "Admite (anulează încercarea)";
+            const respinge = document.createElement("button");
+            respinge.className = "btn btn--small btn--outline";
+            respinge.textContent = "Respinge";
+            async function decide(decizie) {
+              const m = motivare.value.trim();
+              if (m.length < 5) { motivare.focus(); alert("Scrie motivarea deciziei."); return; }
+              if (!confirm((decizie === "admisa" ? "Admiți" : "Respingi") + " contestația lui " + c.nume + "?")) return;
+              admite.disabled = respinge.disabled = true;
+              try {
+                await cere("examen-final", { actiune: "solutioneaza", candidatId: c.candidatId, decizie, motivare: m });
+                incarcaContestatii();
+              } catch (e2) { alert("Nu am putut soluționa: " + e2.message); admite.disabled = respinge.disabled = false; }
+            }
+            admite.addEventListener("click", () => decide("admisa"));
+            respinge.addEventListener("click", () => decide("respinsa"));
+            zona.appendChild(motivare); zona.appendChild(admite); zona.appendChild(respinge);
+            li.appendChild(zona);
+          }
+          list.appendChild(li);
+        });
+      } catch (e) {
+        list.innerHTML = "<li class='c-ex-empty'>Nu am putut încărca contestațiile.</li>";
+      }
+    }
+
+    incarcaContestatii();
+  })();
+</script>
+
+<style>
+  .c-crumb { margin: 0 0 1.25rem; }
+  .c-crumb a { text-decoration: none; color: var(--color-text-muted); }
+  .c-crumb a:hover { color: var(--color-primary); }
+  .c-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .c-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
+  .c-sub { color: var(--color-text-muted); max-width: 48rem; }
+  .c-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2.25rem 0 0.6rem; font-size: 1.35rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.35rem; }
+  .c-note { color: var(--color-text-muted); max-width: 48rem; }
+
+  .c-legenda { display: grid; gap: 0.25rem 1rem; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); margin: 0 0 1rem; font-size: 0.82rem; color: var(--color-text-muted); }
+  .c-lg strong { color: var(--color-accent-dark); }
+
+  .c-matrice-wrap { overflow-x: auto; }
+  .c-linkpublic { margin: 0 0 1rem; }
+  .c-linkpublic a { color: var(--color-accent-dark); font-weight: 600; }
+  .c-matrice { border-collapse: collapse; width: 100%; min-width: 62rem; }
+  .c-matrice th, .c-matrice td { border: 1px solid var(--color-border); padding: 0.45rem 0.55rem; text-align: center; }
+  .c-matrice th { background: var(--color-surface-alt); font-size: 0.78rem; white-space: nowrap; }
+  .c-mx-cand { text-align: left !important; white-space: nowrap; }
+  .c-matrice input[type=checkbox] { width: 1.15rem; height: 1.15rem; cursor: pointer; }
+  .c-mx-loc { width: 8rem; padding: 0.3rem 0.45rem; border: 1px solid var(--color-border); border-radius: 6px; font: inherit; font-size: 0.82rem; }
+  .c-mx-empty { text-align: center; color: var(--color-text-muted); font-style: italic; }
+
+  .c-examen-list { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 0.6rem; max-width: 48rem; }
+  .c-examen-list li { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.7rem 1rem; }
+  .c-examen-list li > div { flex: 1; }
+  .c-ex-empty { color: var(--color-text-muted); font-style: italic; border: 0 !important; background: transparent !important; padding: 0 !important; }
+  .c-ex-meta { color: var(--color-text-muted); font-size: 0.85rem; }
+  .c-badge { font-size: 0.72rem; padding: 0.15rem 0.55rem; border-radius: 999px; }
+  .c-badge--pass { background: var(--color-primary); color: #fbfaf7; }
+  .c-badge--fail { background: #f9efef; color: #8c1d2f; border: 1px solid #8c1d2f; }
+
+  .c-ses-form { display: grid; gap: 0.6rem; max-width: 34rem; margin-bottom: 1rem; }
+  .c-ses-form input { padding: 0.55rem 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
+  .c-ses-rand { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .c-ses-rand label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-muted); }
+  .c-ses-form .btn { justify-self: start; }
+  .c-ses-comisie { font-size: 0.85rem; color: var(--color-text-muted); }
+  .c-contest-item { flex-direction: column; align-items: stretch !important; gap: 0.6rem; }
+  .c-contest-zona { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+  .c-contest-zona input { flex: 1 1 16rem; padding: 0.45rem 0.7rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
+</style>

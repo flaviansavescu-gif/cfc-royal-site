@@ -1,0 +1,10 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Search from "../../components/Search.astro";
+import { useTranslations } from "../../i18n/utils";
+const lang = "ro" as const;
+const t = useTranslations(lang);
+---
+<BaseLayout title={t("search.title")} lang={lang} noindex>
+  <Search lang={lang} />
+</BaseLayout>

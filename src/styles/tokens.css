@@ -1,0 +1,72 @@
+/* =========================================================================
+   tokens.css — variabile de design (paletă instituțională + tipografie)
+   Plasare: src/styles/tokens.css
+   Regulă: în componente folosește DOAR aceste variabile (fără culori/fonturi hardcodate).
+   ========================================================================= */
+
+:root {
+  /* === Brand === */
+  --color-primary:       #1F4D3A;  /* verde heraldic — autoritate */
+  --color-primary-dark:  #163A2C;  /* hover/active, footer */
+  --color-primary-light: #2E6B52;
+
+  /* === Accent heraldic (decorativ, NU pentru text mic) === */
+  --color-accent:        #B08D2E;  /* auriu / alamă */
+  --color-accent-dark:   #8C6D1F;  /* pentru text/linkuri pe fundal deschis */
+
+  /* === Neutre (instituțional, cald) === */
+  --color-bg:            #FBFAF7;  /* fundal pagină */
+  --color-surface:       #FFFFFF;  /* carduri */
+  --color-surface-alt:   #F1EFE9;  /* benzi / secțiuni alternante */
+  --color-border:        #DAD6CC;  /* linii fine */
+  --color-text:          #1C1C1A;  /* corp */
+  --color-text-muted:    #5A5A52;  /* secundar */
+  --color-text-inverse:  #FBFAF7;  /* pe primar / închis */
+
+  /* === Semantice (formulare, statusuri, rezultate) === */
+  --color-success: #2E7D52;
+  --color-warning: #B5651D;
+  --color-danger:  #A02E2E;
+  --color-info:    #2E5E8C;
+
+  /* === Linkuri & focus === */
+  --color-link:       var(--color-primary);
+  --color-link-hover: var(--color-accent-dark);
+  --color-focus:      #2E5E8C;     /* inel de focus vizibil (accesibilitate) */
+
+  /* === Tipografie === */
+  --font-serif: "Source Serif 4", Georgia, serif;          /* titluri */
+  --font-sans:  "Source Sans 3", system-ui, sans-serif;    /* text / UI */
+  --font-mono:  "IBM Plex Mono", ui-monospace, monospace;  /* CIF / IBAN / registru */
+
+  /* Scară tipografică (opțional, de ajustat) */
+  --fs-300: 0.875rem;
+  --fs-400: 1rem;
+  --fs-500: 1.125rem;
+  --fs-600: 1.375rem;
+  --fs-700: 1.75rem;
+  --fs-800: 2.25rem;
+  --fs-900: 3rem;
+
+  /* === Layout === */
+  --radius: 6px;
+  --maxw: 1200px;
+  --space: 1rem;
+}
+
+/* Aplicare de bază (poate fi mutată în global.css) */
+html { color-scheme: light; }
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-400);
+  line-height: 1.6;
+}
+h1, h2, h3, h4 { font-family: var(--font-serif); color: var(--color-text); line-height: 1.2; }
+a { color: var(--color-link); text-underline-offset: 2px; }
+a:hover { color: var(--color-link-hover); }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+/* Clasă utilitară pentru numere oficiale (CIF, IBAN, nr. registru) */
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }

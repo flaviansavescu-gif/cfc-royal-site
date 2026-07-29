@@ -1,0 +1,204 @@
+---
+// /cursuri/lector/<slug>/ — spațiul personal al unui lector.
+// Accesibil DOAR cu codul lectorului respectiv sau cu codul de administrator.
+// Materialele se publică în src/data/cursuri.ts (lista `materiale` a lectorului).
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import AsumareCodEtic from "../../../components/AsumareCodEtic.astro";
+import { LECTORI } from "../../../data/cursuri";
+
+export function getStaticPaths() {
+  return LECTORI.map((l) => ({ params: { slug: l.slug }, props: { l } }));
+}
+
+const { l } = Astro.props;
+---
+
+<CursuriLayout title={l.nume} allow={[`lector:${l.slug}`]}>
+  <p class="l-eyebrow">Spațiul lectorului</p>
+  <h1 class="l-title">{l.nume}</h1>
+  <p class="l-rol">{l.rol}</p>
+
+  <AsumareCodEtic />
+
+  <div class="l-teleprompter">
+    <div>
+      <strong>🎬 Teleprompter pentru susținerea cursului</strong>
+      <p>Deschide „Sufler”, încarcă-ți textul cursului și predă online citind în ritmul tău.
+      Textul se păstrează în biblioteca teleprompterului, pe dispozitivul tău.</p>
+    </div>
+    <a class="btn btn--primary" href="/cursuri/teleprompter/" target="_blank" rel="noopener">Pornește teleprompterul ↗</a>
+  </div>
+
+  <h2 class="l-h2">Materialele mele de curs</h2>
+  {l.materiale.length ? (
+    <ul class="l-materiale">
+      {l.materiale.map((m) => (
+        <li>
+          <a href={m.url} target="_blank" rel="noopener">{m.titlu} ↗</a>
+          {m.data && <span class="l-data">{m.data}</span>}
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <div class="l-gol">
+      <p><strong>Niciun material publicat încă.</strong></p>
+      <p>
+        Trimite cursurile tale (PDF, prezentări, documente) secretariatului Școlii —
+        <a href="mailto:contact@cfc-royal.ro">contact@cfc-royal.ro</a> — și vor apărea aici,
+        în spațiul tău, de regulă în aceeași zi.
+      </p>
+    </div>
+  )}
+
+  <div class="l-teleprompter">
+    <div>
+      <strong>🎓 Formarea continuă anuală</strong>
+      <p>Lectorii sunt și ei arbitri: modulul anual de actualizare + mini-testul se susțin și de către tine.
+      Promovarea intră în evidența Colegiului.</p>
+    </div>
+    <a class="btn btn--primary" href="/cursuri/arbitru/formare/">Deschide formarea →</a>
+  </div>
+
+  <div class="l-teleprompter">
+    <div>
+      <strong>📬 Buletinul Școlii</strong>
+      <p>Noutățile Școlii și ale Colegiului — arhiva completă și abonarea pe e-mail.</p>
+    </div>
+    <a class="btn btn--primary" href="/cursuri/buletin/">Deschide buletinul →</a>
+  </div>
+
+  <div class="l-teleprompter">
+    <div>
+      <strong>📖 Manualul de studiu individual</strong>
+      <p>128 de pagini, 8 module — materialul comun al Școlii, pe care îl parcurg și candidații.
+      Se citește online, filigranat cu numele cititorului; nu se descarcă și nu se redistribuie.</p>
+    </div>
+    <a class="btn btn--primary" href="/cursuri/manual/">Deschide manualul →</a>
+  </div>
+
+  <div class="l-teleprompter">
+    <div>
+      <strong>📚 Biblioteca comună a Școlii</strong>
+      <p>Programa completă și toate materialele încărcate de toți lectorii, într-un singur loc.
+      Poți preda oricare modul, conform programei.</p>
+    </div>
+    <a class="btn btn--primary" href="/cursuri/materiale/">Deschide biblioteca comună →</a>
+  </div>
+
+  <div class="l-teleprompter">
+    <div>
+      <strong>🧭 Sala de analiză (Judge Comparison Room)</strong>
+      <p>Creează exerciții de evaluare comparată: cursanții analizează aceeași resursă și își compară evaluarea cu baremul tău.</p>
+    </div>
+    <a class="btn btn--primary" href="/cursuri/admin/analiza/">Deschide sala de analiză →</a>
+  </div>
+
+  <div class="l-teleprompter">
+    <div>
+      <strong>📐 Exerciții de anatomie (Photo Anatomy Annotator)</strong>
+      <p>Încarci o fotografie, o aloci candidaților, ei o adnotează și trimit rezolvarea, iar tu o verifici cu feedback și calificativ.</p>
+    </div>
+    <a class="btn btn--primary" href="/cursuri/admin/anatomie/">Deschide exercițiile →</a>
+  </div>
+
+  <div class="l-teleprompter">
+    <div>
+      <strong>🎯 Exerciții de arbitraj (Challenge Generator)</strong>
+      <p>Aplicație separată: generezi scenarii de arbitraj, îi pui pe cursanți să evalueze și să claseze câinii, cu scor determinist și feedback. Cont propriu (e-mail + parolă), diferit de codul din platformă.</p>
+      <p class="l-nota">Aplicație educațională — nu înlocuiește standardele oficiale sau decizia unui arbitru expert.</p>
+    </div>
+    <a class="btn btn--primary" href="https://arbitraj.cfc-royal.ro" target="_blank" rel="noopener">Deschide aplicația ↗</a>
+  </div>
+
+  <h2 class="l-h2">Candidații mei repartizați</h2>
+  <p class="l-cand-info">Candidații pe care secretariatul ți i-a repartizat, în funcție de interesele lor pe rase.
+  Îi vezi cu grupele și rasele care îi atrag, ca să-ți pregătești îndrumarea.</p>
+  <div id="lc-list" class="l-cand-list">Se încarcă…</div>
+
+  <h2 class="l-h2">Resurse comune</h2>
+  <ul class="l-materiale">
+    <li><a href="/ro/regulamente/" target="_blank" rel="noopener">Regulamentele WDF (site) ↗</a></li>
+    <li><a href="/ro/documente/cod-etic/" target="_blank" rel="noopener">Codul Etic ↗</a></li>
+    <li><a href="/ro/documente/regulamentul-colegiului-de-arbitri/" target="_blank" rel="noopener">Regulamentul Colegiului de Arbitri ↗</a></li>
+  </ul>
+</CursuriLayout>
+
+<script is:inline define:vars={{ slug: l.slug }}>
+  (function () {
+    var list = document.getElementById("lc-list");
+    if (!list) return;
+    var cod = null;
+    try { cod = localStorage.getItem("cfcrAccesCod"); } catch (e) {}
+    if (!cod) { list.textContent = "Autentifică-te cu codul tău de lector pentru a-ți vedea candidații."; return; }
+
+    function chip(txt, cls) { var s = document.createElement("span"); s.className = "l-chip" + (cls ? " " + cls : ""); s.textContent = txt; return s; }
+
+    fetch("/.netlify/functions/interese-rase", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ actiune: "candidatii-mei", cod: cod }),
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (!res.ok) { list.textContent = res.j && res.j.eroare ? res.j.eroare : "Nu am putut încărca."; return; }
+        var grupe = res.j.grupe || {};
+        var candidati = res.j.candidati || [];
+        // Adminul primește toți candidații — filtrăm pe lectorul acestei pagini.
+        if (res.j.rol === "admin") candidati = candidati.filter(function (c) { return c.alocare && c.alocare.lectorSlug === slug; });
+        list.textContent = "";
+        if (!candidati.length) { list.textContent = "Niciun candidat repartizat încă."; return; }
+        candidati.forEach(function (c) {
+          var card = document.createElement("div"); card.className = "l-cand-card";
+          var head = document.createElement("div"); head.className = "l-cand-head";
+          var nm = document.createElement("strong"); nm.textContent = c.nume || "(fără nume)"; head.appendChild(nm);
+          var nG = (c.grupe || []).length;
+          head.appendChild(chip(nG + (nG === 1 ? " grupă" : " grupe") + " · " + (c.rase || []).length + " rase", nG >= 4 ? "is-larg" : ""));
+          card.appendChild(head);
+          var gr = document.createElement("div"); gr.className = "l-cand-grupe";
+          (c.grupe || []).forEach(function (g) { gr.appendChild(chip(grupe[g] || ("Grupa " + g))); });
+          card.appendChild(gr);
+          if ((c.rase || []).length) {
+            var rz = document.createElement("div"); rz.className = "l-cand-rase";
+            rz.textContent = "Rase: " + c.rase.map(function (r) { return r.ro; }).join(", ");
+            card.appendChild(rz);
+          }
+          if (c.nota) { var nt = document.createElement("div"); nt.className = "l-cand-nota"; nt.textContent = "„" + c.nota + "”"; card.appendChild(nt); }
+          list.appendChild(card);
+        });
+      }).catch(function () { list.textContent = "Eroare de rețea."; });
+  })();
+</script>
+
+<style>
+  .l-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .l-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.25rem; }
+  .l-rol { color: var(--color-text-muted); margin-top: 0; }
+  .l-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2.25rem 0 0.75rem; font-size: 1.35rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.35rem; }
+  .l-materiale { padding-left: 1.2rem; display: grid; gap: 0.5rem; }
+  .l-materiale a { color: var(--color-accent-dark); }
+  .l-data { margin-left: 0.6rem; font-size: 0.82rem; color: var(--color-text-muted); }
+  .l-teleprompter {
+    display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap;
+    margin-top: 1.5rem; padding: 1.1rem 1.4rem;
+    background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius);
+  }
+  .l-teleprompter p { margin: 0.3rem 0 0; font-size: 0.9rem; color: var(--color-text-muted); max-width: 34rem; }
+  .l-nota { font-style: italic; font-size: 0.82rem !important; }
+  .l-teleprompter .btn { flex: 0 0 auto; }
+  .l-gol {
+    background: var(--color-surface); border: 1px dashed var(--color-border);
+    border-radius: var(--radius); padding: 1.25rem 1.5rem; max-width: 40rem;
+  }
+  .l-gol p { margin: 0 0 0.5rem; }
+  .l-gol p:last-child { margin-bottom: 0; color: var(--color-text-muted); }
+  .l-cand-info { color: var(--color-text-muted); font-size: 0.9rem; max-width: 40rem; margin-top: 0; }
+  .l-cand-list { display: grid; gap: 0.7rem; }
+  .l-cand-card { border: 1px solid var(--color-border); border-left: 4px solid var(--color-primary); border-radius: var(--radius);
+    background: var(--color-surface); padding: 0.8rem 1.05rem; }
+  .l-cand-head { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; }
+  .l-cand-head strong { color: var(--color-primary); }
+  .l-cand-grupe { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.5rem 0 0.35rem; }
+  .l-chip { display: inline-block; font-size: 0.78rem; padding: 0.15rem 0.55rem; border-radius: 999px;
+    background: var(--color-surface-alt); border: 1px solid var(--color-border); color: var(--color-text); }
+  .l-chip.is-larg { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; font-weight: 600; }
+  .l-cand-rase { font-size: 0.85rem; color: var(--color-text-muted); }
+  .l-cand-nota { font-size: 0.88rem; font-style: italic; margin-top: 0.35rem; }
+</style>

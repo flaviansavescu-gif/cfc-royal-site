@@ -1,0 +1,44 @@
+---
+title: "Become a member"
+lang: en
+section: "Members"
+summary: "How to join the Royal Federal Canine Club: online form, steps, fee."
+---
+
+<img src="/images/membru-pui-husky.webp" alt="Siberian Husky puppy with a toy — the beginning of a journey in cynology" width="640" height="962" loading="eager" style="float:left;width:min(42%,300px);height:auto;border-radius:var(--radius);border:1px solid var(--color-border);margin:0 1.5rem 1rem 0" />
+
+Membership of the Royal Federal Canine Club or of its member/affiliated associations means belonging
+to a national organisation that supports the responsible development of cynology.
+See the [full benefits](/en/membri/beneficii/).
+
+<div style="clear:both"></div>
+
+## Online registration form
+
+Fill in the form below to submit your membership application.
+
+<p><a href="https://docs.google.com/forms/d/e/1FAIpQLSfJgo9FdGo8cHO3lVLsuUjO7nx2k0bRfUj6UJvtsHckqFeZCg/viewform" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.5rem;background:var(--color-accent);color:var(--color-primary-dark);font-weight:700;padding:.7rem 1.4rem;border-radius:var(--radius);text-decoration:none">Open the form ↗</a></p>
+
+<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfJgo9FdGo8cHO3lVLsuUjO7nx2k0bRfUj6UJvtsHckqFeZCg/viewform?embedded=true" width="100%" height="1500" style="border:1px solid var(--color-border);border-radius:var(--radius);margin-top:1rem" loading="lazy" title="Membership registration form">Loading the form…</iframe>
+
+## Registration steps
+
+1. **Fill in the form** above.
+2. Pay the **registration fee**, which also represents the annual membership fee (12 months) —
+   **100 RON**, into the account:
+   - Account holder: Club Federal Chinologic – Royal
+   - IBAN: `RO07 RNCB 0263 1767 9657 0001`
+   - Bank: Banca Comercială Română (BCR)
+3. Send the **proof of payment** via WhatsApp to **0741 387 026** or by e-mail to
+   **contact@cfc-royal.ro**.
+4. The request is reviewed in accordance with the Club's Statute and regulations.
+5. Once approved, you become a CFC–Royal member.
+
+## Useful forms
+
+- [Membership application form](/en/documente/cerere-inscriere-membru/)
+- [Breeder affix reservation request](/en/documente/cerere-rezervare-afix/)
+- [Mating and whelping declaration](/en/documente/declaratie-monta-fatare/)
+- [Data processing agreement (GDPR)](/en/documente/acord-prelucrare-date/)
+
+Questions? [Contact us](/en/contact/).

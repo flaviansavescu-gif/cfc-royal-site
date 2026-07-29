@@ -1,0 +1,220 @@
+---
+// /cursuri/interese/ — profilul de interese pe rase al candidatului.
+// Candidatul alege grupele și rasele care îl interesează. Minim 2 grupe la trimitere
+// (încurajăm lărgimea — asociația are nevoie de arbitri cu competențe extinse).
+// Alegerile ajung la secretariatul Școlii pentru orientarea către un lector potrivit.
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import { GRUPE_WDF, RASE_PE_GRUPA } from "../../../data/nomenclator-wdf";
+---
+
+<CursuriLayout title="Interesele mele pe rase" candidat>
+  <p class="ir-eyebrow">Școala de Arbitraj</p>
+  <h1 class="ir-title">Interesele mele pe rase</h1>
+  <p class="ir-sub">
+    Alege grupele și rasele care te atrag. Pe baza lor te vom îndruma către un
+    <strong>lector potrivit</strong>. Te încurajăm să alegi <strong>larg</strong>: asociația are nevoie de
+    arbitri cu competențe cât mai extinse, iar deschiderea către mai multe grupe îți crește șansele de autorizare.
+    Poți reveni oricând să-ți actualizezi alegerile.
+  </p>
+
+  <div class="ir-note" id="ir-anon" hidden>
+    <strong>Autentifică-te cu codul tău personal de candidat</strong> ca să-ți poți salva alegerile.
+    Le poți răsfoi și acum, dar salvarea are nevoie de codul tău individual.
+  </div>
+
+  <div class="ir-bar">
+    <input type="search" id="ir-cauta" class="ir-cauta" placeholder="Caută o rasă (ex. Ciobănesc, Terrier, Beagle)…" autocomplete="off" />
+    <div class="ir-rezumat" id="ir-rezumat">Ai ales <strong id="ir-nG">0</strong> grupe și <strong id="ir-nR">0</strong> rase.</div>
+  </div>
+
+  <div class="ir-grupe">
+    {GRUPE_WDF.map((g) => (
+      <section class="ir-grupa" data-grupa={g.nr}>
+        <div class="ir-grupa__head">
+          <label class="ir-grupa__pick">
+            <input type="checkbox" class="ir-grp" data-g={g.nr} />
+            <span class="ir-grupa__nume"><b>Grupa {g.nr}</b> — {g.ro}</span>
+          </label>
+          <span class="ir-def" data-def={g.nr} hidden>⚠ deficit de arbitri</span>
+          <button type="button" class="ir-toggle" data-toggle={g.nr} aria-expanded="false">
+            {RASE_PE_GRUPA[g.nr].length} rase ▾
+          </button>
+        </div>
+        <div class="ir-rase" data-rase={g.nr} hidden>
+          {RASE_PE_GRUPA[g.nr].map((r) => (
+            <label class="ir-rasa" data-ro={r.ro.toLowerCase()} data-en={r.en.toLowerCase()}>
+              <input type="checkbox" class="ir-breed" data-ro={r.ro} data-g={g.nr} />
+              <span>{r.ro}{r.en !== r.ro && <em class="ir-en"> · {r.en}</em>}</span>
+            </label>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+
+  <div class="ir-nota-wrap">
+    <label for="ir-nota" class="ir-nota-lbl">Notă (opțional) — de ce te atrag aceste rase, experiența ta cu ele etc.</label>
+    <textarea id="ir-nota" class="ir-nota" maxlength="600" rows="3" placeholder="Scrie câteva rânduri…"></textarea>
+  </div>
+
+  <div class="ir-actiuni">
+    <button type="button" id="ir-salveaza" class="btn btn--primary" disabled>Salvează interesele mele</button>
+    <span class="ir-msg" id="ir-msg" hidden></span>
+  </div>
+  <p class="ir-hint" id="ir-hint">Ai nevoie de cel puțin <strong>2 grupe</strong> (o rasă aleasă contează și ca interes pentru grupa ei).</p>
+</CursuriLayout>
+
+<script is:inline>
+  (function () {
+    var minGrupe = 2;
+    var $ = function (s, r) { return (r || document).querySelector(s); };
+    var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+    var cid = null, nume = null;
+    try { var c = JSON.parse(localStorage.getItem("cfcrCandidat") || "null"); if (c && c.id) { cid = c.id; nume = c.nume; } } catch (e) {}
+
+    // Expand/collapse grupe.
+    $$(".ir-toggle").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var g = b.getAttribute("data-toggle");
+        var box = $('.ir-rase[data-rase="' + g + '"]');
+        var open = box.hasAttribute("hidden");
+        if (open) box.removeAttribute("hidden"); else box.setAttribute("hidden", "");
+        b.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+    });
+
+    // Bifarea unei rase implică interes pentru grupa ei (grupa se bifează automat).
+    function grupeleEfective() {
+      var s = {};
+      $$(".ir-grp").forEach(function (i) { if (i.checked) s[i.getAttribute("data-g")] = 1; });
+      $$(".ir-breed").forEach(function (i) { if (i.checked) s[i.getAttribute("data-g")] = 1; });
+      return Object.keys(s);
+    }
+    function raseleAlese() {
+      return $$(".ir-breed").filter(function (i) { return i.checked; })
+        .map(function (i) { return { ro: i.getAttribute("data-ro"), g: parseInt(i.getAttribute("data-g"), 10) }; });
+    }
+    function actualizeaza() {
+      var gE = grupeleEfective(), nR = raseleAlese().length;
+      $("#ir-nG").textContent = gE.length;
+      $("#ir-nR").textContent = nR;
+      var ok = gE.length >= minGrupe;
+      var btn = $("#ir-salveaza");
+      btn.disabled = !ok || !cid;
+      var hint = $("#ir-hint");
+      if (!cid) { hint.innerHTML = "Autentifică-te cu codul tău personal de candidat pentru a salva."; }
+      else if (ok) { hint.innerHTML = "Poți salva. ✅"; }
+      else { hint.innerHTML = "Ai nevoie de cel puțin <strong>" + minGrupe + " grupe</strong> (o rasă aleasă contează și ca interes pentru grupa ei)."; }
+    }
+
+    $$(".ir-breed").forEach(function (i) { i.addEventListener("change", actualizeaza); });
+    $$(".ir-grp").forEach(function (i) { i.addEventListener("change", actualizeaza); });
+
+    // Căutare rase.
+    $("#ir-cauta").addEventListener("input", function () {
+      var q = this.value.trim().toLowerCase();
+      $$(".ir-grupa").forEach(function (sec) {
+        var box = sec.querySelector(".ir-rase");
+        var toggle = sec.querySelector(".ir-toggle");
+        var potriviri = 0;
+        $$(".ir-rasa", sec).forEach(function (lab) {
+          var hit = !q || lab.getAttribute("data-ro").indexOf(q) >= 0 || lab.getAttribute("data-en").indexOf(q) >= 0;
+          lab.style.display = hit ? "" : "none";
+          if (hit) potriviri++;
+        });
+        if (q) {
+          if (potriviri > 0) { box.removeAttribute("hidden"); toggle.setAttribute("aria-expanded", "true"); sec.style.display = ""; }
+          else { sec.style.display = "none"; }
+        } else {
+          sec.style.display = "";
+          box.setAttribute("hidden", ""); toggle.setAttribute("aria-expanded", "false");
+        }
+      });
+    });
+
+    // Prefill din server.
+    function bifeaza(profil, deficit) {
+      (deficit || []).forEach(function (g) { var b = $('.ir-def[data-def="' + g + '"]'); if (b) b.removeAttribute("hidden"); });
+      if (profil) {
+        (profil.grupe || []).forEach(function (g) { var i = $('.ir-grp[data-g="' + g + '"]'); if (i) i.checked = true; });
+        var setR = {}; (profil.rase || []).forEach(function (r) { setR[r.g + "|" + r.ro] = 1; });
+        $$(".ir-breed").forEach(function (i) {
+          var k = i.getAttribute("data-g") + "|" + i.getAttribute("data-ro");
+          if (setR[k]) { i.checked = true; var box = i.closest(".ir-rase"); if (box) box.removeAttribute("hidden"); }
+        });
+        if (profil.nota) $("#ir-nota").value = profil.nota;
+      }
+      actualizeaza();
+    }
+
+    if (!cid) { $("#ir-anon").removeAttribute("hidden"); actualizeaza(); }
+    else {
+      fetch("/.netlify/functions/interese-rase", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ actiune: "meniu", cid: cid }),
+      }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+        if (!d) { actualizeaza(); return; }
+        if (d.minGrupe) minGrupe = d.minGrupe;
+        bifeaza(d.profil, d.deficit);
+      }).catch(function () { actualizeaza(); });
+    }
+
+    // Salvare.
+    $("#ir-salveaza").addEventListener("click", function () {
+      if (!cid) return;
+      var btn = this, msg = $("#ir-msg");
+      var grupe = grupeleEfective().map(function (x) { return parseInt(x, 10); });
+      var rase = raseleAlese();
+      var nota = $("#ir-nota").value;
+      btn.disabled = true; msg.hidden = false; msg.className = "ir-msg"; msg.textContent = "Se salvează…";
+      fetch("/.netlify/functions/interese-rase", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ actiune: "salveaza", cid: cid, grupe: grupe, rase: rase, nota: nota }),
+      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (res) {
+          if (res.ok) { msg.className = "ir-msg is-ok"; msg.textContent = "✅ Salvat. Mulțumim — te vom orienta către un lector potrivit."; }
+          else { msg.className = "ir-msg is-err"; msg.textContent = res.j && res.j.eroare ? res.j.eroare : "Nu s-a putut salva."; }
+          actualizeaza();
+        }).catch(function () { msg.className = "ir-msg is-err"; msg.textContent = "Eroare de rețea."; btn.disabled = false; });
+    });
+  })();
+</script>
+
+<style>
+  .ir-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .ir-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
+  .ir-sub { color: var(--color-text-muted); max-width: 48rem; line-height: 1.55; }
+  .ir-note { margin: 1rem 0; padding: 0.9rem 1.2rem; background: #fbf3d9; border: 1px solid var(--color-accent); border-radius: var(--radius); }
+  .ir-bar { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center;
+    margin: 1.5rem 0 1rem; padding: 0.75rem 0; background: var(--color-bg); }
+  .ir-cauta { flex: 1 1 20rem; padding: 0.6rem 0.9rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    font: inherit; background: var(--color-surface); }
+  .ir-rezumat { font-size: 0.92rem; color: var(--color-text-muted); }
+  .ir-rezumat strong { color: var(--color-primary); }
+  .ir-grupe { display: grid; gap: 0.6rem; }
+  .ir-grupa { border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); overflow: hidden; }
+  .ir-grupa__head { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; flex-wrap: wrap; }
+  .ir-grupa__pick { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; flex: 1 1 auto; }
+  .ir-grupa__pick input { width: 1.15rem; height: 1.15rem; accent-color: var(--color-primary); }
+  .ir-grupa__nume b { color: var(--color-primary); }
+  .ir-def { font-size: 0.78rem; font-weight: 700; color: #8c1d2f; background: #f7e2e2; border: 1px solid #e0b4b4;
+    padding: 0.15rem 0.55rem; border-radius: 999px; white-space: nowrap; }
+  .ir-toggle { flex: 0 0 auto; background: none; border: 1px solid var(--color-border); border-radius: var(--radius);
+    padding: 0.35rem 0.7rem; font: inherit; font-size: 0.82rem; color: var(--color-text-muted); cursor: pointer; }
+  .ir-toggle:hover { border-color: var(--color-primary); color: var(--color-primary); }
+  .ir-rase { padding: 0.4rem 1rem 1rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.15rem 1rem;
+    border-top: 1px dashed var(--color-border); }
+  .ir-rasa { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.3rem 0.2rem; cursor: pointer; font-size: 0.9rem; }
+  .ir-rasa input { margin-top: 0.15rem; accent-color: var(--color-primary); }
+  .ir-en { color: var(--color-text-muted); font-style: italic; font-size: 0.82rem; }
+  .ir-nota-wrap { margin: 1.5rem 0 0; display: grid; gap: 0.4rem; max-width: 46rem; }
+  .ir-nota-lbl { font-size: 0.9rem; color: var(--color-text-muted); }
+  .ir-nota { font: inherit; padding: 0.6rem 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    background: var(--color-surface); resize: vertical; }
+  .ir-actiuni { margin: 1.5rem 0 0.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .ir-msg { font-size: 0.92rem; }
+  .ir-msg.is-ok { color: var(--color-primary); font-weight: 600; }
+  .ir-msg.is-err { color: #8c1d2f; font-weight: 600; }
+  .ir-hint { font-size: 0.88rem; color: var(--color-text-muted); margin: 0.25rem 0 0; }
+</style>

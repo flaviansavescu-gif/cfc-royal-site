@@ -1,0 +1,120 @@
+---
+// /cursuri/analiza/ — Judge Comparison Room: tabloul cursantului (sesiuni de analiză alocate).
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+---
+
+<CursuriLayout title="Sala de analiză" candidat>
+  <p class="j-eyebrow">Judge Comparison Room</p>
+  <h1 class="j-title">Sala de analiză</h1>
+  <p class="j-sub">Analizezi aceeași resursă ca ceilalți cursanți, îți trimiți evaluarea, iar după deblocare o compari cu baremul lectorului. Instrument pedagogic — nu produce verdicte oficiale.</p>
+
+  <p class="j-actiuni"><a class="btn btn--outline" href="/cursuri/module/">← Înapoi la module</a></p>
+
+  <p class="j-stare" id="j-stare">Se încarcă sesiunile tale…</p>
+  <ul class="j-list" id="j-list" hidden></ul>
+
+  <section class="j-ist" id="j-ist" hidden>
+    <h2 class="j-h2">Istoricul meu</h2>
+    <p class="j-ist-sum" id="j-ist-sum"></p>
+    <div id="j-ist-list"></div>
+  </section>
+</CursuriLayout>
+
+<script is:inline>
+  (async function () {
+    const stareEl = document.getElementById("j-stare");
+    const list = document.getElementById("j-list");
+    let cid = null;
+    try { cid = JSON.parse(localStorage.getItem("cfcrCandidat") || "null")?.id || null; } catch (e) {}
+    if (!cid) { stareEl.textContent = "Intră cu codul tău de candidat pentru a vedea sesiunile."; return; }
+
+    const ETICHETE = { neinceput: "Neînceput", draft: "Schiță salvată", submitted: "Trimis" };
+    try {
+      const res = await fetch("/.netlify/functions/jcr-sesiuni", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ actiune: "alocate", cid }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.eroare || "Eroare");
+      if (!data.sesiuni.length) { stareEl.textContent = "Nu ai nicio sesiune de analiză alocată momentan."; return; }
+      stareEl.hidden = true; list.hidden = false;
+      data.sesiuni.forEach((s) => {
+        const li = document.createElement("li");
+        li.className = "j-card";
+        const inchisa = s.status === "closed";
+        const rs = ETICHETE[s.raspunsStatus] || s.raspunsStatus;
+        li.innerHTML =
+          '<div class="j-card__body">' +
+            '<strong>' + esc(s.titlu) + '</strong>' +
+            '<span class="j-meta">' + [s.rasa, s.grupa, s.nivel].filter(Boolean).map(esc).join(" · ") + '</span>' +
+            '<span class="j-badges">' +
+              '<span class="j-badge ' + (inchisa ? "is-closed" : "is-open") + '">' + (inchisa ? "Închisă" : "Deschisă") + '</span>' +
+              '<span class="j-badge is-resp resp-' + s.raspunsStatus + '">' + rs + '</span>' +
+              (s.termen ? '<span class="j-badge">termen ' + esc(s.termen) + '</span>' : '') +
+            '</span>' +
+          '</div>' +
+          '<div class="j-card__act"></div>';
+        const act = li.querySelector(".j-card__act");
+        if (s.status === "published") {
+          const a = document.createElement("a"); a.className = "btn btn--primary btn--small";
+          a.href = "/cursuri/analiza/sesiune/?s=" + encodeURIComponent(s.id);
+          a.textContent = s.raspunsStatus === "submitted" ? "Vezi răspunsul" : (s.raspunsStatus === "draft" ? "Continuă" : "Începe analiza");
+          act.appendChild(a);
+        }
+        if (inchisa) {
+          const c = document.createElement("a"); c.className = "btn btn--small";
+          c.href = "/cursuri/analiza/comparatie/?s=" + encodeURIComponent(s.id);
+          c.textContent = "Vezi comparația";
+          act.appendChild(c);
+        }
+        list.appendChild(li);
+      });
+    } catch (err) { stareEl.textContent = "Nu am putut încărca sesiunile: " + err.message; }
+
+    // Istoricul cursantului (sesiuni închise, cu barem deblocat)
+    try {
+      const r = await fetch("/.netlify/functions/jcr-raport", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ actiune: "istoric", cid }) });
+      const d = await r.json();
+      if (r.ok && d.sesiuni.length) {
+        document.getElementById("j-ist").hidden = false;
+        document.getElementById("j-ist-sum").textContent = d.tendinta.total + " sesiuni finalizate · calificativ în acord la " + d.tendinta.calificativAcord + "/" + d.tendinta.total;
+        const box = document.getElementById("j-ist-list");
+        d.sesiuni.forEach((s) => {
+          const div = document.createElement("div"); div.className = "j-istrow";
+          div.innerHTML = "<div><strong>" + esc(s.titlu) + "</strong> <span class='j-meta'>" + esc(s.rasa) + "</span>" +
+            "<span class='j-istbadges'>calif. " + esc(s.calificativStudent) + " vs " + esc(s.calificativReferinta) + " · defecte acord " + s.defecteAcord + "/omise " + s.defecteOmise + (s.spearman != null ? " · ρ " + s.spearman : "") + "</span></div>" +
+            "<a class='btn btn--small' href='/cursuri/analiza/comparatie/?s=" + encodeURIComponent(s.id) + "'>Detalii</a>";
+          box.appendChild(div);
+        });
+      }
+    } catch (e) {}
+
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+  })();
+</script>
+
+<style>
+  .j-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .j-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
+  .j-sub { color: var(--color-text-muted); max-width: 48rem; }
+  .j-actiuni { margin: 1rem 0; }
+  .j-stare { color: var(--color-text-muted); font-style: italic; }
+  .j-list { list-style: none; margin: 1.5rem 0 0; padding: 0; display: grid; gap: 0.75rem; }
+  .j-card { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.25rem; }
+  .j-card__body { flex: 1 1 18rem; display: flex; flex-direction: column; gap: 0.35rem; }
+  .j-card__body strong { color: var(--color-primary); font-size: 1.05rem; }
+  .j-meta { font-size: 0.85rem; color: var(--color-text-muted); }
+  .j-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.15rem; }
+  .j-badge { font-size: 0.72rem; letter-spacing: 0.03em; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); }
+  .j-badge.is-open { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
+  .j-badge.is-closed { background: var(--color-surface-alt); }
+  .j-badge.resp-submitted { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
+  .j-card__act { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .btn--small { font-size: 0.85rem; padding: 0.45rem 0.9rem; }
+  .j-ist { margin-top: 2.5rem; }
+  .j-h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.25rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem; }
+  .j-ist-sum { font-size: 0.9rem; color: var(--color-accent-dark); font-weight: 600; }
+  .j-istrow { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.7rem 1rem; margin-bottom: 0.5rem; }
+  .j-istrow strong { color: var(--color-primary); }
+  .j-istbadges { display: block; font-size: 0.82rem; color: var(--color-text-muted); margin-top: 0.2rem; }
+</style>

@@ -1,0 +1,216 @@
+---
+// /cursuri/module/ — tabloul de bord al candidatului: lista celor 8 module.
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import AsumareCodEtic from "../../../components/AsumareCodEtic.astro";
+import { MODULE } from "../../../data/cursuri";
+---
+
+<CursuriLayout title="Module" candidat>
+  <p class="d-hi" id="d-hi" hidden></p>
+  <h1 class="d-title">Modulele Școlii de Arbitraj</h1>
+  <p class="d-sub">
+    Parcurge lecturile fiecărui modul, apoi susține testul. Pragul de promovare este <strong>70%</strong>.
+    Rezultatele ajung automat la secretariatul Școlii.
+  </p>
+
+  <AsumareCodEtic />
+
+  <p class="d-actiuni">
+    <a class="d-stagiu" href="/cursuri/manual/">📖 Manualul de studiu individual — 128 de pagini, 8 module →</a>
+    <a class="d-stagiu" href="/cursuri/buletin/">📬 Buletinul Școlii — noutăți și abonare pe e-mail →</a>
+    <a class="d-stagiu" href="/cursuri/asistente/">🎗️ Asistențe de ring — stagiul practic (5 asistențe) →</a>
+    <a class="d-stagiu" href="/cursuri/examen/">🎓 Examenul final + autorizarea mea pe grupe →</a>
+    <a class="d-stagiu" href="/cursuri/analiza/">🧭 Sala de analiză — compară-ți evaluarea cu baremul →</a>
+    <a class="d-stagiu" href="/cursuri/anatomie/">📐 Exerciții de anatomie — rezolvă fotografia lectorului →</a>
+    <a class="d-stagiu" href="/cursuri/interese/">🐾 Interesele mele pe rase — alege grupele și rasele care te atrag →</a>
+    <a class="d-stagiu" href="/photo-annotator/" target="_blank" rel="noopener">📐 Photo Anatomy Annotator — adnotare liberă ↗</a>
+  </p>
+
+  <a class="d-tool" href="/breed-explorer/">
+    <span class="d-tool__badge">BS</span>
+    <span class="d-tool__body">
+      <strong>CFCR Breed Standards Explorer</strong>
+      <span>Bază de standarde de rasă orientată WDF — studiu comparativ și consultare rapidă. Se poate instala ca aplicație pe telefon sau desktop și merge și offline.</span>
+      <span class="d-tool__cta">Deschide aplicația →</span>
+    </span>
+  </a>
+
+  <a class="d-tool" href="https://arbitraj.cfc-royal.ro" target="_blank" rel="noopener">
+    <span class="d-tool__badge">EA</span>
+    <span class="d-tool__body">
+      <strong>Exerciții de arbitraj ↗</strong>
+      <span>Rezolvă scenarii de arbitraj: evaluează și clasează câinii pe criterii, iar aplicația îți dă scor și explicații. Cont separat (e-mail + parolă), primit de la lector.</span>
+      <span class="d-tool__nota">Aplicație educațională — scorurile și feedbackul nu înlocuiesc standardele oficiale sau decizia unui arbitru expert.</span>
+      <span class="d-tool__cta">Deschide aplicația ↗</span>
+    </span>
+  </a>
+
+  <section class="d-anunturi" id="d-anunturi" hidden>
+    <h2 class="d-anunturi__title">📢 Noutăți</h2>
+    <ul class="d-anunturi__list" id="d-anunturi-list"></ul>
+  </section>
+
+  <ol class="d-list">
+    {MODULE.map((m) => (
+      <li class="d-item">
+        <a class="d-item__link" href={`/cursuri/${m.slug}/`} data-slug={m.slug}>
+          <span class="d-item__nr">{m.nr}</span>
+          <span class="d-item__body">
+            <strong>{m.titlu}</strong>
+            <span>{m.obiectiv}</span>
+            <span class="d-item__prog" data-prog={m.slug} hidden></span>
+          </span>
+          <span class={`d-item__badge ${m.intrebari ? "is-on" : ""}`} data-badge={m.slug}>
+            {m.intrebari ? "Test activ" : "Test în pregătire"}
+          </span>
+        </a>
+      </li>
+    ))}
+  </ol>
+</CursuriLayout>
+
+<script is:inline>
+  // Modulele nebifate de administrator apar „încuiate” pentru candidați.
+  (async function () {
+    let esteAdmin = false;
+    try { esteAdmin = (JSON.parse(localStorage.getItem("cfcrRol") || "null") || {}).rol === "admin"; } catch (e) {}
+    if (esteAdmin) return; // adminul vede tot
+    try {
+      const stare = await (await fetch("/.netlify/functions/stare-cursuri")).json();
+      document.querySelectorAll("a[data-slug]").forEach((a) => {
+        const slug = a.dataset.slug;
+        if (stare[slug]) return; // modul online — rămâne accesibil
+        a.classList.add("is-locked");
+        a.addEventListener("click", (e) => e.preventDefault());
+        a.removeAttribute("href");
+        const b = document.querySelector('[data-badge="' + slug + '"]');
+        if (b) { b.textContent = "🔒 Se deschide în curând"; b.classList.remove("is-on"); }
+      });
+    } catch (e) { /* dacă starea nu se poate citi, nu blocăm nimic */ }
+  })();
+
+  // Anunțuri (publicate de administrator, vizibile tuturor).
+  (async function () {
+    try {
+      const anunturi = await (await fetch("/.netlify/functions/anunturi-cursuri")).json();
+      if (!Array.isArray(anunturi) || !anunturi.length) return;
+      const sec = document.getElementById("d-anunturi");
+      const list = document.getElementById("d-anunturi-list");
+      anunturi.slice(0, 8).forEach((a) => {
+        const li = document.createElement("li");
+        const d = a.data ? new Date(a.data) : null;
+        const meta = document.createElement("span");
+        meta.className = "d-anunt__data";
+        meta.textContent = d ? d.toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" }) : "";
+        const txt = document.createElement("span");
+        txt.className = "d-anunt__text";
+        txt.textContent = a.text;
+        li.appendChild(meta);
+        li.appendChild(txt);
+        list.appendChild(li);
+      });
+      sec.hidden = false;
+    } catch (e) {}
+  })();
+
+  // Progresul candidatului. Cu cod individual: salvat pe server, personal, vizibil de pe
+  // orice dispozitiv. Fără cod individual (cod comun/preview): din memoria acestui dispozitiv.
+  (async function () {
+    function aplica(p) {
+      Object.keys(p || {}).forEach((slug) => {
+        const el = document.querySelector('[data-prog="' + slug + '"]');
+        if (!el) return;
+        const r = p[slug];
+        el.hidden = false;
+        el.textContent = r.promovat
+          ? "✅ Test promovat — " + r.procent + "% (" + r.data + ")"
+          : "Ultimul rezultat: " + r.procent + "% — nepromovat";
+        el.className = "d-item__prog " + (r.promovat ? "is-pass" : "is-fail");
+      });
+    }
+
+    let cand = null;
+    try { cand = JSON.parse(localStorage.getItem("cfcrCandidat") || "null"); } catch (e) {}
+
+    if (cand && cand.id) {
+      // Salut personalizat + progres de pe server.
+      const hi = document.getElementById("d-hi");
+      if (hi) { hi.textContent = "Bun venit, " + cand.nume + "!"; hi.hidden = false; }
+      try {
+        const res = await fetch("/.netlify/functions/progres-cursuri", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: cand.id }),
+        });
+        if (res.ok) aplica(await res.json());
+      } catch (e) {}
+      return;
+    }
+
+    // Fără cod individual — progresul local (moștenit).
+    try { aplica(JSON.parse(localStorage.getItem("cfcrProgres") || "{}")); } catch (e) {}
+  })();
+</script>
+
+<style>
+  .d-hi { margin: 0 0 0.35rem; font-weight: 600; color: var(--color-accent-dark); }
+  .d-actiuni { margin: 1.5rem 0 0; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .d-stagiu { display: inline-block; text-decoration: none; font-weight: 600; color: var(--color-primary);
+    background: var(--color-surface); border: 1px solid var(--color-accent); border-radius: var(--radius); padding: 0.7rem 1.1rem; }
+  .d-stagiu:hover { border-color: var(--color-primary); }
+  .d-tool {
+    display: flex; gap: 1rem; align-items: center; max-width: 640px; margin: 1.1rem 0 0;
+    text-decoration: none; background: var(--color-surface); border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary); border-radius: var(--radius); padding: 1.1rem 1.25rem;
+  }
+  .d-tool:hover { border-color: var(--color-primary); }
+  .d-tool__badge {
+    flex: 0 0 auto; width: 54px; height: 54px; border-radius: 12px; background: var(--color-primary);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-serif); font-weight: 700; font-size: 20px;
+  }
+  .d-tool__body { display: flex; flex-direction: column; }
+  .d-tool__body strong { font-family: var(--font-serif); font-size: 1.1rem; color: var(--color-primary); }
+  .d-tool__body > span { font-size: 0.9rem; color: var(--color-text-muted); margin-top: 0.2rem; line-height: 1.45; }
+  .d-tool__cta { font-size: 0.85rem; font-weight: 700; color: var(--color-accent-dark) !important; margin-top: 0.6rem; }
+  .d-tool__nota { font-size: 0.78rem; font-style: italic; color: var(--color-text-muted); margin-top: 0.4rem; }
+  .d-title { font-family: var(--font-serif); color: var(--color-primary); margin-bottom: 0.5rem; }
+  .d-sub { color: var(--color-text-muted); max-width: 46rem; }
+  .d-list { list-style: none; margin: 2rem 0 0; padding: 0; display: grid; gap: 0.85rem; }
+  .d-item__link {
+    display: flex; align-items: center; gap: 1.1rem; text-decoration: none;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius); padding: 1rem 1.25rem;
+  }
+  .d-item__link:hover { border-color: var(--color-primary); }
+  .d-item__nr {
+    flex: 0 0 auto; width: 2.6rem; height: 2.6rem; display: grid; place-items: center;
+    background: var(--color-primary); color: #fbfaf7; border-radius: 50%;
+    font-family: var(--font-serif); font-size: 1.2rem;
+  }
+  .d-item__body { display: flex; flex-direction: column; gap: 0.2rem; }
+  .d-item__body strong { color: var(--color-primary); }
+  .d-item__body span { font-size: 0.88rem; color: var(--color-text-muted); }
+  .d-item__badge {
+    margin-left: auto; flex: 0 0 auto; font-size: 0.75rem; letter-spacing: 0.04em;
+    padding: 0.3rem 0.7rem; border-radius: 999px; border: 1px solid var(--color-border);
+    color: var(--color-text-muted); white-space: nowrap;
+  }
+  .d-item__badge.is-on { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
+  .d-anunturi { margin: 1.5rem 0 0; background: #f7f1df; border: 1px solid var(--color-accent); border-radius: var(--radius); padding: 1.1rem 1.4rem; }
+  .d-anunturi__title { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.15rem; margin: 0 0 0.75rem; }
+  .d-anunturi__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
+  .d-anunturi__list li { display: flex; flex-direction: column; gap: 0.15rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(176,141,46,0.3); }
+  .d-anunturi__list li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .d-anunt__data { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-accent-dark); }
+  .d-anunt__text { color: var(--color-text); white-space: pre-line; }
+  .d-item__prog { font-size: 0.82rem; font-weight: 600; margin-top: 0.15rem; }
+  .d-item__prog.is-pass { color: var(--color-primary); }
+  .d-item__prog.is-fail { color: #8c1d2f; }
+  .d-item__link.is-locked { opacity: 0.55; cursor: not-allowed; }
+  .d-item__link.is-locked:hover { border-color: var(--color-border); }
+  @media (max-width: 640px) {
+    .d-item__link { flex-wrap: wrap; }
+    .d-item__badge { margin-left: 3.7rem; }
+  }
+</style>

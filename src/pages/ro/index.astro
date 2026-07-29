@@ -1,0 +1,10 @@
+---
+// Front-page RO.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Home from "../../components/Home.astro";
+import { SITE } from "../../data/site";
+const lang = "ro" as const;
+---
+<BaseLayout title={SITE.name[lang]} lang={lang}>
+  <Home lang={lang} />
+</BaseLayout>

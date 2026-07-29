@@ -1,0 +1,113 @@
+---
+// CalendarExpo.astro — calendarul competițional public (bilingv RO/EN).
+// Viitoare: edițiile publicate cu înscrieri deschise (link spre formular).
+// Trecute: DOAR edițiile cu rezultate publicate (link spre pagina de rezultate) —
+// astfel edițiile de test sau retrase nu apar niciodată public.
+interface Props { lang: "ro" | "en"; }
+const { lang } = Astro.props;
+
+const T = {
+  ro: {
+    titlu: "Calendar competițional",
+    intro: "Expozițiile Clubului Federal Chinologic – Royal, sub egida World Dog Federation.",
+    viitoare: "Înscrieri deschise",
+    trecute: "Rezultate publicate",
+    faraViitoare: "Momentan nicio expoziție cu înscrieri deschise. Revino curând.",
+    faraTrecute: "Rezultatele edițiilor vor apărea aici după fiecare expoziție.",
+    termen: "termen de înscriere",
+    inscrie: "Înscrie-te →",
+    rezultate: "Vezi rezultatele →",
+    live: "În ziua expoziției, programul ringurilor este transmis în direct la",
+  },
+  en: {
+    titlu: "Show calendar",
+    intro: "The shows of Club Federal Chinologic – Royal, under the World Dog Federation.",
+    viitoare: "Entries open",
+    trecute: "Published results",
+    faraViitoare: "No show is currently open for entries. Check back soon.",
+    faraTrecute: "Results will appear here after each show.",
+    termen: "entry deadline",
+    inscrie: "Enter now →",
+    rezultate: "See the results →",
+    live: "On show day, the live ring schedule is broadcast at",
+  },
+}[lang];
+const linkInscriere = lang === "en" ? "/en/inscriere-expozitie" : "/ro/inscriere-expozitie";
+---
+
+<section class="cal">
+  <h1 class="cal__titlu">{T.titlu}</h1>
+  <p class="cal__intro">{T.intro}</p>
+
+  <h2 class="cal__sect">{T.viitoare}</h2>
+  <p class="cal__gol" id="cal-gol-v" hidden>{T.faraViitoare}</p>
+  <ul class="cal__lista" id="cal-viitoare"></ul>
+
+  <h2 class="cal__sect">{T.trecute}</h2>
+  <p class="cal__gol" id="cal-gol-t" hidden>{T.faraTrecute}</p>
+  <ul class="cal__lista" id="cal-trecute"></ul>
+
+  <p class="cal__live">{T.live} <a href="/live"><b>cfc-royal.ro/live</b></a>.</p>
+</section>
+
+<script is:inline define:vars={{ txtTermen: T.termen, txtInscrie: T.inscrie, txtRezultate: T.rezultate, linkInscriere, limba: lang }}>
+  (async function () {
+    let calendar = [];
+    try {
+      const r = await fetch("/.netlify/functions/inscriere-expo?calendar=1");
+      calendar = (await r.json()).calendar || [];
+    } catch (e) {}
+
+    const esc = (s) => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const dataRo = (s) => {
+      const d = new Date(s);
+      return isNaN(d) ? esc(s) : d.toLocaleDateString(limba === "en" ? "en-GB" : "ro-RO", { day: "numeric", month: "long", year: "numeric" });
+    };
+
+    const viitoare = calendar.filter((c) => c.stare === "inscrieri").sort((a, b) => (a.data || "").localeCompare(b.data || ""));
+    const trecute = calendar.filter((c) => c.stare === "rezultate");
+
+    const lv = document.getElementById("cal-viitoare");
+    if (!viitoare.length) document.getElementById("cal-gol-v").hidden = false;
+    else
+      lv.innerHTML = viitoare
+        .map(
+          (c) => `<li class="cal__card">
+            <div class="cal__info"><strong>${esc(c.nume)}</strong>
+            <span>${dataRo(c.data)}${c.locatie ? " · " + esc(c.locatie) : ""}</span>
+            ${c.termen ? `<small>${txtTermen}: ${dataRo(c.termen)}</small>` : ""}</div>
+            <a class="cal__btn" href="${linkInscriere}">${txtInscrie}</a>
+          </li>`,
+        )
+        .join("");
+
+    const lt = document.getElementById("cal-trecute");
+    if (!trecute.length) document.getElementById("cal-gol-t").hidden = false;
+    else
+      lt.innerHTML = trecute
+        .map(
+          (c) => `<li class="cal__card">
+            <div class="cal__info"><strong>${esc(c.nume)}</strong><span>${dataRo(c.data)}</span></div>
+            <a class="cal__btn cal__btn--sec" href="/rezultate-live/${encodeURIComponent(c.showId)}">${txtRezultate}</a>
+          </li>`,
+        )
+        .join("");
+  })();
+</script>
+
+<style>
+  .cal { max-width: 44rem; margin-inline: auto; }
+  .cal__titlu { font-family: var(--font-serif); color: var(--color-primary); }
+  .cal__intro { color: var(--color-text-muted); }
+  .cal__sect { margin-top: 2rem; font-size: 1.15rem; color: var(--color-primary); border-bottom: 2px solid var(--color-accent, #B08D2E); padding-bottom: 0.3rem; }
+  .cal__gol { color: var(--color-text-muted); font-style: italic; }
+  .cal__lista { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 0.75rem; }
+  .cal__card { display: flex; align-items: center; gap: 1rem; border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.9rem 1.1rem; background: var(--color-surface, #fff); }
+  .cal__info { display: flex; flex-direction: column; gap: 0.15rem; flex: 1; min-width: 0; }
+  .cal__info span { color: var(--color-text-muted); font-size: 0.92rem; }
+  .cal__info small { color: var(--color-text-muted); font-size: 0.8rem; }
+  .cal__btn { flex: 0 0 auto; background: var(--color-primary); color: #fbfaf7; padding: 0.5rem 0.9rem; border-radius: var(--radius); font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+  .cal__btn--sec { background: transparent; color: var(--color-primary); border: 1px solid var(--color-primary); }
+  .cal__live { margin-top: 2.25rem; color: var(--color-text-muted); font-size: 0.92rem; }
+  @media (max-width: 480px) { .cal__card { flex-direction: column; align-items: flex-start; } }
+</style>
