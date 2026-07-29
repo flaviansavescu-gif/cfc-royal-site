@@ -2,7 +2,9 @@
 // RecordLayout.astro — șablon UNIC pentru pagina individuală a oricărei colecții
 // (expoziții, arbitri, canise, standarde...). Wrap peste BaseLayout.
 import BaseLayout from "./BaseLayout.astro";
+import Galerie, { type Foto } from "../components/Galerie.astro";
 import type { Lang } from "../i18n/ui";
+import { useTranslations } from "../i18n/utils";
 
 interface Crumb { label: string; href: string }
 interface MetaRow { label: string; value: string; wide?: boolean }
@@ -19,10 +21,13 @@ interface Props {
   portrait?: string;
   meta?: MetaRow[];
   breadcrumbs?: Crumb[];
+  gallery?: Foto[];
 }
 
-const { lang, title, description, image, type = "article", jsonLd, eyebrow, cover, portrait, meta = [], breadcrumbs = [] } =
+const { lang, title, description, image, type = "article", jsonLd, eyebrow, cover, portrait, meta = [], breadcrumbs = [], gallery = [] } =
   Astro.props;
+
+const t = useTranslations(lang);
 ---
 <BaseLayout title={title} description={description} lang={lang} image={image ?? cover} type={type} jsonLd={jsonLd}>
   <article class="record">
@@ -62,6 +67,10 @@ const { lang, title, description, image, type = "article", jsonLd, eyebrow, cove
       <div class="record__body flow">
         <slot />
       </div>
+
+      {gallery.length > 0 && (
+        <Galerie title={t("record.gallery")} images={gallery} note={t("record.galleryNote")} />
+      )}
     </div>
   </article>
 </BaseLayout>

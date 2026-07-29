@@ -1,0 +1,92 @@
+---
+// Galerie.astro — galeria foto a unei înregistrări (articol, expoziție, canisă).
+//
+// Fără JavaScript: fiecare miniatură e o legătură către fotografia mare. Un
+// „lightbox" ar cere script, ar prinde tastatura și ar strica butonul „înapoi";
+// aici imaginea se deschide ca orice altă legătură, iar cititorul rămâne stăpân
+// pe navigare.
+//
+// Miniatura (`thumb`) e fișierul mic din grilă; `src` e imaginea mare. Dacă lipsește
+// miniatura, se folosește tot imaginea mare — corect, doar mai încet.
+export type Foto = string | { src: string; thumb?: string; alt?: string; caption?: string };
+
+interface Props {
+  title: string;
+  images: Foto[];
+  note?: string;
+}
+
+const { title, images, note } = Astro.props;
+
+const foto = images
+  .map((f) => (typeof f === "string" ? { src: f } : f))
+  .filter((f) => f && f.src);
+---
+{foto.length > 0 && (
+  <section class="galerie" aria-labelledby="galerie-titlu">
+    <h2 class="galerie__titlu" id="galerie-titlu">{title}</h2>
+    {note && <p class="galerie__nota">{note}</p>}
+    <ul class="galerie__grila" role="list">
+      {foto.map((f) => (
+        <li class="galerie__item">
+          <figure class="galerie__figura">
+            <a class="galerie__link" href={f.src} target="_blank" rel="noopener">
+              <img
+                src={f.thumb ?? f.src}
+                alt={f.alt ?? ""}
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+            {f.caption && <figcaption>{f.caption}</figcaption>}
+          </figure>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .galerie { margin-top: 2.5rem; }
+  .galerie__titlu { color: var(--color-primary); }
+  .galerie__nota { color: var(--color-text-muted); font-size: var(--fs-300); margin-top: 0.35rem; }
+
+  .galerie__grila {
+    display: grid;
+    /* 160px: pe telefon intră două pe rând, nu una singură cât ecranul. */
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.85rem;
+    margin-top: 1.25rem;
+  }
+
+  .galerie__figura { margin: 0; }
+
+  .galerie__link {
+    display: block;
+    aspect-ratio: 4 / 3;           /* rama e egală, fotografia își păstrează raportul */
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-surface-alt);
+  }
+  .galerie__link img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 200ms ease;
+  }
+  .galerie__link:hover img,
+  .galerie__link:focus-visible img { transform: scale(1.04); }
+  .galerie__link:focus-visible { outline: 2px solid var(--color-link); outline-offset: 2px; }
+
+  .galerie__figura figcaption {
+    font-size: var(--fs-300);
+    color: var(--color-text-muted);
+    margin-top: 0.4rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .galerie__link img { transition: none; }
+    .galerie__link:hover img, .galerie__link:focus-visible img { transform: none; }
+  }
+</style>

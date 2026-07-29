@@ -62,6 +62,8 @@ export const ui = {
     "exh.regClosed": "Înscrieri închise",
     "exh.deadline": "Termen limită",
     "record.back": "Înapoi",
+    "record.gallery": "Galerie foto",
+    "record.galleryNote": "Apasă pe o fotografie pentru a o vedea mărită.",
 
     // Contact
     "contact.title": "Contact",
@@ -152,6 +154,8 @@ export const ui = {
     "exh.regClosed": "Registration closed",
     "exh.deadline": "Deadline",
     "record.back": "Back",
+    "record.gallery": "Photo gallery",
+    "record.galleryNote": "Select a photo to view it larger.",
 
     // Contact
     "contact.title": "Contact",

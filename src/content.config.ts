@@ -16,12 +16,26 @@ const seo = z
   })
   .optional();
 
+/* O fotografie de galerie. Acceptăm și forma scurtă (doar calea), ca vechile
+   colecții care aveau `gallery: string[]` să rămână valide fără migrare.
+   `thumb` e miniatura din grilă; `src` e imaginea mare, deschisă la clic. */
+const galleryItem = z.union([
+  z.string(),
+  z.object({
+    src: z.string(),
+    thumb: z.string().optional(),
+    alt: z.string().optional(),
+    caption: z.string().optional(),
+  }),
+]);
+
 // câmpuri comune tuturor colecțiilor
 const base = {
   title: z.string(), // titlul / numele înregistrării
   lang,
   summary: z.string().optional(),
   cover: z.string().optional(), // cale imagine în /public
+  gallery: z.array(galleryItem).optional(), // galerie foto sub textul înregistrării
   draft: z.boolean().default(false),
   publishedAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
@@ -80,7 +94,7 @@ const expozitii = defineCollection({
     regulationPdf: z.string().optional(),
     catalogPdf: z.string().optional(),
     resultsPdf: z.string().optional(),
-    gallery: z.array(z.string()).optional(),
+    gallery: z.array(galleryItem).optional(),
     mapUrl: z.string().url().optional(),
     contactEmail: z.string().email().optional(),
   }),
@@ -127,7 +141,7 @@ const canise = defineCollection({
     contactEmail: z.string().email().optional(),
     phone: z.string().optional(),
     status: z.enum(["activă", "suspendată", "inactivă"]).default("activă"),
-    gallery: z.array(z.string()).optional(),
+    gallery: z.array(galleryItem).optional(),
   }),
 });
 
