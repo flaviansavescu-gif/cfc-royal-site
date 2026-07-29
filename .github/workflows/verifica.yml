@@ -1,0 +1,68 @@
+# =========================================================================
+# verifica.yml — verificarea automată a site-ului CFC-Royal, la fiecare împingere.
+#
+# DE CE. Probele existau demult, dar rulau doar când își aducea cineva aminte de ele.
+# Disciplina unui singur om nu e o garanție a asociației: în ziua în care omul e obosit,
+# grăbit sau altundeva, garanția dispare fără ca nimeni să bage de seamă.
+#
+# De aici încolo, la fiecare împingere GitHub rulează, pe un calculator curat:
+#   1. verificatorul de sintaxă al scripturilor din pagini (ghilimelele românești!)
+#   2. verificatorul de tarife (nicio sumă în conținut care nu e în lista oficială)
+#   3. toate cele 17 probe
+#   4. build-ul întreg al site-ului
+# Dacă ceva cade, se vede bifa roșie pe commit și vine e-mail — înainte ca greșeala să
+# ajungă în fața membrilor.
+#
+# NU publică nimic. Publicarea rămâne a lui Netlify, care își face propriul build; aici
+# doar se dovedește că merge. Două verificări independente sunt mai bune decât una.
+# =========================================================================
+name: Verificare
+
+on:
+  push:
+    branches: ["**"]
+    # Ramura copiilor de siguranță primește în fiecare duminică o arhivă criptată.
+    # N-are cod, deci n-are ce verifica — și ar porni degeaba atelierul.
+    paths-ignore: ["copii/**"]
+  pull_request:
+  workflow_dispatch: # ca să se poată porni și cu mâna, din pagina depozitului
+
+# O singură rulare pe ramură: dacă împingi de două ori la rând, se oprește cea veche.
+concurrency:
+  group: verificare-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verifica:
+    name: Probe și build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Ia codul
+        uses: actions/checkout@v4
+
+      - name: Pune Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Instalează exact ce scrie în package-lock
+        run: npm ci
+
+      - name: Sintaxa scripturilor din pagini
+        run: node scripts/verifica-scripturi.mjs
+
+      - name: Tarifele din conținut
+        run: node scripts/verifica-tarife.mjs
+
+      - name: Probele
+        run: node scripts/probe.mjs
+
+      - name: Build-ul întreg
+        run: npx astro build
+        env:
+          # Build-ul nu are nevoie de chei adevărate — dar unele module se uită după
+          # ele. Valorile de aici sunt de unică folosință și nu deschid nimic.
+          SESSION_SECRET: verificare-automata-fara-valoare-reala

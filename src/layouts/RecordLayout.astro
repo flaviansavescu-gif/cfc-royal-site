@@ -104,4 +104,23 @@ const t = useTranslations(lang);
   .record__body :global(ul), .record__body :global(ol) { padding-left: 1.25rem; }
   .record__body :global(a) { color: var(--color-link); }
   .record__body :global(img) { border-radius: var(--radius); border: 1px solid var(--color-border); }
+
+  /* Tabelele din conținut (termene de păstrare, furnizori, liste de taxe). `display: block`
+     le face să-și deruleze singure lățimea pe telefon — altfel împing toată pagina în
+     lateral, iar cititorul pierde coloana de text. */
+  .record__body :global(table) {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    margin-block: 1.25rem;
+    font-size: var(--fs-300);
+  }
+  .record__body :global(th), .record__body :global(td) {
+    border: 1px solid var(--color-border);
+    padding: 0.5rem 0.7rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  .record__body :global(th) { background: var(--color-surface-alt); font-weight: 600; }
 </style>

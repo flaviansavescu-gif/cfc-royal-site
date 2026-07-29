@@ -19,79 +19,23 @@
 //   BACKUP_GITHUB_RAMURA    — implicit „backup-registru"
 import { construiesteArhiva } from "./_comun/registru-arhiva.mjs";
 import { curataMagazia } from "./registru-acces.mjs";
+// Criptarea și trimiterea stau în modul comun, împreună cu copia celorlalte magazii:
+// formatul fișierului e contractul cu unealta de descifrare și se ține într-un loc.
+import { cripteaza, asiguraRamura, puneCopia, configurareLipsa } from "./_comun/copie-cifrata.mjs";
 
-const REPO = process.env.BACKUP_GITHUB_REPO || "flaviansavescu-gif/cfc-royal-site";
-const RAMURA = process.env.BACKUP_GITHUB_RAMURA || "backup-registru";
 /** Cât încape într-un fișier trimis prin API-ul GitHub, cu marjă. */
 const MAX_FISIERE_AUTO = 15 * 1024 * 1024;
 
 const json = (b, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json; charset=utf-8" } });
 
-/**
- * Criptare AES-GCM cu cheie derivată din parolă (PBKDF2, 210.000 de iterații — pragul
- * recomandat de OWASP pentru SHA-256). Antetul păstrează sarea și vectorul, ca arhiva
- * să se poată descifra doar cu parola, fără alte informații.
- */
-async function cripteaza(octeti, parola) {
-  const sare = crypto.getRandomValues(new Uint8Array(16));
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(parola), "PBKDF2", false, ["deriveKey"]);
-  const cheie = await crypto.subtle.deriveKey(
-    { name: "PBKDF2", salt: sare, iterations: 210000, hash: "SHA-256" },
-    material, { name: "AES-GCM", length: 256 }, false, ["encrypt"],
-  );
-  const cifrat = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, cheie, octeti));
-  // Format: "CFCR1" | sare(16) | iv(12) | cifrat
-  const out = new Uint8Array(5 + 16 + 12 + cifrat.length);
-  out.set(new TextEncoder().encode("CFCR1"), 0);
-  out.set(sare, 5);
-  out.set(iv, 21);
-  out.set(cifrat, 33);
-  return out;
-}
-
-const base64 = (u8) => Buffer.from(u8).toString("base64");
-
-async function github(cale, optiuni = {}) {
-  const r = await fetch("https://api.github.com" + cale, {
-    ...optiuni,
-    headers: {
-      Authorization: "Bearer " + process.env.BACKUP_GITHUB_TOKEN,
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-      ...(optiuni.headers || {}),
-    },
-  });
-  return r;
-}
-
-/** Creează ramura de copii dacă nu există, pornind din vârful ramurii principale. */
-async function asiguraRamura() {
-  const are = await github(`/repos/${REPO}/git/ref/heads/${RAMURA}`);
-  if (are.ok) return true;
-  const rep = await github(`/repos/${REPO}`);
-  if (!rep.ok) throw new Error("Depozitul nu răspunde: " + rep.status);
-  const principala = (await rep.json()).default_branch;
-  const varf = await github(`/repos/${REPO}/git/ref/heads/${principala}`);
-  if (!varf.ok) throw new Error("Nu am găsit vârful ramurii principale: " + varf.status);
-  const sha = (await varf.json()).object.sha;
-  const creat = await github(`/repos/${REPO}/git/refs`, {
-    method: "POST",
-    body: JSON.stringify({ ref: "refs/heads/" + RAMURA, sha }),
-  });
-  if (!creat.ok) throw new Error("Nu am putut crea ramura: " + creat.status + " " + (await creat.text()));
-  return true;
-}
-
 export default async () => {
   const parola = process.env.BACKUP_REGISTRU_PAROLA;
-  const jeton = process.env.BACKUP_GITHUB_TOKEN;
   // Lipsa configurării NU e o eroare tăcută: fără mesajul ăsta în jurnal, cineva ar
   // putea crede ani la rând că are copii de siguranță.
-  if (!parola || !jeton) {
-    console.error("COPIA REGISTRULUI NU S-A FĂCUT: lipsește " +
-      [!parola && "BACKUP_REGISTRU_PAROLA", !jeton && "BACKUP_GITHUB_TOKEN"].filter(Boolean).join(" și "));
+  const lipsa = configurareLipsa();
+  if (lipsa) {
+    console.error("COPIA REGISTRULUI NU S-A FĂCUT: lipsește " + lipsa);
     return json({ ok: false, motiv: "neconfigurat" }, 200);
   }
 
@@ -113,23 +57,9 @@ export default async () => {
     await asiguraRamura();
 
     const azi = new Date().toISOString().slice(0, 10);
-    const cale = `copii/registru-${azi}.zip.enc`;
-
-    // Dacă în aceeași zi mai există una (repornire, rulare manuală), o înlocuim.
-    let sha;
-    const existent = await github(`/repos/${REPO}/contents/${cale}?ref=${RAMURA}`);
-    if (existent.ok) sha = (await existent.json()).sha;
-
-    const pus = await github(`/repos/${REPO}/contents/${cale}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        message: `Copie registru ${azi} — ${rezumat.inregistrari} înregistrări, ${rezumat.fisiere} fișiere`,
-        content: base64(cifrat),
-        branch: RAMURA,
-        ...(sha ? { sha } : {}),
-      }),
-    });
-    if (!pus.ok) throw new Error("Trimiterea a eșuat: " + pus.status + " " + (await pus.text()));
+    const cale = await puneCopia(
+      `copii/registru-${azi}.zip.enc`, cifrat,
+      `Copie registru ${azi} — ${rezumat.inregistrari} înregistrări, ${rezumat.fisiere} fișiere`);
 
     if (rezumat.fisiereOmise.length) {
       console.warn(`Copie făcută, dar ${rezumat.fisiereOmise.length} fișiere au depășit limita ` +
