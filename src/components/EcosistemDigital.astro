@@ -1,7 +1,12 @@
 ---
-// EcosistemDigital.astro — pagina complexă de prezentare a ecosistemului digital
-// CFC-Royal: cele trei platforme (Școala de Arbitraj · Manager de Expoziții · Site
-// Asociație), fluxurile dintre ele și nucleul comun. Bilingv RO/EN, design instituțional.
+// EcosistemDigital.astro — pagina de prezentare a ecosistemului digital CFC-Royal:
+// CINCI piloni (Site · Școala de Arbitraj · Manager de Expoziții · Registrul genealogic ·
+// Registratura), fluxurile dintre ei și nucleul comun. Bilingv RO/EN.
+//
+// Au fost trei până în iulie 2026. Registrul genealogic exista deja, dar era socotit o
+// parte a site-ului; Registratura s-a adăugat ca al cincilea. Sunt piloni, nu module: un
+// pilon poate fi scos doar dărâmând clădirea. Fără registru nu există pedigree, iar fără
+// Registratură pedigree-ul e o părere frumos tipărită.
 interface Props { lang: "ro" | "en"; }
 const { lang } = Astro.props;
 
@@ -9,40 +14,53 @@ const T = {
   ro: {
     kicker: "Ecosistemul digital",
     titlu: "Ecosistemul Digital CFC-Royal",
-    tagline: "Un ecosistem integrat pentru educație, organizare și promovarea chinologiei.",
-    imgAlt: "Ecosistemul digital CFC-Royal — Școala de Arbitraj, Managerul de Expoziții și Site-ul Asociației, legate printr-un nucleu comun.",
-    imgCaption: "Trei platforme, un singur scop — dezvoltarea responsabilă a chinologiei.",
+    tagline: "Tehnologie. Transparență. Profesionalism. Totul pentru viitorul chinologiei.",
+    imgAlt: "Ecosistemul digital CFC-Royal — site-ul oficial, Școala de Arbitraj, Managerul de Expoziții, Registrul genealogic și Registratura, cu un laptop, un telefon și o carte de origine.",
+    imgCaption: "Cinci piloni, un singur scop — dezvoltarea responsabilă a chinologiei.",
 
-    intro: "Clubul Federal Chinologic – Royal își desfășoară activitatea pe trei platforme proprii, construite integral pe regulamentele World Dog Federation și legate între ele printr-un nucleu comun. Împreună, ele acoperă întregul parcurs al chinologiei de performanță: formarea arbitrilor, organizarea expozițiilor și comunicarea cu comunitatea. Fiecare informație are o singură sursă de adevăr și circulă automat acolo unde e nevoie de ea.",
+    intro: "Asociația Club Federal Chinologic – Royal își desfășoară activitatea pe cinci piloni proprii, construiți integral pe regulamentele World Dog Federation și legați între ei printr-un nucleu comun. Împreună, ei acoperă întregul parcurs al chinologiei de performanță: formarea arbitrilor, organizarea expozițiilor, evidența originilor și verificarea actelor. Fiecare informație are o singură sursă de adevăr și circulă automat acolo unde e nevoie de ea.",
 
-    piloniTitlu: "Trei platforme, un singur ecosistem",
+    piloniTitlu: "Cinci piloni, un singur ecosistem",
     piloni: [
       {
+        icon: "🌐", nume: "Site-ul oficial", sub: "Asociația Club Federal Chinologic – Royal",
+        desc: "Prezența oficială și comunicarea cu comunitatea chinologică.",
+        feats: ["Informații, noutăți și proiecte", "Comunitate și membri", "Evenimente și calendar expozițional", "Documente publice și regulamente"],
+        link: "/ro/organizatia/despre", linkTxt: "Despre asociație →",
+      },
+      {
         icon: "🎓", nume: "Școala de Arbitraj", sub: "Centrul de Dezvoltare a Competențelor Chinologice",
-        desc: "Platformă de educație și formare pentru arbitri și specialiști.",
-        feats: ["Învățare și resurse educaționale", "Evaluări și certificări pe grupe WDF", "Urmărirea progresului și dezvoltare continuă"],
+        desc: "Pregătirea și formarea arbitrilor, pe standardele WDF.",
+        feats: ["Module de studiu și resurse educaționale", "Examene și certificări pe grupe WDF", "Asistențe la ring și dosar de stagiu", "Formare continuă și menținere"],
         link: "/ro/educatie/centrul-competentelor-chinologice", linkTxt: "Descoperă Școala →",
       },
       {
-        icon: "🏆", nume: "Manager de Expoziții", sub: "CFC-Royal Expo Manager",
-        desc: "Platformă pentru organizarea și gestionarea expozițiilor canine.",
-        feats: ["Înscrieri și administrarea ringurilor", "Arbitri, asistenți și oficiali", "Rezultate, cataloage și rapoarte", "Statistici și analize în timp real"],
+        icon: "🏆", nume: "Managerul de Expoziții", sub: "CFC-Royal Expo Manager",
+        desc: "Organizarea expozițiilor, din înscriere până la diplomă.",
+        feats: ["Înscrieri online și administrarea ringurilor", "Arbitraj pe ecran, cu calificative WDF", "Cataloage, rezultate și diplome", "Statistici și evidența performanțelor"],
         link: "/ro/manager-expozitii", linkTxt: "Descoperă Managerul →",
       },
       {
-        icon: "🌐", nume: "Site Asociație", sub: "Club Federal Chinologic Royal · Asociație Chinologică Națională",
-        desc: "Prezență oficială și comunicare pentru comunitatea chinologică.",
-        feats: ["Informații și noutăți", "Comunitate și membri", "Evenimente și expoziții", "Promovare și comunicare"],
-        link: "/ro/organizatia/despre", linkTxt: "Despre asociație →",
+        icon: "📜", nume: "Registrul genealogic", sub: "Cartea de origini · Certificate Pedigree",
+        desc: "Pilonul central: evidența originilor și trasabilitatea lor.",
+        feats: ["Declarații de montă și fătare", "Ascendență pe patru generații", "Certificate Pedigree cu număr de cuib WDF", "Verificare publică prin cod QR"],
+        link: "/verifica-pedigree/", linkTxt: "Verifică un certificat →",
+      },
+      {
+        icon: "🗂️", nume: "Registratura", sub: "Al cincilea pilon al asociației",
+        desc: "Pilonul care le ține pe toate la un loc: verificarea actelor.",
+        feats: ["Verificarea dosarelor de montă și fătare", "Verificarea înscrierilor la expoziții", "Transcrierea ascendenței și tipul certificatului", "Urmă documentată la fiecare verificare"],
+        link: "/ro/registratura", linkTxt: "Descoperă Registratura →",
       },
     ],
 
     fluxTitlu: "Cum lucrează împreună",
-    fluxIntro: "Platformele nu sunt insule: informația circulă între ele automat și securizat.",
+    fluxIntro: "Pilonii nu sunt insule: informația circulă între ei automat și securizat.",
     flux: [
-      "Managerul publică expoziția pe site → membrii se înscriu online → înscrierile intră în platformă pentru validare.",
+      "Managerul publică expoziția pe site → membrii se înscriu online → Registratura verifică actele și dovada plății → abia apoi înscrierile intră în catalog.",
       "În ziua expoziției, programul ringurilor e transmis live pe site, iar adresele rămân stabile pentru codurile QR tipărite.",
-      "Rezultatele oficiale (doar titlurile) se publică automat pe site, în calendarul competițional și în paginile de rezultate.",
+      "Rezultatele oficiale (doar titlurile) se publică automat pe site și ajung pe fișa fiecărui câine din registrul genealogic.",
+      "Crescătorul depune declarația de montă și fătare, proprietarul masculului o confirmă, Registratura verifică dosarul — și abia apoi se emite Certificatul Pedigree, verificabil public prin cod QR.",
       "Candidații de arbitru sunt numiți în Școală, iar prestația lor la stagiul practic e evaluată în Manager și consemnată în dosarul lor.",
       "Arbitrii certificați de Școală apar automat în registrul public, iar autorizările lor pe grupe ghidează repartizarea din Manager.",
     ],
@@ -62,46 +80,60 @@ const T = {
 
     ctaBtnEdu: "Educație și cursuri",
     ctaBtnMgr: "Manager de Expoziții",
+    ctaBtnReg: "Registratura",
     ctaBtnInsc: "Înscriere la expoziție",
     wdf: "Club Federal Chinologic – Royal · Membru World Dog Federation",
   },
   en: {
     kicker: "The digital ecosystem",
     titlu: "The CFC-Royal Digital Ecosystem",
-    tagline: "An integrated ecosystem for education, organisation and the promotion of cynology.",
-    imgAlt: "The CFC-Royal digital ecosystem — the Judging School, the Exhibition Manager and the Association Website, linked by a common core.",
-    imgCaption: "Three platforms, one goal — the responsible development of cynology.",
+    tagline: "Technology. Transparency. Professionalism. All for the future of cynology.",
+    imgAlt: "The CFC-Royal digital ecosystem — the official website, the Judging School, the Exhibition Manager, the stud book and the Registry Office, with a laptop, a phone and a certificate of origin.",
+    imgCaption: "Five pillars, one goal — the responsible development of cynology.",
 
-    intro: "Club Federal Chinologic – Royal operates on three dedicated platforms, built entirely on World Dog Federation regulations and linked by a common core. Together, they cover the whole journey of competitive cynology: training judges, organising shows and communicating with the community. Every piece of information has a single source of truth and flows automatically to where it is needed.",
+    intro: "The Royal Federal Canine Club operates on five dedicated pillars, built entirely on World Dog Federation regulations and linked by a common core. Together, they cover the whole journey of competitive cynology: training judges, organising shows, recording origins and verifying documents. Every piece of information has a single source of truth and flows automatically to where it is needed.",
 
-    piloniTitlu: "Three platforms, one ecosystem",
+    piloniTitlu: "Five pillars, one ecosystem",
     piloni: [
       {
-        icon: "🎓", nume: "Judging School", sub: "Centre for the Development of Cynological Competencies",
-        desc: "An education and training platform for judges and specialists.",
-        feats: ["Learning and educational resources", "Assessments and WDF-group certification", "Progress tracking and continuous development"],
+        icon: "🌐", nume: "The official website", sub: "Royal Federal Canine Club",
+        desc: "Official presence and communication with the cynological community.",
+        feats: ["Information, news and projects", "Community and members", "Events and show calendar", "Public documents and regulations"],
+        link: "/en/organizatia/despre", linkTxt: "About us →",
+      },
+      {
+        icon: "🎓", nume: "The Judging School", sub: "Centre for the Development of Cynological Competencies",
+        desc: "Training and forming judges, to WDF standards.",
+        feats: ["Study modules and educational resources", "Examinations and WDF-group certification", "Ring assistantships and training file", "Continuing education and maintenance"],
         link: "/en/educatie/centrul-competentelor-chinologice", linkTxt: "Explore the School →",
       },
       {
-        icon: "🏆", nume: "Exhibition Manager", sub: "CFC-Royal Expo Manager",
-        desc: "A platform for organising and managing dog shows.",
-        feats: ["Entries and ring administration", "Judges, assistants and officials", "Results, catalogues and reports", "Real-time statistics and analytics"],
+        icon: "🏆", nume: "The Exhibition Manager", sub: "CFC-Royal Expo Manager",
+        desc: "Running shows, from entry to diploma.",
+        feats: ["Online entries and ring administration", "On-screen judging with WDF gradings", "Catalogues, results and diplomas", "Statistics and performance records"],
         link: "/en/manager-expozitii", linkTxt: "Explore the Manager →",
       },
       {
-        icon: "🌐", nume: "Association Website", sub: "Club Federal Chinologic Royal · National Cynological Association",
-        desc: "Official presence and communication for the cynological community.",
-        feats: ["Information and news", "Community and members", "Events and shows", "Promotion and communication"],
-        link: "/en/organizatia/despre", linkTxt: "About us →",
+        icon: "📜", nume: "The stud book", sub: "Book of origins · Pedigree Certificates",
+        desc: "The central pillar: the record of origins and their traceability.",
+        feats: ["Mating and whelping declarations", "Four generations of ancestry", "Pedigree Certificates with a WDF litter number", "Public verification by QR code"],
+        link: "/verifica-pedigree/", linkTxt: "Verify a certificate →",
+      },
+      {
+        icon: "🗂️", nume: "The Registry Office", sub: "The association's fifth pillar",
+        desc: "The pillar that holds the others together: checking the documents.",
+        feats: ["Checking mating and whelping files", "Checking show entries", "Transcribing ancestry and setting the certificate type", "A documented trace at every check"],
+        link: "/en/registratura", linkTxt: "Explore the Registry Office →",
       },
     ],
 
     fluxTitlu: "How they work together",
-    fluxIntro: "The platforms are not islands: information flows between them automatically and securely.",
+    fluxIntro: "The pillars are not islands: information flows between them automatically and securely.",
     flux: [
-      "The Manager publishes the show on the site → members enter online → entries reach the platform for validation.",
+      "The Manager publishes the show on the site → members enter online → the Registry Office checks the documents and the proof of payment → only then do entries reach the catalogue.",
       "On show day, the ring schedule is broadcast live on the site, and addresses stay stable for the printed QR codes.",
-      "Official results (titles only) are published automatically on the site, in the show calendar and the results pages.",
+      "Official results (titles only) are published automatically on the site and reach each dog's record in the stud book.",
+      "The breeder files the mating and whelping declaration, the sire's owner confirms it, the Registry Office checks the file — and only then is the Pedigree Certificate issued, publicly verifiable by QR code.",
       "Judge candidates are appointed in the School, and their practical-stage performance is assessed in the Manager and recorded in their file.",
       "Judges certified by the School appear automatically in the public register, and their group authorisations guide ring assignments in the Manager.",
     ],
@@ -121,15 +153,17 @@ const T = {
 
     ctaBtnEdu: "Education & courses",
     ctaBtnMgr: "Exhibition Manager",
+    ctaBtnReg: "Registry Office",
     ctaBtnInsc: "Show entry",
     wdf: "Club Federal Chinologic – Royal · World Dog Federation member",
   },
 }[lang];
 
-const IMG = "/images/ecosistem-digital-cfc-royal.webp";
+const IMG = "/images/ecosistem-cfc-royal.webp";
 const linkEdu = lang === "en" ? "/en/educatie/centrul-competentelor-chinologice" : "/ro/educatie/centrul-competentelor-chinologice";
 const linkMgr = lang === "en" ? "/en/manager-expozitii" : "/ro/manager-expozitii";
 const linkInsc = lang === "en" ? "/en/inscriere-expozitie" : "/ro/inscriere-expozitie";
+const linkReg = lang === "en" ? "/en/registratura" : "/ro/registratura";
 ---
 
 <article class="ec">
@@ -140,7 +174,7 @@ const linkInsc = lang === "en" ? "/en/inscriere-expozitie" : "/ro/inscriere-expo
   </header>
 
   <figure class="ec__fig">
-    <img src={IMG} alt={T.imgAlt} width="1536" height="1024" loading="eager" />
+    <img src={IMG} alt={T.imgAlt} width="1254" height="1254" loading="eager" />
     <figcaption>{T.imgCaption}</figcaption>
   </figure>
 
@@ -190,6 +224,7 @@ const linkInsc = lang === "en" ? "/en/inscriere-expozitie" : "/ro/inscriere-expo
     <div class="ec__cta-btns">
       <a class="btn btn--primary" href={linkMgr}>{T.ctaBtnMgr}</a>
       <a class="btn btn--ghost" href={linkEdu}>{T.ctaBtnEdu}</a>
+      <a class="btn btn--ghost" href={linkReg}>{T.ctaBtnReg}</a>
       <a class="btn btn--ghost" href={linkInsc}>{T.ctaBtnInsc}</a>
     </div>
     <p class="ec__wdf">{T.wdf}</p>

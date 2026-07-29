@@ -94,11 +94,12 @@ const ro: HomeContent = {
   // ține două zile, cartea de origini trebuie să reziste generații.
   ecosistem: {
     title: "Instrumentele asociației",
-    intro: "Trei sisteme proprii, construite pentru munca de zi cu zi a crescătorilor, arbitrilor și organizatorilor.",
+    intro: "Sisteme proprii, construite pentru munca de zi cu zi a crescătorilor, arbitrilor și organizatorilor.",
     items: [
       { title: "Registrul genealogic", excerpt: "Cartea de origini: declarații de montă și fătare, ascendență pe patru generații, Certificate Pedigree verificabile după serie sau microcip.", slug: "/caine/" },
       { title: "Școala de Arbitraj", excerpt: "Formarea arbitrilor în cadrul Centrului de Dezvoltare a Competențelor Chinologice: module, stagii de ring, examen și certificare pe grupe WDF.", slug: "educatie/centrul-competentelor-chinologice" },
       { title: "Managerul de Expoziții", excerpt: "Înscrieri, catalog, ringuri și rezultate — de la formularul online până la titlurile publicate și diplomele fiecărui exemplar.", slug: "manager-expozitii" },
+      { title: "Registratura", excerpt: "Al cincilea pilon: verificarea dosarelor de montă și fătare și a înscrierilor la expoziții, înainte ca ele să producă efecte.", slug: "registratura" },
     ],
   },
   stats: {
@@ -183,11 +184,12 @@ const en: HomeContent = {
   },
   ecosistem: {
     title: "The association's own tools",
-    intro: "Three systems built for the daily work of breeders, judges and organisers.",
+    intro: "Systems of our own, built for the daily work of breeders, judges and organisers.",
     items: [
       { title: "Stud book", excerpt: "Mating and whelping declarations, four-generation pedigrees, and Pedigree Certificates anyone can verify by serial number or microchip.", slug: "/caine/" },
       { title: "Judging School", excerpt: "Judge training within the Centre for Cynological Competencies: modules, ring placements, examination and certification by WDF group.", slug: "educatie/centrul-competentelor-chinologice" },
       { title: "Exhibition Manager", excerpt: "Entries, catalogue, rings and results — from the online form to published titles and each dog's diploma.", slug: "manager-expozitii" },
+      { title: "Registry Office", excerpt: "The fifth pillar: checking mating and whelping files and show entries, before they take effect.", slug: "registratura" },
     ],
   },
   stats: {

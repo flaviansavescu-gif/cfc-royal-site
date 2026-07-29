@@ -73,7 +73,7 @@ ce schimbă lucruri pe care le simte fiecare expozant:
 - istoricul titlurilor fiecărui exemplar, păstrat de la o ediție la alta.
 
 ## O asociație care își construiește propriile unelte
-Cele trei sisteme — registrul genealogic, școala și managerul de expoziții — nu sunt programe
+Sistemele asociației — registrul genealogic, școala, managerul de expoziții și registratura — nu sunt programe
 cumpărate de-a gata. Sunt construite de asociație, pentru munca reală a crescătorilor, arbitrilor și
 organizatorilor, și legate între ele: un titlu luat în ring ajunge pe fișa câinelui din cartea de
 origini; un stagiu de arbitraj se înregistrează în dosarul candidatului; un certificat emis se poate

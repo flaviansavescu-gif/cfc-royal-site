@@ -1,0 +1,15 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Registratura from "../../components/Registratura.astro";
+const lang = "ro" as const;
+---
+<BaseLayout
+  title="Registratura"
+  lang={lang}
+  description="Al cincilea pilon al Asociației Club Federal Chinologic – Royal: verificarea dosarelor de montă și fătare, a ascendenței pe patru generații și a înscrierilor la expoziții, cu urmă documentată la fiecare pas."
+  image="/images/registratura-cfc-royal.webp"
+>
+  <div class="container" style="padding-block: 3rem;">
+    <Registratura lang={lang} />
+  </div>
+</BaseLayout>

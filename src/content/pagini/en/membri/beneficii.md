@@ -73,7 +73,7 @@ things every exhibitor feels:
 - the title history of every dog, kept from one edition to the next.
 
 ## An association that builds its own tools
-The three systems — the stud book, the school and the exhibition manager — are not off-the-shelf
+The association's systems — the stud book, the school, the exhibition manager and the registry office — are not off-the-shelf
 software. They are built by the association, for the real work of breeders, judges and organisers,
 and they are connected: a title won in the ring reaches the dog's record in the stud book; a ring
 placement is recorded in the candidate's file; an issued certificate can be verified from anywhere,

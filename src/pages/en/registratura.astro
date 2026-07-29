@@ -1,0 +1,15 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Registratura from "../../components/Registratura.astro";
+const lang = "en" as const;
+---
+<BaseLayout
+  title="Registry Office"
+  lang={lang}
+  description="The fifth pillar of the Royal Federal Canine Club: checking mating and whelping files, four generations of ancestry and show entries, with a documented trace at every step."
+  image="/images/registratura-cfc-royal.webp"
+>
+  <div class="container" style="padding-block: 3rem;">
+    <Registratura lang={lang} />
+  </div>
+</BaseLayout>
