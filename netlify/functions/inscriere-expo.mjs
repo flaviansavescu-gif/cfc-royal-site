@@ -10,6 +10,7 @@
 // POST { secret, actiune:"marcheaza", showId, ids } -> managerul marchează înscrierile ca importate
 import { getStore } from "@netlify/blobs";
 import { eRobot, limiteazaTrimiterile, minuteText } from "./_comun/formular-public.mjs";
+import { escapeHtml } from "./_comun/posta.mjs";
 import { calculeazaTaxa, taxaVeche } from "./_comun/taxa-expo.mjs";
 // MODUL REPETIȚIE. Lanțul înscriere → verificare → import → catalog → ring → rezultate
 // n-a trecut niciodată printr-o expoziție adevărată. Repetiția generală îl trece, cu date
@@ -136,6 +137,11 @@ export default async (req) => {
             showId: c.showId, nume: c.nume, data: c.data, termen: c.termen, locatie: c.locatie,
             repetitie: eRepetitie(c) || undefined,
             rase: c.rase || [],
+            // Asociația care organizează și încasează taxele. CFC-Royal e club federal:
+            // multe expoziții le fac asociațiile afiliate, iar banii merg la ele. Contul
+            // vine de la manager, nu e scris în pagina de formular — altfel n-ar putea
+            // fi altul de la o expoziție la alta.
+            organizator: c.organizator || null,
             // `tarif` = grila nouă (membru/nemembru × primul/următorii). `taxe` = calea
             // veche, pe clase; expozițiile publicate înainte de schimbare o păstrează.
             tarif: c.tarif || null,
@@ -488,6 +494,13 @@ export default async (req) => {
     const html = `<p>Bună, ${numeProp.replace(/</g, "&lt;")},</p>
       <p>Am primit înscrierea câinelui <b>${numeCaine.replace(/</g, "&lt;")}</b> (${rasa.numeRo}) la expoziția <b>${config.nume}</b> (${config.data}).</p>
       ${taxa > 0 ? `<p>Taxa de înscriere pentru această fișă: <b>${taxa} lei</b>.</p>` : ""}
+      ${taxa > 0 && config.organizator?.iban
+        // Contul în care s-a plătit, scris și în e-mail: peste o lună, când cineva
+        // caută plata în extras, are unde verifica beneficiarul fără să sune.
+        ? `<p style="color:#555">Plata se face în contul organizatorului: <b>${escapeHtml(config.organizator.nume)}</b><br>` +
+          `<span style="font-family:monospace">${escapeHtml(config.organizator.iban)}</span>` +
+          `${config.organizator.banca ? " · " + escapeHtml(config.organizator.banca) : ""}</p>`
+        : ""}
       <p>După verificarea de către secretariat vei primi e-mailul de validare, iar la închiderea catalogului — numărul de concurs și ecusonul de tipărit.</p>
       <p>— Club Federal Chinologic Royal · World Dog Federation</p>`;
     try {
