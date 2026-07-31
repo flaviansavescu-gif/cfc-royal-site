@@ -68,11 +68,26 @@ function clasaValida(clasa, nastere, dataShow) {
   return true;
 }
 
-function inchisPentruInscrieri(config) {
+/**
+ * S-au închis înscrierile?
+ *
+ * Termenul e un MOMENT, nu o zi. Organizatorul anunță „ultima înscriere: 31 august, ora
+ * 21:00" — iar la 21:01 formularul trebuie să spună că s-a închis, nu să mai primească.
+ *
+ * Aici a fost o greșeală care merită scrisă, ca să nu se întoarcă: se făcea
+ * `limita.setHours(23, 59, 59, 999)`, adică ora anunțată era aruncată și se închidea la
+ * sfârșitul zilei. Mai rău, `setHours` lucrează în fusul MAȘINII, iar funcțiile merg pe
+ * UTC: „sfârșitul zilei de 31 august" cădea pe 1 septembrie, ora 3 dimineața la Iași.
+ * Aproape șase ore de înscrieri primite după ce omul citise pe site că s-a închis.
+ *
+ * Comparăm două momente. Un moment nu are fus orar — deci nu contează pe ce ceas merge
+ * serverul, iar ora trecută în manager e chiar ora care se aplică.
+ */
+export function inchisPentruInscrieri(config) {
   if (!config || !config.deschis) return true;
   const limita = new Date(config.termen);
-  limita.setHours(23, 59, 59, 999);
-  return new Date() > limita;
+  if (isNaN(limita.getTime())) return false;   // termen ilizibil: nu închidem din greșeală
+  return Date.now() > limita.getTime();
 }
 
 /** Cererea vrea să vadă și repetițiile? `?repetitie=1`. */
