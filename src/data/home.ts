@@ -22,6 +22,8 @@ interface HomeContent {
     ctaPrimary: { label: string; slug: string };
     ctaSecondary: { label: string; slug: string };
   };
+  /** Anunț special, scos în evidență imediat sub hero. Se scoate punând `undefined`. */
+  anunt?: { eyebrow: string; title: string; body: string; cta: string; slug: string; image: string; imageAlt: string };
   intro: { title: string; body: string };
   events: { title: string; intro: string; viewAll: string; viewAllSlug: string };
   news: { title: string; viewAll: string; viewAllSlug: string };
@@ -43,6 +45,16 @@ const ro: HomeContent = {
       "Club Federal Chinologic – Royal aduce împreună crescători, arbitri și specialiști din toate ramurile chinologiei, dedicați menținerii unor standarde ridicate în creșterea, selecția și evaluarea câinilor de rasă.",
     ctaPrimary: { label: "Devino membru", slug: "membri/devino-membru" },
     ctaSecondary: { label: "Calendar expoziții", slug: "expozitii" },
+  },
+  anunt: {
+    eyebrow: "Anunț oficial",
+    title: "Afiliere definitivă la World Dog Federation",
+    body:
+      "România are, de acum, un statut permanent în World Dog Federation: Acordul de Membru Național a fost semnat pe durată nedeterminată, după ce condițiile perioadei de evaluare au fost îndeplinite într-un timp scurt. Fără termen de expirare, fără reînnoiri periodice — stabilitate deplină pentru crescătorii din România.",
+    cta: "Citește anunțul complet",
+    slug: "articole/afiliere-definitiva-wdf",
+    image: "/images/articole/afiliere-wdf-2026/certificat-banner.webp",
+    imageAlt: "Certificatul de Membru Oficial al World Dog Federation, nr. 003, acordat Club Federal Chinologic – Royal pentru teritoriul României",
   },
   intro: {
     title: "Despre Club Federal Chinologic – Royal",
@@ -136,6 +148,16 @@ const en: HomeContent = {
       "The Royal Federal Canine Club brings together breeders, judges and specialists from every branch of cynology, dedicated to maintaining high standards in the breeding, selection and evaluation of purebred dogs.",
     ctaPrimary: { label: "Become a member", slug: "membri/devino-membru" },
     ctaSecondary: { label: "Show calendar", slug: "expozitii" },
+  },
+  anunt: {
+    eyebrow: "Official announcement",
+    title: "Permanent affiliation with the World Dog Federation",
+    body:
+      "Romania now holds a permanent status within the World Dog Federation: the National Member Agreement was signed for an unlimited duration, after the conditions of the evaluation period were met in a short time. No expiry date, no periodic renewals — full stability for breeders in Romania.",
+    cta: "Read the full announcement",
+    slug: "articole/afiliere-definitiva-wdf",
+    image: "/images/articole/afiliere-wdf-2026/certificat-banner.webp",
+    imageAlt: "World Dog Federation Certificate of Official Membership no. 003, awarded to Club Federal Chinologic – Royal for the territory of Romania",
   },
   intro: {
     title: "About the Royal Federal Canine Club",

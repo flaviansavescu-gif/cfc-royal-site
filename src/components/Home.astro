@@ -52,6 +52,25 @@ const latestNews = newsEntries
   affiliationUrl={SITE.affiliationUrl}
 />
 
+{h.anunt && (
+  <!-- Anunț special, scos în evidență: chenar auriu, certificat + text. -->
+  <section class="anunt" aria-labelledby="anunt-titlu">
+    <div class="container">
+      <article class="anunt__card">
+        <a class="anunt__media" href={lp(h.anunt.slug)} tabindex="-1" aria-hidden="true">
+          <img src={h.anunt.image} alt={h.anunt.imageAlt} width="720" height="509" loading="eager" />
+        </a>
+        <div class="anunt__text">
+          <p class="anunt__eyebrow">{h.anunt.eyebrow}</p>
+          <h2 class="anunt__title" id="anunt-titlu">{h.anunt.title}</h2>
+          <p class="anunt__body">{h.anunt.body}</p>
+          <a class="btn btn--gold" href={lp(h.anunt.slug)}>{h.anunt.cta}</a>
+        </div>
+      </article>
+    </div>
+  </section>
+)}
+
 <!-- Prezentare -->
 <Section id="despre" title={h.intro.title} eyebrow={SITE.shortName}>
   <p class="lead">{h.intro.body}</p>
@@ -250,4 +269,22 @@ const latestNews = newsEntries
   .nl-form { display: flex; gap: 0.5rem; flex-wrap: wrap; }
   .nl-form input[type="email"] { flex: 1 1 220px; padding: 0.7rem 0.9rem; border: 1px solid transparent; border-radius: var(--radius); background: var(--color-surface); color: var(--color-text); }
   .hp { position: absolute; left: -5000px; }
+
+  /* Anunț special (afiliere definitivă): chenar auriu, ca să iasă în evidență fără să țipe. */
+  .anunt { padding-block: clamp(1.5rem, 4vw, 2.5rem); background: var(--color-surface-alt); }
+  .anunt__card {
+    display: flex; flex-wrap: wrap; gap: clamp(1.25rem, 3vw, 2rem); align-items: center;
+    background: var(--color-surface); border: 2px solid var(--color-accent);
+    border-radius: var(--radius); padding: clamp(1.25rem, 3vw, 2rem);
+    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.06);
+  }
+  .anunt__media { flex: 1 1 280px; max-width: 420px; display: block; border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; }
+  .anunt__media img { display: block; width: 100%; height: auto; }
+  .anunt__text { flex: 1 1 320px; }
+  .anunt__eyebrow {
+    margin: 0 0 0.35rem; font-size: var(--fs-300); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-accent-dark);
+  }
+  .anunt__title { margin: 0 0 0.6rem; font-family: var(--font-serif); color: var(--color-primary); }
+  .anunt__body { margin: 0 0 1.1rem; color: var(--color-text); }
 </style>
