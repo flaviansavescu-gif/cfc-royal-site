@@ -50,6 +50,11 @@ export const FAPTE = {
   // iar 17 certificate au intrat fără urmă. Un act apărut în registru fără să se știe
   // cine l-a pus și din ce dosar de hârtie provine nu se poate apăra la o contestație.
   "import-istoric": "Cuib adus din arhiva de hârtie",
+  // Îndreptarea textului ascendenței la actele aduse din arhiva de hârtie. Cititorul de
+  // formulare lipea codul WDF în numele părintelui și lua „- N/A" drept număr de pedigree.
+  // Fapta se consemnează separat de emitere: cine se uită peste un act trebuie să vadă
+  // că textul lui a fost atins după eliberare, când, și de la ce la ce.
+  "corectie-ascendenta": "Ascendență îndreptată (act din arhiva de hârtie)",
   // Acces
   "cod-generat": "Cod de acces generat",
   "cod-trimis": "Cod de acces trimis pe e-mail",

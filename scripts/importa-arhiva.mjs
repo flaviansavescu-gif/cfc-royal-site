@@ -16,18 +16,60 @@
 //
 // Secretul (EXPO_SYNC_SECRET) se ia singur din .env-ul managerului. Nu se tastează.
 // =========================================================================
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
 import path from "node:path";
 import { citesteFormular } from "./arhiva-formular.mjs";
 import { potriveste } from "./arhiva-rase.mjs";
+import { certificateEmise, completeazaDinCertificate } from "./arhiva-certificate.mjs";
+
+const eDirector = (p) => { try { return statSync(p).isDirectory(); } catch { return false; } };
+
+/**
+ * Formularul cuibului. Dosarele vechi îl țin în rădăcină; cele noi, într-un subdosar
+ * „DMF" lângă actele de care ține (pedigree-urile părinților, dovada de plată).
+ */
+function gasesteFormular(dosar) {
+  const inRadacina = readdirSync(dosar).filter((f) => f.toLowerCase().endsWith(".txt"));
+  if (inRadacina.length) return path.join(dosar, inRadacina[0]);
+  for (const sub of readdirSync(dosar)) {
+    const cale = path.join(dosar, sub);
+    if (!eDirector(cale)) continue;
+    if (!/^dmf$/i.test(sub)) continue;
+    const t = readdirSync(cale).filter((f) => f.toLowerCase().endsWith(".txt"));
+    if (t.length) return path.join(cale, t[0]);
+  }
+  return null;
+}
+
+/** Dosarul cu certificatele deja emise, dacă există. */
+function gasesteCertificate(dosar) {
+  for (const sub of readdirSync(dosar)) {
+    const cale = path.join(dosar, sub);
+    if (eDirector(cale) && /pedigree\s*pui/i.test(sub)) return certificateEmise(cale);
+  }
+  return [];
+}
+
+/**
+ * Un dosar de cuib, sau un dosar plin de dosare de cuib? Semnul e subdosarul „DMF":
+ * dosarele de cuib noi îl au, cele care adună mai multe cuiburi nu.
+ */
+function eUnSingurCuib(cale) {
+  if (readdirSync(cale).some((f) => f.toLowerCase().endsWith(".txt"))) return true;
+  return readdirSync(cale).some((s) => /^dmf$/i.test(s) && eDirector(path.join(cale, s)));
+}
 
 const ENV_MANAGER = "C:/FLAVIAN/Asociația Chinologică CARAȘ-SEVERIN/cfcr-expo-manager/.env";
 const NOMENCLATOR = new URL("../src/data/nomenclator-wdf.ts", import.meta.url);
-const URL_FUNCTIE = process.env.URL_IMPORT || "https://cfc-royal.ro/.netlify/functions/registru-import";
+const BAZA_URL = process.env.URL_BAZA || "https://cfc-royal.ro/.netlify/functions";
 
 const argv = process.argv.slice(2);
 const BAZA = argv.find((a) => !a.startsWith("--"));
 const TRIMITE = argv.includes("--trimite");
+// Corecție = același formular, citit din nou, dar peste acte care EXISTĂ deja: se
+// rescrie numai textul ascendenței, iar clasa actului trebuie să iasă neschimbată.
+const CORECTEAZA = argv.includes("--corecteaza");
+const URL_FUNCTIE = process.env.URL_IMPORT || `${BAZA_URL}/${CORECTEAZA ? "registru-corectie" : "registru-import"}`;
 const doarArg = argv[argv.indexOf("--doar") + 1];
 const DOAR = argv.includes("--doar") && doarArg ? doarArg.split(",").map((x) => x.trim()) : null;
 
@@ -52,22 +94,43 @@ const rase = [...readFileSync(NOMENCLATOR, "utf8")
   .matchAll(/\{\s*ro:\s*"([^"]+)",\s*en:\s*"([^"]+)",\s*g:\s*(\d+)\s*\}/g)]
   .map((m) => ({ ro: m[1], en: m[2], g: Number(m[3]) }));
 
-console.log(`\n  IMPORT ARHIVĂ ISTORICĂ${TRIMITE ? "" : "  (proba uscată — nu se scrie nimic)"}`);
+console.log(`\n  ${CORECTEAZA ? "CORECȚIE DE ASCENDENȚĂ (acte existente)" : "IMPORT ARHIVĂ ISTORICĂ"}` +
+  `${TRIMITE ? "" : "  (probă — nu se scrie nimic)"}`);
 console.log(`  ${BAZA}`);
 console.log(`  nomenclator: ${rase.length} rase\n`);
 
-const dosare = readdirSync(BAZA).filter((d) => statSync(path.join(BAZA, d)).isDirectory()).sort();
+// Un singur cuib, sau o arhivă întreagă? Spunem pe față ce am înțeles, ca să nu se
+// importe altceva decât crede omul că importă.
+const UNUL = eUnSingurCuib(BAZA);
+const RADACINA = UNUL ? path.dirname(BAZA) : BAZA;
+const dosare = UNUL
+  ? [path.basename(BAZA)]
+  : readdirSync(BAZA).filter((d) => eDirector(path.join(BAZA, d))).sort();
+console.log(`  ${UNUL ? "un singur cuib" : dosare.length + " dosare"}\n`);
+
 const gata = [], oprite = [];
 
 for (const d of dosare) {
   const numar = d.slice(0, 2);
   if (DOAR && !DOAR.includes(numar)) continue;
+  const caleDosar = path.join(RADACINA, d);
 
-  const txts = readdirSync(path.join(BAZA, d)).filter((f) => f.toLowerCase().endsWith(".txt"));
-  if (!txts.length) { oprite.push({ d, de_ce: "nu are formular .txt — se face de mână" }); continue; }
+  const formular = gasesteFormular(caleDosar);
+  if (!formular) { oprite.push({ d, de_ce: "nu are formular .txt — se face de mână" }); continue; }
 
-  const { date, lipsuri } = citesteFormular(readFileSync(path.join(BAZA, d, txts[0]), "utf8"));
-  if (lipsuri.length) { oprite.push({ d, de_ce: "formular incomplet: " + lipsuri.join("; ") }); continue; }
+  const { date, lipsuri } = citesteFormular(readFileSync(formular, "utf8"));
+
+  // Numerele WDF lipsă din formular se iau din certificatele deja emise — singurul loc
+  // unde există. Se completează ÎNAINTE de a judeca dacă formularul e întreg.
+  const certificate = gasesteCertificate(caleDosar);
+  const { completate, erori: eCert } = completeazaDinCertificate(date.pui, certificate);
+  if (eCert.length) { oprite.push({ d, de_ce: "certificatele nu se potrivesc: " + eCert.join("; ") }); continue; }
+
+  // Lipsurile se recalculează: ce s-a completat din certificat nu mai lipsește.
+  const ramase = lipsuri
+    .filter((l) => !/cod WDF/.test(l))
+    .concat(date.pui.flatMap((p, i) => (p.wdf ? [] : [`puiul ${i + 1}: cod WDF`])));
+  if (ramase.length) { oprite.push({ d, de_ce: "formular incomplet: " + ramase.join("; ") }); continue; }
 
   const r = potriveste(date.rasa, date.varietate, rase);
   if (r.eroare) {
@@ -92,6 +155,7 @@ for (const d of dosare) {
       sursa: d,
     },
     prin: r.prin, corectat: r.cum === "tastare" ? `„${date.rasa}" → ${r.rasa.ro}` : "",
+    completate,
   });
 }
 
@@ -102,9 +166,16 @@ if (oprite.length) console.log("");
 for (const g of gata) {
   const n = g.cuib.pui.length;
   console.log(`  ${g.dosar.slice(0, 2)}  ${g.cuib.rasa}${g.corectat ? "  (" + g.corectat + ")" : ""} · ${n} pui · cuib ${g.cuib.numarCuib}`);
+  // Fiecare număr luat din certificat se spune. Cine verifică trebuie să vadă exact ce
+  // n-a venit din formular și din ce act a venit în schimb.
+  for (const c of g.completate || [])
+    console.log(`        numărul puiului ${c.pui} (${c.nume}) luat din certificat: ${c.serie}  ← ${c.din}`);
 }
 
-if (!TRIMITE) {
+// La import, proba uscată se face aici, pe laptop — nu are ce întreba serverul.
+// La corecție e altfel: ce se schimbă se vede doar comparând cu actele DIN registru,
+// deci proba pleacă la server cu `proba: true` și acesta răspunde fără să scrie.
+if (!TRIMITE && !CORECTEAZA) {
   console.log(`\n  Proba uscată. Ca să scrie în registru, adaugă  --trimite\n`);
   process.exit(0);
 }
@@ -121,7 +192,7 @@ for (const g of gata) {
     r = await fetch(URL_FUNCTIE, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ secret, cuib: g.cuib }),
+      body: JSON.stringify({ secret, cuib: g.cuib, ...(CORECTEAZA ? { proba: !TRIMITE } : {}) }),
     });
     d = await r.json();
   } catch (err) {
@@ -129,11 +200,32 @@ for (const g of gata) {
     cazute++;
     continue;
   }
-  if (!r.ok && !d?.scrise) {
+  if (!r.ok && !d?.scrise && !d?.schimbate) {
     console.log(`  ✗ ${g.dosar.slice(0, 2)}  ${d?.eroare || r.status}`);
+    for (const x of d?.refuzate || []) console.log(`        ⚠ ${x.serie}: ${x.de_ce}`);
     cazute++;
     continue;
   }
+
+  if (CORECTEAZA) {
+    const sch = d.schimbate || [];
+    scrise += sch.length;
+    sarite += (d.neatinse || []).length;
+    console.log(`  ✓ ${g.dosar.slice(0, 2)}  cuib ${d.cuib} · Tip ${d.tip} ${d.cunoscute}/30 (neschimbat) · ` +
+      `${sch.length} de îndreptat, ${(d.neatinse || []).length} deja corecte`);
+    for (const x of sch) {
+      // La probă vin diferențele pe câmpuri; la scriere, doar câte au fost.
+      if (Array.isArray(x.diferente)) {
+        console.log(`        ${x.serie}  ${x.nume}`);
+        for (const dd of x.diferente) console.log(`            ${dd}`);
+      } else {
+        console.log(`        ${x.serie}  ${x.nume}  (${x.campuri} câmpuri)`);
+      }
+    }
+    for (const e of d.erori || []) console.log(`        ⚠ ${e.eroare}`);
+    continue;
+  }
+
   scrise += (d.scrise || []).length;
   sarite += (d.sarite || []).length;
   console.log(`  ✓ ${g.dosar.slice(0, 2)}  cuib ${d.cuib} · Tip ${d.tip} · ${d.cunoscute}/30 cunoscute · ` +
@@ -143,4 +235,10 @@ for (const g of gata) {
 }
 
 console.log(`\n  ${"-".repeat(50)}`);
-console.log(`  Certificate scrise: ${scrise} · sărite (existau): ${sarite} · cuiburi căzute: ${cazute}\n`);
+if (CORECTEAZA) {
+  console.log(`  Certificate ${TRIMITE ? "îndreptate" : "de îndreptat"}: ${scrise} · deja corecte: ${sarite} · cuiburi căzute: ${cazute}`);
+  if (!TRIMITE) console.log(`  Probă — nu s-a scris nimic. Ca să scrie, adaugă  --trimite`);
+  console.log("");
+} else {
+  console.log(`  Certificate scrise: ${scrise} · sărite (existau): ${sarite} · cuiburi căzute: ${cazute}\n`);
+}

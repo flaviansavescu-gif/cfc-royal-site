@@ -17,6 +17,34 @@ function camp(text, eticheta) {
 const fara = (s) => String(s || "")
   .replace(/[ăâ]/gi, "a").replace(/[îi]/gi, "i").replace(/[șş]/gi, "s").replace(/[țţ]/gi, "t");
 
+/**
+ * „Nimic", scris omenește. În formulare, un câmp fără conținut apare ca „-", „–", „_",
+ * „N/A", „- N/A" sau orice amestec al lor. Toate înseamnă același lucru și trebuie să
+ * ajungă în registru ca gol — altfel pe fișa câinelui apare scris „- N/A" sub numele
+ * unui strămoș, ca și cum ar fi un număr de pedigree.
+ *
+ * ATENȚIE la ce NU e gol: „UCHR (RO) N/A" numește un registru și spune că acolo nu e
+ * trecut un număr. Aia e o informație, nu o absență, și rămâne.
+ */
+export const esteGol = (s) => /^(?:[-–—_\s]|n\s*\/\s*a)*$/i.test(String(s == null ? "" : s).trim());
+
+/**
+ * Taie codul WDF lipit după numele sau seria unui părinte.
+ *
+ * În formular, unii au scris pe același rând și numele, și codul nostru:
+ *   „*Femela montată (Mama)   DEEA   /   WDF.RO150194R22"
+ * Citit de-a dreptul, numele mamei devine „DEEA / WDF.RO150194R22" — și exact așa ar
+ * apărea în arborele de origini de pe site, deși pe certificatul tipărit scrie „DEEA".
+ * Codul WDF are câmpul lui; în nume n-are ce căuta.
+ */
+export const faraWDF = (s) => String(s == null ? "" : s).split(/\s*\/\s*WDF/i)[0];
+
+/** O serie de pedigree curată: fără codul WDF lipit, fără separatorul rămas la coadă. */
+export const serieCurata = (s) => {
+  const v = faraWDF(s).replace(/\s+/g, " ").replace(/[\s/|,;]+$/, "").trim();
+  return esteGol(v) ? "" : v;
+};
+
 /** Data în forma AAAA-LL-ZZ, din „28.05.2025", „08/11/2019" sau „17-01-2026". */
 export function dataISO(brut) {
   const m = /(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})/.exec(String(brut || ""));
@@ -46,13 +74,15 @@ function stramos(bloc) {
   if (!bloc) return null;
   const m = /Numele c(?:[âa]inelui|[ăa][țt]elei)\s*:\s*([\s\S]*?)\/\s*Nr\.?\s*[șs]?i?\s*Serie Pedigree\s*:\s*([^\n]*)/i.exec(bloc);
   if (!m) return null;
-  const nume = m[1].replace(/\s+/g, " ").trim();
-  const nr = m[2].replace(/\s+/g, " ").trim();
+  const nume = faraWDF(m[1]).replace(/\s+/g, " ").trim();
+  const nr = serieCurata(m[2]);
   const t = /Men[țt]iuni[^:]*:\s*([^\n]*)/i.exec(bloc);
   let titluri = t ? t[1].replace(/\s+/g, " ").trim() : "";
-  if (/^[-–_\s]*$/.test(titluri)) titluri = "";
-  if (!nume || /^unknown$/i.test(nume)) return null;
-  return { nume, nr: /^[-–_\s]*$/.test(nr) ? "" : nr, titluri };
+  if (esteGol(titluri)) titluri = "";
+  // Un strămoș necunoscut se scrie în fel și chip. Niciuna dintre formule nu e un nume:
+  // trecută ca atare, ar apărea pe fișă un câine pe care îl cheamă „UNKNOWN".
+  if (!nume || esteGol(nume) || /^unknown$/i.test(nume) || /NU\s+EXISTA\s+INFO/i.test(nume)) return null;
+  return { nume, nr, titluri };
 }
 
 /**
@@ -115,8 +145,8 @@ function genitor(bloc) {
   const nume = (/^\s*\*?\s*(?:Masculul care a montat|Femela montat[ăa])[^\n]*?\t+\s*([^\n]+)/im.exec(bloc)
     || /(?:\(Tat[ăa]l\)|\(Mama\))\s*([^\n]+)/i.exec(bloc) || [])[1];
   return {
-    nume: (nume || "").replace(/\s+/g, " ").trim(),
-    pedigree: camp(bloc, "Nr\\.\\s*Serie Certificat Pedigree"),
+    nume: faraWDF(nume).replace(/\s+/g, " ").trim(),
+    pedigree: serieCurata(camp(bloc, "Nr\\.\\s*Serie Certificat Pedigree")),
     dataNasterii: dataISO(camp(bloc, "Data Na[șs]terii")),
     microcip: microcip(camp(bloc, "Microcip")),
     proprietar: camp(bloc, "Numele proprietarului"),
@@ -142,7 +172,7 @@ export function puiDin(text) {
     const tipPar = (/Tip p[ăa]r\s*:\s*([^;\n]*)/i.exec(b) || [])[1] || "";
     const prop = (/Numele viitorului proprietar\s*:\s*([^\n]*)/i.exec(b) || [])[1] || "";
     const adresa = (/Adresa\s*:\s*([^\n]*)/i.exec(b) || [])[1] || "";
-    const curata = (v) => { const s = String(v).replace(/\s+/g, " ").trim(); return /^[-–_\s]*$/.test(s) ? "" : s; };
+    const curata = (v) => { const s = String(v).replace(/\s+/g, " ").trim(); return esteGol(s) ? "" : s; };
     out.push({
       nume: numeCurat,
       sex: sex.toUpperCase(),
@@ -185,7 +215,7 @@ export function citesteFormular(text) {
   // pasul ăsta, ascendența ar avea o gaură exact acolo unde e cel mai sigur cunoscută.
   if (d.mascul?.nume) d.ascendenta.T = { nume: d.mascul.nume, nr: d.mascul.pedigree || "", titluri: "" };
   if (d.femela?.nume) d.ascendenta.M = { nume: d.femela.nume, nr: d.femela.pedigree || "", titluri: "" };
-  if (/^[-–_\s]*$/.test(d.varietate)) d.varietate = "";
+  if (esteGol(d.varietate)) d.varietate = "";
 
   // Ce lipsește se spune pe față. Nimic nu se completează din presupuneri.
   const lipsuri = [];
