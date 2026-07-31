@@ -1,19 +1,8 @@
 ---
 // InscriereExpo.astro — formular public de înscriere la expoziții (bilingv RO/EN).
 // Încarcă expozițiile deschise din funcția inscriere-expo și trimite înscrierea în coadă.
-import { SITE } from "@/data/site";
-
 interface Props { lang: "ro" | "en"; }
 const { lang } = Astro.props;
-
-// Contul afișat până când se alege o expoziție — și rezerva pentru expozițiile publicate
-// înainte de registrul de organizatori. Vine din fișa clubului, nu scris încă o dată aici:
-// altfel ar exista două IBAN-uri ale CFC-Royal în cod, care într-o zi ar începe să difere.
-const CONT_IMPLICIT = {
-  nume: SITE.legal.fullName,
-  iban: SITE.legal.iban,
-  banca: SITE.legal.bank,
-};
 
 const T = {
   ro: {
@@ -61,6 +50,7 @@ const T = {
     vezeTarife: "Vezi toate tarifele asociației",
     plataCum: "Plata se face prin transfer bancar, înainte de trimiterea înscrierii:",
     titularEticheta: "Beneficiar:",
+    contLipsa: "Contul de plată nu a fost publicat pentru această expoziție. Scrie la contact@cfc-royal.ro înainte de a plăti — nu plăti în alt cont.",
     plataDetalii: "La detaliile plății scrie numele câinelui.",
     amPlatit: "Am plătit taxa de înscriere",
     dovada: "Dovada plății (poză sau PDF, max. 4 MB)",
@@ -113,6 +103,7 @@ const T = {
     vezeTarife: "See all the association fees",
     plataCum: "Payment is made by bank transfer, before submitting the entry:",
     titularEticheta: "Account holder:",
+    contLipsa: "The payment account has not been published for this show. Please write to contact@cfc-royal.ro before paying — do not pay into any other account.",
     plataDetalii: "Write the dog's name in the payment details.",
     amPlatit: "I have paid the entry fee",
     dovada: "Proof of payment (photo or PDF, max. 4 MB)",
@@ -262,13 +253,18 @@ const CLASE = [
       <p class="ie__taxa" id="ie-taxa-text">{T.taxaAlege}</p>
       <div class="ie__plata-info">
         <p>{T.plataCum}</p>
-        {/* Contul vine de la manager, odată cu expoziția aleasă: taxele pot intra în contul
-            asociației afiliate care organizează, nu neapărat al clubului. Ce se randează
-            aici e doar valoarea de pornire — JavaScript-ul o înlocuiește la alegerea
-            expoziției. Fără JS, omul vede tot un cont valid, al clubului. */}
-        <p class="ie__iban" id="ie-iban">{CONT_IMPLICIT.iban}</p>
-        <p>{T.titularEticheta} <span id="ie-titular">{CONT_IMPLICIT.nume}</span>{" · "}<span id="ie-banca">{CONT_IMPLICIT.banca}</span></p>
-        <p><b>{T.plataDetalii}</b></p>
+        {/* NICIUN CONT SCRIS AICI, nici măcar ca valoare de pornire.
+            Contul vine de la manager, odată cu expoziția aleasă: la o expoziție a unei
+            asociații afiliate, taxele intră în contul EI. Un cont scris în pagină „ca
+            rezervă" ar fi arătat contul clubului pentru o expoziție a altcuiva — adică
+            ar fi trimis banii în alt cont decât cel care trebuie. Mai bine niciun cont
+            decât unul plauzibil și greșit. */}
+        <div id="ie-cont">
+          <p class="ie__iban" id="ie-iban"></p>
+          <p>{T.titularEticheta} <span id="ie-titular"></span><span id="ie-banca-sep"> · </span><span id="ie-banca"></span></p>
+          <p><b>{T.plataDetalii}</b></p>
+        </div>
+        <p id="ie-cont-lipsa" hidden>{T.contLipsa}</p>
       </div>
       <label class="ie__consim"><input type="checkbox" name="amPlatit" value="1" id="ie-amplatit" /> <span><b>{T.amPlatit}</b> <b class="req">*</b></span></label>
       <label class="ie__f"><span>{T.dovada} <b class="req">*</b></span>
@@ -361,16 +357,12 @@ const CLASE = [
     // Plata taxei: sectiunea apare doar cand expozitia are taxe; bifa + dovada devin
     // obligatorii doar cand clasa aleasa are taxa > 0 (regula e impusa si pe server).
     const plataFs = document.getElementById("ie-plata");
+    const contZona = document.getElementById("ie-cont");
+    const contLipsa = document.getElementById("ie-cont-lipsa");
     const contIban = document.getElementById("ie-iban");
     const contTitular = document.getElementById("ie-titular");
     const contBanca = document.getElementById("ie-banca");
-    // Contul de pornire, cel randat în pagină: rezerva pentru expozițiile publicate
-    // înainte de registrul de organizatori, care nu trimit `organizator`.
-    const CONT_REZERVA = {
-      iban: contIban ? contIban.textContent : "",
-      nume: contTitular ? contTitular.textContent : "",
-      banca: contBanca ? contBanca.textContent : "",
-    };
+    const contBancaSep = document.getElementById("ie-banca-sep");
     const taxaText = document.getElementById("ie-taxa-text");
     const clasaSel = form.querySelector('select[name="clasa"]');
     const bifaPlatit = document.getElementById("ie-amplatit");
@@ -417,14 +409,21 @@ const CLASE = [
         !!(e && e.taxe && Object.values(e.taxe).some((v) => Number(v) > 0));
       plataFs.hidden = !areTaxe;
 
-      // Contul în care se plătește taxa. Vine de la manager, odată cu expoziția: la o
-      // expoziție organizată de o asociație afiliată, banii intră în contul ei.
-      // `textContent`, nu `innerHTML` — datele astea vin dintr-o funcție, iar un nume de
-      // asociație nu are ce să execute în pagină.
-      const cont = (e && e.organizator) || CONT_REZERVA;
-      if (contIban) contIban.textContent = cont.iban || CONT_REZERVA.iban;
-      if (contTitular) contTitular.textContent = cont.nume || CONT_REZERVA.nume;
-      if (contBanca) contBanca.textContent = cont.banca || CONT_REZERVA.banca;
+      // Contul în care se plătește taxa. Vine DOAR din expoziția aleasă: la o expoziție
+      // organizată de o asociație afiliată, banii intră în contul EI. Dacă expoziția n-are
+      // cont trecut, nu arătăm niciunul — un cont plauzibil dar greșit e mai rău decât
+      // niciun cont, fiindcă omul plătește liniștit în contul altcuiva și abia la
+      // secretariat se descoperă.
+      // `textContent`, nu `innerHTML` — datele vin dintr-o funcție, iar un nume de
+      // asociație n-are ce să execute în pagină.
+      const cont = e && e.organizator;
+      const areCont = !!(cont && cont.iban);
+      if (contZona) contZona.hidden = !areCont;
+      if (contLipsa) contLipsa.hidden = areCont;
+      if (contIban) contIban.textContent = areCont ? cont.iban : "";
+      if (contTitular) contTitular.textContent = areCont ? (cont.nume || "") : "";
+      if (contBanca) contBanca.textContent = areCont ? (cont.banca || "") : "";
+      if (contBancaSep) contBancaSep.hidden = !(areCont && cont.banca);
 
       zonaIntrebari.hidden = !grilaNoua;
       // Ascunse înseamnă și neîntrebate: la expozițiile cu grila veche, răspunsurile
