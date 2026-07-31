@@ -448,74 +448,83 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
   .tab__b.is-activ { background: var(--color-primary); color: #fbfaf7; border-color: var(--color-primary); font-weight: 600; }
   .panou { border: 1px solid var(--color-border); border-radius: 0 var(--radius) var(--radius);
     padding: 1.2rem; overflow-x: auto; }
-  .panou__gol { color: var(--color-text-muted); font-style: italic; margin: 0; }
+  .panou :global(.panou__gol) { color: var(--color-text-muted); font-style: italic; margin: 0; }
   .panou__nota { font-size: 0.85rem; color: var(--color-text-muted); margin: 1rem 0 0; }
 
-  /* Arborele are nevoie de lățime: pe ecrane mici se derulează el, nu pagina. */
+
+  /* ——— Arborele de ascendență ———
+     ATENȚIE la scoping: cutiile arborelui sunt create din JavaScript, deci NU primesc
+     atributul `data-astro-cid` pe care Astro îl pune pe elementele din șablon. O regulă
+     scrisă simplu (`.nod { … }`) devine `.nod[data-astro-cid-…]` și nu le atinge — au
+     stat nestilizate, iar arborele arăta ca niște rânduri înșirate. De aceea tot ce
+     desenează JS-ul se scrie `:global(...)`, ancorat sub `.arbore` sau `.panou`, care
+     SUNT în șablon: stilul ajunge la noduri fără să scape în restul site-ului. */
   .arbore-cadru { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 0.5rem; }
   .arbore { display: grid; grid-template-columns: repeat(4, minmax(10rem, 1fr));
     column-gap: var(--arb-gol, 1.5rem); min-width: 50rem; }
-  .arbore__col { display: flex; flex-direction: column; }
-  .arbore__cap { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em;
+  .arbore :global(.arbore__col) { display: flex; flex-direction: column; }
+  .arbore :global(.arbore__cap) { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em;
     color: var(--color-text-muted); margin: 0 0 0.4rem; text-align: center; }
 
   /* Toate generațiile împart aceleași 16 rânduri; fiecare nod acoperă câte îi revin,
      așa că un părinte cade exact la mijlocul perechii lui. */
-  .arbore__grila { flex: 1; display: grid; grid-template-rows: repeat(16, minmax(2.4rem, 1fr)); }
-  .arbore__celula { position: relative; display: flex; align-items: center; }
+  .arbore :global(.arbore__grila) { flex: 1; display: grid; grid-template-rows: repeat(16, minmax(2.4rem, 1fr)); }
+  .arbore :global(.arbore__celula) { position: relative; display: flex; align-items: center; }
 
-  /* Acolada: o linie orizontală care intră în cutie, plus jumătatea verticală care
-     urcă sau coboară spre părinte. Cele două jumătăți ale unei perechi se întâlnesc
-     exact la înălțimea părintelui. */
-  .arbore__celula.is-sus::before, .arbore__celula.is-jos::before {
+  /* Acolada: o linie orizontală care intră în cutie, plus jumătatea verticală care urcă
+     sau coboară spre părinte. Cele două jumătăți ale unei perechi se întâlnesc exact la
+     înălțimea părintelui. */
+  .arbore :global(.arbore__celula.is-sus)::before,
+  .arbore :global(.arbore__celula.is-jos)::before {
     content: ""; position: absolute; left: calc(-1 * var(--arb-gol, 1.5rem) / 2); top: 50%;
     width: calc(var(--arb-gol, 1.5rem) / 2); border-top: 1px solid var(--arb-linie, var(--color-border));
   }
-  .arbore__celula.is-sus::after, .arbore__celula.is-jos::after {
+  .arbore :global(.arbore__celula.is-sus)::after,
+  .arbore :global(.arbore__celula.is-jos)::after {
     content: ""; position: absolute; left: calc(-1 * var(--arb-gol, 1.5rem) / 2);
     border-left: 1px solid var(--arb-linie, var(--color-border));
   }
-  .arbore__celula.is-sus::after { top: 50%; bottom: 0; }
-  .arbore__celula.is-jos::after { top: 0; bottom: 50%; }
+  .arbore :global(.arbore__celula.is-sus)::after { top: 50%; bottom: 0; }
+  .arbore :global(.arbore__celula.is-jos)::after { top: 0; bottom: 50%; }
 
   /* Linia care iese din cutie spre acolada copiilor. */
-  .arbore__col:not(:last-child) .nod::after {
+  .arbore :global(.arbore__col:not(:last-child) .nod)::after {
     content: ""; position: absolute; right: calc(-1 * var(--arb-gol, 1.5rem) / 2); top: 50%;
     width: calc(var(--arb-gol, 1.5rem) / 2); border-top: 1px solid var(--arb-linie, var(--color-border));
   }
 
-  /* Ramura tatălui se urmărește în verde, a mamei în auriu — de la câine până la
-     stră-străbunici. Culoarea liniei spune din ce parte vine strămoșul, fără să
-     numeri pozițiile. */
-  .arbore__celula.is-t { --arb-linie: color-mix(in srgb, var(--color-primary) 45%, transparent); }
-  .arbore__celula.is-m { --arb-linie: color-mix(in srgb, var(--color-accent-dark) 45%, transparent); }
+  /* Ramura tatălui se urmărește în verde, a mamei în auriu, până la stră-străbunici:
+     culoarea liniei spune din ce parte vine strămoșul, fără să numeri pozițiile. */
+  .arbore :global(.arbore__celula.is-t) { --arb-linie: color-mix(in srgb, var(--color-primary) 45%, transparent); }
+  .arbore :global(.arbore__celula.is-m) { --arb-linie: color-mix(in srgb, var(--color-accent-dark) 45%, transparent); }
 
-  .nod { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 0.1rem;
-    width: 100%; border: 1px solid var(--color-border); border-left-width: 4px; border-radius: var(--radius);
-    padding: 0.35rem 0.5rem; min-height: 2.6rem; background: var(--color-surface); }
-  .nod.is-t { border-left-color: var(--color-primary); }
-  .nod.is-m { border-left-color: var(--color-accent); }
-  .nod.is-gol, .nod.is-incomplet { border-style: dashed; border-left-style: solid; }
-  .nod__nume { font-size: 0.78rem; line-height: 1.25; color: var(--color-primary); }
-  a.nod__nume { text-decoration: none; }
-  a.nod__nume:hover { text-decoration: underline; }
-  .nod__titluri { font-size: 0.66rem; color: var(--color-accent-dark); }
-  .nod__nr { font-size: 0.66rem; color: var(--color-text-muted); font-family: var(--font-mono, monospace); }
-  .nod.is-gol .nod__nr { font-style: italic; }
+  .arbore :global(.nod) { position: relative; display: flex; flex-direction: column; justify-content: center;
+    gap: 0.1rem; width: 100%; border: 1px solid var(--color-border); border-left-width: 4px;
+    border-radius: var(--radius); padding: 0.35rem 0.5rem; min-height: 2.6rem; background: var(--color-surface); }
+  .arbore :global(.nod.is-t) { border-left-color: var(--color-primary); }
+  .arbore :global(.nod.is-m) { border-left-color: var(--color-accent); }
+  .arbore :global(.nod.is-gol), .arbore :global(.nod.is-incomplet) { border-style: dashed; border-left-style: solid; }
+  .arbore :global(.nod__nume) { font-size: 0.78rem; line-height: 1.25; color: var(--color-primary); }
+  .arbore :global(a.nod__nume) { text-decoration: none; }
+  .arbore :global(a.nod__nume:hover) { text-decoration: underline; }
+  .arbore :global(.nod__titluri) { font-size: 0.66rem; color: var(--color-accent-dark); }
+  .arbore :global(.nod__nr) { font-size: 0.66rem; color: var(--color-text-muted); font-family: var(--font-mono, monospace); }
+  .arbore :global(.nod.is-gol .nod__nr) { font-style: italic; }
 
-  .lista { list-style: none; padding: 0; display: grid; gap: 0.4rem; }
-  .lista li { display: flex; align-items: baseline; gap: 0.7rem; flex-wrap: wrap;
+
+  .panou :global(.lista) { list-style: none; padding: 0; display: grid; gap: 0.4rem; }
+  .panou :global(.lista li) { display: flex; align-items: baseline; gap: 0.7rem; flex-wrap: wrap;
     padding: 0.4rem 0.6rem; border: 1px solid var(--color-border); border-radius: var(--radius); }
-  .lista a { color: var(--color-primary); font-weight: 600; }
-  .lista__mic { font-size: 0.8rem; color: var(--color-text-muted); font-family: var(--font-mono, monospace); }
-  .cuib { margin-bottom: 1.2rem; }
-  .cuib__cap { font-family: var(--font-serif); color: var(--color-primary); font-size: 1rem; margin: 0 0 0.2rem; }
+  .panou :global(.lista a) { color: var(--color-primary); font-weight: 600; }
+  .panou :global(.lista__mic) { font-size: 0.8rem; color: var(--color-text-muted); font-family: var(--font-mono, monospace); }
+  .panou :global(.cuib) { margin-bottom: 1.2rem; }
+  .panou :global(.cuib__cap) { font-family: var(--font-serif); color: var(--color-primary); font-size: 1rem; margin: 0 0 0.2rem; }
 
-  .tabel { border-collapse: collapse; width: 100%; }
-  .tabel th, .tabel td { text-align: left; padding: 0.4rem 0.6rem; font-size: 0.88rem;
+  .panou :global(.tabel) { border-collapse: collapse; width: 100%; }
+  .panou :global(.tabel th), .panou :global(.tabel td) { text-align: left; padding: 0.4rem 0.6rem; font-size: 0.88rem;
     border-bottom: 1px solid var(--color-border); }
-  .tabel th { color: var(--color-primary); font-weight: 600; }
-  .tabel__titlu { font-weight: 700; color: var(--color-accent-dark); }
+  .panou :global(.tabel th) { color: var(--color-primary); font-weight: 600; }
+  .panou :global(.tabel__titlu) { font-weight: 700; color: var(--color-accent-dark); }
 
   @media (max-width: 50rem) {
     .fisa { grid-template-columns: 1fr; }
