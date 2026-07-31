@@ -89,7 +89,7 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
     </nav>
 
     <div class="panou" id="panou-pedigree">
-      <div class="arbore" id="k-arbore"></div>
+      <div class="arbore-cadru"><div class="arbore" id="k-arbore"></div></div>
       <p class="panou__nota" id="k-tip-nota"></p>
     </div>
     <div class="panou" id="panou-frati" hidden></div>
@@ -197,18 +197,42 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
       fisa.hidden = true;
     }
 
+    /**
+     * Arborele de ascendență, așezat pe perechi, cu linii de legătură.
+     *
+     * Înainte, cele 2/4/8/16 cutii stăteau pur și simplu înșirate pe coloane. Arăta
+     * ordonat, dar ascundea tocmai ce trebuie citit dintr-un pedigree: CARE bunic ține
+     * de CARE părinte. Fără linii, cititorul trebuie să numere pozițiile ca să afle
+     * dacă un strămoș vine pe linia tatălui sau a mamei — adică să facă în cap munca
+     * pe care o face orice pedigree tipărit cu o acoladă.
+     *
+     * Acum fiecare generație împarte aceleași 16 rânduri: un părinte acoperă 8, un
+     * bunic 4, un străbunic 2, un stră-străbunic 1. Așa, fiecare cutie cade exact la
+     * mijlocul perechii pe care o generează, iar acoladele desenate în CSS leagă ce
+     * trebuie legat. Ordinea codurilor (T, M, TT, TM, MT, MM…) e deja imbricată: nodul
+     * `i` dintr-o generație are copiii pe pozițiile `2i` și `2i+1` din următoarea.
+     */
     function deseneazaArbore(asc, pozitii) {
       const zona = document.getElementById("k-arbore");
       zona.textContent = "";
       for (let gen = 1; gen <= 4; gen++) {
         const col = el("div", "arbore__col");
         col.appendChild(el("p", "arbore__cap", L[limba].generatii[gen]));
-        for (const p of pozitii.filter((x) => x.generatie === gen)) {
-          const a = asc[p.cod];
+        const grila = el("div", "arbore__grila");
+        const inaltime = Math.pow(2, 4 - gen);   // câte rânduri din 16 revin unui nod
+        pozitii.filter((x) => x.generatie === gen).forEach((p, i) => {
           // Prima literă a codului spune linia: T = tatăl (verde), M = mama (auriu).
-          const cutie = el("div", "nod is-" + (p.cod[0] === "T" ? "t" : "m"));
+          const linia = p.cod[0] === "T" ? "t" : "m";
+          // Nodurile de la generația a doua încolo intră într-o acoladă: cel de sus al
+          // perechii coboară spre părinte, cel de jos urcă.
+          const celula = el("div", "arbore__celula is-" + linia +
+            (gen > 1 ? (i % 2 === 0 ? " is-sus" : " is-jos") : ""));
+          celula.style.gridRow = "span " + inaltime;
+
+          const cutie = el("div", "nod is-" + linia);
           cutie.title = p.eticheta;
-          if (a && a.nume) {
+          if (a2(asc, p) && asc[p.cod].nume) {
+            const a = asc[p.cod];
             if (a.nr && ePropriu(a.nr)) cutie.appendChild(legatura(a.nr, a.nume, "nod__nume"));
             else cutie.appendChild(el("strong", "nod__nume", a.nume));
             if (a.titluri) cutie.appendChild(el("span", "nod__titluri", a.titluri));
@@ -218,11 +242,16 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
             cutie.classList.add("is-gol");
             cutie.appendChild(el("span", "nod__nr", L[limba].necunoscut));
           }
-          col.appendChild(cutie);
-        }
+          celula.appendChild(cutie);
+          grila.appendChild(celula);
+        });
+        col.appendChild(grila);
         zona.appendChild(col);
       }
     }
+
+    /** Există ceva scris la poziția asta? */
+    function a2(asc, p) { return !!(asc && asc[p.cod]); }
 
     function deseneazaFrati(frati) {
       const p = document.getElementById("panou-frati");
@@ -422,13 +451,48 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
   .panou__gol { color: var(--color-text-muted); font-style: italic; margin: 0; }
   .panou__nota { font-size: 0.85rem; color: var(--color-text-muted); margin: 1rem 0 0; }
 
-  .arbore { display: grid; grid-template-columns: repeat(4, minmax(9rem, 1fr)); gap: 0.4rem; min-width: 44rem; }
-  .arbore__col { display: flex; flex-direction: column; gap: 0.3rem; }
+  /* Arborele are nevoie de lățime: pe ecrane mici se derulează el, nu pagina. */
+  .arbore-cadru { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 0.5rem; }
+  .arbore { display: grid; grid-template-columns: repeat(4, minmax(10rem, 1fr));
+    column-gap: var(--arb-gol, 1.5rem); min-width: 50rem; }
+  .arbore__col { display: flex; flex-direction: column; }
   .arbore__cap { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em;
-    color: var(--color-text-muted); margin: 0 0 0.2rem; text-align: center; }
-  .nod { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 0.1rem;
-    border: 1px solid var(--color-border); border-left-width: 4px; border-radius: var(--radius);
-    padding: 0.35rem 0.5rem; min-height: 2.6rem; background: #fff; }
+    color: var(--color-text-muted); margin: 0 0 0.4rem; text-align: center; }
+
+  /* Toate generațiile împart aceleași 16 rânduri; fiecare nod acoperă câte îi revin,
+     așa că un părinte cade exact la mijlocul perechii lui. */
+  .arbore__grila { flex: 1; display: grid; grid-template-rows: repeat(16, minmax(2.4rem, 1fr)); }
+  .arbore__celula { position: relative; display: flex; align-items: center; }
+
+  /* Acolada: o linie orizontală care intră în cutie, plus jumătatea verticală care
+     urcă sau coboară spre părinte. Cele două jumătăți ale unei perechi se întâlnesc
+     exact la înălțimea părintelui. */
+  .arbore__celula.is-sus::before, .arbore__celula.is-jos::before {
+    content: ""; position: absolute; left: calc(-1 * var(--arb-gol, 1.5rem) / 2); top: 50%;
+    width: calc(var(--arb-gol, 1.5rem) / 2); border-top: 1px solid var(--arb-linie, var(--color-border));
+  }
+  .arbore__celula.is-sus::after, .arbore__celula.is-jos::after {
+    content: ""; position: absolute; left: calc(-1 * var(--arb-gol, 1.5rem) / 2);
+    border-left: 1px solid var(--arb-linie, var(--color-border));
+  }
+  .arbore__celula.is-sus::after { top: 50%; bottom: 0; }
+  .arbore__celula.is-jos::after { top: 0; bottom: 50%; }
+
+  /* Linia care iese din cutie spre acolada copiilor. */
+  .arbore__col:not(:last-child) .nod::after {
+    content: ""; position: absolute; right: calc(-1 * var(--arb-gol, 1.5rem) / 2); top: 50%;
+    width: calc(var(--arb-gol, 1.5rem) / 2); border-top: 1px solid var(--arb-linie, var(--color-border));
+  }
+
+  /* Ramura tatălui se urmărește în verde, a mamei în auriu — de la câine până la
+     stră-străbunici. Culoarea liniei spune din ce parte vine strămoșul, fără să
+     numeri pozițiile. */
+  .arbore__celula.is-t { --arb-linie: color-mix(in srgb, var(--color-primary) 45%, transparent); }
+  .arbore__celula.is-m { --arb-linie: color-mix(in srgb, var(--color-accent-dark) 45%, transparent); }
+
+  .nod { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 0.1rem;
+    width: 100%; border: 1px solid var(--color-border); border-left-width: 4px; border-radius: var(--radius);
+    padding: 0.35rem 0.5rem; min-height: 2.6rem; background: var(--color-surface); }
   .nod.is-t { border-left-color: var(--color-primary); }
   .nod.is-m { border-left-color: var(--color-accent); }
   .nod.is-gol, .nod.is-incomplet { border-style: dashed; border-left-style: solid; }
