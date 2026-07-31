@@ -47,6 +47,23 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
            target="_blank" rel="noopener">🌐 Baza de pedigree WDF ↗</a>
         <span>Se deschide într-o filă separată — poți căuta acolo strămoșii, fără să pierzi ce ai completat aici.</span>
       </p>
+
+      <!-- ——— Citirea documentelor ——— -->
+      <div class="p-citire" id="p-citire">
+        <p class="p-actiuni">
+          <button class="btn btn--outline btn--small" type="button" id="p-citeste">
+            📄 Citește pedigree-urile părinților
+          </button>
+          <span class="p-stare" id="p-citire-stare"></span>
+        </p>
+        <p class="p-nota">
+          Citește documentele urcate de crescător și <strong>propune</strong> valorile — nu le scrie.
+          Propunerile apar lângă câmpuri; tu hotărăști care intră. Ce nu s-a citit limpede vine
+          însemnat, cu motivul. <strong>Nimic nu se salvează</strong> până nu apeși „Salvează ascendența".
+        </p>
+        <div id="p-citire-rezultat" hidden></div>
+      </div>
+
       <p class="p-tip" id="p-tip">—</p>
       <div id="p-generatii"></div>
       <p class="p-actiuni">
@@ -81,9 +98,35 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     const post = (b) => fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(Object.assign({ cod: cod(), dispozitiv: dispozitiv() }, b)) });
 
+    // STILURILE SCOPED ȘI ELEMENTELE FĂCUTE DIN JAVASCRIPT.
+    //
+    // Astro face stilurile din <style> „scoped": fiecare selector devine
+    // `.p-poz[data-astro-cid-…]`, iar atributul îl pune el, la compilare, pe elementele
+    // DIN ȘABLON. Ce desenează JavaScript-ul nu-l primește niciodată — deci rămâne
+    // complet nestilizat, fără ca ceva să se plângă undeva.
+    //
+    // Aici asta însemna că toate cele 30 de rânduri ale ascendenței — adică fix munca
+    // grea a registraturii — se desenau ca o grămadă de câmpuri, fără grilă, fără
+    // marcajul verde al pozițiilor complete, fără așezarea pentru telefon.
+    //
+    // Leacul: luăm numele atributului de pe un element din șablon și îl punem pe tot ce
+    // facem noi. Așa stilurile rămân scoped (nu se scurg în alte pagini), dar prind și
+    // elementele desenate.
+    const CID = (function () {
+      const gazda = document.getElementById("p-generatii");
+      if (!gazda) return null;
+      for (const a of gazda.attributes) if (a.name.indexOf("data-astro-cid-") === 0) return a.name;
+      return null;
+    })();
+    const creeaza = (tag) => {
+      const x = document.createElement(tag);
+      if (CID) x.setAttribute(CID, "");
+      return x;
+    };
+
     // Datele vin din dosarele crescătorilor: doar textContent, niciodată innerHTML.
     const el = (tag, cls, text) => {
-      const x = document.createElement(tag);
+      const x = creeaza(tag);
       if (cls) x.className = cls;
       if (text != null) x.textContent = text;
       return x;
@@ -95,6 +138,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     let pozitii = [];
     let ascendenta = {};
     let dosar = null;
+    let propuneri = {};   // ce a citit mașina; trăiește doar în pagină, până se pune cu mâna
 
     // Tipul se recalculează la fiecare tastă: registratorul vede pe loc ce iese.
     function recalculeaza() {
@@ -128,7 +172,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       box.appendChild(el("span", "p-poz__eticheta", p.eticheta));
       const a = ascendenta[p.cod] || {};
       const camp = (nume, valoare, marcaj) => {
-        const i = document.createElement("input");
+        const i = creeaza("input");
         i.type = "text";
         i.value = valoare || "";
         i.placeholder = marcaj;
@@ -145,8 +189,58 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       box.appendChild(camp("nr", a.nr, "nr. înregistrare"));
       box.appendChild(camp("titluri", a.titluri, "titluri (opțional)"));
       if (a.nume && a.nr) box.classList.add("is-complet");
+
+      const pr = propuneri[p.cod];
+      if (pr) box.appendChild(randPropunere(p, pr, a));
       return box;
     }
+
+    /**
+     * Rândul de propunere de sub o poziție. Se vede ce scrie pe document, se vede de pe
+     * care document, și — dacă citirea n-a fost sigură — se vede de ce.
+     *
+     * Butonul „pune" scrie în câmpuri, nu în registru: salvarea rămâne apăsarea de jos.
+     * O propunere nu se aplică niciodată singură, nici măcar când câmpul e gol; altfel
+     * n-ar mai fi propunere.
+     */
+    function randPropunere(p, pr, acum) {
+      const rand = el("div", "p-prop");
+      const laFel = (x, y) => String(x || "").toUpperCase().replace(/[^\p{L}\p{N}]/gu, "")
+        === String(y || "").toUpperCase().replace(/[^\p{L}\p{N}]/gu, "");
+      const identic = laFel(acum.nume, pr.nume) && laFel(acum.nr, pr.nr);
+
+      if (identic) {
+        rand.classList.add("is-identic");
+        rand.appendChild(el("span", "p-prop__semn", "✓"));
+        rand.appendChild(el("span", "p-prop__text", "la fel ca pe certificatul " + (pr.din || "").toLowerCase()));
+        return rand;
+      }
+
+      if (!pr.sigur) rand.classList.add("is-nesigur");
+      rand.appendChild(el("span", "p-prop__semn", pr.sigur ? "📄" : "⚠"));
+      const text = el("span", "p-prop__text",
+        "pe document: " + (pr.nume || "—") + (pr.nr ? " · " + pr.nr : " · fără număr"));
+      rand.appendChild(text);
+
+      const pune = el("button", "btn btn--outline btn--small", "pune");
+      pune.type = "button";
+      pune.addEventListener("click", () => {
+        ascendenta[p.cod] = Object.assign({}, ascendenta[p.cod], {
+          nume: pr.nume || "", nr: pr.nr || "", titluri: pr.titluri || ascendenta[p.cod]?.titluri || "",
+        });
+        deseneazaGeneratii();
+        recalculeaza();
+        stareSalvare("propuneri puse în câmpuri — încă nesalvate");
+      });
+      rand.appendChild(pune);
+
+      if (!pr.sigur && pr.nelamurire) {
+        rand.appendChild(el("span", "p-prop__nelamurire", pr.nelamurire));
+      }
+      return rand;
+    }
+
+    function stareSalvare(m) { document.getElementById("p-stare-salvare").textContent = m; }
 
     function deseneazaGeneratii() {
       const zona = document.getElementById("p-generatii");
@@ -172,7 +266,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
         if (emis) {
           li.appendChild(el("strong", null, (pu.sex === "M" ? "♂ " : "♀ ") + pu.nume));
           li.appendChild(el("span", "p-pui__serie", emis.serie + " · Tip " + emis.tip));
-          const a = document.createElement("a");
+          const a = creeaza("a");
           a.className = "btn btn--outline btn--small";
           a.href = "/registru/pedigree/?s=" + encodeURIComponent(emis.serie);
           a.target = "_blank"; a.rel = "noopener";
@@ -181,12 +275,12 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
 
           // Numărul WDF individual NU se generează: îl atribuie World Dog Federation la
           // înregistrarea cuibului în baza internațională. Se trece aici când sosește.
-          const camp = document.createElement("input");
+          const camp = creeaza("input");
           camp.type = "text";
           camp.className = "p-pui__wdf";
           camp.placeholder = "nr. WDF (ex. WDF.RO150640L26)";
           camp.value = emis.numarWDFCaine || "";
-          const salv = document.createElement("button");
+          const salv = creeaza("button");
           salv.type = "button";
           salv.className = "btn btn--outline btn--small";
           salv.textContent = "Salvează nr. WDF";
@@ -203,9 +297,9 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
           });
           li.append(camp, salv);
         } else {
-          const lab = document.createElement("label");
+          const lab = creeaza("label");
           lab.className = "p-pui__alege";
-          const bifa = document.createElement("input");
+          const bifa = creeaza("input");
           bifa.type = "checkbox"; bifa.checked = true; bifa.dataset.index = String(i);
           lab.appendChild(bifa);
           lab.appendChild(el("span", null, (pu.sex === "M" ? "♂ " : "♀ ") + pu.nume +
@@ -254,6 +348,106 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
         b.hidden = true;
       } catch (err) { b.disabled = false; alert(err.message); }
     });
+
+    // ——— Citirea documentelor din dosar ———
+    //
+    // Se apasă. Nu pornește singură la încărcarea paginii și nu se cheamă de nicăieri
+    // altundeva: fiecare citire e o hotărâre a registratorului, pe un dosar anume, și
+    // costă bani adevărați.
+    document.getElementById("p-citeste").addEventListener("click", async (e) => {
+      const b = e.currentTarget;
+      const stare = document.getElementById("p-citire-stare");
+      const zona = document.getElementById("p-citire-rezultat");
+      b.disabled = true;
+      stare.textContent = "se citește… (durează un minut, sunt două documente)";
+      try {
+        const r = await fetch("/.netlify/functions/registratura-citeste", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cod: cod(), dispozitiv: dispozitiv(), id }),
+        });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.eroare || "Citirea nu a mers.");
+        propuneri = d.propuneri || {};
+        stare.textContent = d.mesaj || "";
+        deseneazaCitire(d, zona);
+        deseneazaGeneratii();       // propunerile apar lângă câmpuri
+        recalculeaza();
+      } catch (err) {
+        stare.textContent = err.message;
+      }
+      b.disabled = false;
+    });
+
+    function deseneazaCitire(d, zona) {
+      zona.textContent = "";
+      zona.hidden = false;
+
+      // Ce s-a citit din fiecare document, inclusiv ce NU s-a putut citi. O piesă lipsă
+      // spusă pe față e altceva decât o poziție goală: una e „nu am de unde", cealaltă
+      // ar putea fi luată drept „nu există strămoș".
+      const ul = el("ul", "p-cit__lista");
+      for (const c of d.citite || []) {
+        const li = el("li", null);
+        li.appendChild(el("strong", null, c.cine + ": "));
+        li.appendChild(el("span", null, c.stare === "citit"
+          ? c.pozitii + " poziții" + (c.nesigure ? ", " + c.nesigure + " nesigure" : "")
+          : c.stare));
+        if (c.stare !== "citit") li.className = "is-lipsa";
+        ul.appendChild(li);
+      }
+      zona.appendChild(ul);
+
+      // Nepotrivirile dintre declarația crescătorului și actul de origine. Nu se
+      // corectează nimic automat; se arată, ca să se uite omul.
+      if ((d.nepotriviri || []).length) {
+        const box = el("div", "p-cit__nepotriviri");
+        box.appendChild(el("h4", null, "Declarația crescătorului nu se potrivește cu documentul:"));
+        const l = el("ul", null);
+        for (const n of d.nepotriviri) {
+          const li = el("li", null);
+          li.appendChild(el("strong", null, n.camp + ": "));
+          li.appendChild(el("span", null, "a scris «" + n.declaratie + "», pe act scrie «" + n.document + "»"));
+          if (n.nota) li.appendChild(el("span", "p-cit__nota", n.nota));
+          l.appendChild(li);
+        }
+        box.appendChild(l);
+        zona.appendChild(box);
+      }
+
+      // Punerea în bloc: DOAR propunerile sigure și DOAR în câmpurile goale. Nu
+      // suprascrie niciodată ce a scris omul — o valoare tastată e o hotărâre, iar
+      // hotărârile nu se schimbă dintr-un buton care zice „pune tot".
+      const goaleSigure = pozitii.filter((p) => {
+        const pr = propuneri[p.cod], a = ascendenta[p.cod] || {};
+        return pr && pr.sigur && !(a.nume || "").trim();
+      });
+      const act = el("p", "p-actiuni");
+      if (goaleSigure.length) {
+        const bt = el("button", "btn btn--primary btn--small",
+          "Pune cele " + goaleSigure.length + " propuneri sigure în pozițiile goale");
+        bt.type = "button";
+        bt.addEventListener("click", () => {
+          for (const p of goaleSigure) {
+            const pr = propuneri[p.cod];
+            ascendenta[p.cod] = { nume: pr.nume || "", nr: pr.nr || "", titluri: pr.titluri || "" };
+          }
+          deseneazaGeneratii();
+          recalculeaza();
+          stareSalvare(goaleSigure.length + " poziții puse în câmpuri — încă NESALVATE");
+          bt.disabled = true;
+        });
+        act.appendChild(bt);
+      }
+      act.appendChild(el("span", "p-stare",
+        "Cele nesigure nu intră aici: se pun una câte una, după ce citești motivul."));
+      zona.appendChild(act);
+
+      const jos = el("p", "p-cit__subsol",
+        "Citit cu " + (d.cunoscute || 0) + " poziții propuse din " + (d.din || 30) +
+        (d.cost ? " · " + d.cost.explicatie : "") +
+        " · nimic nu s-a scris în registru.");
+      zona.appendChild(jos);
+    }
 
     document.getElementById("p-salveaza").addEventListener("click", async (e) => {
       const b = e.target;
@@ -326,6 +520,32 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     .p-poz__eticheta { grid-column: 2; }
     .p-poz input { grid-column: 1 / -1; }
   }
+
+  /* ——— Citirea documentelor ——— */
+  .p-citire { margin: 1.25rem 0; padding: 0.9rem 1.1rem; max-width: 48rem;
+    border: 1px solid var(--color-border); border-left: 4px solid var(--color-accent-dark);
+    border-radius: var(--radius); background: #fcfbf7; }
+  .p-citire .p-nota { margin-bottom: 0; }
+  .p-citire .p-actiuni { margin-top: 0; }
+  #p-citire-rezultat[hidden] { display: none; }
+  .p-cit__lista { list-style: none; padding: 0; margin: 0.8rem 0 0; font-size: 0.88rem; display: grid; gap: 0.2rem; }
+  .p-cit__lista .is-lipsa { color: #8c1d2f; }
+  .p-cit__nepotriviri { margin-top: 0.9rem; padding: 0.7rem 0.9rem; border-radius: var(--radius);
+    background: #f9efef; border: 1px solid #8c1d2f; }
+  .p-cit__nepotriviri h4 { margin: 0 0 0.4rem; font-size: 0.92rem; color: #8c1d2f; }
+  .p-cit__nepotriviri ul { margin: 0; padding-left: 1.1rem; font-size: 0.86rem; display: grid; gap: 0.3rem; }
+  .p-cit__nota { display: block; font-size: 0.8rem; color: var(--color-text-muted); }
+  .p-cit__subsol { margin: 0.8rem 0 0; font-size: 0.82rem; color: var(--color-text-muted); }
+
+  /* Rândul de propunere, sub câmpurile unei poziții. */
+  .p-prop { grid-column: 1 / -1; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+    margin-top: 0.3rem; padding: 0.3rem 0.5rem; border-radius: var(--radius);
+    background: #f4f7fb; font-size: 0.82rem; }
+  .p-prop.is-identic { background: #f1f6f2; color: var(--color-text-muted); }
+  /* Nesigur = galben, nu roșu: nu e o greșeală, e o citire care își spune limita. */
+  .p-prop.is-nesigur { background: #fdf6e8; border: 1px solid var(--color-accent-dark); }
+  .p-prop__text { font-family: var(--font-mono, monospace); }
+  .p-prop__nelamurire { flex-basis: 100%; font-size: 0.78rem; color: var(--color-accent-dark); }
 
   .p-pui { list-style: none; padding: 0; display: grid; gap: 0.4rem; max-width: 48rem; }
   .p-pui__rand { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;

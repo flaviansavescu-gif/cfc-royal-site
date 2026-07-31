@@ -27,16 +27,36 @@ const eDirector = (p) => { try { return statSync(p).isDirectory(); } catch { ret
 /**
  * Formularul cuibului. Dosarele vechi îl țin în rădăcină; cele noi, într-un subdosar
  * „DMF" lângă actele de care ține (pedigree-urile părinților, dovada de plată).
+ *
+ * DOUĂ FORMULARE ÎN DOSAR OPRESC IMPORTUL. Înainte se lua primul din listă, în tăcere.
+ * S-a văzut ce înseamnă asta: pusă o copie „(înainte-de-corecție)" lângă original, ea
+ * ieșea prima la sortare, iar corecția s-a raportat drept „6 certificate deja corecte"
+ * — adică pe dos față de adevăr, fără niciun semn că s-ar fi citit alt fișier.
+ *
+ * Un import care alege singur între două surse și nu spune care e cel mai prost fel de
+ * unealtă: dă un răspuns liniștitor, despre alt dosar decât cel la care te uiți.
+ * Copiile vechi se pun într-un subdosar (`copii vechi`), unde nu sunt căutate.
  */
+function unSingurFormular(fisiere, unde) {
+  const txt = fisiere.filter((f) => f.toLowerCase().endsWith(".txt"));
+  if (txt.length > 1) {
+    console.error(`\n  OPRIT: în „${unde}" sunt ${txt.length} fișiere .txt:`);
+    for (const f of txt) console.error(`    · ${f}`);
+    console.error("  Nu ghicesc care e formularul. Lasă unul singur (mută copiile într-un subdosar) și reia.\n");
+    process.exit(1);
+  }
+  return txt[0] || null;
+}
+
 function gasesteFormular(dosar) {
-  const inRadacina = readdirSync(dosar).filter((f) => f.toLowerCase().endsWith(".txt"));
-  if (inRadacina.length) return path.join(dosar, inRadacina[0]);
+  const inRadacina = unSingurFormular(readdirSync(dosar), dosar);
+  if (inRadacina) return path.join(dosar, inRadacina);
   for (const sub of readdirSync(dosar)) {
     const cale = path.join(dosar, sub);
     if (!eDirector(cale)) continue;
     if (!/^dmf$/i.test(sub)) continue;
-    const t = readdirSync(cale).filter((f) => f.toLowerCase().endsWith(".txt"));
-    if (t.length) return path.join(cale, t[0]);
+    const t = unSingurFormular(readdirSync(cale), cale);
+    if (t) return path.join(cale, t);
   }
   return null;
 }
