@@ -38,7 +38,15 @@ const json = (b, s = 200) =>
   new Response(JSON.stringify(b, null, 2), { status: s, headers: { "Content-Type": "application/json; charset=utf-8" } });
 
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
-const store = () => getStore("registru");
+
+// CITIRE TARE, ca la emitere. Aici se face citește–modifică–scrie peste acte eliberate:
+// actul se citește, i se schimbă un câmp, iar restul se scrie înapoi așa cum a fost citit.
+// Cu citire obișnuită, magazia poate servi o copie veche de câteva zeci de secunde — iar
+// atunci „restul așa cum a fost citit" înseamnă starea de acum un minut, și orice
+// schimbare făcută între timp de altcineva ar fi ștearsă fără ca cineva să afle.
+// S-a și văzut: prima verificare de după corecție a raportat că nu s-a scris nimic,
+// fiindcă citea copia dinainte.
+const store = () => getStore({ name: "registru", consistency: "strong" });
 
 /** Ce anume s-a schimbat între două ascendențe, spus pe câmpuri. */
 function diferente(vechi, nou) {
@@ -116,7 +124,10 @@ export default async (req) => {
   }
 
   if (!planificate.length && !difDosar.length) {
-    return json({ ok: true, cuib: dosar.serie, id, schimbate: [], neatinse, mesaj: "Totul era deja corect." });
+    return json({
+      ok: true, cuib: dosar.serie, id, tip: t.tip, cunoscute: 30 - t.lipsa.length,
+      schimbate: [], neatinse, mesaj: "Totul era deja corect.",
+    });
   }
 
   // ---- Urma se scrie ÎNAINTE de acte, ca peste tot în registru. ----
