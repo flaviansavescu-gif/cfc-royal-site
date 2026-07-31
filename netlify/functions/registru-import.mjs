@@ -103,6 +103,25 @@ export default async (req) => {
   const sarite = [];
   const erori = [];
 
+  // URMA SE SCRIE ÎNTÂI, ca peste tot în registru. La primul import am scris-o la sfârșit
+  // și jurnalul a refuzat fapta ca necunoscută: 17 certificate intraseră deja, fără urmă.
+  // Un act apărut în registru fără să se știe cine l-a pus și din ce dosar de hârtie
+  // provine nu se poate apăra la o contestație. Dacă jurnalul cade, nu se scrie nimic.
+  try {
+    await jurnalizeazaObligatoriu(s, {
+      fapta: "import-istoric",
+      actor: "registratură (import)",
+      obiect: dosar.serie,
+      detalii: `Cuib ${dosar.serie} — ${dosar.rasa}, crescător ${dosar.membruNume || "—"}: ` +
+        `${c.pui.length} exemplare, Tip ${t.tip}, ${30 - t.lipsa.length}/30 poziții cunoscute` +
+        (dosar.sursa ? ` · sursa: ${dosar.sursa}` : ""),
+      ip: "local",
+    });
+  } catch (err) {
+    console.error("Jurnalul nu a putut fi scris; nu s-a importat nimic:", err);
+    return json({ eroare: "Nu am putut consemna fapta în jurnal, deci nu am scris nimic. " + err.message }, 503);
+  }
+
   try {
     await s.setJSON("dmf/" + id, dosar);
   } catch (err) {
@@ -160,22 +179,6 @@ export default async (req) => {
     } catch (err) {
       erori.push({ serie, nume: p?.nume, eroare: err.message });
     }
-  }
-
-  // Urma se scrie ORICUM: un registru în care apar acte fără să se știe cine le-a pus
-  // și de unde nu e un registru, e o grămadă de fișiere.
-  try {
-    await jurnalizeazaObligatoriu(s, {
-      fapta: "import-istoric",
-      actor: "registratură (import)",
-      obiect: dosar.serie,
-      detalii: `Cuib ${dosar.serie} — ${dosar.rasa}, crescător ${dosar.membruNume || "—"}: ` +
-        `${scrise.length} certificate scrise, ${sarite.length} sărite, Tip ${t.tip}` +
-        (dosar.sursa ? ` · sursa: ${dosar.sursa}` : ""),
-      ip: "local",
-    });
-  } catch (err) {
-    erori.push({ eroare: "Jurnalul nu a putut fi scris: " + err.message });
   }
 
   return json({
