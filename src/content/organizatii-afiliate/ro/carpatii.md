@@ -8,6 +8,7 @@ address: "Str. Văzduh nr. 27, loc. Tomești, jud. Iași"
 phone: "+40 762 355 333"
 contactEmail: "mioris.land@gmail.com"
 website: "https://www.achp.ro"
+iban: "RO52 BTRL RONC RT0D G240 9401"
 president: "dr. ing. Sorin Iacob"
 logo: "/images/afiliat-carpatii.webp"
 draft: false

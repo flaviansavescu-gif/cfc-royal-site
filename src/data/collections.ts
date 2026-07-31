@@ -68,6 +68,35 @@ const row = (label: string, value: unknown, wide = false): MetaRow | null =>
   value ? { label, value: String(value), wide } : null;
 const rows = (...items: (MetaRow | null)[]): MetaRow[] => items.filter((x): x is MetaRow => !!x);
 
+/**
+ * Banca, citită din IBAN.
+ *
+ * Într-un IBAN românesc, cele patru litere de după cifra de control sunt codul băncii —
+ * aceleași patru din codul SWIFT. Cine face un transfer are nevoie de numele băncii, dar
+ * scris separat în fișier ar fi o a doua sursă pentru același lucru: cineva schimbă
+ * contul, uită să schimbe și banca, iar pagina rămâne să spună o minciună liniștită.
+ * Aici nu se poate întâmpla — dacă IBAN-ul se schimbă, numele băncii îl urmează.
+ *
+ * Un cod necunoscut nu întoarce nimic, iar rândul dispare. Se completează lista când apare.
+ */
+const BANCI: Record<string, string> = {
+  BTRL: "Banca Transilvania",
+  RNCB: "Banca Comercială Română (BCR)",
+  BRDE: "BRD — Groupe Société Générale",
+  RZBR: "Raiffeisen Bank",
+  INGB: "ING Bank",
+  BREL: "Libra Internet Bank",
+  CECE: "CEC Bank",
+  UGBI: "Garanti BBVA",
+  PIRB: "First Bank",
+  TREZ: "Trezoreria Statului",
+};
+const bancaDinIBAN = (iban: unknown): string | undefined => {
+  const curat = String(iban ?? "").replace(/\s+/g, "").toUpperCase();
+  if (!/^RO\d{2}[A-Z]{4}/.test(curat)) return undefined;
+  return BANCI[curat.slice(4, 8)];
+};
+
 export const collectionDefs: CollectionDef[] = [
   {
     name: "campioni",
@@ -258,6 +287,7 @@ export const collectionDefs: CollectionDef[] = [
         row(L(lang, "E-mail", "Email"), d.contactEmail),
         row("CIF", d.cif),
         row("IBAN", d.iban),
+        row(L(lang, "Banca", "Bank"), bancaDinIBAN(d.iban)),
         row("Facebook", d.facebook ? d.facebook.replace(/^https?:\/\//, "").replace(/\/$/, "") : undefined, true),
         row(L(lang, "Website", "Website"), d.website ? d.website.replace(/^https?:\/\//, "").replace(/\/$/, "") : undefined, true),
       ),
