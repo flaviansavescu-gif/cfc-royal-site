@@ -91,16 +91,37 @@ export function etichetaPozitie(cod) {
 }
 
 /**
- * Tipul certificatului, calculat din ascendență.
- * Tip A cere detalii de înregistrare la TOATE cele 30 de poziții.
+ * Tipul certificatului, calculat din ascendență. Regula World Dog Federation:
+ *
+ *   Tip A — ascendența cunoscută în ÎNTREGIME (toate cele 30 de poziții);
+ *   Tip B — ascendența cunoscută PARȚIAL (măcar o poziție, dar nu toate);
+ *   Tip C — ascendența NU e cunoscută deloc: certificatul de tipicitate de rasă.
+ *
+ * TIPICITATEA E ALT TRASEU. Tip C se acordă în urma participării la o expoziție, unde
+ * exemplarul e judecat după conformitatea cu standardul — fără declarație de montă și
+ * fătare, fiindcă părinții nu se cunosc.
+ *
+ * De aici o regulă care NU se vede în ascendență, dar e adevărată: un pui provenit
+ * dintr-o DMF nu poate fi niciodată Tip C. Declarația însăși numește tatăl și mama;
+ * dacă există o DMF cu pui, părinții au măcar pedigree de tipicitate. Prin urmare
+ * puii sunt cel puțin Tip B — chiar dacă registratura n-a apucat să scrie numerele de
+ * înregistrare ale părinților. Fără `dinDeclaratie`, un dosar cu părinții completați
+ * doar cu numele ieșea „Tip C": un certificat de tipicitate pentru un câine cu părinți
+ * cunoscuți, adică exact actul care nu i se cuvine.
+ *
+ * @param ascendenta  pozițiile completate
+ * @param optiuni.dinDeclaratie  true dacă certificatul se emite dintr-o DMF
  */
-export function tipCertificat(ascendenta) {
+export function tipCertificat(ascendenta, optiuni = {}) {
+  const pozitii = pozitiiAscendenta();
   const lipsa = [];
-  for (const { cod } of pozitiiAscendenta()) {
+  for (const { cod } of pozitii) {
     const p = ascendenta?.[cod];
     if (!p || !taie(p.nume, 120) || !taie(p.nr, 60)) lipsa.push(cod);
   }
-  return { tip: lipsa.length ? "B" : "A", lipsa };
+  let tip = lipsa.length === 0 ? "A" : lipsa.length === pozitii.length ? "C" : "B";
+  if (tip === "C" && optiuni.dinDeclaratie) tip = "B";
+  return { tip, lipsa };
 }
 
 /**
@@ -435,7 +456,9 @@ export default cuLimitareCod(async (req) => {
       },
       ascendenta: asc,
       pozitii: pozitiiAscendenta().map((p) => ({ ...p, eticheta: etichetaPozitie(p.cod) })),
-      tip: tipCertificat(asc),
+      // Tot dintr-o declarație: panoul trebuie să arate același tip pe care îl va purta
+      // certificatul emis, altfel registratura vede „Tip C" și primește „Tip B".
+      tip: tipCertificat(asc, { dinDeclaratie: true }),
     });
   }
 
@@ -453,7 +476,7 @@ export default cuLimitareCod(async (req) => {
       if (!nume) continue;                       // pozițiile goale nu se păstrează
       asc[cod] = { nume, nr: taie(p.nr, 60), titluri: taie(p.titluri, 120) };
     }
-    const t = tipCertificat(asc);
+    const t = tipCertificat(asc, { dinDeclaratie: true });
     // Câte poziții s-au schimbat față de ce era în dosar — o ascendență rescrisă după
     // emitere e exact genul de lucru pentru care există jurnalul.
     const inainte = d.ascendenta || {};
@@ -512,7 +535,9 @@ export default cuLimitareCod(async (req) => {
     if (!d.ascendenta || !d.ascendenta.T || !d.ascendenta.M)
       return json({ eroare: "Completează întâi ascendența (cel puțin părinții)." }, 400);
 
-    const t = tipCertificat(d.ascendenta);
+    // Certificatele de aici ies dintr-o declarație de montă și fătare: părinții sunt
+    // numiți în ea, deci tipicitatea (Tip C) e exclusă din capul locului.
+    const t = tipCertificat(d.ascendenta, { dinDeclaratie: true });
     const an = new Date().getFullYear();
     const cerute = Array.isArray(body.pui) ? body.pui : [];
     if (!cerute.length) return json({ eroare: "Alege cel puțin un pui." }, 400);

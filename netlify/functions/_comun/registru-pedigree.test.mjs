@@ -56,10 +56,44 @@ const doarParinti = { T: complet.T, M: complet.M };
 const r2 = tipCertificat(doarParinti);
 t("doar parintii -> Tip B", r2.tip === "B");
 t("28 de lipsuri", r2.lipsa.length === 28, r2.lipsa.length);
-t("ascendenta goala -> Tip B", tipCertificat({}).tip === "B");
-t("ascendenta lipsa -> Tip B", tipCertificat(undefined).tip === "B");
-t("nume fara numar nu conteaza",
-  tipCertificat(Object.fromEntries(poz.map(p => [p.cod, { nume: "X", nr: "" }]))).tip === "B");
+// Tip C: ascendența NU e cunoscută deloc — certificatul de tipicitate de rasă.
+// Înainte, un exemplar fără niciun strămoș primea „Tip B", adică „parțial cunoscută":
+// actul declara despre sine altceva decât era. Tipicitatea e un traseu propriu, cu
+// reguli proprii; confundarea celor două ascunde tocmai ce trebuie să se vadă.
+t("ascendenta goala -> Tip C", tipCertificat({}).tip === "C");
+t("ascendenta lipsa -> Tip C", tipCertificat(undefined).tip === "C");
+t("la Tip C toate cele 30 de pozitii sunt semnalate lipsa",
+  tipCertificat({}).lipsa.length === 30, tipCertificat({}).lipsa.length);
+t("nume fara numar = pozitie necunoscuta, deci tot Tip C",
+  tipCertificat(Object.fromEntries(poz.map(p => [p.cod, { nume: "X", nr: "" }]))).tip === "C");
+
+// Granița dintre C și B: un singur strămoș cunoscut scoate certificatul din tipicitate.
+t("un singur stramos cunoscut -> Tip B, nu C",
+  tipCertificat({ T: { nume: "Tata", nr: "REG-1" } }).tip === "B");
+
+console.log("— tipicitatea e alt traseu: din DMF nu iese niciodată Tip C —");
+// Tip C se acordă în urma unei expoziții, fără declarație de montă. Dacă există o DMF,
+// părinții sunt numiți în ea, deci sunt cunoscuți — iar puii sunt cel puțin Tip B.
+// Cazul real care scăpa: garda de la emitere cere ca T și M să EXISTE, nu să aibă și
+// număr de înregistrare. Un dosar cu părinții scriși doar cu numele trecea garda și
+// ieșea „Tip C" — certificat de tipicitate pentru un câine cu părinți cunoscuți.
+{
+  const doarNumeleParintilor = { T: { nume: "JERY DE LAZDOG", nr: "" }, M: { nume: "FRENCHIE ALISA", nr: "" } };
+  t("fara declaratie, ascendenta fara numere ramane Tip C",
+    tipCertificat(doarNumeleParintilor).tip === "C");
+  t("DIN DECLARATIE, acelasi dosar da Tip B",
+    tipCertificat(doarNumeleParintilor, { dinDeclaratie: true }).tip === "B");
+  t("din declaratie, ascendenta cu totul goala tot da Tip B",
+    tipCertificat({}, { dinDeclaratie: true }).tip === "B");
+  // Declarația ridică podeaua la B; nu atinge celelalte tipuri.
+  t("din declaratie, ascendenta completa ramane Tip A",
+    tipCertificat(complet, { dinDeclaratie: true }).tip === "A");
+  t("din declaratie, ascendenta partiala ramane Tip B",
+    tipCertificat(doarParinti, { dinDeclaratie: true }).tip === "B");
+  // Pozițiile lipsă se raportează la fel: doar eticheta se schimbă, nu constatarea.
+  t("lipsurile se numara la fel, cu sau fara declaratie",
+    tipCertificat({}, { dinDeclaratie: true }).lipsa.length === 30);
+}
 
 console.log("— numerotarea WDF —");
 t("continua dupa cuibul 76 de pe hartie", WDF_ULTIMUL_PE_HARTIE === 76);

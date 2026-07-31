@@ -178,8 +178,15 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
         if (c.tip === "B") {
           const p = document.getElementById("c-lipsa");
           p.hidden = false;
-          p.textContent = "Certificat de Tip B: " + (c.lipsaAscendenta || []).length +
+          p.textContent = "Certificat de Tip B — ascendență cunoscută parțial: " +
+            (c.lipsaAscendenta || []).length +
             " din 30 de poziții ale ascendenței nu au detalii complete de înregistrare.";
+        } else if (c.tip === "C") {
+          const p = document.getElementById("c-lipsa");
+          p.hidden = false;
+          p.textContent = "Certificat de Tip C — ascendența nu este cunoscută. " +
+            "Este certificatul de tipicitate de rasă, prin care exemplarul intră în " +
+            "registrul de origini pe baza conformității cu standardul.";
         }
 
         document.getElementById("c-cap2").textContent =
@@ -227,6 +234,7 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   .act__tip-litera { font-family: var(--font-serif); font-size: 1.5rem; padding: 0.1rem 0.7rem;
     border: 2px solid var(--color-primary); border-radius: 4px; color: var(--color-primary); display: inline-block; }
   .act__tip-litera.is-b { border-color: var(--color-accent-dark); color: var(--color-accent-dark); }
+  .act__tip-litera.is-c { border-color: var(--color-info); color: var(--color-info); }
 
   .act__titlu { font-family: var(--font-serif); text-align: center; color: var(--color-primary);
     margin: 1rem 0 0.2rem; font-size: 1.7rem; letter-spacing: 0.02em; }

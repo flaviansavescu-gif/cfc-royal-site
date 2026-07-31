@@ -6,8 +6,9 @@
 // emit certificatele individuale.
 //
 // TIPUL NU SE ALEGE. Se vede în timp real, calculat din câte poziții au nume ȘI număr
-// de înregistrare: 30 din 30 înseamnă Tip A, orice lipsă înseamnă Tip B. Dacă tipul ar
-// fi o bifă, ar deveni o chestiune de indulgență; calculat, e o constatare.
+// de înregistrare: 30 din 30 înseamnă Tip A, niciuna înseamnă Tip C (tipicitate de
+// rasă), iar între ele Tip B — ascendență cunoscută parțial. Dacă tipul ar fi o bifă,
+// ar deveni o chestiune de indulgență; calculat, e o constatare.
 import RegistruLayout from "../../../layouts/RegistruLayout.astro";
 ---
 
@@ -108,10 +109,16 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       if (complete === total) {
         t.className = "p-tip is-a";
         t.textContent = "Tip A — toate cele " + total + " de poziții au nume și număr de înregistrare.";
+      } else if (complete === 0) {
+        // Nicio poziție cunoscută nu înseamnă „aproape Tip B": e certificatul de
+        // tipicitate de rasă, alt act, cu alt traseu în spate.
+        t.className = "p-tip is-c";
+        t.textContent = "Tip C — ascendența nu este cunoscută deloc. " +
+          "Acesta este certificatul de tipicitate de rasă.";
       } else {
         t.className = "p-tip is-b";
-        t.textContent = "Tip B — " + complete + " din " + total + " de poziții complete. " +
-          (lipsa === 1 ? "Lipsește una." : "Lipsesc " + lipsa + ".");
+        t.textContent = "Tip B — ascendență cunoscută parțial: " + complete + " din " + total +
+          " de poziții complete. " + (lipsa === 1 ? "Lipsește una." : "Lipsesc " + lipsa + ".");
       }
     }
 
@@ -301,6 +308,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     font-weight: 700; font-size: 0.95rem; }
   .p-tip.is-a { background: #eef5f0; border: 1px solid var(--color-primary); color: var(--color-primary); }
   .p-tip.is-b { background: #fdf6e8; border: 1px solid var(--color-accent-dark); color: var(--color-accent-dark); }
+  .p-tip.is-c { background: #f1f4f7; border: 1px solid var(--color-info); color: var(--color-info); }
 
   .p-gen { margin-top: 1.5rem; }
   .p-gen__titlu { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.05rem; margin: 0 0 0.5rem; }
