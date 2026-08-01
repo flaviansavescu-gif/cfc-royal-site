@@ -8,12 +8,12 @@ const { lang } = Astro.props;
 // înscriere când reține versiunea acceptată. Vezi netlify/functions/_comun/norme-participare.mjs.
 import { NORME_RO, NORME_EN } from "../../netlify/functions/_comun/norme-participare.mjs";
 
-// Afișul expoziției alese. Cheia se caută în numele expoziției venit din manager, ca
-// afișul să se schimbe singur când se deschide altă expoziție — altfel ar rămâne aici
-// afișul de la Iași și după ce Iașiul a trecut.
+// Bannerul expoziției alese. Cheia se caută în numele expoziției venit din manager, ca
+// bannerul să se schimbe singur când se deschide altă expoziție — altfel ar rămâne aici
+// Iașiul și după ce Iașiul a trecut. O expoziție fără banner în listă nu arată nimic;
+// mai bine nimic decât un afiș vertical întins pe toată lățimea.
 const AFISE = [
-  { cheie: "iasi", src: "/images/afise/iasi-2026.webp", alt: "Afiș CACIB Iași — WDF Moldova Dog Show, Arena U.S.V., 5 septembrie 2026" },
-  { cheie: "buzau", src: "/images/afise/buzau-2026.webp", alt: "Afiș CACIB Buzău — WDF BOUZEOS Dog Show, Parcul Tineretului, 27 iunie 2026" },
+  { cheie: "iasi", src: "/images/bannere/iasi-2026.webp", alt: "CACIB Iași — WDF Moldova Dog Show, Arena U.S.V. Iași, 5 septembrie 2026. Eveniment organizat în parteneriat cu Universitatea pentru Științele Vieții." },
 ];
 
 const T = {
@@ -190,7 +190,7 @@ const CLASE = [
     {/* Caseta afișului e scrisă de Astro, nu de JavaScript: numai așa primește stilurile
         componentei, care sunt legate de un atribut pus doar pe ce desenează el. */}
     <figure class="ie__afis" id="ie-afis" hidden>
-      <img id="ie-afis-img" src="" alt="" width="700" height="1060" decoding="async" />
+      <img id="ie-afis-img" src="" alt="" width="1408" height="521" decoding="async" />
     </figure>
 
     <label class="ie__f">
@@ -643,9 +643,9 @@ const CLASE = [
   .ie__plata-info { background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
   .ie__plata-info p { margin: 0.15rem 0; font-size: 0.9rem; color: var(--color-text-muted); }
   .ie__iban { font-family: var(--font-mono, monospace); font-weight: 700; font-size: 1.05rem; color: var(--color-text) !important; letter-spacing: 0.03em; }
-  .ie__afis { margin: 0 0 1rem; max-width: 200px; }
-  .ie__afis img { width: 100%; height: auto; display: block; border: 1px solid var(--color-border, #d8d8d8); border-radius: 4px; }
-  @media (min-width: 700px) { .ie__afis { float: right; margin: 0 0 1rem 1.25rem; max-width: 170px; } }
+  /* Bannerul ține exact cât formularul: aceeași lățime, aceleași colțuri. */
+  .ie__afis { margin: 0 0 1.5rem; }
+  .ie__afis img { width: 100%; height: auto; display: block; border-radius: 6px; }
   .ie__norme { margin: 0.4rem 0 0.8rem; padding-left: 1.15rem; font-size: 0.88rem; color: var(--color-text-muted); }
   .ie__norme li { margin-bottom: 0.35rem; }
   .ie__consim { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.92rem; }
