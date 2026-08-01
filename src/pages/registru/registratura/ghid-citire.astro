@@ -1,0 +1,281 @@
+---
+// /registru/registratura/ghid-citire/ — cum se folosește citirea pedigree-urilor.
+//
+// Stă lângă locul unde se lucrează, nu într-un fișier trimis pe e-mail. Un îndrumar
+// trimis o dată devine, în șase luni, o versiune veche pe care cineva o mai are pe
+// desktop; unul care stă la un clic de butonul pe care îl descrie se schimbă odată cu el.
+//
+// Tot conținutul e în ȘABLON, nu desenat din JavaScript. Așa stilurile scoped ale Astro
+// prind fără niciun ocol — vezi capcana din `ascendenta.astro`, unde cele 30 de rânduri
+// desenate rămăseseră nestilizate.
+//
+// Se poate tipări: la print dispar butoanele și se strâng marginile.
+import RegistruLayout from "../../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Îndrumar: citirea pedigree-urilor" allow={["registratura"]}>
+  <p class="g-eyebrow">Registrul genealogic · Registratura</p>
+  <h1 class="g-title">Citirea pedigree-urilor părinților</h1>
+  <p class="g-sub">Cum se folosește — și ce nu face.</p>
+
+  <p class="g-unelte g-fara-print">
+    <a class="btn btn--outline btn--small" href="/registru/registratura/">← Dosarele</a>
+    <button class="btn btn--outline btn--small" type="button" id="g-tipar">🖨 Tipărește</button>
+  </p>
+
+  <!-- ——— Ce este ——— -->
+  <section class="g-sect">
+    <h2 class="g-h2">Ce este</h2>
+    <p>
+      În pagina de ascendență a unui dosar există butonul
+      <strong>„📄 Citește pedigree-urile părinților"</strong>. Apăsat, el citește cele două
+      certificate de origine urcate de crescător și <strong>propune</strong> ce scrie pe ele,
+      poziție cu poziție.
+    </p>
+  </section>
+
+  <!-- ——— Ce NU este ——— -->
+  <section class="g-sect">
+    <h2 class="g-h2">Ce NU este</h2>
+    <div class="g-caseta is-verde">
+      <p><strong>Nu completează dosarul.</strong> Propune, atât. Fiecare valoare intră în câmp
+      doar când apeși tu.</p>
+      <p><strong>Nu salvează nimic.</strong> Până nu apeși „Salvează ascendența", nimic din ce
+      vezi pe ecran nu a ajuns în registru. Dacă închizi pagina, se pierde.</p>
+      <p><strong>Nu te înlocuiește.</strong> Certificatul îl semnezi tu. Răspunderea pentru ce
+      scrie în el rămâne a ta, întreagă, indiferent de unde a venit valoarea.</p>
+    </div>
+  </section>
+
+  <!-- ——— Înainte ——— -->
+  <section class="g-sect">
+    <h2 class="g-h2">Înainte de a apăsa</h2>
+    <ul class="g-lista">
+      <li><strong>Intră în registru cu codul primit pe e-mail</strong>, de pe calculatorul la
+      care lucrezi. Citirea cere al doilea factor, ca emiterea actelor. Pe un dispozitiv
+      nerecunoscut vei primi „Dispozitiv nerecunoscut" — intri din nou, cu codul, și merge.</li>
+      <li><strong>Dosarul trebuie să aibă pedigree-urile părinților urcate.</strong> La dosarele
+      aduse din arhiva de hârtie nu are ce citi.</li>
+      <li><strong>Ai documentele la îndemână.</strong> Le vei deschide oricum, ca să verifici ce
+      nu e limpede; se deschid din dosar, la piesele depuse.</li>
+    </ul>
+  </section>
+
+  <!-- ——— Pașii ——— -->
+  <section class="g-sect">
+    <h2 class="g-h2">Cum se lucrează</h2>
+
+    <h3 class="g-pas"><span class="g-pas__nr">1.</span> Apeși butonul</h3>
+    <p>Durează cam un minut — sunt două documente. Nu apăsa de mai multe ori: fiecare apăsare
+    citește din nou și costă. Există un plafon zilnic tocmai ca o apăsare în buclă să nu coste
+    cât o lună de lucru.</p>
+
+    <h3 class="g-pas"><span class="g-pas__nr">2.</span> Citești panoul de rezultat</h3>
+    <p>Îți spune ce a citit din fiecare document — sau de ce n-a putut:</p>
+    <ul class="g-lista">
+      <li>„14 poziții, 2 nesigure" — a citit, dar la două locuri nu e sigur.</li>
+      <li>„lipsește de la dosar" — crescătorul n-a urcat piesa aceea.</li>
+      <li>„documentul nu pare un certificat de origine" — s-a urcat altceva la locul lui.</li>
+    </ul>
+    <div class="g-caseta is-auriu">
+      <p><strong>Zero poziții nu e neapărat o cădere.</strong> Sunt certificate care n-au tabel
+      de ascendență deloc — un pedigree de tipicitate, de pildă. Uită-te la document înainte să
+      tragi concluzia că nu a mers.</p>
+    </div>
+
+    <h3 class="g-pas"><span class="g-pas__nr">3.</span> Te uiți la caseta roșie, dacă apare</h3>
+    <p>Acolo se scriu nepotrivirile dintre <strong>ce a declarat crescătorul</strong> și
+    <strong>ce scrie pe act</strong>: numele părintelui, seria de pedigree, microcipul, rasa.</p>
+    <p><strong>Regula: pentru ascendență, actul de origine e cel care hotărăște.</strong>
+    Crescătorul poate greși când transcrie; certificatul e documentul.</p>
+    <p>O singură atenționare: <strong>certificatele străine scriu rasa în limba lor</strong>.
+    Un act polonez spune „Pudel toy" acolo unde noi scriem „Poodle". Nu e o greșeală. Uită-te
+    doar dacă e cumva chiar altă rasă.</p>
+
+    <h3 class="g-pas"><span class="g-pas__nr">4.</span> Pui propunerile în câmpuri</h3>
+    <p>Ai două căi:</p>
+    <ul class="g-lista">
+      <li><strong>În bloc</strong> — butonul „Pune cele N propuneri sigure în pozițiile goale".
+      Pune doar ce s-a citit sigur și doar acolo unde câmpul e gol.
+      <strong>Nu suprascrie niciodată ce ai scris tu.</strong></li>
+      <li><strong>Una câte una</strong> — butonul „pune" de sub fiecare poziție. Acesta
+      înlocuiește ce e în câmp, fiindcă e o hotărâre a ta.</li>
+    </ul>
+
+    <h3 class="g-pas"><span class="g-pas__nr">5.</span> Rezolvi cele nesigure — cu ochii pe document</h3>
+    <p>Pozițiile marcate <span class="g-semn is-galben">⚠</span> nu intră în punerea în bloc.
+    Niciodată. Lângă ele scrie de ce:</p>
+    <blockquote class="g-citat">
+      Numărul este tăiat de marginea dreaptă a tabelului; ultima cifră se citește neclar —
+      poate fi 4396008 sau 4396006.
+    </blockquote>
+    <p>Deschizi documentul, te uiți, și pui tu valoarea corectă. Dacă nici tu nu poți citi,
+    <strong>lasă poziția goală</strong>. O poziție goală e o lipsă cinstită. O poziție ghicită e
+    o greșeală care intră într-un act oficial și se moștenește la toți descendenții câinelui,
+    ani la rând.</p>
+
+    <h3 class="g-pas"><span class="g-pas__nr">6.</span> Apeși „Salvează ascendența"</h3>
+    <p>Abia acum se scrie ceva. Până atunci, nimic.</p>
+  </section>
+
+  <!-- ——— Semnele ——— -->
+  <section class="g-sect">
+    <h2 class="g-h2">Semnele de pe ecran</h2>
+    <table class="g-tabel">
+      <thead><tr><th>Semn</th><th>Ce înseamnă</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="g-semn is-verde">✓</span></td>
+          <td>Ce ai în câmp e la fel cu ce scrie pe document. Nu ai ce face.</td>
+        </tr>
+        <tr>
+          <td><span class="g-semn is-albastru">📄</span></td>
+          <td>Propunere citită sigur. Poți s-o pui.</td>
+        </tr>
+        <tr>
+          <td><span class="g-semn is-galben">⚠</span></td>
+          <td><strong>Nu s-a citit limpede. Motivul e scris alături. Verifică pe document.</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="g-nota">Deosebirile mărunte de scriere nu se semnalează: „OLIVER (Stone FCI)" și
+    „OLIVER Stone (FCI)" sunt același câine, doar altă convenție de tipar. Se semnalează doar ce
+    diferă cu adevărat — o literă, o cifră.</p>
+  </section>
+
+  <!-- ——— Regulile ——— -->
+  <section class="g-sect">
+    <h2 class="g-h2">Reguli care nu se calcă</h2>
+    <div class="g-caseta is-rosu">
+      <ol class="g-reguli">
+        <li><strong>Nu accepta niciodată o valoare nesigură fără să te uiți pe document.</strong>
+        Ăsta e singurul motiv pentru care marcajul galben există.</li>
+        <li><strong>Numărul de înregistrare hotărăște tipul certificatului.</strong> O poziție cu
+        nume dar fără număr contează ca lipsă. Tipul (A / B / C) se recalculează pe ecran la
+        fiecare tastă — nu se alege, se constată.</li>
+        <li><strong>Nu apăsa butonul de mai multe ori pe același dosar.</strong> Nu se
+        îmbunătățește răspunsul, doar costă din nou.</li>
+        <li><strong>Ce nu ai salvat, nu există.</strong> Închiderea paginii pierde tot.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ——— Costul ——— -->
+  <section class="g-sect">
+    <h2 class="g-h2">Cât costă</h2>
+    <p>Aproximativ <strong>10 bani (0,10 $)</strong> pe dosar — două documente citite. Costul
+    apare pe ecran după fiecare citire. Există un plafon pe zi; dacă îl atingi, primești un mesaj
+    limpede și se poate ridica.</p>
+  </section>
+
+  <!-- ——— De ce merită ——— -->
+  <section class="g-sect">
+    <h2 class="g-h2">De ce merită, totuși</h2>
+    <p>La cuibul 26 — Poodle, șase pui — citirea a fost pusă față în față cu formularul completat
+    de mână și verificat. Din 16 poziții, 13 identice. Restul de trei erau greșeli adevărate,
+    strecurate la transcriere și nevăzute de nimeni:</p>
+    <table class="g-tabel">
+      <thead><tr><th>În formular</th><th>Pe certificat</th></tr></thead>
+      <tbody>
+        <tr><td><b class="g-rau">ADEKAIDA</b> Riko</td><td><b class="g-bun">ADELAIDA</b> Riko</td></tr>
+        <tr><td><b class="g-rau">TAINSTVENNYA</b> Neznakomka</td><td><b class="g-bun">TAINSTVENNAYA</b> Neznakomka</td></tr>
+        <tr><td>RKF 439600<b class="g-rau">6</b></td><td>RKF 439600<b class="g-bun">8</b></td></tr>
+      </tbody>
+    </table>
+    <p>Certificatele erau deja emise. Fiecare greșeală, luată separat, arăta perfect credibilă —
+    de aceea trecuse. Cele trei au fost verificate pe hârtie și îndreptate în toate cele șase acte.</p>
+    <p><strong>Asta face unealta:</strong> nu scrie în locul tău, ci se uită încă o dată, cu alți
+    ochi, peste ce ai transcris.</p>
+  </section>
+
+  <!-- ——— Erori ——— -->
+  <section class="g-sect">
+    <h2 class="g-h2">Când ceva nu merge</h2>
+    <table class="g-tabel">
+      <thead><tr><th>Mesaj</th><th>Ce s-a întâmplat</th><th>Ce faci</th></tr></thead>
+      <tbody>
+        <tr><td>Dispozitiv nerecunoscut</td><td>Intri de pe alt calculator</td><td>Intri din nou în registru, cu codul de pe e-mail</td></tr>
+        <tr><td>Nepermis</td><td>Codul nu e de registratură</td><td>Cere-l administratorului</td></tr>
+        <tr><td>lipsește de la dosar</td><td>Crescătorul n-a urcat piesa</td><td>Îi ceri documentul</td></tr>
+        <tr><td>Citirea documentelor nu e pornită pe server</td><td>Lipsește configurarea</td><td>Anunți administratorul</td></tr>
+        <tr><td>S-a atins plafonul de citire pe ziua de azi</td><td>S-a citit mult azi</td><td>Continui mâine, sau ceri ridicarea plafonului</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ——— Final ——— -->
+  <section class="g-sect">
+    <h2 class="g-h2">Un lucru de ținut minte</h2>
+    <p>Unealta citește bine, dar citește o fotografie a unei hârtii. Un act scris de mână, o poză
+    strâmbă, o scanare palidă — toate o pot păcăli, și de aceea îți spune când nu e sigură.</p>
+    <div class="g-caseta is-verde">
+      <p><strong>Certificatul îl semnezi tu.</strong> Unealta îți scurtează munca de copiat și îți
+      arată unde să te uiți. Uitatul rămâne al tău.</p>
+    </div>
+  </section>
+
+  <p class="g-subsol">În vigoare de la 1 august 2026 · Asociația Club Federal Chinologic – Royal</p>
+</RegistruLayout>
+
+<script is:inline>
+  document.getElementById("g-tipar")?.addEventListener("click", () => window.print());
+</script>
+
+<style>
+  .g-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .g-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.2rem; }
+  .g-sub { color: var(--color-text-muted); margin-top: 0; font-size: 0.95rem; }
+  .g-unelte { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 2rem; }
+
+  .g-sect { max-width: 46rem; margin-top: 2.25rem; }
+  .g-sect p { line-height: 1.65; }
+  .g-h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.3rem;
+    margin: 0 0 0.6rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem; }
+
+  .g-pas { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.05rem;
+    margin: 1.5rem 0 0.4rem; }
+  .g-pas__nr { color: var(--color-accent-dark); }
+
+  .g-lista { line-height: 1.65; padding-left: 1.2rem; }
+  .g-lista li { margin-bottom: 0.45rem; }
+  .g-reguli { margin: 0; padding-left: 1.2rem; line-height: 1.65; }
+  .g-reguli li { margin-bottom: 0.5rem; }
+  .g-reguli li:last-child { margin-bottom: 0; }
+
+  /* Casetele: bara colorată la stânga, ca la documentul tipărit. */
+  .g-caseta { margin: 1rem 0; padding: 0.85rem 1.1rem; border-radius: var(--radius);
+    border-left: 4px solid var(--color-primary); background: #f6faf7; }
+  .g-caseta p { margin: 0 0 0.5rem; }
+  .g-caseta p:last-child { margin-bottom: 0; }
+  .g-caseta.is-auriu { border-left-color: var(--color-accent-dark); background: #fdf8ec; }
+  .g-caseta.is-rosu { border-left-color: #8c1d2f; background: #faf2f2; }
+
+  .g-citat { margin: 0.8rem 0 1rem; padding: 0.6rem 0 0.6rem 1rem;
+    border-left: 3px solid var(--color-accent-dark); color: #6b5518;
+    font-style: italic; font-size: 0.93rem; }
+
+  .g-semn { display: inline-block; min-width: 1.6rem; text-align: center; font-weight: 700; }
+  .g-semn.is-verde { color: var(--color-primary); }
+  .g-semn.is-galben { color: var(--color-accent-dark); }
+  .g-semn.is-albastru { color: var(--color-info); }
+
+  .g-tabel { width: 100%; border-collapse: collapse; margin: 0.9rem 0; font-size: 0.9rem; }
+  .g-tabel th { background: var(--color-primary); color: #fff; text-align: left;
+    padding: 0.5rem 0.7rem; font-weight: 700; font-size: 0.85rem; }
+  .g-tabel td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+  .g-rau { color: #8c1d2f; }
+  .g-bun { color: var(--color-primary); }
+
+  .g-nota { color: var(--color-text-muted); font-size: 0.88rem; }
+  .g-subsol { margin-top: 3rem; padding-top: 0.8rem; border-top: 1px solid var(--color-border);
+    color: var(--color-text-muted); font-size: 0.82rem; }
+
+  /* La tipar: fără butoane, fără culori de fond irosite pe cerneală, tabelele nerupte. */
+  @media print {
+    .g-fara-print { display: none; }
+    .g-sect { max-width: none; margin-top: 1.4rem; page-break-inside: avoid; }
+    .g-tabel { page-break-inside: avoid; }
+    .g-tabel th { background: #fff; color: #000; border-bottom: 2px solid #000; }
+    .g-caseta { background: #fff; border: 1px solid #999; border-left-width: 4px; }
+  }
+</style>
