@@ -690,7 +690,7 @@ Consiliul Director prezintă Adunării Generale, în cadrul ședinței anuale or
 
 (1) Modificarea prezentei Proceduri se face prin hotărâre a Consiliului Director cu majoritate calificată de patru (4) din cinci (5) membri.
 
-(2) Modificările sunt ratificate de Adunarea Generală la prima ședință care urmează adoptării lor.
+(2) Modificările intră în vigoare la data adoptării lor și se aduc la cunoștința Adunării Generale la prima ședință care urmează.
 
 (3) Procedurile începute sub regimul Procedurii anterioare continuă conform regulilor în vigoare la data înregistrării sesizării, cu excepția situațiilor în care noua Procedură conține prevederi mai favorabile persoanei cercetate.
 
@@ -698,4 +698,4 @@ Consiliul Director prezintă Adunării Generale, în cadrul ședinței anuale or
 
 (1) Prezenta Procedură a fost aprobată de Consiliul Director în ședința din data de 1 august 2026, prin Hotărârea nr. 145/01-08-2026.
 
-(2) Procedura intră în vigoare la data ratificării de către Adunarea Generală.
+(2) Procedura intră în vigoare la data adoptării, 1 august 2026. Alineatul de față a fost modificat prin Hotărârea Consiliului Director nr. 174/01-08-2026.

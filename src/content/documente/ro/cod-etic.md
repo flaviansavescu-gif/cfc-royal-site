@@ -468,13 +468,13 @@ e) refuzul declarării unui conflict de interese cunoscut.
 
 (1) Modificarea prezentului Cod se face prin hotărâre a Consiliului Director cu majoritate calificată de patru (4) din cinci (5) membri.
 
-(2) Modificările sunt ratificate de Adunarea Generală la prima ședință care urmează adoptării lor.
+(2) Modificările intră în vigoare la data adoptării lor și se aduc la cunoștința Adunării Generale la prima ședință care urmează.
 
 ### Art. 32. Intrarea în vigoare
 
 (1) Prezentul Cod a fost aprobat de Consiliul Director în ședința din data de 1 august 2026, prin Hotărârea nr. 142/01-08-2026.
 
-(2) Codul intră în vigoare la data ratificării de către Adunarea Generală.
+(2) Codul intră în vigoare la data adoptării, 1 august 2026. Alineatul de față a fost modificat prin Hotărârea Consiliului Director nr. 174/01-08-2026.
 
 ### Art. 33. Aderare existentă
 

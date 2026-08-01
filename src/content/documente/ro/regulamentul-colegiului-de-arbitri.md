@@ -640,7 +640,7 @@ d) calendarul activităților.
 
 (1) Modificarea prezentului Regulament se face prin hotărâre a Consiliului Director cu majoritate calificată de patru (4) din cinci (5) membri, după consultarea Consiliului Colegiului.
 
-(2) Modificările sunt ratificate de Adunarea Generală la prima ședință care urmează adoptării lor.
+(2) Modificările intră în vigoare la data adoptării lor și se aduc la cunoștința Adunării Generale la prima ședință care urmează.
 
 (3) Adunarea Colegiului poate propune modificări ale prezentului Regulament, în cadrul ședințelor sale anuale.
 
@@ -648,6 +648,6 @@ d) calendarul activităților.
 
 (1) Prezentul Regulament a fost aprobat de Consiliul Director în ședința din data de 1 august 2026, prin Hotărârea nr. 147/01-08-2026.
 
-(2) Regulamentul intră în vigoare la data ratificării de către Adunarea Generală.
+(2) Regulamentul intră în vigoare la data adoptării, 1 august 2026. Alineatul de față a fost modificat prin Hotărârea Consiliului Director nr. 174/01-08-2026.
 
 (3) Pentru arbitrii deja certificați la altă structură care doresc afilierea la Colegiu, Consiliul Director, la propunerea Consiliului Colegiului, poate stabili condiții tranzitorii de echivalare, care nu pot fi sub standardul minim aplicabil arbitrilor noi.

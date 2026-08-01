@@ -690,7 +690,7 @@ The Board of Directors presents to the General Assembly, within the ordinary ann
 
 (1) The amendment of this Procedure is made by decision of the Board of Directors by a qualified majority of four (4) out of five (5) members.
 
-(2) The amendments are ratified by the General Assembly at the first meeting following their adoption.
+(2) The amendments enter into force on the date of their adoption and are brought to the attention of the General Assembly at the first meeting that follows.
 
 (3) Procedures commenced under the regime of the previous Procedure continue according to the rules in force at the date of registration of the complaint, except in situations where the new Procedure contains provisions more favourable to the person under investigation.
 
@@ -698,4 +698,4 @@ The Board of Directors presents to the General Assembly, within the ordinary ann
 
 (1) This Procedure was approved by the Board of Directors in its meeting of 1 August 2026, by Decision no. 145/01-08-2026.
 
-(2) The Procedure enters into force on the date of ratification by the General Assembly.
+(2) The Procedure enters into force on the date of adoption, 1 August 2026. This paragraph was amended by Board of Directors Decision no. 174/01-08-2026.

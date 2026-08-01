@@ -468,13 +468,13 @@ e) the refusal to declare a known conflict of interest.
 
 (1) The amendment of this Code is made by decision of the Board of Directors with a qualified majority of four (4) out of five (5) members.
 
-(2) The amendments are ratified by the General Assembly at the first meeting following their adoption.
+(2) The amendments enter into force on the date of their adoption and are brought to the attention of the General Assembly at the first meeting that follows.
 
 ### Art. 32. Entry into force
 
 (1) This Code was approved by the Board of Directors in its meeting of 1 August 2026, by Decision no. 142/01-08-2026.
 
-(2) The Code enters into force on the date of ratification by the General Assembly.
+(2) The Code enters into force on the date of adoption, 1 August 2026. This paragraph was amended by Board of Directors Decision no. 174/01-08-2026.
 
 ### Art. 33. Existing adherence
 
