@@ -44,9 +44,9 @@ const doc = S.actDeSedinta({
     articol(2, "Cine poate organiza"),
     al(1, "Pot organiza expoziții sub egida Clubului:"),
     lit("a", "Clubul Federal însuși;"),
-    lit("b", "asociațiile afiliate, în condițiile Regulamentului de afiliere."),
+    lit("b", "Membrii Colectivi ai Clubului, în condițiile Acordului-cadru de colaborare încheiat cu fiecare dintre ei."),
     al(2, [{ text: "Nicio altă persoană sau entitate", bold: true }, " nu poate folosi numele, sigla sau egida Clubului pentru o expoziție canină."]),
-    al(3, "O expoziție organizată de o asociație aflată în suspendarea afilierii nu poate purta egida Clubului."),
+    al(3, "O expoziție organizată de un Membru Colectiv aflat în suspendare potrivit Acordului-cadru nu poate purta egida Clubului."),
 
     articol(3, "Ce este o expoziție sub egida Clubului"),
     al(1, "Expoziția organizată potrivit prezentului Regulament este recunoscută de Club, iar titlurile acordate în ea intră în evidențele Clubului și se transmit World Dog Federation pentru recunoaștere internațională."),
@@ -195,7 +195,7 @@ const doc = S.actDeSedinta({
     lit("a", "atenționarea scrisă a organizatorului;"),
     lit("b", "condiționarea aprobării unei expoziții viitoare de îndeplinirea obligațiilor restante;"),
     lit("c", "refuzul aprobării expozițiilor organizatorului, pe o durată determinată;"),
-    lit("d", "sesizarea potrivit Regulamentului de afiliere, când fapta o justifică."),
+    lit("d", "măsurile prevăzute în Acordul-cadru de colaborare încheiat cu Membrul Colectiv, când fapta o justifică."),
     al(2, [{ text: "Retragerea egidei pentru o expoziție deja anunțată", bold: true }, " se poate dispune numai pentru fapte care fac cu neputință recunoașterea rezultatelor, și numai dacă ", H("E1"), "."]),
     al(3, "Măsurile se iau după ce organizatorului i s-a comunicat în scris fapta și i s-a dat un termen de răspuns; hotărârea se motivează și se comunică."),
 
@@ -206,7 +206,7 @@ const doc = S.actDeSedinta({
     capitol("Capitolul VIII. Dispoziții finale"),
 
     articol(29, "Ce se aplică în completare"),
-    px("Regulamentele tehnice WDF publicate de Club, Condițiile de participare la expoziții, Regulamentul de afiliere, lista de tarife în vigoare, Codul Etic și Procedura disciplinară."),
+    px("Regulamentele tehnice WDF publicate de Club, Condițiile de participare la expoziții, Acordul-cadru de colaborare, lista de tarife în vigoare, Codul Etic și Procedura disciplinară."),
 
     articol(30, "Expozițiile deja anunțate"),
     al(1, [{ text: "Expozițiile anunțate public înainte de intrarea în vigoare a prezentului Regulament se duc la capăt după el", bold: true }, ", în măsura în care aceasta nu schimbă condițiile anunțate celor deja înscriși."]),
