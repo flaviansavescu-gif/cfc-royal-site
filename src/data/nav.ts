@@ -40,8 +40,9 @@ export const mainNav: NavItem[] = [
       { slug: "membri/devino-membru", label: { ro: "Devino membru", en: "Become a member" } },
       { slug: "membri/beneficii", label: { ro: "Beneficii", en: "Benefits" } },
       { slug: "membri/cotizatii", label: { ro: "Cotizații", en: "Membership fee" } },
-      // Aceeași pagină apare și sub „Expoziții": tarifele sunt căutate mai ales de
-      // cine NU e încă membru (expozanți, crescători), iar aceia nu deschid „Membri".
+      // Tarifele stau aici, nu și sub „Expoziții": e aceeași pagină, iar dubla intrare
+      // făcea meniul să pară că sunt două liste de taxe. Expozanții ajung la ea din
+      // formularul de înscriere și din subsol.
       { slug: "tarife", label: { ro: "Tarife și taxe", en: "Fees & charges" } },
       { slug: "/registru/", label: { ro: "Registrul genealogic (acces)", en: "Stud book (member access)" } },
     ],
@@ -51,7 +52,6 @@ export const mainNav: NavItem[] = [
     label: { ro: "Expoziții", en: "Dog Shows" },
     children: [
       { slug: "inscriere-expozitie", label: { ro: "Înscriere online", en: "Online entry" } },
-      { slug: "tarife", label: { ro: "Taxe de înscriere", en: "Entry fees" } },
       { slug: "calendar-expozitional", label: { ro: "Calendar expozițional", en: "Show calendar" } },
       { slug: "expozitii", label: { ro: "Expoziții organizate", en: "Organized dog shows" } },
       { slug: "manager-expozitii", label: { ro: "Manager de Expoziții", en: "Exhibition Manager" } },
