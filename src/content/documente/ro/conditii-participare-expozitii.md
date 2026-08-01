@@ -72,8 +72,8 @@ _Aliniate la regulamentele **World Dog Federation (WDF)**. Se acceptă printr-o 
 (1) Retragerea se anunță în scris, pe adresa de contact a organizatorului.
 
 (2) Taxa se restituie astfel:
-- **a)** retragere până la 20 zile înainte de expoziție — se restituie 100%;
-- **b)** retragere între 5 zile și închiderea înscrierilor — se restituie 70%;
+- **a)** retragere cu cel puțin 15 zile înainte de închiderea înscrierilor — se restituie 100%;
+- **b)** retragere în ultimele 15 zile înainte de închiderea înscrierilor — se restituie 70%;
 - **c)** retragere după închiderea înscrierilor — nu se restituie, catalogul fiind închis și costurile angajate.
 
 (3) Prin excepție, taxa se restituie integral, oricând, dacă retragerea se face pentru boala sau moartea câinelui, dovedită cu act veterinar.

@@ -74,8 +74,8 @@ _This is a translation for information. The Romanian text is the one adopted by 
 (1) Withdrawal is announced in writing, to the organiser's contact address.
 
 (2) The fee is refunded as follows:
-- **a)** withdrawal up to 20 days before the show — 100% is refunded;
-- **b)** withdrawal between 5 days and the closing of entries — 70% is refunded;
+- **a)** withdrawal at least 15 days before the closing of entries — 100% is refunded;
+- **b)** withdrawal within the last 15 days before the closing of entries — 70% is refunded;
 - **c)** withdrawal after the closing of entries — no refund, the catalogue being closed and the costs committed.
 
 (3) By way of exception, the fee is refunded in full, at any time, if the withdrawal is on account of the dog's illness or death, proven by a veterinary document.
