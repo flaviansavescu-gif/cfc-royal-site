@@ -22,6 +22,8 @@ export const NORME_RO = [
   "nu prezint un câine agresiv sau bolnav și nu folosesc substanțe ori tehnici de prezentare interzise;",
   "țin câinele în lesă în toată incinta, în afara ringului; rămâne în paza mea și răspund pentru pagubele produse de el;",
   "bunăstarea câinelui primează asupra oricărui rezultat;",
+  "nu aduc femele în călduri sau care alăptează — nu sunt admise în expozițiile CFC-Royal;",
+  "prezint câini numai de la 16 ani împliniți, iar la Junior Handling de la 10 ani, însoțit de un părinte sau de reprezentantul legal;",
   "mă port cuviincios cu arbitrii, cu oficialii, cu ceilalți participanți și cu publicul.",
 ];
 
@@ -33,6 +35,8 @@ export const NORME_EN = [
   "I will not present an aggressive or sick dog, and will not use prohibited substances or presentation techniques;",
   "I will keep the dog on a lead throughout the venue, outside the ring; it stays in my care and I am liable for any damage it causes;",
   "the dog's welfare comes before any result;",
+  "I will not bring bitches in season or nursing bitches — they are not admitted to CFC-Royal shows;",
+  "I will handle dogs only from the age of 16, and in Junior Handling from the age of 10, accompanied by a parent or legal representative;",
   "I will behave decently towards judges, officials, other participants and the public.",
 ];
 

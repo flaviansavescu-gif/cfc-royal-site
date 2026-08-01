@@ -32,11 +32,11 @@ const T = {
     cum5: "primești un e-mail de confirmare. După verificarea înscrierii de către secretariat primești numărul de catalog. Înscrierile se închid înainte de expoziție, odată cu tipărirea catalogului.",
     succes: "Înscrierea a fost trimisă!", succesDetaliu: "a intrat în coada secretariatului. După verificare vei primi pe e-mail confirmarea validării, iar la închiderea catalogului — numărul de concurs și ecusonul de tipărit.", inca: "Trimite o nouă înscriere",
     normeTitlu: "Norme de participare",
-    normeIntro: "Prin înscriere îmi asum următoarele, atât pentru mine, cât și pentru persoanele care însoțesc sau prezintă câinele în ring:",
+    normeIntro: "Înscrierea se face în condițiile Regulamentului privind condițiile de participare la expozițiile CFC-Royal, aprobat prin Hotărârea Consiliului Director nr. 174/01-08-2026. Pe scurt, prin înscriere îmi asum următoarele, atât pentru mine, cât și pentru persoanele care însoțesc sau prezintă câinele în ring:",
     norme: NORME_RO,
-    normeAccept: "Am citit și îmi asum normele de mai sus și Codul Etic al CFC-Royal.",
+    normeAccept: "Am citit și îmi asum Condițiile de participare la expozițiile CFC-Royal, rezumate mai sus, și Codul Etic al asociației.",
     normeUrmari: "Nerespectarea lor poate duce la eliminarea din expoziție fără restituirea taxei și la anularea rezultatelor obținute.",
-    normeCodEtic: "Citește Codul Etic",
+    normeCodEtic: "Citește regulamentul întreg",
     gdprTitlu: "Protecția datelor (GDPR)",
     gdprText: "Datele tale și ale câinelui sunt folosite exclusiv pentru organizarea expoziției (catalog, arbitraj, rezultate, comunicări legate de eveniment). Nu le vindem și nu le transmitem terților în scop comercial. Le păstrăm cât e necesar pentru evidența expozițională. Poți cere accesul, corectarea sau ștergerea datelor scriind la contact@cfc-royal.ro.",
     gdprAccept: "Am citit și sunt de acord cu prelucrarea datelor mele personale în scopul organizării expoziției.",
@@ -91,11 +91,11 @@ const T = {
     cum5: "you receive a confirmation email. Once the secretariat checks your entry you receive the catalogue number. Entries close before the show, when the catalogue is printed.",
     succes: "Your entry has been sent!", succesDetaliu: "is now in the secretariat queue. After it is checked you will receive the validation email, and when the catalogue closes — your competition number and printable armband.", inca: "Submit another entry",
     normeTitlu: "Rules of participation",
-    normeIntro: "By entering, I undertake the following, both for myself and for the persons accompanying or handling the dog in the ring:",
+    normeIntro: "Entry is made under the Regulations on the conditions of participation in CFC-Royal shows, approved by Decision of the Board of Directors no. 174/01-08-2026. In short, by entering I undertake the following, both for myself and for the persons accompanying or handling the dog in the ring:",
     norme: NORME_EN,
-    normeAccept: "I have read and undertake the rules above and the CFC-Royal Code of Ethics.",
+    normeAccept: "I have read and undertake the Conditions of participation in CFC-Royal shows, summarised above, and the Code of Ethics of the association.",
     normeUrmari: "Failure to observe them may lead to removal from the show without refund of the fee, and to the cancellation of results obtained.",
-    normeCodEtic: "Read the Code of Ethics",
+    normeCodEtic: "Read the full regulations",
     gdprTitlu: "Data protection (GDPR)",
     gdprText: "Your data and your dog's data are used solely for organising the show (catalogue, judging, results, event-related communications). We do not sell or share them with third parties for commercial purposes. We keep them as long as needed for show records. You may request access, correction or deletion by writing to contact@cfc-royal.ro.",
     gdprAccept: "I have read and agree to the processing of my personal data for the purpose of organising the show.",
@@ -303,7 +303,9 @@ const CLASE = [
       <p class="ie__gdpr">{T.normeUrmari}</p>
       {/* În filă nouă: altfel omul pierde tot ce a completat ca să citească Codul Etic. */}
       <p class="ie__gdpr">
-        <a href={lang === "en" ? "/en/documente/cod-etic/" : "/ro/documente/cod-etic/"} target="_blank" rel="noopener">{T.normeCodEtic} →</a>
+        <a href={lang === "en" ? "/en/documente/conditii-participare-expozitii/" : "/ro/documente/conditii-participare-expozitii/"} target="_blank" rel="noopener">{T.normeCodEtic} →</a>
+        <span> · </span>
+        <a href={lang === "en" ? "/en/documente/cod-etic/" : "/ro/documente/cod-etic/"} target="_blank" rel="noopener">{lang === "en" ? "Code of Ethics" : "Codul Etic"} →</a>
       </p>
       <label class="ie__consim"><input type="checkbox" name="normeParticipare" value="1" required /> <span>{T.normeAccept} <b class="req">*</b></span></label>
     </fieldset>

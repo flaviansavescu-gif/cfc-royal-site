@@ -474,7 +474,7 @@ e) refuzul declarării unui conflict de interese cunoscut.
 
 (1) Prezentul Cod a fost aprobat de Consiliul Director în ședința din data de 1 august 2026, prin Hotărârea nr. 142/01-08-2026.
 
-(2) Codul intră în vigoare la data adoptării, 1 august 2026. Alineatul de față a fost modificat prin Hotărârea Consiliului Director nr. 174/01-08-2026.
+(2) Codul intră în vigoare la data adoptării, 1 august 2026.
 
 ### Art. 33. Aderare existentă
 

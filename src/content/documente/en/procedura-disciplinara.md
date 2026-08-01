@@ -698,4 +698,4 @@ The Board of Directors presents to the General Assembly, within the ordinary ann
 
 (1) This Procedure was approved by the Board of Directors in its meeting of 1 August 2026, by Decision no. 145/01-08-2026.
 
-(2) The Procedure enters into force on the date of adoption, 1 August 2026. This paragraph was amended by Board of Directors Decision no. 174/01-08-2026.
+(2) The Procedure enters into force on the date of adoption, 1 August 2026.

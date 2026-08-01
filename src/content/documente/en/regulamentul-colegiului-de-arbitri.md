@@ -648,6 +648,6 @@ Breaches of these Regulations are sanctioned in accordance with the detailed Dis
 
 (1) These Regulations were approved by the Board of Directors in its meeting of 1 August 2026, by Decision no. 147/01-08-2026.
 
-(2) The Regulations enter into force on the date of adoption, 1 August 2026. This paragraph was amended by Board of Directors Decision no. 174/01-08-2026.
+(2) The Regulations enter into force on the date of adoption, 1 August 2026.
 
 (3) For judges already certified at another structure who wish to affiliate with the Panel, the Board of Directors, upon the proposal of the Panel Council, may establish transitional equivalence conditions, which may not fall below the minimum standard applicable to new judges.

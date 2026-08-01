@@ -474,7 +474,7 @@ e) the refusal to declare a known conflict of interest.
 
 (1) This Code was approved by the Board of Directors in its meeting of 1 August 2026, by Decision no. 142/01-08-2026.
 
-(2) The Code enters into force on the date of adoption, 1 August 2026. This paragraph was amended by Board of Directors Decision no. 174/01-08-2026.
+(2) The Code enters into force on the date of adoption, 1 August 2026.
 
 ### Art. 33. Existing adherence
 

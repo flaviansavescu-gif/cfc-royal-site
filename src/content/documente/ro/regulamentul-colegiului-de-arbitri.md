@@ -648,6 +648,6 @@ d) calendarul activităților.
 
 (1) Prezentul Regulament a fost aprobat de Consiliul Director în ședința din data de 1 august 2026, prin Hotărârea nr. 147/01-08-2026.
 
-(2) Regulamentul intră în vigoare la data adoptării, 1 august 2026. Alineatul de față a fost modificat prin Hotărârea Consiliului Director nr. 174/01-08-2026.
+(2) Regulamentul intră în vigoare la data adoptării, 1 august 2026.
 
 (3) Pentru arbitrii deja certificați la altă structură care doresc afilierea la Colegiu, Consiliul Director, la propunerea Consiliului Colegiului, poate stabili condiții tranzitorii de echivalare, care nu pot fi sub standardul minim aplicabil arbitrilor noi.

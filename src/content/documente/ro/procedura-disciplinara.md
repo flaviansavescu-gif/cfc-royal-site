@@ -698,4 +698,4 @@ Consiliul Director prezintă Adunării Generale, în cadrul ședinței anuale or
 
 (1) Prezenta Procedură a fost aprobată de Consiliul Director în ședința din data de 1 august 2026, prin Hotărârea nr. 145/01-08-2026.
 
-(2) Procedura intră în vigoare la data adoptării, 1 august 2026. Alineatul de față a fost modificat prin Hotărârea Consiliului Director nr. 174/01-08-2026.
+(2) Procedura intră în vigoare la data adoptării, 1 august 2026.
