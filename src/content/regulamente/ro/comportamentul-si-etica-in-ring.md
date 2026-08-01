@@ -4,6 +4,8 @@ lang: ro
 category: "Etică și conduită"
 summary: "CAPITOL: COMPORTAMENTUL ȘI ETICA ÎN RING"
 draft: false
+adoptat: 2026-08-01
+hotarare: "151/01-08-2026"
 ---
 __CAPITOL: COMPORTAMENTUL ȘI ETICA ÎN RING__
 

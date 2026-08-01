@@ -3,6 +3,8 @@ title: "Cookie Policy"
 lang: en
 section: "Legal information"
 summary: "What cookies we use and how you can control them."
+adoptat: 2026-08-01
+hotarare: "169/01-08-2026"
 ---
 
 > **Draft** — to be reviewed by a legal adviser before publication.

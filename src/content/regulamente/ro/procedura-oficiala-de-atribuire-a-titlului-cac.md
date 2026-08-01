@@ -4,6 +4,8 @@ lang: ro
 category: "Titluri"
 summary: "Titlul CAC se referă la categoriile de adulți și reprezintă certificarea necesară pentru titlul de Campion Național."
 draft: false
+adoptat: 2026-08-01
+hotarare: "158/01-08-2026"
 ---
 Titlul CAC se referă la __categoriile de adulți__ și reprezintă certificarea necesară pentru titlul de __Campion Național__.
 

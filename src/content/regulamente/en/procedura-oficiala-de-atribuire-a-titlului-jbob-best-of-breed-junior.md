@@ -4,6 +4,8 @@ lang: en
 category: "Titluri"
 summary: "The JBOB title represents the “Best Junior specimen of the breed” and grants access to BIS Junior."
 draft: false
+adoptat: 2026-08-01
+hotarare: "161/01-08-2026"
 ---
 The __JBOB__ title represents the “__Best Junior specimen of the breed__” and grants access to __BIS Junior__.
 

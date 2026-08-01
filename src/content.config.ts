@@ -29,6 +29,22 @@ const galleryItem = z.union([
   }),
 ]);
 
+/**
+ * Adoptarea, pentru documentele care au putere de act al asociației.
+ *
+ * DE CE ÎN FRONTMATTER, NU ÎN TEXT. Scrisă doar în corpul documentului, adoptarea e o
+ * frază pe care nimeni n-o poate număra: nu se poate face un registru din ea, nu se poate
+ * verifica la build, nu se poate sorta. Iar când lipsește, nu se vede — exact ce s-a
+ * întâmplat până la 1 august 2026, când 29 de documente publicate nu spuneau nimic despre
+ * cine le-a adoptat, iar trei aveau „[data]" tipărit în ele.
+ *
+ * Aici sunt date, deci `scripts/verifica-adoptarea.mjs` le poate cere la fiecare build.
+ */
+const adoptare = {
+  adoptat: z.coerce.date().optional(),   // ziua ședinței Consiliului Director
+  hotarare: z.string().optional(),       // numărul hotărârii, ex. „142/01-08-2026"
+};
+
 // câmpuri comune tuturor colecțiilor
 const base = {
   title: z.string(), // titlul / numele înregistrării
@@ -232,6 +248,7 @@ const documente = defineCollection({
   loader: loader("documente"),
   schema: z.object({
     ...base,
+    ...adoptare,
     file: z.string().optional(), // PDF/DOCX de descărcare (opțional — unele documente se citesc integral pe pagină)
     docType: z
       .enum(["statut", "regulament", "hotărâre", "financiar", "formular", "altele"])
@@ -269,6 +286,7 @@ const regulamente = defineCollection({
   loader: loader("regulamente"),
   schema: z.object({
     ...base,
+    ...adoptare,
     category: z
       .enum([
         "Titluri",
@@ -289,6 +307,7 @@ const pagini = defineCollection({
   loader: loader("pagini"),
   schema: z.object({
     ...base,
+    ...adoptare,
     section: z.string().optional(), // eticheta secțiunii (eyebrow + breadcrumb)
     order: z.number().optional(),
   }),

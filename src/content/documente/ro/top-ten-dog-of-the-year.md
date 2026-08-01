@@ -4,6 +4,8 @@ lang: ro
 summary: "Regulamentul competiției anuale „Top Ten – Dog of the Year”, organizată de Club Federal Chinologic – Royal, aliniată la Regulamentul Oficial al Expozițiilor de Frumusețe WDF."
 docType: "regulament"
 draft: false
+adoptat: 2026-08-01
+hotarare: "148/01-08-2026"
 ---
 
 _Regulament oficial al competiției anuale „Top Ten – Dog of the Year”, organizată de **Club Federal Chinologic – Royal**, în acord cu Regulamentul Oficial al Expozițiilor de Frumusețe recunoscute de World Dog Federation (WDF)._

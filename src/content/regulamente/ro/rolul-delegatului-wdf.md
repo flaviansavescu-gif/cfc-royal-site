@@ -4,6 +4,8 @@ lang: ro
 category: "Roluri"
 summary: "Delegatul WDF este reprezentantul oficial al Federației Mondiale WDF în cadrul fiecărei expoziții recunoscute, având rol de supraveghere, control, validare, intervenție și…"
 draft: false
+adoptat: 2026-08-01
+hotarare: "165/01-08-2026"
 ---
 __Delegatul WDF__ este reprezentantul oficial al Federației Mondiale WDF în cadrul fiecărei expoziții recunoscute, având rol de __supraveghere, control, validare, intervenție și raportare__ pentru buna desfășurare a arbitrajului și respectarea regulamentelor.
 

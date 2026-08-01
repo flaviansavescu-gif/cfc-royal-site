@@ -4,6 +4,8 @@ lang: ro
 category: "Titluri"
 summary: "Titlul JBOB reprezintă „Cel mai bun exemplar Junior al rasei” și asigură accesul în BIS Junior."
 draft: false
+adoptat: 2026-08-01
+hotarare: "161/01-08-2026"
 ---
 Titlul __JBOB__ reprezintă „__Cel mai bun exemplar Junior al rasei__” și asigură accesul în __BIS Junior__.
 

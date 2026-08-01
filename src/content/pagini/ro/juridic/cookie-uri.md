@@ -3,6 +3,8 @@ title: "Politica privind cookie-urile"
 lang: ro
 section: "Informații juridice"
 summary: "Ce cookie-uri folosim și cum le poți controla."
+adoptat: 2026-08-01
+hotarare: "169/01-08-2026"
 ---
 
 > **Draft** — a se revizui de un consilier juridic înainte de publicare.

@@ -4,13 +4,15 @@ lang: ro
 summary: "Procedura disciplinară detaliată a Asociației Club Federal Chinologic – Royal (Anexa 2 la Regulamentul intern), aliniată la standardele WDF și IIPC."
 docType: "regulament"
 draft: false
+adoptat: 2026-08-01
+hotarare: "145/01-08-2026"
 ---
 
 _Anexa 2 la Regulamentul intern de funcționare, al Asociației **Club Federal Chinologic – Royal**._
 
 _Aliniată la standardele **World Dog Federation (WDF)** și **International Institute of Professional Cynology (IIPC)**._
 
-_Aprobată de Consiliul Director în ședința din data de [data]. Ratificată de Adunarea Generală în data de [data]._
+_Aprobată de Consiliul Director prin Hotărârea nr. 145/01-08-2026._
 
 ## Preambul
 
@@ -694,6 +696,6 @@ Consiliul Director prezintă Adunării Generale, în cadrul ședinței anuale or
 
 ### Art. 44. Intrarea în vigoare
 
-(1) Prezenta Procedură a fost aprobată de Consiliul Director în ședința din data de [data] și ratificată de Adunarea Generală în data de [data].
+(1) Prezenta Procedură a fost aprobată de Consiliul Director în ședința din data de 1 august 2026, prin Hotărârea nr. 145/01-08-2026.
 
 (2) Procedura intră în vigoare la data ratificării de către Adunarea Generală.

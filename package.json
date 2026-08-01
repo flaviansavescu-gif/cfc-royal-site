@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "verifica": "node scripts/verifica-scripturi.mjs && node scripts/verifica-tarife.mjs && node scripts/probe.mjs",
-    "prebuild": "node scripts/verifica-scripturi.mjs && node scripts/verifica-tarife.mjs && node scripts/probe.mjs",
+    "verifica": "node scripts/verifica-scripturi.mjs && node scripts/verifica-tarife.mjs && node scripts/verifica-adoptarea.mjs && node scripts/probe.mjs",
+    "prebuild": "node scripts/verifica-scripturi.mjs && node scripts/verifica-tarife.mjs && node scripts/verifica-adoptarea.mjs && node scripts/probe.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",

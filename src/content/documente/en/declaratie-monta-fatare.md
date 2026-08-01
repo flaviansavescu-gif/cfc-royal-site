@@ -4,6 +4,8 @@ lang: en
 summary: "Mating and whelping declaration form, for registering a litter. Choose the version according to the number of puppies:"
 docType: "formular"
 draft: false
+adoptat: 2026-08-01
+hotarare: "143/01-08-2026"
 ---
 
 Mating and whelping declaration form, for registering a litter. Choose the version according to the number of puppies:

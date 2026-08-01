@@ -3,6 +3,8 @@ title: "Termeni și condiții"
 lang: ro
 section: "Informații juridice"
 summary: "Condițiile de utilizare a site-ului."
+adoptat: 2026-08-01
+hotarare: "170/01-08-2026"
 ---
 
 > **Draft** — a se revizui de un consilier juridic înainte de publicare.

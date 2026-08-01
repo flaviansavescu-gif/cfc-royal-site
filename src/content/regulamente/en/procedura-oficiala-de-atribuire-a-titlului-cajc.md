@@ -4,6 +4,8 @@ lang: en
 category: "Titluri"
 summary: "1. Classes eligible for CAJC"
 draft: false
+adoptat: 2026-08-01
+hotarare: "160/01-08-2026"
 ---
 __1. Classes eligible for CAJC__
 

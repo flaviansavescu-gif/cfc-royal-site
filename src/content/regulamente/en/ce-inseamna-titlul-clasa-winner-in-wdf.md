@@ -4,6 +4,8 @@ lang: en
 category: "Titluri"
 summary: "What does the “Winner” title/class mean in WDF?"
 draft: false
+adoptat: 2026-08-01
+hotarare: "150/01-08-2026"
 ---
 __What does the „Winner” title/class mean in WDF?__
 

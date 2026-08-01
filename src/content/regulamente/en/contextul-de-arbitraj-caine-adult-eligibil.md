@@ -4,6 +4,8 @@ lang: en
 category: "Proceduri de arbitraj"
 summary: "1. JUDGING CONTEXT – Eligible Adult Dog"
 draft: false
+adoptat: 2026-08-01
+hotarare: "152/01-08-2026"
 ---
 1. __JUDGING CONTEXT – Eligible Adult Dog__
 

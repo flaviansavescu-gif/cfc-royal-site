@@ -4,6 +4,8 @@ lang: ro
 section: "Informații juridice"
 summary: "Ce date personale prelucrăm, de ce, cât timp le păstrăm și cui ajung."
 updatedAt: 2026-07-29
+adoptat: 2026-08-01
+hotarare: "168/01-08-2026"
 ---
 
 > **De revizuit de un consilier juridic înainte de a fi considerată definitivă.**

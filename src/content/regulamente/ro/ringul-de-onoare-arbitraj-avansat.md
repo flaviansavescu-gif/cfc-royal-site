@@ -4,6 +4,8 @@ lang: ro
 category: "Proceduri de arbitraj"
 summary: "PROTOCOL OFICIAL"
 draft: false
+adoptat: 2026-08-01
+hotarare: "164/01-08-2026"
 ---
 __PROTOCOL OFICIAL__
 

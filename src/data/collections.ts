@@ -69,6 +69,21 @@ const row = (label: string, value: unknown, wide = false): MetaRow | null =>
 const rows = (...items: (MetaRow | null)[]): MetaRow[] => items.filter((x): x is MetaRow => !!x);
 
 /**
+ * Rândul de adoptare, pe fișa unui act al asociației.
+ *
+ * Un regulament publicat fără să se vadă din ce hotărâre decurge arată exact ca unul
+ * neadoptat — și așa au stat 29 de documente până la ședința din 1 august 2026. Acum
+ * hotărârea se vede la fiecare, alături de celelalte date.
+ */
+const randAdoptare = (d: Data, lang: Lang): MetaRow | null =>
+  d.hotarare
+    ? row(
+        L(lang, "Adoptat prin", "Adopted by"),
+        L(lang, "Hotărârea Consiliului Director nr. ", "Board of Directors Decision no. ") + d.hotarare,
+      )
+    : null;
+
+/**
  * Banca, citită din IBAN.
  *
  * Într-un IBAN românesc, cele patru litere de după cifra de control sunt codul băncii —
@@ -400,7 +415,7 @@ export const collectionDefs: CollectionDef[] = [
     groupOrder: ["Titluri", "Proceduri de arbitraj", "Etică și conduită", "Contestații și abateri", "Roluri"],
     groupLabel: regCat,
     card: (d, lang) => ({ title: d.title, tag: regCat(d.category, lang), excerpt: d.summary }),
-    metaRows: (d, lang) => rows(row(L(lang, "Categorie", "Category"), regCat(d.category, lang))),
+    metaRows: (d, lang) => rows(row(L(lang, "Categorie", "Category"), regCat(d.category, lang)), randAdoptare(d, lang)),
   },
 
   {
@@ -418,6 +433,7 @@ export const collectionDefs: CollectionDef[] = [
     metaRows: (d, lang) =>
       rows(
         row(L(lang, "Tip document", "Document type"), d.docType),
+        randAdoptare(d, lang),
         row(L(lang, "Fișier", "File"), d.file),
       ),
   },

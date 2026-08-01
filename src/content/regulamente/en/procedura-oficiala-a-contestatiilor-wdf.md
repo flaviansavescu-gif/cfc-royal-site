@@ -4,6 +4,8 @@ lang: en
 category: "Contestații și abateri"
 summary: "(Article 36 + related articles concerning the powers of the delegate and the judges)"
 draft: false
+adoptat: 2026-08-01
+hotarare: "157/01-08-2026"
 ---
 *(Article 36 + related articles concerning the powers of the delegate and the judges)*
 

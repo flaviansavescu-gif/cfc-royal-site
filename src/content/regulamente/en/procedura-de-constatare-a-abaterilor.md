@@ -4,6 +4,8 @@ lang: en
 category: "Contestații și abateri"
 summary: "\"Procedure for Establishing Violations\", in accordance with the WDF Regulation (Art. 16, 17, 26, 34, 35, 36)."
 draft: false
+adoptat: 2026-08-01
+hotarare: "156/01-08-2026"
 ---
 __"Procedure for Establishing Violations"__, in accordance with the WDF Regulation (Art. 16, 17, 26, 34, 35, 36).
 

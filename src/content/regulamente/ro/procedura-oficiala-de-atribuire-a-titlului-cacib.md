@@ -4,6 +4,8 @@ lang: ro
 category: "Titluri"
 summary: "(Certificat de Aptitudini pentru Campionatul Internațional de Frumusețe)"
 draft: false
+adoptat: 2026-08-01
+hotarare: "159/01-08-2026"
 ---
 *(Certificat de Aptitudini pentru Campionatul Internațional de Frumusețe)*
 

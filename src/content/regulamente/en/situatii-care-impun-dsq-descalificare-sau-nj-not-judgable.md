@@ -4,6 +4,8 @@ lang: en
 category: "Contestații și abateri"
 summary: "(complete official procedure, with explanations + when the WDF Delegate is called)"
 draft: false
+adoptat: 2026-08-01
+hotarare: "166/01-08-2026"
 ---
 __*(complete official procedure, with explanations + when the WDF Delegate is called)*__
 

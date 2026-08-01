@@ -4,6 +4,8 @@ lang: en
 category: "Titluri"
 summary: "🏆 THE OFFICIAL WDF CHAMPION TITLES"
 draft: false
+adoptat: 2026-08-01
+hotarare: "167/01-08-2026"
 ---
 __🏆 THE OFFICIAL WDF CHAMPION TITLES__
 

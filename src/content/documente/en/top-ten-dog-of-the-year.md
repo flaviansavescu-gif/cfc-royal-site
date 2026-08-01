@@ -4,6 +4,8 @@ lang: en
 summary: "Regulations of the annual \"Top Ten – Dog of the Year\" competition, organised by Club Federal Chinologic – Royal, aligned with the Official Regulations for Beauty Shows recognised by the World Dog Federation (WDF)."
 docType: "regulament"
 draft: false
+adoptat: 2026-08-01
+hotarare: "148/01-08-2026"
 ---
 
 _Official regulations of the annual "Top Ten – Dog of the Year" competition, organised by **Club Federal Chinologic – Royal**, in accordance with the Official Regulations for Beauty Shows recognised by the World Dog Federation (WDF)._

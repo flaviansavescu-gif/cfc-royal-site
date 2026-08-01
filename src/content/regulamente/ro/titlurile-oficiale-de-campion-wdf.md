@@ -4,6 +4,8 @@ lang: ro
 category: "Titluri"
 summary: "🏆 TITLURILE OFICIALE DE CAMPION WDF"
 draft: false
+adoptat: 2026-08-01
+hotarare: "167/01-08-2026"
 ---
 __🏆 TITLURILE OFICIALE DE CAMPION WDF__
 

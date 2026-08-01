@@ -4,6 +4,8 @@ lang: ro
 summary: "Condițiile și procedura de înregistrare a unei canise și de rezervare a afixului de crescător în cadrul Club Federal Chinologic – Royal, cu recunoaștere World Dog Federation (WDF)."
 docType: "regulament"
 draft: false
+adoptat: 2026-08-01
+hotarare: "146/01-08-2026"
 ---
 
 _Proiect — în curs de aprobare de către Consiliul Director și Colegiul de Arbitri. Aliniat la standardele **World Dog Federation (WDF)**._

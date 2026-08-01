@@ -4,6 +4,8 @@ lang: ro
 category: "Proceduri de arbitraj"
 summary: "1. CONTEXTUL DE ARBITRAJ – Câine adult eligibil"
 draft: false
+adoptat: 2026-08-01
+hotarare: "152/01-08-2026"
 ---
 1. __CONTEXTUL DE ARBITRAJ – Câine adult eligibil__
 

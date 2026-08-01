@@ -4,13 +4,15 @@ lang: ro
 summary: "Regulamentul Colegiului de Arbitri al Asociației Club Federal Chinologic – Royal (Anexa 3 la Regulamentul intern), aliniat la standardele WDF și IIPC."
 docType: "regulament"
 draft: false
+adoptat: 2026-08-01
+hotarare: "147/01-08-2026"
 ---
 
 _Anexa 3 la Regulamentul intern de funcționare, al Asociației **Club Federal Chinologic – Royal**._
 
 _Aliniat la standardele **World Dog Federation (WDF)** și **International Institute of Professional Cynology (IIPC)**._
 
-_Aprobat de Consiliul Director în ședința din data de [data]. Ratificat de Adunarea Generală în data de [data]._
+_Aprobat de Consiliul Director prin Hotărârea nr. 147/01-08-2026._
 
 ## Preambul
 
@@ -644,7 +646,7 @@ d) calendarul activităților.
 
 ### Art. 38. Intrarea în vigoare. Dispoziții tranzitorii
 
-(1) Prezentul Regulament a fost aprobat de Consiliul Director în ședința din data de [data] și ratificat de Adunarea Generală în data de [data].
+(1) Prezentul Regulament a fost aprobat de Consiliul Director în ședința din data de 1 august 2026, prin Hotărârea nr. 147/01-08-2026.
 
 (2) Regulamentul intră în vigoare la data ratificării de către Adunarea Generală.
 

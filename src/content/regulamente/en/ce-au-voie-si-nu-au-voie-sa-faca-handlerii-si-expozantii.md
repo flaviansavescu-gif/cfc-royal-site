@@ -4,6 +4,8 @@ lang: en
 category: "Etică și conduită"
 summary: "WHAT HANDLERS / EXHIBITORS ARE ALLOWED TO DO (Permitted)"
 draft: false
+adoptat: 2026-08-01
+hotarare: "149/01-08-2026"
 ---
 __WHAT HANDLERS / EXHIBITORS ARE ALLOWED TO DO (Permitted)__
 

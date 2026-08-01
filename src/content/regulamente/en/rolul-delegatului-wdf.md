@@ -4,6 +4,8 @@ lang: en
 category: "Roluri"
 summary: "The WDF delegate is the official representative of the WDF World Federation at each recognised show, with a role of supervision, control, validation, intervention, and…"
 draft: false
+adoptat: 2026-08-01
+hotarare: "165/01-08-2026"
 ---
 __The WDF delegate__ is the official representative of the WDF World Federation at each recognised show, with a role of __supervision, control, validation, intervention, and reporting__ for the proper conduct of the judging and compliance with the regulations.
 

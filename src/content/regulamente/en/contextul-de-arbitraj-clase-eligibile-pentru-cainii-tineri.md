@@ -4,6 +4,8 @@ lang: en
 category: "Proceduri de arbitraj"
 summary: "1. CONTEXT – Eligible Classes for Young Dogs"
 draft: false
+adoptat: 2026-08-01
+hotarare: "153/01-08-2026"
 ---
 1. __CONTEXT – Eligible Classes for Young Dogs__
 

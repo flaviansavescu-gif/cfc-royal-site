@@ -4,13 +4,15 @@ lang: en
 summary: "Code of Ethics of the Association Club Federal Chinologic – Royal (Annex 1 to the Internal Operating Regulations), aligned with WDF and IIPC standards."
 docType: "regulament"
 draft: false
+adoptat: 2026-08-01
+hotarare: "142/01-08-2026"
 ---
 
 _Annex 1 to the Internal Operating Regulations of the Association **Club Federal Chinologic – Royal**._
 
 _Aligned with the standards of the **World Dog Federation (WDF)** and the **International Institute of Professional Cynology (IIPC)**._
 
-_Approved by the Board of Directors in its meeting of [data]. Ratified by the General Assembly on [data]._
+_Approved by the Board of Directors by Decision no. 142/01-08-2026._
 
 ## Preamble
 
@@ -470,7 +472,7 @@ e) the refusal to declare a known conflict of interest.
 
 ### Art. 32. Entry into force
 
-(1) This Code was approved by the Board of Directors in its meeting of [data] and ratified by the General Assembly on [data].
+(1) This Code was approved by the Board of Directors in its meeting of 1 August 2026, by Decision no. 142/01-08-2026.
 
 (2) The Code enters into force on the date of ratification by the General Assembly.
 

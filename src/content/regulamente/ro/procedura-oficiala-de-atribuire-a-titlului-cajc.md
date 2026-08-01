@@ -4,6 +4,8 @@ lang: ro
 category: "Titluri"
 summary: "1. Clasele eligibile pentru CAJC"
 draft: false
+adoptat: 2026-08-01
+hotarare: "160/01-08-2026"
 ---
 __1. Clasele eligibile pentru CAJC__
 

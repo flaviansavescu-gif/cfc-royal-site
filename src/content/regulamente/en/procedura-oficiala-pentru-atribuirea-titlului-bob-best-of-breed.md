@@ -4,6 +4,8 @@ lang: en
 category: "Titluri"
 summary: "The BOB title represents “The best specimen of the breed”, being one of the most important titles of a WDF show."
 draft: false
+adoptat: 2026-08-01
+hotarare: "163/01-08-2026"
 ---
 The __BOB__ title represents „__The best specimen of the breed__”, being one of the most important titles of a WDF show.
 

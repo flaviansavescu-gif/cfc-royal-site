@@ -4,6 +4,8 @@ lang: ro
 category: "Contestații și abateri"
 summary: "(Articolul 36 + articole conexe privind competențele delegatului și arbitrilor)"
 draft: false
+adoptat: 2026-08-01
+hotarare: "157/01-08-2026"
 ---
 *(Articolul 36 + articole conexe privind competențele delegatului și arbitrilor)*
 

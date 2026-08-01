@@ -4,6 +4,8 @@ lang: ro
 category: "Contestații și abateri"
 summary: "„Procedura de constatare a abaterilor”, în acord cu Regulamentul WDF (art. 16, 17, 26, 34, 35, 36)."
 draft: false
+adoptat: 2026-08-01
+hotarare: "156/01-08-2026"
 ---
 __„Procedura de constatare a abaterilor”__, în acord cu Regulamentul WDF (art. 16, 17, 26, 34, 35, 36).
 

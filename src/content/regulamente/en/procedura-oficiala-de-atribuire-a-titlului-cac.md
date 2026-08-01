@@ -4,6 +4,8 @@ lang: en
 category: "Titluri"
 summary: "The CAC title refers to the adult categories and constitutes the certification required for the National Champion title."
 draft: false
+adoptat: 2026-08-01
+hotarare: "158/01-08-2026"
 ---
 The CAC title refers to the __adult categories__ and constitutes the certification required for the __National Champion__ title.
 

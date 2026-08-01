@@ -4,6 +4,8 @@ lang: en
 summary: "Official regulations of the educational contest „Primii Pași în Ring” (First Steps in the Ring) — Entry Level Handling for children, a CFC-Royal programme."
 docType: "regulament"
 draft: false
+adoptat: 2026-08-01
+hotarare: "144/01-08-2026"
 ---
 
 _Official regulations of the „Primii Pași în Ring” (First Steps in the Ring) contest — Entry Level Handling for children, an educational programme of the **Club Federal Chinologic – Royal**._

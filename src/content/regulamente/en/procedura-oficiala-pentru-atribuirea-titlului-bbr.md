@@ -4,6 +4,8 @@ lang: en
 category: "Titluri"
 summary: "(Best Breed Representative – “The best representative of the breed”)"
 draft: false
+adoptat: 2026-08-01
+hotarare: "162/01-08-2026"
 ---
 *(Best Breed Representative – “The best representative of the breed”)*
 

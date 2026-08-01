@@ -4,6 +4,8 @@ lang: ro
 category: "Titluri"
 summary: "Titlul BOB reprezintă „Cel mai bun exemplar al rasei”, fiind unul dintre cele mai importante titluri ale unei expoziții WDF."
 draft: false
+adoptat: 2026-08-01
+hotarare: "163/01-08-2026"
 ---
 Titlul __BOB__ reprezintă „__Cel mai bun exemplar al rasei__”, fiind unul dintre cele mai importante titluri ale unei expoziții WDF.
 

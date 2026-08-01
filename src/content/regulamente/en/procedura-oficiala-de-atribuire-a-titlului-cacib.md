@@ -4,6 +4,8 @@ lang: en
 category: "Titluri"
 summary: "(Certificate of Aptitude for the International Beauty Championship)"
 draft: false
+adoptat: 2026-08-01
+hotarare: "159/01-08-2026"
 ---
 *(Certificate of Aptitude for the International Beauty Championship)*
 

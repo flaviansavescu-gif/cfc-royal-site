@@ -4,13 +4,15 @@ lang: en
 summary: "Regulations of the Panel of Judges of the Club Federal Chinologic – Royal Association (Annex 3 to the Internal Operating Regulations), aligned with WDF and IIPC standards."
 docType: "regulament"
 draft: false
+adoptat: 2026-08-01
+hotarare: "147/01-08-2026"
 ---
 
 _Annex 3 to the Internal Operating Regulations, of the **Club Federal Chinologic – Royal** Association._
 
 _Aligned with the standards of the **World Dog Federation (WDF)** and the **International Institute of Professional Cynology (IIPC)**._
 
-_Approved by the Board of Directors in the meeting of [data]. Ratified by the General Assembly on [data]._
+_Approved by the Board of Directors by Decision no. 147/01-08-2026._
 
 ## Preamble
 
@@ -644,7 +646,7 @@ Breaches of these Regulations are sanctioned in accordance with the detailed Dis
 
 ### Art. 38. Entry into force. Transitional Provisions
 
-(1) These Regulations were approved by the Board of Directors in the meeting of [data] and ratified by the General Assembly on [data].
+(1) These Regulations were approved by the Board of Directors in its meeting of 1 August 2026, by Decision no. 147/01-08-2026.
 
 (2) The Regulations enter into force on the date of ratification by the General Assembly.
 

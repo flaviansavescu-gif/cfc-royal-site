@@ -4,6 +4,8 @@ lang: en
 category: "Proceduri de arbitraj"
 summary: "I. PREPARATION OF THE JUDGE BEFORE THE START OF JUDGING"
 draft: false
+adoptat: 2026-08-01
+hotarare: "155/01-08-2026"
 ---
 __I. PREPARATION OF THE JUDGE BEFORE THE START OF JUDGING__
 

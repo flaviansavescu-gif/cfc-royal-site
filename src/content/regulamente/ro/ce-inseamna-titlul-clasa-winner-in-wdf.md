@@ -4,6 +4,8 @@ lang: ro
 category: "Titluri"
 summary: "Ce înseamnă titlul/clasa „Winner” în WDF?"
 draft: false
+adoptat: 2026-08-01
+hotarare: "150/01-08-2026"
 ---
 __Ce înseamnă titlul/clasa „Winner” în WDF?__
 

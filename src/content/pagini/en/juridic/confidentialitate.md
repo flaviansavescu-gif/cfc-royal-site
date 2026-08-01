@@ -4,6 +4,8 @@ lang: en
 section: "Legal information"
 summary: "What personal data we process, why, how long we keep it and who receives it."
 updatedAt: 2026-07-29
+adoptat: 2026-08-01
+hotarare: "168/01-08-2026"
 ---
 
 > **To be reviewed by a legal adviser before being treated as final.**

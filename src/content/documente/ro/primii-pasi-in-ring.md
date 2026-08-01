@@ -4,6 +4,8 @@ lang: ro
 summary: "Regulamentul oficial al concursului educativ „Primii Pași în Ring” (Entry Level Handling pentru copii), program CFC–Royal."
 docType: "regulament"
 draft: false
+adoptat: 2026-08-01
+hotarare: "144/01-08-2026"
 ---
 
 _Regulament oficial al concursului „Primii Pași în Ring” — Entry Level Handling pentru copii, program educațional al **Club Federal Chinologic – Royal**._

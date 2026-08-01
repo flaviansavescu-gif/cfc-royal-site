@@ -4,6 +4,8 @@ lang: ro
 category: "Proceduri de arbitraj"
 summary: "1. CONTEXT – Clase eligibile pentru câinii tineri"
 draft: false
+adoptat: 2026-08-01
+hotarare: "153/01-08-2026"
 ---
 1. __CONTEXT – Clase eligibile pentru câinii tineri__
 

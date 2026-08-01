@@ -4,6 +4,8 @@ lang: en
 summary: "The conditions and procedure for registering a kennel and reserving a breeder's affix within Club Federal Chinologic – Royal, with World Dog Federation (WDF) recognition."
 docType: "regulament"
 draft: false
+adoptat: 2026-08-01
+hotarare: "146/01-08-2026"
 ---
 
 _Draft — pending approval by the Board of Directors and the Panel of Judges. Aligned with **World Dog Federation (WDF)** standards._

@@ -4,6 +4,8 @@ lang: ro
 category: "Contestații și abateri"
 summary: "(procedură oficială completă, cu explicații + când se cheamă Delegatul WDF)"
 draft: false
+adoptat: 2026-08-01
+hotarare: "166/01-08-2026"
 ---
 __*(procedură oficială completă, cu explicații + când se cheamă Delegatul WDF)*__
 
