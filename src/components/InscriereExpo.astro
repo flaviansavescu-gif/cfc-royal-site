@@ -39,6 +39,12 @@ const T = {
     cum5t: "După trimitere",
     cum5: "primești un e-mail de confirmare. După verificarea înscrierii de către secretariat primești numărul de catalog. Înscrierile se închid înainte de expoziție, odată cu tipărirea catalogului.",
     succes: "Înscrierea a fost trimisă!", succesDetaliu: "a intrat în coada secretariatului. După verificare vei primi pe e-mail confirmarea validării, iar la închiderea catalogului — numărul de concurs și ecusonul de tipărit.", inca: "Trimite o nouă înscriere",
+    termenEticheta: "Înscrierile se închid",
+    termenFus: "ora României",
+    termenAzi: "astăzi",
+    termenMaine: "mâine",
+    termenZile: "peste {n} zile",
+    termenNota: "Termenul este un moment, nu o zi: o înscriere trimisă după această oră nu se mai înregistrează.",
     normeTitlu: "Norme de participare",
     normeIntro: "Înscrierea se face în condițiile Regulamentului privind condițiile de participare la expozițiile CFC-Royal, aprobat prin Hotărârea Consiliului Director nr. 174/01-08-2026. Pe scurt, prin înscriere îmi asum următoarele, atât pentru mine, cât și pentru persoanele care însoțesc sau prezintă câinele în ring:",
     norme: NORME_RO,
@@ -98,6 +104,12 @@ const T = {
     cum5t: "After you submit",
     cum5: "you receive a confirmation email. Once the secretariat checks your entry you receive the catalogue number. Entries close before the show, when the catalogue is printed.",
     succes: "Your entry has been sent!", succesDetaliu: "is now in the secretariat queue. After it is checked you will receive the validation email, and when the catalogue closes — your competition number and printable armband.", inca: "Submit another entry",
+    termenEticheta: "Entries close",
+    termenFus: "Romanian time",
+    termenAzi: "today",
+    termenMaine: "tomorrow",
+    termenZile: "in {n} days",
+    termenNota: "The deadline is a moment, not a day: an entry submitted after this hour is no longer registered.",
     normeTitlu: "Rules of participation",
     normeIntro: "Entry is made under the Regulations on the conditions of participation in CFC-Royal shows, approved by Decision of the Board of Directors no. 174/01-08-2026. In short, by entering I undertake the following, both for myself and for the persons accompanying or handling the dog in the ring:",
     norme: NORME_EN,
@@ -197,6 +209,13 @@ const CLASE = [
       <span>{T.expozitie} <b class="req">*</b></span>
       <select id="ie-show" name="showId" required></select>
     </label>
+
+    {/* Termenul e chiar cel pus în manager și călătorește cu expoziția. Scris de Astro,
+        nu de JavaScript, ca să primească stilurile componentei. */}
+    <p class="ie__termen" id="ie-termen" hidden>
+      <b>{T.termenEticheta}:</b> <span id="ie-termen-cand"></span>
+      <br /><small>{T.termenNota}</small>
+    </p>
 
     {/* Capcană: omul nu vede câmpul, deci nu-l completează. Roboții completează tot ce
         găsesc, iar serverul răspunde cu un succes prefăcut — dacă ar da eroare, robotul
@@ -334,7 +353,7 @@ const CLASE = [
   </form>
 </section>
 
-<script is:inline define:vars={{ AFISE, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit }}>
+<script is:inline define:vars={{ AFISE, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit }}>
   (async function () {
     const form = document.getElementById("ie-form");
     const loading = document.getElementById("ie-loading");
@@ -383,6 +402,24 @@ const CLASE = [
     }
     showSel.addEventListener("change", aratAfisul);
     aratAfisul();
+
+    // Termenul se arată în ORA ROMÂNIEI, spus pe față, nu în ora vizitatorului: expoziția
+    // e în România, iar ora scrisă în manager e chiar ora care se aplică. Un expozant din
+    // Germania care ar citi „20:00" fără să știe al cui e ceasul ar întârzia cu o oră.
+    const randTermen = document.getElementById("ie-termen");
+    const candTermen = document.getElementById("ie-termen-cand");
+    function aratTermenul() {
+      const e = expozitii.find((x) => x.showId === showSel.value);
+      const d = e && e.termen ? new Date(e.termen) : null;
+      if (!d || isNaN(d.getTime())) { randTermen.hidden = true; return; }
+      const cand = d.toLocaleString(txtLimba, { timeZone: "Europe/Bucharest", weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
+      const zile = Math.ceil((d.getTime() - Date.now()) / 86400000);
+      const cate = zile <= 0 ? txtTermenAzi : zile === 1 ? txtTermenMaine : txtTermenZile.replace("{n}", zile);
+      candTermen.textContent = cand + " (" + txtTermenFus + ") — " + cate;
+      randTermen.hidden = false;
+    }
+    showSel.addEventListener("change", aratTermenul);
+    aratTermenul();
 
     function populeazaRase() {
       const e = expozitii.find((x) => x.showId === showSel.value);
@@ -643,6 +680,10 @@ const CLASE = [
   .ie__plata-info { background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
   .ie__plata-info p { margin: 0.15rem 0; font-size: 0.9rem; color: var(--color-text-muted); }
   .ie__iban { font-family: var(--font-mono, monospace); font-weight: 700; font-size: 1.05rem; color: var(--color-text) !important; letter-spacing: 0.03em; }
+  .ie__termen { margin: -0.4rem 0 1.1rem; padding: 0.6rem 0.8rem; font-size: 0.92rem;
+    border-left: 3px solid var(--color-accent, #b8912f); background: var(--color-surface-alt, #f6f5f1); border-radius: 0 4px 4px 0; }
+  .ie__termen small { color: var(--color-text-muted); }
+
   /* Bannerul ține exact cât formularul: aceeași lățime, aceleași colțuri. */
   .ie__afis { margin: 0 0 1.5rem; }
   .ie__afis img { width: 100%; height: auto; display: block; border-radius: 6px; }
