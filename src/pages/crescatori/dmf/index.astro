@@ -131,7 +131,7 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
     <section class="d-sect">
       <h2 class="d-h2">Piesele dosarului</h2>
       <p class="d-nota">
-        JPEG, PNG, WEBP sau PDF, maximum 5 MB fiecare. Fotografiile se micșorează automat
+        JPEG, PNG, WEBP sau PDF, maximum 20 MB fiecare. Fotografiile se micșorează automat
         înainte de trimitere, deci pozele făcute cu telefonul merg fără pregătire.
       </p>
       <div class="d-fisiere">
@@ -404,6 +404,44 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
       fr.onerror = resp;
       fr.readAsDataURL(blob);
     });
+
+    // ——— Încărcarea ———
+    //
+    // Fișierul pleacă codificat base64, care îl umflă cu o treime, iar Netlify taie
+    // cererile peste 6 MB. Măsurat: 4 MB trec, 4,5 MB primesc 413 la marginea rețelei —
+    // adică o eroare seacă, fără explicație, înainte ca serverul nostru să apuce să
+    // răspundă ceva omenesc.
+    //
+    // Deci: ce încape într-o cerere pleacă întreg, ca până acum. Ce nu încape se taie în
+    // bucăți. Fișierele mici merg pe drumul vechi, neatins — un scan mare nu poate strica
+    // ce funcționa deja.
+    const PRAG = 3 * 1024 * 1024;          // cât trimitem într-o singură cerere
+    const MAX_TOTAL = 20 * 1024 * 1024;    // plafonul hotărât de asociație
+
+    async function cere(corp) {
+      const r = await fetch(F, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ cod: cod(), ciornaId }, corp)),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.eroare || "Încărcare eșuată.");
+      return d;
+    }
+
+    async function urca(blob, nume, tip, fel, stare) {
+      if (blob.size <= PRAG) {
+        stare.textContent = "se încarcă…";
+        return cere({ actiune: "fisier", fel, nume, tip, continut: await catreBase64(blob) });
+      }
+      const total = Math.ceil(blob.size / PRAG);
+      for (let i = 0; i < total; i++) {
+        stare.textContent = "se încarcă… " + (i + 1) + " din " + total;
+        const felie = blob.slice(i * PRAG, Math.min((i + 1) * PRAG, blob.size));
+        await cere({ actiune: "fisier-parte", fel, tip, index: i, total, continut: await catreBase64(felie) });
+      }
+      stare.textContent = "se așază la dosar…";
+      return cere({ actiune: "fisier-gata", fel, nume, tip, total });
+    }
     document.querySelectorAll(".d-fis").forEach((lbl) => {
       const fel = lbl.dataset.fel;
       const stare = lbl.querySelector(".d-fis__stare");
@@ -415,13 +453,11 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
         try {
           await ciorna();
           const mic = await micsoreaza(file);
-          if (mic.size > 5 * 1024 * 1024) throw new Error("Fișierul depășește 5 MB chiar și micșorat.");
-          stare.textContent = "se încarcă…";
-          const r = await fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ cod: cod(), actiune: "fisier", ciornaId, fel,
-              nume: file.name, tip: mic.type || file.type, continut: await catreBase64(mic) }) });
-          const d = await r.json().catch(() => ({}));
-          if (!r.ok) throw new Error(d.eroare || "Încărcare eșuată.");
+          if (mic.size > MAX_TOTAL) {
+            throw new Error("Fișierul depășește " + (MAX_TOTAL / 1024 / 1024) + " MB chiar și micșorat.");
+          }
+          const d = await urca(mic, file.name, mic.type || file.type, fel, stare);
+          if (!d) throw new Error("Încărcare eșuată.");
           incarcate[fel] = true;
           stare.className = "d-fis__stare is-ok";
           stare.textContent = "✓ " + Math.round(d.marime / 1024) + " KB";

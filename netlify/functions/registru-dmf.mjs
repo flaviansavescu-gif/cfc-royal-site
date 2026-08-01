@@ -76,7 +76,25 @@ const TOATE_FELURILE = { ...FELURI, [FEL_ALTERNATIV]: "Dovada semnată a montei"
 export const TERMEN_ZILE = 90;
 /** Cât timp e valabil linkul trimis proprietarului masculului. */
 export const CONFIRMARE_ZILE = 60;
-const MAX_FISIER = 5 * 1024 * 1024;          // 5 MB per piesă, după decodare
+/**
+ * MĂRIMEA FIȘIERELOR — și de ce a fost minciună până azi.
+ *
+ * Fișierul se trimite codificat base64, care îl umflă cu o treime. Netlify taie cererile
+ * peste 6 MB. Măsurat pe viu: un fișier de 4 MB trece (corp 5,33 MB), unul de 4,5 MB e
+ * respins cu 413 (corp 6,00 MB) — la marginea rețelei, ÎNAINTE ca funcția asta să apuce
+ * să răspundă.
+ *
+ * Deci mesajul „Fișierul depășește 5 MB" nu se vedea niciodată la fișierele de 4,5–5 MB:
+ * omul primea o eroare seacă de rețea și nu afla ce a greșit. Iar un scan de pedigree de
+ * 5,72 MB — cum e cel al mamei din cuibul 26 — pur și simplu nu putea fi depus.
+ *
+ * De aceea fișierele mari vin acum pe bucăți (`fisier-parte` + `fisier-gata`), fiecare
+ * bucată bine sub plafonul platformei. Limita de mai jos nu mai e impusă de codificare:
+ * e o hotărâre a noastră despre cât de mare are voie să fie un act depus la dosar.
+ */
+const MAX_FISIER = 20 * 1024 * 1024;         // cât se păstrează, după lipirea bucăților
+const MAX_PARTE = 3 * 1024 * 1024;           // cât încape într-o singură cerere, cu loc de întors
+const MAX_PARTI = 12;                        // 12 × 3 MB = 36 MB; plafonul rămâne MAX_FISIER
 const TIPURI_OK = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 const MAX_PUI = 24;
 
@@ -477,12 +495,76 @@ export default cuLimitareCod(async (req) => {
     try { date = Buffer.from(String(body.continut || ""), "base64"); }
     catch { return json({ eroare: "Fișier ilizibil." }, 400); }
     if (!date.length) return json({ eroare: "Fișier gol." }, 400);
-    if (date.length > MAX_FISIER) return json({ eroare: "Fișierul depășește 5 MB." }, 400);
+    if (date.length > MAX_PARTE) {
+      return json({ eroare: "Fișierul e prea mare pentru o singură cerere. Se trimite pe bucăți." }, 400);
+    }
 
     await s.set("dmf-fisier/" + ciornaId + "/" + fel, date, {
       metadata: { nume: taie(body.nume, 160), tip, marime: date.length },
     });
     return json({ ok: true, fel, marime: date.length });
+  }
+
+  // —— Fișiere mari, pe bucăți ——
+  //
+  // Fiecare bucată vine într-o cerere a ei, bine sub plafonul platformei. Bucățile stau
+  // deoparte, sub `dmf-parte/`, până sosesc toate; abia atunci se lipesc și se scriu la
+  // locul lor. Un dosar cu bucăți nelipite n-are piesa: nimic pe jumătate nu ajunge în
+  // dosar, nici dacă omul închide pagina la mijloc.
+  if (actiune === "fisier-parte" || actiune === "fisier-gata") {
+    if (eu.rol !== "membru") return json({ eroare: "Doar membrii încarcă piese la dosar." }, 403);
+    const ciornaId = taie(body.ciornaId, 40);
+    const fel = taie(body.fel, 32);
+    if (!FELURI[fel]) return json({ eroare: "Piesă necunoscută." }, 400);
+    const ciorna = await s.get("ciorna/" + ciornaId, { type: "json" }).catch(() => null);
+    if (!ciorna || ciorna.membruId !== eu.membru.id) return json({ eroare: "Dosar inexistent." }, 404);
+
+    const tip = taie(body.tip, 60);
+    if (!TIPURI_OK.includes(tip)) return json({ eroare: "Acceptăm doar JPEG, PNG, WEBP sau PDF." }, 400);
+
+    const total = Number(body.total);
+    if (!Number.isInteger(total) || total < 1 || total > MAX_PARTI) {
+      return json({ eroare: `Fișierul e prea mare: se trimite în cel mult ${MAX_PARTI} bucăți.` }, 400);
+    }
+    const cheieParte = (i) => "dmf-parte/" + ciornaId + "/" + fel + "/" + i;
+
+    if (actiune === "fisier-parte") {
+      const index = Number(body.index);
+      if (!Number.isInteger(index) || index < 0 || index >= total) {
+        return json({ eroare: "Bucată în afara șirului." }, 400);
+      }
+      let bucata;
+      try { bucata = Buffer.from(String(body.continut || ""), "base64"); }
+      catch { return json({ eroare: "Bucată ilizibilă." }, 400); }
+      if (!bucata.length) return json({ eroare: "Bucată goală." }, 400);
+      if (bucata.length > MAX_PARTE) return json({ eroare: "Bucată prea mare." }, 400);
+
+      await s.set(cheieParte(index), bucata, { metadata: { total, tip } });
+      return json({ ok: true, index, total, marime: bucata.length });
+    }
+
+    // —— Lipirea ——
+    const bucati = [];
+    let suma = 0;
+    for (let i = 0; i < total; i++) {
+      const b = await s.get(cheieParte(i), { type: "arrayBuffer" }).catch(() => null);
+      // O bucată lipsă înseamnă că trimiterea nu s-a terminat. Nu lipim ce avem: un act
+      // de origine ciuntit e mai rău decât unul lipsă, fiindcă arată ca un act întreg.
+      if (!b) return json({ eroare: `Lipsește bucata ${i + 1} din ${total}. Încarcă fișierul din nou.` }, 409);
+      const u = Buffer.from(b);
+      suma += u.length;
+      if (suma > MAX_FISIER) {
+        return json({ eroare: `Fișierul depășește ${Math.round(MAX_FISIER / 1024 / 1024)} MB.` }, 400);
+      }
+      bucati.push(u);
+    }
+
+    const intreg = Buffer.concat(bucati);
+    await s.set("dmf-fisier/" + ciornaId + "/" + fel, intreg, {
+      metadata: { nume: taie(body.nume, 160), tip, marime: intreg.length },
+    });
+    for (let i = 0; i < total; i++) await s.delete(cheieParte(i)).catch(() => {});
+    return json({ ok: true, fel, marime: intreg.length, parti: total });
   }
 
   if (actiune === "depune") {
@@ -731,7 +813,9 @@ export default cuLimitareCod(async (req) => {
     try { date = Buffer.from(String(body.continut || ""), "base64"); }
     catch { return json({ eroare: "Fișier ilizibil." }, 400); }
     if (!date.length) return json({ eroare: "Fișier gol." }, 400);
-    if (date.length > MAX_FISIER) return json({ eroare: "Fișierul depășește 5 MB." }, 400);
+    if (date.length > MAX_PARTE) {
+      return json({ eroare: "Fișierul depășește 3 MB. Scanează la o rezoluție mai mică sau trimite-l ca fotografie." }, 400);
+    }
 
     await s.set("dmf-fisier/" + id + "/" + FEL_ALTERNATIV, date, {
       metadata: { nume: taie(body.nume, 160), tip, marime: date.length },

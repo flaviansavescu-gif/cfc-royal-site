@@ -194,6 +194,13 @@ export async function curataMagazia() {
           if (are) { await s.delete("dmf-fisier/" + id + "/" + fel); rezultat.fisiereSterse++; }
         } catch { /* piesa nu există — normal */ }
       }
+      // Bucățile unei încărcări întrerupte la mijloc. Fără pasul ăsta, cine începe să urce
+      // un scan de 8 MB și închide pagina lasă în magazie trei bucăți pe care nu le mai
+      // caută nimeni — și care intră, cuminți, în fiecare copie de siguranță.
+      try {
+        const { blobs: parti } = await s.list({ prefix: "dmf-parte/" + id + "/" });
+        for (const p of parti) { await s.delete(p.key); rezultat.fisiereSterse++; }
+      } catch { /* nicio bucată — cazul obișnuit */ }
       await s.delete(b.key);
       rezultat.ciorneSterse++;
     }
