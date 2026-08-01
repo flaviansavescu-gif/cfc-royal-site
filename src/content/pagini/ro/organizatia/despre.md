@@ -20,7 +20,7 @@ instituțiile din țara de proveniență sunt tratate cu respect și analizate �
 internaționale. Credem că dezvoltarea chinologiei nu poate avea la bază izolarea organizațiilor, ci
 dialogul, recunoașterea reciprocă și interesul comun pentru câinele de rasă și crescători.
 
-În jurul acestei viziuni s-a format Club Federal Chinologic – Royal, împreună cu asociațiile afiliate
+În jurul acestei viziuni s-a format Club Federal Chinologic – Royal, împreună cu Membrii Colectivi
 și partenerii săi din cadrul World Dog Federation, construind o structură care urmărește să ofere
 crescătorilor stabilitate, predictibilitate și libertatea de a participa la viața chinologică fără
 bariere artificiale.
@@ -58,7 +58,7 @@ dezvoltate prin contribuția fiecărei generații.
 
 - Construirea unei structuri chinologice naționale bazate pe colaborarea dintre organizații, nu pe izolarea acestora.
 - Crearea unui cadru instituțional care să ofere crescătorilor libertatea de a-și desfășura activitatea fără constrângeri generate de lipsa recunoașterii reciproce între organizații.
-- Dezvoltarea unei rețele naționale de asociații afiliate care să funcționeze după standarde comune și proceduri unitare.
+- Dezvoltarea unei rețele naționale de Membri Colectivi care să funcționeze după standarde comune și proceduri unitare.
 - Consolidarea relației dintre chinologia românească și comunitatea chinologică internațională prin parteneriate și cooperare instituțională.
 - Dezvoltarea unei platforme moderne de servicii, educație și resurse dedicate tuturor actorilor implicați în domeniul chinologic.
 
@@ -81,7 +81,7 @@ dezvoltate prin contribuția fiecărei generații.
 - consolidarea statutului de organizație chinologică națională.
 
 ### Prezent — Construirea structurii chinologice CFC–Royal
-- dezvoltarea asociațiilor membre/afiliate;
+- dezvoltarea rețelei de Membri Colectivi;
 - extinderea programelor educaționale;
 - dezvoltarea infrastructurii digitale;
 - consolidarea cooperării internaționale.

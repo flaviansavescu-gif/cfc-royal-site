@@ -15,7 +15,7 @@ logo: "/images/afiliat-caras-severin.webp"
 draft: false
 ---
 
-The Caraș-Severin County Cynological Association (A.Ch.C.S.) is a regional association affiliated
+The Caraș-Severin County Cynological Association (A.Ch.C.S.) is a regional association, a Collective Member of the club,
 with the Royal Federal Canine Club, active in Caraș-Severin County.
 
 **Vice-presidents:** Flavian-Sergiu Savescu (cynotechnical) · Georgeta Mihaela Chivu

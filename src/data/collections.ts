@@ -288,8 +288,23 @@ export const collectionDefs: CollectionDef[] = [
     name: "organizatii-afiliate",
     slug: "membrii",
     label: { ro: "Asociații membre", en: "Member associations" },
-    intro: { ro: "Organizații care activează sub egida clubului.", en: "Organisations operating under the club's aegis." },
-    empty: { ro: "Nicio asociație membră publicată momentan.", en: "No member associations published yet." },
+    /**
+     * Butonul din meniu rămâne „Asociații membre", fiindcă așa înțelege oricine despre ce
+     * e vorba. Noțiunea propriu-zisă — Membru Colectiv — se explică aici, în capul listei,
+     * unde omul a ajuns deja și are răbdare să citească. Un termen instituțional pus pe un
+     * buton nu lămurește pe nimeni; pus lângă explicație, da.
+     */
+    intro: {
+      ro: "Organizațiile chinologice care colaborează cu Clubul Federal au calitatea de Membru Colectiv. " +
+          "Fiecare își păstrează personalitatea juridică, patrimoniul, conducerea și autonomia; " +
+          "calitatea se dobândește prin Acordul-cadru de colaborare semnat cu clubul și nu creează " +
+          "raporturi de subordonare.",
+      en: "The cynological organisations that work with the Federal Club hold the status of Collective Member. " +
+          "Each keeps its own legal personality, assets, governance and autonomy; the status is acquired " +
+          "through the framework collaboration agreement signed with the club and creates no relationship " +
+          "of subordination.",
+    },
+    empty: { ro: "Niciun Membru Colectiv publicat momentan.", en: "No Collective Members published yet." },
     eyebrow: { ro: "Asociații membre", en: "Member associations" },
     sort: (a, b) => a.title.localeCompare(b.title, "ro"),
     card: (d) => ({ title: d.title, meta: d.county, excerpt: d.summary, image: d.logo }),

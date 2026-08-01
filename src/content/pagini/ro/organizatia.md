@@ -8,7 +8,7 @@ order: 1
 
 Club Federal Chinologic Royal este o asociație chinologică națională, afiliată
 **WDF — World Dog Federation**. Promovăm creșterea responsabilă a câinilor de rasă,
-organizăm expoziții și susținem cluburile afiliate.
+organizăm expoziții și susținem Membrii Colectivi.
 
 ## Explorează
 

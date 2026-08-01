@@ -297,7 +297,7 @@ const doc = S.actDeSedinta({
 
     A("Intrarea în vigoare"),
     al(1, "Prezentul acord intră în vigoare la data semnării de către ambele părți."),
-    al(2, "Acordul a fost aprobat prin Hotărârea Consiliului Director al CFCR nr. ⟨H⟩ din ⟨D⟩."),
+    al(2, "Acordul-cadru și Nota de prezentare a sistemului de Membri Colectivi au fost aprobate prin Hotărârea Consiliului Director al CFCR nr. 175/01-08-2026."),
     gol(200),
 
     px(["Încheiat astăzi, ", L(24), ", în două exemplare originale, câte unul pentru fiecare parte."]),

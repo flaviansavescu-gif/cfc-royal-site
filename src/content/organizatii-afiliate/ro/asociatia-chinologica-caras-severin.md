@@ -1,7 +1,7 @@
 ---
 title: "Asociația Chinologică din județul Caraș-Severin"
 lang: ro
-summary: "Asociație chinologică regională afiliată clubului, cu activitate în județul Caraș-Severin."
+summary: "Asociație chinologică regională Membru Colectiv al clubului, cu activitate în județul Caraș-Severin."
 county: "Caraș-Severin"
 city: "Reșița"
 address: "B-dul A.I. Cuza, nr. 20, Reșița, jud. Caraș-Severin"
@@ -15,7 +15,7 @@ logo: "/images/afiliat-caras-severin.webp"
 draft: false
 ---
 
-Asociația Chinologică din județul Caraș-Severin (A.Ch.C.S.) este o asociație regională afiliată
+Asociația Chinologică din județul Caraș-Severin (A.Ch.C.S.) este o asociație regională, Membru Colectiv al clubului,
 Clubului Federal Chinologic Royal, cu activitate în județul Caraș-Severin.
 
 **Vicepreședinți:** Flavian-Sergiu Savescu (chinotehnic) · Georgeta Mihaela Chivu

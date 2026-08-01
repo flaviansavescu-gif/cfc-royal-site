@@ -1,7 +1,7 @@
 ---
 title: "Străjerii Munților Association"
 lang: en
-summary: "A cynological association affiliated with the Royal Federal Canine Club, based in Ilfov County."
+summary: "A cynological association and a Collective Member of the Royal Federal Canine Club, based in Ilfov County."
 county: "Ilfov"
 city: "Corbeanca"
 address: "Str. Conacului no. 1A, Tămași village, Corbeanca commune, Ilfov County"
@@ -13,5 +13,5 @@ logo: "/images/afiliat-strajerii-muntilor.webp"
 draft: false
 ---
 
-Străjerii Munților is a cynological association affiliated with the Royal Federal Canine Club, with
+Străjerii Munților is a cynological association and a Collective Member of the Royal Federal Canine Club, with
 activity dedicated to livestock guardian dog breeds.

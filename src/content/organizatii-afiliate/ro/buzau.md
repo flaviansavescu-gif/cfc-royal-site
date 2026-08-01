@@ -1,7 +1,7 @@
 ---
 title: "Asociația Club Federal Chinologic – Buzău"
 lang: ro
-summary: "Asociație chinologică afiliată Clubului Federal Chinologic – Royal, cu sediul în județul Buzău."
+summary: "Asociație chinologică Membru Colectiv al Clubului Federal Chinologic – Royal, cu sediul în județul Buzău."
 county: "Buzău"
 city: "Buzău"
 address: "Bd. Republicii nr. 1A, Buzău, jud. Buzău"
@@ -16,7 +16,7 @@ logo: "/images/afiliat-buzau.webp"
 draft: false
 ---
 
-Asociația Club Federal Chinologic – Buzău este o asociație chinologică afiliată Club Federal
+Asociația Club Federal Chinologic – Buzău este o asociație chinologică Membru Colectiv al Clubului Federal
 Chinologic – Royal, cu activitate în județul Buzău.
 
 **Vicepreședinți:** Alexandra Andreea Duță (organizatoric) · Gabriela Costea (executiv)

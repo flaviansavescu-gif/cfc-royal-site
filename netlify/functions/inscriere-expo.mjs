@@ -12,6 +12,7 @@ import { getStore } from "@netlify/blobs";
 import { eRobot, limiteazaTrimiterile, minuteText } from "./_comun/formular-public.mjs";
 import { escapeHtml } from "./_comun/posta.mjs";
 import { calculeazaTaxa, taxaVeche } from "./_comun/taxa-expo.mjs";
+import { versiuneaNormelor } from "./_comun/norme-participare.mjs";
 // MODUL REPETIȚIE. Lanțul înscriere → verificare → import → catalog → ring → rezultate
 // n-a trecut niciodată printr-o expoziție adevărată. Repetiția generală îl trece, cu date
 // născocite care nu au ce căuta sub ochii publicului. O expoziție marcată ca repetiție
@@ -356,6 +357,10 @@ export default async (req) => {
   if (numeProp.length < 3) return json({ eroare: "Numele proprietarului este obligatoriu." }, 400);
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ eroare: "Email invalid." }, 400);
   if (String(body.gdpr || "") !== "1") return json({ eroare: "Trebuie să accepți prelucrarea datelor (GDPR)." }, 400);
+  // Bifa normelor de participare. Verificată AICI, nu doar prin atributul required din
+  // formular: „required" ține de browser, iar cererea poate veni și fără browser.
+  if (String(body.normeParticipare || "") !== "1")
+    return json({ eroare: "Trebuie să îți asumi normele de participare la expoziție." }, 400);
   // „Toți câinii participanți trebuie să fie identificați prin microchip, iar datele
   // acestuia trebuie să corespundă în mod exact cu documentele prezentate"
   // (Verificarea identității câinilor, 1.1). Era opțional aici, deși în manager e
@@ -455,6 +460,11 @@ export default async (req) => {
     adresa: String(body.adresa || "").trim().slice(0, 200) || null,
     tara: String(body.tara || "").trim().slice(0, 60) || null,
     creat: new Date().toISOString(),
+    // Ce anume și-a asumat omul, nu doar că a bifat. Versiunea e amprenta textului
+    // normelor din clipa înscrierii: dacă normele se schimbă mâine, fișa asta arată în
+    // continuare spre textul vechi, cel pe care l-a citit el. La fel pentru GDPR, care
+    // până acum se verifica și se uita.
+    asumari: { norme: versiuneaNormelor(), gdpr: true, la: new Date().toISOString() },
     importat: false,
   };
 

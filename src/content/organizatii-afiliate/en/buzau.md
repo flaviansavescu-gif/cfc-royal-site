@@ -1,7 +1,7 @@
 ---
 title: "Club Federal Cynological – Buzău Association"
 lang: en
-summary: "A cynological association affiliated with the Royal Federal Canine Club, based in Buzău County."
+summary: "A cynological association and a Collective Member of the Royal Federal Canine Club, based in Buzău County."
 county: "Buzău"
 city: "Buzău"
 address: "Bd. Republicii no. 1A, Buzău, Buzău County"

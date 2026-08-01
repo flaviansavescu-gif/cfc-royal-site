@@ -4,6 +4,10 @@
 interface Props { lang: "ro" | "en"; }
 const { lang } = Astro.props;
 
+// Normele NU se scriu aici: se citesc din sursa unică pe care o folosește și funcția de
+// înscriere când reține versiunea acceptată. Vezi netlify/functions/_comun/norme-participare.mjs.
+import { NORME_RO, NORME_EN } from "../../netlify/functions/_comun/norme-participare.mjs";
+
 const T = {
   ro: {
     titlu: "Înscriere la expoziție", intro: "Completează formularul pentru a înscrie un câine la o expoziție a Clubului Federal Chinologic – Royal.",
@@ -27,6 +31,12 @@ const T = {
     cum5t: "După trimitere",
     cum5: "primești un e-mail de confirmare. După verificarea înscrierii de către secretariat primești numărul de catalog. Înscrierile se închid înainte de expoziție, odată cu tipărirea catalogului.",
     succes: "Înscrierea a fost trimisă!", succesDetaliu: "a intrat în coada secretariatului. După verificare vei primi pe e-mail confirmarea validării, iar la închiderea catalogului — numărul de concurs și ecusonul de tipărit.", inca: "Trimite o nouă înscriere",
+    normeTitlu: "Norme de participare",
+    normeIntro: "Prin înscriere îmi asum următoarele, atât pentru mine, cât și pentru persoanele care însoțesc sau prezintă câinele în ring:",
+    norme: NORME_RO,
+    normeAccept: "Am citit și îmi asum normele de mai sus și Codul Etic al CFC-Royal.",
+    normeUrmari: "Nerespectarea lor poate duce la eliminarea din expoziție fără restituirea taxei și la anularea rezultatelor obținute.",
+    normeCodEtic: "Citește Codul Etic",
     gdprTitlu: "Protecția datelor (GDPR)",
     gdprText: "Datele tale și ale câinelui sunt folosite exclusiv pentru organizarea expoziției (catalog, arbitraj, rezultate, comunicări legate de eveniment). Nu le vindem și nu le transmitem terților în scop comercial. Le păstrăm cât e necesar pentru evidența expozițională. Poți cere accesul, corectarea sau ștergerea datelor scriind la contact@cfc-royal.ro.",
     gdprAccept: "Am citit și sunt de acord cu prelucrarea datelor mele personale în scopul organizării expoziției.",
@@ -80,6 +90,12 @@ const T = {
     cum5t: "After you submit",
     cum5: "you receive a confirmation email. Once the secretariat checks your entry you receive the catalogue number. Entries close before the show, when the catalogue is printed.",
     succes: "Your entry has been sent!", succesDetaliu: "is now in the secretariat queue. After it is checked you will receive the validation email, and when the catalogue closes — your competition number and printable armband.", inca: "Submit another entry",
+    normeTitlu: "Rules of participation",
+    normeIntro: "By entering, I undertake the following, both for myself and for the persons accompanying or handling the dog in the ring:",
+    norme: NORME_EN,
+    normeAccept: "I have read and undertake the rules above and the CFC-Royal Code of Ethics.",
+    normeUrmari: "Failure to observe them may lead to removal from the show without refund of the fee, and to the cancellation of results obtained.",
+    normeCodEtic: "Read the Code of Ethics",
     gdprTitlu: "Data protection (GDPR)",
     gdprText: "Your data and your dog's data are used solely for organising the show (catalogue, judging, results, event-related communications). We do not sell or share them with third parties for commercial purposes. We keep them as long as needed for show records. You may request access, correction or deletion by writing to contact@cfc-royal.ro.",
     gdprAccept: "I have read and agree to the processing of my personal data for the purpose of organising the show.",
@@ -255,7 +271,7 @@ const CLASE = [
         <p>{T.plataCum}</p>
         {/* NICIUN CONT SCRIS AICI, nici măcar ca valoare de pornire.
             Contul vine de la manager, odată cu expoziția aleasă: la o expoziție a unei
-            asociații afiliate, taxele intră în contul EI. Un cont scris în pagină „ca
+            Membrii Colectivi, taxele intră în contul LOR. Un cont scris în pagină „ca
             rezervă" ar fi arătat contul clubului pentru o expoziție a altcuiva — adică
             ar fi trimis banii în alt cont decât cel care trebuie. Mai bine niciun cont
             decât unul plauzibil și greșit. */}
@@ -272,6 +288,24 @@ const CLASE = [
       </label>
       <p class="ie__gdpr">{T.dovadaNota}</p>
       <p class="ie__gdpr"><a href={lang === "en" ? "/en/tarife/" : "/ro/tarife/"}>{T.vezeTarife} →</a></p>
+    </fieldset>
+
+    {/* Normele stau AICI, la vedere, nu după un link. Proiectul de Condiții de participare
+        cere bifa (Art. 3), dar nu e încă adoptat și nu e publicat — o bifă care trimite la
+        un document pe care nimeni nu-l poate citi nu obligă pe nimeni la nimic. Când
+        Consiliul îl adoptă și se publică, aici rămâne rezumatul și se adaugă trimiterea. */}
+    <fieldset class="ie__fs">
+      <legend>{T.normeTitlu}</legend>
+      <p class="ie__gdpr">{T.normeIntro}</p>
+      <ul class="ie__norme">
+        {T.norme.map((n) => <li>{n}</li>)}
+      </ul>
+      <p class="ie__gdpr">{T.normeUrmari}</p>
+      {/* În filă nouă: altfel omul pierde tot ce a completat ca să citească Codul Etic. */}
+      <p class="ie__gdpr">
+        <a href={lang === "en" ? "/en/documente/cod-etic/" : "/ro/documente/cod-etic/"} target="_blank" rel="noopener">{T.normeCodEtic} →</a>
+      </p>
+      <label class="ie__consim"><input type="checkbox" name="normeParticipare" value="1" required /> <span>{T.normeAccept} <b class="req">*</b></span></label>
     </fieldset>
 
     <fieldset class="ie__fs">
@@ -410,7 +444,7 @@ const CLASE = [
       plataFs.hidden = !areTaxe;
 
       // Contul în care se plătește taxa. Vine DOAR din expoziția aleasă: la o expoziție
-      // organizată de o asociație afiliată, banii intră în contul EI. Dacă expoziția n-are
+      // organizată de un Membru Colectiv, banii intră în contul LUI. Dacă expoziția n-are
       // cont trecut, nu arătăm niciunul — un cont plauzibil dar greșit e mai rău decât
       // niciun cont, fiindcă omul plătește liniștit în contul altcuiva și abia la
       // secretariat se descoperă.
@@ -582,6 +616,8 @@ const CLASE = [
   .ie__plata-info { background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
   .ie__plata-info p { margin: 0.15rem 0; font-size: 0.9rem; color: var(--color-text-muted); }
   .ie__iban { font-family: var(--font-mono, monospace); font-weight: 700; font-size: 1.05rem; color: var(--color-text) !important; letter-spacing: 0.03em; }
+  .ie__norme { margin: 0.4rem 0 0.8rem; padding-left: 1.15rem; font-size: 0.88rem; color: var(--color-text-muted); }
+  .ie__norme li { margin-bottom: 0.35rem; }
   .ie__consim { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.92rem; }
   .ie__consim input { margin-top: 0.2rem; }
   .ie__err { color: #8c1d2f; font-weight: 600; background: #f9efef; border: 1px solid #8c1d2f; border-radius: var(--radius); padding: 0.6rem 0.9rem; }
