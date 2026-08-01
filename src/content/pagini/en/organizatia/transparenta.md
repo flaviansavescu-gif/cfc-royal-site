@@ -26,7 +26,7 @@ Cynology (IIPC):
 
 At its meeting of **1 August 2026**, the Board of Directors adopted all the Association's
 published documents — the internal regulations, the nineteen WDF technical judging
-regulations and the legal pages — by decisions **139–172**. The record of adoption is
+regulations and the legal pages — by decisions **139–170**. The record of adoption is
 **Decision no. 173/01-08-2026**.
 
 Every published document shows, on its own page, the decision by which it was adopted. A
@@ -35,9 +35,5 @@ site is published.
 
 ## Public documents
 
-The Statute and the Internal Operating Regulations were adopted by decisions
-**171/01-08-2026** and **172/01-08-2026**. They are being uploaded to the
-[Documents](/en/documente/) section.
-
-The articles of association, the decisions of the Board and the financial statements
-follow the same route.
+The Statute, the articles of association, the decisions of the Board and the financial
+statements are published in the [Documents](/en/documente/) section as they are prepared.

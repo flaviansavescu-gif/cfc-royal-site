@@ -25,7 +25,7 @@ standardele World Dog Federation (WDF) și International Institute of Profession
 
 În ședința din **1 august 2026**, Consiliul Director a adoptat toate documentele publicate
 ale Asociației — regulamentele interne, cele nouăsprezece regulamente tehnice de arbitraj
-WDF și paginile juridice — prin hotărârile **139–172**. Situația adoptării e consemnată în
+WDF și paginile juridice — prin hotărârile **139–170**. Situația adoptării e consemnată în
 **Hotărârea nr. 173/01-08-2026**.
 
 Fiecare document publicat arată, pe fișa lui, hotărârea prin care a fost adoptat. Un
@@ -34,9 +34,5 @@ site-ului.
 
 ## Documente publice
 
-Statutul și Regulamentul intern de funcționare au fost adoptate prin hotărârile
-**171/01-08-2026** și **172/01-08-2026**. Se încarcă în secțiunea
-[Documente](/ro/documente/).
-
-Actul constitutiv, hotărârile Consiliului Director și situațiile financiare urmează
-aceeași cale.
+Statutul, actul constitutiv, hotărârile Consiliului Director și situațiile financiare se
+publică în secțiunea [Documente](/ro/documente/), pe măsură ce sunt pregătite.
