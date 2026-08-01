@@ -8,6 +8,14 @@ const { lang } = Astro.props;
 // înscriere când reține versiunea acceptată. Vezi netlify/functions/_comun/norme-participare.mjs.
 import { NORME_RO, NORME_EN } from "../../netlify/functions/_comun/norme-participare.mjs";
 
+// Afișul expoziției alese. Cheia se caută în numele expoziției venit din manager, ca
+// afișul să se schimbe singur când se deschide altă expoziție — altfel ar rămâne aici
+// afișul de la Iași și după ce Iașiul a trecut.
+const AFISE = [
+  { cheie: "iasi", src: "/images/afise/iasi-2026.webp", alt: "Afiș CACIB Iași — WDF Moldova Dog Show, Arena U.S.V., 5 septembrie 2026" },
+  { cheie: "buzau", src: "/images/afise/buzau-2026.webp", alt: "Afiș CACIB Buzău — WDF BOUZEOS Dog Show, Parcul Tineretului, 27 iunie 2026" },
+];
+
 const T = {
   ro: {
     titlu: "Înscriere la expoziție", intro: "Completează formularul pentru a înscrie un câine la o expoziție a Clubului Federal Chinologic – Royal.",
@@ -179,6 +187,12 @@ const CLASE = [
       <a href="/ro/inscriere-expozitie/">formularul obișnuit</a>.
     </p>
 
+    {/* Caseta afișului e scrisă de Astro, nu de JavaScript: numai așa primește stilurile
+        componentei, care sunt legate de un atribut pus doar pe ce desenează el. */}
+    <figure class="ie__afis" id="ie-afis" hidden>
+      <img id="ie-afis-img" src="" alt="" width="700" height="1060" loading="lazy" />
+    </figure>
+
     <label class="ie__f">
       <span>{T.expozitie} <b class="req">*</b></span>
       <select id="ie-show" name="showId" required></select>
@@ -320,7 +334,7 @@ const CLASE = [
   </form>
 </section>
 
-<script is:inline define:vars={{ txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit }}>
+<script is:inline define:vars={{ AFISE, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit }}>
   (async function () {
     const form = document.getElementById("ie-form");
     const loading = document.getElementById("ie-loading");
@@ -358,6 +372,17 @@ const CLASE = [
     }
     showSel.addEventListener("change", aratBanda);
     aratBanda();
+
+    const caseta = document.getElementById("ie-afis");
+    const poza = document.getElementById("ie-afis-img");
+    const faraSemne = (s) => String(s || "").toLowerCase().replace(/[ăâ]/g, "a").replace(/[șş]/g, "s").replace(/[țţ]/g, "t").replace(/î/g, "i");
+    function aratAfisul() {
+      const e = expozitii.find((x) => x.showId === showSel.value);
+      const a = e && AFISE.find((x) => faraSemne(e.nume).includes(x.cheie));
+      if (a) { poza.src = a.src; poza.alt = a.alt; caseta.hidden = false; } else { caseta.hidden = true; }
+    }
+    showSel.addEventListener("change", aratAfisul);
+    aratAfisul();
 
     function populeazaRase() {
       const e = expozitii.find((x) => x.showId === showSel.value);
@@ -618,6 +643,9 @@ const CLASE = [
   .ie__plata-info { background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
   .ie__plata-info p { margin: 0.15rem 0; font-size: 0.9rem; color: var(--color-text-muted); }
   .ie__iban { font-family: var(--font-mono, monospace); font-weight: 700; font-size: 1.05rem; color: var(--color-text) !important; letter-spacing: 0.03em; }
+  .ie__afis { margin: 0 0 1rem; max-width: 200px; }
+  .ie__afis img { width: 100%; height: auto; display: block; border: 1px solid var(--color-border, #d8d8d8); border-radius: 4px; }
+  @media (min-width: 700px) { .ie__afis { float: right; margin: 0 0 1rem 1.25rem; max-width: 170px; } }
   .ie__norme { margin: 0.4rem 0 0.8rem; padding-left: 1.15rem; font-size: 0.88rem; color: var(--color-text-muted); }
   .ie__norme li { margin-bottom: 0.35rem; }
   .ie__consim { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.92rem; }

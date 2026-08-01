@@ -108,7 +108,7 @@ _This is a translation for information. The Romanian text is the one adopted by 
 
 (3) The organiser is responsible for the proper running of the event; it is not liable for damage caused between participants, nor for property left unattended.
 
-(4) Dogs are kept on a lead throughout the show venue.
+(4) The dog is kept on a lead throughout the show venue, including in the ring, where a show lead is used. The lead is not removed from the dog for the duration of the show.
 
 ### Art. 12. Conduct
 

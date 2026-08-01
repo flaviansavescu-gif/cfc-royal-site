@@ -106,7 +106,7 @@ _Aliniate la regulamentele **World Dog Federation (WDF)**. Se acceptă printr-o 
 
 (3) Organizatorul răspunde pentru buna desfășurare a evenimentului; nu răspunde pentru pagubele produse între participanți, nici pentru bunurile lăsate nesupravegheate.
 
-(4) Câinii se țin în lesă în toată incinta expoziției.
+(4) Câinele se ține în lesă în toată incinta expoziției, inclusiv în ring, unde se folosește lesa de prezentare. Lesa nu se scoate de la câine pe durata expoziției.
 
 ### Art. 12. Conduita
 
