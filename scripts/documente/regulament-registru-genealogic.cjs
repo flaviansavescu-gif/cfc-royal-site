@@ -12,127 +12,17 @@
  *
  *   node scripts/documente/regulament-registru-genealogic.cjs "cale/catre/iesire.docx"
  */
-const fs = require("fs");
-const {
-  Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, ImageRun,
-  Table, TableRow, TableCell, WidthType, ShadingType, BorderStyle, Header, Footer, PageNumber,
-} = require("docx");
+const S = require("./_sablon.cjs");
+const { px, al, lit, gol, capitol, articol, H, caseta, tabel, semnaturi, VERDE, AURIU, ROSU, GRI } = S;
 
-const VERDE = "1F4D3A", AURIU = "9C7A2E", ROSU = "8C1D2F", GRI = "5A5F5C";
-const MARCA = "C:/FLAVIAN/Asociația Chinologică CARAȘ-SEVERIN/cfcr-expo-manager/public/marca";
-const sigla = fs.readFileSync(MARCA + "/cfcr.png");
-const siglaWdf = fs.readFileSync(MARCA + "/wdf.png");
-
-// —— cărămizi ——
-const R = (b) => (typeof b === "string" ? new TextRun({ text: b, size: 20 }) : new TextRun({ size: 20, ...b }));
-const px = (b, o = {}) => new Paragraph({
-  spacing: { after: o.after ?? 120, line: 290 }, indent: o.indent, alignment: o.align,
-  children: (Array.isArray(b) ? b : [b]).map(R),
-});
-const al = (n, b) => px([{ text: "(" + n + ") " }, ...(Array.isArray(b) ? b : [b])]);
-const lit = (l, b) => px([{ text: l + ") " }, ...(Array.isArray(b) ? b : [b])], { indent: { left: 340 }, after: 80 });
-
-const capitol = (t) => new Paragraph({
-  heading: HeadingLevel.HEADING_1, spacing: { before: 400, after: 190 }, keepNext: true,
-  border: { bottom: { style: BorderStyle.SINGLE, size: 10, color: AURIU, space: 6 } },
-  children: [new TextRun({ text: t, size: 26, bold: true, color: VERDE, font: "Georgia" })],
-});
-const articol = (nr, t) => new Paragraph({
-  heading: HeadingLevel.HEADING_2, spacing: { before: 280, after: 110 }, keepNext: true,
-  children: [
-    new TextRun({ text: "Art. " + nr + ". ", size: 22, bold: true, color: AURIU, font: "Georgia" }),
-    new TextRun({ text: t, size: 22, bold: true, color: VERDE, font: "Georgia" }),
-  ],
-});
-/** Loc de hotărât: roșu, în paranteze unghiulare, ca să nu poată fi publicat din greșeală. */
-const H = (x) => ({ text: "\u27E8" + x + "\u27E9", bold: true, color: ROSU });
-
-const caseta = (randuri, culoare, fond) => new Table({
-  columnWidths: [9360], width: { size: 9360, type: WidthType.DXA },
-  borders: {
-    top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE },
-    right: { style: BorderStyle.NONE }, insideHorizontal: { style: BorderStyle.NONE },
-    left: { style: BorderStyle.SINGLE, size: 18, color: culoare },
-  },
-  rows: [new TableRow({ children: [new TableCell({
-    width: { size: 9360, type: WidthType.DXA },
-    shading: { type: ShadingType.CLEAR, fill: fond },
-    margins: { top: 150, bottom: 150, left: 220, right: 220 },
-    children: randuri.map((r, i) => new Paragraph({
-      spacing: { after: i === randuri.length - 1 ? 0 : 90, line: 290 },
-      children: (Array.isArray(r) ? r : [r]).map(R),
-    })),
-  })] })],
-});
-
-const tabel = (capete, randuri, latimi) => new Table({
-  columnWidths: latimi, width: { size: latimi.reduce((a, b) => a + b, 0), type: WidthType.DXA },
-  borders: {
-    top: { style: BorderStyle.SINGLE, size: 4, color: "BFC7C2" },
-    bottom: { style: BorderStyle.SINGLE, size: 4, color: "BFC7C2" },
-    left: { style: BorderStyle.SINGLE, size: 4, color: "BFC7C2" },
-    right: { style: BorderStyle.SINGLE, size: 4, color: "BFC7C2" },
-    insideHorizontal: { style: BorderStyle.SINGLE, size: 2, color: "D5DBD7" },
-    insideVertical: { style: BorderStyle.SINGLE, size: 2, color: "D5DBD7" },
-  },
-  rows: [
-    new TableRow({ tableHeader: true, children: capete.map((c, i) => new TableCell({
-      width: { size: latimi[i], type: WidthType.DXA },
-      shading: { type: ShadingType.CLEAR, fill: VERDE },
-      margins: { top: 100, bottom: 100, left: 130, right: 130 },
-      children: [new Paragraph({ children: [new TextRun({ text: c, size: 18, bold: true, color: "FFFFFF" })] })],
-    })) }),
-    ...randuri.map((r) => new TableRow({ children: r.map((c, i) => new TableCell({
-      width: { size: latimi[i], type: WidthType.DXA },
-      margins: { top: 100, bottom: 100, left: 130, right: 130 },
-      children: [new Paragraph({ spacing: { line: 275 }, children: (Array.isArray(c) ? c : [c]).map((b) =>
-        typeof b === "string" ? new TextRun({ text: b, size: 18 }) : new TextRun({ size: 18, ...b })) })],
-    })) })),
-  ],
-});
-
-const antet = new Header({ children: [
-  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: [
-    new ImageRun({ type: "png", data: sigla, transformation: { width: 42, height: 42 } }),
-    new TextRun({ text: "    ", size: 20 }),
-    new ImageRun({ type: "png", data: siglaWdf, transformation: { width: 85, height: 35 } }),
-  ] }),
-  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 30 }, children: [new TextRun({
-    text: "ASOCIAȚIA CLUB FEDERAL CHINOLOGIC – ROYAL", size: 16, bold: true, color: VERDE, characterSpacing: 22 })] }),
-  new Paragraph({ alignment: AlignmentType.CENTER,
-    border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: AURIU, space: 6 } },
-    children: [new TextRun({ text: "Registrul Genealogic · proiect supus dezbaterii Consiliului Director", size: 14, color: GRI })] }),
-] });
-
-const subsol = new Footer({ children: [new Paragraph({
-  alignment: AlignmentType.CENTER,
-  border: { top: { style: BorderStyle.SINGLE, size: 4, color: "D5DBD7", space: 6 } },
-  children: [
-    new TextRun({ text: "PROIECT — Regulamentul Registrului Genealogic          ", size: 14, color: GRI }),
-    new TextRun({ children: ["pag. ", PageNumber.CURRENT, " din ", PageNumber.TOTAL_PAGES], size: 14, color: GRI }),
-  ],
-})] });
-
-const doc = new Document({
-  creator: "Asociația Club Federal Chinologic – Royal",
-  title: "PROIECT — Regulamentul Registrului Genealogic",
-  description: "Document de lucru pentru dezbaterea Consiliului Director",
-  styles: { default: { document: { run: { font: "Calibri", size: 20, color: "1A1A1A" } } } },
-  sections: [{
-    properties: { page: {
-      size: { width: 11906, height: 16838 },
-      margin: { top: 1900, bottom: 1250, left: 1270, right: 1270, header: 540, footer: 540 },
-    } },
-    headers: { default: antet }, footers: { default: subsol },
-    children: [
-      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 160, after: 60 },
-        children: [new TextRun({ text: "PROIECT", size: 22, bold: true, color: ROSU, characterSpacing: 40 })] }),
-      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 },
-        children: [new TextRun({ text: "REGULAMENTUL", size: 30, bold: true, color: VERDE, font: "Georgia" })] }),
-      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 },
-        children: [new TextRun({ text: "REGISTRULUI GENEALOGIC", size: 30, bold: true, color: VERDE, font: "Georgia" })] }),
-      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 280 },
-        children: [new TextRun({ text: "aliniat la standardele World Dog Federation", size: 17, color: GRI })] }),
+const doc = S.actDeSedinta({
+  titlu: "REGULAMENTUL",
+  titlu2: "REGISTRULUI GENEALOGIC",
+  subtitlu: "Registrul Genealogic · proiect supus dezbaterii Consiliului Director",
+  subsolText: "PROIECT — Regulamentul Registrului Genealogic",
+  cuprins: [
+    px("aliniat la standardele World Dog Federation", { align: S.AlignmentType.CENTER, size: 17 }),
+    gol(220),
 
       caseta([
         [{ text: "DOCUMENT DE LUCRU, pentru dezbaterea Consiliului Director.", bold: true }],
@@ -319,14 +209,8 @@ const doc = new Document({
       px([{ text: "Un lucru de lămurit înainte de adoptare: ", bold: true },
         "Art. 4 alin. (2) spune că declarația depusă peste 90 de zile se primește cu aprobarea Consiliului Director. Astăzi programul nu oprește o declarație întârziată. Dacă rămâne așa în regulament, trebuie adăugată oprirea; dacă nu, articolul trebuie scris altfel."],
         { after: 200 }),
-      px("Președinte: ...........................................          Secretar de ședință: ...........................................          Data: ......................"),
-    ],
-  }],
+      semnaturi(),
+  ],
 });
 
-function gol(a = 120) { return new Paragraph({ spacing: { after: a }, children: [] }); }
-
-Packer.toBuffer(doc).then((b) => {
-  fs.writeFileSync(process.argv[2], b);
-  console.log("scris:", process.argv[2], "(" + Math.round(b.length / 1024) + " KB)");
-});
+S.scrie(doc, process.argv[2]);
