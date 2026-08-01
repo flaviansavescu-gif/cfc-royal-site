@@ -39,6 +39,11 @@ const T = {
     cum5t: "După trimitere",
     cum5: "primești un e-mail de confirmare. După verificarea înscrierii de către secretariat primești numărul de catalog. Înscrierile se închid înainte de expoziție, odată cu tipărirea catalogului.",
     succes: "Înscrierea a fost trimisă!", succesDetaliu: "a intrat în coada secretariatului. După verificare vei primi pe e-mail confirmarea validării, iar la închiderea catalogului — numărul de concurs și ecusonul de tipărit.", inca: "Trimite o nouă înscriere",
+    inchisEticheta: "Înscrierile s-au închis",
+    inchisNota: "Nu se mai pot depune înscrieri pentru această expoziție. Catalogul s-a închis, iar taxele nu se mai restituie potrivit Art. 8 din Condițiile de participare.",
+    inchisOptiune: "ÎNSCRIERI ÎNCHISE",
+    inchisButon: "Înscrierile s-au închis",
+    inchisAlegeAlta: "Alege altă expoziție din listă, dacă sunt înscrieri deschise.",
     termenEticheta: "Înscrierile se închid",
     termenFus: "ora României",
     termenAzi: "astăzi",
@@ -105,6 +110,11 @@ const T = {
     cum5t: "After you submit",
     cum5: "you receive a confirmation email. Once the secretariat checks your entry you receive the catalogue number. Entries close before the show, when the catalogue is printed.",
     succes: "Your entry has been sent!", succesDetaliu: "is now in the secretariat queue. After it is checked you will receive the validation email, and when the catalogue closes — your competition number and printable armband.", inca: "Submit another entry",
+    inchisEticheta: "Entries have closed",
+    inchisNota: "No further entries can be submitted for this show. The catalogue is closed and fees are no longer refunded, in accordance with Art. 8 of the Conditions of participation.",
+    inchisOptiune: "ENTRIES CLOSED",
+    inchisButon: "Entries have closed",
+    inchisAlegeAlta: "Choose another show from the list, if entries are open.",
     termenEticheta: "Entries close",
     termenFus: "Romanian time",
     termenAzi: "today",
@@ -214,6 +224,11 @@ const CLASE = [
 
     {/* Termenul e chiar cel pus în manager și călătorește cu expoziția. Scris de Astro,
         nu de JavaScript, ca să primească stilurile componentei. */}
+    <p class="ie__inchis" id="ie-inchis" hidden>
+      <b>{T.inchisEticheta}:</b> <span id="ie-inchis-cand"></span>
+      <br /><small>{T.inchisNota} {T.inchisAlegeAlta}</small>
+    </p>
+
     <p class="ie__termen" id="ie-termen" hidden>
       <b>{T.termenEticheta}:</b> <span id="ie-termen-cand"></span>
       <br /><small>{T.termenNota}</small>
@@ -355,7 +370,7 @@ const CLASE = [
   </form>
 </section>
 
-<script is:inline define:vars={{ AFISE, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit }}>
+<script is:inline define:vars={{ AFISE, txtInchisOptiune: T.inchisOptiune, txtInchisButon: T.inchisButon, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit }}>
   (async function () {
     const form = document.getElementById("ie-form");
     const loading = document.getElementById("ie-loading");
@@ -382,8 +397,13 @@ const CLASE = [
     if (!expozitii.length) { gol.hidden = false; return; }
 
     showSel.innerHTML = expozitii
-      .map((e) => `<option value="${e.showId}">${(e.repetitie ? "[REPETIȚIE] " : "") + e.nume} — ${new Date(e.data).toLocaleDateString()}</option>`)
+      .map((e) => `<option value="${e.showId}">${(e.repetitie ? "[REPETIȚIE] " : "") + e.nume} — ${new Date(e.data).toLocaleDateString()}${e.inchis ? " · " + txtInchisOptiune : ""}</option>`)
       .join("");
+
+    // Prima expoziție deschisă, nu prima din listă: dacă cea mai apropiată e închisă,
+    // omul ar deschide formularul direct pe un formular blocat.
+    const primaDeschisa = expozitii.find((x) => !x.inchis);
+    if (primaDeschisa) showSel.value = primaDeschisa.showId;
 
     // Banda de avertizare, ca nimeni să nu completeze din greșeală un formular de probă.
     const bandaRepetitie = document.getElementById("ie-repetitie");
@@ -426,6 +446,33 @@ const CLASE = [
     }
     showSel.addEventListener("change", aratTermenul);
     aratTermenul();
+
+    // Expoziție închisă prin trecerea termenului: rămâne la vedere, dar formularul se
+    // încuie. Serverul refuză oricum trimiterea — asta e ca omul să nu completeze
+    // douăzeci de câmpuri degeaba, nu o pază.
+    const casetaInchis = document.getElementById("ie-inchis");
+    const candInchis = document.getElementById("ie-inchis-cand");
+    const butonul = document.getElementById("ie-submit");
+    const textButon = butonul.textContent;
+    function aplicaStarea() {
+      const e = expozitii.find((x) => x.showId === showSel.value);
+      const inchis = !!(e && e.inchis);
+      for (const c of form.elements) {
+        if (c === showSel || c.type === "submit") continue;
+        c.disabled = inchis;
+      }
+      butonul.disabled = inchis;
+      butonul.textContent = inchis ? txtInchisButon : textButon;
+      if (inchis && e.termen) {
+        const d = new Date(e.termen);
+        candInchis.textContent = d.toLocaleString(txtLimba, { timeZone: "Europe/Bucharest", weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) + " (" + txtTermenFus + ")";
+      }
+      casetaInchis.hidden = !inchis;
+      // Ori una, ori alta: „se închid la…" n-are ce căuta lângă „s-au închis la…".
+      if (inchis) randTermen.hidden = true; else aratTermenul();
+    }
+    showSel.addEventListener("change", aplicaStarea);
+    aplicaStarea();
 
     function populeazaRase() {
       const e = expozitii.find((x) => x.showId === showSel.value);
@@ -686,6 +733,9 @@ const CLASE = [
   .ie__plata-info { background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
   .ie__plata-info p { margin: 0.15rem 0; font-size: 0.9rem; color: var(--color-text-muted); }
   .ie__iban { font-family: var(--font-mono, monospace); font-weight: 700; font-size: 1.05rem; color: var(--color-text) !important; letter-spacing: 0.03em; }
+  .ie__inchis { margin: -0.4rem 0 1.1rem; padding: 0.6rem 0.8rem; font-size: 0.92rem;
+    border-left: 3px solid #a33; background: #fbf0f0; border-radius: 0 4px 4px 0; }
+  .ie__inchis small { color: var(--color-text-muted); }
   .ie__termen { margin: -0.4rem 0 1.1rem; padding: 0.6rem 0.8rem; font-size: 0.92rem;
     border-left: 3px solid var(--color-accent, #b8912f); background: var(--color-surface-alt, #f6f5f1); border-radius: 0 4px 4px 0; }
   .ie__termen small { color: var(--color-text-muted); }

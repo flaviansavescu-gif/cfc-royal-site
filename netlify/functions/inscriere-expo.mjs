@@ -91,6 +91,35 @@ export function inchisPentruInscrieri(config) {
   return Date.now() > limita.getTime();
 }
 
+/**
+ * S-a închis PRIN TRECEREA TERMENULUI — nu prin retragerea din manager.
+ *
+ * Deosebirea contează pentru ce vede omul. O expoziție retrasă din manager n-are ce
+ * căuta pe site: nu s-a anunțat niciodată. Una căreia i-a trecut termenul s-a anunțat,
+ * lumea a văzut-o, poate a și pus-o în calendar — dacă dispare peste noapte, vizitatorul
+ * crede că a greșit adresa. Rămâne la vedere, scrisă ca închisă.
+ */
+export function inchisPrinTermen(config) {
+  if (!config || !config.deschis) return false;   // retrasă din manager: alt caz, nu se arată deloc
+  const limita = new Date(config.termen);
+  if (isNaN(limita.getTime())) return false;      // termen ilizibil: nu o declarăm închisă
+  return Date.now() > limita.getTime();
+}
+
+/**
+ * Cât timp mai stă la vedere o expoziție închisă: până a doua zi după ea.
+ *
+ * Nu la nesfârșit — un formular cu zece expoziții trecute nu ajută pe nimeni. Nici doar
+ * până în ziua expoziției: cine caută în dimineața aceea locul și ora trebuie să le
+ * găsească acolo unde s-a uitat de fiecare dată.
+ */
+export function seMaiArataInchisa(config, acum = Date.now()) {
+  if (!config || !config.data) return false;
+  const zi = new Date(config.data);
+  if (isNaN(zi.getTime())) return false;
+  return acum <= zi.getTime() + 24 * 3600 * 1000;
+}
+
 /** Cererea vrea să vadă și repetițiile? `?repetitie=1`. */
 function vedeRepetitiile(req) {
   try { return new URL(req.url).searchParams.get("repetitie") === "1"; }
@@ -148,9 +177,12 @@ export default async (req) => {
       for (const b of blobs) {
         const c = await store.get(b.key, { type: "json" });
         if (c && !seVedeInFormular(c, cuRepetitii)) continue;
-        if (c && !inchisPentruInscrieri(c)) {
+        // Închisă prin termen: rămâne în listă, însemnată, până a doua zi după expoziție.
+        const inchisa = inchisPrinTermen(c);
+        if (c && (!inchisPentruInscrieri(c) || (inchisa && seMaiArataInchisa(c)))) {
           expozitii.push({
             showId: c.showId, nume: c.nume, data: c.data, termen: c.termen, locatie: c.locatie,
+            inchis: inchisa || undefined,
             repetitie: eRepetitie(c) || undefined,
             rase: c.rase || [],
             // Asociația care organizează și încasează taxele. CFC-Royal e club federal:
