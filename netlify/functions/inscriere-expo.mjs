@@ -12,6 +12,7 @@ import { getStore } from "@netlify/blobs";
 import { eRobot, limiteazaTrimiterile, minuteText } from "./_comun/formular-public.mjs";
 import { escapeHtml } from "./_comun/posta.mjs";
 import { calculeazaTaxa, taxaVeche } from "./_comun/taxa-expo.mjs";
+import { egal } from "./_comun/citire-documente.mjs";
 import { versiuneaNormelor } from "./_comun/norme-participare.mjs";
 // MODUL REPETIȚIE. Lanțul înscriere → verificare → import → catalog → ring → rezultate
 // n-a trecut niciodată printr-o expoziție adevărată. Repetiția generală îl trece, cu date
@@ -215,7 +216,9 @@ export default async (req) => {
 
   // ——— Manager (protejat cu secret) ———
   if (body.secret) {
-    if (!SECRET || body.secret !== SECRET) return json({ eroare: "Secret invalid." }, 401);
+    // În timp constant, ca la jetoane: comparația obișnuită se oprește la primul octet
+    // diferit, iar diferența de timp spune cât din secret a fost ghicit.
+    if (!SECRET || !egal(String(body.secret), SECRET)) return json({ eroare: "Secret invalid." }, 401);
 
     if (body.actiune === "config") {
       const c = body.config || {};
@@ -264,6 +267,10 @@ export default async (req) => {
     }
     if (body.actiune === "marcheaza") {
       for (const key of body.chei || []) {
+        // Marcarea are treabă NUMAI cu înscrierile din coadă. Fără îngrădire, cheile din
+        // cerere ar fi o unealtă de scris peste orice din magazie — configurații, stări —
+        // pentru oricine ar pune vreodată mâna pe secret. Un drept cât treaba, nu mai mult.
+        if (typeof key !== "string" || !key.startsWith("coada/")) continue;
         try {
           const i = await store.get(key, { type: "json" });
           if (i) {

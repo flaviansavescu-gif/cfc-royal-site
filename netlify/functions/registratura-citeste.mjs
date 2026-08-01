@@ -130,7 +130,13 @@ export default cuLimitareCod(async (req) => {
   });
 
   // Funcția de fundal răspunde 202 pe loc, deci așteptarea de aici e scurtă.
-  const adresa = new URL(req.url).origin + "/.netlify/functions/registratura-citeste-background";
+  //
+  // Adresa vine din mediul site-ului, nu din cerere: originea din `req.url` e antetul
+  // Host, adică un rând scris de cel care trimite. Cine l-ar strâmba ar face ca jetonul
+  // să plece spre serverul lui. URL e pus de Netlify la fiecare publicare; cererea rămâne
+  // doar ca ultimă scăpare, pentru rulatul local, unde URL lipsește.
+  const origine = process.env.URL || new URL(req.url).origin;
+  const adresa = origine + "/.netlify/functions/registratura-citeste-background";
   try {
     const r = await fetch(adresa, {
       method: "POST",

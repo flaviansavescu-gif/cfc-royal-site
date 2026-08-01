@@ -546,12 +546,17 @@ export default cuLimitareCod(async (req) => {
     // —— Lipirea ——
     const bucati = [];
     let suma = 0;
+    // Tipul fișierului e cel scris odată cu bucățile, nu cel din cererea de lipire:
+    // altfel ultima cerere ar putea răsboteza fișierul deja urcat. Amândouă trec prin
+    // aceeași listă albă, dar adevărul unei piese se ia de la piesă.
+    let tipScris = "";
     for (let i = 0; i < total; i++) {
-      const b = await s.get(cheieParte(i), { type: "arrayBuffer" }).catch(() => null);
+      const b = await s.getWithMetadata(cheieParte(i), { type: "arrayBuffer" }).catch(() => null);
       // O bucată lipsă înseamnă că trimiterea nu s-a terminat. Nu lipim ce avem: un act
       // de origine ciuntit e mai rău decât unul lipsă, fiindcă arată ca un act întreg.
-      if (!b) return json({ eroare: `Lipsește bucata ${i + 1} din ${total}. Încarcă fișierul din nou.` }, 409);
-      const u = Buffer.from(b);
+      if (!b || !b.data) return json({ eroare: `Lipsește bucata ${i + 1} din ${total}. Încarcă fișierul din nou.` }, 409);
+      if (i === 0) tipScris = String(b.metadata?.tip || "");
+      const u = Buffer.from(b.data);
       suma += u.length;
       if (suma > MAX_FISIER) {
         return json({ eroare: `Fișierul depășește ${Math.round(MAX_FISIER / 1024 / 1024)} MB.` }, 400);
@@ -561,7 +566,7 @@ export default cuLimitareCod(async (req) => {
 
     const intreg = Buffer.concat(bucati);
     await s.set("dmf-fisier/" + ciornaId + "/" + fel, intreg, {
-      metadata: { nume: taie(body.nume, 160), tip, marime: intreg.length },
+      metadata: { nume: taie(body.nume, 160), tip: TIPURI_OK.includes(tipScris) ? tipScris : tip, marime: intreg.length },
     });
     for (let i = 0; i < total; i++) await s.delete(cheieParte(i)).catch(() => {});
     return json({ ok: true, fel, marime: intreg.length, parti: total });
