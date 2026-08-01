@@ -41,9 +41,13 @@ a ta, întreagă, indiferent de unde a venit valoarea.
 
 ### 1. Apeși butonul
 
-Durează cam un minut — sunt două documente. Nu apăsa de mai multe ori: fiecare apăsare
-citește din nou și costă. Există un plafon zilnic tocmai ca o apăsare în buclă să nu coste
-cât o lună de lucru.
+Durează în jur de **o jumătate de minut** — sunt două documente. Pe ecran curge numărătoarea
+secundelor, ca să știi că se lucrează. Nu apăsa de mai multe ori: fiecare apăsare citește din
+nou și costă. Există un plafon zilnic tocmai ca o apăsare în buclă să nu coste cât o lună de
+lucru; cât s-a cheltuit azi scrie sub rezultat.
+
+Dacă altcineva a pornit deja o citire pe același dosar, ți se spune — și o aștepți pe aceea,
+în loc să plătești de două ori pentru același răspuns.
 
 ### 2. Citești panoul de rezultat
 
@@ -73,8 +77,9 @@ cumva chiar altă rasă.
 
 Ai două căi:
 
-**În bloc** — butonul „Pune cele N propuneri sigure în pozițiile goale". Pune doar ce s-a
-citit sigur și doar acolo unde câmpul e gol. **Nu suprascrie niciodată ce ai scris tu.**
+**În bloc** — butonul „Pune propunerile sigure în pozițiile rămase goale". Pune doar ce s-a
+citit sigur și doar acolo unde câmpul e gol **în clipa apăsării**. Dacă ai completat între
+timp o poziție, ea nu se atinge: **nu suprascrie niciodată ce ai scris tu.**
 
 **Una câte una** — butonul „pune" de sub fiecare poziție. Acesta înlocuiește ce e în câmp,
 fiindcă e o hotărâre a ta.
@@ -168,6 +173,14 @@ transcris.
 
 Unealta citește bine, dar citește o fotografie a unei hârtii. Un act scris de mână, o poză
 strâmbă, o scanare palidă — toate o pot păcăli, și de aceea îți spune când nu e sigură.
+
+**Nu dă de fiecare dată exact același răspuns.** Aceleași două documente, citite de două ori,
+au marcat o dată două poziții ca nesigure și altă dată șapte. Valorile citite au fost aceleași;
+a diferit cât de mult a stat la îndoială. Nu e o defecțiune — e firea lucrului.
+
+Și încă ceva: un document urcat anume, cu text ascuns în el, ar putea încerca să împingă
+citirea spre valori false. Nu poate ieși din tiparul cerut, dar e încă un motiv pentru care
+propunerea se verifică pe act, nu se crede pe cuvânt.
 
 **Certificatul îl semnezi tu.** Unealta îți scurtează munca de copiat și îți arată unde să
 te uiți. Uitatul rămâne al tău.

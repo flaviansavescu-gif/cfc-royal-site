@@ -108,6 +108,17 @@ We neither sell nor rent data to anyone. It is seen only by:
 | Zoho Mail | the association's mailbox | European Union |
 | Vercel, Neon | the "Judging exercises" application | European Union |
 | Cloudflare | the secure link to the show manager, on show day | USA (standard contractual clauses) |
+| Anthropic | reading the parents' pedigree certificates when a litter is registered | USA (standard contractual clauses) |
+
+The last one in full, because it is the newest and the easiest to misread: when registering
+a litter, the registry office may request an automated reading of **the two parents'
+pedigree certificates**, so that thirty ancestry positions need not be copied by hand. Only
+those two documents leave — not the proof of payment, not the buyers' details, not the rest
+of the file. Besides data about the dogs, such certificates carry the owners' names as
+printed on the document. The reading is started by a person, on a specific file; it never
+runs on its own. The provider does not use these documents to train its models. The result
+is a **proposal** shown to the registrar — nothing enters the register without their
+decision.
 
 Data may also reach the authorities upon a legally founded request and — for the titles
 awarded — the **World Dog Federation**, strictly as far as necessary for their

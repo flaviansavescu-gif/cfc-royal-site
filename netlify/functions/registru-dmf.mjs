@@ -39,6 +39,7 @@ import {
   jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, actorExtern, ipCerere,
 } from "./_comun/registru-jurnal.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
+import { cheileCitirii } from "./_comun/citire-documente.mjs";
 
 // CITIRE TARE, ca la poarta de acces.
 //
@@ -808,6 +809,10 @@ export default cuLimitareCod(async (req) => {
       await s.delete("dmf-fisier/" + id + "/" + fel).catch(() => {});
     }
     await s.delete("dmf-membru/" + d.membruId + "/" + id).catch(() => {});
+    // Urma citirii automate, starea ei și jetonul de fundal. Rămase în urmă, ar fi trăit
+    // veșnic — și, fiindcă arhiva ia TOT ce e în magazie, ar fi călătorit în fiecare
+    // copie de siguranță, la nesfârșit, pentru un dosar care nu mai există.
+    for (const cheie of cheileCitirii(id)) await s.delete(cheie).catch(() => {});
     await s.delete("dmf/" + id).catch(() => {});
 
     let numarEliberat = false;

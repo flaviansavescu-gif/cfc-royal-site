@@ -107,6 +107,17 @@ Nu vindem și nu închiriem date nimănui. Le văd doar:
 | Zoho Mail | căsuța de e-mail a asociației | Uniunea Europeană |
 | Vercel, Neon | aplicația „Exerciții de arbitraj" | Uniunea Europeană |
 | Cloudflare | legătura sigură către managerul de expoziții, în ziua expoziției | SUA (clauze contractuale standard) |
+| Anthropic | citirea certificatelor de origine ale părinților, la înregistrarea unui cuib | SUA (clauze contractuale standard) |
+
+Despre ultimul, pe larg, fiindcă e cel mai nou și cel mai ușor de înțeles greșit: la
+înregistrarea unui cuib, registratura poate cere citirea automată a **celor două
+certificate de origine ale părinților**, ca să nu transcrie cu mâna treizeci de poziții de
+ascendență. Pleacă doar acele două documente — nu dovada plății, nu datele cumpărătorilor,
+nu restul dosarului. Certificatele conțin, pe lângă date despre câini, numele
+proprietarilor, așa cum sunt tipărite pe act. Citirea se pornește de om, pe un dosar anume;
+nu rulează singură. Furnizorul nu folosește aceste documente pentru antrenarea modelelor
+sale. Rezultatul e o **propunere** afișată registratorului — nimic nu intră în registru
+fără hotărârea lui.
 
 Datele mai pot ajunge la autorități, la cererea lor întemeiată legal, și — pentru titlurile
 acordate — la **World Dog Federation**, strict cât e necesar recunoașterii internaționale

@@ -55,6 +55,11 @@ export const FAPTE = {
   // Fapta se consemnează separat de emitere: cine se uită peste un act trebuie să vadă
   // că textul lui a fost atins după eliberare, când, și de la ce la ce.
   "corectie-ascendenta": "Ascendență îndreptată (act din arhiva de hârtie)",
+  // Citirea automată a pedigree-urilor părinților. Se consemnează fiindcă atinge un
+  // dosar, costă bani și trimite două documente în afara casei. Urma amănunțită
+  // (`citire/urma/<id>`) se rescrie la fiecare citire; jurnalul e cel care păstrează
+  // câte au fost și de către cine.
+  "citire-documente": "Pedigree-urile părinților citite automat",
   // Acces
   "cod-generat": "Cod de acces generat",
   "cod-trimis": "Cod de acces trimis pe e-mail",

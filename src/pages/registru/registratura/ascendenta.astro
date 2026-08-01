@@ -362,12 +362,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       b.disabled = true;
       stare.textContent = "se citește… (durează un minut, sunt două documente)";
       try {
-        const r = await fetch("/.netlify/functions/registratura-citeste", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cod: cod(), dispozitiv: dispozitiv(), id }),
-        });
-        const d = await r.json().catch(() => ({}));
-        if (!r.ok) throw new Error(d.eroare || "Citirea nu a mers.");
+        const d = await citesteCuAsteptare(stare);
         propuneri = d.propuneri || {};
         stare.textContent = d.mesaj || "";
         deseneazaCitire(d, zona);
@@ -378,6 +373,47 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       }
       b.disabled = false;
     });
+
+    /**
+     * Pornește citirea și o așteaptă.
+     *
+     * De ce nu se cere răspunsul dintr-o singură cerere: citirea a două documente durează
+     * în jur de 36 de secunde (măsurat), iar funcțiile obișnuite ale Netlify se opresc la
+     * zece. Lucrul se face într-o funcție de fundal, care are 15 minute, iar pagina
+     * întreabă din când în când dacă s-a terminat.
+     */
+    async function citesteCuAsteptare(stare) {
+      const cere = (actiune) => fetch("/.netlify/functions/registratura-citeste", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod: cod(), dispozitiv: dispozitiv(), id, actiune }),
+      });
+
+      const rp = await cere("porneste");
+      const dp = await rp.json().catch(() => ({}));
+      if (!rp.ok) throw new Error(dp.eroare || "Citirea nu a pornit.");
+
+      const inceput = Date.now();
+      const RABDARE = 4 * 60e3;     // peste atât, ceva e rupt, nu doar încet
+      for (let i = 0; ; i++) {
+        // Prima întrebare după 5 secunde, apoi din 3 în 3: n-are rost să batem la ușă
+        // în prima secundă, când sigur nu e gata.
+        await new Promise((r) => setTimeout(r, i === 0 ? 5000 : 3000));
+        const secunde = Math.round((Date.now() - inceput) / 1000);
+        stare.textContent = "se citește… (" + secunde + " s)";
+
+        const rs = await cere("stare");
+        const ds = await rs.json().catch(() => ({}));
+        if (!rs.ok) throw new Error(ds.eroare || "Nu pot afla starea citirii.");
+        if (ds.stare === "gata") return ds;
+        if (ds.stare === "cazut") throw new Error(ds.eroare || "Citirea a căzut.");
+        if (ds.stare === "abandonat") throw new Error(ds.mesaj || "Citirea nu s-a mai terminat.");
+
+        if (Date.now() - inceput > RABDARE) {
+          throw new Error("Citirea nu s-a terminat în patru minute. Încearcă din nou; " +
+            "dacă se repetă, anunță administratorul.");
+        }
+      }
+    }
 
     function deseneazaCitire(d, zona) {
       zona.textContent = "";
@@ -418,23 +454,32 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       // Punerea în bloc: DOAR propunerile sigure și DOAR în câmpurile goale. Nu
       // suprascrie niciodată ce a scris omul — o valoare tastată e o hotărâre, iar
       // hotărârile nu se schimbă dintr-un buton care zice „pune tot".
-      const goaleSigure = pozitii.filter((p) => {
+      // CARE POZIȚII SUNT GOALE SE AFLĂ LA APĂSARE, nu la desenare.
+      //
+      // Prima versiune calcula lista o dată, când se desena panoul, și o folosea la
+      // apăsare. Între cele două momente registratorul poate completa el o poziție —
+      // iar butonul i-o suprascria. Adică fix ce scrie în îndrumar că nu se întâmplă
+      // niciodată: „Nu suprascrie niciodată ce ai scris tu."
+      const goale = () => pozitii.filter((p) => {
         const pr = propuneri[p.cod], a = ascendenta[p.cod] || {};
         return pr && pr.sigur && !(a.nume || "").trim();
       });
       const act = el("p", "p-actiuni");
-      if (goaleSigure.length) {
+      if (goale().length) {
         const bt = el("button", "btn btn--primary btn--small",
-          "Pune cele " + goaleSigure.length + " propuneri sigure în pozițiile goale");
+          "Pune propunerile sigure în pozițiile rămase goale (" + goale().length + ")");
         bt.type = "button";
         bt.addEventListener("click", () => {
-          for (const p of goaleSigure) {
+          const acum = goale();          // recalculat aici, pe starea de ACUM
+          for (const p of acum) {
             const pr = propuneri[p.cod];
             ascendenta[p.cod] = { nume: pr.nume || "", nr: pr.nr || "", titluri: pr.titluri || "" };
           }
           deseneazaGeneratii();
           recalculeaza();
-          stareSalvare(goaleSigure.length + " poziții puse în câmpuri — încă NESALVATE");
+          stareSalvare(acum.length
+            ? acum.length + " poziții puse în câmpuri — încă NESALVATE"
+            : "nicio poziție goală rămasă — nu s-a schimbat nimic");
           bt.disabled = true;
         });
         act.appendChild(bt);
@@ -444,9 +489,12 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       zona.appendChild(act);
 
       const jos = el("p", "p-cit__subsol",
-        "Citit cu " + (d.cunoscute || 0) + " poziții propuse din " + (d.din || 30) +
+        (d.cunoscute || 0) + " poziții propuse din " + (d.din || 30) +
         (d.cost ? " · " + d.cost.explicatie : "") +
-        " · nimic nu s-a scris în registru.");
+        " · nimic nu s-a scris în registru." +
+        // Cheltuiala zilei, la vedere. Un plafon despre care afli abia când te izbești de
+        // el nu e o frână, e o surpriză.
+        (d.azi ? `  ▸ azi: ${d.azi.dosare} dosare, ${(d.azi.usd * 100).toFixed(0)} cenți din ${d.azi.plafon} $ (${d.azi.procent}%)` : ""));
       zona.appendChild(jos);
     }
 
