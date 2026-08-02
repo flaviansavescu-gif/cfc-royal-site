@@ -655,6 +655,14 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       post({ actiune: "dosare", filtru, cauta })
         .then((res) => res.json())
         .then((d) => {
+          // Dreptul vine cu lista, citit acum din fișă pe server: ce a memorat browserul
+          // la intrare poate fi vechi de ore — de pildă dacă dreptul s-a dat între timp.
+          if (typeof d.poateDaAcces === "boolean" && d.poateDaAcces !== potDaCoduri) {
+            potDaCoduri = d.poateDaAcces;
+            document.getElementById("r-adauga").hidden = !potDaCoduri;
+            document.getElementById("r-fara-drept").hidden = potDaCoduri;
+            arataExtrase();
+          }
           document.getElementById("g-nr-lucru").textContent = "(" + (d.inLucru || 0) + ")";
           document.getElementById("g-nr-arhiva").textContent = "(" + (d.arhivate || 0) + ")";
           lista.textContent = "";

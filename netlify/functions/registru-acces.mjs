@@ -393,7 +393,12 @@ export default cuLimitareCod(async (req) => {
       const c = await ceruIntrarea("registratura", r.nume, emailLui);
       if (c.ocolit) {
         await marcheazaIntrarea("registrator/" + r.id, r);
-        return json({ rol: "registratura", id: r.id, nume: r.nume, dest: "/registru/registratura/", alDoileaFactorLipsa: true });
+        // Și pe calea ocolită dreptul pleacă odată cu intrarea: era singura cale care
+        // îl uita, iar registratorul desemnat rămânea, în pagină, fără el.
+        return json({
+          rol: "registratura", id: r.id, nume: r.nume, dest: "/registru/registratura/",
+          poateDaAcces: r.poateDaAcces === true, alDoileaFactorLipsa: true,
+        });
       }
       if (c.eroare) return json({ eroare: c.eroare }, 503);
       return json({ pas: "cod-email", intrareId: c.intrareId, catre: mascheaza(c.catre), rol: "registratura" });

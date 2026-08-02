@@ -762,7 +762,13 @@ export default cuLimitareCod(async (req) => {
       }
     } catch (err) { console.error("Listare dosare eșuată:", err); }
     lista.sort((a, b) => String(b.creat).localeCompare(String(a.creat)));
-    return json({ dosare: lista, inLucru, arhivate });
+    // Dreptul curent pleacă odată cu lista, citit ACUM din fișă — nu din ce a memorat
+    // browserul la intrare. Fără el, registratorul căruia i s-a dat dreptul după
+    // autentificare nu vedea secțiunea extraselor până la o nouă intrare.
+    return json({
+      dosare: lista, inLucru, arhivate,
+      poateDaAcces: eu.rol === "admin" || eu.registrator?.poateDaAcces === true,
+    });
   }
 
   // Închiderea unui dosar fără emitere: cererea se respinge motivat și trece în arhivă.
