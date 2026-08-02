@@ -314,8 +314,13 @@ export const MODULE: Modul[] = [
     nr: 9,
     titlu: "Introducere în chinologie",
     obiectiv:
-      "Importanța studiului chinologiei, situația chinologiei pe plan mondial și dezvoltarea ei în România; distincția dintre chinologie și chinofilie. (Cap. I din programă)",
-    lecturi: [],
+      "Importanța studiului chinologiei, situația chinologiei pe plan mondial și dezvoltarea ei în România; distincția dintre chinologie și chinofilie. (Cap. I din programă — lector: Alexandru Paul Ciolac)",
+    // Primul modul din programa oficială completat cu suportul de curs al lectorului.
+    lecturi: [
+      { titlu: "Suport de curs — Preambul (lector Alexandru Paul Ciolac)", url: "/cursuri-materiale/alexandru-paul-ciolac/suport-curs-01-preambul.pdf" },
+      { titlu: "Suport de curs 1.1 — Importanța studiului", url: "/cursuri-materiale/alexandru-paul-ciolac/suport-curs-1-1-importanta-studiului.pdf" },
+      { titlu: "Suport de curs 1.2 — Chinologia în plan mondial", url: "/cursuri-materiale/alexandru-paul-ciolac/suport-curs-1-2-chinologia-in-plan-mondial.pdf" },
+    ],
   },
   {
     slug: "modul-10",
