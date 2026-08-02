@@ -29,6 +29,41 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     <a class="btn btn--primary" href="/crescatori/dmf/" id="c-depune">Depune o declarație →</a>
   </div>
 
+  <h2 class="c-h2">Canisa mea</h2>
+  {/* Toate stările stau în șablon, scrise de Astro (stilurile sunt legate de atributul
+      pus doar pe ce desenează el); JavaScript-ul doar arată și ascunde. */}
+  <div id="k-incarc" class="c-gol">Se încarcă…</div>
+
+  <div id="k-canisa" class="c-canisa" hidden>
+    <p>Afixul canisei tale: <strong id="k-afix"></strong><span id="k-nr"></span></p>
+    <p class="c-mic">Afixul se completează singur pe declarațiile de montă și fătare și se
+    trece pe certificatele exemplarelor canisei.</p>
+  </div>
+
+  <div id="k-cerere" class="c-cerere" hidden>
+    <p class="c-mic">Cererea ta din <span id="k-cand"></span>, cu variantele
+    <strong id="k-variante"></strong>, este <strong>în verificare la registratură</strong>.
+    Hotărârea vine pe e-mail.</p>
+  </div>
+
+  <div id="k-respinsa" class="c-respinsa" hidden>
+    <p class="c-mic">Ultima cerere a fost <strong>respinsă</strong>: <span id="k-motiv"></span>.
+    Poți depune una nouă, cu alte variante.</p>
+  </div>
+
+  <form id="k-form" class="c-kform" hidden>
+    <p class="c-mic">Nu ai încă o canisă înregistrată. Propune <strong>până la trei variante de
+    afix, în ordinea preferinței</strong> — registratura verifică unicitatea și îți răspunde pe
+    e-mail. Doar prima variantă e obligatorie.</p>
+    <div class="c-kgrid">
+      <label>Varianta 1 <b class="c-req">*</b><input name="afix1" required maxlength="40" /></label>
+      <label>Varianta 2 <span class="c-opt">(opțional)</span><input name="afix2" maxlength="40" /></label>
+      <label>Varianta 3 <span class="c-opt">(opțional)</span><input name="afix3" maxlength="40" /></label>
+    </div>
+    <button class="btn btn--primary" type="submit" id="k-trimite">Cere înregistrarea canisei</button>
+    <p class="c-kmesaj" id="k-mesaj" hidden></p>
+  </form>
+
   <h2 class="c-h2">Declarațiile mele</h2>
   <ul class="c-declaratii" id="c-declaratii"><li class="c-gol">Se încarcă…</li></ul>
 
@@ -74,6 +109,67 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
         b.addEventListener("click", (e) => e.preventDefault());
       }
     }
+
+    // —— Canisa mea: starea vine de la server, nu din ce ține minte browserul ——
+    // `r.afix` din localStorage poate fi vechi de la intrarea trecută; între timp
+    // registratura poate să fi aprobat cererea. Sursa de adevăr e serverul.
+    (function () {
+      const arata = (id) => { for (const x of ["k-incarc", "k-canisa", "k-cerere", "k-respinsa", "k-form"]) document.getElementById(x).hidden = x !== id; };
+      const postK = (b) => fetch("/.netlify/functions/registru-canise", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ cod: localStorage.getItem("cfcrRegistruCod") || "" }, b)),
+      });
+      const dataRo = (s) => { const x = new Date(s); return isNaN(x) ? String(s || "") : x.toLocaleDateString("ro-RO"); };
+
+      function afiseaza(d) {
+        if (d.canisa) {
+          document.getElementById("k-afix").textContent = d.canisa.afix;
+          document.getElementById("k-nr").textContent = d.canisa.nrAfix ? " · nr. " + d.canisa.nrAfix : "";
+          arata("k-canisa");
+          return;
+        }
+        if (d.cerere && d.cerere.stare === "in-asteptare") {
+          document.getElementById("k-cand").textContent = dataRo(d.cerere.creat);
+          document.getElementById("k-variante").textContent = (d.cerere.variante || []).join(" · ");
+          arata("k-cerere");
+          return;
+        }
+        if (d.cerere && d.cerere.stare === "respinsa") {
+          document.getElementById("k-motiv").textContent = d.cerere.motiv || "fără motiv consemnat";
+          arata("k-respinsa");
+          document.getElementById("k-form").hidden = false;   // respinsă = poate încerca din nou
+          return;
+        }
+        arata("k-form");
+      }
+
+      postK({ actiune: "starea-mea" })
+        .then((res) => res.json())
+        .then(afiseaza)
+        .catch(() => { document.getElementById("k-incarc").textContent = "Nu am putut încărca starea canisei."; });
+
+      document.getElementById("k-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const f = e.target;
+        const b = document.getElementById("k-trimite");
+        const msg = document.getElementById("k-mesaj");
+        b.disabled = true; b.textContent = "Se trimite…"; msg.hidden = true;
+        try {
+          const res = await postK({
+            actiune: "cerere",
+            afix1: f.afix1.value, afix2: f.afix2.value, afix3: f.afix3.value,
+          });
+          const d = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(d.eroare || "Cererea nu a putut fi trimisă.");
+          document.getElementById("k-cand").textContent = "astăzi";
+          document.getElementById("k-variante").textContent = [f.afix1.value, f.afix2.value, f.afix3.value].filter((x) => x.trim()).join(" · ");
+          arata("k-cerere");
+        } catch (err) {
+          b.disabled = false; b.textContent = "Cere înregistrarea canisei";
+          msg.hidden = false; msg.textContent = err.message;
+        }
+      });
+    })();
 
     // —— Declarațiile depuse ——
     const lista = document.getElementById("c-declaratii");
@@ -218,6 +314,19 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   .c-decl__termen { font-size: 0.8rem; border: 1px solid #8c1d2f; color: #8c1d2f;
     border-radius: 999px; padding: 0.2rem 0.7rem; }
   .btn.is-oprit { opacity: 0.5; cursor: not-allowed; }
+  .c-mic { font-size: 0.88rem; color: var(--color-text-muted); margin: 0.3rem 0; }
+  .c-canisa, .c-cerere, .c-respinsa, .c-kform { max-width: 46rem; padding: 0.9rem 1.1rem;
+    border: 1px solid var(--color-border); border-radius: var(--radius); }
+  .c-canisa { background: #eef5f0; border-color: var(--color-primary); }
+  .c-canisa p:first-child { margin: 0; color: var(--color-primary); }
+  .c-respinsa { border-color: #8c1d2f; background: #f9efef; }
+  .c-kform[hidden], .c-canisa[hidden], .c-cerere[hidden], .c-respinsa[hidden] { display: none; }
+  .c-kgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 0.7rem; margin: 0.7rem 0 0.9rem; }
+  .c-kgrid label { display: grid; gap: 0.25rem; font-size: 0.85rem; font-weight: 600; color: var(--color-primary); }
+  .c-kgrid input { padding: 0.45rem 0.6rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
+  .c-req { color: #8c1d2f; }
+  .c-opt { font-weight: 400; color: var(--color-text-muted); }
+  .c-kmesaj { margin-top: 0.6rem; font-size: 0.88rem; font-weight: 600; color: #8c1d2f; }
   .c-ajutor { margin-top: 2rem; border-top: 1px solid var(--color-border); padding-top: 1rem; max-width: 44rem; }
   .c-ajutor p { font-size: 0.88rem; color: var(--color-text-muted); }
 </style>

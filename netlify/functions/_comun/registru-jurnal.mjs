@@ -38,6 +38,12 @@ export const FAPTE = {
   "confirmare-alternativa": "Confirmare acceptată pe dovadă alternativă",
   // Verificarea înscrierilor în expoziții (acte + plată), făcută de registratură
   "inscriere-verificata": "Înscriere în expoziție verificată",
+  // Înregistrarea caniselor: cererea membrului și hotărârea registraturii. Faptele
+  // trebuie trecute aici ÎNAINTE de prima folosire — jurnalul refuză fapte necunoscute,
+  // iar refuzul lui oprește chiar operația (urma se scrie înaintea faptei).
+  "canisa-cerere": "Cerere de înregistrare a canisei depusă",
+  "canisa-aprobata": "Canisă înregistrată (afix rezervat)",
+  "canisa-respinsa": "Cerere de canisă respinsă",
   // Certificate și ascendență
   "certificat-emis": "Certificat de origine emis",
   "certificat-anulat": "Certificat ANULAT",

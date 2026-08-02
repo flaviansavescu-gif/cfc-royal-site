@@ -1,0 +1,312 @@
+// registru-canise.mjs — înregistrarea canisei și rezervarea afixului, online.
+//
+// Ultima ușă de hârtie a registrului: până acum, cererea de afix era un PDF trimis pe
+// e-mail, iar verificarea unicității se făcea din memorie. De aici înainte, drumul e
+// cel al întregului registru: membrul depune online, registratura verifică și hotărăște,
+// totul lasă urmă în jurnal.
+//
+// CINE CE FACE.
+//   • MEMBRUL (cod MBR-) propune până la trei variante de afix, în ordinea preferinței —
+//     întocmai cum cere Regulamentul de înregistrare a caniselor. O singură cerere în
+//     lucru per membru; cine are deja afix în fișă nu depune alta.
+//   • REGISTRATURA vede cererile cu verdictul fiecărei variante (liber/ocupat/invalid,
+//     cu numele purtătorului la „ocupat") și hotărăște: aprobă o variantă — cu numărul
+//     de afix scris DE OM, din evidența oficială, nu născocit de sistem — sau respinge
+//     cu motiv. Amândouă pleacă pe e-mail către membru.
+//
+// LA APROBARE, afixul intră în fișa membrului (afix + nrAfix) — de acolo îl preia singur
+// formularul declarației de montă și fătare, care până azi îl primea scris de mână.
+//
+// Stocare (store „registru"):
+//   canisa-cerere/<id> -> { membruId, nume, email, variante[], stare, creat, ... }
+//   canisa/<afixNorm>  -> { afix, nrAfix, membruId, nume, creat, deCatre }
+import { getStore } from "@netlify/blobs";
+import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { membruDinCod, registratorDinCod } from "./registru-acces.mjs";
+import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
+import { jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, ipCerere } from "./_comun/registru-jurnal.mjs";
+import { trimite, pagina, escapeHtml } from "./_comun/posta.mjs";
+import {
+  normalizeazaAfix, afixValid, verdictAfix, cheiaCererii, cheiaCanisei, PREFIX_CERERI, PREFIX_CANISE,
+} from "./_comun/canise.mjs";
+
+// Citire tare, ca peste tot în registru: o cerere hotărâtă trebuie văzută hotărâtă imediat.
+const store = () => getStore({ name: "registru", consistency: "strong" });
+
+const json = (body, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
+  });
+
+const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
+const idNou = () => Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+
+async function cine(cod) {
+  if (actorDinCod(cod)?.rol === "admin") return { rol: "admin" };
+  const m = await membruDinCod(cod);
+  if (m) return { rol: "membru", membru: m };
+  const r = await registratorDinCod(cod);
+  if (r) return { rol: "registratura", registrator: r };
+  return null;
+}
+
+/**
+ * Harta afixelor deja luate: normalizat -> cine îl poartă.
+ *
+ * Se adună din DOUĂ locuri, dinadins: canisele înregistrate prin acest drum ȘI afixele
+ * din fișele membrilor (cele date pe hârtie, înainte). Fără a doua sursă, sistemul ar
+ * declara „liber" un afix pe care îl poartă de ani de zile o canisă veche.
+ */
+async function afixeleLuate(s) {
+  const luate = new Map();
+  try {
+    const { blobs } = await s.list({ prefix: PREFIX_CANISE });
+    for (const b of blobs) {
+      const c = await s.get(b.key, { type: "json" }).catch(() => null);
+      if (c?.afix) luate.set(normalizeazaAfix(c.afix), `canisa „${c.afix}”`);
+    }
+  } catch (err) { console.error("Listare canise eșuată:", err); }
+  try {
+    const { blobs } = await s.list({ prefix: "membru/" });
+    for (const b of blobs) {
+      const m = await s.get(b.key, { type: "json" }).catch(() => null);
+      if (m?.afix) {
+        const n = normalizeazaAfix(m.afix);
+        if (!luate.has(n)) luate.set(n, `afixul „${m.afix}” (membru ${m.nume || "existent"})`);
+      }
+    }
+  } catch (err) { console.error("Listare membri eșuată:", err); }
+  return luate;
+}
+
+export default cuLimitareCod(async (req) => {
+  if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
+  let body;
+  try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
+
+  const actiune = taie(body.actiune, 24);
+  const eu = await cine(taie(body.cod, 60));
+  if (!eu) return json({ eroare: "Cod incorect." }, 401);
+
+  const s = store();
+
+  // A doua cheie pentru rolurile grele, ca la dosare: aici se rezervă nume și se scrie
+  // în fișele membrilor. Membrul nu trece pe aici — el doar depune și își vede starea.
+  if (ROLURI_PROTEJATE.includes(eu.rol) &&
+      !(await dispozitivCunoscut(s, taie(body.dispozitiv, 80), eu.rol))) {
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+  }
+
+  // ——— MEMBRUL: starea mea (canisă + cerere în lucru) ———
+  if (actiune === "starea-mea") {
+    if (eu.rol !== "membru") return json({ eroare: "Doar membrii au canise." }, 403);
+    const m = eu.membru;
+    let cerere = null;
+    try {
+      const { blobs } = await s.list({ prefix: PREFIX_CERERI });
+      for (const b of blobs) {
+        const c = await s.get(b.key, { type: "json" }).catch(() => null);
+        if (c && c.membruId === m.id) {
+          // Cea mai nouă cerere a lui spune starea; cele vechi rămân istorie.
+          if (!cerere || String(c.creat) > String(cerere.creat)) cerere = { ...c, id: b.key.slice(PREFIX_CERERI.length) };
+        }
+      }
+    } catch (err) { console.error(err); }
+    return json({
+      canisa: m.afix ? { afix: m.afix, nrAfix: m.nrAfix || null } : null,
+      cerere: cerere ? {
+        id: cerere.id, stare: cerere.stare, variante: cerere.variante,
+        creat: cerere.creat, motiv: cerere.motiv || null, afixAcordat: cerere.afixAcordat || null,
+      } : null,
+    });
+  }
+
+  // ——— MEMBRUL: depune cererea ———
+  if (actiune === "cerere") {
+    if (eu.rol !== "membru") return json({ eroare: "Doar membrii pot cere înregistrarea unei canise." }, 403);
+    const m = eu.membru;
+    if (!m.cotizatieLaZi)
+      return json({ eroare: "Cotizația a expirat. Reînnoiește-o pentru a putea depune cererea." }, 403);
+    if (m.afix)
+      return json({ eroare: `În fișa ta e deja afixul „${m.afix}”. Pentru schimbări, scrie asociației.` }, 409);
+
+    // Variantele, în ordinea preferinței. Prima e obligatorie; golurile se sar.
+    const variante = [body.afix1, body.afix2, body.afix3].map((v) => taie(v, 80)).filter(Boolean);
+    if (!variante.length) return json({ eroare: "Scrie cel puțin o variantă de afix." }, 400);
+    for (const v of variante) {
+      const ok = afixValid(v);
+      if (!ok.ok) return json({ eroare: `Afixul „${v}” nu poate fi folosit: ${ok.motiv}.` }, 400);
+    }
+    // Două variante care sunt „la fel scrise altfel" ar irosi o preferință degeaba.
+    const norme = variante.map(normalizeazaAfix);
+    if (new Set(norme).size !== norme.length)
+      return json({ eroare: "Două dintre variante sunt același afix, scris altfel. Propune variante deosebite." }, 400);
+
+    // O singură cerere în lucru: a doua ar pune registratura să judece de două ori același om.
+    try {
+      const { blobs } = await s.list({ prefix: PREFIX_CERERI });
+      for (const b of blobs) {
+        const c = await s.get(b.key, { type: "json" }).catch(() => null);
+        if (c && c.membruId === m.id && c.stare === "in-asteptare")
+          return json({ eroare: "Ai deja o cerere în lucru. Așteaptă hotărârea registraturii." }, 409);
+      }
+    } catch (err) { console.error(err); }
+
+    const id = idNou();
+    // Urma înaintea faptei, ca peste tot în registru.
+    await jurnalizeazaObligatoriu(s, {
+      fapta: "canisa-cerere",
+      actor: actorJurnal(eu),
+      obiect: variante[0],
+      detalii: "variante propuse: " + variante.join(" · "),
+      ip: ipCerere(req),
+    });
+    await s.setJSON(cheiaCererii(id), {
+      membruId: m.id, nume: m.nume || "", email: m.email || "",
+      variante, stare: "in-asteptare", creat: new Date().toISOString(),
+    });
+
+    // Confirmarea către membru — același obicei ca la înscrieri: omul nu rămâne cu „oare a ajuns?".
+    if (m.email) {
+      await trimite({
+        catre: m.email,
+        subiect: "Cererea de înregistrare a canisei a fost primită",
+        html: pagina("Cerere primită", "#1F4D3A",
+          `<p>Bună ziua${m.nume ? ", " + escapeHtml(m.nume) : ""},</p>` +
+          `<p>Cererea de înregistrare a canisei a fost primită, cu variantele de afix, în ordinea preferinței:</p>` +
+          `<ol>${variante.map((v) => `<li><b>${escapeHtml(v)}</b></li>`).join("")}</ol>` +
+          `<p>Registratura verifică unicitatea afixului și revine pe e-mail cu hotărârea. ` +
+          `Stadiul cererii se vede oricând în spațiul tău de crescător, pe cfc-royal.ro.</p>`),
+      }).catch((e) => console.error("Confirmarea cererii nu a plecat:", e?.message || e));
+    }
+    return json({ ok: true, id });
+  }
+
+  // ——— De aici încolo: registratura și administratorul ———
+  if (eu.rol !== "registratura" && eu.rol !== "admin")
+    return json({ eroare: "Doar registratura hotărăște asupra cererilor." }, 403);
+
+  // ——— Lista cererilor, cu verdictul fiecărei variante ———
+  if (actiune === "cereri") {
+    const luate = await afixeleLuate(s);
+    const cereri = [];
+    try {
+      const { blobs } = await s.list({ prefix: PREFIX_CERERI });
+      for (const b of blobs) {
+        const c = await s.get(b.key, { type: "json" }).catch(() => null);
+        if (!c) continue;
+        const id = b.key.slice(PREFIX_CERERI.length);
+        cereri.push({
+          id, stare: c.stare, creat: c.creat, nume: c.nume, email: c.email,
+          variante: (c.variante || []).map((v) => ({ afix: v, ...verdictAfix(v, luate) })),
+          afixAcordat: c.afixAcordat || null, nrAfix: c.nrAfix || null,
+          motiv: c.motiv || null, hotarata: c.hotarata || null, deCatre: c.deCatre || null,
+        });
+      }
+    } catch (err) { console.error(err); }
+    // Cele în așteptare primele, apoi istoria, cele noi deasupra.
+    cereri.sort((a, b) => (a.stare === "in-asteptare" ? 0 : 1) - (b.stare === "in-asteptare" ? 0 : 1) ||
+      String(b.creat).localeCompare(String(a.creat)));
+    return json({ cereri });
+  }
+
+  // ——— Aprobarea ———
+  if (actiune === "aproba") {
+    const id = taie(body.id, 40);
+    const afixAles = taie(body.afixAles, 80);
+    // Numărul de afix e un NUMĂR OFICIAL: îl scrie omul, din evidența asociației.
+    // Sistemul nu născocește numere de acte — regulă de casă, plătită o dată scump.
+    const nrAfix = taie(body.nrAfix, 20);
+    if (!nrAfix) return json({ eroare: "Scrie numărul de afix din evidența oficială." }, 400);
+
+    const c = await s.get(cheiaCererii(id), { type: "json" }).catch(() => null);
+    if (!c) return json({ eroare: "Cerere inexistentă." }, 404);
+    if (c.stare !== "in-asteptare") return json({ eroare: "Cererea a fost deja hotărâtă." }, 409);
+    if (!(c.variante || []).includes(afixAles))
+      return json({ eroare: "Afixul ales nu e printre variantele cerute." }, 400);
+
+    // Verificarea unicității se REFACE la aprobare, pe starea de acum: între depunere și
+    // hotărâre putea fi aprobată altă cerere cu același afix.
+    const luate = await afixeleLuate(s);
+    const verdict = verdictAfix(afixAles, luate);
+    if (verdict.stare !== "liber")
+      return json({ eroare: `Afixul „${afixAles}” nu mai e liber: ${verdict.deCine || verdict.motiv}.` }, 409);
+
+    const membru = await s.get("membru/" + c.membruId, { type: "json" }).catch(() => null);
+    if (!membru) return json({ eroare: "Fișa membrului nu mai există în registru." }, 404);
+    if (membru.afix)
+      return json({ eroare: `Membrul are deja afixul „${membru.afix}” în fișă.` }, 409);
+
+    await jurnalizeazaObligatoriu(s, {
+      fapta: "canisa-aprobata",
+      actor: actorJurnal(eu),
+      obiect: afixAles,
+      detalii: `nr. afix ${nrAfix}, membru ${c.nume || c.membruId.slice(0, 8)}`,
+      ip: ipCerere(req),
+    });
+
+    const acum = new Date().toISOString();
+    await s.setJSON(cheiaCanisei(normalizeazaAfix(afixAles)), {
+      afix: afixAles, nrAfix, membruId: c.membruId, nume: c.nume || "", creat: acum,
+      deCatre: actorJurnal(eu),
+    });
+    await s.setJSON("membru/" + c.membruId, { ...membru, afix: afixAles, nrAfix });
+    await s.setJSON(cheiaCererii(id), {
+      ...c, stare: "aprobata", afixAcordat: afixAles, nrAfix, hotarata: acum, deCatre: actorJurnal(eu),
+    });
+
+    if (c.email) {
+      await trimite({
+        catre: c.email,
+        subiect: `Canisa „${afixAles}” a fost înregistrată`,
+        html: pagina("Canisă înregistrată", "#1F4D3A",
+          `<p>Bună ziua${c.nume ? ", " + escapeHtml(c.nume) : ""},</p>` +
+          `<p>Cererea a fost aprobată. Afixul canisei tale este:</p>` +
+          `<p style="font-size:22px;font-weight:bold;color:#1F4D3A">${escapeHtml(afixAles)}</p>` +
+          `<p>Număr de afix: <b>${escapeHtml(nrAfix)}</b>.</p>` +
+          `<p>Afixul a intrat în fișa ta de membru: la următoarea declarație de montă și ` +
+          `fătare se completează singur, iar exemplarele canisei îl vor purta pe certificate.</p>`),
+      }).catch((e) => console.error("Vestea aprobării nu a plecat:", e?.message || e));
+    }
+    return json({ ok: true, afix: afixAles, nrAfix });
+  }
+
+  // ——— Respingerea ———
+  if (actiune === "respinge") {
+    const id = taie(body.id, 40);
+    const motiv = taie(body.motiv, 500);
+    if (motiv.length < 5) return json({ eroare: "Scrie motivul respingerii — el pleacă pe e-mail către membru." }, 400);
+
+    const c = await s.get(cheiaCererii(id), { type: "json" }).catch(() => null);
+    if (!c) return json({ eroare: "Cerere inexistentă." }, 404);
+    if (c.stare !== "in-asteptare") return json({ eroare: "Cererea a fost deja hotărâtă." }, 409);
+
+    await jurnalizeazaObligatoriu(s, {
+      fapta: "canisa-respinsa",
+      actor: actorJurnal(eu),
+      obiect: (c.variante || [])[0] || id,
+      detalii: "motiv: " + motiv,
+      ip: ipCerere(req),
+    });
+    await s.setJSON(cheiaCererii(id), {
+      ...c, stare: "respinsa", motiv, hotarata: new Date().toISOString(), deCatre: actorJurnal(eu),
+    });
+
+    if (c.email) {
+      await trimite({
+        catre: c.email,
+        subiect: "Cererea de înregistrare a canisei nu a putut fi aprobată",
+        html: pagina("Cerere respinsă", "#8a1d1d",
+          `<p>Bună ziua${c.nume ? ", " + escapeHtml(c.nume) : ""},</p>` +
+          `<p>Cererea de înregistrare a canisei nu a putut fi aprobată.</p>` +
+          `<p><b>Motivul:</b> ${escapeHtml(motiv)}</p>` +
+          `<p>Poți depune o cerere nouă, cu alte variante de afix, din spațiul tău de crescător.</p>`),
+      }).catch((e) => console.error("Vestea respingerii nu a plecat:", e?.message || e));
+    }
+    return json({ ok: true });
+  }
+
+  return json({ eroare: "Acțiune necunoscută." }, 400);
+});

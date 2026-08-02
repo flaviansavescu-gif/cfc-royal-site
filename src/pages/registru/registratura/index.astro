@@ -98,6 +98,16 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     <ul class="r-lista" id="r-jurnal"></ul>
   </details>
 
+  <h2 class="g-h2">Cereri de înregistrare a caniselor <span class="g-badge" id="k-nr" hidden></span></h2>
+  <p class="g-explic">
+    Membrul propune până la trei variante de afix, în ordinea preferinței. Sistemul arată
+    verdictul fiecărei variante — <strong>liber</strong>, <strong>ocupat</strong> (și de cine)
+    sau <strong>invalid</strong> — dar hotărârea e a ta. <strong>Numărul de afix se scrie de
+    mână, din evidența oficială</strong>: sistemul nu născocește numere. Aprobarea și
+    respingerea pleacă pe e-mail către membru.
+  </p>
+  <ul class="g-dosare" id="k-cereri"><li class="g-gol">Se încarcă…</li></ul>
+
   <h2 class="g-h2">Dosare</h2>
   <p class="g-filtre">
     <button class="g-filtru is-activ" type="button" data-f="lucru">În lucru <span id="g-nr-lucru"></span></button>
@@ -135,14 +145,123 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     const post = (b) => fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(Object.assign({ cod: cod(), dispozitiv: dispozitiv() }, b)) });
 
+    // Stilurile paginii sunt „scoped": Astro le leagă de un atribut data-astro-cid-…
+    // pus DOAR pe ce scrie el în șablon. Elementele create aici, din JavaScript, nu-l
+    // au — și rămân nestilizate. Ștampila se ia de pe un element din șablon și se pune
+    // pe fiecare element creat. (Aceeași capcană ca la editorul de ascendență.)
+    const CID = (function () {
+      for (const a of document.querySelector(".g-h2").attributes)
+        if (a.name.indexOf("data-astro-cid-") === 0) return a.name;
+      return null;
+    })();
+
     // Textul dosarelor vine de la crescători: NUMAI textContent, niciodată innerHTML.
     // Altfel numele unui câine ar putea executa cod în pagina registratorului.
     const el = (tag, cls, text) => {
       const x = document.createElement(tag);
+      if (CID) x.setAttribute(CID, "");
       if (cls) x.className = cls;
       if (text != null) x.textContent = text;
       return x;
     };
+
+    // ——— Cererile de canisă ———
+    // Aceeași igienă ca la dosare: textul vine de la membri, deci NUMAI textContent.
+    (function () {
+      const K = "/.netlify/functions/registru-canise";
+      const postK = (b) => fetch(K, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ cod: cod(), dispozitiv: dispozitiv() }, b)) });
+      const cutie = document.getElementById("k-cereri");
+
+      function randCerere(c) {
+        const li = el("li", "g-dosar k-cerere");
+        const cap = el("div", "g-dosar__cap");
+        cap.append(
+          el("strong", "k-cerere__nume", c.nume || "membru"),
+          el("span", "g-dosar__det", "cerută la " + dataRo(c.creat)),
+          el("span", "k-cerere__stare is-" + c.stare,
+            { "in-asteptare": "în așteptare", aprobata: "aprobată: " + (c.afixAcordat || ""), respinsa: "respinsă" }[c.stare] || c.stare),
+        );
+        li.appendChild(cap);
+
+        const variante = el("div", "k-cerere__variante");
+        for (const v of c.variante || []) {
+          const b = el("span", "k-varianta is-" + v.stare);
+          b.append(
+            el("b", null, v.afix),
+            el("span", null, v.stare === "liber" ? " · liber"
+              : v.stare === "ocupat" ? " · ocupat: " + (v.deCine || "") : " · invalid: " + (v.motiv || "")),
+          );
+          variante.appendChild(b);
+        }
+        li.appendChild(variante);
+
+        if (c.stare !== "in-asteptare") {
+          if (c.motiv) li.appendChild(el("p", "k-cerere__motiv", "Motivul respingerii: " + c.motiv));
+          return li;
+        }
+
+        // Hotărârea: alegi varianta, scrii numărul oficial, aprobi — sau respingi cu motiv.
+        const act = el("div", "k-cerere__actiuni");
+        const alege = el("select");
+        for (const v of c.variante || []) {
+          const o = el("option");
+          o.value = v.afix; o.textContent = v.afix + (v.stare === "liber" ? "" : " (" + v.stare + ")");
+          if (v.stare !== "liber") o.disabled = true;
+          alege.appendChild(o);
+        }
+        const nr = el("input", "k-nr");
+        nr.placeholder = "nr. afix (din evidența oficială)";
+        const aproba = el("button", "btn btn--small btn--primary", "Aprobă");
+        aproba.type = "button";
+        aproba.addEventListener("click", async () => {
+          if (!nr.value.trim()) { alert("Scrie numărul de afix din evidența oficială."); return; }
+          if (!confirm("Aprobi afixul „" + alege.value + "” cu nr. " + nr.value.trim() + "? Membrul primește vestea pe e-mail.")) return;
+          aproba.disabled = true; aproba.textContent = "Se aprobă…";
+          try {
+            const r = await postK({ actiune: "aproba", id: c.id, afixAles: alege.value, nrAfix: nr.value.trim() });
+            const d = await r.json().catch(() => ({}));
+            if (!r.ok) throw new Error(d.eroare || "Aprobarea a eșuat.");
+            incarca();
+          } catch (e) { aproba.disabled = false; aproba.textContent = "Aprobă"; alert(e.message); }
+        });
+        const motiv = el("input", "k-motiv");
+        motiv.placeholder = "motivul respingerii (pleacă pe e-mail)";
+        const respinge = el("button", "btn btn--small btn--outline", "Respinge");
+        respinge.type = "button";
+        respinge.addEventListener("click", async () => {
+          if (motiv.value.trim().length < 5) { alert("Scrie motivul respingerii — el pleacă pe e-mail către membru."); return; }
+          if (!confirm("Respingi cererea? Membrul primește motivul pe e-mail.")) return;
+          respinge.disabled = true; respinge.textContent = "Se respinge…";
+          try {
+            const r = await postK({ actiune: "respinge", id: c.id, motiv: motiv.value.trim() });
+            const d = await r.json().catch(() => ({}));
+            if (!r.ok) throw new Error(d.eroare || "Respingerea a eșuat.");
+            incarca();
+          } catch (e) { respinge.disabled = false; respinge.textContent = "Respinge"; alert(e.message); }
+        });
+        act.append(alege, nr, aproba, motiv, respinge);
+        li.appendChild(act);
+        return li;
+      }
+
+      function incarca() {
+        postK({ actiune: "cereri" })
+          .then((r) => r.json())
+          .then((d) => {
+            cutie.textContent = "";
+            const arr = d.cereri || [];
+            const inLucru = arr.filter((x) => x.stare === "in-asteptare").length;
+            const badge = document.getElementById("k-nr");
+            badge.hidden = !inLucru;
+            badge.textContent = inLucru ? String(inLucru) : "";
+            if (!arr.length) { cutie.appendChild(el("li", "g-gol", "Nicio cerere de canisă.")); return; }
+            for (const c of arr) cutie.appendChild(randCerere(c));
+          })
+          .catch(() => { cutie.textContent = ""; cutie.appendChild(el("li", "g-gol", "Nu am putut încărca cererile.")); });
+      }
+      incarca();
+    })();
 
     // ——— Accesul la registru: cereri, membri, faptele proprii ———
     // Serverul hotărăște ce am voie: dacă n-am dreptul de a genera coduri, butonul
@@ -640,4 +759,27 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .g-alt__obs { padding: 0.35rem 0.6rem; border: 1px solid var(--color-border);
     border-radius: var(--radius); font: inherit; font-size: 0.85rem; }
   .g-alt__stare { font-size: 0.82rem; color: var(--color-text-muted); }
+  /* Cererile de canisă */
+  .g-badge { display: inline-block; min-width: 1.4em; text-align: center; background: #8c1d2f; color: #fff;
+    border-radius: 999px; font-size: 0.75rem; padding: 0.1rem 0.45rem; vertical-align: middle; }
+  .g-badge[hidden] { display: none; }
+  .k-cerere { padding: 0.8rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius); }
+  .k-cerere .g-dosar__cap { display: flex; gap: 0.9rem; align-items: baseline; flex-wrap: wrap; }
+  .k-cerere__nume { color: var(--color-primary); }
+  .k-cerere__stare { margin-left: auto; font-size: 0.8rem; border-radius: 999px; padding: 0.2rem 0.7rem; border: 1px solid; }
+  .k-cerere__stare.is-in-asteptare { color: var(--color-accent-dark); border-color: var(--color-accent); }
+  .k-cerere__stare.is-aprobata { color: var(--color-primary); border-color: var(--color-primary); }
+  .k-cerere__stare.is-respinsa { color: #8c1d2f; border-color: #8c1d2f; }
+  .k-cerere__variante { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+  .k-varianta { font-size: 0.85rem; border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.3rem 0.6rem; }
+  .k-varianta.is-liber { border-color: var(--color-primary); color: var(--color-primary); }
+  .k-varianta.is-ocupat { border-color: #8c1d2f; color: #8c1d2f; }
+  .k-varianta.is-invalid { color: var(--color-text-muted); }
+  .k-cerere__motiv { font-size: 0.85rem; color: #8c1d2f; margin: 0.4rem 0 0; }
+  .k-cerere__actiuni { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-top: 0.6rem;
+    border-top: 1px dashed var(--color-border); padding-top: 0.6rem; }
+  .k-cerere__actiuni select, .k-cerere__actiuni input { padding: 0.35rem 0.6rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.85rem; }
+  .k-nr { width: 14rem; }
+  .k-motiv { min-width: 16rem; flex: 1; }
 </style>
