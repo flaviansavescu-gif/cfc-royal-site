@@ -53,6 +53,25 @@ export function verdictAfix(varianta, ocupate) {
   return { stare: "liber" };
 }
 
+/**
+ * Frâna după respingere: o cerere nouă se primește abia după 24 de ore.
+ *
+ * Fără ea, un membru respins putea depune iar și iar, în aceeași oră — fiecare cerere
+ * umplând coada registraturii și trimițând e-mailuri. Frâna nu pedepsește: îi dă omului
+ * răgaz să citească motivul respingerii și să vină cu variante gândite, nu cu aceleași.
+ */
+export const RACIRE_DUPA_RESPINGERE_MS = 24 * 3600e3;
+
+/** Poate depune o cerere nouă, față de cea mai NOUĂ cerere a lui de până acum? */
+export function poateDepuneDinNou(cerereVeche, acum = Date.now()) {
+  if (!cerereVeche || cerereVeche.stare !== "respinsa") return { ok: true };
+  const la = Date.parse(cerereVeche.hotarata || cerereVeche.creat || "");
+  if (!Number.isFinite(la)) return { ok: true };   // dată ilizibilă: nu blocăm din greșeală
+  const trecut = acum - la;
+  if (trecut >= RACIRE_DUPA_RESPINGERE_MS) return { ok: true };
+  return { ok: false, oreRamase: Math.max(1, Math.ceil((RACIRE_DUPA_RESPINGERE_MS - trecut) / 3600e3)) };
+}
+
 /** Cheile unei cereri de canisă — numite aici ca formularul și registratura să nu se despartă. */
 export const cheiaCererii = (id) => "canisa-cerere/" + id;
 export const cheiaCanisei = (afixNorm) => "canisa/" + afixNorm;

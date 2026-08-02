@@ -5,7 +5,7 @@
 // Regula de comparație trebuie deci probată pe chiar cazurile care păcălesc ochiul.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normalizeazaAfix, afixValid, verdictAfix } from "./canise.mjs";
+import { normalizeazaAfix, afixValid, verdictAfix, poateDepuneDinNou, RACIRE_DUPA_RESPINGERE_MS } from "./canise.mjs";
 
 test("diacriticele, spațiile și cratimele nu deosebesc afixele", () => {
   // Perechile de mai jos TREBUIE să fie același afix — altfel s-ar putea înregistra amândouă.
@@ -42,6 +42,24 @@ test("verdictul spune cine poartă afixul, nu doar că e luat", () => {
   assert.equal(v.stare, "ocupat");
   assert.match(v.deCine, /CARPAȚI/);
   assert.equal(verdictAfix("!!", ocupate).stare, "invalid");
+});
+
+test("frâna de după respingere: 24 de ore, nici mai mult, nici la nesfârșit", () => {
+  const acum = Date.now();
+  const la = (ms) => new Date(acum - ms).toISOString();
+  // respins acum o oră: oprit, cu orele rămase spuse omului
+  const oprit = poateDepuneDinNou({ stare: "respinsa", hotarata: la(3600e3) }, acum);
+  assert.equal(oprit.ok, false);
+  assert.equal(oprit.oreRamase, 23);
+  // respins acum 25 de ore: liber
+  assert.equal(poateDepuneDinNou({ stare: "respinsa", hotarata: la(25 * 3600e3) }, acum).ok, true);
+  // chiar la margine: fix 24 de ore = liber
+  assert.equal(poateDepuneDinNou({ stare: "respinsa", hotarata: la(RACIRE_DUPA_RESPINGERE_MS) }, acum).ok, true);
+  // aprobarea și lipsa istoricului nu frânează pe nimeni
+  assert.equal(poateDepuneDinNou({ stare: "aprobata" }, acum).ok, true);
+  assert.equal(poateDepuneDinNou(null, acum).ok, true);
+  // o dată ilizibilă nu blochează din greșeală
+  assert.equal(poateDepuneDinNou({ stare: "respinsa", hotarata: "candva" }, acum).ok, true);
 });
 
 console.log("canise: toate probele trecute");

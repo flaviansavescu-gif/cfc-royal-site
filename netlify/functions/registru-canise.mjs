@@ -28,7 +28,7 @@ import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.
 import { jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, ipCerere } from "./_comun/registru-jurnal.mjs";
 import { trimite, pagina, escapeHtml } from "./_comun/posta.mjs";
 import {
-  normalizeazaAfix, afixValid, verdictAfix, cheiaCererii, cheiaCanisei, PREFIX_CERERI, PREFIX_CANISE,
+  normalizeazaAfix, afixValid, verdictAfix, poateDepuneDinNou, cheiaCererii, cheiaCanisei, PREFIX_CERERI, PREFIX_CANISE,
 } from "./_comun/canise.mjs";
 
 // Citire tare, ca peste tot în registru: o cerere hotărâtă trebuie văzută hotărâtă imediat.
@@ -144,15 +144,22 @@ export default cuLimitareCod(async (req) => {
     if (new Set(norme).size !== norme.length)
       return json({ eroare: "Două dintre variante sunt același afix, scris altfel. Propune variante deosebite." }, 400);
 
-    // O singură cerere în lucru: a doua ar pune registratura să judece de două ori același om.
+    // O singură cerere în lucru: a doua ar pune registratura să judece de două ori același
+    // om. Și frâna de după respingere: cererea nouă se primește abia după 24 de ore.
+    let ceaMaiNoua = null;
     try {
       const { blobs } = await s.list({ prefix: PREFIX_CERERI });
       for (const b of blobs) {
         const c = await s.get(b.key, { type: "json" }).catch(() => null);
-        if (c && c.membruId === m.id && c.stare === "in-asteptare")
+        if (!c || c.membruId !== m.id) continue;
+        if (c.stare === "in-asteptare")
           return json({ eroare: "Ai deja o cerere în lucru. Așteaptă hotărârea registraturii." }, 409);
+        if (!ceaMaiNoua || String(c.creat) > String(ceaMaiNoua.creat)) ceaMaiNoua = c;
       }
     } catch (err) { console.error(err); }
+    const racire = poateDepuneDinNou(ceaMaiNoua);
+    if (!racire.ok)
+      return json({ eroare: `Ultima cerere a fost respinsă de curând. Poți depune una nouă peste aproximativ ${racire.oreRamase} ore — folosește răgazul ca să alegi variante noi.` }, 429);
 
     const id = idNou();
     // Urma înaintea faptei, ca peste tot în registru.
@@ -239,19 +246,34 @@ export default cuLimitareCod(async (req) => {
     if (membru.afix)
       return json({ eroare: `Membrul are deja afixul „${membru.afix}” în fișă.` }, 409);
 
-    await jurnalizeazaObligatoriu(s, {
-      fapta: "canisa-aprobata",
-      actor: actorJurnal(eu),
-      obiect: afixAles,
-      detalii: `nr. afix ${nrAfix}, membru ${c.nume || c.membruId.slice(0, 8)}`,
-      ip: ipCerere(req),
-    });
-
+    // LACĂTUL. Verificarea de mai sus poate fi păcălită de două aprobări în aceeași
+    // secundă: fiecare verifică înainte ca cealaltă să scrie, și ambii membri ar rămâne
+    // cu același afix. De aceea scrierea canisei se face cu `onlyIfNew`: magazia însăși
+    // primește un singur câștigător, iar al doilea află pe loc că a pierdut — indiferent
+    // cât de strâns a fost întrecutul.
     const acum = new Date().toISOString();
-    await s.setJSON(cheiaCanisei(normalizeazaAfix(afixAles)), {
+    const lacat = await s.setJSON(cheiaCanisei(normalizeazaAfix(afixAles)), {
       afix: afixAles, nrAfix, membruId: c.membruId, nume: c.nume || "", creat: acum,
       deCatre: actorJurnal(eu),
-    });
+    }, { onlyIfNew: true });
+    if (!lacat?.modified)
+      return json({ eroare: `Afixul „${afixAles}” tocmai a fost rezervat de o altă aprobare.` }, 409);
+
+    // Urma se scrie imediat după lacăt. Dacă jurnalul nu poate scrie, lacătul se dă
+    // înapoi și aprobarea se refuză: o canisă fără urmă în jurnal nu are voie să existe.
+    try {
+      await jurnalizeazaObligatoriu(s, {
+        fapta: "canisa-aprobata",
+        actor: actorJurnal(eu),
+        obiect: afixAles,
+        detalii: `nr. afix ${nrAfix}, membru ${c.nume || c.membruId.slice(0, 8)}`,
+        ip: ipCerere(req),
+      });
+    } catch (err) {
+      await s.delete(cheiaCanisei(normalizeazaAfix(afixAles))).catch(() => {});
+      console.error("Jurnalul aprobării a eșuat — lacătul dat înapoi:", err?.message || err);
+      return json({ eroare: "Aprobarea nu s-a putut consemna în jurnal. Încearcă din nou." }, 503);
+    }
     await s.setJSON("membru/" + c.membruId, { ...membru, afix: afixAles, nrAfix });
     await s.setJSON(cheiaCererii(id), {
       ...c, stare: "aprobata", afixAcordat: afixAles, nrAfix, hotarata: acum, deCatre: actorJurnal(eu),
