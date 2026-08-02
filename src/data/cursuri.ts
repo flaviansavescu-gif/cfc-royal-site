@@ -464,7 +464,13 @@ export const LECTORI: Lector[] = [
     slug: "alexandru-paul-ciolac",
     nume: "Alexandru Paul Ciolac",
     rol: "Arbitru WDF · Grupele 2, 3, 4, 6, 8",
-    materiale: [],
+    // Fără versiunea .md pentru teleprompter: PDF-urile sunt pagini-imagine, textul nu se
+    // poate scoate din ele. Dacă sosesc și fișierele-sursă (Word), se adaugă.
+    materiale: [
+      { titlu: "Suport de curs — Preambul (PDF)", url: "/cursuri-materiale/alexandru-paul-ciolac/suport-curs-01-preambul.pdf" },
+      { titlu: "Suport de curs 1.1 — Capitolul I: Importanța studiului (PDF)", url: "/cursuri-materiale/alexandru-paul-ciolac/suport-curs-1-1-importanta-studiului.pdf" },
+      { titlu: "Suport de curs 1.2 — Capitolul I: Chinologia în plan mondial (PDF)", url: "/cursuri-materiale/alexandru-paul-ciolac/suport-curs-1-2-chinologia-in-plan-mondial.pdf" },
+    ],
   },
 ];
 
