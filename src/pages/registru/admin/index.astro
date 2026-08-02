@@ -47,6 +47,32 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
 
   <p class="a-indrumar">Se deschid la nevoie:</p>
 
+  {/* Extrasele oficiale — ca extrasul de cont de la bancă: întregul registru sau doar
+      pozițiile dintre două numere. Formulare GET simple: pagina de extras face cererea,
+      iar serverul verifică dreptul (administrator sau registratorul desemnat). */}
+  <details class="a-sectiune" data-sectiune="extrase">
+    <summary class="a-sumar">
+      <span class="a-sumar__titlu">Extrase oficiale din registre</span>
+    </summary>
+    <p class="a-note">Extrasul se deschide gata de tipărit — din fereastra de tipărire alegi
+    „Salvează ca PDF". Lasă câmpurile goale pentru întregul registru, sau scrie numerele
+    între care vrei extrasul, ca la extrasul de cont.</p>
+    <form class="x-extras" method="get" action="/registru/registratura/extras/" target="_blank">
+      <input type="hidden" name="r" value="cuiburi" />
+      <strong class="x-extras__titlu">Cartea de Origine</strong>
+      <label class="x-camp">de la cuibul nr. <input name="de" type="number" min="1" placeholder="început" /></label>
+      <label class="x-camp">până la nr. <input name="la" type="number" min="1" placeholder="sfârșit" /></label>
+      <button class="btn btn--outline" type="submit">Generează extrasul →</button>
+    </form>
+    <form class="x-extras" method="get" action="/registru/registratura/extras/" target="_blank">
+      <input type="hidden" name="r" value="afixe" />
+      <strong class="x-extras__titlu">Registrul afixelor</strong>
+      <label class="x-camp">de la nr. afix <input name="de" type="number" min="1" placeholder="început" /></label>
+      <label class="x-camp">până la nr. <input name="la" type="number" min="1" placeholder="sfârșit" /></label>
+      <button class="btn btn--outline" type="submit">Generează extrasul →</button>
+    </form>
+  </details>
+
   <details class="a-sectiune" data-sectiune="membri">
   <summary class="a-sumar">
     <span class="a-sumar__titlu">Membri cu drept de solicitare</span>
@@ -972,6 +998,15 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
   .a-camp { display: flex; align-items: center; gap: 0.6rem; font-size: 0.9rem; color: var(--color-text-muted); }
   .a-camp input { flex: 1; }
   .a-form .btn { justify-self: start; }
+  /* Extrasele oficiale */
+  .x-extras { display: flex; gap: 0.7rem; align-items: center; flex-wrap: wrap;
+    padding: 0.7rem 0.9rem; margin: 0 0 0.7rem; background: var(--color-surface-alt, #f5f4f0);
+    border: 1px solid var(--color-border); border-radius: var(--radius); }
+  .x-extras__titlu { font-family: var(--font-serif); color: var(--color-primary); min-width: 10.5rem; }
+  .x-camp { font-size: 0.85rem; color: var(--color-text-muted); display: inline-flex;
+    align-items: center; gap: 0.35rem; }
+  .x-camp input { width: 6rem; padding: 0.35rem 0.55rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.85rem; }
   .a-cod-nou { max-width: 46rem; padding: 0.75rem 1rem; border-radius: var(--radius);
     background: #eef5f0; border: 1px solid var(--color-primary); font-size: 0.92rem; }
   .a-cod-nou[hidden] { display: none; }

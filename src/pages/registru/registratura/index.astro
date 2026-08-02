@@ -108,6 +108,34 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   </p>
   <ul class="g-dosare" id="k-cereri"><li class="g-gol">Se încarcă…</li></ul>
 
+  {/* Extrasele oficiale — ca extrasul de cont de la bancă: întregul registru sau doar
+      pozițiile dintre două numere. Formularele se văd numai cu dreptul potrivit;
+      poarta adevărată rămâne pe server. */}
+  <details class="r-sectiune" data-sectiune="extrase">
+    <summary class="r-sumar">
+      <span class="r-sumar__titlu">Extrase oficiale din registre</span>
+    </summary>
+    <p class="g-nota">Extrasul se deschide gata de tipărit — din fereastra de tipărire alegi
+    „Salvează ca PDF". Lasă câmpurile goale pentru întregul registru, sau scrie numerele
+    între care vrei extrasul, ca la extrasul de cont.</p>
+    <p class="g-nota" id="x-fara-drept" hidden>Extrasele le pot cere doar administratorul și
+    registratorul desemnat — cel cu dreptul de a genera coduri de acces.</p>
+    <div class="x-forme" id="x-forme" hidden>
+      <form class="x-extras" data-registru="cuiburi">
+        <strong class="x-extras__titlu">Cartea de Origine</strong>
+        <label class="x-camp">de la cuibul nr. <input name="de" type="number" min="1" placeholder="început" /></label>
+        <label class="x-camp">până la nr. <input name="la" type="number" min="1" placeholder="sfârșit" /></label>
+        <button class="btn btn--outline" type="submit">Generează extrasul →</button>
+      </form>
+      <form class="x-extras" data-registru="afixe">
+        <strong class="x-extras__titlu">Registrul afixelor</strong>
+        <label class="x-camp">de la nr. afix <input name="de" type="number" min="1" placeholder="început" /></label>
+        <label class="x-camp">până la nr. <input name="la" type="number" min="1" placeholder="sfârșit" /></label>
+        <button class="btn btn--outline" type="submit">Generează extrasul →</button>
+      </form>
+    </div>
+  </details>
+
   <h2 class="g-h2">Dosare</h2>
   <p class="g-filtre">
     <button class="g-filtru is-activ" type="button" data-f="lucru">În lucru <span id="g-nr-lucru"></span></button>
@@ -316,6 +344,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
         potDaCoduri = d.poateDaAcces;
         document.getElementById("r-adauga").hidden = !potDaCoduri;
         document.getElementById("r-fara-drept").hidden = potDaCoduri;
+        arataExtrase();
       }
       const lst = d.membri || [];
       numarSec("r-membri-numar", lst.length, "membru", "membri");
@@ -427,6 +456,24 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     potDaCoduri = !!(r && r.poateDaAcces);
     document.getElementById("r-adauga").hidden = !potDaCoduri;
     document.getElementById("r-fara-drept").hidden = potDaCoduri;
+
+    // Extrasele: același drept ca la generarea codurilor (plus administratorul).
+    // Formularul doar deschide pagina de tipărire; refuzul adevărat îl dă serverul.
+    const arataExtrase = () => {
+      const pot = !!(r && r.rol === "admin") || potDaCoduri;
+      document.getElementById("x-forme").hidden = !pot;
+      document.getElementById("x-fara-drept").hidden = pot;
+    };
+    arataExtrase();
+    document.querySelectorAll("form.x-extras").forEach((f) => {
+      f.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const q = new URLSearchParams({ r: f.dataset.registru });
+        if (f.elements.de.value.trim()) q.set("de", f.elements.de.value.trim());
+        if (f.elements.la.value.trim()) q.set("la", f.elements.la.value.trim());
+        window.open("/registru/registratura/extras/?" + q.toString(), "_blank", "noopener");
+      });
+    });
 
     async function deschide(id) {
       detaliu.hidden = false;
@@ -782,4 +829,15 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     border-radius: var(--radius); font: inherit; font-size: 0.85rem; }
   .k-nr { width: 14rem; }
   .k-motiv { min-width: 16rem; flex: 1; }
+  /* Extrasele oficiale */
+  .x-forme[hidden] { display: none; }
+  .x-forme { display: grid; gap: 0.7rem; max-width: 48rem; }
+  .x-extras { display: flex; gap: 0.7rem; align-items: center; flex-wrap: wrap;
+    padding: 0.7rem 0.9rem; background: var(--color-surface-alt);
+    border: 1px solid var(--color-border); border-radius: var(--radius); }
+  .x-extras__titlu { font-family: var(--font-serif); color: var(--color-primary); min-width: 10.5rem; }
+  .x-camp { font-size: 0.85rem; color: var(--color-text-muted); display: inline-flex;
+    align-items: center; gap: 0.35rem; }
+  .x-camp input { width: 6rem; padding: 0.35rem 0.55rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.85rem; }
 </style>

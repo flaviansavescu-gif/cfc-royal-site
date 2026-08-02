@@ -30,6 +30,7 @@ import { trimite, pagina, escapeHtml } from "./_comun/posta.mjs";
 import {
   normalizeazaAfix, afixValid, verdictAfix, poateDepuneDinNou, cheiaCererii, cheiaCanisei, PREFIX_CERERI, PREFIX_CANISE,
 } from "./_comun/canise.mjs";
+import { poateCereExtras, numarDinText, intervalulCerut, inInterval, inValuri } from "./_comun/extrase.mjs";
 
 // Citire tare, ca peste tot în registru: o cerere hotărâtă trebuie văzută hotărâtă imediat.
 const store = () => getStore({ name: "registru", consistency: "strong" });
@@ -328,6 +329,63 @@ export default cuLimitareCod(async (req) => {
       }).catch((e) => console.error("Vestea respingerii nu a plecat:", e?.message || e));
     }
     return json({ ok: true });
+  }
+
+  // ——— Extrasul din Registrul afixelor ———
+  //
+  // Ca extrasul din Cartea de Origine: întregul registru sau doar afixele dintre două
+  // numere. Afixele se adună din AMBELE locuri — canisele înregistrate online și cele
+  // din fișele membrilor, date pe hârtie înainte — fiindcă registrul e unul singur,
+  // indiferent pe ce drum a intrat fiecare afix în el.
+  if (actiune === "extras-afixe") {
+    if (!poateCereExtras(eu))
+      return json({ eroare: "Extrasul îl pot cere doar administratorul și registratorul desemnat." }, 403);
+    const iv = intervalulCerut(body.deLa, body.panaLa);
+    if (iv.eroare) return json({ eroare: iv.eroare }, 400);
+
+    const dupaNorm = new Map();
+    try {
+      const chei = (await s.list({ prefix: PREFIX_CANISE })).blobs.map((b) => b.key);
+      for (const c of await inValuri(chei, 12, (k) => s.get(k, { type: "json" }).catch(() => null))) {
+        if (c?.afix) dupaNorm.set(normalizeazaAfix(c.afix), {
+          afix: c.afix, nrAfix: c.nrAfix || "", titular: c.nume || "", inregistrat: c.creat || "",
+        });
+      }
+    } catch (err) { return json({ eroare: "Nu am putut citi registrul caniselor: " + err.message }, 500); }
+    try {
+      const chei = (await s.list({ prefix: "membru/" })).blobs.map((b) => b.key);
+      for (const m of await inValuri(chei, 12, (k) => s.get(k, { type: "json" }).catch(() => null))) {
+        if (!m?.afix) continue;
+        const n = normalizeazaAfix(m.afix);
+        // Fișa membrului completează ce lipsește, dar nu bate canisa înregistrată online.
+        if (!dupaNorm.has(n)) dupaNorm.set(n, {
+          afix: m.afix, nrAfix: m.nrAfix || "", titular: m.nume || "", inregistrat: "",
+        });
+      }
+    } catch (err) { console.error("Listare membri la extras eșuată:", err); }
+
+    // În interval intră afixele cu număr citibil; cele fără număr (evidență veche,
+    // încă necompletată) apar DOAR la extrasul întregului registru, la coadă, pe față —
+    // ascunse, ar face extrasul să mintă prin omisiune.
+    const toate = [...dupaNorm.values()].map((x) => ({ ...x, nr: numarDinText(x.nrAfix) }));
+    const totRegistrul = iv.deLa == null && iv.panaLa == null;
+    const afixe = toate
+      .filter((x) => totRegistrul || inInterval(x.nr, iv.deLa, iv.panaLa))
+      .sort((a, b) => (a.nr ?? 1e9) - (b.nr ?? 1e9) || a.afix.localeCompare(b.afix, "ro"));
+
+    await jurnalizeaza(s, {
+      fapta: "extras-afixe",
+      actor: actorJurnal(eu),
+      obiect: totRegistrul ? "întregul Registru al afixelor"
+        : `afixele ${iv.deLa ?? "început"}–${iv.panaLa ?? "sfârșit"}`,
+      detalii: `${afixe.length} afixe în extras`,
+      ip: ipCerere(req),
+    });
+    return json({
+      afixe, interval: { deLa: iv.deLa, panaLa: iv.panaLa },
+      generat: new Date().toISOString(),
+      deCatre: eu.rol === "admin" ? "administrator" : (eu.registrator?.nume || "registratură"),
+    });
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);

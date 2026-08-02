@@ -37,6 +37,7 @@ import {
   jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, ipCerere,
 } from "./_comun/registru-jurnal.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
+import { poateCereExtras, numarDinText, intervalulCerut, inInterval, inValuri } from "./_comun/extrase.mjs";
 
 // CITIRE TARE, ca la poarta de acces.
 //
@@ -650,6 +651,69 @@ export default cuLimitareCod(async (req) => {
     } catch (err) { console.error("Listare certificate eșuată:", err); }
     lista.sort((a, b) => a.index - b.index);
     return json({ certificate: lista, numarWDF: d.numarWDF || null });
+  }
+
+  // —— Extrasul din Cartea de Origine ——
+  //
+  // Ca extrasul de cont de la bancă: întreaga carte sau doar cuiburile dintre două
+  // numere. Îl pot cere DOAR administratorul și registratorul cu dreptul de a genera
+  // coduri; ceilalți registratori primesc refuz — extrasul scoate evidența din casă.
+  if (actiune === "extras-carte") {
+    if (!poateCereExtras(eu))
+      return json({ eroare: "Extrasul îl pot cere doar administratorul și registratorul desemnat." }, 403);
+    const iv = intervalulCerut(body.deLa, body.panaLa);
+    if (iv.eroare) return json({ eroare: iv.eroare }, 400);
+
+    // Toate dosarele cu număr de cuib — ele SUNT Cartea de Origine. Ciornele și
+    // dosarele încă nefinalizate nu au număr, deci nu apar: extrasul redă registrul,
+    // nu coada de lucru.
+    let chei = [];
+    try { chei = (await s.list({ prefix: "dmf/" })).blobs.map((b) => b.key); }
+    catch (err) { return json({ eroare: "Nu am putut citi registrul: " + err.message }, 500); }
+
+    const dosare = (await inValuri(chei, 12, async (k) => {
+      const d = await s.get(k, { type: "json" }).catch(() => null);
+      const nr = numarDinText(d?.numarWDF);
+      return d && nr != null && inInterval(nr, iv.deLa, iv.panaLa) ? { d, nr, id: k.slice(4) } : null;
+    })).filter(Boolean).sort((a, b) => a.nr - b.nr);
+
+    const cuiburi = await inValuri(dosare, 8, async ({ d, nr, id }) => {
+      // Seriile certificatelor emise, pe pui: cine are act și cine nu se vede în extras.
+      const acte = new Map();
+      try {
+        const { blobs } = await s.list({ prefix: "pedigree-cuib/" + id + "/" });
+        for (const b of blobs) {
+          const x = await s.get(b.key, { type: "json" }).catch(() => null);
+          if (x?.serie) acte.set(Number(b.key.split("/").pop()), x);
+        }
+      } catch (err) { console.error("Listare certificate la extras eșuată:", err); }
+      return {
+        nr, numarWDF: d.numarWDF, dmfSerie: d.serie || "",
+        rasa: d.rasa || "", varietate: d.varietate || "", dataFatarii: d.dataFatarii || "",
+        tata: { nume: d.mascul?.nume || "", pedigree: d.mascul?.pedigree || "" },
+        mama: { nume: d.femela?.nume || "", pedigree: d.femela?.pedigree || "" },
+        crescator: { nume: d.membruNume || "", afix: d.afix || "", nrAfix: d.nrAfix || "" },
+        pui: (d.pui || []).map((p, i) => ({
+          nume: p?.nume || "", sex: p?.sex || "", culoare: p?.culoare || "",
+          serie: acte.get(i)?.serie || null, tip: acte.get(i)?.tip || null,
+        })),
+      };
+    });
+
+    await jurnalizeaza(s, {
+      fapta: "extras-carte",
+      actor: actorJurnal(eu),
+      obiect: iv.deLa == null && iv.panaLa == null
+        ? "întreaga Carte de Origine"
+        : `cuiburile ${iv.deLa ?? "început"}–${iv.panaLa ?? "sfârșit"}`,
+      detalii: `${cuiburi.length} cuiburi în extras`,
+      ip: ipCerere(req),
+    });
+    return json({
+      cuiburi, interval: { deLa: iv.deLa, panaLa: iv.panaLa },
+      generat: new Date().toISOString(),
+      deCatre: eu.rol === "admin" ? "administrator" : (eu.registrator?.nume || "registratură"),
+    });
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);

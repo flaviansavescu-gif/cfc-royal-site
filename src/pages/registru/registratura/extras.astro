@@ -1,0 +1,259 @@
+---
+// /registru/registratura/extras/?r=cuiburi&de=10&la=25 — extrasul oficial, gata de tipărit.
+//
+// Ca extrasul de cont de la bancă: întregul registru sau doar pozițiile dintre două
+// numere. Două registre pe aceeași pagină de tipar: Cartea de Origine (r=cuiburi) și
+// Registrul afixelor (r=afixe). Capetele lipsă înseamnă „de la început" / „până la
+// sfârșit"; amândouă lipsă = tot registrul.
+//
+// Cine îl poate cere hotărăște SERVERUL: administratorul și registratorul cu dreptul
+// de a genera coduri. Pagina doar arată refuzul, nu-l poate ocoli.
+//
+// La tipărire (Ctrl+P → Salvează ca PDF) dispar antetul, subsolul și butoanele:
+// rămâne actul, pe A4 în picioare.
+import RegistruLayout from "../../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Extras din registru" allow={["registratura"]}>
+  <p class="x-eroare" id="x-eroare" role="alert" hidden></p>
+  <p class="x-incarcare" id="x-incarcare">Se pregătește extrasul…</p>
+
+  <p class="x-bara" id="x-bara" hidden>
+    <button class="btn btn--primary" type="button" id="x-tipar">🖨 Tipărește / salvează ca PDF</button>
+    <a class="btn btn--outline" href="/registru/registratura/">← Registratura</a>
+    <span class="x-hint">Se tipărește pe A4 în picioare. În fereastra de tipărire poți alege „Salvează ca PDF".</span>
+  </p>
+
+  <article class="act" id="x-act" hidden>
+    <header class="act__cap">
+      <img class="act__stema" src="/images/logo-royal.webp" alt="" width="84" height="84" />
+      <div class="act__emitent">
+        <p class="act__asociatie">Asociația Club Federal Chinologic — Royal</p>
+        <p class="act__forum">membru World Dog Federation</p>
+        <p class="act__adresa">Str. Mihai Eminescu nr. 43, Bloc C11, sc. A, et. 8, ap. 33 · Râmnicu Vâlcea, jud. Vâlcea · cfc-royal.ro</p>
+      </div>
+      <div class="act__tip"><span class="act__tip-eticheta">Document</span><strong class="act__tip-litera">EXTRAS</strong></div>
+    </header>
+
+    <h1 class="act__titlu" id="x-titlu"></h1>
+    <p class="act__serie" id="x-interval"></p>
+
+    <div id="x-corp"></div>
+
+    <footer class="act__subsol">
+      <p class="act__emis" id="x-emis"></p>
+      <div class="act__semn">
+        <span>Registratură</span>
+        <span>Ștampila</span>
+      </div>
+      <p class="act__legal" id="x-legal">
+        Extras generat electronic din registrul digital al asociației. Redă evidența de la momentul
+        generării; înregistrările ulterioare nu apar în el. Autenticitatea certificatelor individuale
+        se verifică oricând la cfc-royal.ro/verifica-pedigree/.
+      </p>
+    </footer>
+  </article>
+</RegistruLayout>
+
+<script is:inline>
+  (function () {
+    const p = new URLSearchParams(location.search);
+    const registrul = p.get("r") === "afixe" ? "afixe" : "cuiburi";
+    const deLa = (p.get("de") || "").trim();
+    const panaLa = (p.get("la") || "").trim();
+    const cod = () => localStorage.getItem("cfcrRegistruCod") || "";
+    const dispozitiv = () => localStorage.getItem("cfcrRegistruDispozitiv") || "";
+
+    // Stilurile Astro sunt „scoped": ce naște JavaScript-ul trebuie ștampilat cu
+    // atributul paginii, altfel rămâne nestilizat. Ștampila se citește de pe un
+    // element scris în șablon.
+    const CID = (function () {
+      for (const a of document.getElementById("x-corp").attributes)
+        if (a.name.indexOf("data-astro-cid-") === 0) return a.name;
+      return null;
+    })();
+    // Doar textContent, niciodată innerHTML: numele din registru sunt scrise de oameni.
+    const el = (tag, cls, text) => {
+      const x = document.createElement(tag);
+      if (CID) x.setAttribute(CID, "");
+      if (cls) x.className = cls;
+      if (text != null) x.textContent = text;
+      return x;
+    };
+    const dataRo = (s) => { const x = new Date(s); return isNaN(x) ? String(s || "") : x.toLocaleDateString("ro-RO"); };
+
+    const F = registrul === "afixe" ? "/.netlify/functions/registru-canise" : "/.netlify/functions/registru-pedigree";
+    const actiune = registrul === "afixe" ? "extras-afixe" : "extras-carte";
+
+    fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cod: cod(), dispozitiv: dispozitiv(), actiune, deLa, panaLa }) })
+      .then(async (r) => {
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.eroare || "Nu am putut pregăti extrasul.");
+
+        const corp = document.getElementById("x-corp");
+        const iv = d.interval || {};
+        const intervalText = iv.deLa == null && iv.panaLa == null
+          ? (registrul === "afixe" ? "Întregul registru" : "Întreaga Carte de Origine")
+          : (registrul === "afixe" ? "Afixele nr. " : "Cuiburile nr. ") +
+            (iv.deLa == null ? "început" : iv.deLa) + " – " + (iv.panaLa == null ? "sfârșit" : iv.panaLa);
+
+        document.getElementById("x-titlu").textContent =
+          registrul === "afixe" ? "Extras din Registrul afixelor" : "Extras din Cartea de Origine";
+
+        if (registrul === "cuiburi") {
+          const cuiburi = d.cuiburi || [];
+          document.getElementById("x-interval").textContent =
+            intervalText + " · " + cuiburi.length + (cuiburi.length === 1 ? " cuib" : " cuiburi");
+          if (!cuiburi.length) corp.appendChild(el("p", "x-gol", "Niciun cuib în intervalul cerut."));
+          let acte = 0;
+          for (const c of cuiburi) {
+            const bloc = el("section", "cuib");
+            const cap = el("p", "cuib__cap");
+            cap.appendChild(el("strong", null, "Cuibul nr. " + c.nr + " · " + c.numarWDF));
+            cap.appendChild(el("span", null,
+              [c.rasa + (c.varietate ? " (" + c.varietate + ")" : ""),
+               c.dataFatarii ? "fătat " + dataRo(c.dataFatarii) : "",
+               c.dmfSerie ? "declarația " + c.dmfSerie : ""].filter(Boolean).join(" · ")));
+            bloc.appendChild(cap);
+            bloc.appendChild(el("p", "cuib__parinti",
+              "Tată: " + (c.tata.nume || "—") + (c.tata.pedigree ? " (" + c.tata.pedigree + ")" : "") +
+              "  ×  Mamă: " + (c.mama.nume || "—") + (c.mama.pedigree ? " (" + c.mama.pedigree + ")" : "")));
+            bloc.appendChild(el("p", "cuib__crescator",
+              "Crescător: " + (c.crescator.nume || "—") +
+              (c.crescator.afix ? " · afixul „" + c.crescator.afix + "”" +
+                (c.crescator.nrAfix ? " (nr. " + c.crescator.nrAfix + ")" : "") : "")));
+
+            const t = el("table", "x-tabel");
+            const cap2 = el("tr");
+            for (const h of ["", "Puiul", "Sex", "Culoare", "Certificat de origine", "Tip"])
+              cap2.appendChild(el("th", null, h));
+            t.appendChild(cap2);
+            (c.pui || []).forEach(function (pui, i) {
+              const tr = el("tr");
+              tr.appendChild(el("td", "x-nr", String(i + 1)));
+              tr.appendChild(el("td", null, pui.nume || "—"));
+              tr.appendChild(el("td", null, pui.sex === "M" ? "mascul" : pui.sex === "F" ? "femelă" : "—"));
+              tr.appendChild(el("td", null, pui.culoare || "—"));
+              tr.appendChild(el("td", pui.serie ? "x-serie" : "x-fara", pui.serie || "certificat neemis"));
+              tr.appendChild(el("td", null, pui.tip ? "Tip " + pui.tip : "—"));
+              if (pui.serie) acte++;
+              t.appendChild(tr);
+            });
+            bloc.appendChild(t);
+            corp.appendChild(bloc);
+          }
+          document.getElementById("x-emis").textContent =
+            "Extras generat la " + new Date(d.generat).toLocaleString("ro-RO", { dateStyle: "long", timeStyle: "short" }) +
+            ", de " + (d.deCatre || "registratură") + ". " +
+            cuiburi.length + (cuiburi.length === 1 ? " cuib" : " cuiburi") + ", " + acte + " certificate emise.";
+        } else {
+          const afixe = d.afixe || [];
+          document.getElementById("x-interval").textContent =
+            intervalText + " · " + afixe.length + " afixe";
+          if (!afixe.length) corp.appendChild(el("p", "x-gol", "Niciun afix în intervalul cerut."));
+          else {
+            const t = el("table", "x-tabel x-tabel--afixe");
+            const cap2 = el("tr");
+            for (const h of ["Nr. afix", "Afixul canisei", "Titular", "Înregistrat online"])
+              cap2.appendChild(el("th", null, h));
+            t.appendChild(cap2);
+            for (const a of afixe) {
+              const tr = el("tr");
+              tr.appendChild(el("td", a.nrAfix ? "x-serie" : "x-fara", a.nrAfix || "fără număr în evidență"));
+              tr.appendChild(el("td", null, a.afix));
+              tr.appendChild(el("td", null, a.titular || "—"));
+              tr.appendChild(el("td", null, a.inregistrat ? dataRo(a.inregistrat) : "evidența de dinainte de registru"));
+              t.appendChild(tr);
+            }
+            corp.appendChild(t);
+          }
+          document.getElementById("x-emis").textContent =
+            "Extras generat la " + new Date(d.generat).toLocaleString("ro-RO", { dateStyle: "long", timeStyle: "short" }) +
+            ", de " + (d.deCatre || "registratură") + ". " + afixe.length + " afixe în extras.";
+        }
+
+        document.getElementById("x-incarcare").hidden = true;
+        document.getElementById("x-bara").hidden = false;
+        document.getElementById("x-act").hidden = false;
+      })
+      .catch((err) => {
+        document.getElementById("x-incarcare").hidden = true;
+        const e = document.getElementById("x-eroare");
+        e.hidden = false;
+        e.textContent = err.message;
+      });
+
+    document.getElementById("x-tipar").addEventListener("click", () => window.print());
+  })();
+</script>
+
+<style>
+  .x-eroare { max-width: 46rem; padding: 0.8rem 1rem; border-radius: var(--radius);
+    background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; }
+  .x-eroare[hidden], .x-incarcare[hidden], .x-bara[hidden], .act[hidden] { display: none; }
+  .x-incarcare { color: var(--color-text-muted); font-style: italic; }
+  .x-bara { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+  .x-hint { font-size: 0.82rem; color: var(--color-text-muted); }
+
+  /* ——— Actul ——— */
+  .act { margin-top: 1.5rem; padding: 1.6rem 1.8rem; background: #fff;
+    border: 3px double var(--color-primary); border-radius: 2px; color: #1a1a1a; }
+  .act__cap { display: grid; grid-template-columns: auto 1fr auto; gap: 1.2rem; align-items: center;
+    border-bottom: 2px solid var(--color-accent); padding-bottom: 0.9rem; }
+  .act__stema { display: block; }
+  .act__emitent p { margin: 0; }
+  .act__asociatie { font-family: var(--font-serif); font-weight: 700; font-size: 1.05rem; color: var(--color-primary); }
+  .act__forum { font-size: 0.85rem; color: var(--color-accent-dark); font-weight: 600; }
+  .act__adresa { font-size: 0.72rem; color: #555; margin-top: 0.2rem !important; }
+  .act__tip { text-align: center; }
+  .act__tip-eticheta { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: #666; }
+  .act__tip-litera { font-family: var(--font-serif); font-size: 1.05rem; padding: 0.15rem 0.6rem;
+    border: 2px solid var(--color-primary); border-radius: 4px; color: var(--color-primary);
+    display: inline-block; letter-spacing: 0.08em; }
+
+  .act__titlu { font-family: var(--font-serif); text-align: center; color: var(--color-primary);
+    margin: 1rem 0 0.2rem; font-size: 1.55rem; letter-spacing: 0.02em; }
+  .act__serie { text-align: center; font-family: var(--font-mono, monospace); font-size: 0.9rem;
+    color: var(--color-primary); margin: 0 0 1.2rem; }
+
+  .x-gol { font-style: italic; color: #555; text-align: center; margin: 1.5rem 0; }
+
+  /* ——— Un cuib ——— */
+  .cuib { margin: 0 0 1.1rem; padding: 0.7rem 0.9rem; border: 1px solid #cfcfcf; border-radius: 2px;
+    break-inside: avoid; page-break-inside: avoid; }
+  .cuib__cap { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin: 0 0 0.3rem;
+    border-bottom: 1px solid var(--color-accent); padding-bottom: 0.25rem; }
+  .cuib__cap strong { font-family: var(--font-serif); color: var(--color-primary); font-size: 0.95rem; }
+  .cuib__cap span { font-size: 0.8rem; color: #555; }
+  .cuib__parinti, .cuib__crescator { margin: 0.15rem 0; font-size: 0.82rem; }
+
+  .x-tabel { border-collapse: collapse; width: 100%; margin-top: 0.4rem; }
+  .x-tabel th, .x-tabel td { text-align: left; padding: 0.2rem 0.45rem; font-size: 0.78rem;
+    border-bottom: 1px dotted #ccc; vertical-align: top; }
+  .x-tabel th { color: #555; font-weight: 600; font-size: 0.7rem; text-transform: uppercase;
+    letter-spacing: 0.04em; border-bottom: 1px solid #aaa; }
+  .x-nr { color: #777; width: 1.6rem; }
+  .x-serie { font-family: var(--font-mono, monospace); font-size: 0.74rem; }
+  .x-fara { color: #8a6d1d; font-style: italic; }
+  .x-tabel--afixe td:first-child { white-space: nowrap; }
+
+  .act__subsol { margin-top: 1.2rem; border-top: 2px solid var(--color-accent); padding-top: 0.8rem; }
+  .act__emis { font-size: 0.8rem; color: #444; margin: 0 0 1.6rem; }
+  .act__semn { display: grid; grid-template-columns: repeat(2, minmax(8rem, 14rem)); gap: 2rem;
+    justify-content: end; }
+  .act__semn span { border-top: 1px solid #888; padding-top: 0.2rem; font-size: 0.72rem;
+    color: #555; text-align: center; }
+  .act__legal { font-size: 0.66rem; color: #555; line-height: 1.45;
+    margin: 0.9rem 0 0; border-top: 1px dotted #bbb; padding-top: 0.5rem; }
+
+  /* ——— Tipărire: A4 în picioare, doar actul ——— */
+  @media print {
+    @page { size: A4 portrait; margin: 12mm; }
+    :global(.c-header), :global(.c-footer), .x-bara, .x-incarcare { display: none !important; }
+    :global(.c-main) { max-width: none; padding: 0; }
+    .act { border-width: 2px; padding: 0.8rem 1rem; margin: 0; }
+    .act__titlu { font-size: 1.3rem; margin-top: 0.5rem; }
+    .act__subsol { break-inside: avoid; }
+  }
+</style>

@@ -109,6 +109,10 @@ const g3 = await cere({ actiune: "verifica" });
 t("verificare publica fara serie -> 400", g3.status === 400, g3.status);
 const g4 = await handler(new Request("https://x/y", { method: "GET" }), {});
 t("GET -> 405", g4.status === 405, g4.status);
+// Extrasul din Cartea de Origine stă în spatele aceleiași porți: fără cod, nici măcar
+// nu se află câte cuiburi sunt în registru.
+const g5 = await cere({ actiune: "extras-carte", deLa: "1", panaLa: "5" });
+t("extras fara cod -> 401", g5.status === 401, g5.status);
 
 console.log("— fisa publica a cainelui —");
 // Doar cazurile care NU ating stocarea: aici nu exista Blobs. Cautarea unei referinte

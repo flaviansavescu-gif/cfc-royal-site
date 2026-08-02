@@ -75,6 +75,10 @@ export const FAPTE = {
   "cerere-stearsa": "Cerere de acces ștearsă",
   // Administrare
   "arhiva-descarcata": "Arhiva registrului descărcată",
+  // Extrasele oficiale — ca extrasul de cont de la bancă: cine, când și ce interval a
+  // cerut. Datele pleacă din registru pe hârtie, deci fapta se vede în jurnal.
+  "extras-carte": "Extras din Cartea de Origine generat",
+  "extras-afixe": "Extras din Registrul afixelor generat",
   "magazie-curatata": "Curățenie în magazie",
   "intrare-noua": "Dispozitiv nou recunoscut (al doilea factor)",
 };
