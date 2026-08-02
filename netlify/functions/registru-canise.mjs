@@ -31,6 +31,7 @@ import {
   normalizeazaAfix, afixValid, verdictAfix, poateDepuneDinNou, cheiaCererii, cheiaCanisei, PREFIX_CERERI, PREFIX_CANISE,
 } from "./_comun/canise.mjs";
 import { poateCereExtras, numarDinText, intervalulCerut, inInterval, inValuri } from "./_comun/extrase.mjs";
+import { AFIXE_OFICIALE } from "./_comun/afixe-oficiale.mjs";
 
 // Citire tare, ca peste tot în registru: o cerere hotărâtă trebuie văzută hotărâtă imediat.
 const store = () => getStore({ name: "registru", consistency: "strong" });
@@ -56,12 +57,17 @@ async function cine(cod) {
 /**
  * Harta afixelor deja luate: normalizat -> cine îl poartă.
  *
- * Se adună din DOUĂ locuri, dinadins: canisele înregistrate prin acest drum ȘI afixele
- * din fișele membrilor (cele date pe hârtie, înainte). Fără a doua sursă, sistemul ar
- * declara „liber" un afix pe care îl poartă de ani de zile o canisă veche.
+ * Se adună din TREI locuri, dinadins: evidența oficială publicată (AFX001–…, canisele
+ * înregistrate înaintea drumului online — generată din pagina publică a caniselor),
+ * canisele aprobate prin acest drum ȘI afixele din fișele membrilor. Fără prima sursă,
+ * sistemul ar declara „liber" un afix pe care îl poartă de luni de zile o canisă cu
+ * certificat oficial.
  */
 async function afixeleLuate(s) {
   const luate = new Map();
+  for (const a of AFIXE_OFICIALE) {
+    luate.set(normalizeazaAfix(a.afix), `canisa „${a.afix}” (nr. ${a.nrAfix}, evidența oficială)`);
+  }
   try {
     const { blobs } = await s.list({ prefix: PREFIX_CANISE });
     for (const b of blobs) {
@@ -344,10 +350,16 @@ export default cuLimitareCod(async (req) => {
     if (iv.eroare) return json({ eroare: iv.eroare }, 400);
 
     const dupaNorm = new Map();
+    // Temelia: evidența oficială publicată (AFX001–…), cu numerele ei de certificat.
+    for (const a of AFIXE_OFICIALE) {
+      dupaNorm.set(normalizeazaAfix(a.afix), {
+        afix: a.afix, nrAfix: a.nrAfix || "", titular: a.titular || "", inregistrat: "",
+      });
+    }
     try {
       const chei = (await s.list({ prefix: PREFIX_CANISE })).blobs.map((b) => b.key);
       for (const c of await inValuri(chei, 12, (k) => s.get(k, { type: "json" }).catch(() => null))) {
-        if (c?.afix) dupaNorm.set(normalizeazaAfix(c.afix), {
+        if (c?.afix && !dupaNorm.has(normalizeazaAfix(c.afix))) dupaNorm.set(normalizeazaAfix(c.afix), {
           afix: c.afix, nrAfix: c.nrAfix || "", titular: c.nume || "", inregistrat: c.creat || "",
         });
       }

@@ -20,10 +20,11 @@ test("extrasul îl pot cere doar administratorul și registratorul desemnat", ()
   assert.equal(poateCereExtras({ rol: "registratura", registrator: { poateDaAcces: "da" } }), false);
 });
 
-test("numărul se citește din orice formă de evidență", () => {
+test("numărul se citește din orice formă de evidență: primul șir de cifre", () => {
   assert.equal(numarDinText("WDF-0077"), 77);
   assert.equal(numarDinText("25"), 25);
-  assert.equal(numarDinText("nr. 3/2026"), 32026, "cifrele se lipesc — de aceea intervalul se dă pe numere curate");
+  assert.equal(numarDinText("AFX006/2026"), 6, "anul nu se lipește de număr");
+  assert.equal(numarDinText("nr. 3/2026"), 3);
   assert.equal(numarDinText(""), null);
   assert.equal(numarDinText(null), null);
   assert.equal(numarDinText("fără număr"), null);

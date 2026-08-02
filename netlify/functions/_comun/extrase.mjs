@@ -13,9 +13,14 @@
 export const poateCereExtras = (eu) =>
   eu?.rol === "admin" || (eu?.rol === "registratura" && eu?.registrator?.poateDaAcces === true);
 
-/** Numărul dintr-un text de evidență: „WDF-0077" -> 77, „25" -> 25. Ilizibil -> null. */
+/**
+ * Numărul dintr-un text de evidență: PRIMUL șir de cifre, nu toate cifrele lipite.
+ * „WDF-0077" -> 77, „AFX006/2026" -> 6, „25" -> 25. Cu toate cifrele lipite,
+ * „AFX006/2026" ar fi ieșit 62026 — și niciun interval nu l-ar mai fi găsit.
+ */
 export function numarDinText(v) {
-  const n = parseInt(String(v == null ? "" : v).replace(/\D+/g, ""), 10);
+  const m = String(v == null ? "" : v).match(/\d+/);
+  const n = m ? parseInt(m[0], 10) : NaN;
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
