@@ -431,10 +431,12 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
           const bifa = document.createElement("input");
           bifa.type = "checkbox";
           bifa.checked = r.poateDaAcces === true;
+          // Eticheta spune CE FACE bifa, nu doar starea: prima formulare („nu generează
+          // coduri") se citea ca și cum bifa ar lua dreptul, când de fapt îl dă.
           const et = document.createElement("span");
           et.textContent = bifa.checked
-            ? "poate genera coduri de acces pentru membri"
-            : "nu generează coduri (doar verifică dosare)";
+            ? "✓ ARE dreptul: generează coduri de acces și poate cere extrase din registre"
+            : "NU are dreptul de a genera coduri și de a cere extrase — pune bifa ca să i-l dai";
           bifa.addEventListener("change", async () => {
             bifa.disabled = true;
             try {
