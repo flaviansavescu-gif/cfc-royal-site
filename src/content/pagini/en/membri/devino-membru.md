@@ -38,7 +38,7 @@ Fill in the form below to submit your membership application.
 
 - [Membership application form](/en/documente/cerere-inscriere-membru/)
 - [Breeder affix reservation request](/en/documente/cerere-rezervare-afix/)
-- [Mating and whelping declaration](/en/documente/declaratie-monta-fatare/)
+- [Mating and whelping declaration — submitted online, in the Studbook](/en/documente/declaratie-monta-fatare/)
 - [Data processing agreement (GDPR)](/en/documente/acord-prelucrare-date/)
 
 ## Other charges

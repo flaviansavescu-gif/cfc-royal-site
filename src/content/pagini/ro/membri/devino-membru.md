@@ -37,7 +37,7 @@ Completează formularul de mai jos pentru a-ți depune cererea de înscriere ca 
 
 - [Cerere de înscriere ca membru](/ro/documente/cerere-inscriere-membru/)
 - [Cerere de rezervare afix de crescător](/ro/documente/cerere-rezervare-afix/)
-- [Declarația de montă și fătare](/ro/documente/declaratie-monta-fatare/)
+- [Declarația de montă și fătare — se depune online, în Registrul Genealogic](/ro/documente/declaratie-monta-fatare/)
 - [Acord de prelucrare a datelor (GDPR)](/ro/documente/acord-prelucrare-date/)
 
 ## Ce mai costă
