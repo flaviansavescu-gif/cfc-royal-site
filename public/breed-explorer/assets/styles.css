@@ -215,6 +215,13 @@ p { margin: 0 0 .7em; }
 .badge-verif.verified { background: #e3f1e8; color: var(--c-ok); }
 .badge-verif.unverified { background: #eceee9; color: var(--c-ink-faint); }
 .badge-verif.conflicting { background: var(--c-fault-bg); color: var(--c-fault); }
+.badge-verif.imported { background: #fbeecd; color: #8a5a06; }
+
+/* Nota de „standard importat, nerevizuit" din profilul rasei. */
+.imported-note {
+  margin: 12px 0; padding: 10px 14px; border-radius: 8px;
+  background: #fbeecd; border: 1px solid #e6c789; color: #7a4f08; font-size: 14px; line-height: 1.5;
+}
 
 .chip {
   display: inline-flex; align-items: center; gap: 6px;

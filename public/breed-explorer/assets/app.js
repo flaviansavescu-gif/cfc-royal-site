@@ -175,7 +175,13 @@
     return { recognized: "Recognized", provisional: "Provisional", observation: "Observation", not_recognized: "Not recognized" }[s] || s || "—";
   }
   function verifLabel(s) {
-    return { verified: "✓ Source verified", unverified: "Source unverified", conflicting: "⚠ Source conflicting" }[s] || s || "—";
+    return {
+      verified: "✓ Source verified",
+      unverified: "Source unverified",
+      conflicting: "⚠ Source conflicting",
+      // „imported" = text extras din documentul standardului, ÎNCĂ NErevizuit de un lector.
+      imported: "⚠ Imported — not yet reviewed",
+    }[s] || s || "—";
   }
   function groupShort(g) {
     const m = /^(Group \d+)/.exec(g || "");
@@ -241,12 +247,16 @@
   function normalizeBreed(raw) {
     const base = emptyBreed();
     const b = Object.assign(base, raw || {});
-    b.identity = Object.assign(base.identity, raw && raw.identity);
-    b.anatomy = Object.assign(base.anatomy, raw && raw.anatomy);
-    b.temperament = Object.assign(base.temperament, raw && raw.temperament);
-    b.faults = Object.assign(base.faults, raw && raw.faults);
-    b.pedagogy = Object.assign(base.pedagogy, raw && raw.pedagogy);
-    b.judge_checklist = Object.assign(base.judge_checklist, raw && raw.judge_checklist);
+    // Fiecare sub-obiect se construiește pe o COPIE a valorilor implicite. Scris ca
+    // `Object.assign(base.identity, raw.identity)`, un import parțial (fișă fără toate
+    // cheile) golea valorile implicite prin referință, iar câmpurile lipsă rămâneau
+    // `undefined` — apoi predicatele care le citeau aruncau eroare și goleau pagina.
+    b.identity = Object.assign({}, base.identity, raw && raw.identity);
+    b.anatomy = Object.assign({}, base.anatomy, raw && raw.anatomy);
+    b.temperament = Object.assign({}, base.temperament, raw && raw.temperament);
+    b.faults = Object.assign({}, base.faults, raw && raw.faults);
+    b.pedagogy = Object.assign({}, base.pedagogy, raw && raw.pedagogy);
+    b.judge_checklist = Object.assign({}, base.judge_checklist, raw && raw.judge_checklist);
     ["alternate_names", "thematic_tags", "study_track_tags", "recurring_judge_observations"].forEach((k) => { if (!Array.isArray(b[k])) b[k] = b[k] ? [b[k]] : []; });
     ["minor", "serious", "disqualifying"].forEach((k) => { if (!Array.isArray(b.faults[k])) b.faults[k] = []; });
     Object.keys(b.pedagogy).forEach((k) => { if (!Array.isArray(b.pedagogy[k])) b.pedagogy[k] = []; });
@@ -471,6 +481,20 @@
     return arr.sort((a, b) => a.localeCompare(b));
   }
 
+  // Opțiunile unui select din editor: lista fixă + toate valorile chiar prezente în date
+  // + valoarea curentă a fișei. Fără valoarea curentă în listă, browserul selecta prima
+  // opțiune, iar salvarea o scria peste cea adevărată — un Ogar salvat după o corectură
+  // de virgulă ajungea în Grupa 1, iar „imported" dispărea. Astfel salvarea nu mai mută
+  // pe nimeni fără voie.
+  function optiuniCu(constante, dataKey, current, labelFn) {
+    const set = new Set(constante);
+    state.breeds.forEach((b) => { if (b[dataKey]) set.add(b[dataKey]); });
+    if (current) set.add(current);
+    const arr = Array.from(set);
+    if (dataKey === "group") arr.sort((a, b) => groupNumber(a) - groupNumber(b) || a.localeCompare(b));
+    return arr.map((v) => [v, labelFn ? labelFn(v) : v]);
+  }
+
   /* ---------------------------------------------------------
      Favorites / recently viewed
      --------------------------------------------------------- */
@@ -593,7 +617,11 @@
     ]));
 
     if (state.meta && state.meta.disclaimer) {
-      wrap.appendChild(el("div", { class: "dataset-note", html: "<strong>Dataset notice:</strong> " + esc(state.meta.disclaimer) }));
+      // Data generării, la vedere: un arbitru cu aplicația instalată trebuie să știe cât
+      // de veche e baza pe care o consultă offline, la expoziție.
+      const dataSet = state.meta.generated_on || state.meta.exported_on;
+      const prospetime = dataSet ? " <em>Dataset date: " + esc(dataSet) + " · " + state.breeds.length + " breeds.</em>" : "";
+      wrap.appendChild(el("div", { class: "dataset-note", html: "<strong>Dataset notice:</strong> " + esc(state.meta.disclaimer) + prospetime }));
     }
 
     // Stats
@@ -787,9 +815,12 @@
     const filters = el("div", { class: "filters" }, [
       filterSelect("Group", uniqueValues("group").map((g) => [g, groupShort(g) + " — " + g.replace(/^Group \d+ /, "")]), f.group, (v) => { f.group = v; render(); }),
       filterSelect("Country", uniqueValues("country_of_origin").map((c) => [c, c]), f.country, (v) => { f.country = v; render(); }),
-      filterSelect("WDF status", WDF_STATUSES.map((s) => [s, statusLabel(s)]), f.status, (v) => { f.status = v; render(); }),
-      filterSelect("Coat type", COAT_TYPES.map((c) => [c, cap(c)]), f.coat, (v) => { f.coat = v; render(); }),
-      filterSelect("Functional type", FUNCTIONAL_TYPES.map((c) => [c, cap(c)]), f.func, (v) => { f.func = v; render(); }),
+      // Filtrele se construiesc din valorile CHIAR PREZENTE în date, nu dintr-o listă fixă
+      // scrisă în cod. Cu lista fixă, 71 de rase cu blană medie/creață/fără păr și 13 de
+      // lucru/ogar rămâneau invizibile: filtrul nu le pomenea, deci nu puteau fi găsite.
+      filterSelect("WDF status", uniqueValues("wdf_status").map((s) => [s, statusLabel(s)]), f.status, (v) => { f.status = v; render(); }),
+      filterSelect("Coat type", uniqueValues("coat_type").map((c) => [c, cap(c)]), f.coat, (v) => { f.coat = v; render(); }),
+      filterSelect("Functional type", uniqueValues("functional_type").map((c) => [c, cap(c)]), f.func, (v) => { f.func = v; render(); }),
       filterSelect("Pedagogical notes", [["yes", "Has notes"], ["no", "No notes"]], f.hasPedagogy, (v) => { f.hasPedagogy = v; render(); }),
       filterSelect("Difficulty", DIFFICULTY_LEVELS.map((d) => [d, cap(d)]), f.difficulty, (v) => { f.difficulty = v; render(); }),
     ].concat(uniqueStudyTracks().length ? [filterSelect("Study track", uniqueStudyTracks().map((t) => [t, t]), f.track, (v) => { f.track = v; render(); })] : []));
@@ -912,6 +943,17 @@
       ]),
     ]);
     wrap.appendChild(head);
+
+    // Avertisment la vedere, chiar unde citește candidatul: fișa importată e text brut din
+    // documentul standardului, încă nerevizuit de lector. Nota generală de pe tabloul de
+    // bord nu se vede aici — de aceea o repetăm în profilul rasei.
+    if (b.source_verification_status === "imported") {
+      wrap.appendChild(el("div", { class: "imported-note" }, [
+        el("strong", { text: "⚠ Imported standard — not yet reviewed. " }),
+        el("span", { text: "This text was extracted automatically from the source breed-standard document. " +
+          "Teaching notes and the judge checklist are added separately by lecturers. Always verify against the official source standard." }),
+      ]));
+    }
 
     // Tabs
     const tabs = el("div", { class: "tabs", role: "tablist" });
@@ -1317,7 +1359,10 @@
       ["General impression", (b) => b.identity.general_impression],
       ["Ideal type summary", (b) => b.identity.ideal_type_summary],
     ]},
-    { title: "Key proportions", rows: [
+    { title: "Size & proportions", rows: [
+      // Înălțimea la greabăn e SINGURUL lucru pe care un arbitru chiar îl măsoară —
+      // lipsea din comparație. O comparație fără mărime nu e un instrument de arbitraj.
+      ["Size & weight", (b) => b.anatomy.size],
       ["Important proportions", (b) => b.identity.important_proportions],
       ["Sexual dimorphism", (b) => b.identity.sexual_dimorphism],
     ]},
@@ -1327,6 +1372,11 @@
       ["Eyes", (b) => b.anatomy.eyes],
       ["Ears", (b) => b.anatomy.ears],
       ["Expression", (b) => b.temperament.expression],
+    ]},
+    { title: "Body & skin", rows: [
+      ["Body", (b) => b.anatomy.body],
+      ["Topline", (b) => b.anatomy.topline],
+      ["Skin", (b) => b.anatomy.skin],
     ]},
     { title: "Movement", rows: [ ["Movement", (b) => b.anatomy.movement] ]},
     { title: "Coat & colour", rows: [
@@ -1499,10 +1549,22 @@
   // Question: { type, prompt, context, options:[{text}], answer:idx, explanation, tag }
   const QUESTION_GENERATORS = {
     identify_by_description(pool) {
-      const cands = pool.filter((b) => isNonEmptyText(b.identity.ideal_type_summary) || isNonEmptyText(b.identity.general_impression));
+      // Descrierea nu are voie să conțină chiar numele rasei — altfel răspunsul e cadou.
+      // Un sfert dintre descrieri încep cu „The Australian Shepherd is…", deci le sărim.
+      const numeInDesc = (b, d) => {
+        const t = (d || "").toLowerCase();
+        return [b.breed_name].concat(b.alternate_names || [])
+          .some((nume) => nume && nume.length > 3 && t.indexOf(nume.toLowerCase()) >= 0);
+      };
+      const descrierea = (b) => {
+        for (const d of [b.identity.ideal_type_summary, b.identity.general_impression])
+          if (isNonEmptyText(d) && !numeInDesc(b, d)) return d;
+        return "";
+      };
+      const cands = pool.filter((b) => descrierea(b));
       if (cands.length < 2) return null;
       const b = sampleOne(cands);
-      const desc = b.identity.ideal_type_summary || b.identity.general_impression;
+      const desc = descrierea(b);
       const distract = pickDistinct(pool, 3, (x) => x.id === b.id);
       if (distract.length < 1) return null;
       const opts = shuffle([b].concat(distract).map((x) => ({ text: x.breed_name, id: x.id })));
@@ -1532,7 +1594,11 @@
       if (countries.length < 2) return null;
       const b = sampleOne(pool.filter((x) => isNonEmptyText(x.country_of_origin)));
       if (!b) return null;
-      const distract = pickDistinct(countries, 3, (c) => c === b.country_of_origin);
+      // Distractorii NU au voie să fie aceeași țară scrisă altfel („Great Britain" vs.
+      // „England" vs. „United Kingdom"): altfel întrebarea ar avea două răspunsuri
+      // corecte, iar candidatul care alege bine ar fi informat că a greșit.
+      const canonTara = (c) => canonicalCountry(c);
+      const distract = pickDistinct(countries, 3, (c) => canonTara(c) === canonTara(b.country_of_origin));
       const opts = shuffle([b.country_of_origin].concat(distract).map((c) => ({ text: c })));
       return {
         type: "single", tag: "Origin",
@@ -1545,10 +1611,19 @@
       const withFaults = pool.filter((b) => (b.faults.minor.length + b.faults.serious.length + b.faults.disqualifying.length) > 0);
       if (!withFaults.length) return null;
       const b = sampleOne(withFaults);
+      // Un text care apare în DOUĂ niveluri pentru aceeași rasă (ex. „Undershot" și la
+      // grave, și la eliminatorii) nu are un răspuns unic — l-am scoate, altfel întrebarea
+      // ar marca greșit o alegere corectă. Numărăm în ce niveluri apare fiecare text.
+      const niveluri = {};
+      const adaugaNivel = (f, t) => { const k = f.toLowerCase().trim(); (niveluri[k] = niveluri[k] || new Set()).add(t); };
+      b.faults.minor.forEach((f) => adaugaNivel(f, "Minor fault"));
+      b.faults.serious.forEach((f) => adaugaNivel(f, "Serious fault"));
+      b.faults.disqualifying.forEach((f) => adaugaNivel(f, "Disqualifying fault"));
       const tiers = [];
-      b.faults.minor.forEach((f) => tiers.push([f, "Minor fault"]));
-      b.faults.serious.forEach((f) => tiers.push([f, "Serious fault"]));
-      b.faults.disqualifying.forEach((f) => tiers.push([f, "Disqualifying fault"]));
+      b.faults.minor.forEach((f) => { if (niveluri[f.toLowerCase().trim()].size === 1) tiers.push([f, "Minor fault"]); });
+      b.faults.serious.forEach((f) => { if (niveluri[f.toLowerCase().trim()].size === 1) tiers.push([f, "Serious fault"]); });
+      b.faults.disqualifying.forEach((f) => { if (niveluri[f.toLowerCase().trim()].size === 1) tiers.push([f, "Disqualifying fault"]); });
+      if (!tiers.length) return null;
       const [fault, tier] = sampleOne(tiers);
       const opts = ["Minor fault", "Serious fault", "Disqualifying fault"].map((t) => ({ text: t }));
       return {
@@ -2399,12 +2474,12 @@
       textField("breed_name", "Breed name *", b.breed_name, errs.breed_name),
       textField("identity.official_name", "Official name", b.identity.official_name),
       textareaField("alternate_names", "Alternate names (one per line)", (b.alternate_names || []).join("\n"), null, 2),
-      selectField("group", "WDF group *", WDF_GROUPS.map((g) => [g, g]), b.group, errs.group, true),
+      selectField("group", "WDF group *", optiuniCu(WDF_GROUPS, "group", b.group), b.group, errs.group, true),
       textField("country_of_origin", "Country of origin *", b.country_of_origin, errs.country_of_origin),
       textField("identity.owner_country", "Owner country", b.identity.owner_country),
-      selectField("wdf_status", "WDF status *", WDF_STATUSES.map((s) => [s, statusLabel(s)]), b.wdf_status, errs.wdf_status),
-      selectField("coat_type", "Coat type", COAT_TYPES.map((c) => [c, cap(c)]), b.coat_type),
-      selectField("functional_type", "Functional type", FUNCTIONAL_TYPES.map((c) => [c, cap(c)]), b.functional_type),
+      selectField("wdf_status", "WDF status *", optiuniCu(WDF_STATUSES, "wdf_status", b.wdf_status, statusLabel), b.wdf_status, errs.wdf_status),
+      selectField("coat_type", "Coat type", optiuniCu(COAT_TYPES, "coat_type", b.coat_type, cap), b.coat_type),
+      selectField("functional_type", "Functional type", optiuniCu(FUNCTIONAL_TYPES, "functional_type", b.functional_type, cap), b.functional_type),
       textField("source_standard_title", "Source standard title", b.source_standard_title),
       textField("source_standard_url", "Source standard URL", b.source_standard_url, errs.source_standard_url, "url"),
       textField("last_updated", "Last updated", b.last_updated, null, "date"),
@@ -2412,8 +2487,12 @@
 
     // --- General profile
     form.appendChild(fieldset("General profile", [
+      textField("identity.classification", "Classification (section, working trial)", b.identity.classification),
+      textField("identity.standard_published", "Standard published (source date)", b.identity.standard_published),
+      textField("identity.country_of_development", "Country of development", b.identity.country_of_development),
       textareaField("identity.historical_function", "Historical function", b.identity.historical_function),
       textareaField("identity.general_impression", "General impression", b.identity.general_impression),
+      textareaField("identity.historical_summary", "Brief historical summary", b.identity.historical_summary),
       textareaField("identity.important_proportions", "Important proportions", b.identity.important_proportions),
       textareaField("identity.sexual_dimorphism", "Sexual dimorphism", b.identity.sexual_dimorphism),
       textareaField("identity.ideal_type_summary", "Ideal type summary", b.identity.ideal_type_summary),
@@ -2456,11 +2535,13 @@
 
     // --- V2 classification & study metadata
     form.appendChild(fieldset("Classification & study metadata (V2)", [
-      selectField("difficulty_level", "Difficulty level", [["", "—"]].concat(DIFFICULTY_LEVELS.map((v) => [v, cap(v)])), b.difficulty_level),
-      selectField("exam_relevance", "Exam relevance", [["", "—"]].concat(EXAM_RELEVANCE.map((v) => [v, cap(v)])), b.exam_relevance),
-      selectField("teaching_priority", "Teaching priority", [["", "—"]].concat(TEACHING_PRIORITY.map((v) => [v, cap(v)])), b.teaching_priority),
-      selectField("revision_status", "Revision status", [["", "—"]].concat(REVISION_STATUS.map((v) => [v, cap(v.replace(/_/g, " "))])), b.revision_status),
-      selectField("source_verification_status", "Source verification", [["", "—"]].concat(SOURCE_VERIFICATION.map((v) => [v, cap(v)])), b.source_verification_status),
+      selectField("difficulty_level", "Difficulty level", [["", "—"]].concat(optiuniCu(DIFFICULTY_LEVELS, "difficulty_level", b.difficulty_level, cap)), b.difficulty_level),
+      selectField("exam_relevance", "Exam relevance", [["", "—"]].concat(optiuniCu(EXAM_RELEVANCE, "exam_relevance", b.exam_relevance, cap)), b.exam_relevance),
+      selectField("teaching_priority", "Teaching priority", [["", "—"]].concat(optiuniCu(TEACHING_PRIORITY, "teaching_priority", b.teaching_priority, cap)), b.teaching_priority),
+      selectField("revision_status", "Revision status", [["", "—"]].concat(optiuniCu(REVISION_STATUS, "revision_status", b.revision_status, (v) => cap(v.replace(/_/g, " ")))), b.revision_status),
+      // „imported" TREBUIE să rămână în listă: e semnul că textul e brut, nerevizuit de
+      // lector. Fără el, o simplă deschidere-și-salvare ștergea marcajul la 313 fișe.
+      selectField("source_verification_status", "Source verification", [["", "—"]].concat(optiuniCu(SOURCE_VERIFICATION, "source_verification_status", b.source_verification_status, cap)), b.source_verification_status),
       textareaField("study_track_tags", "Study track tags (one per line, e.g. bull type, primitive type)", (b.study_track_tags || []).join("\n"), null, 2),
       textareaField("thematic_tags", "Thematic tags (one per line)", (b.thematic_tags || []).join("\n"), null, 2),
       textareaField("recurring_judge_observations", "Recurring judge observations (one per line)", (b.recurring_judge_observations || []).join("\n")),
@@ -2725,12 +2806,31 @@
     } else {
       state.meta = parsed.meta;
       state.breeds = parsed.breeds;
+      // Lecțiile fac parte din setul înlocuit: fără linia asta, un import „Replace" cu
+      // curriculum nou schimba rasele, dar lecțiile vechi rămâneau, iar cele noi se
+      // pierdeau în tăcere.
+      state.lessons = (parsed.lessons || []).map(normalizeLesson);
       state.favorites = state.favorites.filter((id) => getBreed(id));
       state.recent = state.recent.filter((id) => getBreed(id));
       state.currentBreedId = null; state.editing = null;
       navigate("dashboard");
       toast("Replaced database with " + state.breeds.length + " breeds.", "ok");
     }
+  }
+
+  /**
+   * Forma canonică a unei țări, pentru quiz și pentru a nu oferi două răspunsuri corecte.
+   * „Great Britain", „England", „United Kingdom" → aceeași țară.
+   */
+  function canonicalCountry(c) {
+    const t = String(c || "").toLowerCase().replace(/[.\-]/g, " ").replace(/\s+/g, " ").trim();
+    if (/\b(great britain|united kingdom|england|scotland|wales|uk)\b/.test(t)) return "gb";
+    if (/\b(usa|u s a|united states)\b/.test(t)) return "us";
+    if (/\bnetherlands\b/.test(t)) return "nl";
+    if (/\b(germany|deutschland)\b/.test(t)) return "de";
+    if (/czechoslovak|czech republic/.test(t)) return "cz";
+    if (/\b(russia|russian federation|ussr)\b/.test(t)) return "ru";
+    return t;
   }
 
   /* ---------------------------------------------------------

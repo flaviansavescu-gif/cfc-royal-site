@@ -18,17 +18,22 @@
    fetch the new versions.
    ============================================================ */
 
-const CACHE_VERSION = "cfcr-v2.0.2";
+// BUMP LA FIECARE SCHIMBARE de fișiere sau de date. Dacă rămâne neschimbat, browserul
+// nu vede nicio versiune nouă: nu rulează „install"/„activate", cache-ul vechi nu se
+// șterge, iar aplicația instalată rulează codul VECHI peste datele noi — sau, offline,
+// rămâne cu setul vechi de rase. v3 = importul celor 334 de standarde WDF.
+const CACHE_VERSION = "cfcr-v3.0.0";
 const CACHE_NAME = "cfcr-cache-" + CACHE_VERSION;
 
 // Paths are relative to the service worker scope (the app folder).
+// NB: data/seed-data.js NU e în shell — e o oglindă identică a breeds.json (3 MB) și ar
+// dubla descărcarea la instalare. Se ia doar la nevoie (când fetch-ul normal eșuează).
 const APP_SHELL = [
   "./",
   "./index.html",
   "./wdf-breed-standards-explorer.html",
   "./assets/styles.css",
   "./assets/app.js",
-  "./data/seed-data.js",
   "./data/breeds.json",
   "./manifest.webmanifest",
   "./assets/icons/favicon-32.png",

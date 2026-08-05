@@ -52,40 +52,68 @@ function textDinDocx(cale) {
  * diferite și scriu aceeași rubrică în mai multe feluri („GAIT / MOVEMENT", „GAIT/MOVEMENT",
  * „GAIT"); fără normalizare, rubrica ar rămâne goală tocmai la rasele scrise altfel.
  */
-const ETICHETE = [
-  ["ORIGIN", /^(?:COUNTRY OF )?ORIGIN$/],
-  ["DEZVOLTARE", /^COUNTRY OF DEVELOPMENT$/],
-  ["PATRONAGE", /^PATRONAGE$/],
-  ["DATE", /^DATE OF PUBLICATION.*$/],
-  ["UTILIZATION", /^UTILI[SZ]ATION$/],
-  ["CLASSIFICATION", /^CLASSIFICATION.*$/],
-  ["HISTORY", /^BRIEF HISTORICAL SUMMARY$/],
-  ["GENERAL", /^GENERAL APPEARANCE$/],
-  ["PROPORTIONS", /^IMPORTANT PROPORTIONS?$/],
-  ["TEMPERAMENT", /^BEHAVIOUR\s*[\/ ]?\s*(?:AND\s+)?TEMPERAMENT$/],
-  ["HEAD", /^HEAD$/],
-  ["CRANIAL", /^CRANIAL REGION$/],
-  ["FACIAL", /^FACIAL REGION$/],
-  ["EYES", /^EYES$/],
-  ["EARS", /^EARS$/],
-  ["NECK", /^NECK$/],
-  ["BODY", /^BODY$/],
-  ["TAIL", /^TAIL$/],
-  ["LIMBS", /^LIMBS$/],
-  ["FOREQUARTERS", /^FOREQUARTERS$/],
-  ["HINDQUARTERS", /^HINDQUARTERS$/],
-  ["FEET", /^FEET$/],
-  ["MOVEMENT", /^(?:GAIT\s*\/?\s*(?:MOVEMENT)?|MOVEMENT)$/],
-  ["SKIN", /^SKIN$/],
-  ["COAT", /^(?:COAT|HAIR(?: TEXTURE)?)$/],
-  ["COLOUR", /^COLOU?R$/],
-  ["SIZE", /^(?:SIZE|HEIGHT|WEIGHT)(?:\s*(?:AND|&|\/)\s*(?:WEIGHT|SIZE))?$/],
-  ["FAULTS", /^FAULTS?$/],
-  ["SERIOUS", /^(?:SEVERE|SERIOUS) FAULTS?$/],
-  ["DISQUALIFYING", /^(?:DISQUALIF(?:YING|YNG)|ELIMINATING) FAULTS?$/],
-  ["NB", /^N\.?B\.?$/],
-  ["TRANSLATION", /^TRANSLATION.*$/],
-];
+/**
+ * Clasifică o etichetă (deja MAJUSCULE, spații normalizate) la o rubrică — sau null.
+ *
+ * DE CE UN CLASIFICATOR, nu o listă fixă de tipare. Documentele vin din surse și ani
+ * diferiți și scriu aceeași rubrică în zeci de feluri, cu tot cu greșeli de tastare:
+ * „SIZE, WEIGHT AND MEASUREMENTS", „SIZES", „SIZEAND WEIGHT", „COATS AND VARIETIES",
+ * „DISQUALYFING FAULTS", „DIQUALIFYING FAULTS", „TEMPERAMENT / BEHAVIOUR" (inversat),
+ * „BEHAVIOUR AND CHARACTER". O listă de tipare exacte le rata pe toate — iar rubrica
+ * mărimii, cea mai importantă pentru un arbitru, rămânea goală la zeci de rase. Aici
+ * clasificăm pe cuvinte-cheie tolerante, ca varianta scrisă altfel să nimerească totuși.
+ *
+ * ORDINEA CONTEAZĂ: defectele întâi (ca „IMPORTANT FAULTS" să nu ajungă la „PROPORTIONS"
+ * din cauza cuvântului), apoi rubricile precise, la urmă cele prinse pe cuvânt-cheie.
+ */
+function clasificaEticheta(n) {
+  n = n.replace(/\s+/g, " ").trim();
+  if (!n) return null;
+  // „LIMBS" e doar containerul din care ies FOREQUARTERS și HINDQUARTERS; unele documente
+  // le lipesc: „LIMBS FOREQUARTERS: …". Fără asta, textul membrelor din față rămânea prins
+  // în coadă (TAIL) — s-a văzut la Kelpie.
+  n = n.replace(/^LIMBS\s+(?=FORE|HIND)/, "");
+
+  // — Defecte (cele mai pline de greșeli de scriere) —
+  if (/FAULT/.test(n)) {
+    if (/D[IY]S?QUAL|ELIMINAT/.test(n)) return "DISQUALIFYING";     // DISQUALIFYING, DIQUALIFYING, DYSQUAL…, ELIMINATING
+    if (/SEVER|SERIOUS|IMPORTANT|GRAVE|MAJOR/.test(n)) return "SERIOUS";
+    return "FAULTS";                                                 // FAULTS, MINOR/SLIGHT FAULTS → defecte generale
+  }
+  // — Rubrici precise (potrivire pe rând întreg) —
+  if (/^(?:COUNTRY OF )?ORIGIN(?: ?\/ ?PATRONAGE)?$/.test(n)) return "ORIGIN";
+  if (/^COUNTRY OF DEVELOPMENT$/.test(n)) return "DEZVOLTARE";
+  if (/^PATRONAGE$/.test(n)) return "PATRONAGE";
+  if (/^DATE OF PUBLICATION/.test(n)) return "DATE";
+  if (/^UTILI[SZ]ATION$/.test(n)) return "UTILIZATION";
+  if (/^CLASSIFICATION/.test(n)) return "CLASSIFICATION";
+  if (/^BRIEF HISTORICAL/.test(n)) return "HISTORY";
+  if (/^GENERAL APPEARANCE$/.test(n)) return "GENERAL";
+  if (/IMPORT.{0,3}ANT\b.*(?:PROP?ORTION|PORPORTION)/.test(n)) return "PROPORTIONS";   // + IMORTANT, PORPORTIONS
+  // — Temperament: BEHAVIOUR/CHARACTER/TEMPERAMENT, în orice ordine —
+  if (/BEHAVIOU?R|TEMPERAMENT|^CHARACTER$/.test(n) && !/APPEARANCE/.test(n)) return "TEMPERAMENT";
+  if (/^HEAD$/.test(n)) return "HEAD";
+  if (/^CRANIAL REGION$/.test(n)) return "CRANIAL";
+  if (/^FACIAL REGION$/.test(n)) return "FACIAL";
+  if (/^EYES?$/.test(n)) return "EYES";
+  if (/^EARS?$/.test(n)) return "EARS";   // „EAR" la singular (Pumi) e tot rubrica urechilor
+  if (/^NECK$/.test(n)) return "NECK";
+  if (/^BODY$/.test(n)) return "BODY";
+  if (/^TAIL$/.test(n)) return "TAIL";
+  if (/^LIMBS$/.test(n)) return "LIMBS";
+  if (/^FOREQUARTERS$/.test(n)) return "FOREQUARTERS";
+  if (/^HINDQUARTERS$/.test(n)) return "HINDQUARTERS";
+  if (/^FEET$/.test(n)) return "FEET";
+  if (/^SKIN$/.test(n)) return "SKIN";
+  if (/^N\.?B\.?$/.test(n)) return "NB";
+  if (/^TRANSLATION/.test(n)) return "TRANSLATION";
+  // — Prinse pe cuvânt-cheie (toate variantele și greșelile) —
+  if (/\b(?:GAIT|MOVEMEN)/.test(n)) return "MOVEMENT";              // GAIT, GAIT/MOVEMENT, MOVEMENT, GAIT/MOVEMEN
+  if (/^COAT|^COATS\b|^HAIR(?: TEXTURE)?$/.test(n)) return "COAT";   // COAT, COATS AND VARIETIES, HAIR
+  if (/^COLOU?RS?$/.test(n)) return "COLOUR";
+  if (/\b(?:SIZE|WEIGHT|HEIGHT|MEASUREMENT)/.test(n)) return "SIZE"; // SIZE, SIZES, SIZE AND WEIGHT, HEIGHT AT WITHERS…
+  return null;
+}
 
 /**
  * Etichetele scrise în clar, pentru spargerea paragrafelor lipite.
@@ -96,30 +124,27 @@ const ETICHETE = [
  * așa s-a întâmplat cu Kelpie și Ciobănescul German. Înaintea tăierii, fiecare etichetă
  * găsită oriunde în text primește un rând al ei.
  */
-const ETICHETE_IN_CLAR = [
-  "COUNTRY OF ORIGIN", "COUNTRY OF DEVELOPMENT", "ORIGIN", "PATRONAGE",
-  "DATE OF PUBLICATION OF THE OFFICIAL VALID STANDARD",
-  "DATE OF PUBLICATION OF THE ORIGINAL VALID STANDARD",
-  "UTILIZATION", "UTILISATION", "CLASSIFICATION", "BRIEF HISTORICAL SUMMARY", "GENERAL APPEARANCE",
-  "IMPORTANT PROPORTIONS", "IMPORTANT PROPORTION", "BEHAVIOUR AND TEMPERAMENT",
-  "BEHAVIOUR / TEMPERAMENT", "BEHAVIOUR /TEMPERAMENT", "BEHAVIOUR/ TEMPERAMENT", "BEHAVIOUR/TEMPERAMENT",
-  "CRANIAL REGION", "FACIAL REGION", "HEAD", "EYES", "EARS", "NECK", "BODY", "TAIL", "LIMBS",
-  "FOREQUARTERS", "HINDQUARTERS", "FEET", "GAIT / MOVEMENT", "GAIT/MOVEMENT", "GAIT", "SKIN",
-  "COAT", "COLOUR", "COLOR", "SIZE AND WEIGHT", "HEIGHT AND WEIGHT", "SIZE", "HEIGHT", "WEIGHT",
-  "SEVERE FAULTS", "SERIOUS FAULTS", "DISQUALIFYING FAULTS", "DISQUALIFYNG FAULTS",
-  "ELIMINATING FAULTS", "FAULTS", "TRANSLATION", "N.B.", "N.B",
-].sort((a, b) => b.length - a.length);   // cele lungi întâi: „SIZE AND WEIGHT" înaintea lui „SIZE"
+/**
+ * Găsește orice etichetă „CUVINTE MARI:" din interiorul unui rând și o pune pe rândul
+ * ei. Nu ține o listă de etichete cunoscute — o taie pe ORICE grup de cuvinte cu
+ * majuscule urmat de „:", apoi lasă clasificatorul să hotărască la tăierea în secțiuni.
+ * Așa prinde și variantele pe care nu le-am prevăzut, fără să le enumerăm pe toate.
+ */
+// Eticheta poate fi urmată de „:" sau, în listele de defecte, direct de o bulină „•".
+// Doar MAJUSCULE: etichetele title-case („Colour:", „Height:") din paragrafele lipite se
+// recuperează în altă parte (sub-rubrici + plasa de mărime). Prinderea lor aici, global,
+// muta din greșeală rubrici bune și golea culoarea la mai multe rase.
+const RE_SPARGE = /(?:^|[.\-–—]\s?|\s)([A-Z][A-Z /&,()'.-]{2,55}?)\s*(:|(?=[•·]))/g;
 
-const RE_SPARGE = new RegExp(
-  "(?:^|[\\s.\\-–—])(" + ETICHETE_IN_CLAR.map((s) => s.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")).join("|") + ")\\s*:",
-  "g");
-
-/** Pune fiecare etichetă pe rândul ei, oriunde s-ar afla în text. */
 function spargeEtichetele(text) {
-  return text
-    .split("\n")
-    .map((rand) => rand.replace(RE_SPARGE, (_, eticheta) => "\n" + eticheta + ":"))
-    .join("\n");
+  return text.split("\n").map((rand) =>
+    rand.replace(RE_SPARGE, (intreg, eticheta, terminator) => {
+      // Doar dacă e o rubrică recunoscută: altfel am rupe fraze care conțin din
+      // întâmplare majuscule urmate de „:" (nume proprii, prescurtări).
+      return clasificaEticheta(eticheta.replace(/\s+/g, " ").trim().toUpperCase())
+        ? "\n" + eticheta.trim() + ":" + (terminator === ":" ? "" : " ")
+        : intreg;
+    })).join("\n");
 }
 
 /**
@@ -132,15 +157,21 @@ function spargeEtichetele(text) {
  */
 function etichetaLa(rand) {
   const potriveste = (brut, rest) => {
-    const n = brut.replace(/\s+/g, " ").trim().toUpperCase();
-    for (const [cheie, tipar] of ETICHETE) if (tipar.test(n)) return { cheie, rest: (rest || "").trim() };
-    return null;
+    const brutN = brut.replace(/\s+/g, " ").trim();
+    const cheie = clasificaEticheta(brutN.toUpperCase());
+    if (!cheie) return null;
+    // Etichetele prinse pe cuvânt-cheie (SIZE, MOVEMENT, COAT, COLOUR) se acceptă și cu
+    // literă mică: unele standarde scriu „Height:" sau „Size/weight" ca titlu de secțiune
+    // (Porcelaine, Ciobănescul German), iar restricția de majuscule pierdea tocmai
+    // mărimea. Sub-rubricile scrise mic („Weight:" din interiorul SIZE) mapează la aceeași
+    // cheie de secțiune, deci reîncep secțiunea fără să piardă text.
+    return { cheie, rest: (rest || "").trim() };
   };
   // Lungimea maximă a unei etichete: „DATE OF PUBLICATION OF THE OFFICIAL VALID
   // STANDARD" are 49 de semne. Cu pragul pus la 45, tocmai data standardului rămânea
   // necitită — la 305 din 313 de rase.
   // 1. Rând care e DOAR eticheta: „Limbs", „COAT", „Size/weight".
-  const singur = /^([A-Za-z][A-Za-z .\/&-]{1,60})$/.exec(rand.trim());
+  const singur = /^([A-Za-z][A-Za-z .,\/&-]{1,60})$/.exec(rand.trim());
   if (singur) { const r = potriveste(singur[1], ""); if (r) return r; }
   // 2. Etichetă urmată de „:" — forma obișnuită.
   const cuDoua = /^([A-Za-z][A-Za-z0-9 .,\/&()'-]{1,60}?)\s*:\s*(.*)$/.exec(rand);
@@ -148,6 +179,11 @@ function etichetaLa(rand) {
   // 3. Etichetă cu majuscule, urmată direct de text: „HEAD Long, moderate width."
   const lipit = /^([A-Z][A-Z ]{2,60}?)\s+([A-Z][a-z].*)$/.exec(rand);
   if (lipit) { const r = potriveste(lipit[1], lipit[2]); if (r) return r; }
+  // 3b. Etichetă cu majuscule urmată direct de o listă cu buline, FĂRĂ „:" — chiar așa e
+  // scris „DISQUALIFYING FAULTS • Aggressive…" în multe standarde. Fără asta, defectele
+  // eliminatorii rămâneau prinse în rubrica generală (minor), iar quizul le clasa greșit.
+  const bulina = /^([A-Z][A-Z ]{2,60}?)\s+([•·].*)$/.exec(rand);
+  if (bulina) { const r = potriveste(bulina[1], bulina[2]); if (r) return r; }
   // 4. Etichetă scrisă cu literă mică, urmată direct de text: „General appearance The …"
   const mic = /^([A-Z][a-z]+(?: [a-z]+){0,3})\s+([A-Z].*)$/.exec(rand);
   if (mic) { const r = potriveste(mic[1], mic[2]); if (r) return r; }
@@ -186,7 +222,11 @@ const SUBRUBRICI = [
   "Metacarpus (Pastern)", "Pastern", "Forefeet", "Front feet", "Feet", "Thigh", "Upper thigh",
   "Lower thigh", "Thigh and lower thigh", "Stifle", "Stifle (Knee)", "Knee", "Hock", "Hock joint",
   "Metatarsus", "Metatarsus (Rear pastern)", "Rear pastern", "Hind feet", "Hindfeet",
-  "Hair", "Colour", "Color", "Coat", "Height at the withers", "Height", "Weight", "Size",
+  // „Hair" și „Colour" SUNT sub-rubrici ale robei; „Coat" și „Size" NU — ele sunt rubrici
+  // de sine stătătoare. Ca sub-rubrici, „Coat:" rupea „Curly Coat:"/„Corded Coat:" ale
+  // lui Caniche, iar blana ajungea un singur cuvânt, „Curly", pierzând cei 20 cm ai
+  // șnururilor. „Height at the withers"/„Height"/„Weight" rămân, ca reperele de mărime.
+  "Hair", "Colour", "Color", "Height at the withers", "Height", "Weight",
 ];
 const RE_SUB = new RegExp(
   "(?:^|\\s)(" + SUBRUBRICI.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")\\s*:\\s*",
@@ -215,14 +255,56 @@ function subrubrici(text) {
 
 const curata = (s) => String(s || "").replace(/\s+/g, " ").trim();
 
-/** Sparge o listă de defecte în puncte: după „•", „-" de listă, sau frază. */
+/**
+ * Rubricile de PROZĂ (aspect general, proporții, rezumat) nu conțin niciodată liste cu
+ * buline: o bulină acolo înseamnă că textul a înghițit lista de defecte a rubricii
+ * următoare. Tăiem la prima bulină. La Hovawart, „aspect general" se termina cu patru
+ * defecte eliminatorii prezentate ca descriere.
+ */
+const faraLista = (s) => curata(s).split(/\s*[•·]\s*/)[0].trim();
+
+/**
+ * Frazele-șablon care apar la finalul aproape fiecărui standard și NU sunt defecte ale
+ * rasei: regula generală de apreciere și nota despre reproducție. Lăsate în listă, ele
+ * poluau defectele — iar quizul ajungea să întrebe „cum se clasifică «orice abatere de
+ * la punctele de mai sus»?" și să numească regula generală drept „defect minor". Un
+ * candidat ar fi învățat un neadevăr.
+ */
+const SABLOANE_DEFECT = [
+  /^any departure from the (?:foregoing|above)/i,
+  /should be considered a fault/i,
+  /in exact proportion to its degree/i,
+  /^male animals should have two/i,
+  /fully descended into the scrotum/i,
+  /only functionally and clinically healthy/i,
+  /breed typical conformation should be used for breeding/i,
+  /the (?:latest|above) (?:amendments|mentioned)/i,
+  /^n\.?b\.?[:.]?$/i,
+  /^the faults? (?:and eliminating faults? )?are the same/i,
+];
+const eSablon = (x) => SABLOANE_DEFECT.some((re) => re.test(x));
+
+/** Sparge o listă de defecte în puncte, fără frazele-șablon și fără fragmente fără sens. */
 function puncte(text) {
   if (!text) return [];
   let t = curata(text);
-  // Frazele-formulă care nu sunt defecte în sine, ci regula generală de apreciere.
-  const bucati = t.split(/\s*[•·]\s*|\s*(?:^|\s)[-–—]\s+/).map(curata).filter(Boolean);
+  // Dacă lista folosește buline („•"), despărțim DOAR pe ele. Cratima dintr-un punct e
+  // adesea un calificativ, nu un separator: „Undershot - very exaggerated…" e UN defect,
+  // nu două. Împărțit pe cratimă, „Undershot" rămânea singur și spunea că orice prognatism
+  // e eliminatoriu — când standardul descalifică doar pe cel foarte exagerat.
+  const areBuline = /[•·]/.test(t);
+  const bucati = areBuline
+    ? t.split(/\s*[•·]\s*/).map(curata).filter(Boolean)
+    : t.split(/\s*(?:^|\s)[-–—]\s+/).map(curata).filter(Boolean);
   const lista = bucati.length > 1 ? bucati : t.split(/(?<=\.)\s+(?=[A-Z])/).map(curata).filter(Boolean);
-  return lista.filter((x) => x.length > 3).map((x) => x.replace(/\.$/, ""));
+  return lista
+    .map((x) => curata(x).replace(/\.$/, ""))
+    .filter((x) => x.length >= 5)
+    .filter((x) => !eSablon(x))
+    // Scurgeri de sub-rubrică („Coat:") sau cioburi de listă („1 cm)"): ce se termină
+    // cu „:" ori nu începe cu literă nu e un defect de sine stătător. Defectele reale
+    // dintr-un cuvânt („Overshot", „Undershot") rămân — au literă la început și fără „:".
+    .filter((x) => /^[A-Za-z]/.test(x) && !/:$/.test(x));
 }
 
 /** Prima frază a unui text — pentru rezumate scurte. */
@@ -277,13 +359,38 @@ function tipFunctional(utilizare, grupaNr) {
   return dinGrupa[grupaNr] || "companion";
 }
 
-/** Țara de origine, curățată de tot ce s-a lipit după ea în document. */
+/**
+ * Formele canonice ale țărilor. O aceeași țară scrisă în trei feluri („Great Britain",
+ * „Great-Britain", „United Kingdom", „England") îl păcălea pe quiz să ofere două
+ * răspunsuri corecte la aceeași întrebare și să marcheze greșit alegerea bună. Aducem
+ * fiecare la o singură formă, ca filtrul și examenul să vadă o singură țară.
+ */
+const TARI_CANONICE = [
+  [/^(great[ -]?britain|united kingdom|england|scotland|wales|u\.?k\.?)\b/i, "Great Britain"],
+  [/^(u\.?s\.?a\.?|united states\b.*|usa)\b/i, "U.S.A."],
+  [/^(the )?netherlands\b/i, "Netherlands"],
+  [/^(germany|deutschland)\b/i, "Germany"],
+  [/^(france)\b/i, "France"],
+  [/czechoslovak|czech republic/i, "Czech Republic"],
+  [/^(russia|russian federation|u\.?s\.?s\.?r\.?)\b/i, "Russia"],
+  [/^(belgium)\b/i, "Belgium"],
+  [/^(switzerland|swiss)\b/i, "Switzerland"],
+];
+
+/** Țara de origine, curățată de tot ce s-a lipit după ea și adusă la o formă canonică. */
 function taraDin(text) {
-  const t = curata(text);
+  let t = curata(text);
   if (!t) return "";
-  // Se oprește la primul punct sau la prima etichetă rămasă lipită („… DATE OF …").
-  const m = /^([^.]{2,60})(?:\.|$)/.exec(t.replace(/\s+[A-Z][A-Z ]{3,}:.*$/, ""));
-  return (m ? m[1] : t.slice(0, 60)).trim();
+  // Taie tot ce vine după prima etichetă rămasă lipită („… STANDARD SUPPLIED BY …",
+  // „… DATE OF PUBLICATION …") sau după prima frază lungă — țara e mereu la început.
+  t = t.replace(/\s+(?:STANDARD|DATE OF|PATRONAGE|CLASSIFICATION|Standard Supplied|Kennel Union).*$/i, "");
+  const m = /^([^.;:]{2,40})(?:[.;:]|$)/.exec(t);
+  let tara = (m ? m[1] : t.slice(0, 40)).trim().replace(/[,\s]+$/, "");
+  // O „țară" prea lungă sau plină de cuvinte descriptive nu e o țară („Northern borders
+  // of Mali and Niger; the slopes…") — păstrăm doar primul segment scurt.
+  if (tara.split(" ").length > 5) tara = tara.split(/[,;]/)[0].trim();
+  for (const [re, canonic] of TARI_CANONICE) if (re.test(tara)) return canonic;
+  return tara;
 }
 
 /**
@@ -357,7 +464,10 @@ export function raseDinDocument(text, grupaNr, numeFisier) {
     movement: curata(s.MOVEMENT),
     coat: curata(par) || curata(s.COAT),
     color: curata(culoare),
-    size: curata(s.SIZE),
+    // Plasă pentru mărime: dacă nu există secțiune SIZE, dar înălțimea a fost prinsă ca
+    // sub-rubrică „Height:" în altă parte (roba), o folosim — altfel Porcelaine rămânea
+    // fără înălțime, singura rasă din tot fișierul.
+    size: curata(s.SIZE) || curata(roba.height || roba.height_at_the_withers || ""),
     skin: curata(s.SKIN),
   };
 
@@ -386,12 +496,15 @@ export function raseDinDocument(text, grupaNr, numeFisier) {
       official_name: nume,
       owner_country: taraDin(s.ORIGIN),
       historical_function: curata(s.UTILIZATION),
-      general_impression: curata(s.GENERAL),
-      important_proportions: curata(s.PROPORTIONS),
+      general_impression: faraLista(s.GENERAL),
+      important_proportions: faraLista(s.PROPORTIONS),
       sexual_dimorphism: "",
-      ideal_type_summary: primaFraza(s.GENERAL || s.HISTORY || ""),
+      ideal_type_summary: primaFraza(faraLista(s.GENERAL) || s.HISTORY || ""),
       historical_summary: curata(s.HISTORY),
-      classification: curata(s.CLASSIFICATION),
+      // Din clasificare scoatem prefixul „Group N <denumire>." — el poartă o denumire de
+      // grupă în stil FCI care ar contrazice grupa WDF deja afișată pe fișă. Rămâne doar
+      // secțiunea și mențiunea probei de lucru, care sunt utile și nu se bat cap în cap.
+      classification: curata(s.CLASSIFICATION).replace(/^Group\s*\d+\b[^.]*\.\s*/i, ""),
       standard_published: curata(s.DATE).replace(/^.*?:\s*/, "").replace(/\.$/, ""),
       country_of_development: curata(s.DEZVOLTARE).replace(/\.$/, ""),
     },
