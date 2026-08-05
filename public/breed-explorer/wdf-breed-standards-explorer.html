@@ -139,8 +139,10 @@
 
   <div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
 
-  <!-- Embedded seed data (offline fallback) loaded before app.js -->
-  <script src="data/seed-data.js"></script>
+  <!-- The offline fallback (data/seed-data.js) is NOT loaded here on purpose.
+       It mirrors data/breeds.json byte for byte, so loading both meant downloading
+       the whole dataset twice on every visit — barely noticeable at 32 breeds,
+       wasteful at 345. app.js now pulls it in only when the fetch fails (file://). -->
   <script src="assets/app.js"></script>
 </body>
 </html>

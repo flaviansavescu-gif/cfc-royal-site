@@ -53,6 +53,9 @@
     ["topline", "Topline"], ["body", "Body"], ["chest", "Chest"], ["tail", "Tail"],
     ["forequarters", "Forequarters"], ["hindquarters", "Hindquarters"], ["feet", "Feet"],
     ["movement", "Movement"], ["coat", "Coat"], ["color", "Colour"],
+    // Size and skin come from the imported standards; without them the height/weight
+    // limits — the one thing a judge measures — would sit in the data but never show.
+    ["size", "Size & Weight"], ["skin", "Skin"],
   ];
 
   const PROFILE_TABS = [
@@ -208,6 +211,9 @@
       identity: {
         official_name: "", owner_country: "", historical_function: "",
         general_impression: "", important_proportions: "", sexual_dimorphism: "", ideal_type_summary: "",
+        // Filled by the standards import; empty on hand-written records.
+        classification: "", historical_summary: "",
+        standard_published: "", country_of_development: "",
       },
       anatomy: ANATOMY_FIELDS.reduce((o, [k]) => ((o[k] = ""), o), {}),
       temperament: { behavior: "", ring_attitude: "", expression: "", temperament_notes: "" },
@@ -1012,7 +1018,11 @@
   function generalBlock(b) {
     const id = b.identity;
     return officialSection("General Profile", dl([
+      ["Classification", id.classification],
+      ["Standard published", id.standard_published],
+      ["Country of development", id.country_of_development],
       ["Historical function", id.historical_function],
+      ["Brief historical summary", id.historical_summary],
       ["General impression", id.general_impression],
       ["Important proportions", id.important_proportions],
       ["Sexual dimorphism", id.sexual_dimorphism],
@@ -3202,16 +3212,30 @@
     if (["list", "compare", "dashboard", "quiz"].includes(h) || (h === "admin" && ADMIN_ENABLED)) state.view = h;
   }
 
+  // Load the offline mirror on demand. It is a full copy of breeds.json, so it is
+  // fetched only when the normal load fails — otherwise every visit would download
+  // the dataset twice.
+  function loadSeedScript() {
+    if (window.__CFCR_SEED__) return Promise.resolve(true);
+    return new Promise((resolve) => {
+      const s = document.createElement("script");
+      s.src = "data/seed-data.js";
+      s.onload = () => resolve(!!window.__CFCR_SEED__);
+      s.onerror = () => resolve(false);
+      document.head.appendChild(s);
+    });
+  }
+
   function loadInitialData() {
     // Try to fetch the canonical JSON file. When opened via file:// this often
     // fails (browsers block local fetch); fall back to the embedded seed script.
     return fetch("data/breeds.json", { cache: "no-store" })
       .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
       .then((data) => { ingestDataset(data); return "file"; })
-      .catch(() => {
-        if (window.__CFCR_SEED__) { ingestDataset(window.__CFCR_SEED__); return "embedded"; }
+      .catch(() => loadSeedScript().then((ok) => {
+        if (ok) { ingestDataset(window.__CFCR_SEED__); return "embedded"; }
         throw new Error("No dataset available.");
-      });
+      }));
   }
 
   function boot() {
