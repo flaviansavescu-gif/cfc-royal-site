@@ -63,6 +63,8 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     </summary>
     <p class="g-nota">Oameni care au cerut cod de acces la registru. După ce le generezi codul,
     cererea se închide singură.</p>
+    <p class="g-nota" id="r-cereri-fara-drept" hidden>Codul îl generează registratorul desemnat
+    (cel cu dreptul de a genera coduri). Tu poți vedea cererile și le poți închide.</p>
     <ul class="r-lista" id="r-cereri"></ul>
   </details>
 
@@ -314,6 +316,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       if (!res.ok) { ul.appendChild(el("li", "g-gol", d.eroare || "Eroare")); return; }
       const lst = d.cereri || [];
       numarSec("r-cereri-numar", lst.length, "cerere", "cereri");
+      document.getElementById("r-cereri-fara-drept").hidden = potDaCoduri;
       if (!lst.length) { ul.appendChild(el("li", "g-gol", "Nicio cerere în așteptare.")); return; }
       lst.forEach((c) => {
         const li = el("li");
@@ -321,6 +324,22 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
         info.appendChild(el("strong", null, c.nume));
         info.appendChild(el("span", "g-meta", [c.email, c.telefon, c.mesaj].filter(Boolean).join(" · ")));
         li.appendChild(info);
+        // Drumul scurt: de la cerere direct la formularul de generare, cu numele și
+        // e-mailul deja completate. Fără el, registratorul le rescria de mână din
+        // altă secțiune — sau nu găsea deloc locul de generat.
+        if (potDaCoduri) {
+          const g = el("button", "btn btn--primary", "Generează codul →");
+          g.addEventListener("click", () => {
+            const det = document.querySelector('details[data-sectiune="membri"]');
+            if (det) det.open = true;   // deschiderea încarcă și lista, prin „toggle"
+            document.getElementById("r-nume").value = c.nume || "";
+            document.getElementById("r-email").value = c.email || "";
+            const forma = document.getElementById("r-adauga");
+            forma.scrollIntoView({ behavior: "smooth", block: "center" });
+            document.getElementById("r-cotizatie").focus();
+          });
+          li.appendChild(g);
+        }
         const b = el("button", "btn btn--outline", "Închide cererea");
         b.addEventListener("click", async () => {
           if (!confirm("Închizi cererea lui " + c.nume + "?")) return;
@@ -330,6 +349,13 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
         li.appendChild(b);
         ul.appendChild(li);
       });
+    }
+
+    // Dacă dreptul sosește de la server DUPĂ ce lista cererilor s-a desenat, butoanele
+    // de generare trebuie să apară fără ca omul să închidă și să redeschidă secțiunea.
+    function reincarcaCereriDacaDeschise() {
+      const det = document.querySelector('details[data-sectiune="cereri"]');
+      if (det && det.dataset.incarcat === "da") incarcaCereri();
     }
 
     async function incarcaMembri() {
@@ -345,6 +371,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
         document.getElementById("r-adauga").hidden = !potDaCoduri;
         document.getElementById("r-fara-drept").hidden = potDaCoduri;
         arataExtrase();
+        reincarcaCereriDacaDeschise();
       }
       const lst = d.membri || [];
       numarSec("r-membri-numar", lst.length, "membru", "membri");
@@ -662,6 +689,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
             document.getElementById("r-adauga").hidden = !potDaCoduri;
             document.getElementById("r-fara-drept").hidden = potDaCoduri;
             arataExtrase();
+            reincarcaCereriDacaDeschise();
           }
           document.getElementById("g-nr-lucru").textContent = "(" + (d.inLucru || 0) + ")";
           document.getElementById("g-nr-arhiva").textContent = "(" + (d.arhivate || 0) + ")";
