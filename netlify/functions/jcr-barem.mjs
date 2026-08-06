@@ -1,7 +1,7 @@
 // jcr-barem.mjs — baremul (evaluarea de referință) a lectorului. ASCUNS până la deblocare.
 // Lector: salveaza | citeste | deblocheaza.  Cursant: citeste-cursant (doar după deblocare).
 // Întărire: autentificarea se face ÎNAINTE de a atinge sesiunea.
-import { json, taie, acum, cereLector, candidatDinId, poateAdministraSesiunea, store, citesteParticipanti, esteParticipant, audit, scrieInIndex, baremDeblocat } from "./_jcr/lib.mjs";
+import { json, taie, acum, cereLector, candidatDinId, poateAdministraSesiunea, store, citesteParticipanti, esteParticipant, audit, scrieInIndex, baremDeblocat, candidatDinCod} from "./_jcr/lib.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 function curataBarem(inp, baza) {
@@ -32,7 +32,7 @@ export default cuLimitareCod(async (req) => {
 
   // ——— Cursant: citește baremul DOAR după deblocare și doar dacă e participant ———
   if (actiune === "citeste-cursant") {
-    const cand = await candidatDinId(body.cid);
+    const cand = await candidatDinCod(body.cid);
     if (!cand) return json({ eroare: "Sesiune de candidat invalidă." }, 401);
     const s = await st.get("session/" + id, { type: "json" }).catch(() => null);
     if (!s) return json({ eroare: "Sesiune inexistentă." }, 404);

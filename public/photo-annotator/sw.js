@@ -1,6 +1,6 @@
 /* Service worker — Photo Anatomy Annotator. App shell cache-first; restul network-first.
    Bump CACHE_VERSION la orice schimbare de fișiere ale aplicației. */
-const CACHE_VERSION = "paa-v1.0.1";
+const CACHE_VERSION = "paa-v1.0.2";
 const CACHE_NAME = "paa-cache-" + CACHE_VERSION;
 const SHELL = [
   "./",

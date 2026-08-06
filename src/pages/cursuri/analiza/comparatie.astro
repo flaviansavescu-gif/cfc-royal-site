@@ -15,7 +15,7 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
   (async function () {
     const $ = (id) => document.getElementById(id);
     const id = new URLSearchParams(location.search).get("s");
-    let cid = null; try { cid = JSON.parse(localStorage.getItem("cfcrCandidat") || "null")?.id || null; } catch (e) {}
+    let cid = null; try { cid = JSON.parse(localStorage.getItem("cfcrCandidat") || "null")?.cod || null; } catch (e) {}
     const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const STAT = { "acord": "✓ Acord", "acord-parțial": "≈ Parțial", "dezacord": "✗ Dezacord", "omis": "✗ Omis", "suplimentar": "+ Suplimentar", "acoperit": "✓ Acoperit", "neabordat": "✗ Neabordat", "indisponibil": "—", "necompletat": "—", "necomparabil": "—" };
     if (!id || !cid) { $("j-stare").textContent = "Sesiune sau cont invalid."; return; }

@@ -3,8 +3,7 @@
 // Cursant (cod individual): alocate|detalii-cursant
 import {
   json, taie, acum, idNou, actorDinCod, candidatDinId, cereLector, poateAdministraSesiunea,
-  store, storeCursuri, citesteIndex, scrieInIndex, audit, citesteParticipanti, esteParticipant, baremDeblocat,
-} from "./_jcr/lib.mjs";
+  store, storeCursuri, citesteIndex, scrieInIndex, audit, citesteParticipanti, esteParticipant, baremDeblocat, candidatDinCod,} from "./_jcr/lib.mjs";
 import { marcheazaUrma } from "./_comun/urma.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
@@ -58,7 +57,7 @@ export default cuLimitareCod(async (req) => {
 
   // ————— Acțiuni de CURSANT (cod individual) —————
   if (actiune === "alocate" || actiune === "detalii-cursant") {
-    const cand = await candidatDinId(body.cid);
+    const cand = await candidatDinCod(body.cid);
     if (!cand) return json({ eroare: "Sesiune de candidat invalidă." }, 401);
 
     if (actiune === "alocate") {

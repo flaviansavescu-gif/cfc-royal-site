@@ -3,7 +3,7 @@
 // candidații o adnotează și o trimit; lectorul verifică cu feedback + calificativ.
 // Store „paa": exercitiu/<id>, exercitiu-index, ex-participanti/<id>, ex-raspuns/<id>/<cid>,
 //              image/<id> (binar), image-meta/<id>.
-import { json, taie, acum, idNou, cereLector, candidatDinId, actorDinCod, poateAdministra, store, storeCursuri, audit } from "./_paa/lib.mjs";
+import { json, taie, acum, idNou, cereLector, candidatDinId, actorDinCod, poateAdministra, store, storeCursuri, audit, candidatDinCod} from "./_paa/lib.mjs";
 import { marcheazaUrma, numeActor } from "./_comun/urma.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
@@ -46,7 +46,7 @@ export default cuLimitareCod(async (req) => {
 
   // ————— CANDIDAT —————
   if (["alocate", "detalii-cursant", "imagine", "raspuns-schita", "raspuns-trimite", "raspuns-al-meu"].indexOf(actiune) >= 0 && body.cid) {
-    const cand = await candidatDinId(body.cid);
+    const cand = await candidatDinCod(body.cid);
     if (!cand) return json({ eroare: "Sesiune de candidat invalidă." }, 401);
 
     if (actiune === "alocate") {

@@ -158,8 +158,9 @@ const { m } = Astro.props;
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             modul: slug,
-            id: candidat && candidat.id ? candidat.id : undefined,
-            cod: codPlatforma || undefined,
+            // Candidatul cu cod individual trimite CODUL lui (M1: nu mai trimite insigna,
+            // pe care un lector ar putea-o reutiliza). Restul trimit codul de platformă.
+            cod: (candidat && candidat.cod) ? candidat.cod : (codPlatforma || undefined),
             nume: numeScris,
             raspunsuri,
           }),

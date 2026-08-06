@@ -12,7 +12,7 @@
 //
 // Store „interese": profil/<cid>, alocare/<cid>, deficit.
 import { getStore } from "@netlify/blobs";
-import { json, taie, acum, candidatDinId, audit } from "./_paa/lib.mjs";
+import { json, taie, acum, candidatDinId, audit, candidatDinCod} from "./_paa/lib.mjs";
 // Rolurile, lectorii ȘI competențele lor pe grupe vin din SURSA UNICĂ.
 import { actorDinCod, LECTORI, lectoriCuGrupe } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
@@ -97,7 +97,7 @@ export default cuLimitareCod(async (req) => {
 
   // ————————————————— CANDIDAT —————————————————
   if (body.cid) {
-    const cand = await candidatDinId(body.cid);
+    const cand = await candidatDinCod(body.cid);
     if (!cand) return json({ eroare: "Sesiune de candidat invalidă." }, 401);
 
     if (actiune === "meniu") {

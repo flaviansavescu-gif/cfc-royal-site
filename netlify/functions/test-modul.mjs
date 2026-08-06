@@ -22,29 +22,22 @@ const PRAG = 70; // procent minim de promovare
  * individual, ca progresul personal să se lege de identitatea autentificată, nu de un `id`
  * scris de client.
  */
-async function cine({ cod, id, store }) {
-  // 1) Cod de platformă (admin | lector | codul comun de candidați).
+async function cine({ cod, store }) {
+  // Toți DOVEDESC un cod (M1): candidatul cu cod individual nu se mai identifică prin
+  // insignă (care ajungea în listele lectorilor), ci prin codul lui. Serverul calculează
+  // insigna. Un lector care vede insigna altui candidat nu-l mai poate impersona aici.
   const cod0 = String(cod || "").trim();
-  if (cod0) {
-    const r = rolLaIntrare(cod0);
-    if (r) {
-      // Un cod INDIVIDUAL de candidat se rezolvă prin magazie (are cid propriu); codul
-      // comun („acces") și rolurile de administrare NU au cid personal.
-      if (r.rol === "acces" || r.rol === "admin" || r.rol === "lector")
-        return { rol: r.rol === "acces" ? "candidat-comun" : r.rol, candidatId: null };
-    }
-    const arb = await store.get("arbitru/" + sha256(cod0), { type: "json" }).catch(() => null);
-    if (arb) return { rol: "arbitru", candidatId: null };
-    const cand = await store.get("candidat/" + sha256(cod0), { type: "json" }).catch(() => null);
-    if (cand) return { rol: "candidat", candidatId: sha256(cod0), nume: cand.nume || "" };
+  if (!cod0) return null;
+  const r = rolLaIntrare(cod0);
+  if (r) {
+    // Codul comun de candidați și rolurile de administrare NU au insignă personală.
+    if (r.rol === "acces" || r.rol === "admin" || r.rol === "lector")
+      return { rol: r.rol === "acces" ? "candidat-comun" : r.rol, candidatId: null };
   }
-  // 2) Candidat cu cod individual, autentificat prin cid (jetonul lui de sesiune). Trebuie
-  //    să corespundă unui candidat înscris — altfel nu e nimeni.
-  const cid = String(id || "").trim();
-  if (cid) {
-    const cand = await store.get("candidat/" + cid, { type: "json" }).catch(() => null);
-    if (cand) return { rol: "candidat", candidatId: cid, nume: cand.nume || "" };
-  }
+  const arb = await store.get("arbitru/" + sha256(cod0), { type: "json" }).catch(() => null);
+  if (arb) return { rol: "arbitru", candidatId: null };
+  const cand = await store.get("candidat/" + sha256(cod0), { type: "json" }).catch(() => null);
+  if (cand) return { rol: "candidat", candidatId: sha256(cod0), nume: cand.nume || "" };
   return null;
 }
 
@@ -93,7 +86,7 @@ export default cuLimitareCod(async (req) => {
     return json({ eroare: "Cerere invalidă." }, 400);
   }
 
-  const { modul, nume, cod, id, raspunsuri } = date || {};
+  const { modul, nume, cod, raspunsuri } = date || {};
   const cheie = CHEI[modul];
   if (!cheie) return json({ eroare: "Testul acestui modul nu este activ." }, 404);
   if (!Array.isArray(raspunsuri) || raspunsuri.length !== cheie.length)
@@ -103,7 +96,7 @@ export default cuLimitareCod(async (req) => {
 
   // POARTĂ: fără o identitate de platformă validă, nimic nu se corectează, se salvează
   // sau se trimite. Închide corectarea anonimă (falsificarea de rezultate / spam).
-  const eu = await cine({ cod, id, store });
+  const eu = await cine({ cod, store });
   if (!eu) return json({ eroare: "Intră în Școala de Arbitraj cu codul tău pentru a susține testul." }, 401);
 
   // Identitatea candidatului: pentru un candidat cu cod individual, numele e cel din

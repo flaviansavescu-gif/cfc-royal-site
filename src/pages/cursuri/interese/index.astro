@@ -71,7 +71,7 @@ import { GRUPE_WDF, RASE_PE_GRUPA } from "../../../data/nomenclator-wdf";
     var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
     var cid = null, nume = null;
-    try { var c = JSON.parse(localStorage.getItem("cfcrCandidat") || "null"); if (c && c.id) { cid = c.id; nume = c.nume; } } catch (e) {}
+    try { var c = JSON.parse(localStorage.getItem("cfcrCandidat") || "null"); if (c && c.cod) { cid = c.cod; nume = c.nume; } } catch (e) {}
 
     // Expand/collapse grupe.
     $$(".ir-toggle").forEach(function (b) {

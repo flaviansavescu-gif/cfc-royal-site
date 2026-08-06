@@ -25,7 +25,7 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
     const stareEl = document.getElementById("j-stare");
     const list = document.getElementById("j-list");
     let cid = null;
-    try { cid = JSON.parse(localStorage.getItem("cfcrCandidat") || "null")?.id || null; } catch (e) {}
+    try { cid = JSON.parse(localStorage.getItem("cfcrCandidat") || "null")?.cod || null; } catch (e) {}
     if (!cid) { stareEl.textContent = "Intră cu codul tău de candidat pentru a vedea sesiunile."; return; }
 
     const ETICHETE = { neinceput: "Neînceput", draft: "Schiță salvată", submitted: "Trimis" };

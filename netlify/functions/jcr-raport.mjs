@@ -1,6 +1,6 @@
 // jcr-raport.mjs — Faza 2: istoricul cursantului + raport/export CSV al sesiunii (lector).
 // Cursant: istoric (cid).  Lector: csv (cod, id).
-import { json, taie, cereLector, candidatDinId, poateAdministraSesiunea, store, storeCursuri, citesteIndex, citesteParticipanti, esteParticipant, baremDeblocat } from "./_jcr/lib.mjs";
+import { json, taie, cereLector, candidatDinId, poateAdministraSesiunea, store, storeCursuri, citesteIndex, citesteParticipanti, esteParticipant, baremDeblocat, candidatDinCod} from "./_jcr/lib.mjs";
 import { comparaRaspuns } from "./_jcr/compare.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
@@ -15,7 +15,7 @@ export default cuLimitareCod(async (req) => {
 
   // ——— Cursant: istoricul propriu (sesiuni închise + barem deblocat) ———
   if (actiune === "istoric") {
-    const cand = await candidatDinId(body.cid);
+    const cand = await candidatDinCod(body.cid);
     if (!cand) return json({ eroare: "Sesiune de candidat invalidă." }, 401);
     const idx = await citesteIndex();
     const out = [];

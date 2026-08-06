@@ -1,6 +1,6 @@
 // jcr-raspuns.mjs — răspunsul individual al cursantului (schiță / trimitere).
 // Cursant: schita | trimite | a-mea.  Răspunsul NU e vizibil altor cursanți.
-import { json, taie, acum, candidatDinId, store, citesteParticipanti, esteParticipant, audit } from "./_jcr/lib.mjs";
+import { json, taie, acum, candidatDinId, store, citesteParticipanti, esteParticipant, audit, candidatDinCod} from "./_jcr/lib.mjs";
 
 const FORM_VERSION = 1;
 
@@ -32,7 +32,7 @@ export default async (req) => {
   const actiune = taie(body.actiune, 20);
   const id = taie(body.id, 40);
 
-  const cand = await candidatDinId(body.cid);
+  const cand = await candidatDinCod(body.cid);
   if (!cand) return json({ eroare: "Sesiune de candidat invalidă." }, 401);
   if (!id) return json({ eroare: "Lipsește sesiunea." }, 400);
 

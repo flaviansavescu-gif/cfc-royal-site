@@ -1,6 +1,6 @@
 // paa-sesiuni.mjs — sesiuni de adnotare (Photo Anatomy Annotator).
 // Cursant (cid): lista | creaza | salveaza | detalii | sterge.  (Review lector = Faza 2.)
-import { json, taie, acum, idNou, candidatDinId, store } from "./_paa/lib.mjs";
+import { json, taie, acum, idNou, candidatDinId, store, candidatDinCod} from "./_paa/lib.mjs";
 
 async function citesteIndex(userId) { try { return (await store().get("session-index/" + userId, { type: "json" })) || []; } catch { return []; } }
 async function scrieIndex(userId, s) {
@@ -42,7 +42,7 @@ export default async (req) => {
   let body;
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
   const actiune = taie(body.actiune, 20) || "lista";
-  const cand = await candidatDinId(body.cid);
+  const cand = await candidatDinCod(body.cid);
   if (!cand) return json({ eroare: "Sesiune de candidat invalidă." }, 401);
   const st = store();
 

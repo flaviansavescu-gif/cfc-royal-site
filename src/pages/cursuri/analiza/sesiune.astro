@@ -71,7 +71,7 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
     const params = new URLSearchParams(location.search);
     const id = params.get("s");
     let cid = null;
-    try { cid = JSON.parse(localStorage.getItem("cfcrCandidat") || "null")?.id || null; } catch (e) {}
+    try { cid = JSON.parse(localStorage.getItem("cfcrCandidat") || "null")?.cod || null; } catch (e) {}
     const CALIF = ["Excellent", "Very Good", "Good", "Sufficient", "Insufficient", "Disqualified", "Not Judgeable"];
     const GRAV = [["minor", "Minor"], ["grav", "Grav"], ["eliminator", "Eliminator"]];
     const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));

@@ -1,7 +1,7 @@
 // jcr-resurse.mjs — resurse didactice (imagini) pentru o sesiune.
 // Lector: upload | sterge.  Participant sau lector: imagine (servire gated, fără URL public).
 // Stocare privată în store „jcr": media/<sessionId>/<mediaId> = { contentType, alt, b64 }.
-import { json, taie, acum, cereLector, candidatDinId, actorDinCod, poateAdministraSesiunea, store, citesteParticipanti, esteParticipant, audit, scrieInIndex } from "./_jcr/lib.mjs";
+import { json, taie, acum, cereLector, candidatDinId, actorDinCod, poateAdministraSesiunea, store, citesteParticipanti, esteParticipant, audit, scrieInIndex, candidatDinCod} from "./_jcr/lib.mjs";
 import { randomUUID } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
@@ -30,7 +30,7 @@ export default cuLimitareCod(async (req) => {
     const mediaId = taie(body.mediaId, 60);
     let permis = false;
     if (body.cid) {
-      const cand = await candidatDinId(body.cid);
+      const cand = await candidatDinCod(body.cid);
       const part = await citesteParticipanti(id);
       permis = !!cand && esteParticipant(part, cand.id) && ["published", "closed"].includes(s.status);
     } else if (body.cod) {

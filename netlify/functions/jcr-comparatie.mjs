@@ -1,7 +1,7 @@
 // jcr-comparatie.mjs — comparații explicabile față de barem.
 // Cursant: a-mea (după deblocare).  Lector: individuala | grup (anonimizat implicit).
 // Întărire: autentificarea se face ÎNAINTE de a atinge sesiunea.
-import { json, taie, cereLector, candidatDinId, poateAdministraSesiunea, store, storeCursuri, citesteParticipanti, esteParticipant, baremDeblocat } from "./_jcr/lib.mjs";
+import { json, taie, cereLector, candidatDinId, poateAdministraSesiunea, store, storeCursuri, citesteParticipanti, esteParticipant, baremDeblocat, candidatDinCod} from "./_jcr/lib.mjs";
 import { comparaRaspuns, comparaDefecte, spearman } from "./_jcr/compare.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
@@ -16,7 +16,7 @@ export default cuLimitareCod(async (req) => {
 
   // ——— Cursant: comparația propriului răspuns ———
   if (actiune === "a-mea") {
-    const cand = await candidatDinId(body.cid);
+    const cand = await candidatDinCod(body.cid);
     if (!cand) return json({ eroare: "Sesiune de candidat invalidă." }, 401);
     const s = await st.get("session/" + id, { type: "json" }).catch(() => null);
     if (!s) return json({ eroare: "Sesiune inexistentă." }, 404);

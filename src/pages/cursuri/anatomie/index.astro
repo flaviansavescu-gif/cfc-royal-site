@@ -15,7 +15,7 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
 <script is:inline>
   (async function () {
     var stareEl = document.getElementById("j-stare"), list = document.getElementById("j-list");
-    var cid = null; try { cid = (JSON.parse(localStorage.getItem("cfcrCandidat") || "null") || {}).id || null; } catch (e) {}
+    var cid = null; try { cid = (JSON.parse(localStorage.getItem("cfcrCandidat") || "null") || {}).cod || null; } catch (e) {}
     var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); };
     var ET = { neinceput: "Neînceput", draft: "Schiță", submitted: "Trimis" };
     if (!cid) { stareEl.textContent = "Intră cu codul tău de candidat."; return; }

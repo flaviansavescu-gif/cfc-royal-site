@@ -2,7 +2,7 @@
 // Stocare BINARĂ privată în Blobs (nu base64 în „DB"): image/<id> = bytes,
 // image-meta/<id> = { userId, contentType, w, h, marime, creat }.
 // Cursant: incarca | serveste (proprietar).  Lector: serveste (review).
-import { json, taie, acum, idNou, candidatDinId, actorDinCod, store } from "./_paa/lib.mjs";
+import { json, taie, acum, idNou, candidatDinId, actorDinCod, store, candidatDinCod} from "./_paa/lib.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const TIPURI = { "image/jpeg": 1, "image/png": 1, "image/webp": 1 };
@@ -22,7 +22,7 @@ export default cuLimitareCod(async (req) => {
   const st = store();
 
   if (actiune === "incarca") {
-    const cand = await candidatDinId(body.cid);
+    const cand = await candidatDinCod(body.cid);
     if (!cand) return json({ eroare: "Sesiune de candidat invalidă." }, 401);
     const p = parseDataUrl(body.dataUrl);
     if (!p || !TIPURI[p.contentType]) return json({ eroare: "Format acceptat: JPEG, PNG sau WebP." }, 400);
@@ -44,7 +44,7 @@ export default cuLimitareCod(async (req) => {
     if (!meta) return json({ eroare: "Imagine inexistentă." }, 404);
     // acces: proprietarul (cid) SAU un lector/admin (cod)
     let permis = false;
-    if (body.cid) { const c = await candidatDinId(body.cid); permis = !!c && c.id === meta.userId; }
+    if (body.cid) { const c = await candidatDinCod(body.cid); permis = !!c && c.id === meta.userId; }
     else if (body.cod) { permis = !!actorDinCod(body.cod); }
     if (!permis) return json({ eroare: "Acces refuzat la imagine." }, 403);
     const bytes = await st.get("image/" + imageId, { type: "arrayBuffer" }).catch(() => null);

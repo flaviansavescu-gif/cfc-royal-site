@@ -31,7 +31,24 @@ export function cereAdmin(cod) {
 /** Spațiu comun: orice lector (sau admin) poate administra exercițiile. */
 export function poateAdministra(actor) { return !!actor && (actor.rol === "admin" || actor.rol === "lector"); }
 
-/** Candidat prin ID (bearer stocat în browser la login, ca la progres-cursuri). */
+/**
+ * Candidatul care DOVEDEȘTE codul (M1): primește codul, calculează insigna (id=sha256),
+ * verifică registrul. Preferat lui `candidatDinId` pentru autentificare — un lector care
+ * ar vedea insigna altui candidat în listele lui nu poate întoarce sha256 ca să afle codul.
+ */
+export async function candidatDinCod(cod) {
+  const c = taie(cod, 64);
+  if (!c) return null;
+  const id = sha256(c);
+  try {
+    const cand = await storeCursuri().get("candidat/" + id, { type: "json" });
+    if (cand) return { id, nume: cand.nume };
+  } catch (err) { console.error("Verificare candidat (cod) eșuată:", err); }
+  return null;
+}
+
+/** Candidat prin ID (bearer). Rămâne DOAR pentru rezolvarea internă a insignelor stocate
+ *  (nume din liste), NU pentru autentificare — autentificarea trece prin candidatDinCod. */
 export async function candidatDinId(cid) {
   const id = taie(cid, 80);
   if (!id) return null;

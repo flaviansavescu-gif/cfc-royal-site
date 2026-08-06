@@ -53,7 +53,7 @@
     undo: [], redo: [], sesiuneId: null, titlu: "Sesiune de adnotare", rasa: "",
     standard: null,
   };
-  var cid = null; try { cid = (JSON.parse(localStorage.getItem("cfcrCandidat") || "null") || {}).id || null; } catch (e) {}
+  var cid = null; try { cid = (JSON.parse(localStorage.getItem("cfcrCandidat") || "null") || {}).cod || null; } catch (e) {}
   var exId = new URLSearchParams(location.search).get("ex");
 
   var canvas = $("pa-canvas"), ctx = canvas.getContext("2d"), stage = document.querySelector(".pa-stage");
