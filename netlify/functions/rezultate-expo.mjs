@@ -16,6 +16,26 @@ const json = (obj, status = 200) =>
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+// CSP defensiv pentru paginile de rezultate (adăugat la auditul de securitate). Pagina cu
+// titluri e HTML BRUT, publicat de Manager cu secretul comun, și e servită pe ORIGINEA APEX
+// (aceeași cu platforma /cursuri/). Dacă secretul ar scăpa vreodată, un script strecurat aici
+// ar putea citi datele platformei din același domeniu. Blocăm de la rădăcină: `script-src
+// 'none'` oprește orice JavaScript (exportul e HTML+CSS static — titlurile rămân lizibile),
+// iar `connect-src 'none'`/`form-action 'none'` taie orice scurgere. Un CSS și imagini inline
+// tot merg (stilul paginii), doar codul executabil nu.
+const CSP_REZULTATE =
+  "default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; " +
+  "img-src 'self' data:; font-src 'self' data:; connect-src 'none'; " +
+  "base-uri 'none'; object-src 'none'; form-action 'none'; frame-ancestors 'self'";
+
+/** Anteturi pentru un răspuns HTML de rezultate: tip + CSP + nosniff (+ cache opțional). */
+const anteturiHtml = (cache) => ({
+  "Content-Type": "text/html; charset=utf-8",
+  "Content-Security-Policy": CSP_REZULTATE,
+  "X-Content-Type-Options": "nosniff",
+  ...(cache ? { "Cache-Control": cache } : {}),
+});
+
 export default async (req) => {
   const store = getStore("expozitii");
 
@@ -75,12 +95,10 @@ export default async (req) => {
     if (!r || !r.html) {
       return new Response("<h1>Rezultatele acestei expoziții nu sunt publicate.</h1>", {
         status: 404,
-        headers: { "Content-Type": "text/html; charset=utf-8" },
+        headers: anteturiHtml(),
       });
     }
-    return new Response(r.html, {
-      headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=60" },
-    });
+    return new Response(r.html, { headers: anteturiHtml("public, max-age=60") });
   }
 
   // Index: edițiile publicate, cele mai noi primele.
@@ -102,6 +120,6 @@ export default async (req) => {
 <style>body{font-family:system-ui,sans-serif;max-width:44rem;margin:0 auto;padding:2rem 1.25rem;color:#1a2433;line-height:1.6}h1{color:#1F4D3A}a{color:#1F4D3A}small{color:#5b6472}</style>
 </head><body><h1>Rezultatele expozițiilor</h1>${lista}
 <p><small>Club Federal Chinologic – Royal · World Dog Federation</small></p></body></html>`,
-    { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=60" } },
+    { headers: anteturiHtml("public, max-age=60") },
   );
 };
