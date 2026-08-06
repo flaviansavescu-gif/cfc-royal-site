@@ -1,0 +1,118 @@
+---
+// CereriDate.astro — formularul public prin care o persoană își exercită drepturile GDPR.
+// Bilingv (ro/en). NU execută nimic: doar depune o cerere pe care registratura o tratează,
+// după ce verifică identitatea. Postează la funcția cereri-date (acțiunea „depune").
+interface Props { lang: "ro" | "en" }
+const { lang } = Astro.props;
+
+const T = {
+  ro: {
+    tipuri: [
+      ["acces", "Acces la datele mele"],
+      ["rectificare", "Rectificarea (corectarea) datelor"],
+      ["stergere", "Ștergerea datelor"],
+      ["restrictionare", "Restricționarea prelucrării"],
+      ["portabilitate", "Portabilitatea datelor"],
+      ["opozitie", "Opoziție la prelucrare"],
+      ["retragere-consimtamant", "Retragerea consimțământului"],
+    ],
+    lTip: "Ce drept vrei să exerciți", lNume: "Numele tău", lEmail: "E-mailul tău",
+    lDesc: "Spune pe scurt ce anume ceri", lTrimite: "Trimite cererea",
+    ph: "ex. vreau să știu ce date aveți despre mine / vă rog să ștergeți adresa mea din buletin",
+    succes: "Cererea ta a fost înregistrată. Îți răspundem în cel mult 30 de zile, pe e-mail.",
+    reset: "Trimite altă cerere",
+  },
+  en: {
+    tipuri: [
+      ["acces", "Access to my data"],
+      ["rectificare", "Rectification (correction) of data"],
+      ["stergere", "Erasure of data"],
+      ["restrictionare", "Restriction of processing"],
+      ["portabilitate", "Data portability"],
+      ["opozitie", "Objection to processing"],
+      ["retragere-consimtamant", "Withdrawal of consent"],
+    ],
+    lTip: "Which right do you wish to exercise", lNume: "Your name", lEmail: "Your e-mail",
+    lDesc: "Briefly, what are you requesting", lTrimite: "Send the request",
+    ph: "e.g. I want to know what data you hold about me / please erase my address from the bulletin",
+    succes: "Your request has been registered. We will reply within 30 days, by e-mail.",
+    reset: "Send another request",
+  },
+}[lang];
+---
+
+<form id="cd-form" class="cd-form">
+  <label class="cd-f">
+    <span>{T.lTip}</span>
+    <select id="cd-tip" name="tip" required>
+      {T.tipuri.map(([v, et]) => <option value={v}>{et}</option>)}
+    </select>
+  </label>
+  <div class="cd-doi">
+    <label class="cd-f">
+      <span>{T.lNume}</span>
+      <input id="cd-nume" name="nume" type="text" maxlength="120" required autocomplete="name" />
+    </label>
+    <label class="cd-f">
+      <span>{T.lEmail}</span>
+      <input id="cd-email" name="email" type="email" maxlength="160" required autocomplete="email" />
+    </label>
+  </div>
+  <label class="cd-f">
+    <span>{T.lDesc}</span>
+    <textarea id="cd-desc" name="descriere" rows="4" maxlength="2000" required placeholder={T.ph}></textarea>
+  </label>
+  {/* Capcană pentru roboți — nu se completează de oameni, e ascunsă. */}
+  <input type="text" name="website" tabindex="-1" autocomplete="off" class="cd-hp" aria-hidden="true" />
+  <button class="btn btn--primary" type="submit" id="cd-trimite">{T.lTrimite}</button>
+  <p class="cd-mesaj" id="cd-mesaj" hidden></p>
+</form>
+
+<div class="cd-succes" id="cd-succes" hidden>
+  <p>✓ {T.succes}</p>
+  <button class="btn" type="button" id="cd-din-nou">{T.reset}</button>
+</div>
+
+<style>
+  .cd-form { display: grid; gap: .9rem; max-width: 36rem; }
+  .cd-f { display: grid; gap: .3rem; }
+  .cd-f > span { font-weight: 600; font-size: .92rem; }
+  .cd-doi { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+  .cd-form input, .cd-form select, .cd-form textarea {
+    padding: .55rem .7rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    font: inherit; background: var(--color-surface);
+  }
+  .cd-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .cd-mesaj { margin: 0; padding: .6rem .8rem; border-radius: var(--radius); font-size: .92rem;
+    background: #f7eaea; color: var(--color-danger); }
+  .cd-succes { max-width: 36rem; padding: 1rem 1.2rem; border: 1px solid var(--color-success);
+    background: #e6f1eb; border-radius: var(--radius); }
+  .cd-succes p { margin: 0 0 .8rem; color: var(--color-success); font-weight: 600; }
+  @media (max-width: 32rem) { .cd-doi { grid-template-columns: 1fr; } }
+</style>
+
+<script is:inline>
+  (function () {
+    var form = document.getElementById("cd-form");
+    var mesaj = document.getElementById("cd-mesaj");
+    var succes = document.getElementById("cd-succes");
+    if (!form) return;
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var btn = document.getElementById("cd-trimite");
+      btn.disabled = true; mesaj.hidden = true;
+      try {
+        var payload = Object.fromEntries(new FormData(form).entries());
+        payload.actiune = "depune";
+        var r = await fetch("/.netlify/functions/cereri-date", {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+        });
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) { mesaj.textContent = d.eroare || "Nu am putut trimite cererea."; mesaj.hidden = false; btn.disabled = false; return; }
+        form.hidden = true; succes.hidden = false;
+      } catch (err) { mesaj.textContent = "Eroare de rețea. Reîncearcă."; mesaj.hidden = false; btn.disabled = false; }
+    });
+    var dinNou = document.getElementById("cd-din-nou");
+    if (dinNou) dinNou.addEventListener("click", function () { form.reset(); form.hidden = false; succes.hidden = true; document.getElementById("cd-trimite").disabled = false; });
+  })();
+</script>

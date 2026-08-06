@@ -135,6 +135,7 @@ export const footerNav: FooterColumn[] = [
     titleKey: "footer.legal",
     links: [
       { slug: "juridic/confidentialitate", label: { ro: "Confidențialitate", en: "Privacy Policy" } },
+      { slug: "juridic/cereri-date", label: { ro: "Cererile privind datele", en: "Data requests" } },
       { slug: "juridic/cookie-uri", label: { ro: "Politica cookie-uri", en: "Cookie Policy" } },
       { slug: "juridic/termeni", label: { ro: "Termeni și condiții", en: "Terms & Conditions" } },
     ],

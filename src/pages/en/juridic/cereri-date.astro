@@ -1,0 +1,41 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import CereriDate from "../../../components/CereriDate.astro";
+const lang = "en" as const;
+---
+<BaseLayout
+  title="My personal data requests"
+  lang={lang}
+  description="Exercise your GDPR rights: access, rectification, erasure, restriction, portability, objection or withdrawal of consent. We reply within 30 days."
+>
+  <div class="container" style="padding-block: 2.5rem 3.5rem;">
+    <p class="cd-cale"><a href="/en/">Home</a> · <a href="/en/juridic/confidentialitate/">Privacy</a> · Data requests</p>
+    <h1 class="cd-title">My personal data requests</h1>
+    <p class="cd-intro">
+      You have the right to request <strong>access</strong> to your data, its <strong>rectification</strong>,
+      <strong>erasure</strong>, <strong>restriction</strong>, <strong>portability</strong>, to
+      <strong>object</strong> to processing or to <strong>withdraw your consent</strong>.
+      Fill in the form; <strong>we reply within 30 days</strong>, by e-mail. So that we do not hand
+      your data to someone else, we may ask you for proof of identity before acting.
+    </p>
+    <div class="cd-nota">
+      One limit stated up front: <strong>the stud book cannot be erased.</strong> A certificate of
+      origin, once issued, has effects towards third parties; what is wrong can be <em>rectified</em>,
+      but not erased. See the <a href="/en/juridic/confidentialitate/">privacy policy</a>.
+    </div>
+    <CereriDate lang={lang} />
+  </div>
+</BaseLayout>
+
+<style>
+  .cd-cale { font-size: .85rem; color: var(--color-text-muted); margin: 0 0 .3rem; }
+  .cd-cale a { color: var(--color-link); }
+  .cd-title { color: var(--color-primary); }
+  .cd-intro { color: var(--color-text-muted); max-width: 46rem; }
+  .cd-nota {
+    max-width: 46rem; margin: 0 0 1.4rem; padding: .85rem 1.1rem;
+    background: #f7f1df; border: 1px solid var(--color-accent); border-left-width: 4px;
+    border-radius: var(--radius); font-size: .95rem; color: var(--color-text);
+  }
+  .cd-nota a { color: var(--color-link); }
+</style>

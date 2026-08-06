@@ -188,7 +188,9 @@ other organisations — and erasing it would make it impossible to verify a docu
 circulates in the world. What can be done is to rectify incorrect data and to restrict its
 use for other purposes.
 
-Requests go to **contact@cfc-royal.ro**.
+Requests can be filed through the **[personal data requests form](/en/juridic/cereri-date/)** or
+at **contact@cfc-royal.ro**; we reply within **30 days**. So that we do not hand your data to
+someone else, we may ask you for proof of identity before acting.
 
 If you consider that we have infringed your rights, you may address the **National
 Supervisory Authority for Personal Data Processing** (anspdcp.ro) or the courts.

@@ -1,0 +1,145 @@
+---
+// /registru/date-personale/ — registrul cererilor privind datele personale (GDPR / DSAR).
+// Registratura și administratorul văd cererile depuse din afară, cu termenul de 30 de zile,
+// și le închid: în lucru, rezolvată sau refuzată (cu motiv). Fiecare hotărâre intră în jurnal.
+import RegistruLayout from "../../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Cereri privind datele personale" allow={["registratura"]}>
+  <a class="dp-inapoi" href="/registru/registratura/">← Registratură</a>
+  <h1 class="dp-title">Cereri privind datele personale (GDPR)</h1>
+  <p class="dp-sub">
+    Cererile depuse din formularul public. Fiecare are un <strong>termen de 30 de zile</strong>.
+    Înainte de a acționa, <strong>verifică identitatea</strong> solicitantului (răspunde-i pe e-mail
+    și cere o dovadă). Un refuz cere un motiv — persoana are dreptul să-l afle. Formularul nu
+    execută nimic singur; hotărârea e a ta și rămâne în jurnal.
+  </p>
+
+  <div class="dp-filtre">
+    <button class="dp-filtru is-activ" type="button" data-f="deschise">De rezolvat <span id="dp-n-deschise"></span></button>
+    <button class="dp-filtru" type="button" data-f="toate">Toate</button>
+  </div>
+
+  <ul class="dp-lista" id="dp-lista"><li class="dp-gol">Se încarcă…</li></ul>
+</RegistruLayout>
+
+<style>
+  .dp-inapoi { display: inline-block; margin-bottom: .5rem; color: var(--color-link); font-size: .9rem; }
+  .dp-title { color: var(--color-primary); }
+  .dp-sub { color: var(--color-text-muted); max-width: 48rem; }
+  .dp-filtre { display: flex; gap: .4rem; flex-wrap: wrap; margin: 1rem 0 .6rem; }
+  .dp-filtru { padding: .4rem .9rem; border: 1px solid var(--color-border); border-radius: 999px;
+    background: var(--color-surface-alt); cursor: pointer; font: inherit; font-size: .88rem; color: var(--color-text-muted); }
+  .dp-filtru.is-activ { background: var(--color-primary); color: #fbfaf7; border-color: var(--color-primary); font-weight: 600; }
+  .dp-lista { list-style: none; padding: 0; margin: 0; display: grid; gap: .7rem; max-width: 52rem; }
+  .dp-card { border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); padding: .85rem 1rem; }
+  .dp-l1 { display: flex; justify-content: space-between; gap: .6rem; flex-wrap: wrap; align-items: baseline; }
+  .dp-tip { font-weight: 700; color: var(--color-primary); }
+  .dp-stare { font-size: .76rem; padding: .12rem .55rem; border-radius: 999px; white-space: nowrap; }
+  .dp-stare.noua { background: #f7f1df; color: var(--color-accent-dark); }
+  .dp-stare.in-lucru { background: #e7eef7; color: #2a4d7a; }
+  .dp-stare.rezolvata { background: #e6f1eb; color: var(--color-success); }
+  .dp-stare.refuzata { background: #f7eaea; color: var(--color-danger); }
+  .dp-cine { color: var(--color-text); font-size: .9rem; margin: .3rem 0 0; }
+  .dp-cine a { color: var(--color-link); }
+  .dp-desc { color: var(--color-text); font-size: .9rem; margin: .4rem 0; white-space: pre-wrap;
+    background: var(--color-surface-alt); border-radius: var(--radius); padding: .5rem .7rem; }
+  .dp-termen { font-size: .82rem; color: var(--color-text-muted); }
+  .dp-termen.aproape { color: var(--color-accent-dark); font-weight: 600; }
+  .dp-termen.depasit { color: var(--color-danger); font-weight: 700; }
+  .dp-actiuni { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .5rem; }
+  .dp-mic { color: var(--color-text-muted); font-size: .82rem; margin: .3rem 0 0; }
+  .dp-gol { color: var(--color-text-muted); font-style: italic; padding: .8rem 0; }
+</style>
+
+<script is:inline>
+  (function () {
+    var F = "/.netlify/functions/cereri-date";
+    var cod = function () { try { return localStorage.getItem("cfcrRegistruCod") || ""; } catch (e) { return ""; } };
+    var disp = function () { try { return localStorage.getItem("cfcrRegistruDispozitiv") || ""; } catch (e) { return ""; } };
+    var post = function (b) {
+      return fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ cod: cod(), dispozitiv: disp() }, b)) });
+    };
+    var lista = document.getElementById("dp-lista");
+    var toate = [];
+    var filtru = "deschise";
+    var STARI = { noua: "nouă", "in-lucru": "în lucru", rezolvata: "rezolvată", refuzata: "refuzată" };
+
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); }
+    function zileRamase(termen) {
+      var t = Date.parse(termen); if (!isFinite(t)) return null;
+      return Math.ceil((t - Date.now()) / 86400000);
+    }
+    function randTermen(c) {
+      if (c.stare === "rezolvata" || c.stare === "refuzata") return "<span class='dp-termen'>închisă</span>";
+      var z = zileRamase(c.termen);
+      if (z == null) return "";
+      if (z < 0) return "<span class='dp-termen depasit'>termen depășit cu " + (-z) + " zile</span>";
+      if (z <= 7) return "<span class='dp-termen aproape'>mai sunt " + z + " zile</span>";
+      return "<span class='dp-termen'>mai sunt " + z + " zile (până " + esc(String(c.termen).slice(0, 10)) + ")</span>";
+    }
+    function randIstoric(c) {
+      if (!c.istoric || c.istoric.length < 2) return "";
+      var pasi = c.istoric.slice(1).map(function (h) {
+        return (STARI[h.stare] || h.stare) + " (" + String(h.la).slice(0, 10) + ")" + (h.motiv ? " — " + esc(h.motiv) : "");
+      });
+      return "<p class='dp-mic'>istoric: " + pasi.join(" · ") + "</p>";
+    }
+    function inchisa(c) { return c.stare === "rezolvata" || c.stare === "refuzata"; }
+    function randCard(c) {
+      var act = inchisa(c) ? "" :
+        "<div class='dp-actiuni'>"
+        + (c.stare === "noua" ? "<button class='btn' data-lucru='" + esc(c.id) + "'>Ia în lucru</button>" : "")
+        + "<button class='btn btn--primary' data-ok='" + esc(c.id) + "'>Marchează rezolvată</button>"
+        + "<button class='btn' data-nu='" + esc(c.id) + "'>Refuză (cu motiv)</button></div>";
+      return "<li class='dp-card'>"
+        + "<div class='dp-l1'><span class='dp-tip'>" + esc(c.tipEticheta || c.tip) + "</span>"
+        + "<span class='dp-stare " + c.stare + "'>" + (STARI[c.stare] || c.stare) + "</span></div>"
+        + "<p class='dp-cine'>" + esc(c.nume) + " · <a href='mailto:" + esc(c.email) + "'>" + esc(c.email) + "</a>"
+        + " · depusă " + esc(String(c.creat).slice(0, 10)) + "</p>"
+        + "<div class='dp-desc'>" + esc(c.descriere) + "</div>"
+        + randTermen(c) + randIstoric(c) + act + "</li>";
+    }
+    function aplica() {
+      var arr = filtru === "deschise" ? toate.filter(function (c) { return !inchisa(c); }) : toate;
+      lista.innerHTML = arr.length ? arr.map(randCard).join("")
+        : "<li class='dp-gol'>" + (filtru === "deschise" ? "Nicio cerere de rezolvat." : "Nicio cerere.") + "</li>";
+      var nDesc = toate.filter(function (c) { return !inchisa(c); }).length;
+      var b = document.getElementById("dp-n-deschise"); if (b) b.textContent = nDesc ? "(" + nDesc + ")" : "";
+    }
+    async function incarca() {
+      try {
+        var r = await post({ actiune: "lista" });
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) { lista.innerHTML = "<li class='dp-gol'>" + esc(d.eroare || "Nu s-au putut încărca.") + "</li>"; return; }
+        toate = d.cereri || [];
+        aplica();
+      } catch (e) { lista.innerHTML = "<li class='dp-gol'>Eroare de rețea.</li>"; }
+    }
+    Array.prototype.forEach.call(document.querySelectorAll(".dp-filtru"), function (b) {
+      b.addEventListener("click", function () {
+        document.querySelectorAll(".dp-filtru").forEach(function (x) { x.classList.remove("is-activ"); });
+        b.classList.add("is-activ"); filtru = b.dataset.f; aplica();
+      });
+    });
+    lista.addEventListener("click", async function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      var id, stare, motiv;
+      if (b.dataset.lucru) { id = b.dataset.lucru; stare = "in-lucru"; }
+      else if (b.dataset.ok) { id = b.dataset.ok; stare = "rezolvata"; if (!confirm("Marchezi cererea ca rezolvată?")) return; }
+      else if (b.dataset.nu) {
+        id = b.dataset.nu; stare = "refuzata";
+        motiv = prompt("Motivul refuzului (îl vede solicitantul, rămâne în jurnal):"); if (!motiv) return;
+      } else return;
+      b.disabled = true;
+      try {
+        var r = await post({ actiune: "stare", id: id, stare: stare, motiv: motiv });
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) { alert(d.eroare || "Eroare."); b.disabled = false; return; }
+        incarca();
+      } catch (er) { alert("Eroare de rețea."); b.disabled = false; }
+    });
+    incarca();
+  })();
+</script>

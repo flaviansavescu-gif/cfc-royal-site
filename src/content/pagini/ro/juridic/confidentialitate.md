@@ -186,7 +186,9 @@ organizații — iar ștergerea lui ar face imposibilă verificarea unui act car
 lume. Ce se poate face este rectificarea datelor greșite și restricționarea folosirii lor
 în alte scopuri.
 
-Cererile se trimit la **contact@cfc-royal.ro**.
+Cererile se depun prin **[formularul privind datele personale](/ro/juridic/cereri-date/)** sau
+la **contact@cfc-royal.ro**; îți răspundem în cel mult **30 de zile**. Ca să nu dăm datele tale
+altcuiva, s-ar putea să-ți cerem o dovadă a identității înainte de a acționa.
 
 Dacă socotești că ți-am încălcat drepturile, te poți adresa **Autorității Naționale de
 Supraveghere a Prelucrării Datelor cu Caracter Personal** (anspdcp.ro) sau instanței.

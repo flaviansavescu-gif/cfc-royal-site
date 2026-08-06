@@ -1,0 +1,194 @@
+// cereri-date.mjs — cererile persoanelor vizate (GDPR / DSAR).
+//
+// DE CE. GDPR dă oricui dreptul să ceară accesul la datele lui, rectificarea, ștergerea,
+// restricționarea, portabilitatea, opoziția sau retragerea consimțământului — și obligă
+// operatorul să răspundă în 30 de zile. Până acum, calea era un simplu „scrie-ne la e-mail".
+// Aici cererea se DEPUNE, primește un termen și intră într-un registru pe care registratura
+// îl vede și îl închide — cu motiv, când refuză (ex. „cartea de origini nu se șterge").
+//
+// IMPORTANT: formularul NU execută nimic singur. Nu șterge, nu exportă, nu deconspiră date.
+// Doar consemnează o cerere pe care un OM o tratează, după ce verifică identitatea celui care
+// o face. Un formular care ar șterge automat la cerere ar fi el însuși o breșă.
+//
+// Stocare (store „registru", citire tare):
+//   dsar/<id> -> cererea + istoricul stărilor
+//
+// POST {      actiune:"depune", tip, nume, email, descriere, website? }  -> { ok, id }   (public)
+// POST { cod, dispozitiv, actiune:"lista" }                              -> { cereri }   (registratură/admin)
+// POST { cod, dispozitiv, actiune:"stare", id, stare, motiv? }           -> { ok }        (registratură/admin)
+import { getStore } from "@netlify/blobs";
+import { actorDinCod } from "./_comun/roluri.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { membruDinCod, registratorDinCod } from "./registru-acces.mjs";
+import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
+import { jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, actorExtern, ipCerere } from "./_comun/registru-jurnal.mjs";
+import { eRobot, limiteazaTrimiterile } from "./_comun/formular-public.mjs";
+import { trimite, pagina, escapeHtml, ADRESA_ASOCIATIEI } from "./_comun/posta.mjs";
+
+const store = () => getStore({ name: "registru", consistency: "strong" });
+
+const json = (body, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
+  });
+
+const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
+const EMAIL_RE = /^[^@\s]+@[^@\s.]+\.[^@\s]+$/;
+const idNou = () => Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+
+const ZILE_TERMEN = 30;               // GDPR: răspuns în cel mult o lună
+const MAX_PE_ORA = 5;                 // un om cinstit nu depune cinci cereri într-o oră
+
+const cheia = (id) => "dsar/" + id;
+
+// Drepturile pe care le poate exercita o persoană vizată. Cheia intră în date; eticheta se afișează.
+export const TIPURI = {
+  acces: "Acces la date",
+  rectificare: "Rectificarea datelor",
+  stergere: "Ștergerea datelor",
+  restrictionare: "Restricționarea prelucrării",
+  portabilitate: "Portabilitatea datelor",
+  opozitie: "Opoziție la prelucrare",
+  "retragere-consimtamant": "Retragerea consimțământului",
+};
+export const tipValid = (t) => Object.prototype.hasOwnProperty.call(TIPURI, t);
+
+// Stările pe care le poate da registratura unei cereri (fapta din jurnal e legată de fiecare).
+export const STARI = { "in-lucru": "dsar-in-lucru", rezolvata: "dsar-rezolvata", refuzata: "dsar-refuzata" };
+
+/** Termenul de răspuns, ca dată ISO: momentul depunerii + 30 de zile. */
+export function termenDin(creatISO, zile = ZILE_TERMEN) {
+  const t = Date.parse(creatISO);
+  return new Date((Number.isFinite(t) ? t : Date.now()) + zile * 86400e3).toISOString();
+}
+
+/**
+ * Validează cererea publică (fără a atinge magazia). Întoarce {eroare} sau {ok, câmpuri curățate}.
+ * Nu verifică identitatea — asta o face omul, la tratarea cererii.
+ */
+export function valideazaCerere(body) {
+  const tip = taie(body.tip, 40);
+  if (!tipValid(tip)) return { eroare: "Alege ce drept vrei să exerciți." };
+  const nume = taie(body.nume, 120);
+  if (nume.length < 2) return { eroare: "Scrie-ți numele, ca să știm cu cine vorbim." };
+  const email = taie(body.email, 160);
+  if (!EMAIL_RE.test(email)) return { eroare: "Scrie o adresă de e-mail validă — pe ea îți răspundem." };
+  const descriere = taie(body.descriere, 2000);
+  if (descriere.length < 5) return { eroare: "Spune pe scurt ce anume ceri." };
+  return { ok: true, tip, nume, email, descriere };
+}
+
+async function cine(cod) {
+  if (actorDinCod(cod)?.rol === "admin") return { rol: "admin" };
+  const m = await membruDinCod(cod);
+  if (m) return { rol: "membru", membru: m };
+  const r = await registratorDinCod(cod);
+  if (r) return { rol: "registratura", registrator: r };
+  return null;
+}
+
+const rezumat = (c) => ({
+  id: c.id, tip: c.tip, tipEticheta: TIPURI[c.tip] || c.tip, nume: c.nume, email: c.email,
+  descriere: c.descriere, stare: c.stare, creat: c.creat, termen: c.termen,
+  istoric: c.istoric || [], motiv: c.motivRefuz || null,
+});
+
+export default cuLimitareCod(async (req) => {
+  if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
+  let body;
+  try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
+
+  const actiune = taie(body.actiune, 24);
+  const s = store();
+
+  // —— Public: depunerea unei cereri. Fără cod. ——
+  if (actiune === "depune") {
+    // Capcană pentru roboți: câmp ascuns completat = prefacem că a mers, dar nu scriem nimic.
+    if (eRobot(body)) return json({ ok: true, id: "—" });
+    const lim = await limiteazaTrimiterile(s, "dsar-ip", req, { max: MAX_PE_ORA, fereastraMs: 3600e3 });
+    if (!lim.permis)
+      return json({ eroare: `Ai trimis deja ${MAX_PE_ORA} cereri în ultima oră. Încearcă din nou mai târziu.` }, 429);
+
+    const v = valideazaCerere(body);
+    if (v.eroare) return json({ eroare: v.eroare }, 400);
+
+    const id = idNou();
+    const creat = new Date().toISOString();
+    const cerere = {
+      id, creat, termen: termenDin(creat),
+      tip: v.tip, nume: v.nume, email: v.email, descriere: v.descriere,
+      ip: ipCerere(req), stare: "noua",
+      istoric: [{ stare: "noua", la: creat }],
+    };
+    await s.setJSON(cheia(id), cerere);
+
+    // Alertă către asociație (pornește termenul de 30 de zile) — prin jurnal, ca la cererea de acces.
+    await jurnalizeaza(s, {
+      fapta: "dsar-primita", actor: actorExtern(v.nume), obiect: TIPURI[v.tip],
+      detalii: `${v.nume} <${v.email}> — termen ${cerere.termen.slice(0, 10)}`, ip: cerere.ip,
+    });
+
+    // Confirmare către solicitant (dacă e configurată poșta). Eșecul nu strică depunerea.
+    const corp =
+      `<p>Am primit cererea ta privind datele personale: <strong>${escapeHtml(TIPURI[v.tip])}</strong>.</p>` +
+      `<p>Îți răspundem în cel mult <strong>30 de zile</strong>, la această adresă. S-ar putea să-ți cerem ` +
+      `o dovadă a identității înainte de a acționa — ca să nu dăm datele tale altcuiva.</p>` +
+      `<p style="color:#666;font-size:13px">Dacă nu tu ai făcut această cerere, ignoră mesajul.</p>`;
+    trimite({ catre: v.email, subiect: "[CFC-Royal] Am primit cererea ta privind datele personale",
+      html: pagina("Cerere înregistrată", "#1F4D3A", corp) }).catch(() => {});
+
+    return json({ ok: true, id });
+  }
+
+  // —— De aici încolo, orice acțiune cere cod + al doilea factor (rol greu). ——
+  const eu = await cine(taie(body.cod, 60));
+  if (!eu) return json({ eroare: "Cod incorect." }, 401);
+  if (eu.rol !== "registratura" && eu.rol !== "admin")
+    return json({ eroare: "Doar registratura tratează cererile privind datele." }, 403);
+  if (ROLURI_PROTEJATE.includes(eu.rol) &&
+      !(await dispozitivCunoscut(s, taie(body.dispozitiv, 80), eu.rol)))
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+
+  // —— Registrul cererilor. ——
+  if (actiune === "lista") {
+    const cereri = [];
+    try {
+      const { blobs } = await s.list({ prefix: "dsar/" });
+      for (const b of blobs) {
+        const c = await s.get(b.key, { type: "json" }).catch(() => null);
+        if (c) cereri.push(rezumat(c));
+      }
+    } catch (err) { console.error("Listare cereri GDPR eșuată:", err); }
+    // Cele mai noi întâi; cele nerezolvate, oricum, se văd după termenul care se apropie.
+    cereri.sort((a, b) => String(b.creat).localeCompare(String(a.creat)));
+    return json({ cereri });
+  }
+
+  // —— Schimbarea stării unei cereri (în lucru / rezolvată / refuzată-cu-motiv). ——
+  if (actiune === "stare") {
+    const id = taie(body.id, 60);
+    const stare = taie(body.stare, 20);
+    if (!STARI[stare]) return json({ eroare: "Stare necunoscută." }, 400);
+    const c = await s.get(cheia(id), { type: "json" }).catch(() => null);
+    if (!c) return json({ eroare: "Cerere inexistentă." }, 404);
+
+    const motiv = taie(body.motiv, 800);
+    if (stare === "refuzata" && motiv.length < 5)
+      return json({ eroare: "Un refuz cere un motiv — persoana are dreptul să-l afle." }, 400);
+
+    const acum = new Date().toISOString();
+    await jurnalizeazaObligatoriu(s, {
+      fapta: STARI[stare], actor: actorJurnal(eu), obiect: TIPURI[c.tip] || c.tip,
+      detalii: `${c.nume} <${c.email}>` + (motiv ? ` — ${motiv}` : ""), ip: ipCerere(req),
+    });
+
+    c.stare = stare;
+    if (stare === "refuzata") c.motivRefuz = motiv;
+    c.istoric = c.istoric || [];
+    c.istoric.push({ stare, motiv: motiv || undefined, la: acum, deCatre: actorJurnal(eu) });
+    await s.setJSON(cheia(id), c);
+    return json({ ok: true });
+  }
+
+  return json({ eroare: "Acțiune necunoscută." }, 400);
+});

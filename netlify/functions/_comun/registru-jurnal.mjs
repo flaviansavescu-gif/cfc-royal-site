@@ -79,6 +79,13 @@ export const FAPTE = {
   "anunt-cuib-aprobat": "Anunț de cuib publicat",
   "anunt-cuib-respins": "Anunț de cuib respins",
   "anunt-cuib-retras": "Anunț de cuib retras de crescător",
+  // Cererile persoanelor vizate (GDPR / DSAR): acces, rectificare, ștergere, restricționare,
+  // portabilitate, opoziție, retragerea consimțământului. Cererea vine din afară și pornește
+  // un termen de 30 de zile; fapta se vede în jurnal — cine a cerut, când, cum s-a răspuns.
+  "dsar-primita": "Cerere privind datele personale primită",
+  "dsar-in-lucru": "Cerere privind datele — luată în lucru",
+  "dsar-rezolvata": "Cerere privind datele — rezolvată",
+  "dsar-refuzata": "Cerere privind datele — refuzată (cu motiv)",
   // Acces
   "cod-generat": "Cod de acces generat",
   "cod-trimis": "Cod de acces trimis pe e-mail",
@@ -106,6 +113,7 @@ export const FAPTE = {
  */
 export const FAPTE_DE_ANUNTAT = new Set([
   "cerere-acces",          // un om așteaptă un răspuns — dacă nu-l vezi, nu-l primește
+  "dsar-primita",          // o cerere GDPR pornește un termen legal de 30 de zile
   "arhiva-descarcata",     // tot registrul, cu scanuri de acte, pe un calculator din afară
   "dmf-sters",             // un dosar dispare
   "certificat-anulat",     // un act eliberat își pierde valabilitatea
