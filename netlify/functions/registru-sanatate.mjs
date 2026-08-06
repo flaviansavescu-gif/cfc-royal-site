@@ -83,18 +83,36 @@ export default cuLimitareCod(async (req) => {
     // Recomandarea de calitate se calculează DOAR din testele verificate.
     const verificate = (dosar?.teste || []).filter((t) => t.stare === "verificat");
     const recomandare = recomandareDin(verificate);
+    const insigne = publiceDin(dosar).map((x) => x.insigna);
     const eu = await cine(taie(body.cod, 60));
-    const privilegiat = eu && (eu.rol === "registratura" || eu.rol === "admin" || eu.rol === "membru");
-    if (privilegiat) {
-      const teste = (dosar?.teste || []).map((t) => ({
-        id: t.id, tip: t.tip, nume: numeTest(t.tip), subtip: t.subtip || null, rezultat: t.rezultat,
-        data: t.data || null, emitent: t.emitent || null, stare: t.stare, motiv: t.motiv || null,
-        areFisier: !!t.areFisier, insigna: insignaTest(t.tip, t.rezultat), depusLa: t.depusLa || null,
-      }));
-      return json({ microcip: cip, teste, insigne: publiceDin(dosar).map((x) => x.insigna), recomandare });
+
+    // Forma completă (cu stare/motiv/fișier) — doar pentru cine are dreptul s-o vadă.
+    const complet = (t) => ({
+      id: t.id, tip: t.tip, nume: numeTest(t.tip), subtip: t.subtip || null, rezultat: t.rezultat,
+      data: t.data || null, emitent: t.emitent || null, stare: t.stare, motiv: t.motiv || null,
+      areFisier: !!t.areFisier, insigna: insignaTest(t.tip, t.rezultat), depusLa: t.depusLa || null,
+    });
+    // Forma publică — ce vede oricine: doar rezultatul verificat, fără stare/motiv.
+    const pubForma = (t) => ({
+      tip: t.tip, nume: numeTest(t.tip), subtip: t.subtip || null, rezultat: t.rezultat,
+      data: t.data || null, emitent: t.emitent || null, insigna: insignaTest(t.tip, t.rezultat),
+    });
+
+    // Registratura/admin văd tot dosarul.
+    if (eu && (eu.rol === "registratura" || eu.rol === "admin")) {
+      return json({ microcip: cip, teste: (dosar?.teste || []).map(complet), insigne, recomandare });
     }
+    // Un membru vede testele VERIFICATE (publice oricum) + PROPRIILE depuneri, orice stare.
+    // NU vede testele în așteptare/respinse ale altcuiva, nici motivul lor de respingere.
+    if (eu && eu.rol === "membru") {
+      const teste = (dosar?.teste || [])
+        .filter((t) => t.stare === "verificat" || t.depusDe === eu.membru.id)
+        .map((t) => (t.depusDe === eu.membru.id ? complet(t) : pubForma(t)));
+      return json({ microcip: cip, teste, insigne, recomandare });
+    }
+    // Publicul: doar testele verificate.
     const pub = publiceDin(dosar);
-    return json({ microcip: cip, teste: pub, insigne: pub.map((x) => x.insigna), recomandare });
+    return json({ microcip: cip, teste: pub, insigne, recomandare });
   }
 
   // —— Toate celelalte acțiuni cer cod. ——

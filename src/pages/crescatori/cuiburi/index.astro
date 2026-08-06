@@ -124,7 +124,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       return fetch(url, { method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify(Object.assign({ cod: cod() }, b)) });
     }
-    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
     function mesaj(el, text, ok) { el.hidden = false; el.textContent = text; el.className = "q-mesaj " + (ok ? "ok" : "err"); }
 
     // ——— Umple selectorul de cuiburi din declarațiile membrului ———

@@ -102,7 +102,7 @@ const grupe = GRUPE_WDF.map((g) => ({ nr: g.nr, ro: g.ro }));
     var lista = document.getElementById("rp-lista");
     var nrEl = document.getElementById("rp-nr");
 
-    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
     function faraDiac(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
 
     function randCaine(c) {

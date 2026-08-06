@@ -33,7 +33,9 @@ const json = (body, status = 200) =>
   });
 
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
-const EMAIL_RE = /^[^@\s]+@[^@\s.]+\.[^@\s]+$/;
+// Interzice și semnele care ar putea sparge un atribut HTML la afișare (' " < > &),
+// nu doar spațiul și @ — apărare în adâncime peste escaparea din pagini.
+const EMAIL_RE = /^[^@\s'"<>&]+@[^@\s.'"<>&]+\.[^@\s'"<>&]+$/;
 const idNou = () => Date.now() + "-" + Math.random().toString(36).slice(2, 8);
 
 const ZILE_TERMEN = 30;               // GDPR: răspuns în cel mult o lună
@@ -134,7 +136,9 @@ export default cuLimitareCod(async (req) => {
       `<p>Îți răspundem în cel mult <strong>30 de zile</strong>, la această adresă. S-ar putea să-ți cerem ` +
       `o dovadă a identității înainte de a acționa — ca să nu dăm datele tale altcuiva.</p>` +
       `<p style="color:#666;font-size:13px">Dacă nu tu ai făcut această cerere, ignoră mesajul.</p>`;
-    trimite({ catre: v.email, subiect: "[CFC-Royal] Am primit cererea ta privind datele personale",
+    // Așteptat, nu „fire-and-forget": pe Netlify funcția poate îngheța după răspuns, iar un
+    // e-mail rămas în aer n-ar mai pleca. `trimite` nu aruncă niciodată, deci await-ul e sigur.
+    await trimite({ catre: v.email, subiect: "[CFC-Royal] Am primit cererea ta privind datele personale",
       html: pagina("Cerere înregistrată", "#1F4D3A", corp) }).catch(() => {});
 
     return json({ ok: true, id });

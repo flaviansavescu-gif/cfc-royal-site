@@ -36,7 +36,10 @@ const json = (body, status = 200) =>
 
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 const normCip = (v) => String(v || "").replace(/[\s-]/g, "");
-const EMAIL_RE = /^[^@\s]+@[^@\s.]+\.[^@\s]+$/;
+// Interzice și semnele care ar putea sparge un atribut HTML la afișarea publică pe /cuiburi/.
+const EMAIL_RE = /^[^@\s'"<>&]+@[^@\s.'"<>&]+\.[^@\s'"<>&]+$/;
+// Telefonul de contact: doar ce are sens într-un număr (cifre, +, spații, cratime, paranteze, punct).
+const curataTelefon = (v) => taie(v, 40).replace(/[^\d+()\s.\-]/g, "");
 const idNou = () => Date.now() + "-" + Math.random().toString(36).slice(2, 8);
 
 const ZILE_VALABIL = 90;                          // un anunț ține 90 de zile de la aprobare
@@ -76,7 +79,7 @@ export function valideazaAnunt(body, numeImplicit = "") {
   if (continePret(nota)) return { eroare: "Anunțurile nu conțin prețuri. Scoate suma din notă — registrul nu e un magazin." };
 
   const contactNume = taie(body.contactNume, 120) || (numeImplicit || "");
-  const contactTelefon = taie(body.contactTelefon, 40);
+  const contactTelefon = curataTelefon(body.contactTelefon);
   const contactEmail = taie(body.contactEmail, 160);
   if (contactEmail && !EMAIL_RE.test(contactEmail)) return { eroare: "Adresa de e-mail de contact nu e validă." };
   if (!contactTelefon && !contactEmail) return { eroare: "Lasă un contact — telefon sau e-mail — ca lumea să te poată găsi." };

@@ -65,7 +65,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     var stareEl = document.getElementById("cn-stare");
     var lista = document.getElementById("cn-lista");
 
-    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 
     function randCaine(c) {
       var meta = [c.rasa, c.sex === "M" ? "mascul" : (c.sex === "F" ? "femelă" : ""), c.an].filter(Boolean).join(" · ");

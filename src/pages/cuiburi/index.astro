@@ -89,7 +89,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     var lista = document.getElementById("cu-lista");
     var nrEl = document.getElementById("cu-nr");
 
-    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
     function faraDiac(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
 
     function randParinte(rol, p) {
