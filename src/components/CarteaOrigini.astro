@@ -60,6 +60,10 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
     <button class="btn btn--primary" type="submit">{T("Caută", "Search")}</button>
   </form>
 
+  <p class="k-rasfoieste">
+    <a href="/registru-public/">{T("… sau răsfoiește tot registrul (toți câinii și afixele)", "… or browse the whole register (all dogs and affixes)")} →</a>
+  </p>
+
   <p class="k-eroare" id="k-eroare" role="alert" hidden></p>
 
   <article id="k-fisa" hidden>
@@ -478,6 +482,9 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
   .fisa__mic th, .fisa__date th { color: var(--color-text-muted); font-weight: 600; width: 42%; }
   .fisa__nume { font-family: var(--font-serif); color: var(--color-primary); margin: 0 0 0.2rem; }
   .fisa__stare { font-size: 0.85rem; font-weight: 600; margin: 0 0 0.7rem; }
+  .k-rasfoieste { margin: 0.6rem 0 0; font-size: 0.92rem; }
+  .k-rasfoieste a { color: var(--color-link); }
+  .k-rasfoieste a:hover { color: var(--color-link-hover); }
   .fisa__sanatate { margin: 0 0 0.8rem; }
   .fisa__recomandare { display: inline-block; margin: 0 0 0.6rem; padding: 0.3rem 0.75rem;
     font-family: var(--font-serif); font-weight: 600; font-size: 0.92rem; line-height: 1.3;
