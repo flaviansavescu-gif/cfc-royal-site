@@ -22,19 +22,19 @@
 // nu vede nicio versiune nouă: nu rulează „install"/„activate", cache-ul vechi nu se
 // șterge, iar aplicația instalată rulează codul VECHI peste datele noi — sau, offline,
 // rămâne cu setul vechi de rase. v3 = importul celor 334 de standarde WDF.
-const CACHE_VERSION = "cfcr-v3.0.0";
+// v4 = datele nu mai sunt fișier public. Vin printr-o funcție autentificată
+// (breed-date), deci NU se mai pun în cache aici: ar fi o copie fără poartă.
+const CACHE_VERSION = "cfcr-v4.0.0";
 const CACHE_NAME = "cfcr-cache-" + CACHE_VERSION;
 
 // Paths are relative to the service worker scope (the app folder).
-// NB: data/seed-data.js NU e în shell — e o oglindă identică a breeds.json (3 MB) și ar
-// dubla descărcarea la instalare. Se ia doar la nevoie (când fetch-ul normal eșuează).
+// Doar învelișul aplicației. Datele (breeds) NU sunt aici — se cer online, cu cod.
 const APP_SHELL = [
   "./",
   "./index.html",
   "./wdf-breed-standards-explorer.html",
   "./assets/styles.css",
   "./assets/app.js",
-  "./data/breeds.json",
   "./manifest.webmanifest",
   "./assets/icons/favicon-32.png",
   "./assets/icons/icon-192.png",
@@ -64,10 +64,6 @@ self.addEventListener("message", (event) => {
   if (event.data === "SKIP_WAITING") self.skipWaiting();
 });
 
-function isDataRequest(url) {
-  return url.pathname.endsWith("/data/breeds.json") || url.pathname.endsWith("breeds.json");
-}
-
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
@@ -76,19 +72,9 @@ self.addEventListener("fetch", (event) => {
   // Only handle same-origin requests; let the network handle everything else.
   if (url.origin !== self.location.origin) return;
 
-  // Data: network-first (fresh dataset when online, cached when offline).
-  if (isDataRequest(url)) {
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then((c) => c.put(req, copy));
-          return res;
-        })
-        .catch(() => caches.match(req))
-    );
-    return;
-  }
+  // Cererile de date (funcția breed-date) sunt POST și trec direct la rețea — nu se
+  // cachează niciodată: datele au poartă, o copie locală ar ocoli-o.
+  if (url.pathname.indexOf("/.netlify/functions/") === 0) return;
 
   // Navigations: network-first with cached shell fallback (offline support).
   if (req.mode === "navigate") {

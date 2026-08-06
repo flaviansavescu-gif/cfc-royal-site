@@ -607,3 +607,22 @@ select { padding-right: 26px; }
   .print-header { display: block !important; margin-bottom: 12px; border-bottom: 2px solid #333; padding-bottom: 8px; }
 }
 .print-header { display: none; }
+
+/* ── Poarta: aplicația nu e publică, se deschide doar din Școala de Arbitraj ── */
+.is-gated .sidebar,
+.is-gated .utility,
+.is-gated .header-actions,
+.is-gated .global-search { display: none !important; }
+.is-gated .app-shell { grid-template-columns: 1fr; }
+.gate-screen {
+  max-width: 34rem; margin: 8vh auto; padding: 2.4rem 2rem; text-align: center;
+  display: grid; gap: 0.9rem; justify-items: center;
+}
+.gate-mark {
+  width: 56px; height: 56px; border-radius: 12px; background: #2f5d50; color: #fff;
+  display: grid; place-items: center; font-family: Georgia, serif; font-weight: 700; font-size: 1.4rem;
+}
+.gate-screen h1 { font-size: 1.5rem; color: #1f463b; margin: 0.2rem 0 0; }
+.gate-lede { color: #444; line-height: 1.55; margin: 0; max-width: 30rem; }
+.gate-screen .btn { margin-top: 0.4rem; }
+.gate-foot { font-size: 0.8rem; color: #888; margin-top: 1rem; }

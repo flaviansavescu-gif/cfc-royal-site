@@ -3193,8 +3193,10 @@
       }
     });
 
-    // Install (PWA) button
-    $("#btnInstall").addEventListener("click", promptInstall);
+    // Butonul de instalare a fost scos: aplicația nu se mai instalează, se folosește
+    // doar din platformă. Rămâne guarded pentru cazul în care butonul lipsește.
+    var bi = $("#btnInstall");
+    if (bi) bi.addEventListener("click", promptInstall);
   }
 
   /* ---------------------------------------------------------
@@ -3315,27 +3317,45 @@
   // Load the offline mirror on demand. It is a full copy of breeds.json, so it is
   // fetched only when the normal load fails — otherwise every visit would download
   // the dataset twice.
-  function loadSeedScript() {
-    if (window.__CFCR_SEED__) return Promise.resolve(true);
-    return new Promise((resolve) => {
-      const s = document.createElement("script");
-      s.src = "data/seed-data.js";
-      s.onload = () => resolve(!!window.__CFCR_SEED__);
-      s.onerror = () => resolve(false);
-      document.head.appendChild(s);
-    });
+  // Codul de acces în platforma Școlii, pus în localStorage la intrarea în /cursuri/.
+  // Aplicația e pe același domeniu, deci îl poate citi — dar nu se încrede în el: îl
+  // trimite mereu la server, care hotărăște dacă deschide (lector/arbitru/admin).
+  function codPlatforma() {
+    try { return localStorage.getItem("cfcrAccesCod") || ""; } catch (e) { return ""; }
   }
 
+  // Ecranul de poartă: aplicația nu e publică, se deschide doar din Școala de Arbitraj.
+  function ecranPoarta(mesaj) {
+    document.body.classList.add("is-gated");   // ascunde bara laterală și uneltele
+    var root = $("#main") || document.body;
+    root.innerHTML = "";
+    var box = el("div", { class: "gate-screen" }, [
+      el("div", { class: "gate-mark", text: "BS" }),
+      el("h1", { text: "CFCR Breed Standards Explorer" }),
+      el("p", { class: "gate-lede", text: mesaj || "Această aplicație face parte din Școala de Arbitraj CFC-Royal și se deschide din spațiul tău de lector sau arbitru." }),
+      el("a", { class: "btn btn-primary", href: "/cursuri/", text: "Intră în Școala de Arbitraj →" }),
+      el("p", { class: "gate-foot", text: "Asociația Club Federal Chinologic – Royal · World Dog Federation" }),
+    ]);
+    root.appendChild(box);
+  }
+
+  // Cere datele PRIN funcția autentificată. Fără cod valid de platformă, nu vin date —
+  // deci aplicația nu se poate folosi decât după intrarea în Școală.
   function loadInitialData() {
-    // Try to fetch the canonical JSON file. When opened via file:// this often
-    // fails (browsers block local fetch); fall back to the embedded seed script.
-    return fetch("data/breeds.json", { cache: "no-store" })
-      .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then((data) => { ingestDataset(data); return "file"; })
-      .catch(() => loadSeedScript().then((ok) => {
-        if (ok) { ingestDataset(window.__CFCR_SEED__); return "embedded"; }
-        throw new Error("No dataset available.");
-      }));
+    var cod = codPlatforma();
+    if (!cod) return Promise.reject({ poarta: true });
+    return fetch("/.netlify/functions/breed-date", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cod: cod }),
+    }).then(function (r) {
+      if (r.status === 401 || r.status === 403) return r.json().then(function (j) { throw { poarta: true, mesaj: (j && j.eroare) || "" }; });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    }).then(function (data) {
+      if (!data || !data.dataset) throw new Error("Set de date gol.");
+      ingestDataset(data.dataset);
+      return "server";
+    });
   }
 
   function boot() {
@@ -3343,17 +3363,12 @@
     registerPWA();
     initialRouteFromHash();
     loadInitialData()
-      .then((src) => {
-        render();
-        if (src === "embedded") {
-          // Non-blocking notice: fetch was unavailable, embedded seed used.
-          setTimeout(() => toast("Loaded embedded seed data (offline mode). Import/Export JSON works normally.", "ok"), 300);
-        }
-      })
-      .catch((err) => {
+      .then(function () { render(); })
+      .catch(function (err) {
+        if (err && err.poarta) { ecranPoarta(err.mesaj); return; }
         state.breeds = [];
         render();
-        toast("Could not load any dataset: " + err.message, "err");
+        toast("Nu am putut încărca datele: " + (err && err.message ? err.message : ""), "err");
       });
   }
 

@@ -82,6 +82,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CFCR Breed Standards Explorer</title>
   <meta name="description" content="A WDF-oriented breed standards explorer for judge education, breed analysis, and professional cynology reference." />
+  <!-- Aplicația nu e publică: se folosește doar din Școala de Arbitraj, cu cod de
+       lector/arbitru. Nu vrem s-o găsească nimeni prin căutare. -->
+  <meta name="robots" content="noindex, nofollow" />
 
   <!-- PWA: installability & theming -->
   <!-- Manifestul NU e legat static: instalarea ca aplicatie (PWA) e permisa doar dupa
@@ -121,7 +124,6 @@
       <button id="btnImport" class="btn btn-sm" title="Import JSON dataset">⭳ <span class="btn-label">Import JSON</span></button>
       <button id="btnExport" class="btn btn-sm" title="Export JSON dataset">⭱ <span class="btn-label">Export JSON</span></button>
       <button id="btnAdd" class="btn btn-sm btn-primary" title="Add new breed">＋ <span class="btn-label">Add breed</span></button>
-      <button id="btnInstall" class="btn btn-sm" title="Install this app" hidden>⤓ <span class="btn-label">Install app</span></button>
       <input id="fileInput" type="file" accept="application/json,.json" class="visually-hidden" aria-hidden="true" tabindex="-1" />
     </div>
   </header>

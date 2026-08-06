@@ -23,8 +23,10 @@ import { unzipSync, strFromU8 } from "fflate";
 import { fileURLToPath } from "node:url";
 
 const RADACINA = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const TINTA_JSON = path.join(RADACINA, "public", "breed-explorer", "data", "breeds.json");
-const TINTA_SEED = path.join(RADACINA, "public", "breed-explorer", "data", "seed-data.js");
+// Datele NU mai stau în `public/` (ar fi descărcabile de oricine): trec prin funcția
+// `breed-date`, care le dă doar cu un cod valid de platformă. Aici e fișierul pe care
+// funcția îl leagă în pachetul ei.
+const TINTA_JSON = path.join(RADACINA, "netlify", "functions", "_breed", "breeds.json");
 
 // ——— Citirea unui .docx ———————————————————————————————————————————————
 
@@ -674,10 +676,8 @@ if (process.argv[1] && process.argv[1].endsWith("importa-standarde-wdf.mjs")) {
     lessons: vechi.lessons || [],
   };
 
+  fs.mkdirSync(path.dirname(TINTA_JSON), { recursive: true });
   fs.writeFileSync(TINTA_JSON, JSON.stringify(iesire, null, 2));
-  fs.writeFileSync(TINTA_SEED,
-    "/* Auto-generated fallback of breeds.json so the app works when opened directly via file:// */\n" +
-    "window.__CFCR_SEED__ = " + JSON.stringify(iesire, null, 2) + ";\n");
   console.log(`\nScris: ${finale.length} rase (${adaugate} noi, ${completate} completate în fișele existente,` +
     ` ${grupeIndreptate} nume de grupă aduse la forma canonică)`);
   console.log(`  ${TINTA_JSON} — ${(fs.statSync(TINTA_JSON).size / 1048576).toFixed(2)} MB`);
