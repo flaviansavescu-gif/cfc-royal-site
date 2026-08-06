@@ -17,7 +17,7 @@
 // POST { cod, dispozitiv, actiune:"lista" }                              -> { cereri }   (registratură/admin)
 // POST { cod, dispozitiv, actiune:"stare", id, stare, motiv? }           -> { ok }        (registratură/admin)
 import { getStore } from "@netlify/blobs";
-import { actorDinCod } from "./_comun/roluri.mjs";
+import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { membruDinCod, registratorDinCod } from "./registru-acces.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
@@ -40,8 +40,32 @@ const idNou = () => Date.now() + "-" + Math.random().toString(36).slice(2, 8);
 
 const ZILE_TERMEN = 30;               // GDPR: răspuns în cel mult o lună
 const MAX_PE_ORA = 5;                 // un om cinstit nu depune cinci cereri într-o oră
+const MAX_EMAIL_PE_ZI = 3;            // cel mult 3 confirmări către ACEEAȘI adresă pe zi
+const FEREASTRA_EMAIL_MS = 24 * 3600e3;
 
 const cheia = (id) => "dsar/" + id;
+
+/**
+ * Poate pleca o confirmare către această adresă acum?
+ *
+ * Limitarea pe IP oprește un atacator de pe un IP; asta oprește „bombardarea" unei victime
+ * prin rotirea IP-urilor — confirmarea către o adresă anume nu pleacă de mai mult de câteva
+ * ori pe zi. Cererea în sine se înregistrează oricum; se frânează doar e-mailul.
+ */
+async function poateTrimiteCatre(s, email) {
+  const cheieE = "dsar-email/" + sha256(String(email).toLowerCase());
+  const acum = Date.now();
+  try {
+    const rec = await s.get(cheieE, { type: "json" }).catch(() => null);
+    if (rec && (acum - (rec.since || 0)) < FEREASTRA_EMAIL_MS) {
+      if ((rec.n || 0) >= MAX_EMAIL_PE_ZI) return false;
+      await s.setJSON(cheieE, { n: (rec.n || 0) + 1, since: rec.since });
+      return true;
+    }
+    await s.setJSON(cheieE, { n: 1, since: acum });
+    return true;
+  } catch { return true; }   // dacă magazia cade, nu blocăm confirmarea din greșeală
+}
 
 // Drepturile pe care le poate exercita o persoană vizată. Cheia intră în date; eticheta se afișează.
 export const TIPURI = {
@@ -138,8 +162,11 @@ export default cuLimitareCod(async (req) => {
       `<p style="color:#666;font-size:13px">Dacă nu tu ai făcut această cerere, ignoră mesajul.</p>`;
     // Așteptat, nu „fire-and-forget": pe Netlify funcția poate îngheța după răspuns, iar un
     // e-mail rămas în aer n-ar mai pleca. `trimite` nu aruncă niciodată, deci await-ul e sigur.
-    await trimite({ catre: v.email, subiect: "[CFC-Royal] Am primit cererea ta privind datele personale",
-      html: pagina("Cerere înregistrată", "#1F4D3A", corp) }).catch(() => {});
+    // Limită pe adresa-destinație: nu bombardăm o victimă prin rotirea IP-urilor.
+    if (await poateTrimiteCatre(s, v.email)) {
+      await trimite({ catre: v.email, subiect: "[CFC-Royal] Am primit cererea ta privind datele personale",
+        html: pagina("Cerere înregistrată", "#1F4D3A", corp) }).catch(() => {});
+    }
 
     return json({ ok: true, id });
   }
