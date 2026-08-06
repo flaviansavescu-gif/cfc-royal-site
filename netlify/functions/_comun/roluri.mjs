@@ -7,9 +7,17 @@
 // Când se schimbă un lector (cod, nume, competențe pe grupe), se modifică
 // EXCLUSIV aici. `src/data/cursuri.ts` păstrează doar datele publice
 // (slug, nume, rol afișat, materiale) și NU mai conține amprente.
-import { createHash, timingSafeEqual } from "node:crypto";
+import { createHash, timingSafeEqual, scryptSync } from "node:crypto";
 
 export const sha256 = (s) => createHash("sha256").update(String(s)).digest("hex");
+
+// KDF LENT ȘI SĂRAT pentru codul COMUN de candidați (R2). Amprenta lui nu mai e un simplu
+// SHA-256 în sursă — care, la o scurgere a depozitului, s-ar sparge offline în secunde —
+// ci scrypt sărat: aceeași placă video ar avea nevoie de ani. Sarea în sursă nu strică:
+// scrypt rămâne lent și cu ea știută. (Codul de admin e deja mutat în afara sursei, în
+// Netlify; codurile lectorilor sunt încă SHA-256 fiindcă slujesc și drept cheie de date.)
+const SARE_COMUNA = "5bc690c359954798d5149721d0f7cada";
+const scryptTare = (h) => scryptSync(String(h), SARE_COMUNA, 32).toString("hex");
 
 /** Comparație în timp constant, ca să nu se poată deduce amprenta din durata răspunsului. */
 export function egal(a, b) {
@@ -45,8 +53,9 @@ if (dinMediu && dinMediu !== ADMIN_HASH) {
   console.error("ADMIN_HASH din mediu nu e o amprentă SHA-256 validă (64 de cifre hexazecimale) — se folosește cea din cod.");
 }
 
-/** Codul COMUN de candidați (acces la zona de curs fără cod individual). */
-export const ACCES_HASH = "48493761ba33bce0e9919789a88582a482179869fa76dbbaa93be7d67dad5470";
+/** Codul COMUN de candidați (acces la zona de curs fără cod individual). Amprenta e scrypt
+ *  sărat, nu SHA-256: se verifică prin `scryptTare(sha256(cod))`, vezi `rolLaIntrare`. */
+export const ACCES_SCRYPT = "847ab9436dbb99aad28c095d11c73999acc2328c7750611dcdf68251025c60a3";
 
 /**
  * Lectorii. `grupe` = competențele WDF pe grupe, derivate din prezentările lor
@@ -114,6 +123,7 @@ export function actorDinCod(cod) {
 export function rolLaIntrare(cod) {
   const a = actorDinCod(cod);
   if (a) return a;
-  if (egal(sha256(cod || ""), ACCES_HASH)) return { rol: "acces" };
+  // Codul comun: sha256 rapid, apoi scrypt lent+sărat — comparație în timp constant.
+  if (egal(scryptTare(sha256(cod || "")), ACCES_SCRYPT)) return { rol: "acces" };
   return null;
 }

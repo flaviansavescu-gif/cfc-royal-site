@@ -3,7 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  sha256, egal, ADMIN_HASH, ACCES_HASH, LECTORI,
+  sha256, egal, ADMIN_HASH, ACCES_SCRYPT, LECTORI,
   actorDinCod, rolLaIntrare, grupeLector, lectoriCuGrupe, TOATE_GRUPELE,
 } from "./roluri.mjs";
 
@@ -30,17 +30,17 @@ test("un cod greșit nu primește niciun rol", () => {
 // de actorDinCod — altfel `cereLector` (PAA/JCR) l-ar accepta ca lector.
 test("codul comun de candidați NU poate deveni admin sau lector", () => {
   const amprenteDePutere = [ADMIN_HASH, ...LECTORI.map((l) => l.hash)];
-  assert.equal(amprenteDePutere.includes(ACCES_HASH), false,
+  assert.equal(amprenteDePutere.includes(ACCES_SCRYPT), false,
     "amprenta codului comun nu are voie să apară printre cele cu drepturi de administrare");
 });
 
 test("amprentele sunt distincte între ele", () => {
-  const toate = [ADMIN_HASH, ACCES_HASH, ...LECTORI.map((l) => l.hash)];
+  const toate = [ADMIN_HASH, ACCES_SCRYPT, ...LECTORI.map((l) => l.hash)];
   assert.equal(new Set(toate).size, toate.length, "două roluri nu pot avea aceeași amprentă");
 });
 
 test("toate amprentele au forma unui SHA-256", () => {
-  for (const h of [ADMIN_HASH, ACCES_HASH, ...LECTORI.map((l) => l.hash)])
+  for (const h of [ADMIN_HASH, ACCES_SCRYPT, ...LECTORI.map((l) => l.hash)])
     assert.match(h, /^[a-f0-9]{64}$/);
 });
 
