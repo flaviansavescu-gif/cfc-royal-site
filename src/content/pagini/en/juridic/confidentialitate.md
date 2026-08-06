@@ -3,14 +3,15 @@ title: "Privacy Policy"
 lang: en
 section: "Legal information"
 summary: "What personal data we process, why, how long we keep it and who receives it."
-updatedAt: 2026-07-29
+updatedAt: 2026-08-06
 adoptat: 2026-08-01
 hotarare: "168/01-08-2026"
 ---
 
 > **To be reviewed by a legal adviser before being treated as final.**
 > The text below describes exactly what the association's system does today; the legal
-> wording remains to be confirmed.
+> wording remains to be confirmed. Updated on 6 August 2026 with the health file and the
+> litter announcements — an addition that remains to be adopted by its own decision.
 
 ## Who processes the data
 
@@ -51,26 +52,47 @@ scans of the ancestors' pedigrees, the series of the certificates issued.
 **Basis:** keeping the record of origins, as an organisation affiliated to the World Dog
 Federation, and performance of your request (Art. 6(1)(b) and (f)).
 
-### 5. The School of Judging
+### 5. The dogs' health file
+
+The dog's microchip, the results of the tests filed (hip and elbow dysplasia, eye
+examination, DNA, genetic tests), who issued them (a vet or a laboratory) and the **scanned
+certificate**. The tests are optional. The certificate is seen by the registry office, which
+verifies it before the result appears publicly on the dog's record; the record shows the
+verified result, not the document. The health data is about the dog; the certificate may
+additionally carry the name of the vet or of the owner, as printed on it.
+**Basis:** performance of the member's request and the association's legitimate interest in
+attesting the quality of breeding (Art. 6(1)(b) and (f)).
+
+### 6. Litter announcements
+
+When a breeder publishes a litter announcement, **they choose which contact is shown
+publicly** — name, telephone, e-mail — and how many puppies are available. The announcement
+is tied to one of their Mating and Whelping Declarations, is approved by the registry office
+and **stays public for at most 90 days**, after which it is withdrawn automatically; it can
+be withdrawn earlier, at any time. No prices are shown.
+**Basis:** the breeder's consent, publishing their own contact (Art. 6(1)(a)) — withdrawn by
+withdrawing the announcement.
+
+### 7. The School of Judging
 
 Candidate details, progress through the modules, test and examination results, ring
 assistantships, appeals and their grounds, acceptance of the Code of Ethics.
 **Basis:** performance of the training relationship and the association's legitimate
 interest in being able to evidence the training of the judges it authorises.
 
-### 6. The School bulletin
+### 8. The School bulletin
 
 The e-mail address, nothing more.
 **Basis:** your consent (Art. 6(1)(a)). Withdrawn in a single click, from any message.
 
-### 7. Audit log and system security
+### 9. Audit log and system security
 
 Who did what in the registry and when, the IP address of sensitive requests, the tokens of
 recognised devices, the count of failed sign-in attempts.
 **Basis:** the legitimate interest in being able to prove who issued a document and in
 defending the system against unauthorised access.
 
-### 8. Photographs taken at events
+### 10. Photographs taken at events
 
 See the section below.
 
@@ -83,6 +105,8 @@ See the section below.
 | Show entries | 3 years after the show | appeals, checks, statistics |
 | Proof of payment | 10 years | the statutory retention period for financial records |
 | Stud book (declarations, pedigrees, ancestry) | **permanent** | a certificate of origin must remain verifiable at any time |
+| Health file (verified results, scanned certificates) | **permanent**, as part of the breeding record | the evidence behind the breeding recommendation |
+| Litter announcement (contact published by the breeder) | public for at most 90 days, then withdrawn; the request stays in the audit log | it is a passing notice, not a record |
 | Judging candidate's file | during training + 10 years after authorisation | a judge must be able to evidence their training |
 | Appeals and decisions | 10 years | evidential value and precedent |
 | Bulletin address | until unsubscribed | |
@@ -95,7 +119,10 @@ leaves the backups within **12 months** at the latest.
 
 ## Who receives the data
 
-We neither sell nor rent data to anyone. It is seen only by:
+Some data is **public by the very nature of the registry**: the stud book shows the dogs
+that hold a certificate, with the breeder's name and the kennel affix — the owner stays
+masked. In a litter announcement, the contact shown is the one the **breeder chooses** to
+make public. Otherwise, we neither sell nor rent data to anyone. It is seen only by:
 
 - **inside:** the administrator; the registrars (entries, members, proof of payment); the
   School's lecturers — only the candidates assigned to them; the examination board — only
