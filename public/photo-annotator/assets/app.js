@@ -53,7 +53,22 @@
     undo: [], redo: [], sesiuneId: null, titlu: "Sesiune de adnotare", rasa: "",
     standard: null,
   };
-  var cid = null; try { cid = (JSON.parse(localStorage.getItem("cfcrCandidat") || "null") || {}).cod || null; } catch (e) {}
+  // Identitatea din platformă: candidat (cfcrCandidat) SAU lector/admin (cfcrRol + cfcrAccesCod).
+  // Codul plecat către server e același cu al platformei — serverul îl recunoaște (cineDinCod).
+  function identitate() {
+    try { var c = JSON.parse(localStorage.getItem("cfcrCandidat") || "null"); if (c && c.cod) return { cod: c.cod, eticheta: "Conectat ca și candidat" + (c.nume ? " — " + c.nume : "") }; } catch (e) {}
+    try {
+      var cod = localStorage.getItem("cfcrAccesCod");
+      var r = JSON.parse(localStorage.getItem("cfcrRol") || "null");
+      if (cod && r && r.rol) {
+        var nm = r.rol === "admin" ? "administrator" : (r.rol === "lector" ? "lector" : r.rol);
+        return { cod: cod, eticheta: "Conectat ca " + nm + (r.nume ? " — " + r.nume : "") };
+      }
+    } catch (e) {}
+    return null;
+  }
+  var ident = identitate();
+  var cid = ident ? ident.cod : null;
   var exId = new URLSearchParams(location.search).get("ex");
 
   var canvas = $("pa-canvas"), ctx = canvas.getContext("2d"), stage = document.querySelector(".pa-stage");
@@ -391,7 +406,9 @@
 
   // —— init ——
   function init() {
-    $("pa-auth").textContent = cid ? "Conectat ca și candidat" : "Neconectat — salvarea necesită autentificare în platformă";
+    $("pa-auth").innerHTML = ident
+      ? esc(ident.eticheta)
+      : "Neconectat — <a href=\"/cursuri/\" style=\"color:inherit;text-decoration:underline\">intră în platformă</a> ca să salvezi sesiuni";
     renderRepere(); renderLayers(); renderMasuratori(); renderRezultate();
     window.addEventListener("resize", resize);
     if (window.ResizeObserver) { var ro = new ResizeObserver(function () { resize(); }); ro.observe(stage); }

@@ -1,6 +1,7 @@
 // paa-sesiuni.mjs — sesiuni de adnotare (Photo Anatomy Annotator).
-// Cursant (cid): lista | creaza | salveaza | detalii | sterge.  (Review lector = Faza 2.)
-import { json, taie, acum, idNou, candidatDinId, store, candidatDinCod} from "./_paa/lib.mjs";
+// Candidat, lector SAU admin (cid): lista | creaza | salveaza | detalii | sterge — fiecare
+// pe sesiunile LUI. (Review lector — a vedea sesiunile altui candidat — rămâne Faza 2.)
+import { json, taie, acum, idNou, store, cineDinCod } from "./_paa/lib.mjs";
 
 async function citesteIndex(userId) { try { return (await store().get("session-index/" + userId, { type: "json" })) || []; } catch { return []; } }
 async function scrieIndex(userId, s) {
@@ -42,21 +43,21 @@ export default async (req) => {
   let body;
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
   const actiune = taie(body.actiune, 20) || "lista";
-  const cand = await candidatDinCod(body.cid);
-  if (!cand) return json({ eroare: "Sesiune de candidat invalidă." }, 401);
+  const cine = await cineDinCod(body.cid);
+  if (!cine) return json({ eroare: "Cod invalid sau neautentificat în platformă." }, 401);
   const st = store();
 
   if (actiune === "lista") {
-    const idx = await citesteIndex(cand.id);
+    const idx = await citesteIndex(cine.id);
     idx.sort((a, b) => String(b.actualizat || b.creat).localeCompare(String(a.actualizat || a.creat)));
     return json({ sesiuni: idx });
   }
 
   if (actiune === "creaza") {
     const id = idNou("s-");
-    const s = curataSesiune(body.sesiune || body, { id, creat: acum() }, cand.id);
+    const s = curataSesiune(body.sesiune || body, { id, creat: acum() }, cine.id);
     await st.setJSON("session/" + id, s);
-    await scrieIndex(cand.id, s);
+    await scrieIndex(cine.id, s);
     return json({ ok: true, sesiune: s });
   }
 
@@ -64,22 +65,22 @@ export default async (req) => {
   if (!id) return json({ eroare: "Lipsește sesiunea." }, 400);
   const existent = await st.get("session/" + id, { type: "json" }).catch(() => null);
   if (!existent) return json({ eroare: "Sesiune inexistentă." }, 404);
-  if (existent.userId !== cand.id) return json({ eroare: "Nu îți aparține această sesiune." }, 403);
+  if (existent.userId !== cine.id) return json({ eroare: "Nu îți aparține această sesiune." }, 403);
 
   if (actiune === "detalii") return json({ sesiune: existent });
 
   if (actiune === "salveaza") {
-    const s = curataSesiune(body.sesiune || body, existent, cand.id);
+    const s = curataSesiune(body.sesiune || body, existent, cine.id);
     s.id = id;
     await st.setJSON("session/" + id, s);
-    await scrieIndex(cand.id, s);
+    await scrieIndex(cine.id, s);
     return json({ ok: true, sesiune: s });
   }
 
   if (actiune === "sterge") {
     try { await st.delete("session/" + id); } catch (err) { console.error(err); }
-    const idx = (await citesteIndex(cand.id)).filter((x) => x.id !== id);
-    await st.setJSON("session-index/" + cand.id, idx);
+    const idx = (await citesteIndex(cine.id)).filter((x) => x.id !== id);
+    await st.setJSON("session-index/" + cine.id, idx);
     return json({ ok: true });
   }
 

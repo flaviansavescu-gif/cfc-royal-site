@@ -47,6 +47,24 @@ export async function candidatDinCod(cod) {
   return null;
 }
 
+/**
+ * Cine dovedește codul: candidat, lector sau administrator.
+ *
+ * Adnotatorul nu mai e doar pentru candidați — un lector sau administratorul își pot salva
+ * PROPRIILE sesiuni. Fiecare identitate primește un `id` din spații care nu se pot ciocni:
+ * candidatul păstrează `id`-ul lui istoric (sha256 al codului), ca sesiunile deja salvate să
+ * rămână ale lui; lectorul e `lector:<slug>`; administratorul e `admin`.
+ * NU e „review de lector" (a vedea sesiunile altui candidat) — asta rămâne Faza 2.
+ */
+export async function cineDinCod(cod) {
+  const cand = await candidatDinCod(cod);
+  if (cand) return { id: cand.id, rol: "candidat", nume: cand.nume };
+  const a = actorDinCod(cod);
+  if (a?.rol === "admin") return { id: "admin", rol: "admin", nume: "Administrator" };
+  if (a?.rol === "lector") return { id: "lector:" + (a.slug || sha256(cod).slice(0, 16)), rol: "lector", nume: a.nume || a.slug || "lector" };
+  return null;
+}
+
 /** Candidat prin ID (bearer). Rămâne DOAR pentru rezolvarea internă a insignelor stocate
  *  (nume din liste), NU pentru autentificare — autentificarea trece prin candidatDinCod. */
 export async function candidatDinId(cid) {
