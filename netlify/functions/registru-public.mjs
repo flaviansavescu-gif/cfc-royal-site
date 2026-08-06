@@ -13,6 +13,28 @@
 import { getStore } from "@netlify/blobs";
 import { AFIXE_OFICIALE } from "./_comun/afixe-oficiale.mjs";
 import { normalizeazaAfix, PREFIX_CANISE } from "./_comun/canise.mjs";
+import { recomandareDin } from "./_comun/teste-sanatate.mjs";
+
+const normCip = (v) => String(v || "").replace(/[\s-]/g, "");
+
+// Microcipurile câinilor care au ACUM recomandarea de calitate CFC-Royal — cel puțin un
+// test favorabil verificat și niciun test nefavorabil. Se calculează o singură dată la
+// reconstruirea indexului, ca fișele de câine să nu ceară fiecare câte o interogare.
+// Întoarcem doar apartenența (un Set de microcipuri), NU rezultatele — pe fișă câinele
+// poartă un steag „recomandat", fără să scoatem la iveală microcipul în indexul răsfoibil.
+async function microcipuriRecomandate(s) {
+  const set = new Set();
+  try {
+    const { blobs } = await s.list({ prefix: "sanatate/" });
+    for (const b of blobs) {
+      const dosar = await s.get(b.key, { type: "json" }).catch(() => null);
+      if (!dosar?.microcip) continue;
+      const verificate = (dosar.teste || []).filter((t) => t.stare === "verificat");
+      if (recomandareDin(verificate).acordata) set.add(normCip(dosar.microcip));
+    }
+  } catch (err) { console.error("Index public (recomandări) eșuat:", err); }
+  return set;
+}
 
 const store = () => getStore({ name: "registru", consistency: "strong" });
 
@@ -26,6 +48,8 @@ const TTL_MS = 5 * 60e3;        // reîmprospătarea indexului, cel mult o dată
 const CHEIE_INDEX = "registru-public/index";
 
 async function construieste(s) {
+  const recomandati = await microcipuriRecomandate(s);
+
   // Câinii cu certificat (fără proprietar — el rămâne mascat, ca pe fișă).
   const caini = [];
   try {
@@ -33,15 +57,19 @@ async function construieste(s) {
     for (const b of blobs) {
       const c = await s.get(b.key, { type: "json" }).catch(() => null);
       if (!c || !c.caine) continue;
+      const afix = c.crescator?.afix || "";
       caini.push({
         serie: c.serie,
         nume: c.caine.nume || "",
         rasa: c.caine.rasa || "",
         sex: c.caine.sex || "",
-        afix: c.crescator?.afix || "",
+        afix,
+        afixNorm: afix ? normalizeazaAfix(afix) : "",
         numarWDF: c.numarWDF || "",
         an: String(c.caine.dataNasterii || c.emis || "").slice(0, 4),
         anulat: !!c.anulat,
+        // Steag, nu date medicale: câinele are recomandarea de calitate CFC-Royal.
+        recomandat: !c.anulat && recomandati.has(normCip(c.caine.microcip)),
       });
     }
   } catch (err) { console.error("Index public (câini) eșuat:", err); }
@@ -54,7 +82,7 @@ async function construieste(s) {
     const n = normalizeazaAfix(afix);
     if (!afix || vazut.has(n)) return;
     vazut.add(n);
-    canise.push({ afix, nrAfix: nrAfix || "" });
+    canise.push({ afix, afixNorm: n, nrAfix: nrAfix || "" });
   };
   for (const a of AFIXE_OFICIALE) adauga(a.afix, a.nrAfix);
   try {

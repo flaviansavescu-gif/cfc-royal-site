@@ -1,0 +1,112 @@
+---
+// /canisa/?a=<afixNorm> — pagina publică a unei canise: afixul, numărul de afix și toți
+// câinii pe care i-a crescut, fiecare cu marca „★ Recomandat pentru montă" dacă are
+// recomandarea de calitate CFC-Royal. Datele vin din indexul răsfoibil (funcția
+// registru-public), filtrate în browser după afixul normalizat. Fără proprietari.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  lang="ro"
+  title="Canisă — registrul public"
+  description="Câinii crescuți de o canisă înregistrată la Clubul Federal Chinologic Royal, cu ascendență, titluri și recomandarea de calitate pentru montă."
+>
+  <section class="cn">
+    <p class="cn__cale"><a href="/ro/">Acasă</a> · <a href="/registru-public/">Cartea de origini</a> · <span id="cn-cale-afix">Canisă</span></p>
+
+    <header class="cn__cap" id="cn-cap" hidden>
+      <h1 class="cn__title" id="cn-afix">—</h1>
+      <p class="cn__nr" id="cn-nr"></p>
+    </header>
+
+    <p class="cn__intro" id="cn-stare">Se încarcă…</p>
+
+    <ul class="cn__lista" id="cn-lista"></ul>
+
+    <p class="cn__inapoi"><a href="/registru-public/">← Toate caniselele și câinii</a></p>
+  </section>
+</BaseLayout>
+
+<style>
+  .cn { max-width: var(--maxw); margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  .cn__cale { font-size: .85rem; color: var(--color-text-muted); margin: 0 0 .3rem; }
+  .cn__cale a { color: var(--color-link); }
+  .cn__cap { margin: .4rem 0 1rem; }
+  .cn__title { color: var(--color-primary); margin: 0; }
+  .cn__nr { color: var(--color-text-muted); font-family: var(--font-mono); font-size: .9rem; margin: .2rem 0 0; }
+  .cn__intro { color: var(--color-text-muted); }
+  .cn__lista { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: .5rem; }
+  .cn__caine {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap;
+    padding: .7rem .95rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    background: var(--color-surface); text-decoration: none; color: var(--color-text);
+  }
+  .cn__caine:hover { border-color: var(--color-primary-light); background: var(--color-surface-alt); }
+  .cn__caine.anulat { opacity: .6; }
+  .cn__nume { font-weight: 600; }
+  .cn__nume .cn-anulat { font-size: .72rem; font-weight: 600; color: var(--color-danger); margin-left: .4rem; }
+  .cn__reco {
+    display: inline-block; margin-left: .5rem; font-size: .72rem; font-weight: 600;
+    color: var(--color-success); white-space: nowrap;
+  }
+  .cn__meta { color: var(--color-text-muted); font-size: .85rem; text-align: right; }
+  .cn__inapoi { margin-top: 1.5rem; }
+  .cn__inapoi a { color: var(--color-link); }
+</style>
+
+<script is:inline>
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var afixCerut = (params.get("a") || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    var capEl = document.getElementById("cn-cap");
+    var afixEl = document.getElementById("cn-afix");
+    var nrEl = document.getElementById("cn-nr");
+    var caleAfix = document.getElementById("cn-cale-afix");
+    var stareEl = document.getElementById("cn-stare");
+    var lista = document.getElementById("cn-lista");
+
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+    function randCaine(c) {
+      var meta = [c.rasa, c.sex === "M" ? "mascul" : (c.sex === "F" ? "femelă" : ""), c.an].filter(Boolean).join(" · ");
+      var reco = c.recomandat ? "<span class='cn__reco' title='Are recomandarea de calitate CFC-Royal'>★ Recomandat pentru montă</span>" : "";
+      return "<a class='cn__caine" + (c.anulat ? " anulat" : "") + "' href='/caine/?r=" + encodeURIComponent(c.serie) + "'>"
+        + "<span class='cn__nume'>" + esc(c.nume || "(fără nume)") + (c.anulat ? "<span class='cn-anulat'>anulat</span>" : "") + reco + "</span>"
+        + "<span class='cn__meta'>" + esc(meta) + (c.numarWDF ? " · " + esc(c.numarWDF) : "") + "</span></a>";
+    }
+
+    if (!afixCerut) {
+      stareEl.innerHTML = "Nicio canisă indicată. <a href='/registru-public/'>Vezi toate caniselele</a>.";
+      return;
+    }
+
+    fetch("/.netlify/functions/registru-public")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) { stareEl.textContent = "Registrul nu se poate încărca acum. Reîncearcă mai târziu."; return; }
+        var canisa = (d.canise || []).filter(function (a) { return a.afixNorm === afixCerut; })[0];
+        var afixNume = canisa ? canisa.afix : afixCerut;
+        // Titlul din datele canisei, sau — dacă afixul nu e în evidență — din primul câine.
+        var caini = (d.caini || []).filter(function (c) { return c.afixNorm === afixCerut; });
+        if (!canisa && caini.length && caini[0].afix) afixNume = caini[0].afix;
+
+        document.title = afixNume + " — canisă — registrul public";
+        afixEl.textContent = afixNume;
+        caleAfix.textContent = afixNume;
+        if (canisa && canisa.nrAfix) nrEl.textContent = "Afix înregistrat: " + canisa.nrAfix;
+        capEl.hidden = false;
+
+        if (!caini.length) {
+          stareEl.textContent = canisa
+            ? "Această canisă nu are încă niciun câine cu certificat în registru."
+            : "Nu am găsit nicio canisă sau câine pentru acest afix.";
+          return;
+        }
+        var reco = caini.filter(function (c) { return c.recomandat; }).length;
+        stareEl.textContent = caini.length + (caini.length === 1 ? " câine" : " câini")
+          + " cu certificat" + (reco ? " · " + reco + " recomandat" + (reco === 1 ? "" : "ți") + " pentru montă" : "") + ".";
+        lista.innerHTML = caini.map(randCaine).join("");
+      })
+      .catch(function () { stareEl.textContent = "Registrul nu se poate încărca acum."; });
+  })();
+</script>

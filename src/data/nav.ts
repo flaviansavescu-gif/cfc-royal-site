@@ -70,6 +70,7 @@ export const mainNav: NavItem[] = [
       // după serie/microcip (/caine/) e legată din interiorul lui.
       { slug: "/registru-public/", label: { ro: "Cartea de origini", en: "Stud book" } },
       { slug: "/verifica-pedigree/", label: { ro: "Verificarea certificatelor", en: "Verify a certificate" } },
+      { slug: "/cuiburi/", label: { ro: "Cuiburi disponibile", en: "Available litters" } },
     ],
   },
   {

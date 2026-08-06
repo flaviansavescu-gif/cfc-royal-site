@@ -118,6 +118,15 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   </p>
   <ul class="g-dosare" id="sn-cereri"><li class="g-gol">Se încarcă…</li></ul>
 
+  <h2 class="g-h2">Anunțuri de cuiburi — de aprobat <span class="g-badge" id="qc-nr" hidden></span></h2>
+  <p class="g-explic">
+    Anunțuri de pui disponibili, legate de un cuib declarat (DMF) al crescătorului. Verifică
+    să fie un cuib real și să nu conțină prețuri; la aprobare apar <strong>public</strong> pe
+    pagina <strong>Cuiburi disponibile</strong> timp de 90 de zile, cu părinții și sănătatea lor.
+    Respingerea cere un motiv, care rămâne în jurnal.
+  </p>
+  <ul class="g-dosare" id="qc-cereri"><li class="g-gol">Se încarcă…</li></ul>
+
   {/* Extrasele oficiale — ca extrasul de cont de la bancă: întregul registru sau doar
       pozițiile dintre două numere. Formularele se văd numai cu dreptul potrivit;
       poarta adevărată rămâne pe server. */}
@@ -806,6 +815,60 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
         p = b.dataset.nu.split("|");
         var m = prompt("Motivul respingerii (rămâne în jurnal):"); if (!m) return;
         var r2 = await post({ actiune: "respinge", microcip: p[0], testId: p[1], motiv: m });
+        var d2 = await r2.json().catch(function () { return {}; }); if (!r2.ok) alert(d2.eroare || "Eroare."); incarca(); return;
+      }
+    });
+    incarca();
+  })();
+
+  // ——— Anunțuri de cuiburi: aprobarea anunțurilor depuse de crescători ———
+  (function () {
+    var F = "/.netlify/functions/registru-cuiburi";
+    var cod = function () { try { return localStorage.getItem("cfcrRegistruCod") || ""; } catch (e) { return ""; } };
+    var disp = function () { try { return localStorage.getItem("cfcrRegistruDispozitiv") || ""; } catch (e) { return ""; } };
+    var post = function (b) {
+      return fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ cod: cod(), dispozitiv: disp() }, b)) });
+    };
+    var lista = document.getElementById("qc-cereri");
+    var nr = document.getElementById("qc-nr");
+    if (!lista) return;
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); }
+    function rand(a) {
+      var contact = [a.contactNume, a.contactTelefon, a.contactEmail].filter(Boolean).join(" · ");
+      var parinti = "tată: " + esc(a.tata && a.tata.nume || "—") + " · mamă: " + esc(a.mama && a.mama.nume || "—");
+      var nota = a.nota ? "<div class='g-mic'>notă: " + esc(a.nota) + "</div>" : "";
+      return "<li class='g-dosar'><div><strong>" + esc(a.rasa || "Cuib") + " — " + esc(a.dmfSerie || "") + "</strong>"
+        + "<div class='g-mic'>" + (a.disponibiliM || 0) + "M / " + (a.disponibiliF || 0) + "F disponibili"
+        + (a.dataFatarii ? " · fătare " + esc(a.dataFatarii) : "")
+        + (a.afix ? " · afix " + esc(a.afix) : "") + "</div>"
+        + "<div class='g-mic'>" + parinti + "</div>"
+        + "<div class='g-mic'>contact: " + esc(contact || "—") + "</div>" + nota + "</div>"
+        + "<div style='display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem'>"
+        + "<button class='btn btn--primary' data-ok='" + esc(a.id) + "'>Aprobă</button>"
+        + "<button class='btn' data-nu='" + esc(a.id) + "'>Respinge</button></div></li>";
+    }
+    async function incarca() {
+      try {
+        var r = await post({ actiune: "de-aprobat" });
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) { lista.innerHTML = "<li class='g-gol'>" + esc(d.eroare || "Nu s-au putut încărca.") + "</li>"; return; }
+        var c = d.cereri || [];
+        if (!c.length) { lista.innerHTML = "<li class='g-gol'>Niciun anunț de aprobat.</li>"; if (nr) nr.hidden = true; return; }
+        if (nr) { nr.hidden = false; nr.textContent = c.length; }
+        lista.innerHTML = c.map(rand).join("");
+      } catch (e) { lista.innerHTML = "<li class='g-gol'>Eroare de rețea.</li>"; }
+    }
+    lista.addEventListener("click", async function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      if (b.dataset.ok) {
+        if (!confirm("Aprobi anunțul? Va apărea PUBLIC pe pagina Cuiburi disponibile, 90 de zile.")) return;
+        var r = await post({ actiune: "aproba", id: b.dataset.ok });
+        var d = await r.json().catch(function () { return {}; }); if (!r.ok) alert(d.eroare || "Eroare."); incarca(); return;
+      }
+      if (b.dataset.nu) {
+        var m = prompt("Motivul respingerii (rămâne în jurnal):"); if (!m) return;
+        var r2 = await post({ actiune: "respinge", id: b.dataset.nu, motiv: m });
         var d2 = await r2.json().catch(function () { return {}; }); if (!r2.ok) alert(d2.eroare || "Eroare."); incarca(); return;
       }
     });

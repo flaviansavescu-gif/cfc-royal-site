@@ -1,0 +1,213 @@
+---
+// Spațiul crescătorului — Anunțuri de cuiburi disponibile.
+// Membrul alege un cuib declarat de el (DMF), spune câți pui sunt disponibili și cum poate
+// fi găsit; registratura aprobă; anunțul apare public pe /cuiburi/ cu părinții și sănătatea
+// lor, 90 de zile. Fără prețuri.
+import RegistruLayout from "../../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Anunțuri de cuiburi" allow={["membru"]}>
+  <a class="q-inapoi" href="/crescatori/">← Spațiul meu</a>
+  <h1 class="q-title">Anunțuri de cuiburi disponibile</h1>
+  <p class="q-sub">
+    Ai pui disponibili? Publică un anunț legat de unul dintre cuiburile tale declarate.
+    După aprobarea registraturii, anunțul apare pe pagina publică <a href="/cuiburi/">Cuiburi disponibile</a>
+    cu rasa, afixul, <strong>ambii părinți și sănătatea lor</strong> și contactul tău — timp de 90 de zile.
+  </p>
+
+  <div class="q-nota">
+    <strong>Fără prețuri.</strong> Registrul nu e un magazin. Anunțul spune ce cuib ai și cum ești găsit;
+    prețul îl discuți direct cu cei care te contactează.
+  </div>
+
+  <section class="q-card">
+    <h2 class="q-h2">Publică un anunț</h2>
+    <form id="q-form" class="q-form">
+      <label class="q-f">
+        <span>Cuibul (declarația de montă și fătare)</span>
+        <select id="f-dmf" required><option value="">Se încarcă declarațiile…</option></select>
+        <small class="q-help">Doar cuiburile tale declarate. Anunțul preia rasa și părinții din declarație.</small>
+      </label>
+      <div class="q-doi">
+        <label class="q-f">
+          <span>Pui disponibili — masculi</span>
+          <input id="f-m" type="number" min="0" max="24" value="0" />
+        </label>
+        <label class="q-f">
+          <span>Pui disponibili — femele</span>
+          <input id="f-f" type="number" min="0" max="24" value="0" />
+        </label>
+      </div>
+      <label class="q-f">
+        <span>Notă (opțional) — culori, temperament, disponibilitate. <em>Fără prețuri.</em></span>
+        <textarea id="f-nota" maxlength="280" rows="3" placeholder="ex. cuib sănătos, socializat; disponibili de la 8 săptămâni"></textarea>
+      </label>
+      <fieldset class="q-fs">
+        <legend>Contact public</legend>
+        <label class="q-f">
+          <span>Nume de contact</span>
+          <input id="f-cnume" type="text" maxlength="120" placeholder="Numele tău / al canisei" />
+        </label>
+        <div class="q-doi">
+          <label class="q-f">
+            <span>Telefon</span>
+            <input id="f-ctel" type="tel" maxlength="40" placeholder="ex. 07xx xxx xxx" />
+          </label>
+          <label class="q-f">
+            <span>E-mail</span>
+            <input id="f-cmail" type="email" maxlength="160" placeholder="contact@exemplu.ro" />
+          </label>
+        </div>
+        <small class="q-help">Lasă măcar un contact — telefon sau e-mail.</small>
+      </fieldset>
+      <button class="btn btn--primary" type="submit" id="f-trimite">Trimite spre aprobare</button>
+      <p class="q-mesaj" id="f-mesaj" hidden></p>
+    </form>
+  </section>
+
+  <section class="q-card">
+    <h2 class="q-h2">Anunțurile mele</h2>
+    <div id="q-lista"><p class="q-mic">Se încarcă…</p></div>
+  </section>
+</RegistruLayout>
+
+<style>
+  .q-inapoi { display: inline-block; margin-bottom: .5rem; color: var(--color-link); font-size: .9rem; }
+  .q-title { color: var(--color-primary); }
+  .q-sub { color: var(--color-text-muted); max-width: 46rem; }
+  .q-sub a { color: var(--color-link); }
+  .q-nota {
+    max-width: 46rem; margin: 0 0 1.2rem; padding: .85rem 1.1rem;
+    background: #f7f1df; border: 1px solid var(--color-accent); border-left-width: 4px;
+    border-radius: var(--radius); font-size: .95rem; color: var(--color-text);
+  }
+  .q-nota strong { color: var(--color-primary-dark); }
+  .q-card {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius); padding: 1.25rem 1.25rem 1.5rem; margin: 1.25rem 0;
+  }
+  .q-h2 { color: var(--color-primary); margin-top: 0; }
+  .q-form { display: grid; gap: .9rem; max-width: 36rem; }
+  .q-f { display: grid; gap: .3rem; }
+  .q-f > span { font-weight: 600; font-size: .92rem; }
+  .q-f > span em { color: var(--color-danger); font-style: normal; font-weight: 700; font-size: .82rem; }
+  .q-help { color: var(--color-text-muted); font-size: .8rem; }
+  .q-doi { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+  .q-f input, .q-f select, .q-f textarea {
+    padding: .5rem .6rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    font: inherit; background: var(--color-bg);
+  }
+  .q-fs { border: 1px solid var(--color-border); border-radius: var(--radius); padding: .8rem 1rem 1rem; display: grid; gap: .9rem; }
+  .q-fs legend { font-weight: 600; font-size: .9rem; padding: 0 .4rem; color: var(--color-primary); }
+  .q-mesaj { margin: 0; padding: .6rem .8rem; border-radius: var(--radius); font-size: .92rem; }
+  .q-mesaj.ok { background: #e6f1eb; color: var(--color-success); }
+  .q-mesaj.err { background: #f7eaea; color: var(--color-danger); }
+  .q-mic { color: var(--color-text-muted); font-size: .85rem; }
+  .q-anunt { border: 1px solid var(--color-border); border-radius: var(--radius); padding: .8rem .95rem; margin-bottom: .7rem; }
+  .q-anunt .q-l1 { display: flex; justify-content: space-between; gap: .6rem; flex-wrap: wrap; align-items: baseline; }
+  .q-anunt strong { color: var(--color-text); }
+  .q-stare { font-size: .78rem; padding: .12rem .55rem; border-radius: 999px; white-space: nowrap; }
+  .q-stare.aprobat { background: #e6f1eb; color: var(--color-success); }
+  .q-stare.depus { background: #f7f1df; color: var(--color-accent-dark); }
+  .q-stare.respins { background: #f7eaea; color: var(--color-danger); }
+  .q-stare.retras { background: #eee; color: var(--color-text-muted); }
+  .q-anunt .q-det { color: var(--color-text-muted); font-size: .85rem; margin: .3rem 0 0; }
+  .q-retrage { margin-top: .5rem; }
+</style>
+
+<script is:inline>
+  (function () {
+    var Fc = "/.netlify/functions/registru-cuiburi";
+    var Fd = "/.netlify/functions/registru-dmf";
+    var cod = function () { try { return localStorage.getItem("cfcrRegistruCod") || ""; } catch (e) { return ""; } };
+    function post(url, b) {
+      return fetch(url, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ cod: cod() }, b)) });
+    }
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function mesaj(el, text, ok) { el.hidden = false; el.textContent = text; el.className = "q-mesaj " + (ok ? "ok" : "err"); }
+
+    // ——— Umple selectorul de cuiburi din declarațiile membrului ———
+    var sel = document.getElementById("f-dmf");
+    post(Fd, { actiune: "mele" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      // „mele" la DMF întoarce lista sub cheia „declaratii" (declarațiile membrului).
+      var lista = (d && d.declaratii) || [];
+      var bune = lista.filter(function (x) { return x.stare !== "respins"; });
+      if (!bune.length) {
+        sel.innerHTML = "<option value=''>Nu ai niciun cuib declarat</option>";
+        return;
+      }
+      sel.innerHTML = "<option value=''>Alege un cuib…</option>" + bune.map(function (x) {
+        var et = [x.serie, x.rasa, x.dataFatarii ? "fătare " + x.dataFatarii : "", x.pui ? x.pui + " pui" : ""].filter(Boolean).join(" · ");
+        return "<option value='" + esc(x.id) + "'>" + esc(et) + "</option>";
+      }).join("");
+    }).catch(function () { sel.innerHTML = "<option value=''>Nu am putut încărca declarațiile</option>"; });
+
+    // ——— Trimite anunțul ———
+    var form = document.getElementById("q-form");
+    var mForm = document.getElementById("f-mesaj");
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var btn = document.getElementById("f-trimite");
+      btn.disabled = true;
+      try {
+        var b = {
+          actiune: "depune",
+          dmfId: sel.value,
+          disponibiliM: document.getElementById("f-m").value,
+          disponibiliF: document.getElementById("f-f").value,
+          nota: document.getElementById("f-nota").value,
+          contactNume: document.getElementById("f-cnume").value,
+          contactTelefon: document.getElementById("f-ctel").value,
+          contactEmail: document.getElementById("f-cmail").value,
+        };
+        var r = await post(Fc, b);
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) { mesaj(mForm, d.eroare || "Nu am putut trimite anunțul.", false); }
+        else {
+          mesaj(mForm, "Anunț trimis. Apare public după aprobarea registraturii.", true);
+          form.reset();
+          incarcaMele();
+        }
+      } catch (err) { mesaj(mForm, "Eroare de rețea. Reîncearcă.", false); }
+      btn.disabled = false;
+    });
+
+    // ——— Anunțurile mele ———
+    var STARI = { aprobat: "publicat", depus: "în așteptare", respins: "respins", retras: "retras" };
+    function randAnunt(a) {
+      var titlu = (a.rasa || "Cuib") + " — " + (a.dmfSerie || "");
+      var disp = (a.disponibiliM || 0) + "M / " + (a.disponibiliF || 0) + "F disponibili";
+      var det = [disp];
+      if (a.dataFatarii) det.push("fătare " + a.dataFatarii);
+      if (a.stare === "aprobat" && a.expiraLa) det.push("expiră " + String(a.expiraLa).slice(0, 10));
+      if (a.stare === "respins" && a.motiv) det.push("motiv: " + a.motiv);
+      var buton = (a.stare === "depus" || a.stare === "aprobat")
+        ? "<div class='q-retrage'><button class='btn btn--mic' data-retrage='" + esc(a.id) + "'>Retrage anunțul</button></div>" : "";
+      return "<div class='q-anunt'>"
+        + "<div class='q-l1'><strong>" + esc(titlu) + "</strong><span class='q-stare " + a.stare + "'>" + (STARI[a.stare] || a.stare) + "</span></div>"
+        + "<p class='q-det'>" + esc(det.join(" · ")) + "</p>" + buton + "</div>";
+    }
+    async function incarcaMele() {
+      var box = document.getElementById("q-lista");
+      box.innerHTML = "<p class='q-mic'>Se încarcă…</p>";
+      try {
+        var r = await post(Fc, { actiune: "mele" });
+        var d = await r.json().catch(function () { return {}; });
+        var lista = (d && d.anunturi) || [];
+        box.innerHTML = lista.length ? lista.map(randAnunt).join("") : "<p class='q-mic'>Niciun anunț încă.</p>";
+        Array.prototype.forEach.call(box.querySelectorAll("[data-retrage]"), function (btn) {
+          btn.addEventListener("click", async function () {
+            if (!confirm("Retragi anunțul? Nu va mai apărea public.")) return;
+            btn.disabled = true;
+            try {
+              var rr = await post(Fc, { actiune: "retrage", id: btn.getAttribute("data-retrage") });
+              if (rr.ok) incarcaMele(); else btn.disabled = false;
+            } catch (e) { btn.disabled = false; }
+          });
+        });
+      } catch (e) { box.innerHTML = "<p class='q-mesaj err'>Eroare de rețea.</p>"; }
+    }
+    incarcaMele();
+  })();
+</script>

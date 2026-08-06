@@ -72,6 +72,13 @@ export const FAPTE = {
   "sanatate-depus": "Rezultat de sănătate depus",
   "sanatate-verificat": "Rezultat de sănătate verificat",
   "sanatate-respins": "Rezultat de sănătate respins",
+  // Anunțurile de cuiburi disponibile. Anunțul e legat de un DMF real al crescătorului și
+  // ajunge public DOAR după aprobarea registraturii — deci fapta se vede în jurnal: cine a
+  // cerut publicarea, cine a aprobat/respins și pentru ce cuib.
+  "anunt-cuib-depus": "Anunț de cuib depus spre publicare",
+  "anunt-cuib-aprobat": "Anunț de cuib publicat",
+  "anunt-cuib-respins": "Anunț de cuib respins",
+  "anunt-cuib-retras": "Anunț de cuib retras de crescător",
   // Acces
   "cod-generat": "Cod de acces generat",
   "cod-trimis": "Cod de acces trimis pe e-mail",

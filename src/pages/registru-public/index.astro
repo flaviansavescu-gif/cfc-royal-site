@@ -76,8 +76,11 @@ const grupe = GRUPE_WDF.map((g) => ({ nr: g.nr, ro: g.ro }));
   .rp__caine.anulat { opacity: .6; }
   .rp__nume { font-weight: 600; }
   .rp__nume .rp-anulat { font-size: .72rem; font-weight: 600; color: var(--color-danger); margin-left: .4rem; }
+  .rp__nume .rp__reco { font-size: .72rem; font-weight: 600; color: var(--color-success); margin-left: .45rem; white-space: nowrap; }
   .rp__meta { color: var(--color-text-muted); font-size: .85rem; text-align: right; }
   .rp__afix-nr { font-family: var(--font-mono); }
+  .rp__afix-link { color: var(--color-link); text-decoration: none; font-weight: 600; }
+  .rp__afix-link:hover { text-decoration: underline; }
   .rp__gol { color: var(--color-text-muted); padding: .8rem 0; }
   .rp__h2 { color: var(--color-primary); margin-top: 2rem; }
   .rp__afixe { list-style: none; padding: 0; margin: 0; display: grid; gap: .35rem;
@@ -104,9 +107,9 @@ const grupe = GRUPE_WDF.map((g) => ({ nr: g.nr, ro: g.ro }));
 
     function randCaine(c) {
       var meta = [c.rasa, c.sex === "M" ? "mascul" : (c.sex === "F" ? "femelă" : ""), c.an].filter(Boolean).join(" · ");
-      var afix = c.afix ? "<div class='rp__meta'>" + esc(c.afix) + "</div>" : "";
+      var reco = c.recomandat ? "<span class='rp__reco' title='Are recomandarea de calitate CFC-Royal'>★ montă</span>" : "";
       return "<a class='rp__caine" + (c.anulat ? " anulat" : "") + "' href='/caine/?r=" + encodeURIComponent(c.serie) + "'>"
-        + "<span class='rp__nume'>" + esc(c.nume || "(fără nume)") + (c.anulat ? "<span class='rp-anulat'>anulat</span>" : "") + "</span>"
+        + "<span class='rp__nume'>" + esc(c.nume || "(fără nume)") + (c.anulat ? "<span class='rp-anulat'>anulat</span>" : "") + reco + "</span>"
         + "<span class='rp__meta'>" + esc(meta) + (c.numarWDF ? " · " + esc(c.numarWDF) : "") + "</span></a>";
     }
 
@@ -142,7 +145,13 @@ const grupe = GRUPE_WDF.map((g) => ({ nr: g.nr, ro: g.ro }));
         var elT = document.getElementById("rp-canise-t");
         if (elT) elT.textContent = "Canise și afixe (" + af.length + ")";
         elA.innerHTML = af.length
-          ? af.map(function (a) { return "<li><span>" + esc(a.afix) + "</span><span class='rp__afix-nr'>" + esc(a.nrAfix || "") + "</span></li>"; }).join("")
+          ? af.map(function (a) {
+              var href = a.afixNorm ? "/canisa/?a=" + encodeURIComponent(a.afixNorm) : null;
+              var nr = "<span class='rp__afix-nr'>" + esc(a.nrAfix || "") + "</span>";
+              return href
+                ? "<li><a class='rp__afix-link' href='" + href + "'>" + esc(a.afix) + "</a>" + nr + "</li>"
+                : "<li><span>" + esc(a.afix) + "</span>" + nr + "</li>";
+            }).join("")
           : "<li class='rp__gol'>Niciun afix înregistrat încă.</li>";
       })
       .catch(function () { lista.innerHTML = "<li class='rp__gol'>Registrul nu se poate încărca acum.</li>"; });
