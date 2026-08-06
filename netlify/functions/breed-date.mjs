@@ -54,7 +54,7 @@ export default async (req) => {
   const eu = await cine(cod);
   if (!eu) {
     await inregistreazaEsec(cheie);
-    return json({ eroare: "Codul nu deschide aplicația. Intră cu codul tău de lector sau arbitru din Școala de Arbitraj." }, 401);
+    return json({ eroare: "Codul nu deschide aplicația. Intră în Școala de Arbitraj cu codul tău de candidat, lector sau arbitru." }, 401);
   }
   await resetLimita(cheie);
   return json({ ok: true, rol: eu.rol, nume: eu.nume, dataset: DATASET });

@@ -3345,6 +3345,9 @@
   // Aplicația e pe același domeniu, deci îl poate citi — dar nu se încrede în el: îl
   // trimite mereu la server, care hotărăște dacă deschide (lector/arbitru/admin).
   function codPlatforma() {
+    // Candidatul păstrează codul în cfcrCandidat.cod; lectorul/arbitrul/adminul în cfcrAccesCod.
+    // Serverul (breed-date) le acceptă pe toate — aici doar îl luăm de unde e.
+    try { var c = JSON.parse(localStorage.getItem("cfcrCandidat") || "null"); if (c && c.cod) return c.cod; } catch (e) {}
     try { return localStorage.getItem("cfcrAccesCod") || ""; } catch (e) { return ""; }
   }
 
@@ -3356,7 +3359,7 @@
     var box = el("div", { class: "gate-screen" }, [
       el("div", { class: "gate-mark", text: "BS" }),
       el("h1", { text: "CFCR Breed Standards Explorer" }),
-      el("p", { class: "gate-lede", text: mesaj || "Această aplicație face parte din Școala de Arbitraj CFC-Royal și se deschide din spațiul tău de lector sau arbitru." }),
+      el("p", { class: "gate-lede", text: mesaj || "Această aplicație face parte din Școala de Arbitraj CFC-Royal și se deschide după ce intri în platformă — ca și candidat, lector sau arbitru." }),
       el("a", { class: "btn btn-primary", href: "/cursuri/", text: "Intră în Școala de Arbitraj →" }),
       el("p", { class: "gate-foot", text: "Asociația Club Federal Chinologic – Royal · World Dog Federation" }),
     ]);
