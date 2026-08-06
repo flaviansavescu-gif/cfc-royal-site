@@ -90,7 +90,10 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
       });
     })();
 
-    if (!(cand && cand.id)) {
+    // Cerem CODUL, nu insigna: examenul se susține dovedind codul (vezi M1 în examen-final).
+    // O sesiune veche (dinainte de schimbare) are insigna, dar nu codul — atunci trimitem
+    // candidatul să reintre o dată, ca browserul să-i rețină și codul.
+    if (!(cand && cand.cod)) {
       stareEl.className = "ex-stare is-info";
       stareEl.innerHTML = 'Intră cu <strong>codul tău personal</strong> (din <a href="/cursuri/">pagina de acces</a>) pentru a susține examenul final.';
       return;
@@ -101,7 +104,7 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
     try {
       const r = await fetch("/.netlify/functions/examen-final", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ actiune: "stare", id: cand.id }),
+        body: JSON.stringify({ actiune: "stare", cod: cand.cod }),
       });
       stare = await r.json();
       if (!r.ok) throw new Error(stare.eroare || "Eroare");
@@ -169,7 +172,7 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
         try {
           const r = await fetch("/.netlify/functions/examen-final", {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ actiune: "contesta", id: cand.id, motiv }),
+            body: JSON.stringify({ actiune: "contesta", cod: cand.cod, motiv }),
           });
           const d = await r.json();
           if (!r.ok) throw new Error(d.eroare || "Eroare");
@@ -219,7 +222,7 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
       try {
         const r = await fetch("/.netlify/functions/examen-final", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ actiune: "start", id: cand.id }),
+          body: JSON.stringify({ actiune: "start", cod: cand.cod }),
         });
         const d = await r.json();
         if (!r.ok) throw new Error(d.eroare || "Eroare");
@@ -264,7 +267,7 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
       try {
         const r = await fetch("/.netlify/functions/examen-final", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ actiune: "trimite", id: cand.id, raspunsuri }),
+          body: JSON.stringify({ actiune: "trimite", cod: cand.cod, raspunsuri }),
         });
         const d = await r.json();
         if (!r.ok) throw new Error(d.eroare || "Eroare");

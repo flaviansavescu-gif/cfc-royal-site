@@ -274,9 +274,16 @@ export default cuLimitareCod(async (req) => {
     return json({ candidati });
   }
 
-  // ——— Acțiuni de candidat (identificat prin id) ———
-  const id = taie(body.id, 128);
-  if (!id) return json({ eroare: "Intră cu codul tău personal pentru a susține examenul." }, 401);
+  // ——— Acțiuni de candidat (autentificat DOVEDIND codul, nu insigna) ———
+  // M1 (audit securitate): înainte, candidatul se identifica prin `id` = insigna lui
+  // (sha256 al codului). Dar insigna aceea ajungea în listele lectorilor, iar un lector
+  // o putea reutiliza ca să trimită/strice examenul altui candidat. Acum candidatul
+  // trimite CODUL; serverul calculează insigna. Un lector care vede insigna nu poate
+  // întoarce sha256 ca să afle codul, deci nu mai poate acționa aici. `id` (=sha256(cod))
+  // rămâne cheia internă — `examen/<id>` și `contestatie-examen/<id>` nu se schimbă.
+  const cod = taie(body.cod, 60);
+  if (!cod) return json({ eroare: "Intră cu codul tău personal pentru a susține examenul." }, 401);
+  const id = sha256(cod);
   const store = getStore("cursuri");
   const nume = await candidatNume(store, id);
   if (!nume) return json({ eroare: "Cod de candidat invalid." }, 401);

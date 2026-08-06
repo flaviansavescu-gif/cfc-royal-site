@@ -60,7 +60,10 @@ import CursuriLayout from "../../layouts/CursuriLayout.astro";
     try {
       localStorage.removeItem("cfcrAcces"); // cheie veche
       if (data.rol === "candidat") {
-        localStorage.setItem("cfcrCandidat", JSON.stringify({ id: data.id, nume: data.nume }));
+        // Reținem și CODUL: acțiunile sensibile ale candidatului (examenul) se autentifică
+        // dovedind codul, nu insigna (id). Vezi M1 — un lector care vede insigna altui
+        // candidat nu-l mai poate impersona, fiindcă nu-i are codul.
+        localStorage.setItem("cfcrCandidat", JSON.stringify({ id: data.id, nume: data.nume, cod: cod }));
         localStorage.removeItem("cfcrRol");
         localStorage.removeItem("cfcrAccesCod");
       } else {
