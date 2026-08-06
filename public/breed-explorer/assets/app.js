@@ -3291,21 +3291,45 @@
     }
   }
 
+  // Instalarea cere DOUĂ chei: codul de instalare ȘI aprobarea administratorului, care
+  // vine pe e-mailul lui ca link. După ce codul e acceptat, plecăm cererea și așteptăm
+  // aprobarea (întrebăm serverul din câteva în câteva secunde). Codul singur nu ajunge.
+  function asteaptaAprobarea(id, cod) {
+    var pasi = 0;
+    var maxPasi = 60;   // ~4 minute (la 4s pasul)
+    var t = setInterval(function () {
+      pasi++;
+      if (pasi > maxPasi) { clearInterval(t); toast("Aprobarea n-a venit încă. După ce administratorul apasă linkul din e-mail, apasă din nou „Instalează”.", "warn"); return; }
+      fetch("/.netlify/functions/breed-instalare", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ actiune: "stare-instalare", id: id }),
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        if (j && j.expirat) { clearInterval(t); toast("Cererea a expirat. Reia instalarea.", "warn"); return; }
+        if (j && j.aprobat) {
+          clearInterval(t);
+          try { localStorage.setItem(INSTALL_COD_KEY, cod); localStorage.removeItem(INSTALL_UNLOCK_KEY); } catch (e) {}
+          injecteazaManifest();
+          toast("Aprobat de administrator — se pregătește instalarea…", "ok");
+          setTimeout(declanseazaInstalare, 900);
+        }
+      }).catch(function () { /* rețea instabilă — reîncercăm la pasul următor */ });
+    }, 4000);
+  }
+
   function promptInstall() {
     if (instalareDeblocata()) { declanseazaInstalare(); return; }
-    var cod = window.prompt("Instalarea aplicației necesită un cod de instalare (primit de la CFC-Royal). Introdu codul:");
+    var cod = window.prompt("Instalarea cere un cod de instalare (primit de la CFC-Royal). După ce îl introduci, administratorul primește pe e-mail o cerere de aprobare — instalarea pornește după ce o aprobă. Introdu codul:");
     if (!cod) return;
+    cod = String(cod).trim();
     fetch("/.netlify/functions/breed-instalare", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ actiune: "verifica", cod: String(cod).trim() }),
-    }).then(function (res) {
-      if (!res.ok) { toast("Cod de instalare incorect.", "warn"); return; }
-      // Salvăm CODUL, ca să-l putem re-verifica la fiecare pornire (revocarea are efect).
-      try { localStorage.setItem(INSTALL_COD_KEY, String(cod).trim()); localStorage.removeItem(INSTALL_UNLOCK_KEY); } catch (e) {}
-      injecteazaManifest();
-      toast("Cod acceptat — se pregătește instalarea…", "ok");
-      setTimeout(declanseazaInstalare, 1000);
-    }).catch(function () { toast("Nu am putut verifica codul (ești online?).", "warn"); });
+      body: JSON.stringify({ actiune: "cere-instalare", cod: cod }),
+    }).then(function (res) { return res.json().then(function (j) { return { ok: res.ok, j: j }; }); })
+      .then(function (res) {
+        if (!res.ok || !res.j || !res.j.pending) { toast((res.j && res.j.eroare) || "Cod de instalare incorect.", "warn"); return; }
+        toast("Cerere trimisă. Administratorul a primit pe e-mail linkul de aprobare — după ce îl apasă, instalarea pornește singură.", "ok");
+        asteaptaAprobarea(res.j.id, cod);
+      }).catch(function () { toast("Nu am putut trimite cererea (ești online?).", "warn"); });
   }
 
   // Optional deep-link on load: #list / #compare / #dashboard / #admin
