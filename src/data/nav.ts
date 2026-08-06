@@ -66,7 +66,9 @@ export const mainNav: NavItem[] = [
       { slug: "regulamente", label: { ro: "Regulamente WDF", en: "WDF Regulations" } },
       // Registrul genealogic stă la rădăcină, fără prefix de limbă: căile care încep
       // cu „/" trec neatinse prin localizePath.
-      { slug: "/caine/", label: { ro: "Cartea de origini", en: "Stud book" } },
+      // „Cartea de origini" din meniu duce la registrul RĂSFOIBIL; căutarea directă
+      // după serie/microcip (/caine/) e legată din interiorul lui.
+      { slug: "/registru-public/", label: { ro: "Cartea de origini", en: "Stud book" } },
       { slug: "/verifica-pedigree/", label: { ro: "Verificarea certificatelor", en: "Verify a certificate" } },
     ],
   },
@@ -116,7 +118,7 @@ export const footerNav: FooterColumn[] = [
       { slug: "expozitii", label: { ro: "Expoziții", en: "Dog shows" } },
       { slug: "educatie/centrul-competentelor-chinologice", label: { ro: "Educație", en: "Education" } },
       { slug: "standarde-rasa", label: { ro: "Standarde de rasă", en: "Breed standards" } },
-      { slug: "/caine/", label: { ro: "Cartea de origini", en: "Stud book" } },
+      { slug: "/registru-public/", label: { ro: "Cartea de origini", en: "Stud book" } },
       { slug: "noutati", label: { ro: "Noutăți", en: "News" } },
     ],
   },
