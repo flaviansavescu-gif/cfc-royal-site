@@ -110,6 +110,14 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   </p>
   <ul class="g-dosare" id="k-cereri"><li class="g-gol">Se încarcă…</li></ul>
 
+  <h2 class="g-h2">Sănătate — rezultate de verificat <span class="g-badge" id="sn-nr" hidden></span></h2>
+  <p class="g-explic">
+    Rezultatele de sănătate depuse de crescători (displazie, ochi, ADN, teste genetice).
+    Deschide certificatul scanat și confirmă — abia atunci rezultatul apare <strong>public</strong>
+    pe fișa câinelui. Respingerea cere un motiv, care rămâne în jurnal.
+  </p>
+  <ul class="g-dosare" id="sn-cereri"><li class="g-gol">Se încarcă…</li></ul>
+
   {/* Extrasele oficiale — ca extrasul de cont de la bancă: întregul registru sau doar
       pozițiile dintre două numere. Formularele se văd numai cu dreptul potrivit;
       poarta adevărată rămâne pe server. */}
@@ -740,6 +748,68 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     });
 
     incarcaDosare();
+  })();
+
+  // ——— Sănătate: verificarea rezultatelor depuse de crescători (Faza 1) ———
+  (function () {
+    var F = "/.netlify/functions/registru-sanatate";
+    var cod = function () { try { return localStorage.getItem("cfcrRegistruCod") || ""; } catch (e) { return ""; } };
+    var disp = function () { try { return localStorage.getItem("cfcrRegistruDispozitiv") || ""; } catch (e) { return ""; } };
+    var post = function (b) {
+      return fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ cod: cod(), dispozitiv: disp() }, b)) });
+    };
+    var lista = document.getElementById("sn-cereri");
+    var nr = document.getElementById("sn-nr");
+    if (!lista) return;
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); }
+    function rand(x) {
+      var key = esc(x.microcip) + "|" + esc(x.testId);
+      return "<li class='g-dosar'><div><strong>" + esc(x.nume) + (x.subtip ? " — " + esc(x.subtip) : "") + ": " + esc(x.rezultat) + "</strong>"
+        + "<div class='g-mic'>microcip " + esc(x.microcip) + " · emis de " + esc(x.emitent || "—") + " · depus de " + esc(x.depusDeNume || "membru") + "</div></div>"
+        + "<div style='display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem'>"
+        + "<button class='btn' data-vezi='" + key + "'>Vezi certificatul</button>"
+        + "<button class='btn btn--primary' data-ok='" + key + "'>Verifică</button>"
+        + "<button class='btn' data-nu='" + key + "'>Respinge</button></div></li>";
+    }
+    async function incarca() {
+      try {
+        var r = await post({ actiune: "de-verificat" });
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) { lista.innerHTML = "<li class='g-gol'>" + esc(d.eroare || "Nu s-au putut încărca.") + "</li>"; return; }
+        var c = d.cereri || [];
+        if (!c.length) { lista.innerHTML = "<li class='g-gol'>Nimic de verificat.</li>"; if (nr) nr.hidden = true; return; }
+        if (nr) { nr.hidden = false; nr.textContent = c.length; }
+        lista.innerHTML = c.map(rand).join("");
+      } catch (e) { lista.innerHTML = "<li class='g-gol'>Eroare de rețea.</li>"; }
+    }
+    async function veziScan(cip, id) {
+      try {
+        var r = await post({ actiune: "vezi-fisier", microcip: cip, testId: id });
+        if (!r.ok) { var d = await r.json().catch(function () { return {}; }); alert(d.eroare || "Certificatul nu e la dosar."); return; }
+        var url = URL.createObjectURL(await r.blob());
+        window.open(url, "_blank");
+        setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+      } catch (e) { alert("Eroare de rețea."); }
+    }
+    lista.addEventListener("click", async function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      var p;
+      if (b.dataset.vezi) { p = b.dataset.vezi.split("|"); return veziScan(p[0], p[1]); }
+      if (b.dataset.ok) {
+        p = b.dataset.ok.split("|");
+        if (!confirm("Confirmi rezultatul? Va apărea PUBLIC pe fișa câinelui.")) return;
+        var r = await post({ actiune: "verifica", microcip: p[0], testId: p[1] });
+        var d = await r.json().catch(function () { return {}; }); if (!r.ok) alert(d.eroare || "Eroare."); incarca(); return;
+      }
+      if (b.dataset.nu) {
+        p = b.dataset.nu.split("|");
+        var m = prompt("Motivul respingerii (rămâne în jurnal):"); if (!m) return;
+        var r2 = await post({ actiune: "respinge", microcip: p[0], testId: p[1], motiv: m });
+        var d2 = await r2.json().catch(function () { return {}; }); if (!r2.ok) alert(d2.eroare || "Eroare."); incarca(); return;
+      }
+    });
+    incarca();
   })();
 </script>
 

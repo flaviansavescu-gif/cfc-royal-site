@@ -66,6 +66,12 @@ export const FAPTE = {
   // (`citire/urma/<id>`) se rescrie la fiecare citire; jurnalul e cel care păstrează
   // câte au fost și de către cine.
   "citire-documente": "Pedigree-urile părinților citite automat",
+  // Dosarul de sănătate al câinelui (Faza 1): rezultatul depus de membru și hotărârea
+  // registraturii. Datele ajung public pe fișa câinelui doar după verificare, deci fapta
+  // se vede în jurnal — cine a depus, cine a verificat/respins și când.
+  "sanatate-depus": "Rezultat de sănătate depus",
+  "sanatate-verificat": "Rezultat de sănătate verificat",
+  "sanatate-respins": "Rezultat de sănătate respins",
   // Acces
   "cod-generat": "Cod de acces generat",
   "cod-trimis": "Cod de acces trimis pe e-mail",

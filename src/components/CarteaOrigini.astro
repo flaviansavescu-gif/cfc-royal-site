@@ -76,6 +76,11 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
       <div class="fisa__dreapta">
         <h2 class="fisa__nume" id="k-nume"></h2>
         <p class="fisa__stare" id="k-stare"></p>
+        <div class="fisa__sanatate" id="k-sanatate" hidden>
+          <p class="fisa__recomandare" id="k-recomandare" hidden></p>
+          <h3 class="fisa__sanatate-t" id="k-sanatate-t"></h3>
+          <div class="k-insigne" id="k-insigne"></div>
+        </div>
         <table class="fisa__date" id="k-date"></table>
       </div>
     </div>
@@ -101,6 +106,7 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
 <script is:inline>
   (function () {
     const F = "/.netlify/functions/registru-pedigree";
+    const F_SAN = "/.netlify/functions/registru-sanatate";
     const sectiune = document.querySelector(".k-sect");
     const form = document.getElementById("k-form");
     const input = document.getElementById("k-input");
@@ -315,6 +321,40 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
       p.appendChild(t);
     }
 
+    // Insignele de sănătate (Faza 1): doar testele VERIFICATE, aduse de registru-sanatate
+    // după microcip. Textul insignei vine dintr-un nomenclator închis pe server, dar îl
+    // punem tot cu textContent — regula fișei: niciodată innerHTML din date.
+    function deseneazaSanatate(microcip) {
+      const box = document.getElementById("k-sanatate");
+      const ins = document.getElementById("k-insigne");
+      box.hidden = true;
+      ins.textContent = "";
+      const cip = String(microcip || "").replace(/[\s-]/g, "");
+      if (!cip) return;
+      fetch(F_SAN, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ actiune: "dosar", microcip: cip }) })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (!d) return;
+          const rec = document.getElementById("k-recomandare");
+          // Recomandarea de calitate (Faza 2): câine cu teste verificate favorabile.
+          const areRec = !!(d.recomandare && d.recomandare.acordata);
+          rec.hidden = !areRec;
+          if (areRec) {
+            rec.textContent = limba === "en"
+              ? "★ Recommended for breeding — CFC-Royal quality mark"
+              : "★ Recomandat pentru montă — Recomandare de calitate CFC-Royal";
+          }
+          const insigne = d.insigne || [];
+          document.getElementById("k-sanatate-t").textContent = insigne.length
+            ? (limba === "en" ? "Health tests (verified)" : "Teste de sănătate (verificate)")
+            : "";
+          insigne.forEach((txt) => ins.appendChild(el("span", "k-insigna", txt)));
+          box.hidden = !(areRec || insigne.length);
+        })
+        .catch(() => {});
+    }
+
     function deseneaza(d) {
       const T = L[limba];
       const c = d.caine;
@@ -360,6 +400,7 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
       deseneazaFrati(d.frati || []);
       deseneazaDescendenti(d.descendenti || []);
       deseneazaTitluri(d.titluri || []);
+      deseneazaSanatate(c.microcip);
       fisa.hidden = false;
     }
 
@@ -437,6 +478,16 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
   .fisa__mic th, .fisa__date th { color: var(--color-text-muted); font-weight: 600; width: 42%; }
   .fisa__nume { font-family: var(--font-serif); color: var(--color-primary); margin: 0 0 0.2rem; }
   .fisa__stare { font-size: 0.85rem; font-weight: 600; margin: 0 0 0.7rem; }
+  .fisa__sanatate { margin: 0 0 0.8rem; }
+  .fisa__recomandare { display: inline-block; margin: 0 0 0.6rem; padding: 0.3rem 0.75rem;
+    font-family: var(--font-serif); font-weight: 600; font-size: 0.92rem; line-height: 1.3;
+    color: var(--color-primary-dark); background: #f7f1df;
+    border: 1px solid var(--color-accent); border-radius: var(--radius); }
+  .fisa__sanatate-t { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em;
+    color: var(--color-text-muted); margin: 0 0 0.35rem; font-family: var(--font-sans); font-weight: 600; }
+  .k-insigne { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .k-insigna { font-size: 0.78rem; font-weight: 600; padding: 0.15rem 0.55rem; border-radius: 999px;
+    background: #e6f1eb; color: var(--color-success); border: 1px solid #cfe6d9; }
   .fisa__stare.is-a { color: var(--color-primary); }
   .fisa__stare.is-b { color: var(--color-accent-dark); }
   .fisa__stare.is-anulat { color: #8c1d2f; }

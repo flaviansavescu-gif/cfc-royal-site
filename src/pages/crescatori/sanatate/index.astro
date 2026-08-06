@@ -1,0 +1,216 @@
+---
+// Spațiul crescătorului — Dosarul de sănătate al câinilor (Faza 1).
+// Membrul depune rezultate de sănătate (HD, ED, ochi, ADN, teste genetice) cu certificatul
+// scanat; registratura le verifică; ce e verificat apare public pe fișa câinelui.
+import RegistruLayout from "../../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Sănătatea câinilor" allow={["membru"]}>
+  <a class="s-inapoi" href="/crescatori/">← Spațiul meu</a>
+  <h1 class="s-title">Dosarul de sănătate al câinilor</h1>
+  <p class="s-sub">
+    Adaugă rezultatele testelor de sănătate ale câinilor tăi (displazie, ochi, ADN, teste
+    genetice) cu certificatul emis de medic/laborator. După verificarea registraturii, ele
+    apar pe fișa publică a câinelui — dovada că reproducția ta e responsabilă.
+  </p>
+
+  <div class="s-recomandare">
+    <strong>★ Recomandare de calitate CFC-Royal.</strong>
+    Testele de sănătate sunt <strong>opționale</strong> — nu impunem nimic. Dar un câine, mascul
+    sau femelă, care are teste <strong>verificate și cu rezultate bune</strong> primește automat
+    <strong>„Recomandat pentru montă"</strong> pe fișa lui publică: semnul de calitate al
+    Clubului Federal Chinologic Royal. Cu cât depui mai multe teste bune, cu atât recomandarea e
+    mai puternică.
+  </div>
+
+  <section class="s-card">
+    <h2 class="s-h2">Adaugă un rezultat</h2>
+    <form id="s-form" class="s-form">
+      <label class="s-f">
+        <span>Microcipul câinelui</span>
+        <input id="f-cip" type="text" inputmode="numeric" autocomplete="off"
+               placeholder="10 sau 15 cifre" required />
+      </label>
+      <label class="s-f">
+        <span>Tipul testului</span>
+        <select id="f-tip" required>
+          <option value="hd">Displazie de șold (HD)</option>
+          <option value="ed">Displazie de cot (ED)</option>
+          <option value="ochi">Examen oftalmologic</option>
+          <option value="adn">Profil ADN</option>
+          <option value="genetic">Test genetic (specific rasei)</option>
+        </select>
+      </label>
+      <label class="s-f" id="f-subtip-wrap" hidden>
+        <span>Ce test genetic</span>
+        <input id="f-subtip" type="text" placeholder="ex. DM (mielopatie degenerativă)" />
+      </label>
+      <label class="s-f">
+        <span>Rezultat</span>
+        <select id="f-rez-sel"></select>
+        <input id="f-rez-txt" type="text" placeholder="ex. clar (N/N)" hidden />
+      </label>
+      <label class="s-f">
+        <span>Data testului</span>
+        <input id="f-data" type="date" />
+      </label>
+      <label class="s-f">
+        <span>Emis de (medic / laborator)</span>
+        <input id="f-emitent" type="text" placeholder="ex. Dr. Popescu / Laboratorul X" required />
+      </label>
+      <label class="s-f">
+        <span>Certificatul scanat <em>(obligatoriu)</em> — JPEG, PNG sau PDF</span>
+        <input id="f-fisier" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" required />
+        <small class="s-mic-help">Registratura verifică acest document înainte ca rezultatul să apară public.</small>
+      </label>
+      <button class="btn btn--primary" type="submit" id="f-trimite">Depune rezultatul</button>
+      <p class="s-mesaj" id="f-mesaj" hidden></p>
+    </form>
+  </section>
+
+  <section class="s-card">
+    <h2 class="s-h2">Dosarul unui câine</h2>
+    <div class="s-cauta">
+      <input id="c-cip" type="text" inputmode="numeric" placeholder="Microcipul câinelui" />
+      <button class="btn" id="c-vezi" type="button">Vezi dosarul</button>
+    </div>
+    <div id="c-rezultat" class="s-dosar" hidden></div>
+  </section>
+</RegistruLayout>
+
+<style>
+  .s-inapoi { display: inline-block; margin-bottom: .5rem; color: var(--color-link); font-size: .9rem; }
+  .s-title { color: var(--color-primary); }
+  .s-sub { color: var(--color-text-muted); max-width: 46rem; }
+  .s-recomandare {
+    max-width: 46rem; margin: 0 0 1.2rem; padding: .85rem 1.1rem;
+    background: #f7f1df; border: 1px solid var(--color-accent); border-left-width: 4px;
+    border-radius: var(--radius); font-size: .95rem; color: var(--color-text);
+  }
+  .s-recomandare strong { color: var(--color-primary-dark); }
+  .s-card {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius); padding: 1.25rem 1.25rem 1.5rem; margin: 1.25rem 0;
+  }
+  .s-h2 { color: var(--color-primary); margin-top: 0; }
+  .s-form { display: grid; gap: .9rem; max-width: 34rem; }
+  .s-f { display: grid; gap: .3rem; }
+  .s-f > span { font-weight: 600; font-size: .92rem; }
+  .s-f > span em { color: var(--color-danger); font-style: normal; font-weight: 700; font-size: .82rem; }
+  .s-mic-help { color: var(--color-text-muted); font-size: .8rem; }
+  .s-f input, .s-f select {
+    padding: .5rem .6rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    font: inherit; background: var(--color-bg);
+  }
+  .s-mesaj { margin: 0; padding: .6rem .8rem; border-radius: var(--radius); font-size: .92rem; }
+  .s-mesaj.ok { background: #e6f1eb; color: var(--color-success); }
+  .s-mesaj.err { background: #f7eaea; color: var(--color-danger); }
+  .s-cauta { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .s-cauta input { flex: 1 1 12rem; padding: .5rem .6rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
+  .s-dosar { margin-top: 1rem; }
+  .s-test { border: 1px solid var(--color-border); border-radius: var(--radius); padding: .7rem .9rem; margin-bottom: .6rem; }
+  .s-test .s-linia1 { display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+  .s-stare { font-size: .8rem; padding: .1rem .5rem; border-radius: 999px; white-space: nowrap; }
+  .s-stare.verificat { background: #e6f1eb; color: var(--color-success); }
+  .s-stare.in-asteptare { background: #f7f1df; color: var(--color-accent-dark); }
+  .s-stare.respins { background: #f7eaea; color: var(--color-danger); }
+  .s-mic { color: var(--color-text-muted); font-size: .85rem; margin: .2rem 0 0; }
+</style>
+
+<script is:inline>
+  (function () {
+    var F = "/.netlify/functions/registru-sanatate";
+    var cod = function () { try { return localStorage.getItem("cfcrRegistruCod") || ""; } catch (e) { return ""; } };
+    var post = function (b) {
+      return fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ cod: cod() }, b)) });
+    };
+    // Rezultatele permise pe tip (oglindă a nomenclatorului din server).
+    var REZ = { hd: ["A", "B", "C", "D", "E"], ed: ["0", "1", "2", "3"], ochi: ["liber", "afectat"], adn: ["depus"], genetic: null };
+
+    var tip = document.getElementById("f-tip");
+    var rezSel = document.getElementById("f-rez-sel");
+    var rezTxt = document.getElementById("f-rez-txt");
+    var subtipWrap = document.getElementById("f-subtip-wrap");
+
+    function reinnoiesteRezultate() {
+      var t = tip.value;
+      var lista = REZ[t];
+      subtipWrap.hidden = t !== "genetic";
+      if (lista === null) { rezSel.hidden = true; rezTxt.hidden = false; }
+      else {
+        rezSel.hidden = false; rezTxt.hidden = true;
+        rezSel.innerHTML = lista.map(function (r) { return "<option value='" + r + "'>" + r + "</option>"; }).join("");
+      }
+    }
+    tip.addEventListener("change", reinnoiesteRezultate);
+    reinnoiesteRezultate();
+
+    function catreBase64(blob) {
+      return new Promise(function (rez, rej) {
+        var fr = new FileReader();
+        fr.onload = function () { rez(String(fr.result).split(",")[1] || ""); };
+        fr.onerror = rej;
+        fr.readAsDataURL(blob);
+      });
+    }
+    function mesaj(el, text, ok) { el.hidden = false; el.textContent = text; el.className = "s-mesaj " + (ok ? "ok" : "err"); }
+
+    var form = document.getElementById("s-form");
+    var mForm = document.getElementById("f-mesaj");
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var btn = document.getElementById("f-trimite");
+      btn.disabled = true;
+      try {
+        var b = {
+          actiune: "depune",
+          microcip: document.getElementById("f-cip").value,
+          tip: tip.value,
+          rezultat: (REZ[tip.value] === null ? rezTxt.value : rezSel.value),
+          data: document.getElementById("f-data").value,
+          emitent: document.getElementById("f-emitent").value,
+        };
+        if (tip.value === "genetic") b.subtip = document.getElementById("f-subtip").value;
+        var f = document.getElementById("f-fisier").files[0];
+        if (!f) { mesaj(mForm, "Atașează certificatul scanat — fără el, registratura nu are ce verifica.", false); btn.disabled = false; return; }
+        if (f.size > 4.4 * 1024 * 1024) { mesaj(mForm, "Certificatul e prea mare (max. ~4 MB).", false); btn.disabled = false; return; }
+        b.continut = await catreBase64(f);
+        b.tipFisier = f.type;
+        var r = await post(b);
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) { mesaj(mForm, d.eroare || "Nu am putut depune rezultatul.", false); }
+        else {
+          mesaj(mForm, "Rezultat depus. Ajunge public pe fișa câinelui după verificarea registraturii.", true);
+          form.reset(); reinnoiesteRezultate();
+        }
+      } catch (err) { mesaj(mForm, "Eroare de rețea. Reîncearcă.", false); }
+      btn.disabled = false;
+    });
+
+    // ——— Vezi dosarul unui câine ———
+    var STARI = { verificat: "verificat", "in-asteptare": "în verificare", respins: "respins" };
+    function randTest(t) {
+      var linia1 = "<div class='s-linia1'><strong>" + t.nume + (t.subtip ? " — " + t.subtip : "") +
+        ": " + t.rezultat + "</strong><span class='s-stare " + t.stare + "'>" + (STARI[t.stare] || t.stare) + "</span></div>";
+      var det = [];
+      if (t.data) det.push("data: " + t.data);
+      if (t.emitent) det.push("emis de: " + t.emitent);
+      if (t.stare === "respins" && t.motiv) det.push("motiv: " + t.motiv);
+      var mic = det.length ? "<p class='s-mic'>" + det.join(" · ") + "</p>" : "";
+      return "<div class='s-test'>" + linia1 + mic + "</div>";
+    }
+    document.getElementById("c-vezi").addEventListener("click", async function () {
+      var cip = document.getElementById("c-cip").value;
+      var out = document.getElementById("c-rezultat");
+      out.hidden = false; out.innerHTML = "<p class='s-mic'>Se încarcă…</p>";
+      try {
+        var r = await post({ actiune: "dosar", microcip: cip });
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) { out.innerHTML = "<p class='s-mesaj err'>" + (d.eroare || "Microcip invalid.") + "</p>"; return; }
+        if (!d.teste || !d.teste.length) { out.innerHTML = "<p class='s-mic'>Niciun rezultat de sănătate pentru acest câine încă.</p>"; return; }
+        out.innerHTML = d.teste.map(randTest).join("");
+      } catch (e) { out.innerHTML = "<p class='s-mesaj err'>Eroare de rețea.</p>"; }
+    });
+  })();
+</script>
