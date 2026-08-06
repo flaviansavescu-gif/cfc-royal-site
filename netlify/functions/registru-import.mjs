@@ -125,6 +125,13 @@ export default async (req) => {
 
   try {
     await s.setJSON("dmf/" + id, dosar);
+    // Index descendenți (S1): microcip părinte -> declarație (nefatal), la fel ca la creare.
+    try {
+      for (const pc of [dosar.mascul?.microcip, dosar.femela?.microcip]) {
+        const c = String(pc || "").replace(/[\s-]/g, "");
+        if (c) await s.setJSON("descendent-cip/" + c + "/" + id, { dmfId: id });
+      }
+    } catch (e) { console.error("Index descendenți (import) eșuat:", e); }
   } catch (err) {
     return json({ eroare: "Nu am putut scrie dosarul: " + err.message }, 500);
   }

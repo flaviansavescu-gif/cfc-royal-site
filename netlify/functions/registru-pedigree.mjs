@@ -283,26 +283,50 @@ export default cuLimitareCod(async (req) => {
     const descendenti = [];
     const cip = String(cert.caine.microcip || "").replace(/[\s-]/g, "");
     if (cip) {
+      // Construiește o intrare de descendent dintr-o declarație (același format ca înainte).
+      const dinDmf = async (d) => {
+        const cipT = String(d.mascul?.microcip || "").replace(/[\s-]/g, "");
+        const cipM = String(d.femela?.microcip || "").replace(/[\s-]/g, "");
+        if (cipT !== cip && cipM !== cip) return null;
+        const { blobs: ale } = await s0.list({ prefix: "pedigree-cuib/" + d.id + "/" });
+        const pui = [];
+        for (const x of ale) { const c2 = await s0.get(x.key, { type: "json" }); if (c2) pui.push(c2); }
+        return {
+          dmfSerie: d.serie, dataFatarii: d.dataFatarii, rasa: d.rasa,
+          rol: cipT === cip ? "tată" : "mamă",
+          celalaltParinte: cipT === cip ? d.femela?.nume : d.mascul?.nume,
+          pui,
+        };
+      };
       try {
-        const { blobs } = await s0.list({ prefix: "dmf/" });
-        for (const b of blobs) {
-          const d = await s0.get(b.key, { type: "json" });
-          if (!d) continue;
-          const cipT = String(d.mascul?.microcip || "").replace(/[\s-]/g, "");
-          const cipM = String(d.femela?.microcip || "").replace(/[\s-]/g, "");
-          if (cipT !== cip && cipM !== cip) continue;
-          const { blobs: ale } = await s0.list({ prefix: "pedigree-cuib/" + d.id + "/" });
-          const pui = [];
-          for (const x of ale) {
-            const c2 = await s0.get(x.key, { type: "json" });
-            if (c2) pui.push(c2);
+        // S1: căutarea descendenților NU mai scanează tot registrul la fiecare cerere
+        // publică. Un index microcip->declarație (scris la crearea/importul declarației)
+        // duce direct la cuiburile în care exemplarul e părinte. Prima cerere de după
+        // publicare, când indexul nu e încă „gata", îl construiește o dată pentru toate
+        // declarațiile existente și ridică steagul; de la a doua, merge pe calea rapidă.
+        const gata = await s0.get("descendent-index-gata", { type: "json" }).catch(() => null);
+        if (gata) {
+          const pre = "descendent-cip/" + cip + "/";
+          const { blobs } = await s0.list({ prefix: pre });
+          for (const b of blobs) {
+            const d = await s0.get("dmf/" + b.key.slice(pre.length), { type: "json" });
+            if (!d) continue;
+            const e = await dinDmf(d);
+            if (e) descendenti.push(e);
           }
-          descendenti.push({
-            dmfSerie: d.serie, dataFatarii: d.dataFatarii, rasa: d.rasa,
-            rol: cipT === cip ? "tată" : "mamă",
-            celalaltParinte: cipT === cip ? d.femela?.nume : d.mascul?.nume,
-            pui,
-          });
+        } else {
+          const { blobs } = await s0.list({ prefix: "dmf/" });
+          for (const b of blobs) {
+            const d = await s0.get(b.key, { type: "json" });
+            if (!d) continue;
+            for (const pc of [d.mascul?.microcip, d.femela?.microcip]) {
+              const c = String(pc || "").replace(/[\s-]/g, "");
+              if (c) await s0.setJSON("descendent-cip/" + c + "/" + d.id, { dmfId: d.id }).catch(() => {});
+            }
+            const e = await dinDmf(d);
+            if (e) descendenti.push(e);
+          }
+          await s0.setJSON("descendent-index-gata", { creat: new Date().toISOString() }).catch(() => {});
         }
       } catch (err) { console.error("Căutare descendenți eșuată:", err); }
     }

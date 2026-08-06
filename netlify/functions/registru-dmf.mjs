@@ -623,6 +623,15 @@ export default cuLimitareCod(async (req) => {
       },
     };
     await s.setJSON("dmf/" + ciornaId, d);
+    // Index descendenți (S1): microcipul fiecărui părinte -> această declarație, ca fișa
+    // publică a câinelui să-și găsească urmașii FĂRĂ să scaneze tot registrul. Nefatal:
+    // un index nescris înseamnă doar o căutare mai lentă, nu o declarație ruptă.
+    try {
+      for (const pc of [d.mascul?.microcip, d.femela?.microcip]) {
+        const c = String(pc || "").replace(/[\s-]/g, "");
+        if (c) await s.setJSON("descendent-cip/" + c + "/" + ciornaId, { dmfId: ciornaId });
+      }
+    } catch (err) { console.error("Index descendenți (scriere) eșuat:", err); }
     await s.setJSON("dmf-membru/" + eu.membru.id + "/" + ciornaId, {
       id: ciornaId, serie, rasa: d.rasa, dataFatarii: d.dataFatarii,
       pui: d.pui.length, stare: d.stare, pesteTermen: d.pesteTermen, creat: d.creat,
