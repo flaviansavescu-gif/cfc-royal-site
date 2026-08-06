@@ -8,14 +8,13 @@
 //
 // POST { cod } -> { ok:true, rol, dataset }   |  401 cod nevalid  |  429 prea multe încercări
 import { getStore } from "@netlify/blobs";
-import { createRequire } from "node:module";
 import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { ipClient, verificaLimita, inregistreazaEsec, resetLimita } from "./_comun/limitare.mjs";
 
-// Setul de rase e legat în pachetul funcției (nu e servit public). Îl scrie tot
-// `scripts/importa-standarde-wdf.mjs`, dar aici, nu în `public/`.
-const require = createRequire(import.meta.url);
-const DATASET = require("./_breed/breeds.json");
+// Setul de rase e ÎNCORPORAT în pachetul funcției la construire (import static de JSON,
+// pe care bundler-ul îl inline-uiește) — nu e un fișier servit public. Îl scrie tot
+// `scripts/importa-standarde-wdf.mjs`, dar în netlify/functions/_breed, nu în `public/`.
+import DATASET from "./_breed/breeds.json" with { type: "json" };
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
