@@ -8,7 +8,7 @@
 //
 // POST { cod } -> { ok:true, rol, dataset }   |  401 cod nevalid  |  429 prea multe încercări
 import { getStore } from "@netlify/blobs";
-import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
+import { rolLaIntrare, sha256 } from "./_comun/roluri.mjs";
 import { ipClient, verificaLimita, inregistreazaEsec, resetLimita } from "./_comun/limitare.mjs";
 
 // Setul de rase e ÎNCORPORAT în pachetul funcției la construire (import static de JSON,
@@ -22,15 +22,19 @@ const json = (body, status = 200) =>
   });
 
 /**
- * Cine cere: administrator, lector (coduri fixe din roluri.mjs) sau arbitru (registrul
- * Colegiului din magazia „cursuri"). Candidații NU au acces aici — aplicația e, deocamdată,
- * pentru cei care predau și arbitrează. (Se poate lărgi la candidați cu o singură linie.)
+ * Cine cere: oricine e în platforma Școlii de Arbitraj — administrator, lector, arbitru
+ * ȘI candidat (cod individual sau codul comun de candidați). Aplicația e un instrument de
+ * studiu: are sens s-o folosească și cei care se pregătesc, nu doar cei care predau.
+ * NU au acces cei DIN AFARA platformei — asta e toată rostul porții.
  */
 async function cine(cod) {
-  const a = actorDinCod(cod);          // admin | lector | null
-  if (a) return { rol: a.rol, nume: a.nume || "" };
-  const arb = await getStore("cursuri").get("arbitru/" + sha256(cod), { type: "json" }).catch(() => null);
+  const r = rolLaIntrare(cod);         // admin | lector | acces (codul comun de candidați) | null
+  if (r) return { rol: r.rol === "acces" ? "candidat" : r.rol, nume: r.nume || "" };
+  const s = getStore("cursuri");
+  const arb = await s.get("arbitru/" + sha256(cod), { type: "json" }).catch(() => null);
   if (arb) return { rol: "arbitru", nume: arb.nume || "" };
+  const cand = await s.get("candidat/" + sha256(cod), { type: "json" }).catch(() => null);
+  if (cand) return { rol: "candidat", nume: cand.nume || "" };
   return null;
 }
 
