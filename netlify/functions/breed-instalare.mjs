@@ -15,7 +15,7 @@
 // POST { actiune:"revoca", cod:ADMIN, id }         -> { ok }
 import { getStore } from "@netlify/blobs";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
-import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { cuLimitareCod, ipClient } from "./_comun/limitare.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
@@ -26,6 +26,12 @@ const ALFABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // fără caractere ambigue
 // are ultimul cuvânt, ca la restul alertelor; altfel, adresa asociației.
 const EMAIL_APROBARE = ADRESA_ASOCIATIEI;
 const CERERE_VALABILA_MS = 24 * 3600e3;   // o cerere de instalare neaprobată expiră în 24h
+
+// Anti-inundare pe „cere-instalare": chiar cu un cod de instalare VALID, fiecare cerere
+// trimite un e-mail de aprobare administratorului. Fără o limită proprie, cine deține un
+// cod ar putea îneca inboxul (cuLimitareCod resetează contorul la răspuns reușit — 200).
+const CERERI_MAX = 5;                      // câte cereri de instalare pe adresă…
+const CERERI_FEREASTRA_MS = 30 * 60e3;    // …într-o jumătate de oră
 
 const sha256 = (s) => createHash("sha256").update(String(s)).digest("hex");
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
@@ -47,8 +53,10 @@ export default cuLimitareCod(async (req) => {
   const store = getStore("breed");
 
   // —— Link de APROBARE din e-mail (GET, clic din inbox) ——
-  // Administratorul apasă linkul primit pe e-mail. Fără el, cererea rămâne neaprobată,
-  // iar aplicația nu se instalează, oricât de valid ar fi codul de instalare.
+  // Administratorul apasă linkul primit pe e-mail. GET-ul NU mai aprobă singur: doar
+  // ARATĂ o pagină cu un buton. Aprobarea propriu-zisă se face la apăsarea butonului
+  // (POST), ca un scaner de linkuri / preîncărcarea din inbox să NU poată aproba în locul
+  // administratorului doar deschizând mesajul.
   if (req.method === "GET") {
     const u = new URL(req.url);
     if (u.searchParams.get("actiune") !== "aproba")
@@ -60,6 +68,50 @@ export default cuLimitareCod(async (req) => {
       return html("<h2 style='color:#8a1d1d'>Link nevalid</h2><p>Cererea de instalare nu există sau linkul e greșit.</p>", 404);
     if (Date.parse(rec.expira) < Date.now())
       return html("<h2 style='color:#8a1d1d'>Link expirat</h2><p>Cererea a trecut de termen. Cere din nou instalarea din aplicație.</p>", 410);
+    if (rec.aprobat)
+      return html(
+        "<h2 style='color:#1F4D3A'>Instalare deja aprobată ✓</h2>" +
+        "<p style='color:#444'>Această cerere a fost aprobată. Persoana poate reveni în aplicație.</p>");
+    // Pagină de confirmare cu buton (POST). Fără JavaScript: un simplu formular.
+    return html(
+      "<div style='width:56px;height:56px;border-radius:12px;background:#1F4D3A;color:#fff;display:inline-grid;place-items:center;font:700 1.4rem Georgia,serif'>BS</div>" +
+      "<h2 style='color:#1F4D3A;margin:1rem 0 .3rem'>Aprobi instalarea?</h2>" +
+      "<p style='color:#444'>Cineva a cerut instalarea CFCR Breed Standards Explorer" +
+      (rec.eticheta ? " (cod: <strong>" + escapeHtml(rec.eticheta) + "</strong>)" : "") +
+      ". Apasă butonul doar dacă recunoști cererea.</p>" +
+      "<form method='POST' style='margin:1.4rem 0'>" +
+      "<input type='hidden' name='actiune' value='aproba-confirma'>" +
+      "<input type='hidden' name='id' value='" + escapeHtml(id) + "'>" +
+      "<input type='hidden' name='token' value='" + escapeHtml(token) + "'>" +
+      "<button type='submit' style='background:#1F4D3A;color:#fff;border:0;padding:12px 22px;border-radius:8px;font-weight:600;font-size:15px;cursor:pointer'>Aprobă instalarea →</button>" +
+      "</form>" +
+      "<p style='color:#888;font-size:.85rem'>Dacă nu recunoști cererea, închide pagina — fără aprobarea ta, aplicația nu se instalează.</p>");
+  }
+
+  if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
+  let body;
+  const ct = req.headers.get("content-type") || "";
+  try {
+    if (ct.includes("application/x-www-form-urlencoded")) {
+      // Pagina de confirmare a aprobării trimite un formular clasic, nu JSON.
+      body = Object.fromEntries(new URLSearchParams(await req.text()).entries());
+    } else {
+      body = await req.json();
+    }
+  } catch { return json({ eroare: "Cerere invalidă." }, 400); }
+  const actiune = taie(body.actiune, 20) || "verifica";
+
+  // —— Confirmarea aprobării (POST din pagina de confirmare, butonul apăsat de administrator) ——
+  // Aici se face MUTAȚIA pe care GET-ul o refuză acum. Cere id + token valizi (aceeași
+  // verificare ca a linkului din e-mail). Răspunde cu HTML — e o navigare de browser.
+  if (actiune === "aproba-confirma") {
+    const id = taie(body.id, 64);
+    const token = taie(body.token, 64);
+    const rec = await store.get("cerere-instalare/" + id, { type: "json" }).catch(() => null);
+    if (!rec || rec.token !== token)
+      return html("<h2 style='color:#8a1d1d'>Link nevalid</h2><p>Cererea nu există sau linkul e greșit.</p>", 404);
+    if (Date.parse(rec.expira) < Date.now())
+      return html("<h2 style='color:#8a1d1d'>Link expirat</h2><p>Cere din nou instalarea din aplicație.</p>", 410);
     if (!rec.aprobat) {
       rec.aprobat = true;
       rec.aprobatLa = new Date().toISOString();
@@ -73,11 +125,6 @@ export default cuLimitareCod(async (req) => {
       "<p style='color:#888;font-size:.85rem;margin-top:1.4rem'>Asociația Club Federal Chinologic – Royal · World Dog Federation</p>");
   }
 
-  if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
-  let body;
-  try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
-  const actiune = taie(body.actiune, 20) || "verifica";
-
   // —— Cererea de instalare: cod valid + trimite administratorului linkul de aprobare ——
   // Codul singur nu mai deblochează instalarea. Se creează o cerere în așteptare și
   // administratorul primește pe e-mail un link; instalarea se deblochează abia după clic.
@@ -86,6 +133,16 @@ export default cuLimitareCod(async (req) => {
     if (!cod) return json({ eroare: "Cod lipsă." }, 400);
     const codRec = await store.get("install-cod/" + sha256(cod), { type: "json" }).catch(() => null);
     if (!codRec) return json({ eroare: "Cod de instalare incorect." }, 401);
+
+    // Anti-inundare pe adresă (fereastră glisantă), independent de starea răspunsului.
+    const cheieCereri = "cereri-ip/" + ipClient(req);
+    const acumMs = Date.now();
+    const cnt = (await store.get(cheieCereri, { type: "json" }).catch(() => null)) || { n: 0, de: acumMs };
+    if (acumMs - (cnt.de || 0) > CERERI_FEREASTRA_MS) { cnt.n = 0; cnt.de = acumMs; }
+    if ((cnt.n || 0) >= CERERI_MAX)
+      return json({ eroare: "Prea multe cereri de instalare de la această adresă. Reîncearcă mai târziu." }, 429);
+    cnt.n = (cnt.n || 0) + 1;
+    await store.setJSON(cheieCereri, cnt).catch(() => {});
 
     const id = randomUUID();
     const token = randomBytes(24).toString("hex");

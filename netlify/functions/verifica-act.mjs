@@ -14,6 +14,7 @@
 // POST { secret, actiune:"revocari", serii:["003/01.11.2026", ...] }
 //   -> managerul publică lista completă a actelor anulate (o înlocuiește pe cea veche)
 import crypto from "node:crypto";
+import { secretEgal } from "./_comun/secret.mjs";
 import { getStore } from "@netlify/blobs";
 import { felActului, etichetaCod, textStare, notaValid, motivAnulare } from "./_comun/verificare-text.mjs";
 
@@ -67,7 +68,7 @@ export default async (req) => {
     } catch {
       return json({ eroare: "Corp invalid." }, 400);
     }
-    if (!SECRET || body.secret !== SECRET) return json({ eroare: "Secret invalid." }, 401);
+    if (!secretEgal(body.secret, SECRET)) return json({ eroare: "Secret invalid." }, 401);
     if (body.actiune !== "revocari") return json({ eroare: "Acțiune necunoscută." }, 400);
 
     const serii = Array.isArray(body.serii) ? body.serii.filter((s) => typeof s === "string") : [];

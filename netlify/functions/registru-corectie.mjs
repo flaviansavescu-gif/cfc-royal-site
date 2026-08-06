@@ -30,6 +30,7 @@
 // ce s-ar schimba, câmp cu câmp.
 // =========================================================================
 import { getStore } from "@netlify/blobs";
+import { secretEgal } from "./_comun/secret.mjs";
 import { tipCertificat } from "./registru-pedigree.mjs";
 import { idDosar, verificaCuib } from "./registru-import.mjs";
 import { jurnalizeazaObligatoriu } from "./_comun/registru-jurnal.mjs";
@@ -63,7 +64,7 @@ function diferente(vechi, nou) {
 export default async (req) => {
   if (req.method !== "POST") return json({ eroare: "Folosește POST." }, 405);
   const body = await req.json().catch(() => null);
-  if (!body || !process.env.EXPO_SYNC_SECRET || body.secret !== process.env.EXPO_SYNC_SECRET) {
+  if (!body || !secretEgal(body.secret, process.env.EXPO_SYNC_SECRET)) {
     return json({ eroare: "Neautorizat" }, 401);
   }
 

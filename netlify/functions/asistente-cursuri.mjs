@@ -16,6 +16,7 @@
 // POST { secret, actiune:"manager-prezenta", candidatId, nr, stare } -> { ok }
 // POST { secret, actiune:"manager-evaluare", candidatId, nr, evaluare } -> { ok }
 import { getStore } from "@netlify/blobs";
+import { secretEgal } from "./_comun/secret.mjs";
 import { createHash } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
@@ -140,7 +141,7 @@ export default cuLimitareCod(async (req) => {
   // Ziua expoziției trăiește în manager: acolo se confirmă prezența reală și acolo
   // arbitrul de bază evaluează prestația. Dosarul candidatului rămâne aici.
   if (String(actiune).startsWith("manager-")) {
-    if (!process.env.EXPO_SYNC_SECRET || body.secret !== process.env.EXPO_SYNC_SECRET) {
+    if (!secretEgal(body.secret, process.env.EXPO_SYNC_SECRET)) {
       return json({ eroare: "Neautorizat." }, 401);
     }
 

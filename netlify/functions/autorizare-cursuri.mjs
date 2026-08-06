@@ -8,6 +8,7 @@
 // POST { cod, actiune:"admin" }                  -> { autorizari:{cid:{grupe,public,localitate}} }
 // POST { cod, actiune:"salveaza", candidatId, grupe, public, localitate } -> { ok, grupe }
 import { getStore } from "@netlify/blobs";
+import { secretEgal } from "./_comun/secret.mjs";
 import { createHash } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
@@ -78,7 +79,7 @@ export default cuLimitareCod(async (req) => {
   // Managerul le potrivește cu judecătorii lui ca să avertizeze la repartizarea unei
   // rase dintr-o grupă pe care arbitrul nu e autorizat.
   if (actiune === "manager-autorizari") {
-    if (!process.env.EXPO_SYNC_SECRET || body.secret !== process.env.EXPO_SYNC_SECRET) {
+    if (!secretEgal(body.secret, process.env.EXPO_SYNC_SECRET)) {
       return json({ eroare: "Neautorizat." }, 401);
     }
     const arbitri = [];

@@ -6,8 +6,13 @@ import { createHash } from "node:crypto";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
-export default async (req) => {
+// LIMITARE (adăugată la auditul de securitate). Poarta verifică `esteAdmin(cod)` cu un cod
+// scurt; fără limitare, era o „ghicitoare" nelimitată a codului de administrator (și un
+// oracol: 401 la cod greșit, 403 la cod bun fără dispozitiv). `cuLimitareCod` numără
+// eșecurile pe IP și blochează enumerarea — exact apărarea pe care restul porților o aveau.
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST")
     return new Response(JSON.stringify({ eroare: "Metodă nepermisă." }), { status: 405 });
 
@@ -62,4 +67,4 @@ export default async (req) => {
   return new Response(JSON.stringify({ rezultate }), {
     headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
   });
-};
+});

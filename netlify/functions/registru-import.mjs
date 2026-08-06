@@ -27,6 +27,7 @@
 // potrivește exact se oprește ÎNAINTE de a ajunge aici.
 // =========================================================================
 import { getStore } from "@netlify/blobs";
+import { secretEgal } from "./_comun/secret.mjs";
 import { tipCertificat } from "./registru-pedigree.mjs";
 import { jurnalizeazaObligatoriu } from "./_comun/registru-jurnal.mjs";
 
@@ -60,7 +61,7 @@ export function verificaCuib(c) {
 export default async (req) => {
   if (req.method !== "POST") return json({ eroare: "Folosește POST." }, 405);
   const body = await req.json().catch(() => null);
-  if (!body || !process.env.EXPO_SYNC_SECRET || body.secret !== process.env.EXPO_SYNC_SECRET) {
+  if (!body || !secretEgal(body.secret, process.env.EXPO_SYNC_SECRET)) {
     return json({ eroare: "Neautorizat" }, 401);
   }
 

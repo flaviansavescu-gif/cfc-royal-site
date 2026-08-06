@@ -72,12 +72,15 @@ import { MANUAL, PRAG_PROMOVARE } from "../../../../data/cursuri";
       raspunsuri.push(ales ? Number(ales.value) : -1);
     }
     try {
+      var codPlatforma = "";
+      try { codPlatforma = localStorage.getItem("cfcrAccesCod") || ""; } catch (e) {}
       const res = await fetch("/.netlify/functions/test-modul", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           modul: slug,
           id: candidat && candidat.id ? candidat.id : undefined,
+          cod: codPlatforma || undefined,
           nume: numeScris,
           raspunsuri,
         }),

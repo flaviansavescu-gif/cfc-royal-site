@@ -2,9 +2,51 @@
 // Cheile de corectare stau NUMAI aici (pe server) — nu apar în paginile publice.
 // La fiecare test corectat: rezultatul se salvează în registrul de rezultate (Netlify Blobs)
 // și se trimite pe e-mail secretariatului prin Brevo (BREVO_API_KEY din environment).
+//
+// POARTĂ (adăugată la auditul de securitate). Funcția AVEA efecte fără nicio acreditare:
+// oricine, fără cod, putea POSTa un rezultat „PROMOVAT" sub orice nume (otrăvind registrul
+// de rezultate citit de administrator), umfla progresul unui candidat al cărui cid îl
+// știa și inunda secretariatul cu e-mailuri. Acum orice corectare cere o identitate de
+// platformă validă — ori cid-ul unui candidat înscris, ori un cod de admin/lector/arbitru/
+// cod comun de candidați (exact cine are voie în Școală). Fără ea: 401, fără niciun efect.
 import { getStore } from "@netlify/blobs";
+import { rolLaIntrare, sha256 } from "./_comun/roluri.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const PRAG = 70; // procent minim de promovare
+
+/**
+ * Cine cere corectarea? Aceeași poartă ca la datele de rase (breed-date): oricine e în
+ * platforma Școlii — admin, lector, arbitru, candidat (cod individual sau codul comun).
+ * Întoarce { rol, candidatId } sau null. `candidatId` e pus DOAR pentru un candidat cu cod
+ * individual, ca progresul personal să se lege de identitatea autentificată, nu de un `id`
+ * scris de client.
+ */
+async function cine({ cod, id, store }) {
+  // 1) Cod de platformă (admin | lector | codul comun de candidați).
+  const cod0 = String(cod || "").trim();
+  if (cod0) {
+    const r = rolLaIntrare(cod0);
+    if (r) {
+      // Un cod INDIVIDUAL de candidat se rezolvă prin magazie (are cid propriu); codul
+      // comun („acces") și rolurile de administrare NU au cid personal.
+      if (r.rol === "acces" || r.rol === "admin" || r.rol === "lector")
+        return { rol: r.rol === "acces" ? "candidat-comun" : r.rol, candidatId: null };
+    }
+    const arb = await store.get("arbitru/" + sha256(cod0), { type: "json" }).catch(() => null);
+    if (arb) return { rol: "arbitru", candidatId: null };
+    const cand = await store.get("candidat/" + sha256(cod0), { type: "json" }).catch(() => null);
+    if (cand) return { rol: "candidat", candidatId: sha256(cod0), nume: cand.nume || "" };
+  }
+  // 2) Candidat cu cod individual, autentificat prin cid (jetonul lui de sesiune). Trebuie
+  //    să corespundă unui candidat înscris — altfel nu e nimeni.
+  const cid = String(id || "").trim();
+  if (cid) {
+    const cand = await store.get("candidat/" + cid, { type: "json" }).catch(() => null);
+    if (cand) return { rol: "candidat", candidatId: cid, nume: cand.nume || "" };
+  }
+  return null;
+}
 
 // Cheia de răspunsuri per modul (indexul opțiunii corecte pentru fiecare întrebare).
 const CHEI = {
@@ -38,7 +80,10 @@ const json = (body, status = 200) =>
     headers: { "Content-Type": "application/json; charset=utf-8" },
   });
 
-export default async (req) => {
+const esc = (s) =>
+  String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
 
   let date;
@@ -48,7 +93,7 @@ export default async (req) => {
     return json({ eroare: "Cerere invalidă." }, 400);
   }
 
-  const { modul, nume, id, raspunsuri } = date || {};
+  const { modul, nume, cod, id, raspunsuri } = date || {};
   const cheie = CHEI[modul];
   if (!cheie) return json({ eroare: "Testul acestui modul nu este activ." }, 404);
   if (!Array.isArray(raspunsuri) || raspunsuri.length !== cheie.length)
@@ -56,18 +101,16 @@ export default async (req) => {
 
   const store = getStore("cursuri");
 
-  // Identitatea candidatului: dacă vine cu un cod individual (id), numele e cel din
-  // registru (autoritativ, fără typo). Altfel (admin care previzualizează) — numele scris.
-  let cand = (nume || "").trim();
-  let candidatId = null;
-  if (id) {
-    try {
-      const c = await store.get("candidat/" + String(id), { type: "json" });
-      if (c) { cand = String(c.nume || "").trim(); candidatId = String(id); }
-    } catch (err) {
-      console.error("Căutare candidat eșuată:", err);
-    }
-  }
+  // POARTĂ: fără o identitate de platformă validă, nimic nu se corectează, se salvează
+  // sau se trimite. Închide corectarea anonimă (falsificarea de rezultate / spam).
+  const eu = await cine({ cod, id, store });
+  if (!eu) return json({ eroare: "Intră în Școala de Arbitraj cu codul tău pentru a susține testul." }, 401);
+
+  // Identitatea candidatului: pentru un candidat cu cod individual, numele e cel din
+  // registru (autoritativ, fără typo) și progresul se leagă de identitatea AUTENTIFICATĂ.
+  // Pentru cod comun / admin-lector care previzualizează — numele scris în formular.
+  let cand = (eu.nume || nume || "").trim();
+  const candidatId = eu.candidatId;
   if (!cand || cand.length < 3) return json({ eroare: "Scrie numele complet." }, 400);
 
   // Corectare
@@ -123,7 +166,7 @@ export default async (req) => {
   if (apiKey) {
     const html = `
       <h2 style="margin:0 0 8px">Rezultat test — Școala de Arbitraj</h2>
-      <p><b>Candidat:</b> ${cand.replace(/</g, "&lt;")}</p>
+      <p><b>Candidat:</b> ${esc(cand)}</p>
       <p><b>Test:</b> ${titlu}</p>
       <p><b>Scor:</b> ${corecte} / ${total} (${procent}%) — <b>${promovat ? "PROMOVAT ✅" : "NEPROMOVAT ❌"}</b></p>
       ${gresite.length ? `<p><b>Întrebări greșite:</b> ${gresite.join(", ")}</p>` : "<p>Fără greșeli. 🎉</p>"}
@@ -147,4 +190,4 @@ export default async (req) => {
   }
 
   return json({ total, corecte, procent, promovat, gresite });
-};
+});

@@ -139,7 +139,11 @@ test("amprenta administratorului există într-un SINGUR loc", () => {
   assert.deepEqual(copii, [], "amprenta nu are ce căuta în funcții — se importă din _comun/roluri.mjs");
 });
 
-// Funcțiile fără ambalaj de limitare se pot chema direct, deci le verificăm pe viu.
+// Cele două porți de administrare ale Școlii sunt acum ambalate în `cuLimitareCod` (adăugat
+// la auditul de securitate). Verificarea pe viu rămâne validă ȘI dovedește o proprietate în
+// plus: chiar când limitarea nu poate ajunge la Blobs (local, fără mediu), ambalajul
+// eșuează DESCHIS, iar poarta tot refuză cu 401 — apărarea nu devine ea însăși cauza unei
+// căderi. (Erorile „limită eșuată" din jurnal sunt prinse și inofensive.)
 for (const [nume, corp] of [
   ["rezultate-cursuri", { cod: "GRESIT" }],
   ["stare-cursuri", { cod: "GRESIT", id: "x", online: true }],

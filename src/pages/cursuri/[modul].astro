@@ -148,12 +148,18 @@ const { m } = Astro.props;
         raspunsuri.push(ales ? Number(ales.value) : -1);
       }
       try {
+        // Corectarea cere o identitate de platformă: candidatul cu cod individual e
+        // cunoscut după cid (id); restul (cod comun, admin/lector care previzualizează)
+        // trimit codul de platformă păstrat local la intrare.
+        var codPlatforma = "";
+        try { codPlatforma = localStorage.getItem("cfcrAccesCod") || ""; } catch (e) {}
         const res = await fetch("/.netlify/functions/test-modul", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             modul: slug,
             id: candidat && candidat.id ? candidat.id : undefined,
+            cod: codPlatforma || undefined,
             nume: numeScris,
             raspunsuri,
           }),

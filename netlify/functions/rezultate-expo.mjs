@@ -9,6 +9,7 @@
 //  GET  /rezultate-live/<showId>                              -> servește pagina
 //  GET  /rezultate-live                                       -> index cu edițiile publicate
 import { getStore } from "@netlify/blobs";
+import { secretEgal } from "./_comun/secret.mjs";
 
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json; charset=utf-8" } });
@@ -20,7 +21,7 @@ export default async (req) => {
 
   if (req.method === "POST") {
     const body = await req.json().catch(() => null);
-    if (!body || !process.env.EXPO_SYNC_SECRET || body.secret !== process.env.EXPO_SYNC_SECRET) {
+    if (!body || !secretEgal(body.secret, process.env.EXPO_SYNC_SECRET)) {
       return json({ eroare: "Neautorizat" }, 401);
     }
     if (body.actiune === "publica") {

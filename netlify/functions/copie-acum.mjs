@@ -20,6 +20,7 @@
 // „am scris o arhivă pe care parola de acum chiar o deschide".
 // =========================================================================
 import registruBackup from "./registru-backup.mjs";
+import { secretEgal } from "./_comun/secret.mjs";
 import magaziiBackup from "./magazii-backup.mjs";
 import { descifreaza, REPO, RAMURA } from "./_comun/copie-cifrata.mjs";
 
@@ -55,7 +56,7 @@ export default async (req) => {
     return json({ eroare: "Folosește POST cu { secret }." }, 405);
   }
   const body = await req.json().catch(() => null);
-  if (!body || !process.env.EXPO_SYNC_SECRET || body.secret !== process.env.EXPO_SYNC_SECRET) {
+  if (!body || !secretEgal(body.secret, process.env.EXPO_SYNC_SECRET)) {
     return json({ eroare: "Neautorizat" }, 401);
   }
 

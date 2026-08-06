@@ -19,6 +19,7 @@
 //   POST { secret }  ->  { ok, model, jetoane, cost, mesaj }
 // =========================================================================
 import Anthropic from "@anthropic-ai/sdk";
+import { secretEgal } from "./_comun/secret.mjs";
 
 const json = (b, s = 200) =>
   new Response(JSON.stringify(b, null, 2), {
@@ -32,7 +33,7 @@ const PRET = { intrare: 5 / 1_000_000, iesire: 25 / 1_000_000 };   // USD per je
 export default async (req) => {
   if (req.method !== "POST") return json({ eroare: "Folosește POST." }, 405);
   const body = await req.json().catch(() => null);
-  if (!body || !process.env.EXPO_SYNC_SECRET || body.secret !== process.env.EXPO_SYNC_SECRET) {
+  if (!body || !secretEgal(body.secret, process.env.EXPO_SYNC_SECRET)) {
     return json({ eroare: "Neautorizat" }, 401);
   }
 

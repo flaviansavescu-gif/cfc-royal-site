@@ -7,8 +7,13 @@ import { createHash } from "node:crypto";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
-export default async (req) => {
+// LIMITARE (adăugată la auditul de securitate). Ca la rezultate-cursuri: poarta de scriere
+// verifică un cod scurt de administrator și fără limitare era o ghicitoare nelimitată.
+// `cuLimitareCod` numără doar cererile cu `cod` (deci lasă GET-ul public neatins) și
+// blochează enumerarea pe IP.
+export default cuLimitareCod(async (req) => {
   // Magazia se deschide în fiecare ramură, DUPĂ ce ramura și-a verificat dreptul.
   // Pe calea publică (GET) e imediat; pe cea de scriere, abia după poarta de cod.
   if (req.method === "GET") {
@@ -41,4 +46,4 @@ export default async (req) => {
   }
 
   return Response.json({ eroare: "Metodă nepermisă." }, { status: 405 });
-};
+});

@@ -4,9 +4,9 @@ import { getStore } from "@netlify/blobs";
 import { randomUUID } from "node:crypto";
 // Rolurile și amprentele codurilor vin din SURSA UNICĂ (_comun/roluri.mjs).
 // Nu le mai duplica aici — o singură listă de lectori pentru toată platforma.
-import { sha256, ADMIN_HASH, LECTORI, actorDinCod } from "../_comun/roluri.mjs";
+import { sha256, ADMIN_HASH, LECTORI, actorDinCod, esteAdmin } from "../_comun/roluri.mjs";
 
-export { sha256, ADMIN_HASH, LECTORI, actorDinCod };
+export { sha256, ADMIN_HASH, LECTORI, actorDinCod, esteAdmin };
 export const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 export const acum = () => new Date().toISOString();
 export const idNou = (p) => (p || "s-") + randomUUID().slice(0, 12);
@@ -23,7 +23,9 @@ export function cereLector(cod) {
   return a;
 }
 export function cereAdmin(cod) {
-  if (sha256(cod || "") !== ADMIN_HASH) throw { status: 401, eroare: "Cod de administrator incorect." };
+  // `esteAdmin` face comparația în TIMP CONSTANT (sursă unică); `sha256(...) !== ADMIN_HASH`
+  // era o comparație care se oprea la prima diferență — inconsecvent cu restul platformei.
+  if (!esteAdmin(cod)) throw { status: 401, eroare: "Cod de administrator incorect." };
   return { rol: "admin" };
 }
 /** Spațiu comun: orice lector (sau admin) poate administra exercițiile. */

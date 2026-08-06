@@ -9,7 +9,13 @@ exports.handler = async (event) => {
   const params = new URLSearchParams(event.body || "");
   const email = (params.get("email") || "").trim();
   const botField = params.get("bot-field") || ""; // honeypot anti-spam
-  const redirect = params.get("redirect") || "/ro/newsletter-ok/";
+
+  // Redirecționare DOAR către o cale internă. Fără filtru, `redirect` era o redirecționare
+  // deschisă (open redirect): un link „de pe cfc-royal.ro" putea duce pe orice domeniu de
+  // phishing. Acceptăm doar o cale care începe cu un singur „/" (respinge „//gazda",
+  // „http:", „\\" și orice URL absolut); altfel, pagina de mulțumire.
+  const cerut = params.get("redirect") || "";
+  const redirect = /^\/[^/\\]/.test(cerut) ? cerut : "/ro/newsletter-ok/";
 
   const back = (status = 303) => ({ statusCode: status, headers: { Location: redirect }, body: "" });
 
