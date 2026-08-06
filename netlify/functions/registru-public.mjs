@@ -14,6 +14,7 @@ import { getStore } from "@netlify/blobs";
 import { AFIXE_OFICIALE } from "./_comun/afixe-oficiale.mjs";
 import { normalizeazaAfix, PREFIX_CANISE } from "./_comun/canise.mjs";
 import { recomandareDin } from "./_comun/teste-sanatate.mjs";
+import { obtineIndexCachedat } from "./_comun/index-cachedat.mjs";
 
 const normCip = (v) => String(v || "").replace(/[\s-]/g, "");
 
@@ -99,11 +100,6 @@ async function construieste(s) {
 
 export default async () => {
   const s = store();
-  let idx = await s.get(CHEIE_INDEX, { type: "json" }).catch(() => null);
-  const proaspat = idx && (Date.now() - Date.parse(idx.generat || 0)) <= TTL_MS;
-  if (!proaspat) {
-    idx = await construieste(s);
-    await s.setJSON(CHEIE_INDEX, idx).catch(() => {});
-  }
+  const idx = await obtineIndexCachedat(s, { cheie: CHEIE_INDEX, ttlMs: TTL_MS, construieste });
   return json(idx);
 };

@@ -26,6 +26,7 @@ import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.
 import { jurnalizeazaObligatoriu, actorJurnal, ipCerere } from "./_comun/registru-jurnal.mjs";
 import { recomandareDin, insignaTest, numeTest } from "./_comun/teste-sanatate.mjs";
 import { normalizeazaAfix } from "./_comun/canise.mjs";
+import { obtineIndexCachedat } from "./_comun/index-cachedat.mjs";
 
 const store = () => getStore({ name: "registru", consistency: "strong" });
 
@@ -172,12 +173,7 @@ export default cuLimitareCod(async (req) => {
 
   // —— Public: anunțurile de cuiburi (aprobate, neexpirate). Fără cod. ——
   if (actiune === "lista") {
-    let idx = await s.get(CHEIE_INDEX, { type: "json" }).catch(() => null);
-    const proaspat = idx && (Date.now() - Date.parse(idx.generat || 0)) <= TTL_INDEX_MS;
-    if (!proaspat) {
-      idx = await construiesteIndex(s);
-      await s.setJSON(CHEIE_INDEX, idx).catch(() => {});
-    }
+    const idx = await obtineIndexCachedat(s, { cheie: CHEIE_INDEX, ttlMs: TTL_INDEX_MS, construieste: construiesteIndex });
     return json(idx);
   }
 

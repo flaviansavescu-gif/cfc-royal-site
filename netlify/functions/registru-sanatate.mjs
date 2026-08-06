@@ -65,6 +65,29 @@ function publiceDin(dosar) {
   }));
 }
 
+/**
+ * Modifică dosarul de sănătate al unui câine în siguranță față de scrieri concurente.
+ *
+ * Dosarul e un singur blob cu un tablou de teste. Fără grijă, două operații simultane pe
+ * același câine (o depunere și o verificare, ori două depuneri) citesc aceeași copie și se
+ * suprascriu — una se pierde. Aici scriem CONDIȚIONAT (`onlyIfMatch` pe eticheta citită):
+ * dacă altcineva a scris între timp, scrierea nu trece, recitim dosarul proaspăt și reaplicăm.
+ * `muta(dosar)` primește dosarul proaspăt și întoarce `{ dosar }` (scrie) sau `{ eroare }`
+ * (oprește — ex. „deja hotărât"). La un câine nou, prima scriere folosește `onlyIfNew`.
+ */
+async function cuDosar(s, cip, muta, incercari = 5) {
+  for (let i = 0; i < incercari; i++) {
+    const cur = await s.getWithMetadata(cheiaDosar(cip), { type: "json" }).catch(() => null);
+    const baza = cur?.data || { microcip: cip, teste: [] };
+    const rez = muta(baza);
+    if (rez?.eroare) return rez;
+    const optiuni = cur?.etag ? { onlyIfMatch: cur.etag } : { onlyIfNew: true };
+    const scris = await s.setJSON(cheiaDosar(cip), rez.dosar, optiuni).catch(() => ({ modified: false }));
+    if (scris?.modified !== false) return { ok: true };
+  }
+  return { eroare: "Prea multe scrieri deodată pe acest dosar. Reîncearcă." };
+}
+
 export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
   let body;
@@ -168,14 +191,19 @@ export default cuLimitareCod(async (req) => {
 
     await s.set(cheiaFisier(cip, testId), fisier, { metadata: { contentType: tipFisier } });
 
-    const dosar = (await s.get(cheiaDosar(cip), { type: "json" }).catch(() => null)) || { microcip: cip, teste: [] };
-    dosar.teste.push({
+    const nou = {
       id: testId, tip, subtip: subtip || undefined, rezultat: v.rezultat, data: data || null,
       emitent, areFisier: true, stare: "in-asteptare",
       depusDe: eu.membru.id, depusDeNume: eu.membru.nume || "", depusLa: acum,
+    };
+    // Scriere concurent-sigură: dacă altcineva atinge dosarul între timp, recitim și reaplicăm.
+    // Idempotentă la reîncercare — nu adăugăm testul de două ori (îl căutăm după id).
+    const rezScriere = await cuDosar(s, cip, (dosar) => {
+      if (!dosar.teste.some((x) => x.id === testId)) dosar.teste.push(nou);
+      dosar.actualizat = acum;
+      return { dosar };
     });
-    dosar.actualizat = acum;
-    await s.setJSON(cheiaDosar(cip), dosar);
+    if (rezScriere.eroare) return json({ eroare: rezScriere.eroare }, 409);
     // Index pentru coada registraturii (fără a scana tot).
     await s.setJSON(cheiaCoada(cip, testId), {
       microcip: cip, testId, tip, rezultat: v.rezultat, subtip: subtip || null,
@@ -214,25 +242,34 @@ export default cuLimitareCod(async (req) => {
     if (t.stare !== "in-asteptare") return json({ eroare: "Rezultatul a fost deja hotărât." }, 409);
 
     const acum = new Date().toISOString();
+    let motiv = "";
     if (actiune === "respinge") {
-      const motiv = taie(body.motiv, 500);
+      motiv = taie(body.motiv, 500);
       if (motiv.length < 5) return json({ eroare: "Scrie motivul respingerii." }, 400);
       await jurnalizeazaObligatoriu(s, {
         fapta: "sanatate-respins", actor: actorJurnal(eu), obiect: cip,
         detalii: `${numeTest(t.tip)}: ${t.rezultat} — motiv: ${motiv}`, ip: ipCerere(req),
       });
-      t.stare = "respins"; t.motiv = motiv;
     } else {
       await jurnalizeazaObligatoriu(s, {
         fapta: "sanatate-verificat", actor: actorJurnal(eu), obiect: cip,
         detalii: `${numeTest(t.tip)}: ${t.rezultat}`, ip: ipCerere(req),
       });
-      t.stare = "verificat";
     }
-    t.verificatDe = actorJurnal(eu);
-    t.verificatLa = acum;
-    dosar.actualizat = acum;
-    await s.setJSON(cheiaDosar(cip), dosar);
+    // Scriere concurent-sigură: recitim dosarul proaspăt, ca o depunere venită între timp
+    // pe același câine să nu se piardă. Reaplicăm hotărârea pe testul găsit din nou.
+    const rezScriere = await cuDosar(s, cip, (dosar) => {
+      const tt = dosar.teste.find((x) => x.id === testId);
+      if (!tt) return { eroare: "Rezultat inexistent." };
+      if (tt.stare !== "in-asteptare") return { eroare: "Rezultatul a fost deja hotărât." };
+      if (actiune === "respinge") { tt.stare = "respins"; tt.motiv = motiv; }
+      else { tt.stare = "verificat"; }
+      tt.verificatDe = actorJurnal(eu);
+      tt.verificatLa = acum;
+      dosar.actualizat = acum;
+      return { dosar };
+    });
+    if (rezScriere.eroare) return json({ eroare: rezScriere.eroare }, rezScriere.eroare.includes("inexistent") ? 404 : 409);
     await s.delete(cheiaCoada(cip, testId)).catch(() => {});
     return json({ ok: true });
   }
