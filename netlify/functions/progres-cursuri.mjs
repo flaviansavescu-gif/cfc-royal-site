@@ -1,8 +1,10 @@
 // progres-cursuri.mjs — progresul PERSONAL al unui candidat (per cod individual).
-// POST { id } -> { "modul-1": { procent, promovat, data }, ... }  (obiect gol dacă nu există)
-// `id` = sha256(codul candidatului). Fiecare modul stă pe cheia lui: progres/<id>/<modul>
+// POST { id: <codul candidatului> } -> { "modul-1": { procent, promovat, data }, ... }
+// M1: câmpul `id` poartă acum CODUL candidatului, nu insigna (care ajungea la lectori).
+// Serverul calculează insigna: id_intern = sha256(cod). Cheia rămâne progres/<insignă>/<modul>
 // (scrisă de test-modul.mjs). Aici le adunăm într-un singur obiect pentru tablou.
 import { getStore } from "@netlify/blobs";
+import { sha256 } from "./_comun/roluri.mjs";
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -20,7 +22,8 @@ export default async (req) => {
     return json({ eroare: "Cerere invalidă." }, 400);
   }
 
-  const id = String(body.id || "");
+  const cod = String(body.id || "").trim();
+  const id = cod ? sha256(cod) : "";
   if (!id) return json({});
 
   const out = {};

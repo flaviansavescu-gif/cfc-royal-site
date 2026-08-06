@@ -42,11 +42,13 @@ async function esteMembru(body, store) {
  * putea abona adresa altcuiva fără consimțământ sau, mai rău, o putea dezabona tăcut.
  */
 async function membruIndividual(body, store) {
+  // M1: câmpul `cid` poartă CODUL candidatului, nu insigna; insigna internă = sha256(cod).
   const cid = String(body.cid || "").trim();
   if (cid) {
+    const insigna = sha256(cid);
     try {
-      const c = await store.get("candidat/" + cid, { type: "json" });
-      if (c) return { id: cid, nume: String(c.nume || "").trim() || "Candidat", rol: "candidat" };
+      const c = await store.get("candidat/" + insigna, { type: "json" });
+      if (c) return { id: insigna, nume: String(c.nume || "").trim() || "Candidat", rol: "candidat" };
     } catch (err) { console.error(err); }
   }
   const cod = String(body.cod || "").trim();

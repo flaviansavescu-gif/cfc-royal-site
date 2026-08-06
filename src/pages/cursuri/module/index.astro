@@ -140,7 +140,7 @@ import { MODULE } from "../../../data/cursuri";
         const res = await fetch("/.netlify/functions/progres-cursuri", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: cand.id }),
+          body: JSON.stringify({ id: cand.cod }),
         });
         if (res.ok) aplica(await res.json());
       } catch (e) {}

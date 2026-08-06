@@ -70,7 +70,7 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
       try {
         const r = await fetch("/.netlify/functions/autorizare-cursuri", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ actiune: "eu", id: cand.id }),
+          body: JSON.stringify({ actiune: "eu", id: cand.cod }),
         });
         if (r.ok) grupe = (await r.json()).grupe || [];
       } catch (e) {}

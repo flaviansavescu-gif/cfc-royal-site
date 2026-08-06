@@ -101,8 +101,10 @@ export default cuLimitareCod(async (req) => {
   }
 
   // ——— Candidatul își vede propria autorizare ———
+  // M1: câmpul `id` poartă CODUL candidatului, nu insigna; insigna internă = sha256(cod).
   if (actiune === "eu") {
-    const id = taie(body.id, 128);
+    const codC = taie(body.id, 64);
+    const id = codC ? sha256(codC) : "";
     let grupe = [];
     if (id) {
       try {

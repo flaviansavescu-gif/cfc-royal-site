@@ -38,7 +38,7 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
       var d = {};
       try {
         var c = JSON.parse(localStorage.getItem("cfcrCandidat") || "null");
-        if (c && c.id) d.cid = c.id;
+        if (c && c.cod) d.cid = c.cod; // M1: câmpul cid poartă codul; serverul face sha256
       } catch (e) {}
       try {
         var cod = localStorage.getItem("cfcrAccesCod");

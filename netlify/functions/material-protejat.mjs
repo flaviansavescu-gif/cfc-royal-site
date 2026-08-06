@@ -115,11 +115,12 @@ async function stratFiligran(text, latime, inaltime, opacitate, culoare) {
 
 /** Cine citește? Numele real ajunge în filigran — de aceea îl luăm din registru, nu din browser. */
 async function cititor(body) {
-  // Cod individual de candidat (id = amprenta codului, stabilită la intrare).
+  // Cod individual de candidat. M1: câmpul `cid` poartă acum CODUL, nu insigna (care
+  // ajungea în listele lectorilor); serverul calculează insigna cu sha256.
   const cid = String(body.cid || "").trim();
   if (cid) {
     try {
-      const c = await getStore("cursuri").get("candidat/" + cid, { type: "json" });
+      const c = await getStore("cursuri").get("candidat/" + sha256(cid), { type: "json" });
       if (c) return { rol: "candidat", nume: String(c.nume || "").trim() || "Candidat" };
     } catch (err) {
       console.error("Căutare candidat eșuată:", err);

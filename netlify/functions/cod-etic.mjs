@@ -44,11 +44,13 @@ async function asumareAnterioara(store, id) {
 
 /** Cine confirmă? Candidat (cod individual), arbitru, lector — nu codul comun, nu adminul. */
 async function membrul(body, store) {
+  // M1: câmpul `cid` poartă CODUL candidatului, nu insigna; insigna internă = sha256(cod).
   const cid = String(body.cid || "").trim();
   if (cid) {
+    const insigna = sha256(cid);
     try {
-      const c = await store.get("candidat/" + cid, { type: "json" });
-      if (c) return { id: cid, nume: String(c.nume || "").trim() || "Candidat", rol: "candidat" };
+      const c = await store.get("candidat/" + insigna, { type: "json" });
+      if (c) return { id: insigna, nume: String(c.nume || "").trim() || "Candidat", rol: "candidat" };
     } catch (err) { console.error("Căutare candidat eșuată:", err); }
   }
   const cod = String(body.cod || "").trim();
