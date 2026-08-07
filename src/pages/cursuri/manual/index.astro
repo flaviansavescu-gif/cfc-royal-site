@@ -46,8 +46,9 @@ import { MANUAL } from "../../../data/cursuri";
       <strong>📝 Testul manualului</strong>
       <p>După parcurgerea materialului, susține testul de verificare. Pragul de promovare este 70%,
       iar rezultatul ajunge automat la secretariatul Școlii.</p>
+      <p class="m-test__stare" id="m-test-stare" hidden></p>
     </div>
-    <a class="btn btn--primary" href="/cursuri/manual/test/">Deschide testul →</a>
+    <a class="btn btn--primary" id="m-test-link" href="/cursuri/manual/test/">Deschide testul →</a>
   </div>
 </CursuriLayout>
 
@@ -186,6 +187,46 @@ import { MANUAL } from "../../../data/cursuri";
   })();
 </script>
 
+<script is:inline>
+  // Starea testului manualului. Fără ea, candidatul care a promovat nu vede nicăieri
+  // „promovat" (cardul arăta mereu „Deschide testul") și crede că nu s-a înregistrat.
+  // Progresul e cel folosit și de tabloul modulelor: de pe server pentru codul individual,
+  // din acest dispozitiv pentru codul comun.
+  (function () {
+    if (!document.getElementById("m-test-card")) return; // arbitru: fără test
+    var SLUG = "manual-studiu";
+    function arata(r) {
+      if (!r) return;
+      var stare = document.getElementById("m-test-stare");
+      var link = document.getElementById("m-test-link");
+      if (!stare) return;
+      stare.hidden = false;
+      if (r.promovat) {
+        stare.textContent = "✅ Test promovat — " + r.procent + "%" + (r.data ? " (" + r.data + ")" : "");
+        stare.className = "m-test__stare is-pass";
+        if (link) link.textContent = "Reia testul →";
+      } else {
+        stare.textContent = "Ultimul rezultat: " + r.procent + "% — nepromovat";
+        stare.className = "m-test__stare is-fail";
+      }
+    }
+    var cand = null;
+    try { cand = JSON.parse(localStorage.getItem("cfcrCandidat") || "null"); } catch (e) {}
+    if (cand && cand.id && cand.cod) {
+      fetch("/.netlify/functions/progres-cursuri", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: cand.cod }),
+      })
+        .then(function (r) { return r.ok ? r.json() : {}; })
+        .then(function (p) { arata(p[SLUG]); })
+        .catch(function () {});
+      return;
+    }
+    try { arata(JSON.parse(localStorage.getItem("cfcrProgres") || "{}")[SLUG]); } catch (e) {}
+  })();
+</script>
+
 <style>
   .m-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
   .m-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.25rem; }
@@ -230,6 +271,9 @@ import { MANUAL } from "../../../data/cursuri";
     background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius);
   }
   .m-test p { margin: 0.3rem 0 0; font-size: 0.9rem; color: var(--color-text-muted); max-width: 34rem; }
+  .m-test__stare { margin: 0.5rem 0 0 !important; font-size: 0.85rem !important; font-weight: 600; }
+  .m-test__stare.is-pass { color: var(--color-primary) !important; }
+  .m-test__stare.is-fail { color: #8c1d2f !important; }
 
   /* Materialul nu se tipărește. */
   @media print { .m-scena, .m-bara { display: none !important; } }

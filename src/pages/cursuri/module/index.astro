@@ -16,7 +16,7 @@ import { MODULE } from "../../../data/cursuri";
   <AsumareCodEtic />
 
   <p class="d-actiuni">
-    <a class="d-stagiu" href="/cursuri/manual/">📖 Manualul de studiu individual — 128 de pagini, 8 module →</a>
+    <a class="d-stagiu" href="/cursuri/manual/">📖 Manualul de studiu individual — 128 de pagini, 8 module →<span class="d-stagiu__ok" id="d-manual-ok" hidden> · ✅ test promovat</span></a>
     <a class="d-stagiu" href="/cursuri/buletin/">📬 Buletinul Școlii — noutăți și abonare pe e-mail →</a>
     <a class="d-stagiu" href="/cursuri/asistente/">🎗️ Asistențe de ring — stagiul practic (5 asistențe) →</a>
     <a class="d-stagiu" href="/cursuri/examen/">🎓 Examenul final + autorizarea mea pe grupe →</a>
@@ -127,6 +127,11 @@ import { MODULE } from "../../../data/cursuri";
           : "Ultimul rezultat: " + r.procent + "% — nepromovat";
         el.className = "d-item__prog " + (r.promovat ? "is-pass" : "is-fail");
       });
+      // Manualul de studiu nu e în lista celor 8 module, dar are testul lui: dacă e
+      // promovat, arătăm bifa pe linkul către manual.
+      const man = (p || {})["manual-studiu"];
+      const manOk = document.getElementById("d-manual-ok");
+      if (man && man.promovat && manOk) manOk.hidden = false;
     }
 
     let cand = null;
@@ -158,6 +163,7 @@ import { MODULE } from "../../../data/cursuri";
   .d-stagiu { display: inline-block; text-decoration: none; font-weight: 600; color: var(--color-primary);
     background: var(--color-surface); border: 1px solid var(--color-accent); border-radius: var(--radius); padding: 0.7rem 1.1rem; }
   .d-stagiu:hover { border-color: var(--color-primary); }
+  .d-stagiu__ok { color: var(--color-primary); font-weight: 700; }
   .d-tool {
     display: flex; gap: 1rem; align-items: center; max-width: 640px; margin: 1.1rem 0 0;
     text-decoration: none; background: var(--color-surface); border: 1px solid var(--color-border);

@@ -72,11 +72,24 @@ const protejat = allowList.length > 0 || candidatOk;
             }
           }
           // Candidat cu cod individual.
+          let plecatLaReintra = false;
           if (!ok && candidatOk) {
-            const c = localStorage.getItem("cfcrCandidat");
-            if (c && JSON.parse(c).id) ok = true;
+            let cj = null;
+            try { cj = JSON.parse(localStorage.getItem("cfcrCandidat") || "null"); } catch (e) {}
+            if (cj && cj.id) {
+              if (cj.cod) {
+                ok = true;
+              } else {
+                // Sesiune de candidat mai veche, dinainte ca intrarea să rețină și codul:
+                // fără el, testele nu se mai pot corecta, iar fiecare încercare consumă din
+                // limita de încercări. O curățăm și trimitem omul să reintre cu codul actual.
+                localStorage.removeItem("cfcrCandidat");
+                location.replace("/cursuri/?motiv=sesiune");
+                plecatLaReintra = true;
+              }
+            }
           }
-          if (!ok) location.replace("/cursuri/");
+          if (!ok && !plecatLaReintra) location.replace("/cursuri/");
         } catch (e) {
           location.replace("/cursuri/");
         }
@@ -102,10 +115,21 @@ const protejat = allowList.length > 0 || candidatOk;
         // La prima acreditare respinsă pe codul din localStorage, ștergem sesiunea și
         // ducem omul la formular. Doar pentru codul PĂSTRAT: cine tastează un cod greșit
         // în formularul de intrare nu are ce sesiune să piardă.
+        // Codul păstrat local, oricare ar fi felul intrării: fie codul de acces
+        // (admin/lector/cod comun), fie codul unui candidat cu cod individual. Fără
+        // ramura candidatului, un candidat cu cod schimbat/revocat primea 401 la fiecare
+        // trimitere de test, la nesfârșit — și fiecare 401 îi număra o încercare la
+        // limitator, până îi bloca IP-ul (cu tot cu codul lui nou).
+        function codPastrat() {
+          const acces = localStorage.getItem("cfcrAccesCod");
+          if (acces) return acces;
+          try { const c = JSON.parse(localStorage.getItem("cfcrCandidat") || "null"); if (c && c.cod) return c.cod; } catch (e) {}
+          return null;
+        }
         function sesiuneMoarta(codTrimis, raspuns, text) {
           if (raspuns.status !== 401 && raspuns.status !== 403) return false;
           if (raspuns.status === 403 && text.indexOf("Dispozitiv nerecunoscut") === -1) return false;
-          const pastrat = localStorage.getItem("cfcrAccesCod");
+          const pastrat = codPastrat();
           return !!pastrat && codTrimis === pastrat;
         }
 
@@ -138,6 +162,7 @@ const protejat = allowList.length > 0 || candidatOk;
                   localStorage.removeItem("cfcrRol");
                   localStorage.removeItem("cfcrRolLa");
                   localStorage.removeItem("cfcrAccesCod");
+                  localStorage.removeItem("cfcrCandidat");
                 } catch (e) {}
                 location.replace("/cursuri/?motiv=sesiune");
               }
