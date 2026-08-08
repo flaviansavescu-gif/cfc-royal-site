@@ -923,8 +923,8 @@
     // Intro panel
     wrap.appendChild(el("div", { class: "panel card intro-panel", style: "margin-top:16px" }, [
       el("h2", { text: "About this tool" }),
-      el("p", { text: "Explorator de standarde CFC-Royal is a professional reference and teaching instrument built around the World Dog Federation (WDF) framework. It separates official standard data, faults, pedagogical notes, and private internal notes so that judges and candidates can study, compare, and prepare with clarity." }),
-      el("p", { html: "The canonical dataset is a JSON file you can <strong>import</strong> and <strong>export</strong> at any time. Favorites, recently viewed breeds, and UI preferences are kept in your browser for convenience only." }),
+      el("p", { text: "Exploratorul de standarde CFC-Royal este un instrument profesional de referință și de predare, construit pe cadrul World Dog Federation (WDF). Ține separate datele standardului oficial, defectele, notele pedagogice și notele interne private, ca arbitrii și candidații să poată studia, compara și se pregăti cu claritate." }),
+      el("p", { html: "Setul de date canonic este un fișier JSON pe care îl poți <strong>importa</strong> și <strong>exporta</strong> oricând. Favoritele, rasele vizitate recent și preferințele de interfață se păstrează doar în browserul tău, pentru comoditate." }),
     ]));
 
     return wrap;

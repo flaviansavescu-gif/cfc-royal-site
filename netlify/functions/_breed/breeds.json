@@ -4788,7 +4788,29 @@
         "temperament_notes": "Masculii trebuie să aibă doi testiculi de aspect normal, complet coborâți în scrot."
       },
       "faults": {
-        "minor": [],
+        "minor": [
+          "Câini neconformi cu tipul rasei",
+          "Femele evident masculine; masculi evident feminini",
+          "Proporții ale corpului diferite de cele cerute de standard",
+          "Agresivitate, anxietate, teamă de foc de armă, apatie",
+          "Lipsa stopului",
+          "Ochi albaștri sau bălțați",
+          "Urechi purtate ridicat, ascuțite sau în rozetă; urechi prea depărtate",
+          "Prognatism, enognatism, maxilare încrucișate",
+          "Lipsa a mai mult de 2 din cei 4 PM1 ori a celor 2 M3, sau lipsa oricărui alt dinte",
+          "Gușă evidentă sau piele a gâtului foarte lăsată",
+          "Spate vizibil moale sau convex",
+          "Torace îngust sau în formă de butoi",
+          "Coadă anormală, prea scurtă sau purtată clar în inel",
+          "Posterior mai înalt decât anteriorul (supraînălțat)",
+          "Manta preponderent creață, cu bucle inelate",
+          "Toate culorile neconforme standardului: gri-albastru, culoarea cerbului, maro, alb, bălțat, blond cu umbriri cărbunoase, păr colorat în straturi",
+          "Pete albe (firele albe izolate de pe interiorul coapselor nu sunt defect eliminatoriu)",
+          "La negru cu focuri: pete gri sau maro în afara focurilor corecte; subpăr preponderent de altă culoare decât negru; focuri preponderent gri sau albicioase",
+          "La negru: pete gri sau maro; subpăr preponderent de altă culoare decât negru",
+          "La blond: manta complet blond-roșcată, fără zone mai deschise; blond albicios, inclusiv pe urechi; pete albe nete; pete închise sau mască neagră (câteva fire albe pe nas nu sunt defect eliminatoriu)",
+          "Talie sub limita standardului sau depășită cu mai mult de 3 cm"
+        ],
         "serious": [],
         "disqualifying": []
       },
@@ -7699,7 +7721,20 @@
         "temperament_notes": "Masculii trebuie să aibă doi testiculi de aspect normal, complet coborâți în scrot."
       },
       "faults": {
-        "minor": [],
+        "minor": [
+          "Gingii de culoarea cărnii",
+          "Ochi galbeni sau deschiși la culoare",
+          "Linie dorsală înșeuată sau cifotică",
+          "Torace îngust",
+          "Coate proeminente",
+          "Prognatism sau enognatism",
+          "Unghii albe sau de culoarea cornului",
+          "Pinteni la membrele posterioare sau urme ale îndepărtării lor",
+          "Mers posterior rigid, cu jarete de vacă sau prea apropiate",
+          "Câinii cărora expozantul sau handlerul le susține capul ori coada trebuie penalizați",
+          "Păr dur, aspru sau țepos",
+          "Orice culoare diferită de albastru, cu excepțiile prevăzute de standard"
+        ],
         "serious": [],
         "disqualifying": []
       },
@@ -10218,9 +10253,25 @@
         "temperament_notes": "Masculii trebuie să aibă doi testiculi de aspect normal, complet coborâți în scrot."
       },
       "faults": {
-        "minor": [],
+        "minor": [
+          "Bot pătrat sau buze căzute",
+          "Ochi rotunzi sau proeminenți",
+          "Membre subțiri, cu osatură delicată, sau jarete arcuite",
+          "Gât lung și subțire",
+          "Manta scurtă și de calitate slabă",
+          "Torace îngust, lipsă generală de musculatură, grăsime în exces, spate înclinat",
+          "Grosolănie la femele sau, dimpotrivă, lipsa osaturii mai fine cerute la ele",
+          "Picioare plate sau cu degete răsfirate"
+        ],
         "serious": [],
-        "disqualifying": []
+        "disqualifying": [
+          "Ochi albaștri",
+          "Pinteni la membrele posterioare",
+          "Urechi căzute (cu excepția urechilor deformate în urma luptelor)",
+          "Manta tăiată sau modificată prin tundere",
+          "Lipsa unei cozi încârligate sau drepte la masculi (coada poate fi purtată ocazional jos, în semn de supunere ori stres)",
+          "Maxilar excesiv de proeminent sau mult prea retras"
+        ]
       },
       "pedagogy": {
         "frequent_confusions": [],
@@ -23978,8 +24029,22 @@
       },
       "faults": {
         "minor": [],
-        "serious": [],
-        "disqualifying": []
+        "serious": [
+          "Greutate peste 3,8 kg",
+          "Pigmentare incompletă a marginilor pleoapelor, a nasului și a buzelor",
+          "Urechi neridicate",
+          "Spate curbat sau rotunjit",
+          "Anterior sau posterior supraînălțat",
+          "Mers de tip hackney (pași înalți, afectați) la câinii adulți"
+        ],
+        "disqualifying": [
+          "Câini agresivi sau excesiv de fricoși",
+          "Câini cu anomalii fizice sau comportamentale evidente",
+          "Ochi albaștri",
+          "Pigmentare maro sau de culoarea ficatului a marginilor pleoapelor, a nasului și a buzelor",
+          "Pigmentare maro sau de culoarea ficatului a pernuțelor",
+          "Orice culoare sau combinație de culori diferită de cele prevăzute de standard"
+        ]
       },
       "pedagogy": {
         "frequent_confusions": [],
@@ -31314,7 +31379,11 @@
         "temperament_notes": "Masculii trebuie să aibă doi testiculi de aspect normal, complet coborâți în scrot."
       },
       "faults": {
-        "minor": [],
+        "minor": [
+          "Câini bicolori (nedoriți)",
+          "Semne negre pe cap (nedorite)",
+          "Culoarea maro-ciocolatiu"
+        ],
         "serious": [],
         "disqualifying": []
       },
@@ -33540,7 +33609,9 @@
       "faults": {
         "minor": [],
         "serious": [],
-        "disqualifying": []
+        "disqualifying": [
+          "Desen de tip saddleback (șa mai închisă pe spate) și dungile tigrate"
+        ]
       },
       "pedagogy": {
         "frequent_confusions": [],

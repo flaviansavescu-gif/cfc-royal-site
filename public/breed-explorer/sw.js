@@ -29,7 +29,10 @@
 // v5.1.0 = redenumire: „CFCR Breed Standards Explorer" -> „Explorator de standarde CFC-Royal".
 // v5.2.0 = cele 3 lecții din Curriculum traduse; numele a 4 grupe se traduceau greșit
 // (cheile I18N nu se potriveau cu șirul din date) și lecția 3 arăta 0 rase.
-const CACHE_VERSION = "cfcr-v5.2.0";
+// v5.3.0 = panoul „Despre acest instrument" în română; defecte completate din sursa WDF
+// la 6 rase care aveau fișa goală (Hovawart, Kerry Blue, Canadian Eskimo, Carolina,
+// Westphalian Dachsbracke, Biewer).
+const CACHE_VERSION = "cfcr-v5.3.0";
 const CACHE_NAME = "cfcr-cache-" + CACHE_VERSION;
 
 // Paths are relative to the service worker scope (the app folder).

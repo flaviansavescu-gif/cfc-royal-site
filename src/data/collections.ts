@@ -38,6 +38,8 @@ export interface CollectionDef {
   extraLink?: { label: Record<Lang, string>; url: string | Record<Lang, string>; external?: boolean; note?: Record<Lang, string> };
   /** Imagine banner afișată în arhivă, sub intro (ex. calendar expozițional). */
   banner?: { src: string; alt: Record<Lang, string> };
+  /** Imagine afișată în JOSUL arhivei, după listă (ex. afișul Exploratorului de standarde). */
+  bannerBottom?: { src: string; alt: Record<Lang, string> };
 }
 
 // Categorii regulamente: cheia (RO, din schema) -> etichetă localizată
@@ -270,6 +272,13 @@ export const collectionDefs: CollectionDef[] = [
     banner: {
       src: "/images/standarde-banner.webp",
       alt: { ro: "Câine ciobănesc românesc alb cu negru, în mers", en: "Black-and-white Romanian shepherd dog walking" },
+    },
+    bannerBottom: {
+      src: "/images/explorator-standarde-cfcr.jpg",
+      alt: {
+        ro: "Exploratorul de standarde CFC-Royal — 390 de standarde, 10 grupe WDF, comparație între rase, teste și lecții; aplicația Școlii de Arbitraj",
+        en: "CFC-Royal Standards Explorer — 390 standards, 10 WDF groups, breed comparison, quizzes and lessons; the Judges' School application",
+      },
     },
     sort: (a, b) => a.title.localeCompare(b.title, "ro"),
     card: (d) => ({ title: d.title, meta: d.originCountry || d.breedGroup, excerpt: d.summary }),

@@ -83,6 +83,11 @@ if (def.groupBy) {
         </div>
       </>
     )}
+    {def.bannerBottom && (
+      <figure class="archive-banner archive-banner--bottom">
+        <img src={def.bannerBottom.src} alt={def.bannerBottom.alt[lang]} width="1254" height="1254" loading="lazy" />
+      </figure>
+    )}
   </Section>
 </BaseLayout>
 
@@ -93,4 +98,6 @@ if (def.groupBy) {
   .archive-actions__note { margin: 0.5rem 0 0; font-size: var(--fs-300); color: var(--color-text-muted); font-style: italic; }
   .archive-banner { margin: 0 0 2rem; }
   .archive-banner img { display: block; width: 100%; height: auto; border-radius: var(--radius); border: 1px solid var(--color-border); }
+  /* Poster at the bottom of the archive (e.g. the Standards Explorer): centred, narrower than the wide banner. */
+  .archive-banner--bottom { margin: 2.5rem auto 0; max-width: 44rem; }
 </style>
