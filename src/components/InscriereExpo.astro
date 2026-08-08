@@ -544,7 +544,7 @@ const CLASE = [
       const sinc = () => { ped.closest(".ie__f").style.opacity = tip.checked ? "0.55" : ""; };
       tip.addEventListener("change", sinc); sinc();
       // Rasa: rezolvă id-ul din text; taxa se recalculează la schimbarea clasei.
-      b.querySelector('[data-f="rasaText"]').addEventListener("input", () => rezolvaRasaBloc(b));
+      b.querySelector('[data-f="rasaText"]').addEventListener("input", () => { rezolvaRasaBloc(b); actualizeazaPlata(); });
       b.querySelector('[data-f="clasa"]').addEventListener("change", actualizeazaPlata);
       const del = b.querySelector(".ie__caine-del");
       if (del) del.addEventListener("click", () => {
@@ -618,9 +618,10 @@ const CLASE = [
     // afișată e orientativă: serverul o recalculează la trimitere și el are ultimul cuvânt.
     // „primul" pentru preview = primul câine din acest lot; serverul ține cont și de câinii
     // pe care proprietarul i-a înscris deja mai devreme.
-    function taxaGrilaClasa(grila, clasa, primul) {
+    function taxaGrilaClasa(grila, clasa, primul, breedId) {
       if (!grila) return 0;
       if ((grila.scutite || []).indexOf(clasa) !== -1) return 0;
+      if (breedId && (grila.raseScutite || []).indexOf(breedId) !== -1) return 0; // gratuitate pe rasă
       const col = ales("esteMembru") === "1" ? grila.membru : grila.nemembru;
       const baza = Number((col || {})[primul ? "primul" : "urmatorii"]) || 0;
       if (!baza) return 0;
@@ -635,7 +636,8 @@ const CLASE = [
       blocuri().forEach((b, i) => {
         const clasa = b.querySelector('[data-f="clasa"]').value;
         if (!clasa) return;
-        total += grila ? taxaGrilaClasa(grila, clasa, i === 0) : Number(((e && e.taxe) || {})[clasa] || 0);
+        const breedId = ((b.querySelector('[data-f="rasaId"]') || {}).value) || "";
+        total += grila ? taxaGrilaClasa(grila, clasa, i === 0, breedId) : Number(((e && e.taxe) || {})[clasa] || 0);
       });
       return total;
     }

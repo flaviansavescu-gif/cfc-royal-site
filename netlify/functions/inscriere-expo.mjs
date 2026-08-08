@@ -457,7 +457,7 @@ export default async (req) => {
 
     const primul = (inainte + j) === 0;
     const taxa = grila
-      ? calculeazaTaxa(grila, { membru: declaraMembru, primul, student: declaraStudent, clasa })
+      ? calculeazaTaxa(grila, { membru: declaraMembru, primul, student: declaraStudent, clasa, breedId: rasaId })
       : taxaVeche(config.taxe, clasa);
     total += taxa;
 

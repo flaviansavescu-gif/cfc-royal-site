@@ -16,8 +16,9 @@
 export const GRILA_GOALA = {
   membru: { primul: 0, urmatorii: 0 },
   nemembru: { primul: 0, urmatorii: 0 },
-  scutite: [],   // clase fără taxă (ex. baby, puppy), dacă asociația hotărăște așa
-  student: 0,    // procentul reducerii pentru studenți
+  scutite: [],      // clase fără taxă (ex. baby, puppy), dacă asociația hotărăște așa
+  raseScutite: [],  // breedId-uri cu gratuitate (facilitate pe rasă, ex. Ciobănesc Bălan)
+  student: 0,       // procentul reducerii pentru studenți
 };
 
 const nr = (v) => {
@@ -36,6 +37,7 @@ export function normalizeazaGrila(brut) {
     membru: rand(g.membru),
     nemembru: rand(g.nemembru),
     scutite: Array.isArray(g.scutite) ? g.scutite.map(String) : [],
+    raseScutite: Array.isArray(g.raseScutite) ? g.raseScutite.map(String) : [],
     student: Math.min(100, nr(g.student)),
   };
 }
@@ -50,14 +52,16 @@ export function grilaAreTaxe(grila) {
 /**
  * Taxa pentru o înscriere.
  * @param grila      grila expoziției (publicată de manager)
- * @param declaratii { membru, primul, student, clasa }
+ * @param declaratii { membru, primul, student, clasa, breedId }
  * @returns suma în lei, rotunjită la leu
  */
 export function calculeazaTaxa(grila, declaratii = {}) {
   const g = normalizeazaGrila(grila);
-  const { membru = false, primul = true, student = false, clasa = "" } = declaratii;
+  const { membru = false, primul = true, student = false, clasa = "", breedId = "" } = declaratii;
 
   if (clasa && g.scutite.includes(String(clasa))) return 0;
+  // Facilitate pe rasă: rasele cu gratuitate (ex. Ciobănesc Bălan) au taxă 0.
+  if (breedId && g.raseScutite.includes(String(breedId))) return 0;
 
   const coloana = membru ? g.membru : g.nemembru;
   const baza = primul ? coloana.primul : coloana.urmatorii;

@@ -31,6 +31,17 @@ e("CACIB, membru, primul", calculeazaTaxa(CACIB, { membru: true, primul: true })
 e("CACIB, nemembru, primul", calculeazaTaxa(CACIB, { membru: false, primul: true }), 150);
 e("CACIB, nemembru, al doilea", calculeazaTaxa(CACIB, { membru: false, primul: false }), 75);
 
+console.log("— gratuitate pe rasă (facilitate) —");
+const CU_BALAN = { ...CAC, raseScutite: ["breed-balan"] };
+e("rasa cu gratuitate → 0, chiar membru nemembru primul",
+  calculeazaTaxa(CU_BALAN, { membru: false, primul: true, breedId: "breed-balan" }), 0);
+e("altă rasă → taxa normală",
+  calculeazaTaxa(CU_BALAN, { membru: false, primul: true, breedId: "breed-altul" }), 120);
+e("fără breedId → taxa normală (nu se aplică facilitatea)",
+  calculeazaTaxa(CU_BALAN, { membru: false, primul: true }), 120);
+e("normalizarea păstrează raseScutite",
+  normalizeazaGrila({ membru: { primul: 1 }, raseScutite: ["x", 7] }).raseScutite, ["x", "7"]);
+
 console.log("— reducerea de student se aplică sumei finale —");
 e("CAC, membru, primul, student", calculeazaTaxa(CAC, { membru: true, primul: true, student: true }), 90);
 e("CACIB, nemembru, al doilea, student (67,5 -> 68)",
@@ -55,7 +66,7 @@ e("reducere absurdă e plafonată la 100%",
   calculeazaTaxa({ nemembru: { primul: 120 }, student: 500 }, { primul: true, student: true }), 0);
 e("normalizarea completează ce lipsește",
   normalizeazaGrila({ membru: { primul: 100 } }),
-  { membru: { primul: 100, urmatorii: 0 }, nemembru: { primul: 0, urmatorii: 0 }, scutite: [], student: 0 });
+  { membru: { primul: 100, urmatorii: 0 }, nemembru: { primul: 0, urmatorii: 0 }, scutite: [], raseScutite: [], student: 0 });
 
 console.log("— o expoziție fără taxe nu arată deloc secțiunea de plată —");
 e("grilă goală", grilaAreTaxe({}), false);
