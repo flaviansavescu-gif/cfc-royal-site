@@ -67,6 +67,12 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
       <div class="act__qr">
         <img id="c-qr" alt="Cod de verificare" width="110" height="110" />
         <p class="act__qr-text">Verifică autenticitatea:<br /><span id="c-adresa"></span></p>
+        {/* Pentru pedigree-ele tipărite fizic de noi: descarcă QR-ul de verificare (PNG)
+            și copiază adresa. Nu apar la tipărirea certificatului digital. */}
+        <div class="act__qr-unelte">
+          <button type="button" id="c-qr-descarca" class="btn btn--outline btn--small">⬇ Descarcă QR (PNG)</button>
+          <button type="button" id="c-qr-copiaza" class="btn btn--outline btn--small">⧉ Copiază adresa</button>
+        </div>
       </div>
       <div class="act__semnaturi">
         <p class="act__emis" id="c-emis"></p>
@@ -194,6 +200,24 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
 
         if (d.qr) document.getElementById("c-qr").src = d.qr;
         document.getElementById("c-adresa").textContent = d.adresaVerificare || "";
+
+        // Descărcarea QR-ului (PNG) și copierea adresei — pentru pedigree-ele tipărite fizic.
+        const btnQr = document.getElementById("c-qr-descarca");
+        if (btnQr) btnQr.addEventListener("click", () => {
+          if (!d.qr) return;
+          const a = document.createElement("a");
+          a.href = d.qr;
+          a.download = "qr-verificare-" + c.serie + ".png";
+          document.body.appendChild(a); a.click(); a.remove();
+        });
+        const btnCopy = document.getElementById("c-qr-copiaza");
+        if (btnCopy) btnCopy.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(d.adresaVerificare || "");
+            const t = btnCopy.textContent; btnCopy.textContent = "✓ copiat";
+            setTimeout(() => { btnCopy.textContent = t; }, 1500);
+          } catch (e) { btnCopy.textContent = "copiază manual din text"; }
+        });
         document.getElementById("c-emis").textContent =
           "Emis la " + dataRo(c.emis) + " de " + c.emisDe + ", Râmnicu Vâlcea.";
 
@@ -274,6 +298,8 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   .act__qr { text-align: center; }
   .act__qr img { display: block; }
   .act__qr-text { font-size: 0.62rem; color: #555; margin: 0.25rem 0 0; word-break: break-all; }
+  .act__qr-unelte { display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem; }
+  @media print { .act__qr-unelte { display: none !important; } }
   .act__emis { font-size: 0.78rem; color: #555; margin: 0 0 1.4rem; }
   .act__semn { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
   .act__semn span { border-top: 1px solid #888; padding-top: 0.2rem; font-size: 0.72rem;
