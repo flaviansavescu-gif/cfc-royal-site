@@ -23,15 +23,17 @@
   /* ---------------------------------------------------------
      Constants
      --------------------------------------------------------- */
+  // Șirurile trebuie să fie IDENTICE cu câmpul `group` din date. Altfel apar duplicate în
+  // selectorul editorului, iar traducerea din I18N nu se potrivește și grupa rămâne în engleză.
   const WDF_GROUPS = [
-    "Group 1 Shepherd Dogs and Cattle Dogs",
-    "Group 2 Pinscher and Schnauzer Type Dogs – Molossoids and Swiss Cattle Dogs",
+    "Group 1 Shepherd Dogs and Cattle Dogs (excl. Swiss Cattle Dogs)",
+    "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs",
     "Group 3 Terrier Type Dogs",
     "Group 4 Bull Type Dogs",
     "Group 5 Dogs of the Primitive Type",
-    "Group 6 Scenthounds and Related Breeds",
+    "Group 6 Hounds and Dogs for Blood Tracking",
     "Group 7 Pointing Dogs",
-    "Group 8 Retrievers, Flushing and Water Dogs",
+    "Group 8 Retrievers, Flushing Dogs and Water Dogs",
     "Group 9 Companion and Toy Dogs",
     "Group 10 Sighthounds",
   ];
@@ -93,17 +95,24 @@
     "Explore": "Explorare", "Learn": "Învățare", "Manage": "Administrare",
     "Dashboard": "Tablou de bord", "Breed List": "Lista raselor", "Compare Breeds": "Compară rase",
     "Quiz & Exam": "Test & examen", "Curriculum": "Curriculum", "Admin / Edit": "Administrare / Editare",
-    // Grupe WDF (nume complet — afișare; datele rămân în engleză)
-    "Group 1 Shepherd Dogs and Cattle Dogs": "Grupa 1 Câini ciobănești și de vite",
-    "Group 2 Pinscher and Schnauzer Type Dogs – Molossoids and Swiss Cattle Dogs": "Grupa 2 Pinscher și Schnauzer – Molosoizi și câini de vite elvețieni",
+    // Grupe WDF (nume complet — afișare; datele rămân în engleză).
+    // Cheia trebuie să fie EXACT șirul din câmpul `group` al raselor, altfel grupa
+    // rămâne netradusă. Șirurile scurte de dedesubt sunt variante mai vechi, păstrate
+    // pentru seturile de date importate înainte de aliniere.
+    "Group 1 Shepherd Dogs and Cattle Dogs (excl. Swiss Cattle Dogs)": "Grupa 1 Câini ciobănești și de vite (fără cei elvețieni)",
+    "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs": "Grupa 2 Pinscher și Schnauzer – Molosoizi și câini de vite elvețieni",
     "Group 3 Terrier Type Dogs": "Grupa 3 Terrieri",
     "Group 4 Bull Type Dogs": "Grupa 4 Câini de tip bull",
     "Group 5 Dogs of the Primitive Type": "Grupa 5 Câini de tip primitiv (spitz)",
-    "Group 6 Scenthounds and Related Breeds": "Grupa 6 Copoi și rase înrudite",
+    "Group 6 Hounds and Dogs for Blood Tracking": "Grupa 6 Copoi și câini de urmă de sânge",
     "Group 7 Pointing Dogs": "Grupa 7 Câini de aret (pointeri)",
-    "Group 8 Retrievers, Flushing and Water Dogs": "Grupa 8 Retrieveri, câini de scos vânatul și de apă",
+    "Group 8 Retrievers, Flushing Dogs and Water Dogs": "Grupa 8 Retrieveri, câini de scos vânatul și de apă",
     "Group 9 Companion and Toy Dogs": "Grupa 9 Câini de companie și de agrement",
     "Group 10 Sighthounds": "Grupa 10 Ogari",
+    "Group 1 Shepherd Dogs and Cattle Dogs": "Grupa 1 Câini ciobănești și de vite",
+    "Group 2 Pinscher and Schnauzer Type Dogs – Molossoids and Swiss Cattle Dogs": "Grupa 2 Pinscher și Schnauzer – Molosoizi și câini de vite elvețieni",
+    "Group 6 Scenthounds and Related Breeds": "Grupa 6 Copoi și rase înrudite",
+    "Group 8 Retrievers, Flushing and Water Dogs": "Grupa 8 Retrieveri, câini de scos vânatul și de apă",
     // Dashboard
     "A structured WDF-oriented breed-standards workspace for judging preparation, teaching, and quick professional consultation.":
       "Un spațiu de lucru cu standarde de rasă orientat pe WDF, pentru pregătirea arbitrajului, predare și consultare profesională rapidă.",

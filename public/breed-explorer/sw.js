@@ -27,7 +27,9 @@
 // v5 = interfața tradusă integral în română + curățarea dublurilor/non-WDF (390 rase).
 // v5.0.1 = nota din date (disclaimer) tradusă + breed_count corect; forțează reîmprospătarea cache-ului.
 // v5.1.0 = redenumire: „CFCR Breed Standards Explorer" -> „Explorator de standarde CFC-Royal".
-const CACHE_VERSION = "cfcr-v5.1.0";
+// v5.2.0 = cele 3 lecții din Curriculum traduse; numele a 4 grupe se traduceau greșit
+// (cheile I18N nu se potriveau cu șirul din date) și lecția 3 arăta 0 rase.
+const CACHE_VERSION = "cfcr-v5.2.0";
 const CACHE_NAME = "cfcr-cache-" + CACHE_VERSION;
 
 // Paths are relative to the service worker scope (the app folder).
