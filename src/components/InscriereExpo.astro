@@ -239,41 +239,61 @@ const CLASE = [
         ar afla că a fost prins și ar încerca altfel. Merge singură prin FormData. */}
     <input class="ie-capcana" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
-    <fieldset class="ie__fs">
-      <legend>{T.dateCaine}</legend>
-      <label class="ie__f"><span>{T.numeCaine} <b class="req">*</b></span><input name="numeCaine" required /></label>
-      <label class="ie__f"><span>{T.rasa} <b class="req">*</b></span>
-        <input id="ie-rasa" name="rasaText" list="ie-rase" placeholder={T.rasaPh} required />
-        <datalist id="ie-rase"></datalist>
-        <input type="hidden" name="rasaId" id="ie-rasaId" />
+    {/* Câți câini + câinii înșiși. Fiecare câine e un bloc identic (clonat din șablon);
+        datele proprietarului, taxa și dovada se completează o singură dată, mai jos. */}
+    <div class="ie__nrcaini">
+      <label class="ie__f ie__f--nr">
+        <span>{lang === "en" ? "How many dogs do you want to enter?" : "Câți câini vrei să înscrii?"} <b class="req">*</b></span>
+        <input id="ie-nr-caini" type="number" min="1" max="12" step="1" value="1" inputmode="numeric" />
       </label>
-      <div class="ie__row">
-        <label class="ie__f"><span>{T.sex} <b class="req">*</b></span>
-          <div class="ie__radios">
-            <label><input type="radio" name="sex" value="M" required /> {T.mascul}</label>
-            <label><input type="radio" name="sex" value="F" /> {T.femela}</label>
-          </div>
+      <small class="ie__gdpr">{lang === "en"
+        ? "Add a section for each dog. The owner details below are filled in once, for all dogs."
+        : "Adaugă o secțiune pentru fiecare câine. Datele proprietarului de mai jos se completează o singură dată, pentru toți câinii."}</small>
+    </div>
+
+    <div id="ie-caini"></div>
+    {/* O singură listă de rase, folosită de toate blocurile (list="ie-rase"). */}
+    <datalist id="ie-rase"></datalist>
+
+    <button type="button" class="btn btn--outline ie__addcaine" id="ie-add-caine">＋ {lang === "en" ? "Add another dog" : "Adaugă încă un câine"}</button>
+
+    <template id="ie-caine-tpl">
+      <fieldset class="ie__fs ie__caine">
+        <legend><span class="ie__caine-nr"></span></legend>
+        <button type="button" class="ie__caine-del" hidden title={lang === "en" ? "Remove this dog" : "Elimină acest câine"} aria-label={lang === "en" ? "Remove this dog" : "Elimină acest câine"}>✕</button>
+        <label class="ie__f"><span>{T.numeCaine} <b class="req">*</b></span><input data-f="numeCaine" /></label>
+        <label class="ie__f"><span>{T.rasa} <b class="req">*</b></span>
+          <input data-f="rasaText" list="ie-rase" placeholder={T.rasaPh} />
+          <input type="hidden" data-f="rasaId" />
         </label>
-        <label class="ie__f"><span>{T.dataN} <b class="req">*</b></span><input id="ie-data" name="dataNasterii" inputmode="numeric" autocomplete="off" placeholder={T.dataPh} maxlength="10" required /></label>
-      </div>
-      <label class="ie__f"><span>{T.clasa} <b class="req">*</b></span>
-        <select name="clasa" required>
-          <option value="">—</option>
-          {CLASE.map((c) => <option value={c.v}>{lang === "en" ? c.en : c.ro}</option>)}
-        </select>
-      </label>
-      <div class="ie__row">
-        <label class="ie__f"><span>{T.pedigree} *</span><input name="pedigree" required data-cere-pedigree /></label>
-        <label class="ie__f"><span>{T.microcip} *</span><input name="microcip" required minlength="6" /></label>
-      </div>
-      <label class="ie__f"><span>{T.crescator} ({T.optional})</span><input name="crescator" /></label>
-      <div class="ie__row">
-        <label class="ie__f"><span>{T.culoareRoba}</span><input name="culoareRoba" /></label>
-        <label class="ie__f"><span>{T.tata}</span><input name="tata" /></label>
-      </div>
-      <label class="ie__f"><span>{T.mama}</span><input name="mama" /></label>
-      <label class="ie__tip"><input type="checkbox" name="pedigreeTipicitate" value="1" /> <span><b>{T.tipicitate}</b><br /><small>{T.tipicitateDesc}</small></span></label>
-    </fieldset>
+        <div class="ie__row">
+          <label class="ie__f"><span>{T.sex} <b class="req">*</b></span>
+            <div class="ie__radios">
+              <label><input type="radio" data-f="sex" value="M" /> {T.mascul}</label>
+              <label><input type="radio" data-f="sex" value="F" /> {T.femela}</label>
+            </div>
+          </label>
+          <label class="ie__f"><span>{T.dataN} <b class="req">*</b></span><input data-f="dataNasterii" inputmode="numeric" autocomplete="off" placeholder={T.dataPh} maxlength="10" /></label>
+        </div>
+        <label class="ie__f"><span>{T.clasa} <b class="req">*</b></span>
+          <select data-f="clasa">
+            <option value="">—</option>
+            {CLASE.map((c) => <option value={c.v}>{lang === "en" ? c.en : c.ro}</option>)}
+          </select>
+        </label>
+        <div class="ie__row">
+          <label class="ie__f"><span>{T.pedigree} *</span><input data-f="pedigree" /></label>
+          <label class="ie__f"><span>{T.microcip} *</span><input data-f="microcip" minlength="6" /></label>
+        </div>
+        <label class="ie__f"><span>{T.crescator} ({T.optional})</span><input data-f="crescator" /></label>
+        <div class="ie__row">
+          <label class="ie__f"><span>{T.culoareRoba}</span><input data-f="culoareRoba" /></label>
+          <label class="ie__f"><span>{T.tata}</span><input data-f="tata" /></label>
+        </div>
+        <label class="ie__f"><span>{T.mama}</span><input data-f="mama" /></label>
+        <label class="ie__tip"><input type="checkbox" data-f="pedigreeTipicitate" value="1" /> <span><b>{T.tipicitate}</b><br /><small>{T.tipicitateDesc}</small></span></label>
+      </fieldset>
+    </template>
 
     <fieldset class="ie__fs">
       <legend>{T.dateProp}</legend>
@@ -370,15 +390,13 @@ const CLASE = [
   </form>
 </section>
 
-<script is:inline define:vars={{ AFISE, txtInchisOptiune: T.inchisOptiune, txtInchisButon: T.inchisButon, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit }}>
+<script is:inline define:vars={{ AFISE, txtInchisOptiune: T.inchisOptiune, txtInchisButon: T.inchisButon, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit, txtCaine: (lang === "en" ? "Dog" : "Câinele"), txtCampuriCaine: (lang === "en" ? "Dog {n}: fill in the required fields — name, breed (from the list), sex, date of birth, class and microchip (min. 6). Pedigree is required unless you tick typicity." : "Câinele {n}: completează câmpurile obligatorii — nume, rasă (din listă), sex, data nașterii, clasă și microcip (min. 6). Pedigree obligatoriu dacă nu bifezi tipicitatea."), txtTaxaTotal: (lang === "en" ? "Total entry fee:" : "Taxa totală de înscriere:") }}>
   (async function () {
     const form = document.getElementById("ie-form");
     const loading = document.getElementById("ie-loading");
     const gol = document.getElementById("ie-gol");
     const showSel = document.getElementById("ie-show");
     const raseList = document.getElementById("ie-rase");
-    const rasaInput = document.getElementById("ie-rasa");
-    const rasaId = document.getElementById("ie-rasaId");
     const err = document.getElementById("ie-err");
     const succes = document.getElementById("ie-succes");
 
@@ -480,33 +498,93 @@ const CLASE = [
         .map((r) => `<option data-id="${r.id}" value="${r.numeRo}">${r.numeEn} · Gr. ${r.grupa}</option>`)
         .join("");
     }
-    function rezolvaRasa() {
+
+    // ——— Blocurile de câine (repetabile): un bloc = un câine, clonat din șablon ———
+    const containerCaini = document.getElementById("ie-caini");
+    const tplCaine = document.getElementById("ie-caine-tpl");
+    const nrCaini = document.getElementById("ie-nr-caini");
+    const addCaine = document.getElementById("ie-add-caine");
+    const MAX_CAINI = 12;
+    const blocuri = () => Array.from(containerCaini.querySelectorAll(".ie__caine"));
+
+    function rezolvaRasaBloc(b) {
       const e = expozitii.find((x) => x.showId === showSel.value);
-      const g = (e?.rase || []).find((r) => r.numeRo === rasaInput.value.trim());
-      rasaId.value = g ? g.id : "";
+      const rt = b.querySelector('[data-f="rasaText"]');
+      const ri = b.querySelector('[data-f="rasaId"]');
+      const g = (e?.rase || []).find((r) => r.numeRo === (rt.value || "").trim());
+      ri.value = g ? g.id : "";
     }
-    showSel.addEventListener("change", () => { populeazaRase(); rasaId.value = ""; rasaInput.value = ""; });
-    rasaInput.addEventListener("input", rezolvaRasa);
+
+    function renumeroteaza() {
+      const b = blocuri();
+      b.forEach((bl, i) => {
+        bl.querySelector(".ie__caine-nr").textContent = txtCaine + " " + (i + 1);
+        const del = bl.querySelector(".ie__caine-del");
+        if (del) del.hidden = b.length <= 1;
+        // Radiourile de sex trebuie să fie un grup propriu pe fiecare bloc.
+        bl.querySelectorAll('[data-f="sex"]').forEach((r) => { r.name = "sex" + i; });
+      });
+      nrCaini.value = String(b.length);
+      addCaine.disabled = b.length >= MAX_CAINI;
+    }
+
+    function wireBloc(b) {
+      // Data se tastează zz.ll.aaaa; punctele se pun singure.
+      const cd = b.querySelector('[data-f="dataNasterii"]');
+      cd.addEventListener("input", () => {
+        const cifre = cd.value.replace(/\D/g, "").slice(0, 8);
+        let v = cifre;
+        if (cifre.length > 4) v = cifre.slice(0, 2) + "." + cifre.slice(2, 4) + "." + cifre.slice(4);
+        else if (cifre.length > 2) v = cifre.slice(0, 2) + "." + cifre.slice(2);
+        cd.value = v;
+      });
+      // Pedigree obligatoriu, mai puțin când e bifată tipicitatea (câine de rasă fără acte).
+      const tip = b.querySelector('[data-f="pedigreeTipicitate"]');
+      const ped = b.querySelector('[data-f="pedigree"]');
+      const sinc = () => { ped.closest(".ie__f").style.opacity = tip.checked ? "0.55" : ""; };
+      tip.addEventListener("change", sinc); sinc();
+      // Rasa: rezolvă id-ul din text; taxa se recalculează la schimbarea clasei.
+      b.querySelector('[data-f="rasaText"]').addEventListener("input", () => rezolvaRasaBloc(b));
+      b.querySelector('[data-f="clasa"]').addEventListener("change", actualizeazaPlata);
+      const del = b.querySelector(".ie__caine-del");
+      if (del) del.addEventListener("click", () => {
+        if (blocuri().length <= 1) return;
+        b.remove(); renumeroteaza(); actualizeazaPlata();
+      });
+    }
+
+    function adaugaBloc() {
+      if (blocuri().length >= MAX_CAINI) return null;
+      const frag = tplCaine.content.cloneNode(true);
+      const b = frag.querySelector(".ie__caine");
+      containerCaini.appendChild(frag);
+      wireBloc(b); renumeroteaza();
+      return b;
+    }
+
+    // La schimbarea expoziției: repopulăm lista de rase și golim rasa aleasă pe fiecare bloc
+    // (rasele diferă de la o expoziție la alta).
+    showSel.addEventListener("change", () => {
+      populeazaRase();
+      blocuri().forEach((b) => {
+        b.querySelector('[data-f="rasaText"]').value = "";
+        b.querySelector('[data-f="rasaId"]').value = "";
+      });
+    });
     populeazaRase();
     form.hidden = false;
+    adaugaBloc(); // primul câine
 
-    // Numarul de pedigree e obligatoriu daca exemplarul are pedigree. Singurul caz in
-    // care nu-l are e calea pedigree-ului de tipicitate — caine de rasa fara acte —
-    // iar acela se declara prin casuta de mai jos. Deci: obligatoriu, mai putin cand
-    // expozantul bifeaza ca nu are acte.
-    const bifaTipicitate = form.querySelector('input[name="pedigreeTipicitate"]');
-    const campPedigree = form.querySelector('input[name="pedigree"]');
-    if (bifaTipicitate && campPedigree) {
-      const sincronizeaza = () => {
-        campPedigree.required = !bifaTipicitate.checked;
-        campPedigree.closest(".ie__f").style.opacity = bifaTipicitate.checked ? "0.55" : "";
-      };
-      bifaTipicitate.addEventListener("change", sincronizeaza);
-      sincronizeaza();
-    }
+    addCaine.addEventListener("click", () => { adaugaBloc(); actualizeazaPlata(); aplicaStarea(); });
+    nrCaini.addEventListener("change", () => {
+      let n = Math.max(1, Math.min(MAX_CAINI, parseInt(nrCaini.value, 10) || 1));
+      while (blocuri().length < n) adaugaBloc();
+      while (blocuri().length > n) blocuri()[blocuri().length - 1].remove();
+      renumeroteaza(); actualizeazaPlata(); aplicaStarea();
+    });
 
-    // Plata taxei: sectiunea apare doar cand expozitia are taxe; bifa + dovada devin
-    // obligatorii doar cand clasa aleasa are taxa > 0 (regula e impusa si pe server).
+    // Plata taxei: secțiunea apare doar când expoziția are taxe; bifa + dovada devin
+    // obligatorii doar când TOTALUL pe lot e > 0 (regula e impusă și pe server).
     const plataFs = document.getElementById("ie-plata");
     const contZona = document.getElementById("ie-cont");
     const contLipsa = document.getElementById("ie-cont-lipsa");
@@ -515,12 +593,14 @@ const CLASE = [
     const contBanca = document.getElementById("ie-banca");
     const contBancaSep = document.getElementById("ie-banca-sep");
     const taxaText = document.getElementById("ie-taxa-text");
-    const clasaSel = form.querySelector('select[name="clasa"]');
     const bifaPlatit = document.getElementById("ie-amplatit");
     const campDovada = document.getElementById("ie-dovada");
     const zonaIntrebari = document.getElementById("ie-intrebari");
     const notaStudent = document.getElementById("ie-student-nota");
     const bifaStudent = form.querySelector('input[name="esteStudent"]');
+    // Întrebarea „primul câine?" e acum automată (poziția în lot), deci o ascundem.
+    const primulRadio = form.querySelector('input[name="primulCaine"]');
+    const grupPrimul = primulRadio ? primulRadio.closest("fieldset") : null;
     const ales = (nume) => {
       const b = form.querySelector('input[name="' + nume + '"]:checked');
       return b ? b.value : "";
@@ -528,29 +608,36 @@ const CLASE = [
 
     function expoCurenta() { return expozitii.find((x) => x.showId === showSel.value); }
 
-    // Aceeași aritmetică ca pe server (netlify/functions/_comun/taxa-expo.mjs). Copiată
-    // aici fiindcă scriptul e `is:inline` și nu poate importa module. Suma afișată e
-    // orientativă: serverul o recalculează la trimitere și el are ultimul cuvânt.
-    function taxaDinGrila(grila) {
-      if (!grila) return 0;
-      if ((grila.scutite || []).indexOf(clasaSel.value) !== -1) return 0;
-      const col = ales("esteMembru") === "1" ? grila.membru : grila.nemembru;
-      const baza = Number((col || {})[ales("primulCaine") === "0" ? "urmatorii" : "primul"]) || 0;
-      if (!baza) return 0;
-      const red = bifaStudent && bifaStudent.checked ? Math.min(100, Number(grila.student) || 0) : 0;
-      return Math.round((baza * (100 - red)) / 100);
-    }
-
     function grilaAreTaxe(g) {
       if (!g) return false;
       const v = [g.membru, g.nemembru].filter(Boolean);
       return v.some((c) => Number(c.primul) > 0 || Number(c.urmatorii) > 0);
     }
 
-    function taxaCurenta() {
+    // Aceeași aritmetică ca pe server (netlify/functions/_comun/taxa-expo.mjs). Suma
+    // afișată e orientativă: serverul o recalculează la trimitere și el are ultimul cuvânt.
+    // „primul" pentru preview = primul câine din acest lot; serverul ține cont și de câinii
+    // pe care proprietarul i-a înscris deja mai devreme.
+    function taxaGrilaClasa(grila, clasa, primul) {
+      if (!grila) return 0;
+      if ((grila.scutite || []).indexOf(clasa) !== -1) return 0;
+      const col = ales("esteMembru") === "1" ? grila.membru : grila.nemembru;
+      const baza = Number((col || {})[primul ? "primul" : "urmatorii"]) || 0;
+      if (!baza) return 0;
+      const red = bifaStudent && bifaStudent.checked ? Math.min(100, Number(grila.student) || 0) : 0;
+      return Math.round((baza * (100 - red)) / 100);
+    }
+
+    function totalCurent() {
       const e = expoCurenta();
-      if (e && e.tarif) return taxaDinGrila(e.tarif);
-      return Number(((e && e.taxe) || {})[clasaSel.value] || 0);
+      const grila = e && e.tarif && grilaAreTaxe(e.tarif) ? e.tarif : null;
+      let total = 0;
+      blocuri().forEach((b, i) => {
+        const clasa = b.querySelector('[data-f="clasa"]').value;
+        if (!clasa) return;
+        total += grila ? taxaGrilaClasa(grila, clasa, i === 0) : Number(((e && e.taxe) || {})[clasa] || 0);
+      });
+      return total;
     }
 
     function actualizeazaPlata() {
@@ -560,13 +647,8 @@ const CLASE = [
         !!(e && e.taxe && Object.values(e.taxe).some((v) => Number(v) > 0));
       plataFs.hidden = !areTaxe;
 
-      // Contul în care se plătește taxa. Vine DOAR din expoziția aleasă: la o expoziție
-      // organizată de un Membru Colectiv, banii intră în contul LUI. Dacă expoziția n-are
-      // cont trecut, nu arătăm niciunul — un cont plauzibil dar greșit e mai rău decât
-      // niciun cont, fiindcă omul plătește liniștit în contul altcuiva și abia la
-      // secretariat se descoperă.
-      // `textContent`, nu `innerHTML` — datele vin dintr-o funcție, iar un nume de
-      // asociație n-are ce să execute în pagină.
+      // Contul în care se plătește taxa — DOAR din expoziția aleasă (la o expoziție a unui
+      // Membru Colectiv, banii intră în contul LUI). textContent, nu innerHTML.
       const cont = e && e.organizator;
       const areCont = !!(cont && cont.iban);
       if (contZona) contZona.hidden = !areCont;
@@ -577,40 +659,28 @@ const CLASE = [
       if (contBancaSep) contBancaSep.hidden = !(areCont && cont.banca);
 
       zonaIntrebari.hidden = !grilaNoua;
-      // Ascunse înseamnă și neîntrebate: la expozițiile cu grila veche, răspunsurile
-      // n-ar avea ce hotărî, așa că nu plecăm cu ele în cerere.
       zonaIntrebari.querySelectorAll("input").forEach((i) => { i.disabled = !grilaNoua; });
+      if (grupPrimul) { grupPrimul.hidden = true; grupPrimul.querySelectorAll("input").forEach((i) => { i.disabled = true; }); }
       if (notaStudent) notaStudent.hidden = !(bifaStudent && bifaStudent.checked);
 
-      const t = areTaxe ? taxaCurenta() : 0;
+      if (!areTaxe) return;
+      const t = totalCurent();
       bifaPlatit.required = areTaxe && t > 0;
       campDovada.required = areTaxe && t > 0;
-      if (!areTaxe) return;
-      if (!clasaSel.value) taxaText.textContent = txtTaxaAlege;
+      const vreoClasa = blocuri().some((b) => b.querySelector('[data-f="clasa"]').value);
+      if (!vreoClasa) taxaText.textContent = txtTaxaAlege;
       else if (t > 0) {
-        taxaText.innerHTML = (grilaNoua ? txtTaxaTa : txtTaxaEste) +
-          " <b>" + t + " " + txtLei + "</b>" +
-          (grilaNoua ? " <span class='ie__taxa-nota'>" + txtTaxaDetaliu + "</span>" : "");
+        taxaText.innerHTML = txtTaxaTotal + " <b>" + t + " " + txtLei + "</b>" +
+          " <span class='ie__taxa-nota'>" + txtTaxaDetaliu + "</span>";
       } else taxaText.textContent = txtFaraTaxa;
     }
     showSel.addEventListener("change", actualizeazaPlata);
-    clasaSel.addEventListener("change", actualizeazaPlata);
     zonaIntrebari.addEventListener("change", actualizeazaPlata);
     actualizeazaPlata();
 
-    // Data nasterii se TASTEAZA (zz.ll.aaaa) — calendarul de pe telefon era greoi.
-    // Punctele se pun singure; la trimitere data e validata si convertita in ISO,
-    // formatul pe care il asteapta serverul.
-    const campData = document.getElementById("ie-data");
-    campData.addEventListener("input", () => {
-      const cifre = campData.value.replace(/\D/g, "").slice(0, 8);
-      let v = cifre;
-      if (cifre.length > 4) v = cifre.slice(0, 2) + "." + cifre.slice(2, 4) + "." + cifre.slice(4);
-      else if (cifre.length > 2) v = cifre.slice(0, 2) + "." + cifre.slice(2);
-      campData.value = v;
-    });
+    // Data nașterii se convertește în ISO la trimitere (formatul așteptat de server).
     function dataISO(v) {
-      const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(v.trim());
+      const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(String(v || "").trim());
       if (!m) return null;
       const [, z, l, a] = m;
       const d = new Date(Number(a), Number(l) - 1, Number(z));
@@ -622,35 +692,57 @@ const CLASE = [
     form.addEventListener("submit", async (ev) => {
       ev.preventDefault();
       err.hidden = true;
-      rezolvaRasa();
-      const iso = dataISO(campData.value);
-      if (!iso) {
-        err.textContent = txtDataInvalida; err.hidden = false;
-        campData.focus();
-        err.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
+
+      // Adunăm și validăm toți câinii; serverul revalidează tot și are ultimul cuvânt.
+      const bls = blocuri();
+      const caini = [];
+      for (let i = 0; i < bls.length; i++) {
+        const b = bls[i];
+        rezolvaRasaBloc(b);
+        const val = (f) => ((b.querySelector('[data-f="' + f + '"]') || {}).value || "").trim();
+        const sexEl = b.querySelector('[data-f="sex"]:checked');
+        const iso = dataISO(val("dataNasterii"));
+        const numeCaine = val("numeCaine");
+        const rasaId = val("rasaId");
+        const tip = b.querySelector('[data-f="pedigreeTipicitate"]').checked;
+        const pedigree = val("pedigree");
+        const microcip = val("microcip");
+        const clasa = val("clasa");
+        const bun = numeCaine.length >= 2 && rasaId && sexEl && iso && clasa && microcip.length >= 6 && (tip || pedigree.length >= 2);
+        if (!bun) {
+          err.textContent = (iso ? "" : txtDataInvalida + " ") + txtCampuriCaine.replace("{n}", i + 1);
+          err.hidden = false;
+          b.scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
+        caini.push({
+          numeCaine, rasaId, sex: sexEl.value, dataNasterii: iso, clasa,
+          pedigree, pedigreeTipicitate: tip ? "1" : "", microcip,
+          crescator: val("crescator"), culoareRoba: val("culoareRoba"),
+          tata: val("tata"), mama: val("mama"),
+        });
       }
-      // Dovada platii: validata inainte de a bloca butonul, citita ca base64 (JSON-ul
-      // nu duce fisiere). Obiectul File din FormData se scoate din payload.
+
+      // Dovada plății (una singură pentru tot lotul).
       const fisier = campDovada && campDovada.files && campDovada.files[0];
       if (fisier) {
         if (fisier.size > 4 * 1024 * 1024) {
           err.textContent = txtDovadaMare; err.hidden = false;
-          err.scrollIntoView({ behavior: "smooth", block: "center" });
-          return;
+          err.scrollIntoView({ behavior: "smooth", block: "center" }); return;
         }
         if (!["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(fisier.type)) {
           err.textContent = txtDovadaTipGresit; err.hidden = false;
-          err.scrollIntoView({ behavior: "smooth", block: "center" });
-          return;
+          err.scrollIntoView({ behavior: "smooth", block: "center" }); return;
         }
       }
+
       const btn = document.getElementById("ie-submit");
       btn.disabled = true; btn.textContent = txtSe;
+      // Blocul comun (proprietar + declarații) din câmpurile cu `name`; câinii merg în `caini`.
       const fd = new FormData(form);
       const payload = Object.fromEntries(fd.entries());
-      payload.dataNasterii = iso;
       delete payload.dovada;
+      payload.caini = caini;
       if (fisier) {
         const dataUrl = await new Promise((res, rej) => {
           const fr = new FileReader();
@@ -668,12 +760,10 @@ const CLASE = [
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.eroare || "Eroare");
-        // Confirmarea trebuie VAZUTA: aratam exact ce s-a trimis si derulam la mesaj —
-        // dupa un formular lung, utilizatorul e jos in pagina si mesajul aparea sus.
         const rez = document.getElementById("ie-succes-rezumat");
-        const showSel = document.getElementById("ie-show");
         const numeExpo = showSel && showSel.selectedIndex >= 0 ? showSel.options[showSel.selectedIndex].text : "";
-        rez.innerHTML = "<b>" + (payload.numeCaine || "") + "</b> — " + numeExpo + " — " + succesDetaliu;
+        const nume = caini.map((c) => c.numeCaine).join(", ");
+        rez.innerHTML = "<b>" + nume + "</b> — " + numeExpo + " — " + succesDetaliu;
         form.hidden = true; succes.hidden = false; form.reset();
         succes.scrollIntoView({ behavior: "smooth", block: "center" });
       } catch (e2) {
@@ -684,7 +774,14 @@ const CLASE = [
     });
 
     document.getElementById("ie-reset").addEventListener("click", () => {
-      form.reset(); succes.hidden = true; form.hidden = false; populeazaRase(); actualizeazaPlata();
+      form.reset(); succes.hidden = true; form.hidden = false;
+      // Păstrăm un singur bloc de câine, golit.
+      blocuri().forEach((b, i) => { if (i > 0) b.remove(); });
+      const b0 = blocuri()[0];
+      if (b0) b0.querySelectorAll("input, select").forEach((el) => {
+        if (el.type === "checkbox" || el.type === "radio") el.checked = false; else el.value = "";
+      });
+      populeazaRase(); renumeroteaza(); actualizeazaPlata();
     });
   })();
 </script>
@@ -760,6 +857,17 @@ const CLASE = [
     font-size: var(--fs-300);
   }
   .ie__repetitie a { color: #6b4a00; }
+  /* Mai mulți câini pe același formular */
+  .ie__nrcaini { display: flex; flex-direction: column; gap: 0.35rem; }
+  .ie__f--nr input { max-width: 8rem; }
+  .ie__caine { position: relative; }
+  .ie__caine-nr { font-weight: 700; color: var(--color-primary); }
+  .ie__caine-del { position: absolute; top: 0.6rem; right: 0.8rem; width: 2rem; height: 2rem;
+    border: 1px solid var(--color-border); border-radius: 50%; background: var(--color-surface);
+    color: #8c1d2f; font-size: 1rem; line-height: 1; cursor: pointer; }
+  .ie__caine-del:hover { border-color: #8c1d2f; background: #fbf0f0; }
+  .ie__addcaine { align-self: flex-start; }
+
   .ie__succes { background: #eef5f0; border: 1px solid var(--color-primary); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
   .ie__succes p { margin: 0 0 0.75rem; color: var(--color-primary); font-weight: 600; }
   @media (max-width: 560px) { .ie__row { grid-template-columns: 1fr; } }

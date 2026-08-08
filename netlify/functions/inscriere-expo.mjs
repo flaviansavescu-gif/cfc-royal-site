@@ -32,6 +32,10 @@ const SECRET = process.env.EXPO_SYNC_SECRET || "";
 // doisprezece într-o oră, de la aceeași adresă, nu mai e o canisă — e un robot.
 const MAX_INSCRIERI_PE_ORA = 12;
 
+// Câți câini pot fi înscriși pe un singur formular (lot). Cât limita orară: o canisă mare
+// îi trece pe toți dintr-o dată, dar un număr mai mare de-atât nu mai e o înscriere reală.
+const MAX_CAINI_PE_LOT = 12;
+
 // Clasele WDF și intervalele de vârstă (luni la data expoziției). Trebuie ținute în acord
 // cu lib/domeniu.ts din manager.
 const VARSTA = {
@@ -266,6 +270,8 @@ export default async (req) => {
       return json({ verificari });
     }
     if (body.actiune === "marcheaza") {
+      const dovezi = new Set();
+      let showIdLot = "";
       for (const key of body.chei || []) {
         // Marcarea are treabă NUMAI cu înscrierile din coadă. Fără îngrădire, cheile din
         // cerere ar fi o unealtă de scris peste orice din magazie — configurații, stări —
@@ -275,13 +281,29 @@ export default async (req) => {
           const i = await store.get(key, { type: "json" });
           if (i) {
             await store.setJSON(key, { ...i, importat: true });
-            // Dovada plății e o dată personală: odată importată în manager, copia din
-            // cloud nu mai are rost — o ștergem.
-            if (i.dovadaKey) await store.delete(i.dovadaKey).catch(() => {});
+            if (i.dovadaKey) { dovezi.add(i.dovadaKey); if (!showIdLot) showIdLot = i.showId || key.split("/")[1]; }
           }
         } catch (err) {
           console.error("Marcare eșuată:", err);
         }
+      }
+      // Dovada plății e o dată personală: odată importată, copia din cloud nu mai are rost.
+      // DAR o dovadă poate fi comună mai multor câini dintr-un lot — o ștergem abia când
+      // toți câinii care o folosesc au fost importați, altfel registratura ar rămâne fără
+      // ea pentru restul lotului.
+      if (dovezi.size && showIdLot) {
+        let inca = new Set();
+        try {
+          const { blobs } = await store.list({ prefix: "coada/" + showIdLot + "/" });
+          for (const b of blobs) {
+            const i = await store.get(b.key, { type: "json" }).catch(() => null);
+            if (i && i.importat !== true && i.dovadaKey) inca.add(i.dovadaKey);
+          }
+        } catch (err) {
+          console.error("Verificarea dovezilor de lot a eșuat:", err);
+          inca = dovezi; // la eroare, nu ștergem nimic (mai bine o dovadă rămasă decât una pierdută)
+        }
+        for (const dk of dovezi) if (!inca.has(dk)) await store.delete(dk).catch(() => {});
       }
       return json({ ok: true });
     }
@@ -379,20 +401,9 @@ export default async (req) => {
   if (!config) return json({ eroare: "Expoziție inexistentă." }, 404);
   if (inchisPentruInscrieri(config)) return json({ eroare: "Înscrierile pentru această expoziție nu mai sunt deschise." }, 400);
 
-  const numeCaine = String(body.numeCaine || "").trim();
-  const rasaId = String(body.rasaId || "");
-  const sex = String(body.sex || "");
-  const dataNasterii = String(body.dataNasterii || "");
-  const clasa = String(body.clasa || "");
+  // ——— Blocul comun al proprietarului (o singură dată pentru tot lotul) ———
   const numeProp = String(body.numeProprietar || "").trim();
   const email = String(body.email || "").trim().toLowerCase();
-
-  const rasa = (config.rase || []).find((r) => r.id === rasaId);
-  if (numeCaine.length < 2) return json({ eroare: "Numele câinelui este obligatoriu." }, 400);
-  if (!rasa) return json({ eroare: "Alege o rasă din listă." }, 400);
-  if (!["M", "F"].includes(sex)) return json({ eroare: "Alege sexul câinelui." }, 400);
-  if (!dataNasterii || isNaN(new Date(dataNasterii).getTime())) return json({ eroare: "Data nașterii este invalidă." }, 400);
-  if (!VARSTA[clasa]) return json({ eroare: "Alege clasa de concurs." }, 400);
   if (numeProp.length < 3) return json({ eroare: "Numele proprietarului este obligatoriu." }, 400);
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ eroare: "Email invalid." }, 400);
   if (String(body.gdpr || "") !== "1") return json({ eroare: "Trebuie să accepți prelucrarea datelor (GDPR)." }, 400);
@@ -400,57 +411,97 @@ export default async (req) => {
   // formular: „required" ține de browser, iar cererea poate veni și fără browser.
   if (String(body.normeParticipare || "") !== "1")
     return json({ eroare: "Trebuie să îți asumi normele de participare la expoziție." }, 400);
-  // „Toți câinii participanți trebuie să fie identificați prin microchip, iar datele
-  // acestuia trebuie să corespundă în mod exact cu documentele prezentate"
-  // (Verificarea identității câinilor, 1.1). Era opțional aici, deși în manager e
-  // obligatoriu — a doua cale, negardată.
-  if (String(body.microcip || "").trim().length < 6)
-    return json({ eroare: "Microcipul este obligatoriu (minimum 6 caractere)." }, 400);
-  // Numarul de pedigree e obligatoriu daca exemplarul are pedigree. Exceptia declarata
-  // e calea pedigree-ului de tipicitate (caine de rasa fara acte). Verificat si pe
-  // server, nu doar in browser.
-  if (String(body.pedigreeTipicitate || "") !== "1" && String(body.pedigree || "").trim().length < 2)
-    return json({ eroare: "Numărul de pedigree este obligatoriu. Dacă exemplarul nu are acte, bifează pedigree de tipicitate." }, 400);
-  if (!clasaValida(clasa, dataNasterii, config.data))
-    return json({ eroare: "Vârsta câinelui la data expoziției nu se încadrează în clasa aleasă." }, 400);
 
-  // ——— Taxa de înscriere: când expoziția are taxă pe clasa aleasă, cerem declarația de
-  // plată și dovada (poză/PDF). Dovada NU confirmă plata — secretariatul o verifică și
-  // abia el marchează plata drept confirmată în manager.
-  //
-  // Grila nouă taxează după trei lucruri, nu după clasa de concurs: e membru, e
-  // primul lui câine la această expoziție, e student. Declarațiile vin din formular,
-  // dar suma NU: ea se recalculează aici, altfel oricine ar putea trimite „taxa: 0".
+  // Un formular = unul sau mai mulți câini. Forma VECHE (câmpuri de câine la nivelul de
+  // sus) rămâne validă: o tratăm ca pe un lot de unul. Forma nouă trimite `caini: [ … ]`.
+  // În oricare caz, în coadă ajung fișe cu CÂTE UN câine — exact ce importă managerul.
+  const caini = Array.isArray(body.caini) && body.caini.length ? body.caini : [body];
+  if (caini.length > MAX_CAINI_PE_LOT)
+    return json({ eroare: "Prea mulți câini pe un singur formular (maximum " + MAX_CAINI_PE_LOT + ")." }, 400);
+
   const declaraMembru = String(body.esteMembru || "") === "1";
   const declaraStudent = String(body.esteStudent || "") === "1";
-  const declaraPrimul = String(body.primulCaine || "1") === "1";
-
   const grila = config.tarif || null;
   let inainte = 0;
   if (grila) {
     const fisa = await store.get(cheieProprietar(showId, email), { type: "json" }).catch(() => null);
     inainte = Number(fisa && fisa.caini) || 0;
   }
-  // Adevărul îl spune contorul, nu bifa. Cine zice „nu e primul" fără să fi înscris
-  // nimic ar plăti mai puțin decât trebuie — pe ăsta îl oprim, cu suma corectă în
-  // mesaj, fiindcă e informație despre propriile lui înscrieri.
-  const primul = inainte === 0;
-  if (!declaraPrimul && primul && grila) {
-    const corecta = calculeazaTaxa(grila, { membru: declaraMembru, primul: true, student: declaraStudent, clasa });
-    return json({
-      eroare: "Aceasta este prima ta înscriere la această expoziție, deci taxa este de " +
-        corecta + " lei, nu cea pentru al doilea câine. Corectează răspunsul și reia plata dacă e nevoie.",
-    }, 400);
+
+  // Validăm și pregătim TOȚI câinii înainte de a scrie ceva: dacă unul e invalid, se
+  // respinge tot lotul, cu mesaj pe câinele cu pricina (nimic pe jumătate). Taxa se
+  // calculează AUTORITAR, în ordinea lotului (primul / următorii), nu după o bifă.
+  const pregatite = [];
+  let total = 0;
+  for (let j = 0; j < caini.length; j++) {
+    const d = caini[j] || {};
+    const numeCaine = String(d.numeCaine || "").trim();
+    const et = "Câinele " + (j + 1) + (numeCaine ? " (" + numeCaine + ")" : "") + ": ";
+    const rasaId = String(d.rasaId || "");
+    const sex = String(d.sex || "");
+    const dataNasterii = String(d.dataNasterii || "");
+    const clasa = String(d.clasa || "");
+    const rasa = (config.rase || []).find((r) => r.id === rasaId);
+    if (numeCaine.length < 2) return json({ eroare: et + "numele câinelui este obligatoriu." }, 400);
+    if (!rasa) return json({ eroare: et + "alege o rasă din listă." }, 400);
+    if (!["M", "F"].includes(sex)) return json({ eroare: et + "alege sexul." }, 400);
+    if (!dataNasterii || isNaN(new Date(dataNasterii).getTime())) return json({ eroare: et + "data nașterii este invalidă." }, 400);
+    if (!VARSTA[clasa]) return json({ eroare: et + "alege clasa de concurs." }, 400);
+    // Microcipul e obligatoriu (identificarea WDF); pedigree-ul e obligatoriu dacă nu e
+    // pe calea tipicității. Aceleași reguli ca înainte, aplicate fiecărui câine.
+    if (String(d.microcip || "").trim().length < 6) return json({ eroare: et + "microcipul este obligatoriu (minimum 6 caractere)." }, 400);
+    if (String(d.pedigreeTipicitate || "") !== "1" && String(d.pedigree || "").trim().length < 2)
+      return json({ eroare: et + "numărul de pedigree este obligatoriu. Dacă exemplarul nu are acte, bifează pedigree de tipicitate." }, 400);
+    if (!clasaValida(clasa, dataNasterii, config.data))
+      return json({ eroare: et + "vârsta la data expoziției nu se încadrează în clasa aleasă." }, 400);
+
+    const primul = (inainte + j) === 0;
+    const taxa = grila
+      ? calculeazaTaxa(grila, { membru: declaraMembru, primul, student: declaraStudent, clasa })
+      : taxaVeche(config.taxe, clasa);
+    total += taxa;
+
+    const inscriere = {
+      showId,
+      // Marcajul călătorește cu înscrierea, nu se deduce din configurație: registratura și
+      // managerul trebuie să vadă „e o repetiție" chiar dacă se uită la fișă peste o
+      // săptămână, când configurația a fost deja ștearsă.
+      ...(eRepetitie(config) ? { repetitie: true } : {}),
+      numeCaine: numeCaine.slice(0, 120),
+      rasaId,
+      rasaNumeRo: rasa.numeRo,
+      sex,
+      dataNasterii,
+      pedigree: String(d.pedigree || "").trim().slice(0, 60) || null,
+      pedigreeTipicitate: String(d.pedigreeTipicitate || "") === "1",
+      microcip: String(d.microcip || "").trim().slice(0, 60) || null,
+      crescator: String(d.crescator || "").trim().slice(0, 120) || null,
+      // Art. 21 lit. f — se tipăresc în catalog; managerul le preia la import.
+      culoareRoba: String(d.culoareRoba || "").trim().slice(0, 120) || null,
+      tata: String(d.tata || "").trim().slice(0, 120) || null,
+      mama: String(d.mama || "").trim().slice(0, 120) || null,
+      clasa,
+      numeProprietar: numeProp.slice(0, 120),
+      email,
+      telefon: String(body.telefon || "").trim().slice(0, 40) || null,
+      adresa: String(body.adresa || "").trim().slice(0, 200) || null,
+      tara: String(body.tara || "").trim().slice(0, 60) || null,
+      creat: new Date().toISOString(),
+      asumari: { norme: versiuneaNormelor(), gdpr: true, la: new Date().toISOString() },
+      importat: false,
+      taxa,
+    };
+    if (grila) {
+      inscriere.declaratii = { membru: declaraMembru, student: declaraStudent, primulDeclarat: primul, caineNr: inainte + j + 1 };
+    }
+    pregatite.push({ inscriere, taxa });
   }
 
-  const taxa = grila
-    ? calculeazaTaxa(grila, { membru: declaraMembru, primul, student: declaraStudent, clasa })
-    : taxaVeche(config.taxe, clasa);
+  // ——— Plata: o singură dovadă pentru tot lotul, pe suma TOTALĂ. Suma se recalculează
+  // aici (nu se ia din formular), altfel oricine ar putea trimite „taxa: 0". ———
   const amPlatit = String(body.amPlatit || "") === "1";
   const TIPURI_DOVADA = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf"]);
-  let dovadaBuf = null;
-  let dovadaTip = null;
-  let dovadaNume = null;
+  let dovadaBuf = null, dovadaTip = null, dovadaNume = null;
   if (body.dovadaBase64) {
     if (String(body.dovadaBase64).length > 6_000_000)
       return json({ eroare: "Dovada plății depășește 4 MB — trimite o poză mai mică sau un PDF." }, 400);
@@ -466,106 +517,56 @@ export default async (req) => {
       return json({ eroare: "Dovada plății depășește 4 MB — trimite o poză mai mică sau un PDF." }, 400);
     dovadaNume = String(body.dovadaNume || "dovada").replace(/[^\w.\-]/g, "_").slice(0, 80);
   }
-  if (taxa > 0) {
+  if (total > 0) {
     if (!amPlatit)
-      return json({ eroare: "Bifează că ai plătit taxa de înscriere (" + taxa + " lei) — plata se face înainte de trimiterea înscrierii." }, 400);
+      return json({ eroare: "Bifează că ai plătit taxa de înscriere (" + total + " lei în total) — plata se face înainte de trimiterea înscrierii." }, 400);
     if (!dovadaBuf)
       return json({ eroare: "Atașează dovada plății taxei de înscriere (poză sau PDF)." }, 400);
   }
 
-  const inscriere = {
-    showId,
-    // Marcajul călătorește cu înscrierea, nu se deduce din configurație: registratura și
-    // managerul trebuie să vadă „e o repetiție" chiar dacă se uită la fișă peste o
-    // săptămână, când configurația a fost deja ștearsă.
-    ...(eRepetitie(config) ? { repetitie: true } : {}),
-    numeCaine: numeCaine.slice(0, 120),
-    rasaId,
-    rasaNumeRo: rasa.numeRo,
-    sex,
-    dataNasterii,
-    pedigree: String(body.pedigree || "").trim().slice(0, 60) || null,
-    pedigreeTipicitate: String(body.pedigreeTipicitate || "") === "1",
-    microcip: String(body.microcip || "").trim().slice(0, 60) || null,
-    crescator: String(body.crescator || "").trim().slice(0, 120) || null,
-    // Art. 21 lit. f — se tipăresc în catalog; managerul le preia la import.
-    culoareRoba: String(body.culoareRoba || "").trim().slice(0, 120) || null,
-    tata: String(body.tata || "").trim().slice(0, 120) || null,
-    mama: String(body.mama || "").trim().slice(0, 120) || null,
-    clasa,
-    numeProprietar: numeProp.slice(0, 120),
-    email,
-    telefon: String(body.telefon || "").trim().slice(0, 40) || null,
-    adresa: String(body.adresa || "").trim().slice(0, 200) || null,
-    tara: String(body.tara || "").trim().slice(0, 60) || null,
-    creat: new Date().toISOString(),
-    // Ce anume și-a asumat omul, nu doar că a bifat. Versiunea e amprenta textului
-    // normelor din clipa înscrierii: dacă normele se schimbă mâine, fișa asta arată în
-    // continuare spre textul vechi, cel pe care l-a citit el. La fel pentru GDPR, care
-    // până acum se verifica și se uita.
-    asumari: { norme: versiuneaNormelor(), gdpr: true, la: new Date().toISOString() },
-    importat: false,
-  };
-
-  const sufix = Date.now() + "-" + Math.random().toString(36).slice(2, 8);
-  const key = "coada/" + showId + "/" + sufix;
+  // ——— Scriere: N fișe cu câte un câine (exact ce importă managerul), o singură dovadă ———
+  const lotSufix = Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+  let dovadaKey = null;
   if (dovadaBuf) {
-    const dovadaKey = "dovada/" + showId + "/" + sufix;
+    dovadaKey = "dovada/" + showId + "/" + lotSufix;
     await store.set(dovadaKey, dovadaBuf, { metadata: { tip: dovadaTip, nume: dovadaNume } });
-    inscriere.dovadaKey = dovadaKey;
-    inscriere.dovadaTip = dovadaTip;
-    inscriere.dovadaNume = dovadaNume;
   }
-  inscriere.amPlatit = amPlatit;
-  inscriere.taxa = taxa;
+  const eLot = pregatite.length > 1;
+  for (let j = 0; j < pregatite.length; j++) {
+    const inscriere = pregatite[j].inscriere;
+    inscriere.amPlatit = amPlatit;
+    if (dovadaKey) { inscriere.dovadaKey = dovadaKey; inscriere.dovadaTip = dovadaTip; inscriere.dovadaNume = dovadaNume; }
+    if (eLot) { inscriere.lotId = lotSufix; inscriere.lotPozitie = j + 1; inscriere.lotDin = pregatite.length; inscriere.lotTaxaTotala = total; }
+    await store.setJSON("coada/" + showId + "/" + lotSufix + "-" + (j + 1), inscriere);
+  }
   if (grila) {
-    // Declarațiile se păstrează lângă înscriere: secretariatul le vede la import și
-    // le confirmă. Nu verificăm aici calitatea de membru — registrul de acces al
-    // asociației conține doar membrii cărora li s-a emis cod, deci o „nepotrivire"
-    // n-ar dovedi nimic, în schimb ar refuza prețul corect unui membru real.
-    inscriere.declaratii = {
-      membru: declaraMembru,
-      student: declaraStudent,
-      primulDeclarat: declaraPrimul,
-      caineNr: inainte + 1,
-    };
-    // Cine bifează „primul câine" deși mai are înscrieri plătește mai mult decât
-    // trebuie. Nu-l oprim din drum — îi reținem suma corectă și lăsăm o notă, ca
-    // secretariatul să-i întoarcă diferența.
-    if (declaraPrimul && !primul) {
-      const cePlatise = calculeazaTaxa(grila, { membru: declaraMembru, primul: true, student: declaraStudent, clasa });
-      if (cePlatise !== taxa) {
-        inscriere.taxaObservatie =
-          "A declarat primul câine, dar este al " + (inainte + 1) + "-lea: a putut plăti " +
-          cePlatise + " lei în loc de " + taxa + " lei.";
-      }
-    }
     try {
       await store.setJSON(cheieProprietar(showId, email), {
-        caini: inainte + 1, nume: inscriere.numeProprietar, actualizat: inscriere.creat,
+        caini: inainte + pregatite.length, nume: numeProp.slice(0, 120), actualizat: new Date().toISOString(),
       });
     } catch (err) {
-      // Contorul e o comoditate, nu o poartă: dacă scrierea cade, înscrierea rămâne
-      // validă și al doilea câine va fi taxat ca primul — secretariatul corectează.
+      // Contorul e o comoditate, nu o poartă: dacă scrierea cade, înscrierile rămân valide.
       console.error("Contorul de câini pe proprietar nu s-a putut actualiza:", err);
     }
   }
-  await store.setJSON(key, inscriere);
 
-  // Email de confirmare (Brevo), dacă e configurat.
+  // ——— Un singur e-mail de confirmare, cu toți câinii și totalul ———
   const apiKey = process.env.BREVO_API_KEY;
   if (apiKey) {
-    const html = `<p>Bună, ${numeProp.replace(/</g, "&lt;")},</p>
-      <p>Am primit înscrierea câinelui <b>${numeCaine.replace(/</g, "&lt;")}</b> (${rasa.numeRo}) la expoziția <b>${config.nume}</b> (${config.data}).</p>
-      ${taxa > 0 ? `<p>Taxa de înscriere pentru această fișă: <b>${taxa} lei</b>.</p>` : ""}
-      ${taxa > 0 && config.organizator?.iban
+    const linii = pregatite.map((x) =>
+      `<li><b>${escapeHtml(x.inscriere.numeCaine)}</b> (${escapeHtml(x.inscriere.rasaNumeRo)})${x.taxa > 0 ? " — " + x.taxa + " lei" : ""}</li>`).join("");
+    const html = `<p>Bună, ${escapeHtml(numeProp)},</p>
+      <p>Am primit înscrierea ${pregatite.length === 1 ? "câinelui" : "celor " + pregatite.length + " câini"} la expoziția <b>${escapeHtml(config.nume)}</b> (${escapeHtml(config.data)}):</p>
+      <ul>${linii}</ul>
+      ${total > 0 ? `<p>Total taxă de înscriere: <b>${total} lei</b>.</p>` : ""}
+      ${total > 0 && config.organizator?.iban
         // Contul în care s-a plătit, scris și în e-mail: peste o lună, când cineva
         // caută plata în extras, are unde verifica beneficiarul fără să sune.
         ? `<p style="color:#555">Plata se face în contul organizatorului: <b>${escapeHtml(config.organizator.nume)}</b><br>` +
           `<span style="font-family:monospace">${escapeHtml(config.organizator.iban)}</span>` +
           `${config.organizator.banca ? " · " + escapeHtml(config.organizator.banca) : ""}</p>`
         : ""}
-      <p>După verificarea de către secretariat vei primi e-mailul de validare, iar la închiderea catalogului — numărul de concurs și ecusonul de tipărit.</p>
+      <p>După verificarea de către secretariat vei primi e-mailul de validare, iar la închiderea catalogului — numerele de concurs și ecusoanele de tipărit.</p>
       <p>— Club Federal Chinologic Royal · World Dog Federation</p>`;
     try {
       await fetch("https://api.brevo.com/v3/smtp/email", {
@@ -583,5 +584,5 @@ export default async (req) => {
     }
   }
 
-  return json({ ok: true });
+  return json({ ok: true, caini: pregatite.length, total });
 };
