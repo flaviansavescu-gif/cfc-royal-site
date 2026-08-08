@@ -76,12 +76,12 @@
     source before examination or judging use.
   ============================================================================
 -->
-<html lang="ro">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Explorator de standarde CFC-Royal</title>
-  <meta name="description" content="Explorator de standarde de rasă orientat pe cadrul WDF, pentru formarea arbitrilor, analiza raselor și referință chinologică profesională." />
+  <title>CFCR Breed Standards Explorer</title>
+  <meta name="description" content="A WDF-oriented breed standards explorer for judge education, breed analysis, and professional cynology reference." />
   <!-- Aplicația nu e publică: se folosește doar din Școala de Arbitraj, cu cod de
        lector/arbitru. Nu vrem s-o găsească nimeni prin căutare. -->
   <meta name="robots" content="noindex, nofollow" />
@@ -96,34 +96,34 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Standarde CFC-Royal" />
+  <meta name="apple-mobile-web-app-title" content="CFCR Standards" />
 
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body data-pagefind-ignore>
-  <a href="#main" class="skip-link">Sari la conținutul principal</a>
+  <a href="#main" class="skip-link">Skip to main content</a>
 
   <!-- Header -->
   <header class="app-header">
-    <button id="mobileNavToggle" class="btn btn-ghost mobile-nav-toggle" aria-label="Comută navigarea">☰</button>
+    <button id="mobileNavToggle" class="btn btn-ghost mobile-nav-toggle" aria-label="Toggle navigation">☰</button>
     <div class="brand">
       <div class="brand-mark" aria-hidden="true">BS</div>
       <div class="brand-text">
-        <div class="brand-title">Explorator de standarde CFC-Royal</div>
-        <div class="brand-sub">Cadrul World Dog Federation</div>
+        <div class="brand-title">CFCR Breed Standards Explorer</div>
+        <div class="brand-sub">World Dog Federation framework</div>
       </div>
     </div>
 
     <div class="global-search" role="search">
       <span class="search-icon" aria-hidden="true">🔍</span>
-      <label for="globalSearch" class="visually-hidden">Caută rase, defecte, anatomie, note</label>
-      <input id="globalSearch" type="text" placeholder="Caută rase, defecte, anatomie, pedagogie…  (apasă / pentru focus)" autocomplete="off" />
+      <label for="globalSearch" class="visually-hidden">Search breeds, faults, anatomy, notes</label>
+      <input id="globalSearch" type="text" placeholder="Search breeds, faults, anatomy, pedagogy…  (press / to focus)" autocomplete="off" />
     </div>
 
     <div class="header-actions">
-      <button id="btnImport" class="btn btn-sm" title="Importă set de date JSON">⭳ <span class="btn-label">Importă JSON</span></button>
-      <button id="btnExport" class="btn btn-sm" title="Exportă set de date JSON">⭱ <span class="btn-label">Exportă JSON</span></button>
-      <button id="btnAdd" class="btn btn-sm btn-primary" title="Adaugă rasă nouă">＋ <span class="btn-label">Adaugă rasă</span></button>
+      <button id="btnImport" class="btn btn-sm" title="Import JSON dataset">⭳ <span class="btn-label">Import JSON</span></button>
+      <button id="btnExport" class="btn btn-sm" title="Export JSON dataset">⭱ <span class="btn-label">Export JSON</span></button>
+      <button id="btnAdd" class="btn btn-sm btn-primary" title="Add new breed">＋ <span class="btn-label">Add breed</span></button>
       <!-- Instalarea (PWA) cere un cod de instalare din generatorul administratorului
            (funcția breed-instalare). Nimeni n-o poate instala fără cod. -->
       <button id="btnInstall" class="btn btn-sm" title="Instalează aplicația (necesită cod de instalare)" hidden>⤓ <span class="btn-label">Instalează</span></button>
@@ -133,13 +133,13 @@
 
   <!-- App shell: sidebar + main + optional utility panel -->
   <div class="app-shell" id="appShell">
-    <nav class="sidebar" aria-label="Navigare principală">
+    <nav class="sidebar" aria-label="Primary">
       <div id="sidebarNav"></div>
     </nav>
 
     <main class="main" id="main" tabindex="-1"></main>
 
-    <aside class="utility" id="utility" aria-label="Utilitare rasă" hidden></aside>
+    <aside class="utility" id="utility" aria-label="Breed utilities" hidden></aside>
   </div>
 
   <div class="toast-wrap" id="toastWrap" aria-live="polite"></div>

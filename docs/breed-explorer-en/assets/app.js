@@ -83,262 +83,6 @@
   const MAX_RECENT = 10;
 
   /* ---------------------------------------------------------
-     i18n — traducere interfață (RO). tr() traduce doar șirurile
-     cunoscute (chei exacte); orice altceva (date, nume de rasă)
-     trece neschimbat. Aplicat în el(), td() și toast().
-     Varianta engleză completă e păstrată în docs/breed-explorer-en/.
-     --------------------------------------------------------- */
-  const I18N = {
-    // Navigare + secțiuni sidebar
-    "Explore": "Explorare", "Learn": "Învățare", "Manage": "Administrare",
-    "Dashboard": "Tablou de bord", "Breed List": "Lista raselor", "Compare Breeds": "Compară rase",
-    "Quiz & Exam": "Test & examen", "Curriculum": "Curriculum", "Admin / Edit": "Administrare / Editare",
-    // Grupe WDF (nume complet — afișare; datele rămân în engleză)
-    "Group 1 Shepherd Dogs and Cattle Dogs": "Grupa 1 Câini ciobănești și de vite",
-    "Group 2 Pinscher and Schnauzer Type Dogs – Molossoids and Swiss Cattle Dogs": "Grupa 2 Pinscher și Schnauzer – Molosoizi și câini de vite elvețieni",
-    "Group 3 Terrier Type Dogs": "Grupa 3 Terrieri",
-    "Group 4 Bull Type Dogs": "Grupa 4 Câini de tip bull",
-    "Group 5 Dogs of the Primitive Type": "Grupa 5 Câini de tip primitiv (spitz)",
-    "Group 6 Scenthounds and Related Breeds": "Grupa 6 Copoi și rase înrudite",
-    "Group 7 Pointing Dogs": "Grupa 7 Câini de aret (pointeri)",
-    "Group 8 Retrievers, Flushing and Water Dogs": "Grupa 8 Retrieveri, câini de scos vânatul și de apă",
-    "Group 9 Companion and Toy Dogs": "Grupa 9 Câini de companie și de agrement",
-    "Group 10 Sighthounds": "Grupa 10 Ogari",
-    // Dashboard
-    "A structured WDF-oriented breed-standards workspace for judging preparation, teaching, and quick professional consultation.":
-      "Un spațiu de lucru cu standarde de rasă orientat pe WDF, pentru pregătirea arbitrajului, predare și consultare profesională rapidă.",
-    "Total breeds": "Total rase", "WDF groups represented": "Grupe WDF prezente",
-    "Favorites": "Favorite", "Recently viewed": "Vizualizate recent",
-    "Quick filter by group": "Filtru rapid pe grupă",
-    "About this tool": "Despre acest instrument",
-    "CFCR Breed Standards Explorer is a professional reference and teaching instrument built around the World Dog Federation (WDF) framework. It separates official standard data, faults, pedagogical notes, and private internal notes so that judges and candidates can study, compare, and prepare with clarity.":
-      "Exploratorul de standarde CFC-Royal este un instrument profesional de referință și predare, construit pe cadrul World Dog Federation (WDF). Separă datele oficiale ale standardului, defectele, notele pedagogice și notele interne private, astfel încât arbitrii și candidații să studieze, să compare și să se pregătească cu claritate.",
-    "The canonical dataset is a JSON file you can <strong>import</strong> and <strong>export</strong> at any time. Favorites, recently viewed breeds, and UI preferences are kept in your browser for convenience only.":
-      "Setul de date canonic este un fișier JSON pe care îl poți <strong>importa</strong> și <strong>exporta</strong> oricând. Favoritele, rasele vizualizate recent și preferințele de interfață se păstrează în browser doar pentru comoditate.",
-    "No breeds viewed yet. Open a breed profile to see it here.": "Nicio rasă vizualizată încă. Deschide profilul unei rase ca s-o vezi aici.",
-    "No favorites yet. Mark breeds with the star to pin them here.": "Nicio favorită încă. Marchează rasele cu steluța ca să le fixezi aici.",
-    // Lista raselor + filtre
-    "Search, filter, and sort the WDF standards database.": "Caută, filtrează și sortează baza de standarde WDF.",
-    "＋ Add breed": "＋ Adaugă rasă", "Add breed": "Adaugă rasă", "Add new breed": "Adaugă rasă nouă",
-    "Sort": "Sortare", "Alphabetic": "Alfabetic", "Group": "Grupă", "Country": "Țară", "Recently updated": "Actualizate recent",
-    "☆ Save search": "☆ Salvează căutarea", "Clear all": "Șterge tot",
-    "Exam-relevant": "Relevante la examen", "Difficult breeds": "Rase dificile", "Often confused": "Adesea confundate",
-    "Missing pedagogy": "Fără pedagogie", "Incomplete source": "Sursă incompletă", "Has disqualifying faults": "Are defecte eliminatorii",
-    "Marked exam_relevance in the data": "Marcate cu relevanță la examen în date",
-    "Marked difficulty_level high": "Marcate cu dificultate ridicată",
-    "Has frequent confusions or similar breeds": "Au confuzii frecvente ori rase similare",
-    "No pedagogical notes recorded": "Fără note pedagogice înregistrate",
-    "Missing source URL or references": "Fără URL sursă ori referințe",
-    "At least one disqualifying fault": "Cel puțin un defect eliminatoriu",
-    "Saved:": "Salvate:", "Recent:": "Recente:", "Active:": "Active:",
-    "Apply saved search": "Aplică căutarea salvată", "Delete": "Șterge",
-    "WDF status": "Statut WDF", "Coat type": "Tip de blană", "Functional type": "Tip funcțional",
-    "Pedagogical notes": "Note pedagogice", "Has notes": "Are note", "No notes": "Fără note",
-    "Difficulty": "Dificultate", "Study track": "Traseu de studiu", "All": "Toate",
-    "Breed": "Rasă", "Status": "Statut", "Coat / Type": "Blană / Tip", "Updated": "Actualizat",
-    "No breeds match your search and filters. Try clearing some filters.": "Nicio rasă nu corespunde căutării și filtrelor. Încearcă să elimini niște filtre.",
-    "Remove from favorites": "Scoate de la favorite", "Add to favorites": "Adaugă la favorite",
-    // Profil rasă — taburi
-    "Identity": "Identitate", "General Profile": "Profil general", "Anatomy / Structure": "Anatomie / Structură",
-    "Temperament": "Temperament", "Faults": "Defecte", "Judge Checklist": "Fișă de arbitraj",
-    "References": "Referințe", "Version & Audit": "Versiune & audit",
-    "Favorite": "Favorită", "⇄ Compare": "⇄ Compară", "✎ Edit": "✎ Editează",
-    "⎙ Print": "⎙ Tipărește", "⬇ Word": "⬇ Word", "⬇ Revision sheet": "⬇ Fișă de recapitulare",
-    "Pedagogical notes": "Note pedagogice", "Not recognized": "Nerecunoscută",
-    // Statut / verificare / recunoaștere
-    "Recognized": "Recunoscută", "Provisional": "Provizorie", "Observation": "În observație",
-    "✓ Source verified": "✓ Sursă verificată", "Source unverified": "Sursă neverificată",
-    "⚠ Source conflicting": "⚠ Sursă contradictorie", "⚠ Imported — not yet reviewed": "⚠ Importat — încă nerevizuit",
-    // Blocuri profil (titluri secțiuni)
-    "Identity": "Identitate", "General Profile": "Profil general",
-    "Official name": "Nume oficial", "Alternate names": "Nume alternative", "Internal ID": "ID intern",
-    "WDF group": "Grupă WDF", "Country of origin / owner": "Țara de origine / patronaj",
-    "WDF recognition status": "Statut de recunoaștere WDF", "Source standard title": "Titlul standardului-sursă",
-    "Source standard URL": "URL standard-sursă", "Last updated": "Ultima actualizare",
-    "❖ Classification & study metadata": "❖ Clasificare & metadate de studiu",
-    "Difficulty level": "Nivel de dificultate", "Exam relevance": "Relevanță la examen",
-    "Teaching priority": "Prioritate la predare", "Revision status": "Statut de revizuire",
-    "Source verification": "Verificarea sursei", "Study tracks": "Trasee de studiu", "Thematic tags": "Etichete tematice",
-    "Recurring judge observations": "Observații recurente ale arbitrilor",
-    "Classification": "Clasificare", "Standard published": "Standard publicat",
-    "Country of development": "Țara de dezvoltare", "Historical function": "Funcție istorică",
-    "Brief historical summary": "Scurt istoric", "General impression": "Aspect general",
-    "Important proportions": "Proporții importante", "Sexual dimorphism": "Dimorfism sexual",
-    "Ideal type summary": "Rezumatul tipului ideal",
-    "Anatomy & Structure · Official standard data": "Anatomie & structură · Date oficiale de standard",
-    // Anatomie — etichete câmpuri
-    "Head": "Cap", "Skull": "Craniu", "Stop": "Stop", "Muzzle": "Bot", "Jaws & Teeth": "Fălci & dinți",
-    "Eyes": "Ochi", "Ears": "Urechi", "Neck": "Gât", "Topline": "Linia superioară", "Body": "Corp",
-    "Chest": "Torace", "Tail": "Coadă", "Forequarters": "Membre anterioare", "Hindquarters": "Membre posterioare",
-    "Feet": "Picioare", "Movement": "Mișcare", "Coat": "Blană", "Colour": "Culoare", "Size & Weight": "Talie & greutate", "Skin": "Piele",
-    // Temperament
-    "Temperament / Expression": "Temperament / Expresie", "Behavior": "Comportament",
-    "Ring attitude": "Atitudine în ring", "Expression": "Expresie", "Temperament notes": "Note de temperament",
-    // Defecte
-    "⚠ Faults": "⚠ Defecte", "Minor faults": "Defecte minore", "Serious faults": "Defecte grave",
-    "Disqualifying faults": "Defecte eliminatorii", "Minor": "Minor", "Serious": "Grav", "Disqualifying": "Eliminatoriu",
-    "None recorded.": "Niciunul înregistrat.",
-    // Pedagogie
-    "✎ Pedagogical notes · Teaching layer (not official standard text)": "✎ Note pedagogice · Strat didactic (nu e text oficial de standard)",
-    "Frequent confusions": "Confuzii frecvente", "Key recognition markers": "Markeri-cheie de recunoaștere",
-    "Judge notes": "Note ale arbitrului", "Teaching notes": "Note didactice", "Similar breeds": "Rase similare",
-    "🔒 Internal / private notes": "🔒 Note interne / private", "🔒 Internal source notes": "🔒 Note interne despre sursă",
-    // Fișă de arbitraj
-    "☑ Judge checklist": "☑ Fișă de arbitraj", "Judge checklist": "Fișă de arbitraj", "First impression": "Prima impresie",
-    "Static examination": "Examinare statică", "Movement examination": "Examinarea mișcării",
-    "Final attention points": "Puncte finale de atenție", "Key markers": "Markeri-cheie", "Actions": "Acțiuni",
-    "Static": "Static", "Final": "Final", "No checklist items recorded.": "Nicio poziție în fișă înregistrată.",
-    "⎙ Print this profile": "⎙ Tipărește acest profil", "⇄ Use in comparison": "⇄ Folosește la comparație",
-    "✎ Edit this breed": "✎ Editează această rasă",
-    // Referințe
-    "Type": "Tip", "Title": "Titlu", "URL": "URL", "Accessed on": "Accesat la",
-    "Official source": "Sursă oficială", "Source URL": "URL sursă",
-    // Audit
-    "⌗ Version & audit": "⌗ Versiune & audit", "Current version": "Versiunea curentă", "Last revised": "Ultima revizuire",
-    "Change log": "Jurnal de modificări", "Field": "Câmp", "current": "curentă",
-    "No prior versions recorded yet. From now on, each saved edit stores a snapshot here so you can review and compare what changed.":
-      "Nicio versiune anterioară înregistrată încă. De acum, fiecare salvare stochează aici o copie, ca să poți revedea și compara ce s-a schimbat.",
-    "No field differences versus the current version.": "Nicio diferență de câmp față de versiunea curentă.",
-    // Compară
-    "Compare 2 or 3 breeds in a section-based matrix. Differing rows are highlighted. Teaching mode surfaces likely confusions and what to observe first.":
-      "Compară 2 sau 3 rase într-o matrice pe secțiuni. Rândurile diferite sunt evidențiate. Modul didactic scoate la iveală confuziile probabile și ce trebuie observat întâi.",
-    "Breed A": "Rasa A", "Breed B": "Rasa B", "Breed C (optional)": "Rasa C (opțional)",
-    "— Select —": "— Alege —", "— None —": "— Niciuna —",
-    "Select at least two different breeds to build a comparison. Add a third for a matrix view.":
-      "Alege cel puțin două rase diferite pentru o comparație. Adaugă o a treia pentru o matrice.",
-    "🎓 Teaching mode": "🎓 Mod didactic", "⇄ Swap": "⇄ Inversează", "✕ Remove C": "✕ Scoate C",
-    "General type": "Tip general", "Size & proportions": "Talie & proporții", "Size & weight": "Talie & greutate",
-    "Head & expression": "Cap & expresie", "Body & skin": "Corp & piele", "Coat & colour": "Blană & culoare",
-    "Highlighted rows indicate a meaningful difference between the breeds.": "Rândurile evidențiate arată o diferență semnificativă între rase.",
-    "🎓 Teaching compare — likely confusions & what to observe first": "🎓 Comparație didactică — confuzii probabile & ce observi întâi",
-    "Likely confusions": "Confuzii probabile", "What to observe first": "Ce observi întâi",
-    "No breeds in this set are recorded as commonly confused with each other.": "Nicio rasă din acest set nu e înregistrată ca fiind confundată frecvent cu alta.",
-    "commonly confused. Separate them by their key markers below.": "confundate frecvent. Separă-le după markerii-cheie de mai jos.",
-    // Quiz
-    "Self-assessment generated automatically from the breed database. Every standard you add becomes new quiz material.":
-      "Autoevaluare generată automat din baza de rase. Fiecare standard adăugat devine material nou de test.",
-    "Add at least 2 breeds to the database to start a quiz.": "Adaugă cel puțin 2 rase în bază ca să pornești un test.",
-    "Set up a quiz": "Configurează un test", "Scope": "Domeniu", "All breeds": "Toate rasele", "By group": "Pe grupă",
-    "Favorites only": "Doar favorite", "Focus": "Focus", "Mixed": "Mixt", "Identification": "Identificare",
-    "Groups & origin": "Grupe & origine", "Questions": "Întrebări", "Timer": "Cronometru", "Off": "Oprit",
-    "30s / question": "30s / întrebare", "▶ Start quiz": "▶ Pornește testul",
-    "🎓 Exam mode (20, timed)": "🎓 Mod examen (20, cronometrat)", "🃏 Flashcards": "🃏 Cartonașe",
-    "📄 Printable exam (Word)": "📄 Examen tipăribil (Word)",
-    "Generate a printable exam from the current settings and export it to Word": "Generează un examen tipăribil din setările curente și îl exportă în Word",
-    "Session history": "Istoricul sesiunilor", "Clear history": "Șterge istoricul",
-    "No quiz sessions yet. Your scores will appear here.": "Nicio sesiune de test încă. Scorurile tale vor apărea aici.",
-    "Date": "Data", "Mode": "Mod", "Score": "Scor",
-    "Quit": "Renunță", "Results": "Rezultate", "Review": "Recapitulare",
-    "Excellent": "Excelent", "Good": "Bine", "Keep practising": "Continuă exersarea", "Needs review": "Necesită recapitulare",
-    "↻ New quiz (same settings)": "↻ Test nou (aceleași setări)", "⚙ Change settings": "⚙ Schimbă setările",
-    "⬇ Export (Word)": "⬇ Exportă (Word)",
-    "Identification": "Identificare", "Groups": "Grupe", "Origin": "Origine", "Recognition": "Recunoaștere", "Confusions": "Confuzii",
-    "Which breed does this description best match?": "Cărei rase i se potrivește cel mai bine această descriere?",
-    "Minor fault": "Defect minor", "Serious fault": "Defect grav", "Disqualifying fault": "Defect eliminatoriu",
-    "True": "Adevărat", "False": "Fals",
-    "(no answer)": "(fără răspuns)", "(no key markers recorded)": "(niciun marker-cheie înregistrat)",
-    "(untitled lesson)": "(lecție fără titlu)", "Unassigned": "Nealocate",
-    // Flashcards
-    "Close": "Închide", "Tap to reveal key markers ▸": "Atinge pentru markerii-cheie ▸",
-    "← Prev": "← Înapoi", "Flip": "Întoarce", "Next →": "Înainte →", "🔀 Shuffle": "🔀 Amestecă",
-    // Curriculum
-    "Lessons organised into modules, linked to breeds and WDF groups, with objectives, tests, and Word course packs.":
-      "Lecții organizate pe module, legate de rase și grupe WDF, cu obiective, teste și pachete de curs Word.",
-    "＋ Add lesson": "＋ Adaugă lecție", "No lessons yet. Create your first lesson, or import a dataset that includes lessons.":
-      "Nicio lecție încă. Creează prima lecție ori importă un set de date care include lecții.",
-    "Lessons": "Lecții", "Modules": "Module", "Completed": "Finalizate", "In progress": "În curs",
-    "⬇ Course pack": "⬇ Pachet de curs", "⬇ Revision pack": "⬇ Pachet de recapitulare",
-    "Export all lessons in this module + linked breed summaries": "Exportă toate lecțiile din acest modul + rezumatele raselor legate",
-    "Export revision sheets for all breeds in this module": "Exportă fișe de recapitulare pentru toate rasele din acest modul",
-    "Not started": "Neîncepută", "◎ Test": "◎ Test", "◎ Take test": "◎ Dă testul",
-    "Lesson notes": "Notele lecției", "◎ Learning objectives": "◎ Obiective de învățare",
-    "Breeds in this lesson": "Rase în această lecție", "No breeds linked yet. Edit the lesson to link breeds or groups.":
-      "Nicio rasă legată încă. Editează lecția pentru a lega rase ori grupe.",
-    "❖ Recommended reading": "❖ Lecturi recomandate", "Lesson not found.": "Lecția nu a fost găsită.",
-    "Add Lesson": "Adaugă lecție", "Edit lesson": "Editează lecția",
-    "Link breeds and groups; the test is generated from them. Multi-value fields accept one item per line.":
-      "Leagă rase și grupe; testul se generează din ele. Câmpurile cu mai multe valori acceptă un element pe rând.",
-    "Lesson": "Lecție", "Title *": "Titlu *", "Module (grouping)": "Modul (grupare)", "Summary": "Rezumat",
-    "Default test focus": "Focus implicit al testului", "Learning objectives (one per line)": "Obiective de învățare (unul pe rând)",
-    "Lesson notes (blank line = new paragraph)": "Notele lecției (rând gol = paragraf nou)",
-    "Recommended reading (one per line)": "Lecturi recomandate (una pe rând)",
-    "Linked breeds & groups": "Rase & grupe legate", "Breeds": "Rase", "Groups": "Grupe",
-    "The lesson's test draws from the linked breeds plus all breeds in any linked group.":
-      "Testul lecției se alimentează din rasele legate plus toate rasele din orice grupă legată.",
-    "Add lesson": "Adaugă lecția", "Save changes": "Salvează modificările", "Cancel": "Anulează", "Delete lesson": "Șterge lecția",
-    // Admin
-    "Admin / Edit Mode": "Mod administrare / editare",
-    "Add, edit, or delete breed records. Changes are held in memory for this session — export JSON to persist them.":
-      "Adaugă, editează ori șterge fișe de rasă. Modificările sunt ținute în memorie pentru această sesiune — exportă JSON ca să le păstrezi.",
-    "＋ Add new breed": "＋ Adaugă rasă nouă",
-    "No breeds yet. Add one or import a JSON dataset.": "Nicio rasă încă. Adaugă una ori importă un set JSON.",
-    "Ver.": "Ver.", "View": "Vezi", "Edit": "Editează", "Duplicate": "Duplică",
-    // Editor rasă
-    "Fields marked * are required. Multi-value fields accept one item per line.":
-      "Câmpurile marcate cu * sunt obligatorii. Câmpurile cu mai multe valori acceptă un element pe rând.",
-    "Identity & classification": "Identitate & clasificare", "Breed name *": "Nume rasă *",
-    "Alternate names (one per line)": "Nume alternative (unul pe rând)", "WDF group *": "Grupă WDF *",
-    "Country of origin *": "Țara de origine *", "Owner country": "Țara de patronaj", "WDF status *": "Statut WDF *",
-    "General profile": "Profil general", "Classification (section, working trial)": "Clasificare (secțiune, probă de lucru)",
-    "Standard published (source date)": "Standard publicat (data sursei)",
-    "Anatomy / structure": "Anatomie / structură", "Temperament / expression": "Temperament / expresie",
-    "Faults (one per line)": "Defecte (unul pe rând)", "Pedagogical notes (one per line)": "Note pedagogice (una pe rând)",
-    "Judge checklist (one per line)": "Fișă de arbitraj (una pe rând)",
-    "Classification & study metadata (V2)": "Clasificare & metadate de studiu (V2)",
-    "Study track tags (one per line, e.g. bull type, primitive type)": "Etichete de traseu (una pe rând, ex. tip bull, tip primitiv)",
-    "Thematic tags (one per line)": "Etichete tematice (una pe rând)",
-    "Recurring judge observations (one per line)": "Observații recurente ale arbitrilor (una pe rând)",
-    "Internal / private notes": "Note interne / private", "Internal notes (never shown as official data)": "Note interne (nu se afișează niciodată ca date oficiale)",
-    "Versioning": "Versionare", "Add breed": "Adaugă rasa", "Delete breed": "Șterge rasa",
-    "e.g. Corrected muzzle proportion; verified against source": "ex. Corectat proporția botului; verificat față de sursă",
-    // Modale + notificări
-    "Quit quiz": "Renunți la test?", "Clear history": "Șterge istoricul", "Delete lesson": "Șterge lecția",
-    "Delete breed": "Șterge rasa", "Save this search": "Salvează această căutare", "Confirm": "Confirmă",
-    "Your progress in this quiz will be discarded. History is only saved for completed quizzes.":
-      "Progresul din acest test se va pierde. Istoricul se salvează doar pentru testele finalizate.",
-    "Remove all saved quiz results from this browser?": "Ștergi toate rezultatele de test salvate în acest browser?",
-    "Clear": "Șterge", "History cleared.": "Istoric șters.",
-    "Name this combination of search term, filters, sort, and preset so you can reapply it later.":
-      "Denumește această combinație de termen de căutare, filtre, sortare și presetare ca s-o poți reaplica ulterior.",
-    "Name": "Nume", "e.g. Group 1 – needs pedagogy": "ex. Grupa 1 – necesită pedagogie", "Save": "Salvează",
-    "Please enter a name.": "Te rog introdu un nume.", "Nothing to save — set a search, filter, or preset first.": "Nimic de salvat — pune întâi o căutare, un filtru ori o presetare.",
-    "No breeds in the selected scope.": "Nicio rasă în domeniul selectat.",
-    "Lesson title is required.": "Titlul lecției e obligatoriu.", "Lesson added.": "Lecție adăugată.",
-    "Lesson saved.": "Lecție salvată.", "Lesson deleted.": "Lecție ștearsă.",
-    "Please fix the highlighted required fields.": "Te rog corectează câmpurile obligatorii evidențiate.",
-    "Breed deleted.": "Rasă ștearsă.", "Editing a duplicate. Save to add it.": "Editezi un duplicat. Salvează ca să-l adaugi.",
-    "Could not read the file.": "Nu am putut citi fișierul.", "Word document exported.": "Document Word exportat.",
-    "Export breed profile to Word": "Exportă profilul rasei în Word",
-    "Choose whether to include internal / private notes. Student-safe omits them.":
-      "Alege dacă incluzi notele interne / private. Varianta pentru cursanți le omite.",
-    "Student-safe (no private notes)": "Pentru cursanți (fără note private)", "Full (with internal notes)": "Complet (cu note interne)",
-    "Teacher version includes the answer key; student handout omits it.": "Varianta profesorului include cheia de răspunsuri; fișa cursantului o omite.",
-    "Student handout (no answers)": "Fișă cursant (fără răspunsuri)", "Teacher version (with answer key)": "Varianta profesorului (cu cheie)",
-    "Export": "Exportă",
-    // Import / export
-    "Merge (add / update)": "Îmbină (adaugă / actualizează)", "Replace everything": "Înlocuiește tot",
-    // Mesaje quiz / lecții / notificări
-    "You need at least 2 breeds in the selected scope to build a quiz.": "Ai nevoie de cel puțin 2 rase în domeniul selectat pentru a construi un test.",
-    "Not enough data in this scope to generate questions. Add more breed detail (descriptions, faults, markers) or widen the scope.":
-      "Date insuficiente în acest domeniu pentru a genera întrebări. Adaugă mai multe detalii (descrieri, defecte, markeri) ori lărgește domeniul.",
-    "Link at least 2 breeds to this lesson to generate a test.": "Leagă cel puțin 2 rase de această lecție pentru a genera un test.",
-    "No lessons in this module.": "Nicio lecție în acest modul.", "No breeds linked in this module.": "Nicio rasă legată în acest modul.",
-    "Title is required.": "Titlul e obligatoriu.",
-    // Chei suplimentare pentru export Word
-    "Coat / functional type": "Blană / tip funcțional", "Source standard": "Standard-sursă",
-    "Version / last revised": "Versiune / ultima revizuire", "Classification & study metadata": "Clasificare & metadate de studiu",
-    "Ideal type": "Tip ideal", "Key recognition": "Recunoaștere-cheie", "Faults at a glance": "Defecte pe scurt",
-    "Final points": "Puncte finale", "reference": "referință",
-    "Learning objectives": "Obiective de învățare", "Recommended reading": "Lecturi recomandate",
-    // General
-    "Breed not found.": "Rasa nu a fost găsită.",
-  };
-  function tr(s) {
-    if (typeof s !== "string") return s;
-    return Object.prototype.hasOwnProperty.call(I18N, s) ? I18N[s] : s;
-  }
-
-  /* ---------------------------------------------------------
      Safe localStorage wrapper (degrades gracefully)
      --------------------------------------------------------- */
   const store = {
@@ -409,15 +153,14 @@
       for (const k in attrs) {
         if (k === "class") node.className = attrs[k];
         else if (k === "html") node.innerHTML = attrs[k];
-        else if (k === "text") node.textContent = tr(attrs[k]);
+        else if (k === "text") node.textContent = attrs[k];
         else if (k.startsWith("on") && typeof attrs[k] === "function") node.addEventListener(k.slice(2), attrs[k]);
-        else if ((k === "title" || k === "aria-label" || k === "placeholder") && typeof attrs[k] === "string") node.setAttribute(k, tr(attrs[k]));
         else if (attrs[k] != null && attrs[k] !== false) node.setAttribute(k, attrs[k]);
       }
     }
     (Array.isArray(children) ? children : children != null ? [children] : []).forEach((c) => {
       if (c == null) return;
-      node.appendChild(typeof c === "string" ? document.createTextNode(tr(c)) : c);
+      node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
     });
     return node;
   }
@@ -429,20 +172,20 @@
   }
 
   function statusLabel(s) {
-    return { recognized: "Recunoscută", provisional: "Provizorie", observation: "În observație", not_recognized: "Nerecunoscută" }[s] || s || "—";
+    return { recognized: "Recognized", provisional: "Provisional", observation: "Observation", not_recognized: "Not recognized" }[s] || s || "—";
   }
   function verifLabel(s) {
     return {
-      verified: "✓ Sursă verificată",
-      unverified: "Sursă neverificată",
-      conflicting: "⚠ Sursă contradictorie",
+      verified: "✓ Source verified",
+      unverified: "Source unverified",
+      conflicting: "⚠ Source conflicting",
       // „imported" = text extras din documentul standardului, ÎNCĂ NErevizuit de un lector.
-      imported: "⚠ Importat — încă nerevizuit",
+      imported: "⚠ Imported — not yet reviewed",
     }[s] || s || "—";
   }
   function groupShort(g) {
-    const m = /^Group\s+(\d+)/.exec(g || "");
-    return m ? "Grupa " + m[1] : (g || "—");
+    const m = /^(Group \d+)/.exec(g || "");
+    return m ? m[1] : (g || "—");
   }
   function fmtList(arr) { return Array.isArray(arr) ? arr.filter(Boolean).join(", ") : (arr || ""); }
   function isNonEmptyText(v) { return typeof v === "string" && v.trim().length > 0; }
@@ -450,7 +193,7 @@
   let toastTimer;
   function toast(msg, kind) {
     const wrap = $("#toastWrap");
-    const t = el("div", { class: "toast" + (kind ? " " + kind : ""), role: "status", text: tr(msg) });
+    const t = el("div", { class: "toast" + (kind ? " " + kind : ""), role: "status", text: msg });
     wrap.appendChild(t);
     setTimeout(() => { t.style.opacity = "0"; setTimeout(() => t.remove(), 300); }, 3200);
   }
@@ -877,8 +620,8 @@
       // Data generării, la vedere: un arbitru cu aplicația instalată trebuie să știe cât
       // de veche e baza pe care o consultă offline, la expoziție.
       const dataSet = state.meta.generated_on || state.meta.exported_on;
-      const prospetime = dataSet ? " <em>Data setului: " + esc(dataSet) + " · " + state.breeds.length + " rase.</em>" : "";
-      wrap.appendChild(el("div", { class: "dataset-note", html: "<strong>Notă despre date:</strong> " + esc(state.meta.disclaimer) + prospetime }));
+      const prospetime = dataSet ? " <em>Dataset date: " + esc(dataSet) + " · " + state.breeds.length + " breeds.</em>" : "";
+      wrap.appendChild(el("div", { class: "dataset-note", html: "<strong>Dataset notice:</strong> " + esc(state.meta.disclaimer) + prospetime }));
     }
 
     // Stats
@@ -1007,18 +750,18 @@
       el("span", { text: label }),
       el("button", { class: "summary-x", "aria-label": "Remove " + label, onclick: onRemove }, "×"),
     ]));
-    if (state.search.trim()) add('Căutare: "' + state.search.trim() + '"', () => { state.search = ""; syncGlobalSearchInput(); render(); });
+    if (state.search.trim()) add('Search: "' + state.search.trim() + '"', () => { state.search = ""; syncGlobalSearchInput(); render(); });
     const preset = presetByKey(state.list.preset);
-    if (preset) add("Presetare: " + tr(preset.label), () => { state.list.preset = ""; render(); });
+    if (preset) add("Preset: " + preset.label, () => { state.list.preset = ""; render(); });
     const fmap = [
-      ["group", "Grupă", (v) => groupShort(v)],
-      ["country", "Țară", (v) => v],
-      ["status", "Statut", (v) => statusLabel(v)],
-      ["coat", "Blană", (v) => valLabel(v)],
-      ["func", "Tip", (v) => valLabel(v)],
-      ["hasPedagogy", "Pedagogie", (v) => (v === "yes" ? "Are note" : "Fără note")],
-      ["difficulty", "Dificultate", (v) => valLabel(v)],
-      ["track", "Traseu", (v) => v],
+      ["group", "Group", (v) => groupShort(v)],
+      ["country", "Country", (v) => v],
+      ["status", "Status", (v) => statusLabel(v)],
+      ["coat", "Coat", (v) => cap(v)],
+      ["func", "Type", (v) => cap(v)],
+      ["hasPedagogy", "Pedagogy", (v) => (v === "yes" ? "Has notes" : "No notes")],
+      ["difficulty", "Difficulty", (v) => cap(v)],
+      ["track", "Track", (v) => v],
     ];
     fmap.forEach(([key, label, fmt]) => {
       if (f[key]) add(label + ": " + fmt(f[key]), () => { f[key] = ""; render(); });
@@ -1047,7 +790,7 @@
       ]),
       el("button", { class: "btn btn-sm", onclick: saveCurrentSearch, disabled: activeN ? null : "" }, "☆ Save search"),
       el("button", { class: "btn btn-sm btn-ghost", onclick: () => { resetFilters(); state.search = ""; syncGlobalSearchInput(); render(); }, disabled: activeN ? null : "" },
-        "Resetează" + (activeN ? " (" + activeN + ")" : "")),
+        "Reset" + (activeN ? " (" + activeN + ")" : "")),
     ]);
     wrap.appendChild(toolbar);
 
@@ -1059,7 +802,7 @@
       presetRow.appendChild(el("button", {
         class: "chip" + (on ? " active" : ""), title: p.hint,
         onclick: () => { state.list.preset = on ? "" : p.key; render(); },
-      }, tr(p.label) + " · " + count));
+      }, p.label + " · " + count));
     });
     wrap.appendChild(presetRow);
 
@@ -1070,16 +813,16 @@
     // Filters
     const f = state.list.filters;
     const filters = el("div", { class: "filters" }, [
-      filterSelect("Group", uniqueValues("group").map((g) => [g, tr(g)]), f.group, (v) => { f.group = v; render(); }),
+      filterSelect("Group", uniqueValues("group").map((g) => [g, groupShort(g) + " — " + g.replace(/^Group \d+ /, "")]), f.group, (v) => { f.group = v; render(); }),
       filterSelect("Country", uniqueValues("country_of_origin").map((c) => [c, c]), f.country, (v) => { f.country = v; render(); }),
       // Filtrele se construiesc din valorile CHIAR PREZENTE în date, nu dintr-o listă fixă
       // scrisă în cod. Cu lista fixă, 71 de rase cu blană medie/creață/fără păr și 13 de
       // lucru/ogar rămâneau invizibile: filtrul nu le pomenea, deci nu puteau fi găsite.
       filterSelect("WDF status", uniqueValues("wdf_status").map((s) => [s, statusLabel(s)]), f.status, (v) => { f.status = v; render(); }),
-      filterSelect("Coat type", uniqueValues("coat_type").map((c) => [c, valLabel(c)]), f.coat, (v) => { f.coat = v; render(); }),
-      filterSelect("Functional type", uniqueValues("functional_type").map((c) => [c, valLabel(c)]), f.func, (v) => { f.func = v; render(); }),
+      filterSelect("Coat type", uniqueValues("coat_type").map((c) => [c, cap(c)]), f.coat, (v) => { f.coat = v; render(); }),
+      filterSelect("Functional type", uniqueValues("functional_type").map((c) => [c, cap(c)]), f.func, (v) => { f.func = v; render(); }),
       filterSelect("Pedagogical notes", [["yes", "Has notes"], ["no", "No notes"]], f.hasPedagogy, (v) => { f.hasPedagogy = v; render(); }),
-      filterSelect("Difficulty", DIFFICULTY_LEVELS.map((d) => [d, valLabel(d)]), f.difficulty, (v) => { f.difficulty = v; render(); }),
+      filterSelect("Difficulty", DIFFICULTY_LEVELS.map((d) => [d, cap(d)]), f.difficulty, (v) => { f.difficulty = v; render(); }),
     ].concat(uniqueStudyTracks().length ? [filterSelect("Study track", uniqueStudyTracks().map((t) => [t, t]), f.track, (v) => { f.track = v; render(); })] : []));
     wrap.appendChild(filters);
 
@@ -1088,7 +831,7 @@
     if (summary) wrap.appendChild(summary);
 
     const rows = applySearchFilterSort();
-    wrap.appendChild(el("div", { class: "result-count", text: rows.length + " din " + state.breeds.length + " rase" + (state.search ? ' care conțin "' + state.search + '"' : "") }));
+    wrap.appendChild(el("div", { class: "result-count", text: rows.length + " of " + state.breeds.length + " breeds" + (state.search ? ' matching "' + state.search + '"' : "") }));
 
     if (!rows.length) {
       wrap.appendChild(emptyState("🔍", "No breeds match your search and filters. Try clearing some filters."));
@@ -1123,7 +866,7 @@
         td(el("span", { class: "badge badge-group", text: groupShort(b.group) }), "Group"),
         td(b.country_of_origin || "—", "Country"),
         td(el("span", { class: "badge badge-status " + b.wdf_status, text: statusLabel(b.wdf_status) }), "Status"),
-        td(valLabel(b.coat_type) + " · " + valLabel(b.functional_type), "Coat / Type"),
+        td(cap(b.coat_type) + " · " + cap(b.functional_type), "Coat / Type"),
         td(b.last_updated || "—", "Updated"),
       ]);
       tbody.appendChild(tr);
@@ -1134,27 +877,15 @@
   }
 
   function td(content, label, extraClass) {
-    const cell = el("td", { "data-label": tr(label), class: extraClass || "" });
+    const cell = el("td", { "data-label": label, class: extraClass || "" });
     (Array.isArray(content) ? content : [content]).forEach((c) => {
       if (c == null) return;
-      cell.appendChild(typeof c === "string" ? document.createTextNode(tr(c)) : c);
+      cell.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
     });
     return cell;
   }
 
   function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : "—"; }
-  // Etichete RO pentru valorile enumerate (cheile rămân în engleză în date).
-  const VAL_LABELS = {
-    short: "Scurtă", long: "Lungă", wire: "Sârmă", other: "Altul",
-    herding: "Ciobănesc", guard: "Pază", hunting: "Vânătoare", companion: "Companie",
-    "bull type": "Tip bull", primitive: "Primitiv",
-    beginner: "Începător", intermediate: "Intermediar", advanced: "Avansat",
-    low: "Scăzut(ă)", medium: "Mediu(e)", high: "Ridicat(ă)", normal: "Normal(ă)",
-    draft: "Ciornă", "in review": "În revizuire", verified: "Verificat", "needs update": "Necesită actualizare",
-    unverified: "Neverificat", conflicting: "Contradictoriu", imported: "Importat",
-  };
-  // labelFn pentru selecturi/afișare: traduce valoarea dacă e cunoscută, altfel capitalizează.
-  function valLabel(v) { return v && VAL_LABELS[String(v).toLowerCase()] ? VAL_LABELS[String(v).toLowerCase()] : cap(v); }
 
   function filterSelect(label, options, value, onChange) {
     const id = "flt-" + label.replace(/\W+/g, "-").toLowerCase();
@@ -1182,28 +913,28 @@
 
     // Print header (visible only in print)
     wrap.appendChild(el("div", { class: "print-header" }, [
-      el("strong", { text: "Explorator de standarde CFC-Royal — " }),
-      el("span", { text: b.breed_name + " · " + tr(b.group) }),
+      el("strong", { text: "CFCR Breed Standards Explorer — " }),
+      el("span", { text: b.breed_name + " · " + b.group }),
     ]));
 
     const head = el("div", { class: "profile-head" }, [
       el("div", { class: "profile-title" }, [
         el("h1", { text: b.breed_name }),
-        b.alternate_names.length ? el("div", { class: "profile-alt", text: "Cunoscută și ca: " + fmtList(b.alternate_names) }) : null,
+        b.alternate_names.length ? el("div", { class: "profile-alt", text: "Also known as: " + fmtList(b.alternate_names) }) : null,
         el("div", { class: "profile-badges" }, [
-          el("span", { class: "badge badge-group", text: tr(b.group) }),
+          el("span", { class: "badge badge-group", text: b.group }),
           el("span", { class: "badge badge-status " + b.wdf_status, text: statusLabel(b.wdf_status) }),
-          el("span", { class: "badge badge-coat", text: "Blană " + valLabel(b.coat_type).toLowerCase() }),
-          el("span", { class: "badge badge-func", text: valLabel(b.functional_type) }),
-          hasPedagogy(b) ? el("span", { class: "badge badge-ped", text: "Note pedagogice" }) : null,
-          b.difficulty_level ? el("span", { class: "badge badge-diff " + b.difficulty_level, text: "Dificultate: " + valLabel(b.difficulty_level) }) : null,
-          b.exam_relevance ? el("span", { class: "badge badge-exam " + b.exam_relevance, text: "Examen: " + valLabel(b.exam_relevance) }) : null,
+          el("span", { class: "badge badge-coat", text: cap(b.coat_type) + " coat" }),
+          el("span", { class: "badge badge-func", text: cap(b.functional_type) }),
+          hasPedagogy(b) ? el("span", { class: "badge badge-ped", text: "Pedagogical notes" }) : null,
+          b.difficulty_level ? el("span", { class: "badge badge-diff " + b.difficulty_level, text: "Difficulty: " + cap(b.difficulty_level) }) : null,
+          b.exam_relevance ? el("span", { class: "badge badge-exam " + b.exam_relevance, text: "Exam: " + cap(b.exam_relevance) }) : null,
           b.source_verification_status ? el("span", { class: "badge badge-verif " + b.source_verification_status, text: verifLabel(b.source_verification_status) }) : null,
-          el("span", { class: "badge", title: "Versiune — vezi tabul Versiune & audit", text: "v" + (b.version || 1) + (b.revision_history && b.revision_history.length ? " · " + b.revision_history.length + " rev" : "") }),
+          el("span", { class: "badge", title: "Version — see the Version & Audit tab", text: "v" + (b.version || 1) + (b.revision_history && b.revision_history.length ? " · " + b.revision_history.length + " rev" : "") }),
         ]),
       ]),
       el("div", { class: "profile-actions" }, [
-        el("button", { class: "btn btn-sm" + (isFav(b.id) ? " btn-primary" : ""), onclick: () => { toggleFav(b.id); render(); } }, (isFav(b.id) ? "★ " : "☆ ") + "Favorită"),
+        el("button", { class: "btn btn-sm" + (isFav(b.id) ? " btn-primary" : ""), onclick: () => { toggleFav(b.id); render(); } }, (isFav(b.id) ? "★ " : "☆ ") + "Favorite"),
         el("button", { class: "btn btn-sm", onclick: () => navigate("compare", { a: b.id }) }, "⇄ Compare"),
         ADMIN_ENABLED ? el("button", { class: "btn btn-sm", onclick: () => startEditBreed(b.id) }, "✎ Edit") : null,
         el("button", { class: "btn btn-sm", onclick: () => printProfile() }, "⎙ Print"),
@@ -1218,9 +949,9 @@
     // bord nu se vede aici — de aceea o repetăm în profilul rasei.
     if (b.source_verification_status === "imported") {
       wrap.appendChild(el("div", { class: "imported-note" }, [
-        el("strong", { text: "⚠ Standard importat — încă nerevizuit. " }),
-        el("span", { text: "Acest text a fost extras automat din documentul standardului de rasă. " +
-          "Notele didactice și fișa de arbitraj se adaugă separat de către lectori. Verifică întotdeauna față de standardul oficial-sursă." }),
+        el("strong", { text: "⚠ Imported standard — not yet reviewed. " }),
+        el("span", { text: "This text was extracted automatically from the source breed-standard document. " +
+          "Teaching notes and the judge checklist are added separately by lecturers. Always verify against the official source standard." }),
       ]));
     }
 
@@ -1270,7 +1001,7 @@
 
   function officialSection(title, node) {
     return el("div", { class: "callout official section-block" }, [
-      el("div", { class: "callout-title", text: "▣ " + tr(title) + " · Date oficiale de standard" }),
+      el("div", { class: "callout-title", text: "▣ " + title + " · Official standard data" }),
       node,
     ]);
   }
@@ -1308,7 +1039,7 @@
         ["Difficulty level", b.difficulty_level ? cap(b.difficulty_level) : "—"],
         ["Exam relevance", b.exam_relevance ? cap(b.exam_relevance) : "—"],
         ["Teaching priority", b.teaching_priority ? cap(b.teaching_priority) : "—"],
-        ["Revision status", b.revision_status ? valLabel(b.revision_status.replace(/_/g, " ")) : "—"],
+        ["Revision status", b.revision_status ? cap(b.revision_status.replace(/_/g, " ")) : "—"],
         ["Source verification", b.source_verification_status ? verifLabel(b.source_verification_status) : "—"],
       ]));
     }
@@ -1519,7 +1250,7 @@
       dl([
         ["Current version", "v" + (b.version || 1)],
         ["Last revised", b.last_updated || "—"],
-        ["Revision status", b.revision_status ? valLabel(b.revision_status.replace(/_/g, " ")) : "—"],
+        ["Revision status", b.revision_status ? cap(b.revision_status.replace(/_/g, " ")) : "—"],
         ["Source verification", b.source_verification_status ? verifLabel(b.source_verification_status) : "—"],
         ["Source standard URL", b.source_standard_url ? el("a", { href: b.source_standard_url, target: "_blank", rel: "noopener", text: b.source_standard_url }) : "—"],
       ]),
@@ -1536,16 +1267,16 @@
         const diffs = entry.snapshot ? diffBreeds(entry.snapshot, b) : [];
         const details = el("details", { class: "collapsible" });
         details.appendChild(el("summary", {}, [
-          el("span", { text: "v" + entry.version + " → v" + (b.version || 1) + "  ·  " + (entry.date || "dată necunoscută") }),
+          el("span", { text: "v" + entry.version + " → v" + (b.version || 1) + "  ·  " + (entry.date || "unknown date") }),
           entry.note ? el("span", { class: "muted", style: "margin-left:8px", text: "“" + entry.note + "”" }) : null,
         ]));
         const body = el("div", { class: "collapsible-body" });
         if (!diffs.length) {
           body.appendChild(el("p", { class: "lede", text: "No field differences versus the current version." }));
         } else {
-          body.appendChild(el("p", { class: "muted", text: "Comparând această copie (v" + entry.version + ") cu versiunea curentă (v" + (b.version || 1) + "): " + diffs.length + " câmp(uri) modificate." }));
+          body.appendChild(el("p", { class: "muted", text: "Comparing this snapshot (v" + entry.version + ") with the current version (v" + (b.version || 1) + "): " + diffs.length + " field(s) changed." }));
           const table = el("table", { class: "compare-table audit-diff" }, [
-            el("thead", {}, el("tr", {}, [el("th", { text: "Field" }), el("th", { text: "v" + entry.version + " (atunci)" }), el("th", { text: "current" })])),
+            el("thead", {}, el("tr", {}, [el("th", { text: "Field" }), el("th", { text: "v" + entry.version + " (then)" }), el("th", { text: "current" })])),
           ]);
           const tb = el("tbody");
           diffs.forEach(([field, oldV, newV]) => {
@@ -1850,12 +1581,12 @@
       if (groups.length < 2) return null;
       const b = sampleOne(pool);
       const distract = pickDistinct(groups, 3, (g) => g === b.group);
-      const opts = shuffle([b.group].concat(distract).map((g) => ({ text: tr(g), val: g })));
+      const opts = shuffle([b.group].concat(distract).map((g) => ({ text: groupShort(g) + " — " + g.replace(/^Group \d+ /, ""), val: g })));
       return {
         type: "single", tag: "Groups",
-        prompt: "Cărei grupe WDF îi aparține rasa " + b.breed_name + "?",
+        prompt: "To which WDF group does the " + b.breed_name + " belong?",
         options: opts, answer: opts.findIndex((o) => o.val === b.group),
-        explanation: b.breed_name + " este clasificată în " + tr(b.group) + ".",
+        explanation: b.breed_name + " is classified in " + b.group + ".",
       };
     },
     country_of_breed(pool) {
@@ -1871,9 +1602,9 @@
       const opts = shuffle([b.country_of_origin].concat(distract).map((c) => ({ text: c })));
       return {
         type: "single", tag: "Origin",
-        prompt: "Care este țara de origine a rasei " + b.breed_name + "?",
+        prompt: "What is the country of origin of the " + b.breed_name + "?",
         options: opts, answer: opts.findIndex((o) => o.text === b.country_of_origin),
-        explanation: b.breed_name + " provine din " + b.country_of_origin + ".",
+        explanation: b.breed_name + " originates from " + b.country_of_origin + ".",
       };
     },
     fault_category(pool) {
@@ -1897,10 +1628,10 @@
       const opts = ["Minor fault", "Serious fault", "Disqualifying fault"].map((t) => ({ text: t }));
       return {
         type: "single", tag: "Faults",
-        prompt: "La rasa " + b.breed_name + ", cum se clasifică următorul defect?",
+        prompt: "For the " + b.breed_name + ", how is the following classified?",
         context: "“" + fault + "”",
         options: opts, answer: opts.findIndex((o) => o.text === tier),
-        explanation: "La rasa " + b.breed_name + " acesta este un " + tr(tier).toLowerCase() + ".",
+        explanation: "For the " + b.breed_name + " this is a " + tier.toLowerCase() + ".",
       };
     },
     key_marker(pool) {
@@ -1915,9 +1646,9 @@
       const opts = shuffle([correct].concat(distract).map((m) => ({ text: m })));
       return {
         type: "single", tag: "Recognition",
-        prompt: "Care este un marker-cheie de recunoaștere pentru rasa " + b.breed_name + "?",
+        prompt: "Which is a key recognition marker for the " + b.breed_name + "?",
         options: opts, answer: opts.findIndex((o) => o.text === correct),
-        explanation: "Un marker-cheie pentru " + b.breed_name + ": " + correct + ".",
+        explanation: "A key marker for the " + b.breed_name + ": " + correct + ".",
       };
     },
     confusion(pool) {
@@ -1931,9 +1662,9 @@
       const opts = shuffle([correct].concat(distract).map((x) => ({ text: x.breed_name, id: x.id })));
       return {
         type: "single", tag: "Confusions",
-        prompt: "Cu care rasă este confundată cel mai des " + b.breed_name + "?",
+        prompt: "Which breed is the " + b.breed_name + " most often confused with?",
         options: opts, answer: opts.findIndex((o) => o.id === correct.id),
-        explanation: b.breed_name + " este confundată frecvent cu " + correct.breed_name + ".",
+        explanation: "The " + b.breed_name + " is commonly confused with the " + correct.breed_name + ".",
       };
     },
     true_false_group(pool) {
@@ -1946,9 +1677,9 @@
       const correctIsTrue = shownGroup === b.group;
       return {
         type: "single", tag: "Groups",
-        prompt: "Adevărat sau fals: rasa " + b.breed_name + " aparține grupei " + tr(shownGroup) + ".",
+        prompt: "True or False: the " + b.breed_name + " belongs to " + groupShort(shownGroup) + " (" + shownGroup.replace(/^Group \d+ /, "") + ").",
         options: opts, answer: correctIsTrue ? 0 : 1,
-        explanation: b.breed_name + " aparține grupei " + tr(b.group) + ".",
+        explanation: "The " + b.breed_name + " belongs to " + b.group + ".",
       };
     },
   };
@@ -2149,7 +1880,7 @@
 
     wrap.appendChild(el("div", { class: "page-head" }, [
       el("div", {}, [
-        el("h1", { text: (s.mode === "exam" ? "Examen" : "Test") + " · Întrebarea " + (s.index + 1) + " din " + s.questions.length }),
+        el("h1", { text: (s.mode === "exam" ? "Exam" : "Quiz") + " · Question " + (s.index + 1) + " of " + s.questions.length }),
       ]),
       el("div", { style: "display:flex;gap:10px;align-items:center" }, [
         s.secondsPerQ && !answered ? el("span", { id: "quizTimer", class: "badge badge-status provisional", text: "⏱ " + s.secondsPerQ + "s" }) : null,
@@ -2190,11 +1921,11 @@
       const correct = s.answers[s.index] === q.answer;
       const timedOut = s.answers[s.index] === -1;
       card.appendChild(el("div", { class: "quiz-explain " + (correct ? "ok" : "no") }, [
-        el("strong", { text: timedOut ? "⏱ Timp expirat. " : (correct ? "✓ Corect. " : "✗ Nu chiar. ") }),
+        el("strong", { text: timedOut ? "⏱ Time out. " : (correct ? "✓ Correct. " : "✗ Not quite. ") }),
         el("span", { text: q.explanation }),
       ]));
       card.appendChild(el("button", { class: "btn btn-primary", style: "margin-top:14px", onclick: nextQuestion },
-        s.index < s.questions.length - 1 ? "Întrebarea următoare →" : "Vezi rezultatele →"));
+        s.index < s.questions.length - 1 ? "Next question →" : "See results →"));
     }
 
     wrap.appendChild(card);
@@ -2211,7 +1942,7 @@
     const verdict = pct >= 80 ? "Excellent" : pct >= 60 ? "Good" : pct >= 40 ? "Keep practising" : "Needs review";
     wrap.appendChild(el("div", { class: "panel card quiz-score-card" }, [
       el("div", { class: "quiz-score-big", text: score + " / " + s.questions.length }),
-      el("div", { class: "quiz-score-pct", text: pct + "% · " + tr(verdict) }),
+      el("div", { class: "quiz-score-pct", text: pct + "% · " + verdict }),
       el("div", { style: "display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;justify-content:center" }, [
         el("button", { class: "btn btn-primary", onclick: () => startQuiz(s.mode) }, "↻ New quiz (same settings)"),
         el("button", { class: "btn", onclick: () => { state.quiz.session = null; navigate("quiz"); } }, "⚙ Change settings"),
@@ -2220,7 +1951,7 @@
     ]));
 
     const wrong = s.questions.map((q, i) => ({ q, i })).filter(({ q, i }) => s.answers[i] !== q.answer);
-    wrap.appendChild(el("h2", { text: "Recapitulare" + (wrong.length ? " · " + wrong.length + " de revăzut" : " · toate corecte 🎉") }));
+    wrap.appendChild(el("h2", { text: "Review" + (wrong.length ? " · " + wrong.length + " to revisit" : " · all correct 🎉") }));
 
     s.questions.forEach((q, i) => {
       const yourIdx = s.answers[i];
@@ -2232,8 +1963,8 @@
       ]));
       if (q.context) item.appendChild(el("blockquote", { class: "quiz-context", text: q.context }));
       item.appendChild(el("div", { class: "quiz-review-ans" }, [
-        el("div", {}, [el("span", { class: "muted", text: "Răspunsul tău: " }), el("span", { text: yourIdx === -1 || yourIdx == null ? "(no answer)" : q.options[yourIdx].text })]),
-        !correct ? el("div", {}, [el("span", { class: "muted", text: "Corect: " }), el("strong", { text: q.options[q.answer].text })]) : null,
+        el("div", {}, [el("span", { class: "muted", text: "Your answer: " }), el("span", { text: yourIdx === -1 || yourIdx == null ? "(no answer)" : q.options[yourIdx].text })]),
+        !correct ? el("div", {}, [el("span", { class: "muted", text: "Correct: " }), el("strong", { text: q.options[q.answer].text })]) : null,
         el("div", { class: "muted", text: q.explanation }),
       ]));
       wrap.appendChild(item);
@@ -2269,7 +2000,7 @@
     const b = f.pool[f.index];
     const wrap = el("div", { class: "view" });
     wrap.appendChild(el("div", { class: "page-head" }, [
-      el("div", {}, [el("h1", { text: "Cartonașe · " + (f.index + 1) + " din " + f.pool.length })]),
+      el("div", {}, [el("h1", { text: "Flashcards · " + (f.index + 1) + " of " + f.pool.length })]),
       el("button", { class: "btn btn-sm btn-ghost", onclick: () => { state.quiz.flash = null; navigate("quiz"); } }, "Close"),
     ]));
 
@@ -2319,7 +2050,7 @@
     else state.lessonProgress[id] = status;
     store.set(STORAGE_KEYS.lessonProgress, state.lessonProgress);
   }
-  function progressLabel(s) { return { not_started: "Neîncepută", in_progress: "În curs", done: "Finalizată" }[s] || s; }
+  function progressLabel(s) { return { not_started: "Not started", in_progress: "In progress", done: "Completed" }[s] || s; }
 
   // Effective breed set for a lesson: explicit linked breeds ∪ breeds in linked groups.
   function lessonBreedIds(lesson) {
@@ -2381,8 +2112,8 @@
           el("span", { class: "badge badge-progress " + status, text: progressLabel(status) }),
         ]),
         el("div", { class: "lesson-row-meta", text:
-          (l.learning_objectives.length ? l.learning_objectives.length + " obiective · " : "") +
-          breedCount + " rase" + (l.linked_groups.length ? " · " + l.linked_groups.length + " grupe" : "") }),
+          (l.learning_objectives.length ? l.learning_objectives.length + " objectives · " : "") +
+          breedCount + " breeds" + (l.linked_groups.length ? " · " + l.linked_groups.length + " groups" : "") }),
       ]),
       el("div", { class: "lesson-row-actions" }, [
         breedCount >= 2 ? el("button", { class: "btn btn-sm", onclick: () => startLessonTest(l) }, "◎ Test") : null,
@@ -2398,7 +2129,7 @@
     const breeds = lessonBreedIds(l).map(getBreed).filter(Boolean);
     const status = lessonProgress(l.id);
 
-    wrap.appendChild(el("div", { class: "print-header" }, [el("strong", { text: "Curriculum CFC-Royal — " }), el("span", { text: l.title })]));
+    wrap.appendChild(el("div", { class: "print-header" }, [el("strong", { text: "CFCR Curriculum — " }), el("span", { text: l.title })]));
 
     wrap.appendChild(el("div", { class: "profile-head" }, [
       el("div", { class: "profile-title" }, [
@@ -2406,7 +2137,7 @@
         el("h1", { text: l.title || "(untitled lesson)" }),
         el("div", { class: "profile-badges" }, [
           el("span", { class: "badge badge-progress " + status, text: progressLabel(status) }),
-          el("span", { class: "badge badge-group", text: breeds.length + " rase" }),
+          el("span", { class: "badge badge-group", text: breeds.length + " breeds" }),
         ]),
       ]),
       el("div", { class: "profile-actions" }, [
@@ -2462,7 +2193,7 @@
     const next = order[(order.indexOf(lessonProgress(id)) + 1) % order.length];
     setLessonProgress(id, next);
     render();
-    toast("Marcată ca „" + progressLabel(next) + "”.", "ok");
+    toast("Marked as " + progressLabel(next) + ".", "ok");
   }
 
   function startLessonTest(l) {
@@ -2525,7 +2256,7 @@
       const id = "lg-" + g.replace(/\W+/g, "-");
       groupBox.appendChild(el("label", { class: "link-item", for: id }, [
         el("input", { type: "checkbox", id: id, value: g, checked: l.linked_groups.indexOf(g) >= 0 ? "" : null, "data-linkgroup": "1" }),
-        el("span", { text: tr(g) }),
+        el("span", { text: groupShort(g) + " — " + g.replace(/^Group \d+ /, "") }),
       ]));
     });
     const fs = el("fieldset", { class: "form-section" }, [
@@ -2601,7 +2332,7 @@
     const l = getLesson(id);
     if (!l) return;
     openModal({
-      title: "Delete lesson", body: 'Scoți „' + (l.title || "această lecție") + '” din sesiunea curentă? Exportă întâi JSON ca să păstrezi o copie.',
+      title: "Delete lesson", body: 'Remove "' + (l.title || "this lesson") + '" from the current session? Export JSON first to keep a copy.',
       confirmLabel: "Delete", danger: true,
       onConfirm: () => {
         state.lessons = state.lessons.filter((x) => x.id !== id);
@@ -2617,15 +2348,15 @@
   function wordDocLesson(l) {
     const breeds = lessonBreedIds(l).map(getBreed).filter(Boolean);
     let s = "<h1>" + esc(l.title) + "</h1>";
-    if (l.module) s += '<p class="sub">Modul: ' + esc(l.module) + "</p>";
+    if (l.module) s += '<p class="sub">Module: ' + esc(l.module) + "</p>";
     if (isNonEmptyText(l.summary)) s += "<p>" + esc(l.summary) + "</p>";
     if (l.learning_objectives.length) s += wList("Learning objectives", l.learning_objectives);
-    if (isNonEmptyText(l.body)) { s += "<h2>Notele lecției</h2>"; String(l.body).split(/\n{2,}/).forEach((p) => { if (p.trim()) s += "<p>" + esc(p.trim()) + "</p>"; }); }
-    s += "<h2>Rase în această lecție</h2>";
+    if (isNonEmptyText(l.body)) { s += "<h2>Lesson notes</h2>"; String(l.body).split(/\n{2,}/).forEach((p) => { if (p.trim()) s += "<p>" + esc(p.trim()) + "</p>"; }); }
+    s += "<h2>Breeds in this lesson</h2>";
     if (!breeds.length) s += "<p>—</p>";
     else { s += "<ul>"; breeds.forEach((b) => { s += "<li><strong>" + esc(b.breed_name) + "</strong> — " + esc(groupShort(b.group)) + ", " + esc(b.country_of_origin || "—") + (b.identity.ideal_type_summary ? ": " + esc(b.identity.ideal_type_summary) : "") + "</li>"; }); s += "</ul>"; }
     if (l.recommended_reading.length) s += wList("Recommended reading", l.recommended_reading);
-    s += '<p class="disc">Generat de Exploratorul de standarde CFC-Royal (cadrul WDF) la ' + todayISO() + ".</p>";
+    s += '<p class="disc">Generated by CFCR Breed Standards Explorer (WDF framework) on ' + todayISO() + ".</p>";
     return s;
   }
   function exportLessonWord(l) { exportWord(slugify(l.title) + "-lesson.doc", l.title + " — lesson", wordDocLesson(l)); }
@@ -2633,8 +2364,8 @@
   function exportCoursePack(moduleName) {
     const lessons = state.lessons.filter((l) => (l.module || "Unassigned") === moduleName);
     if (!lessons.length) { toast("No lessons in this module.", "err"); return; }
-    let s = "<h1>Pachet de curs — " + esc(moduleName) + "</h1>";
-    s += '<p class="sub">' + lessons.length + " lecție/lecții · " + todayISO() + "</p>";
+    let s = "<h1>Course pack — " + esc(moduleName) + "</h1>";
+    s += '<p class="sub">' + lessons.length + " lesson(s) · " + todayISO() + "</p>";
     lessons.forEach((l, i) => { s += (i ? '<div style="page-break-before:always;"></div>' : "") + wordDocLesson(l); });
     exportWord(slugify(moduleName) + "-course-pack.doc", moduleName + " — course pack", s);
   }
@@ -2644,8 +2375,8 @@
     lessons.forEach((l) => lessonBreedIds(l).forEach((id) => ids.add(id)));
     const breeds = Array.from(ids).map(getBreed).filter(Boolean);
     if (!breeds.length) { toast("No breeds linked in this module.", "err"); return; }
-    let s = "<h1>Pachet de recapitulare — " + esc(moduleName) + "</h1>";
-    s += '<p class="sub">' + breeds.length + " rasă/rase · " + todayISO() + "</p>";
+    let s = "<h1>Revision pack — " + esc(moduleName) + "</h1>";
+    s += '<p class="sub">' + breeds.length + " breed(s) · " + todayISO() + "</p>";
     breeds.forEach((b, i) => { s += (i ? '<div style="page-break-before:always;"></div>' : "") + wordDocRevisionSheet(b); });
     exportWord(slugify(moduleName) + "-revision-pack.doc", moduleName + " — revision pack", s);
   }
@@ -2660,7 +2391,7 @@
       el("button", { class: "btn btn-primary", onclick: startNewBreed }, "＋ Add new breed"),
     ]));
 
-    wrap.appendChild(el("div", { class: "dataset-note no-print", html: "<strong>Persistența sesiunii:</strong> editările trăiesc doar în memorie. Folosește <em>Exportă JSON</em> (bara de sus) ca să salvezi fișierul canonic și <em>Importă JSON</em> ca să-l reîncarci ulterior." }));
+    wrap.appendChild(el("div", { class: "dataset-note no-print", html: "<strong>Session persistence:</strong> edits live in memory only. Use <em>Export JSON</em> (top bar) to save your canonical file, and <em>Import JSON</em> to load it back later." }));
 
     if (!state.breeds.length) {
       wrap.appendChild(emptyState("✎", "No breeds yet. Add one or import a JSON dataset."));
@@ -2731,7 +2462,7 @@
     const wrap = el("div", { class: "view" });
     wrap.appendChild(el("div", { class: "page-head" }, [
       el("div", {}, [
-        el("h1", { text: ed.isNew ? "Adaugă rasă nouă" : "Editează: " + (b.breed_name || "Rasă") }),
+        el("h1", { text: ed.isNew ? "Add New Breed" : "Edit: " + (b.breed_name || "Breed") }),
         el("p", { class: "lede", text: "Fields marked * are required. Multi-value fields accept one item per line." }),
       ]),
     ]));
@@ -2747,8 +2478,8 @@
       textField("country_of_origin", "Country of origin *", b.country_of_origin, errs.country_of_origin),
       textField("identity.owner_country", "Owner country", b.identity.owner_country),
       selectField("wdf_status", "WDF status *", optiuniCu(WDF_STATUSES, "wdf_status", b.wdf_status, statusLabel), b.wdf_status, errs.wdf_status),
-      selectField("coat_type", "Coat type", optiuniCu(COAT_TYPES, "coat_type", b.coat_type, valLabel), b.coat_type),
-      selectField("functional_type", "Functional type", optiuniCu(FUNCTIONAL_TYPES, "functional_type", b.functional_type, valLabel), b.functional_type),
+      selectField("coat_type", "Coat type", optiuniCu(COAT_TYPES, "coat_type", b.coat_type, cap), b.coat_type),
+      selectField("functional_type", "Functional type", optiuniCu(FUNCTIONAL_TYPES, "functional_type", b.functional_type, cap), b.functional_type),
       textField("source_standard_title", "Source standard title", b.source_standard_title),
       textField("source_standard_url", "Source standard URL", b.source_standard_url, errs.source_standard_url, "url"),
       textField("last_updated", "Last updated", b.last_updated, null, "date"),
@@ -2804,13 +2535,13 @@
 
     // --- V2 classification & study metadata
     form.appendChild(fieldset("Classification & study metadata (V2)", [
-      selectField("difficulty_level", "Difficulty level", [["", "—"]].concat(optiuniCu(DIFFICULTY_LEVELS, "difficulty_level", b.difficulty_level, valLabel)), b.difficulty_level),
-      selectField("exam_relevance", "Exam relevance", [["", "—"]].concat(optiuniCu(EXAM_RELEVANCE, "exam_relevance", b.exam_relevance, valLabel)), b.exam_relevance),
-      selectField("teaching_priority", "Teaching priority", [["", "—"]].concat(optiuniCu(TEACHING_PRIORITY, "teaching_priority", b.teaching_priority, valLabel)), b.teaching_priority),
-      selectField("revision_status", "Revision status", [["", "—"]].concat(optiuniCu(REVISION_STATUS, "revision_status", b.revision_status, (v) => valLabel(v.replace(/_/g, " ")))), b.revision_status),
+      selectField("difficulty_level", "Difficulty level", [["", "—"]].concat(optiuniCu(DIFFICULTY_LEVELS, "difficulty_level", b.difficulty_level, cap)), b.difficulty_level),
+      selectField("exam_relevance", "Exam relevance", [["", "—"]].concat(optiuniCu(EXAM_RELEVANCE, "exam_relevance", b.exam_relevance, cap)), b.exam_relevance),
+      selectField("teaching_priority", "Teaching priority", [["", "—"]].concat(optiuniCu(TEACHING_PRIORITY, "teaching_priority", b.teaching_priority, cap)), b.teaching_priority),
+      selectField("revision_status", "Revision status", [["", "—"]].concat(optiuniCu(REVISION_STATUS, "revision_status", b.revision_status, (v) => cap(v.replace(/_/g, " ")))), b.revision_status),
       // „imported" TREBUIE să rămână în listă: e semnul că textul e brut, nerevizuit de
       // lector. Fără el, o simplă deschidere-și-salvare ștergea marcajul la 313 fișe.
-      selectField("source_verification_status", "Source verification", [["", "—"]].concat(optiuniCu(SOURCE_VERIFICATION, "source_verification_status", b.source_verification_status, valLabel)), b.source_verification_status),
+      selectField("source_verification_status", "Source verification", [["", "—"]].concat(optiuniCu(SOURCE_VERIFICATION, "source_verification_status", b.source_verification_status, cap)), b.source_verification_status),
       textareaField("study_track_tags", "Study track tags (one per line, e.g. bull type, primitive type)", (b.study_track_tags || []).join("\n"), null, 2),
       textareaField("thematic_tags", "Thematic tags (one per line)", (b.thematic_tags || []).join("\n"), null, 2),
       textareaField("recurring_judge_observations", "Recurring judge observations (one per line)", (b.recurring_judge_observations || []).join("\n")),
@@ -2829,7 +2560,7 @@
       ]);
       const fs = el("fieldset", { class: "form-section" }, [
         el("legend", { text: "Versioning" }),
-        el("p", { class: "hint", style: "margin:0 0 8px", text: "Salvarea unei editări incrementează versiunea (acum v" + (b.version || 1) + ") și stochează o copie pe care o poți compara ulterior în tabul Versiune & audit." }),
+        el("p", { class: "hint", style: "margin:0 0 8px", text: "Saving an edit increments the version (currently v" + (b.version || 1) + ") and stores a snapshot you can compare later in the Version & Audit tab." }),
         el("div", { class: "form-grid" }, noteField),
       ]);
       form.appendChild(fs);
@@ -2945,7 +2676,7 @@
     }
     state.editing = null;
     navigate("profile", { id: b.id, tab: wasNew ? "identity" : "audit" });
-    toast(wasNew ? "Rasă adăugată (v1)." : "Salvată ca v" + b.version + ".", "ok");
+    toast(wasNew ? "Breed added (v1)." : "Saved as v" + b.version + ".", "ok");
   }
 
   /* ---------------------------------------------------------
@@ -2956,7 +2687,7 @@
     if (!b) return;
     openModal({
       title: "Delete breed",
-      body: 'Aceasta va scoate „' + b.breed_name + '” din sesiunea curentă. Exportă întâi JSON dacă vrei o copie. Nu se poate anula în sesiune.',
+      body: 'This will remove "' + b.breed_name + '" from the current session. Export your JSON first if you want to keep a copy. This cannot be undone in-session.',
       confirmLabel: "Delete",
       danger: true,
       onConfirm: () => {
@@ -3034,7 +2765,7 @@
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1500);
-    toast("Exportate " + state.breeds.length + " rase în JSON.", "ok");
+    toast("Exported " + state.breeds.length + " breeds to JSON.", "ok");
   }
 
   function importJSON(file) {
@@ -3051,8 +2782,8 @@
       if (!state.breeds.length) { applyImport(parsed, "replace"); return; }
       // Otherwise let the user choose how to bring the standards in.
       openModal({
-        title: "Importă " + parsed.breeds.length + (parsed.breeds.length === 1 ? " rasă" : " rase"),
-        body: "Ai deja " + state.breeds.length + " rase. Îmbinarea adaugă standarde noi și le actualizează pe cele care se potrivesc (după id ori nume), păstrându-le pe restul. Înlocuirea aruncă baza curentă.",
+        title: "Import " + parsed.breeds.length + " breed" + (parsed.breeds.length === 1 ? "" : "s"),
+        body: "You have " + state.breeds.length + " breeds already. Merge adds new standards and updates matching ones (by id or name), keeping the rest. Replace discards the current database.",
         actions: [
           { label: "Merge (add / update)", kind: "btn-primary", onClick: () => applyImport(parsed, "merge") },
           { label: "Replace everything", kind: "btn-danger", onClick: () => applyImport(parsed, "replace") },
@@ -3070,8 +2801,8 @@
       state.recent = state.recent.filter((id) => getBreed(id));
       state.currentBreedId = null; state.editing = null;
       navigate("list");
-      const lessonMsg = (counts.lAdded || counts.lUpdated) ? "  ·  lecții: " + counts.lAdded + " adăugate, " + counts.lUpdated + " actualizate" : "";
-      toast("Îmbinat: " + counts.added + " adăugate, " + counts.updated + " actualizate. Total " + state.breeds.length + " rase." + lessonMsg, "ok");
+      const lessonMsg = (counts.lAdded || counts.lUpdated) ? "  ·  lessons: " + counts.lAdded + " added, " + counts.lUpdated + " updated" : "";
+      toast("Merged: " + counts.added + " added, " + counts.updated + " updated. Total " + state.breeds.length + " breeds." + lessonMsg, "ok");
     } else {
       state.meta = parsed.meta;
       state.breeds = parsed.breeds;
@@ -3083,7 +2814,7 @@
       state.recent = state.recent.filter((id) => getBreed(id));
       state.currentBreedId = null; state.editing = null;
       navigate("dashboard");
-      toast("Bază înlocuită cu " + state.breeds.length + " rase.", "ok");
+      toast("Replaced database with " + state.breeds.length + " breeds.", "ok");
     }
   }
 
@@ -3141,26 +2872,26 @@
   // -- small HTML builders for Word docs --
   function wKV(pairs) {
     return '<table>' + pairs.map(function (p) {
-      return '<tr><td class="k">' + esc(tr(p[0])) + "</td><td>" + esc(p[1] == null || p[1] === "" ? "—" : p[1]) + "</td></tr>";
+      return '<tr><td class="k">' + esc(p[0]) + "</td><td>" + esc(p[1] == null || p[1] === "" ? "—" : p[1]) + "</td></tr>";
     }).join("") + "</table>";
   }
   function wList(title, items, cls) {
     const c = cls ? ' class="' + cls + '"' : "";
-    if (!items || !items.length) return "<h3" + c + ">" + esc(tr(title)) + "</h3><p>—</p>";
-    return "<h3" + c + ">" + esc(tr(title)) + "</h3><ul" + c + ">" + items.map(function (i) { return "<li>" + esc(i) + "</li>"; }).join("") + "</ul>";
+    if (!items || !items.length) return "<h3" + c + ">" + esc(title) + "</h3><p>—</p>";
+    return "<h3" + c + ">" + esc(title) + "</h3><ul" + c + ">" + items.map(function (i) { return "<li>" + esc(i) + "</li>"; }).join("") + "</ul>";
   }
   function wDisclaimer(b) {
-    const src = b && b.source_standard_url ? " Sursă: " + esc(b.source_standard_url) + "." : "";
-    return '<p class="disc">Generat de Exploratorul de standarde CFC-Royal — cadrul World Dog Federation (WDF), la ' + todayISO() + ". " +
-      "Conținutul descriptiv poate fi un set structurat ori editat și nu e textul oficial verbatim al standardului; verifică față de sursa oficială înainte de examen ori arbitraj." + src + "</p>";
+    const src = b && b.source_standard_url ? " Source: " + esc(b.source_standard_url) + "." : "";
+    return '<p class="disc">Generated by CFCR Breed Standards Explorer — World Dog Federation (WDF) framework, on ' + todayISO() + ". " +
+      "Descriptive content may be a structured or edited dataset and is not a verbatim official standard; verify against the official source before examination or judging use." + src + "</p>";
   }
 
   function wordDocProfile(b, includePrivate) {
     let s = "<h1>" + esc(b.breed_name) + "</h1>";
     s += '<p class="sub">' + esc(b.group) + " · " + esc(b.country_of_origin) + " · " + esc(statusLabel(b.wdf_status)) + " · v" + (b.version || 1) + "</p>";
-    if (b.alternate_names.length) s += '<p class="sub">Cunoscută și ca: ' + esc(fmtList(b.alternate_names)) + "</p>";
+    if (b.alternate_names.length) s += '<p class="sub">Also known as: ' + esc(fmtList(b.alternate_names)) + "</p>";
 
-    s += "<h2>Identitate</h2>" + wKV([
+    s += "<h2>Identity</h2>" + wKV([
       ["Official name", b.identity.official_name || b.breed_name],
       ["Internal ID", b.id], ["WDF group", b.group],
       ["Country of origin / owner", b.country_of_origin + (b.identity.owner_country && b.identity.owner_country !== b.country_of_origin ? " · " + b.identity.owner_country : "")],
@@ -3171,7 +2902,7 @@
       ["Version / last revised", "v" + (b.version || 1) + " · " + (b.last_updated || "—")],
     ]);
 
-    s += "<h2>Profil general</h2>" + wKV([
+    s += "<h2>General profile</h2>" + wKV([
       ["Historical function", b.identity.historical_function],
       ["General impression", b.identity.general_impression],
       ["Important proportions", b.identity.important_proportions],
@@ -3179,23 +2910,23 @@
       ["Ideal type summary", b.identity.ideal_type_summary],
     ]);
 
-    s += "<h2>Anatomie / structură</h2>" + wKV(ANATOMY_FIELDS.map(function (f) { return [f[1], b.anatomy[f[0]]]; }));
+    s += "<h2>Anatomy / structure</h2>" + wKV(ANATOMY_FIELDS.map(function (f) { return [f[1], b.anatomy[f[0]]]; }));
 
     s += "<h2>Temperament</h2>" + wKV([
       ["Behavior", b.temperament.behavior], ["Ring attitude", b.temperament.ring_attitude],
       ["Expression", b.temperament.expression], ["Temperament notes", b.temperament.temperament_notes],
     ]);
 
-    s += "<h2>Defecte</h2>" + wList("Minor faults", b.faults.minor) + wList("Serious faults", b.faults.serious) + wList("Disqualifying faults", b.faults.disqualifying, "dq");
+    s += "<h2>Faults</h2>" + wList("Minor faults", b.faults.minor) + wList("Serious faults", b.faults.serious) + wList("Disqualifying faults", b.faults.disqualifying, "dq");
 
-    s += "<h2>Note pedagogice</h2>" +
+    s += "<h2>Pedagogical notes</h2>" +
       wList("Frequent confusions", b.pedagogy.frequent_confusions) +
       wList("Key recognition markers", b.pedagogy.key_markers) +
       wList("Judge notes", b.pedagogy.judge_notes) +
       wList("Teaching notes", b.pedagogy.teaching_notes) +
       wList("Similar breeds", b.pedagogy.similar_breeds);
 
-    s += "<h2>Fișă de arbitraj</h2>" +
+    s += "<h2>Judge checklist</h2>" +
       wList("First impression", b.judge_checklist.first_impression) +
       wList("Static examination", b.judge_checklist.static_exam) +
       wList("Movement examination", b.judge_checklist.movement_exam) +
@@ -3203,11 +2934,11 @@
 
     const hasExt = b.difficulty_level || b.exam_relevance || b.revision_status || (b.study_track_tags && b.study_track_tags.length);
     if (hasExt) {
-      s += "<h2>Clasificare & metadate de studiu</h2>" + wKV([
+      s += "<h2>Classification & study metadata</h2>" + wKV([
         ["Difficulty level", b.difficulty_level ? cap(b.difficulty_level) : "—"],
         ["Exam relevance", b.exam_relevance ? cap(b.exam_relevance) : "—"],
         ["Teaching priority", b.teaching_priority ? cap(b.teaching_priority) : "—"],
-        ["Revision status", b.revision_status ? valLabel(b.revision_status.replace(/_/g, " ")) : "—"],
+        ["Revision status", b.revision_status ? cap(b.revision_status.replace(/_/g, " ")) : "—"],
         ["Source verification", b.source_verification_status ? verifLabel(b.source_verification_status).replace(/[✓⚠]\s?/g, "") : "—"],
         ["Study tracks", fmtList(b.study_track_tags)],
         ["Thematic tags", fmtList(b.thematic_tags)],
@@ -3216,14 +2947,14 @@
     }
 
     if (b.references && b.references.length) {
-      s += "<h2>Referințe</h2>";
+      s += "<h2>References</h2>";
       b.references.forEach(function (r) {
         s += wKV([["Type", (r.type || "reference").replace(/_/g, " ")], ["Title", r.title || "—"], ["URL", r.url || "—"], ["Accessed on", r.accessed_on || "—"]]);
       });
     }
 
     if (includePrivate && isNonEmptyText(b.internal_notes)) {
-      s += "<h2>Note interne / private</h2>" + '<div class="warnbox">Intern — nu pentru distribuire</div><p>' + esc(b.internal_notes) + "</p>";
+      s += "<h2>Internal / private notes</h2>" + '<div class="warnbox">Internal — not for distribution</div><p>' + esc(b.internal_notes) + "</p>";
     }
     s += wDisclaimer(b);
     return s;
@@ -3231,7 +2962,7 @@
 
   function exportProfileWord(b) {
     openModal({
-      title: "Exportă profilul rasei în Word",
+      title: "Export breed profile to Word",
       body: "Choose whether to include internal / private notes. Student-safe omits them.",
       actions: [
         { label: "Student-safe (no private notes)", kind: "btn-primary", onClick: function () { exportWord(slugify(b.breed_name) + "-profile.doc", b.breed_name + " — WDF profile", wordDocProfile(b, false)); } },
@@ -3241,12 +2972,12 @@
   }
 
   function wordDocRevisionSheet(b) {
-    let s = "<h1>Fișă de recapitulare — " + esc(b.breed_name) + "</h1>";
+    let s = "<h1>Revision sheet — " + esc(b.breed_name) + "</h1>";
     s += '<p class="sub">' + esc(b.group) + " · " + esc(b.country_of_origin) + " · " + esc(statusLabel(b.wdf_status)) + "</p>";
-    if (isNonEmptyText(b.identity.ideal_type_summary)) s += "<h2>Tip ideal</h2><p>" + esc(b.identity.ideal_type_summary) + "</p>";
-    s += "<h2>Recunoaștere-cheie</h2>" + wList("Key markers", b.pedagogy.key_markers) + wList("Frequent confusions", b.pedagogy.frequent_confusions) + wList("Similar breeds", b.pedagogy.similar_breeds);
-    s += "<h2>Defecte pe scurt</h2>" + wList("Serious", b.faults.serious) + wList("Disqualifying", b.faults.disqualifying, "dq");
-    s += "<h2>Fișă de arbitraj</h2>" +
+    if (isNonEmptyText(b.identity.ideal_type_summary)) s += "<h2>Ideal type</h2><p>" + esc(b.identity.ideal_type_summary) + "</p>";
+    s += "<h2>Key recognition</h2>" + wList("Key markers", b.pedagogy.key_markers) + wList("Frequent confusions", b.pedagogy.frequent_confusions) + wList("Similar breeds", b.pedagogy.similar_breeds);
+    s += "<h2>Faults at a glance</h2>" + wList("Serious", b.faults.serious) + wList("Disqualifying", b.faults.disqualifying, "dq");
+    s += "<h2>Judge checklist</h2>" +
       wList("First impression", b.judge_checklist.first_impression) +
       wList("Static", b.judge_checklist.static_exam) +
       wList("Movement", b.judge_checklist.movement_exam) +
@@ -3260,22 +2991,22 @@
     if (!Array.isArray(breeds)) breeds = [breeds, teaching], teaching = false;
     const n = breeds.length;
     const colspan = n + 1;
-    let s = "<h1>Comparație de rase</h1>";
+    let s = "<h1>Breed comparison</h1>";
     s += '<p class="sub">' + breeds.map(function (b) { return esc(b.breed_name); }).join("  vs  ") + " · " + todayISO() + "</p>";
 
     if (teaching) {
-      s += "<h2>Note didactice</h2>";
+      s += "<h2>Teaching notes</h2>";
       const pairs = [];
       for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) pairs.push([breeds[i], breeds[j]]);
       let conf = "";
-      pairs.forEach(function (p) { if (referencesBreed(p[0], p[1]) || referencesBreed(p[1], p[0])) conf += "<li><strong>" + esc(p[0].breed_name) + " ↔ " + esc(p[1].breed_name) + ":</strong> confundate frecvent.</li>"; });
-      s += "<h3>Confuzii probabile</h3>" + (conf ? "<ul>" + conf + "</ul>" : "<p>Niciuna înregistrată în acest set.</p>");
-      s += "<h3>Ce observi întâi</h3>";
+      pairs.forEach(function (p) { if (referencesBreed(p[0], p[1]) || referencesBreed(p[1], p[0])) conf += "<li><strong>" + esc(p[0].breed_name) + " ↔ " + esc(p[1].breed_name) + ":</strong> commonly confused.</li>"; });
+      s += "<h3>Likely confusions</h3>" + (conf ? "<ul>" + conf + "</ul>" : "<p>None recorded within this set.</p>");
+      s += "<h3>What to observe first</h3>";
       breeds.forEach(function (b) { s += "<p><strong>" + esc(b.breed_name) + "</strong></p>" + (b.pedagogy.key_markers.length ? "<ul>" + b.pedagogy.key_markers.map(function (m) { return "<li>" + esc(m) + "</li>"; }).join("") + "</ul>" : "<p>—</p>"); });
     }
 
-    s += "<h2>Matrice de comparație</h2>";
-    s += "<table><thead><tr><th>Câmp</th>" + breeds.map(function (b) { return "<th>" + esc(b.breed_name) + "</th>"; }).join("") + "</tr></thead><tbody>";
+    s += "<h2>Comparison matrix</h2>";
+    s += "<table><thead><tr><th>Field</th>" + breeds.map(function (b) { return "<th>" + esc(b.breed_name) + "</th>"; }).join("") + "</tr></thead><tbody>";
     COMPARE_SECTIONS.forEach(function (sec) {
       s += '<tr><td colspan="' + colspan + '" style="background:#2f5d50;color:#fff;font-weight:bold;">' + esc(sec.title) + "</td></tr>";
       sec.rows.forEach(function (row) {
@@ -3286,15 +3017,15 @@
       });
     });
     s += "</tbody></table>";
-    s += '<p class="sub">Celulele evidențiate arată o diferență semnificativă între rase.</p>';
+    s += '<p class="sub">Highlighted cells indicate a meaningful difference between the breeds.</p>';
     s += wDisclaimer(breeds[0]);
     return s;
   }
 
   function wordDocQuiz(session, withAnswers) {
     const qs = session.questions;
-    let s = "<h1>" + (session.mode === "exam" ? "Examen" : "Test") + " — standarde de rasă WDF</h1>";
-    s += '<p class="sub">' + qs.length + " întrebări · generat " + todayISO() + (session.secondsPerQ ? " · " + session.secondsPerQ + "s pe întrebare" : "") + "</p>";
+    let s = "<h1>" + (session.mode === "exam" ? "Exam" : "Quiz") + " — WDF breed standards</h1>";
+    s += '<p class="sub">' + qs.length + " questions · generated " + todayISO() + (session.secondsPerQ ? " · " + session.secondsPerQ + "s per question" : "") + "</p>";
     qs.forEach(function (q, i) {
       s += "<p><strong>" + (i + 1) + ". " + esc(q.prompt) + "</strong>";
       s += ' <span style="color:#6a6f68;font-size:9pt;">[' + esc(q.tag) + "]</span></p>";
@@ -3304,19 +3035,19 @@
       s += "</ul>";
     });
     if (withAnswers) {
-      s += '<h2 style="page-break-before:always;">Cheie de răspunsuri</h2><table><thead><tr><th>Nr.</th><th>Răspuns</th><th>Explicație</th></tr></thead><tbody>';
+      s += '<h2 style="page-break-before:always;">Answer key</h2><table><thead><tr><th>Q</th><th>Answer</th><th>Explanation</th></tr></thead><tbody>';
       qs.forEach(function (q, i) {
         s += "<tr><td>" + (i + 1) + "</td><td>" + String.fromCharCode(65 + q.answer) + ". " + esc(q.options[q.answer].text) + "</td><td>" + esc(q.explanation || "") + "</td></tr>";
       });
       s += "</tbody></table>";
     }
-    s += '<p class="disc">Generat de Exploratorul de standarde CFC-Royal (cadrul WDF) la ' + todayISO() + ".</p>";
+    s += '<p class="disc">Generated by CFCR Breed Standards Explorer (WDF framework) on ' + todayISO() + ".</p>";
     return s;
   }
 
   function exportQuizWord(session) {
     openModal({
-      title: "Exportă " + (session.mode === "exam" ? "examenul" : "testul") + " în Word",
+      title: "Export " + (session.mode === "exam" ? "exam" : "quiz") + " to Word",
       body: "Teacher version includes the answer key; student handout omits it.",
       actions: [
         { label: "Student handout (no answers)", kind: "btn-primary", onClick: function () { exportWord(slugify(session.mode) + "-" + todayISO() + ".doc", "WDF " + session.mode, wordDocQuiz(session, false)); } },
@@ -3414,7 +3145,7 @@
         state.savedSearches = [entry].concat(state.savedSearches.filter((s) => s.name !== name)).slice(0, 30);
         store.set(STORAGE_KEYS.savedSearches, state.savedSearches);
         render();
-        toast('Căutare salvată: „' + name + '”.', "ok");
+        toast('Saved search “' + name + '”.', "ok");
       },
     });
   }
@@ -3627,7 +3358,7 @@
     root.innerHTML = "";
     var box = el("div", { class: "gate-screen" }, [
       el("div", { class: "gate-mark", text: "BS" }),
-      el("h1", { text: "Explorator de standarde CFC-Royal" }),
+      el("h1", { text: "CFCR Breed Standards Explorer" }),
       el("p", { class: "gate-lede", text: mesaj || "Această aplicație face parte din Școala de Arbitraj CFC-Royal și se deschide după ce intri în platformă — ca și candidat, lector sau arbitru." }),
       el("a", { class: "btn btn-primary", href: "/cursuri/", text: "Intră în Școala de Arbitraj →" }),
       el("p", { class: "gate-foot", text: "Asociația Club Federal Chinologic – Royal · World Dog Federation" }),
