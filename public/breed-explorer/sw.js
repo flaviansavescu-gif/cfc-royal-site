@@ -25,7 +25,8 @@
 // v4 = datele nu mai sunt fișier public. Vin printr-o funcție autentificată
 // (breed-date), deci NU se mai pun în cache aici: ar fi o copie fără poartă.
 // v5 = interfața tradusă integral în română + curățarea dublurilor/non-WDF (390 rase).
-const CACHE_VERSION = "cfcr-v5.0.0";
+// v5.0.1 = nota din date (disclaimer) tradusă + breed_count corect; forțează reîmprospătarea cache-ului.
+const CACHE_VERSION = "cfcr-v5.0.1";
 const CACHE_NAME = "cfcr-cache-" + CACHE_VERSION;
 
 // Paths are relative to the service worker scope (the app folder).

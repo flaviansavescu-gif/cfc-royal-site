@@ -1,12 +1,12 @@
 {
   "schema_version": "1.1",
   "meta": {
-    "app": "CFCR Breed Standards Explorer",
+    "app": "Explorator de standarde CFC-Royal",
     "framework": "World Dog Federation (WDF)",
-    "dataset_type": "official breed standards (imported) + CFCR teaching notes",
-    "disclaimer": "Breed descriptions are imported from the breed standard documents held by Asociația Club Federal Chinologic – Royal. Records marked as \"imported\" reproduce the section text of those documents and have not yet been reviewed by a lecturer; teaching notes and judge checklists are written separately by CFCR lecturers. Always verify against the official source standard before using in examination or judging contexts.",
+    "dataset_type": "standarde oficiale de rasă (importate) + note didactice CFC-Royal",
+    "disclaimer": "Descrierile raselor sunt importate din documentele de standard deținute de Asociația Club Federal Chinologic – Royal. Fișele marcate „importat” reproduc textul acelor documente și nu au fost încă revizuite de un lector; notele didactice și fișele de arbitraj sunt scrise separat de lectorii CFC-Royal. Verifică întotdeauna față de standardul oficial-sursă înainte de a le folosi la examen ori la arbitraj.",
     "generated_on": "2026-08-08",
-    "breed_count": 522
+    "breed_count": 390
   },
   "breeds": [
     {
