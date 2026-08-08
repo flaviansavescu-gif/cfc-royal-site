@@ -6,7 +6,7 @@
     "dataset_type": "official breed standards (imported) + CFCR teaching notes",
     "disclaimer": "Breed descriptions are imported from the breed standard documents held by Asociația Club Federal Chinologic – Royal. Records marked as \"imported\" reproduce the section text of those documents and have not yet been reviewed by a lecturer; teaching notes and judge checklists are written separately by CFCR lecturers. Always verify against the official source standard before using in examination or judging contexts.",
     "generated_on": "2026-08-08",
-    "breed_count": 456
+    "breed_count": 463
   },
   "breeds": [
     {
@@ -14701,8 +14701,8 @@
       "wdf_status": "recognized",
       "coat_type": "short",
       "functional_type": "bull type",
-      "source_standard_url": "https://www.wdf-international.org/official-wdf-breed-standards/",
-      "source_standard_title": "Official WDF Breed Standard (reference)",
+      "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-138",
+      "source_standard_title": "Standard oficial WDF G04-138",
       "last_updated": "2026-07-17",
       "identity": {
         "official_name": "American Staffordshire Terrier",
@@ -14827,96 +14827,95 @@
       ],
       "recurring_judge_observations": [
         "Assess balance of power and agility, not bulk alone"
-      ]
+      ],
+      "wdf_code": "G04-138"
     },
     {
-      "breed_name": "BOULEDOGUE FRANÇAIS",
+      "breed_name": "French Bulldog (Bouledogue Français)",
       "alternate_names": [],
       "group": "Group 4 Bull Type Dogs",
       "country_of_origin": "France",
       "wdf_status": "recognized",
-      "coat_type": "short",
-      "functional_type": "companion",
-      "source_standard_title": "WDF breed standard — BOULEDOGUE FRANÇAIS",
-      "source_standard_url": "",
-      "last_updated": "2026-08-05",
+      "coat_type": "medium",
+      "functional_type": "guard",
+      "source_standard_title": "Standard oficial WDF G04-139",
+      "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-139",
+      "last_updated": "2026-08-08",
       "identity": {
-        "official_name": "BOULEDOGUE FRANÇAIS",
+        "official_name": "French Bulldog (Bouledogue Français)",
         "owner_country": "France",
-        "historical_function": "Companion and Toy dog.",
-        "general_impression": "The type is of a small-sized molossian. A powerful dog for its small size, short, stocky, compact in all its proportions, smooth-coated, with a snub nose, erect ears and a naturally short tail. Must have the appearance of an active, intelligent, very muscular dog, of compact build with a solid bone structure. No point is exaggerated compared to the others, which could spoil the dog’s general harmony, in appearance and in movement.",
-        "important_proportions": "The length of the body – between the point of the shoulder and the point of the buttock – slightly surpasses the height at the withers. Short face.",
+        "historical_function": "Câine de companie și de pază.",
+        "general_impression": "Molosoid tipic de talie mică. Puternic în dimensiunile reduse, scurt, îndesat, strâns în toate proporțiile, cu păr ras, bot scurt, nas cârn, urechi ridicate și coadă natural scurtă. Activ, inteligent, foarte musculos, compact, cu osatură solidă. Niciun caracter nu trebuie exagerat încât să strice armonia ori să tulbure mișcarea.",
+        "important_proportions": "Lungimea trunchiului (vârful umărului–fesă) depășește puțin înălțimea la greabăn. Botul ≈ 1/6 din lungimea totală a capului.",
         "sexual_dimorphism": "",
-        "ideal_type_summary": "The type is of a small-sized molossian.",
-        "historical_summary": "Probably descending, like all mastiffs, from the Epirus and the Roman Empire molossers, relative of the Bulldog of Great Britain, the Alaunts (tribe of the Middle Ages), the mastiffs and small-type mastiffs of France. The bulldog we know is the product of different crossings done by enthusiastic breeders in the popular quarters of Paris in the 1880s. During that period, the Bulldog was a dog belonging to Parisian market porters, butchers and coachmen, it soon won over high society and the artistic world by its particular appearance and character. It rapidly became popular. The first breed club was founded in 1880 in Paris. The first registration dates from 1885 and the first standard was established in 1898, the year in which the French Kennel Club recognized the French Bulldog breed. The first dog of this breed was shown at an exhibition as early as 1887. The standard, modified in 1931-1932 and 1948, was reformulated in 1986 by H.F. Reant with the collaboration of R. Triquet (publication 1987), then in 1994 by Violette Guillon (publication 1995) and in 2012 by the French Bulldog Club committee.",
-        "classification": "Section 11 Small Molossian Dogs. Without working trial.",
-        "standard_published": "10.08.2023",
+        "ideal_type_summary": "Molosoid tipic de talie mică.",
+        "historical_summary": "Descinde, ca toți molosii, din molosii Epirului și ai Imperiului Roman, rudă cu Bulldogul britanic, cu alanii Evului Mediu și cu micii câini de tip mastiff din Franța. Buldogul francez de azi e produsul încrucișărilor făcute de crescători pasionați din cartierele populare ale Parisului spre 1880. De la câine al hamalilor, măcelarilor și birjarilor, a cucerit înalta societate și lumea artiștilor prin aspectul aparte și caracterul său. Primul Club de rasă a fost fondat în 1880 la Paris; primul exemplar expus în 1887. Standardul a fost revizuit în mai multe rânduri (1931–32, 1948, 1986, 1994, 2012).",
+        "classification": "",
+        "standard_published": "",
         "country_of_development": ""
       },
       "anatomy": {
-        "head": "Must be strong, broad and square, covered by the skin of the head which forms symmetrical folds and wrinkles, without excess.",
-        "skull": "Broad, almost flat from ear to ear, domed forehead. Prominent superciliary arches, separated by a particularly developed furrow between the eyes. The furrow must not extend onto the skull. External occipital protuberance is barely developed.",
-        "stop": "Pronounced.",
-        "muzzle": "Short, broad, with concentric symmetrical folds. Nose: Black, broad, snubbed, with symmetrical and well opened nostrils, slanting towards the rear. The slope of the nostrils as well as the upturned nose must, however, allow normal nasal breathing. Lips: Thick, a little loose and black. The upper lip meets the lower lip at its middle, completely covering the teeth. The profile of the upper lip is descending and rounded. The tongue must never show when the dog is not excited.",
-        "jaws_teeth": "Broad and powerful jaws. The lower jaw projects in front of the upper jaw and turns up. The arch of the lower incisors is rounded. The jaw must not show lateral deviation, or torsion. The gap between the incisors of the upper and the lower jaw should not be strictly delimited, the essential condition being that the upper and the lower lips meet to completely cover the teeth. The lower incisors surpass the upper incisors. Sufficiently developed incisors and canines. Complete bite is desirable.",
-        "eyes": "Clearly visible eyes, striking with lively expression, set low, quite far from the nose and the ears, dark coloured, rather large, rounded, showing no trace of white (sclera) when the dog is looking straight forward. Rims of eyelids must be black.",
-        "ears": "Medium size, wide at the base and rounded at the top. Set high on the head, but not too close together, carried erect. The ear is open towards the front. The skin must be fine and soft to the touch.",
-        "neck": "Short, powerful, slightly arched, without dewlap, broadens towards the shoulder.",
-        "topline": "Rising progressively, but not excessively, from the withers towards the loin. That conformation – also called roach-back – is typical for the breed.",
-        "body": "Topline: Rising progressively, but not excessively, from the withers towards the loin. That conformation – also called roach-back – is typical for the breed. Back: Broad and muscular, firm without slackness. Loin: Short, broad and arched. Croup: Well sloping. Chest: Cylindrical and well let down (slightly under the elbows); very well sprung ribs, so-called “barrel shaped”. Fore chest, broad and square-shaped, seen from the front. Underline and belly: Tucked up but not whippety.",
-        "chest": "Cylindrical and well let down (slightly under the elbows); very well sprung ribs, so-called “barrel shaped”. Fore chest, broad and square-shaped, seen from the front.",
-        "tail": "Naturally short, ideally long enough to cover the anus, set low, rather straight, thick at the base and tapering at the tip. A kinked, knotted, broken or relatively long tail that does not reach beyond the point of the hocks, is admitted. It is carried low. Even in action, the tail must not rise above the horizontal.",
-        "forequarters": "General appearance: Forelegs upright (and straight) seen in profile and from the front. Shoulder: Must be well laid back. Upper arm: Short, thick, muscular, slightly curved. Elbows: Close and tight to the body. Forearm: Short, straight and muscular. Carpus (Wrist): Solid and short. Metacarpus (Pastern): Short and slightly oblique seen in profile. Forefeet: Round, compact, of small dimension, i.e. “cat feet”, turning slightly outward. The toes are tight, nails short, thick and black.",
-        "hindquarters": "General appearance: The hindlegs are strong and muscular, a little longer than the forelegs, thus raising the hindquarters. The legs are upright as seen both in profile and from behind. Thigh: Well muscled, firm. Hock joint: Quite well let down, neither too angulated nor too straight. Tarsus: solid. Metatarsus (Rear pastern): Short. Hind feet: Round, compact, turning neither inward nor outward.",
-        "feet": "Round, compact, of small dimension, i.e. “cat feet”, turning slightly outward. The toes are tight, nails short, thick and black. Round, compact, turning neither inward nor outward.",
-        "movement": "The legs moving parallel to the median plane of the body, whether seen in front or from behind. Free, movement with good hind leg thrust.",
-        "coat": "Smooth coat, close, glossy and soft, without undercoat. Colour: fawn, brindled or not, with or without white spotting. Coat with colouring: Brindle: Fawn coat moderately characterized by transversal dark brindling creating a ‘tiger-marked’ effect, strongly brindled coats must not cover out the fawn ground colour. A black mask may be present. Limited white spotting is admissible. Fawn: Solid coat, from light fawn to dark fawn, sometimes presenting a paler colouring of the inclined parts, with or without a black mask, although masked subjects are preferred. Sometimes accompanied by limited white spotting. Coat with white spotting: Brindled with moderate or important white spotting: So-called ‘pied’, the spotting being ideally distributed over the entire subject. Some blotches on the skin are admissible. Fawn with moderate or important white spotting: So-called ‘fawn and white’, the spotting being ideally distributed over the entire dog. Some blotches of the skin are tolerated. The nose is always black, in all coat colours, never brown or blue. The all-white subjects provided the edge of eyelids and nose are black – are admitted but not bred for, because of a risk of deafness.",
-        "color": "fawn, brindled or not, with or without white spotting. Coat with colouring: Brindle: Fawn coat moderately characterized by transversal dark brindling creating a ‘tiger-marked’ effect, strongly brindled coats must not cover out the fawn ground colour. A black mask may be present. Limited white spotting is admissible. Fawn: Solid coat, from light fawn to dark fawn, sometimes presenting a paler colouring of the inclined parts, with or without a black mask, although masked subjects are preferred. Sometimes accompanied by limited white spotting. Coat with white spotting: Brindled with moderate or important white spotting: So-called ‘pied’, the spotting being ideally distributed over the entire subject. Some blotches on the skin are admissible. Fawn with moderate or important white spotting: So-called ‘fawn and white’, the spotting being ideally distributed over the entire dog. Some blotches of the skin are tolerated. The nose is always black, in all coat colours, never brown or blue. The all-white subjects provided the edge of eyelids and nose are black – are admitted but not bred for, because of a risk of deafness.",
-        "size": "Height at the withers: Males: 27–35 cm. Females: 24–32 cm. A deviation of 1 cm above and below the standard is tolerated. Weight: Males: 9–14 kg. Females: 8–13 kg. 500 g more than the standard weight is allowed when the subject is typical.",
-        "skin": "Firm."
+        "head": "Foarte puternică, lată și pătrată, cu piele formând pliuri și riduri aproape simetrice, fără exagerare. Caracteristică prin scurtarea regiunii maxilo-nazale și o înclinare ușoară spre medie a nasului spre spate; nasul ușor răsfrânt în sus.",
+        "skull": "Larg, aproape plat, cu frunte bombată. Arcade sprâncenare proeminente, separate de un șanț bine dezvoltat între ochi (nu se extinde pe frunte). Creastă occipitală foarte redusă.",
+        "stop": "Profund accentuat.",
+        "muzzle": "Foarte scurt, larg, cu riduri concentrice simetrice. Trufă neagră, lată, cârnă, scurtă și răsfrântă în sus, cu nări bine deschise și simetrice, îndreptate oblic spre spate. Înclinarea nărilor și nasul cârn trebuie totuși să permită o respirație normală. Buze groase, ceva relaxate și negre; buza superioară o întâlnește pe cea inferioară la centru, acoperind complet dinții. Limba nu trebuie văzută în repaus.",
+        "jaws_teeth": "Fălci largi și puternice. Maxilarul inferior se proiectează înaintea celui superior și descrie o curbă în sus. Arcada incisivilor inferiori rotunjită. Fără deviere laterală ori torsiune. Esențial: buzele superioare și inferioare să se unească acoperind complet dinții. Incisivii inferiori îi depășesc pe cei superiori. De dorit dentiție completă.",
+        "eyes": "Bine vizibili, cu expresie vioaie, inserați jos, mai degrabă departe de trufă și urechi, închiși, destul de mari, rotunzi; fără albul ochiului vizibil când privește înainte. Margini palpebrale negre.",
+        "ears": "De mărime medie, largi la bază și rotunjite la vârf. Inserate sus, dar nu prea apropiate, purtate ridicate. Pavilionul deschis spre înainte. Piele fină și moale.",
+        "neck": "Scurt, puternic, ușor arcuit, fără salbă, se lărgește spre umeri. Linia superioară urcă progresiv de la greabăn spre șale (roach back — caracteristic). Spate larg și musculos, solid. Șale scurte, largi și arcuite. Crupă bine înclinată. Torace cilindric și bine coborât (ceva sub coți), în butoi, cu coaste foarte arcuite. Piept amplu, pătrat din față. Ventre și flancuri ridicate, fără a fi levretate.",
+        "topline": "",
+        "body": "",
+        "chest": "",
+        "tail": "Natural scurtă, ideal suficient de lungă să acopere anusul, inserată jos, mai degrabă dreaptă, lată la bază, se subțiază. Se admite coada răsucită, înnodată, ruptă ori relativ lungă (fără a depăși jaretul). Purtată jos, nu peste orizontală nici în mișcare.",
+        "forequarters": "Verticali și paraleli, din profil și din față (bine în aplomb).",
+        "hindquarters": "Puternici și musculoși, ceva mai lungi decât anteriorii, făcând posteriorul mai înalt. Gambe verticale și paralele, din profil și din spate.",
+        "feet": "Rotunzi, compacți, mici (de pisică), ușor răsuciți în afară. Degete strânse, cu unghii scurte, groase și negre.",
+        "movement": "Fluidă, puternică; membrele se mișcă paralel cu planul median, din față și profil.",
+        "coat": "Ras, des, lucios și moale, fără subpăr.",
+        "color": "Fulvo (brindat ori nu), cu ori fără pete albe. Fulvo: uniform, de la deschis la intens, cu ori fără mască neagră (de preferat prezentă). Brindat: fulvo cu striuri închise transversale (fără să acopere fondul). Cu pete albe medii/invazive: „caille” (brindat pestriț) și „alb/fulvo”, ideal distribuite pe corp. Trufa mereu neagră, niciodată maro ori albastră. Subiecții total albi (cu nas și margini palpebrale negre) se admit, dar nu se caută, din cauza riscului de surditate.",
+        "size": "Masculi 27–35 cm; femele 24–32 cm; toleranță ± 1 cm. Masculi 9–14 kg; femele 8–13 kg; toleranță +500 g dacă subiectul e bine în tip.",
+        "skin": "Bine întinsă."
       },
       "temperament": {
-        "behavior": "Sociable, lively, playful, possessive, and keen companion dog.",
+        "behavior": "Câine de companie, sociabil, vioi, jucăuș, sportiv, treaz, posesiv.",
         "ring_attitude": "",
         "expression": "",
-        "temperament_notes": "• Male animals should have two apparently normal testicles fully descended into the scrotum. • Only functionally and clinically healthy dogs, with breed typical conformation, should be used for breeding. The latest amendments are in bold characters."
+        "temperament_notes": "Masculii trebuie să aibă doi testiculi de aspect normal, complet coborâți în scrot. Doar subiecții sănătoși și tipici pot fi folosiți la reproducere."
       },
       "faults": {
         "minor": [
-          "Strongly flecked with black brindle with white coat",
-          "Fawn and white coat strongly red speckled",
-          "In fawn coats, deep black trace extending along the spine",
-          "White stockings in brindles and fawns",
-          "Light-coloured nails in brindle and fawn",
-          "No roach back"
+          "Manta caille puternic muscată de negru",
+          "Manta alb-fulvo puternic pistruiată de roșu",
+          "În mantaua fulvo, urmă de negru intens pe spate",
+          "La mantale brindate și fulvo, prezența ciorapilor albi",
+          "Unghii deschise"
         ],
         "serious": [
-          "Muzzle too long or excessively short",
-          "Tongue visible when mouth is closed",
-          "Light eyes (hawk eye)",
-          "Excessive depigmentation of the lips, nose, eyelids, the rim of which should never be entirely depigmented",
-          "Pincer bite",
-          "Arch back (camel back)"
+          "Hipertip, exagerarea caracterelor de rasă",
+          "Bot prea lung ori exagerat de scurt",
+          "Limbă vizibilă cu gura închisă",
+          "Ochi deschiși (de răpitor)",
+          "Linie superioară orizontală de la greabăn la șale",
+          "Depigmentare excesivă a buzelor, nasului ori pleoapelor; mușcătură în clește"
         ],
         "disqualifying": [
-          "Aggressive or overly shy dog",
-          "Any dog clearly showing physical or behavioural abnormalities",
-          "Lacks type: insufficient ethnic characteristics which result in the dog not really resembling other subjects of the breed",
-          "Completely closed nostrils",
-          "Torsion or lateral deviation of the jaw, resulting in the tongue constantly being visible",
-          "Dog with lower incisors articulating behind upper incisors",
-          "Dog with permanently visible canines (fangs), mouth being closed",
-          "Heterochrome eyes (wall eye)",
-          "Colour of nose other than black",
-          "Ears not carried erect",
-          "Taillessness or ingrown tail",
-          "Dewclaw on hindquarters",
-          "Reversed hock",
-          "Long, wired-haired or woolly coat",
-          "Colour not in accordance with what is prescribed in the standard, namely black, black with fawn markings (black and tan) and all dilutions of black with or without white spotting",
-          "Size and weight outside the standard limits",
-          "Respiratory distress",
-          "Deafness"
+          "Subiecți agresivi ori fricoși",
+          "Orice câine cu anomalii fizice ori de comportament evidente",
+          "Lipsa tipului",
+          "Nări complet închise",
+          "Torsiune ori deviere laterală a mandibulei cu limba constant vizibilă",
+          "Incisivi inferiori în spatele celor superiori",
+          "Canini permanent vizibili cu gura închisă",
+          "Ochi heterocromi",
+          "Trufă de altă culoare decât negru",
+          "Urechi neridicate",
+          "Lipsa cozii ori coadă încarnată",
+          "Pinteni la posteriori",
+          "Jarete inversate",
+          "Păr lung, dur ori lânos",
+          "Culoare neconformă standardului (negru, negru cu foc și toate diluțiile negrului)",
+          "Talie și greutate în afara limitelor",
+          "Subiecți cu semne de suferință respiratorie; surditate"
         ]
       },
       "pedagogy": {
@@ -14935,9 +14934,9 @@
       "references": [
         {
           "type": "official_standard",
-          "title": "WDF breed standard (document received from the association)",
-          "url": "",
-          "accessed_on": "2026-08-05"
+          "title": "Standard oficial WDF G04-139",
+          "url": "https://wdf-international.org/?wdf_standard_view=G04-139",
+          "accessed_on": "2026-08-08"
         }
       ],
       "internal_notes": "",
@@ -14955,66 +14954,67 @@
       "recurring_judge_observations": [],
       "version": 1,
       "revision_history": [],
-      "id": "breed-141"
+      "id": "breed-141",
+      "wdf_code": "G04-139"
     },
     {
-      "breed_name": "BULL TERRIER",
+      "breed_name": "Bull Terrier",
       "alternate_names": [],
       "group": "Group 4 Bull Type Dogs",
       "country_of_origin": "Great Britain",
       "wdf_status": "recognized",
-      "coat_type": "short",
+      "coat_type": "wire",
       "functional_type": "guard",
-      "source_standard_title": "WDF breed standard — BULL TERRIER",
-      "source_standard_url": "",
-      "last_updated": "2026-08-05",
+      "source_standard_title": "Standard oficial WDF G04-140",
+      "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-140",
+      "last_updated": "2026-08-08",
       "identity": {
-        "official_name": "BULL TERRIER",
+        "official_name": "Bull Terrier",
         "owner_country": "Great Britain",
         "historical_function": "Terrier.",
-        "general_impression": "Strongly built, muscular, well balanced and active with a keen, determined and intelligent expression. A unique feature is a downfaced, egg-shaped head. Irrespective of size dogs should look masculine and bitches feminine.",
+        "general_impression": "De construcție puternică, musculos, bine proporționat și activ, cu expresie acută, hotărâtă și inteligentă. Unic prin capul în formă de ou cu nasul descendent. Indiferent de talie, masculii masculini și femelele feminine.",
         "important_proportions": "",
         "sexual_dimorphism": "",
-        "ideal_type_summary": "Strongly built, muscular, well balanced and active with a keen, determined and intelligent expression.",
-        "historical_summary": "It was a certain James Hinks who first standardised the breed type in the 1850s, selecting the egg-shaped head. The breed was first shown in its present form at Birmingham in 1862. The Bull Terrier Club was formed in 1887. The truly interesting thing about the breed is that the standard says quite deliberately, “There are neither weight nor height limits, but there should be the impression of maximum substance for size of dog consistent with quality and sex. Dog should at all times be balanced.” A smaller example of the Bull Terrier has been known since the early 19th century but fell out of favour prior to the First World War and was removed from the Kennel Club Breed Register in 1918. In 1938, a revival was spearheaded by Colonel Richard Glyn and a group of fellow enthusiasts who formed the Miniature Bull Terrier Club. The standard is the same as that of the Bull Terrier with the exception of a height limit.",
-        "classification": "Section 3 Bull type Terriers. Working trial optional.",
-        "standard_published": "05.07.2011",
+        "ideal_type_summary": "De construcție puternică, musculos, bine proporționat și activ, cu expresie acută, hotărâtă și inteligentă.",
+        "historical_summary": "James Hinks a redactat primul standard al rasei în 1850, selecționând capul în formă de ou. Rasa a fost expusă întâia oară în forma actuală la Birmingham, în 1862. Bull Terrier Club a fost fondat în 1887. Standardul precizează că „nu există limite de greutate ori înălțime, dar trebuie impresia de maximă substanță pentru mărime, ținând cont de calitate și sex; câinele trebuie să fie mereu proporționat”.",
+        "classification": "",
+        "standard_published": "",
         "country_of_development": ""
       },
       "anatomy": {
-        "head": "Long, strong and deep right to end of muzzle, but not coarse. Viewed from front egg-shaped and completely filled, its surface free from hollows or indentations. Profile curves gently downwards from top of skull to tip of nose.",
-        "skull": "Top of skull almost flat from ear to ear.",
+        "head": "Lungă, puternică și adâncă până la capătul botului, dar nu grosolană. Din față, în formă de ou și bine plină, fără cavități ori depresiuni. Din profil, o curbă blândă în jos, de la creștet la trufă.",
+        "skull": "Creștetul mai degrabă plat între urechi.",
         "stop": "",
-        "muzzle": "Nose: Should be black. Bent downwards at tip. Nostrils well developed. Lips: Clean and tight.",
-        "jaws_teeth": "Under-jaw deep and strong. Teeth sound, clean, strong, of good size, regular with a perfect, regular and complete scissor bite, i. e. upper teeth closely overlapping lower teeth and set square to the jaws.",
-        "eyes": "Appearing narrow and triangular, obliquely placed, black or as dark brown as possible so as to appear almost black and with a piercing glint. Distance from tip of nose to eyes perceptibly greater than that from eyes to top of skull. Blue or partly blue undesirable.",
-        "ears": "Small, thin and placed close together. Dog should be able to hold them stiffly erect, when they point straight upwards.",
-        "neck": "Very muscular, long, arched, tapering from shoulders to head and free from loose skin",
-        "topline": "Short, strong, with backline behind withers level, arching or roaching slightly over loins.",
-        "body": "Well rounded with marked spring of rib and great depth from withers to brisket, so that latter nearer ground than belly. Back: Short, strong, with backline behind withers level, arching or roaching slightly over loins. Loin: Broad, well muscled. Chest: Broad when viewed from front. Underline and belly: From brisket to belly forms a graceful upward curve.",
-        "chest": "Broad when viewed from front.",
-        "tail": "Short, set on low and carried horizontally. Thick at root, it tapers to a fine point.",
-        "forequarters": "General appearance: Dog should stand solidly upon legs and they should be perfectly parallel. In mature dogs length of forelegs should be approximately equal to depth of chest. Shoulder: Strong and muscular without loading. Shoulder blades wide, flat and held closely to chest wall and have a very pronounced backward slope of front edge from bottom to top, forming almost a right angle with upper arm. Elbow: Held straight and strong. Forearm: Forelegs have strongest type of round, quality bone. Metacarpus (Pastern): Upright. Forefeet: Round and compact with well arched toes.",
-        "hindquarters": "General appearance: Hind legs parallel when viewed from behind. Thigh: Muscular. Stifle (Knee): Joint well bent. Lower thigh: Well developed. Hock joint: Well angulated. Metatarsus (Rear pastern): Bone to foot short and strong. Hind feet: Round and compact with well arched toes.",
-        "feet": "Round and compact with well arched toes. Round and compact with well arched toes.",
-        "movement": "When moving appears well knit, smoothly covering ground with free, easy strides and with a typical jaunty air. When trotting, movement parallel, front and back, only converging towards centre line at faster speeds, forelegs reaching out well and hind legs moving smoothly at hip, flexing well at stifle and hock, with great thrust.",
-        "coat": "Short, flat, even and harsh to touch with a fine gloss. A soft textured undercoat may be present in winter.",
-        "color": "For White, pure white coat. Skin pigmentation and markings on head not to be penalised. For Coloured, colour predominates; all other things being equal, brindle preferred. Black brindle, red, fawn and tricolour acceptable. Tick markings in white coat undesirable. Blue and liver highly undesirable.",
-        "size": "There are neither weight nor height limits, but there should be the impression of maximum substance for size of dog consistent with quality and sex.",
-        "skin": "Fitting dog tightly."
+        "muzzle": "Trufă neagră; la vârf înclinată în jos. Nări bine dezvoltate. Buze de croială netă, aderente.",
+        "jaws_teeth": "Maxilar inferior puternic și adânc. Dinți sănătoși, curați, puternici, bine implantați. Mușcătură în foarfece perfectă, regulată și completă.",
+        "eyes": "Par îngusti și triunghiulari, oblici, negri ori maro cât mai închis (aproape negri); privire pătrunzătoare. Distanța trufă–ochi vizibil mai mare decât cea ochi–creștet. Ochii complet ori parțial albaștri sunt nedoriti.",
+        "ears": "Mici, fini și apropiați. Câinele trebuie să-i țină rigid ridicați, îndreptați înainte.",
+        "neck": "Foarte musculos, lung, cu profil superior arcuit; se îngustează de la umeri spre cap și fără salbă.",
+        "topline": "Scurt, puternic. Linia superioară orizontală după greabăn, apoi arcuită ori ușor convexă pe șale. Șale largi, bine musculate.",
+        "body": "Trunchi bine rotunjit, cu coaste marcat arcuite și torace bine coborât de la greabăn la stern, astfel încât acesta e mai aproape de sol decât ventrul.",
+        "chest": "Larg din față.",
+        "tail": "Scurtă, inserată jos și purtată orizontal. Groasă la bază, se subțiază spre vârf.",
+        "forequarters": "",
+        "hindquarters": "",
+        "feet": "",
+        "movement": "În mișcare pare compact, acoperind terenul cu pași ușori și fluizi, cu aer sprințar. La trap, membrele paralele (din față și spate), convergând spre linia mediană doar la viteză. Anteriorii cu bun alungit, posteriorii cu impuls puternic prin buna flexiune a genunchilor și jaretelor.",
+        "coat": "Scurt, plat, uniform și dur la atingere, cu bun luciu. Iarna poate avea subpăr moale.",
+        "color": "La cei albi, manta alb pur; pigmentarea pielii și petele pe cap nu-s defect. La cei colorați, culoarea trebuie să predomine peste alb; la calitate egală se preferă brindatul. Admise: negru, brindat, roșu, fulvo și tricolor. Muscăturile în mantaua albă nedoriti. Mantaua albastră și cea ficat (maro) foarte nedoriti.",
+        "size": "Fără limite de greutate ori talie. Câinele trebuie să dea impresia de maximum de substanță față de talie, ținând cont de calitate și sex.",
+        "skin": "Strâns aderentă pe tot corpul."
       },
       "temperament": {
-        "behavior": "Courageous, full of spirit, with a fun loving attitude. Of even temperament and amenable to discipline. Although obstinate is particularly good with people.",
+        "behavior": "Curajos, plin de vioiciune, cu caracter amabil și vesel. Calm și înclinat spre disciplină. Deși încăpățânat, e deosebit de bun cu oamenii.",
         "ring_attitude": "",
         "expression": "",
-        "temperament_notes": "• Male animals should have two apparently normal testicles fully descended into the scrotum. • Only functionally and clinically healthy dogs, with breed typical conformation, should be used for breeding."
+        "temperament_notes": "Masculii trebuie să aibă doi testiculi de aspect normal, complet coborâți în scrot."
       },
       "faults": {
         "minor": [],
         "serious": [],
         "disqualifying": [
-          "Aggressive or overly shy dogs",
-          "Any dog clearly showing physical or behavioural abnormalities"
+          "Subiect agresiv ori excesiv de timid",
+          "Orice câine cu anomalii fizice ori de comportament evidente"
         ]
       },
       "pedagogy": {
@@ -15033,9 +15033,9 @@
       "references": [
         {
           "type": "official_standard",
-          "title": "WDF breed standard (document received from the association)",
-          "url": "",
-          "accessed_on": "2026-08-05"
+          "title": "Standard oficial WDF G04-140",
+          "url": "https://wdf-international.org/?wdf_standard_view=G04-140",
+          "accessed_on": "2026-08-08"
         }
       ],
       "internal_notes": "",
@@ -15053,7 +15053,8 @@
       "recurring_judge_observations": [],
       "version": 1,
       "revision_history": [],
-      "id": "breed-142"
+      "id": "breed-142",
+      "wdf_code": "G04-140"
     },
     {
       "breed_name": "BULLMASTIFF",
@@ -15155,7 +15156,7 @@
     },
     {
       "id": "breed-031",
-      "breed_name": "English Bulldog",
+      "breed_name": "English Bulldog (Bulldog)",
       "alternate_names": [
         "Bulldog"
       ],
@@ -15163,55 +15164,59 @@
       "country_of_origin": "Great Britain",
       "wdf_status": "recognized",
       "coat_type": "short",
-      "functional_type": "companion",
-      "source_standard_url": "https://wdf-international.org/wp-content/uploads/2023/12/Standard-4.016-Bulldog-English.pdf",
-      "source_standard_title": "Official WDF Breed Standard n° 4.016",
-      "last_updated": "2026-07-24",
+      "functional_type": "guard",
+      "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-143",
+      "source_standard_title": "Standard oficial WDF G04-143",
+      "last_updated": "2026-08-08",
       "identity": {
-        "official_name": "English Bulldog",
+        "official_name": "English Bulldog (Bulldog)",
         "owner_country": "Great Britain",
-        "historical_function": "British breed, today a companion and deterrent dog, retaining a powerful, compact build.",
-        "general_impression": "Smooth-coated, thick-set and rather low, broad, powerful and compact; the fairly large head kept in general symmetry without exaggeration that impairs movement.",
-        "important_proportions": "Head large in proportion but balanced; body short and well ribbed. Weight about 25 kg (males) / 23 kg (females).",
+        "historical_function": "Câine de descurajare și de companie.",
+        "general_impression": "Cu păr neted, relativ îndesat, mai degrabă scund, larg, puternic și compact. Cap mai degrabă larg față de talie, dar nu excesiv încât să strice simetria ori mișcarea. Bot relativ scurt, larg, trunchiat și ușor răsfrânt în sus, dar nu excesiv. Câinii cu dificultăți respiratorii — foarte nedoriti. Corp relativ scurt, bine construit, membre puternice, musculoase și robuste, fără tendință spre obezitate. Posterior înalt și puternic. Femelele nu-s mari și dezvoltate ca masculii.",
+        "important_proportions": "",
         "sexual_dimorphism": "",
-        "ideal_type_summary": "Smooth-coated, fairly thick set, rather low in stature, broad, powerful and compact.",
-        "historical_summary": "The Bulldog was first classified as such in the 1630s though there is earlier mention of similar types referred to as bandogs, a term reserved today for a type of fighting dog. Used originally for bullbaiting, the Bulldog also fought its way through the dog pits but after 1835 began to evolve into the shorter faced, squatter version we now know. It entered the show ring in 1860 and the ensuing years saw a big personality change. A delightfully ugly dog with a pugilistic expression, which belies a loving, affectionate nature to family and friends. One of the oldest indigenous breeds, known as the national dog of Great Britain, and associated throughout the world with British determination and the legendary John Bull.",
-        "classification": "Section 2.1 Molossoid breeds, Mastiff Type. Without working trial.",
-        "standard_published": "13.10.2010"
+        "ideal_type_summary": "Cu păr neted, relativ îndesat, mai degrabă scund, larg, puternic și compact.",
+        "historical_summary": "Buldogul a fost clasificat ca atare întâia oară în 1630, deși există mențiuni anterioare la tipuri similare („bandogs”). Folosit în arene, după 1835 a început să evolueze spre versiunea mai îndesată, cu bot mai scurt, de azi. A intrat în ringurile de expoziție în 1860. Câine încântător de urât, cu expresie de boxer, care ascunde o fire amabilă și afectuoasă. Una dintre cele mai vechi rase indigene, cunoscută drept Câinele Național al Marii Britanii, asociat în toată lumea cu hotărârea britanică și cu legendarul John Bull.",
+        "classification": "",
+        "standard_published": "",
+        "country_of_development": ""
       },
       "anatomy": {
-        "head": "Seen from the side, high and moderately short from back to nose.",
-        "skull": "Large in circumference; high, broad and square from the front.",
-        "stop": "Defined.",
-        "muzzle": "Short, broad, turned up and deep; nose wrinkle must not obscure the eyes or nose.",
-        "jaws_teeth": "Broad, strong, square jaws; lower jaw projecting slightly with a moderate turn-up (undershot).",
-        "eyes": "Set low and wide in the skull, well away from the ears; eyes and stop in one straight line.",
-        "ears": "Set high and wide apart, 'rose' ears.",
-        "neck": "Moderate length, thick, deep and strong.",
-        "topline": "Slight fall behind the shoulders then rising to the loin, forming the characteristic 'roach' back.",
-        "body": "Topline: Slight fall to back close behind shoulders (lowest part) whence spine should rise to loins (top higher than top of shoulder), curving again more suddenly to tail, forming slight arch - a distinctive characteristic of breed. Back: Short, strong, broad at shoulders. Chest: Wide, prominent, and deep. Body well-ribbed up behind. Brisket, round and deep. Well let down between forelegs. Ribs not flat-sided, but well-rounded. Underline and belly: Belly tucked up and not pendulous.",
-        "chest": "Wide, prominent and deep, well let down between the forelegs; ribs well rounded.",
-        "tail": "Set on low, jutting out then turning down; round, smooth and short.",
-        "forequarters": "Forelegs short and stout in proportion to the hindlegs, set wide apart.",
-        "hindquarters": "Legs large and muscular, slightly longer than the forelegs.",
-        "feet": "Medium size, moderately round, turning slightly outward.",
-        "movement": "Short, quick steps on the toes with a characteristic rolling, 'loose-jointed' gait.",
-        "coat": "Fine texture, short, dense and smooth.",
-        "color": "Whole colours (brindle, red and its shades, fawn, fallow), white and piebald; may carry a black mask/muzzle.",
-        "size": "Males: 25 kgs. Females: 23 kgs."
+        "head": "Din profil pare foarte înaltă și moderat de scurtă de la ceafă la trufă. Frunte plată, cu piele deasupra și în jurul capului ușor lasă și cu riduri bine făcute, fără exagerare. Fața de la pomeți la nas mai degrabă scurtă. Distanța de la unghiul intern al ochiului (ori centrul stopului) la vârful trufei nu trebuie să fie sub distanța trufă–marginea buzei inferioare.",
+        "skull": "Cu circumferință mai degrabă mare. Din față pare înalt de la unghiul maxilarului inferior la creștet; larg și pătrat. De la stop, un șanț se extinde până la mijlocul craniului, vizibil până la vârf.",
+        "stop": "Definit; din față, trăsăturile botului trebuie egal echilibrate de o parte și de alta a unei linii mediane imaginare.",
+        "muzzle": "Scurt, larg, răsfrânt în sus și foarte adânc de la unghiul ochiului la cel al gurii. Ridul de pe nas, dacă există, nu trebuie să afecteze ochii ori nasul. Nările prea înguste și ridul greu peste trufă — inacceptabile. Trufă și nări largi, ample și deschise, cu o linie verticală dreaptă între ele; admise trufă neagră, maro și albastră. Buze superioare groase, largi și căzute, acoperind maxilarul inferior lateral, unindu-se pe față cu cele inferioare; dinții nevizibili.",
+        "jaws_teeth": "Fălci ample, puternice și pătrate; în față, cea inferioară o depășește ușor pe cea superioară și e moderat răsfrântă în sus. Șase incisivi mici între canini, în linie regulată; canini bine distanțați. Dinți largi și puternici, nevizibili cu gura închisă. Din față, maxilarul inferior direct sub cel superior și paralel.",
+        "eyes": "Din față, jos în craniu, departe de urechi. Ochii și stopul pe aceeași linie dreaptă, în unghi drept cu sutura metopică. Distanțați, dar unghiurile externe în conturul obrajilor. Rotunzi, de mărime medie, nici înfundați, nici ieșiți, foarte închiși (aproape negri); fără albul vizibil când privește înainte. Fără probleme oculare evidente.",
+        "ears": "Inserate sus: marginea anterioară a fiecărei urechi se unește cu linia craniului la marginea superioară, cât mai departe una de alta și de ochi. Mici și subțiri; corect portul „în roză” (se pliază spre interior în partea posterioară, iar marginea superioară frontală se curbează în afară și spre spate, lăsând vizibil parte din canalul urechii).",
+        "neck": "De lungime moderată, foarte gros, adânc și puternic. Bine arcuit sus, cu ceva piele lasă, groasă și cu pliuri în jurul gâtului, formând o ușoară salbă pe fiecare parte.",
+        "topline": "",
+        "body": "Linia superioară coboară ușor în spatele umerilor (punctul cel mai jos), apoi urcă spre șale (punctul cel mai înalt, peste greabăn), curbându-se apoi brusc spre coadă — un arc ușor, caracteristic rasei. Spate scurt, puternic, larg la umeri. Torace amplu, proeminent și înalt de la greabăn la stern. Coaste bine arcuite spre spate, nu plate. Piept coborât între membre, cu profiluri rotunjite.",
+        "chest": "",
+        "tail": "Inserată jos, se întinde în afară mai degrabă dreaptă, apoi se curbează în jos. Rotundă, netedă, fără franjuri. De lungime moderată — mai degrabă scurtă —, groasă la rădăcină, se subțiază rapid. Purtată în jos (fără curbă hotărâtă în sus la capăt), niciodată peste spate. Lipsa cozii, coada încarnată ori extrem de aderentă — nedoriti.",
+        "forequarters": "Anteriori scurți față de posteriori, dar nu atât încât spatele să pară lung. Umeri largi, oblici și adânci, foarte puternici și musculoși, par „fixați” de corp. Coți jos și bine distanțați de coaste. Membre foarte robuste și puternice, distanțate, groase, musculoase și drepte, cu oase largi și drepte. Metacarpi scurți, drepți și puternici.",
+        "hindquarters": "",
+        "feet": "Drepți și ușor răsuciți în afară; de mărime medie și moderat rotunzi. Degete compacte și groase, bine despărțite, cu articulații proeminente și înalte.",
+        "movement": "Cu pași scurți și iuți pe vârfuri, cu picioarele posterioare care par să atingă solul; câinele merge cu un umăr ori altul mai degrabă înainte. Mișcarea viguroasă e de maximă importanță.",
+        "coat": "De textură fină, scurt, des și neted (senzația de duritate vine doar din faptul că e scurt și des).",
+        "color": "Unicolor ori „smut” (unicolor cu mască ori bot negru). Culorile uniforme admise (strălucitoare și pure): brindatele, roșiile în diverse tonuri, fulvo, fulvo deschis etc., albele pistruiate (combinații de alb cu oricare din nuanțele admise). Culoarea „dudley”, negrul, negrul cu foc, choccolate și alte colorații admise doar cu controale de diluție.",
+        "size": "Greutate: masculi 25 kg; femele 23 kg.",
+        "skin": ""
       },
       "temperament": {
-        "behavior": "Conveys determination, strength and activity; equable and courageous companion.",
+        "behavior": "Impresie de hotărâre, forță și activitate. Treaz, îndrăzneț, loial, ascultător, curajos, cu aspect mândru, dar de fire afectuoasă.",
         "ring_attitude": "",
         "expression": "",
-        "temperament_notes": "• Male animals should have two apparently normal testicles fully descended into the scrotum. • Only functionally and clinically healthy dogs, with breed typical conformation should be used for breeding. The latest amendments are in bold characters."
+        "temperament_notes": "Masculii trebuie să aibă doi testiculi de aspect normal, complet coborâți în scrot."
       },
       "faults": {
-        "minor": [],
+        "minor": [
+          "Orice abatere de la caracterele descrise e defect, penalizat proporțional cu gravitatea și cu efectele asupra sănătății și bunăstării câinelui"
+        ],
         "serious": [],
         "disqualifying": [
-          "Aggressive or overly shy",
-          "Physical or behavioural abnormalities affecting health"
+          "Câine agresiv ori excesiv de timid",
+          "Orice câine cu anomalii fizice ori de comportament evidente"
         ]
       },
       "pedagogy": {
@@ -15234,74 +15239,90 @@
       "references": [
         {
           "type": "official_standard",
-          "title": "Official WDF Breed Standard (PDF)",
-          "url": "https://wdf-international.org/wp-content/uploads/2023/12/Standard-4.016-Bulldog-English.pdf",
-          "accessed_on": "2026-07-24"
+          "title": "Standard oficial WDF G04-143",
+          "url": "https://wdf-international.org/?wdf_standard_view=G04-143",
+          "accessed_on": "2026-08-08"
         }
       ],
       "internal_notes": "Fișă generată din standardul WDF publicat; text parafrazat în scop educațional. Verifică întotdeauna standardul oficial înainte de arbitraj.",
       "difficulty_level": "",
       "exam_relevance": "",
       "teaching_priority": "",
-      "revision_status": "",
-      "source_verification_status": "",
-      "thematic_tags": [],
-      "study_track_tags": [],
+      "revision_status": "imported",
+      "source_verification_status": "imported",
+      "thematic_tags": [
+        "Great Britain"
+      ],
+      "study_track_tags": [
+        "Group 4 Bull Type Dogs"
+      ],
       "recurring_judge_observations": [],
       "version": 1,
-      "revision_history": []
+      "revision_history": [],
+      "wdf_code": "G04-143"
     },
     {
       "id": "breed-032",
       "breed_name": "Exotic Bully",
       "alternate_names": [],
       "group": "Group 4 Bull Type Dogs",
-      "country_of_origin": "United States",
+      "country_of_origin": "USA",
       "wdf_status": "recognized",
       "coat_type": "short",
-      "functional_type": "companion",
-      "source_standard_url": "https://wdf-international.org/page/16/",
-      "source_standard_title": "Official WDF Breed Standard n° 4.015",
-      "last_updated": "2026-07-24",
+      "functional_type": "guard",
+      "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-146",
+      "source_standard_title": "Standard oficial WDF G04-146",
+      "last_updated": "2026-08-08",
       "identity": {
         "official_name": "Exotic Bully",
-        "owner_country": "United States",
-        "historical_function": "Modern companion bull-type breed recognised by WDF.",
-        "general_impression": "Compact, heavily built bull-type dog of small to medium height with pronounced muscle and a short coat.",
+        "owner_country": "USA",
+        "historical_function": "Câine de companie de tip bull.",
+        "general_impression": "Câine compact de talie medie, cu păr neted și scurt. Pielea întinsă pe un corp musculos, dens, pe osatură grea. Trăsături distinctive: piept larg și bine definit, umeri și posterior musculoși, cap pătrat, obraji pronunțați și adâncituri sub ochi. Expresie intensă și corpolență masivă, cu aspect foarte puternic. Temperament docil, blând cu copiii, cu alți câini și animale mici. Se leagă puternic de stăpân. Agresivitatea, răutatea ori timiditatea — foarte nedoriti și neobișnuite.",
         "important_proportions": "",
         "sexual_dimorphism": "",
-        "ideal_type_summary": ""
+        "ideal_type_summary": "Câine compact de talie medie, cu păr neted și scurt.",
+        "historical_summary": "Rasă nouă, intrată în lumea câinilor în 2008. Acest câine puternic și cu picioare scurte a devenit popular peste noapte, fiind cel mai apropiat „văr” al American Bully, cunoscut ca „exoticul curat”. Fiind o rasă tânără, registrele și monitorizarea dezvoltării sunt în curs. Exoticii de azi sunt un amestec în principal de American Bully, Olde English Bulldogge, Bulldog francez, Bulldog englez și Shorty Bull.",
+        "classification": "",
+        "standard_published": "",
+        "country_of_development": ""
       },
       "anatomy": {
-        "head": "",
+        "head": "Mare și lată, proporțională cu corpul. Partea superioară a craniului proeminentă, cu stop de aproape 90° față de bot, care e scurt, larg și pătrat, iese direct din față. Din profil botul e pătrat ori ușor ridicat, dar mai degrabă drept decât curb, cu minimă răsfrângere a nasului. Botul e cu un sfert ori mai scurt decât craniul. Fălci bine definite și obraji pronunciați, cu adâncituri în V sub fiecare ochi.",
         "skull": "",
         "stop": "",
         "muzzle": "",
         "jaws_teeth": "",
-        "eyes": "",
-        "ears": "",
-        "neck": "",
+        "eyes": "Ovali, jos în craniu și distanțați. Ochii rotunzi nedoriti. Orice culoare în afară de roz ori roșu ori orice albinism. Ochii albaștri acceptabili, dar nedoriti. Ochii ieșiți ori de culori diferite — defect. Mușcătură în foarfece ori prognatism inferior, dar nu peste ~6 mm.",
+        "ears": "În roză, inserate sus, naturale ori tăiate.",
+        "neck": "Greu, musculos, scurt și arcuit.",
         "topline": "",
-        "body": "",
+        "body": "Gros și musculos, cu cutie toracică bine arcuită, piept larg și coborât cel puțin la cot. Linia superioară plană ori ușor înclinată de la greabăn la crupă. Ideal pare scurt și pătrat, dar măsurat e ceva mai lung decât înălțimea. Posterior bine musculos, jarete nedeviate, în echilibru cu umerii; crupă ușor înclinată spre coadă; genunchi moderat unghiat.",
         "chest": "",
-        "tail": "",
-        "forequarters": "",
-        "hindquarters": "",
+        "tail": "Inserată jos, fără răsuciri, noduri ori curbe, ajunge la jaret și se subțiază spre vârf.",
+        "forequarters": "Musculoși și definiți, cu grup muscular vizibil în umeri. Anteriori scurți și robuști, ușor curbați din față. Metacarpi drepți, cu picioarele spre înainte. Picioare ferme, ridicate și proporționate.",
+        "hindquarters": "Bine musculos, nedeviat. Posteriorul în echilibru cu umerii ca lățime. Crupă ușor înclinată spre coadă. Unghiularea genunchiului moderată.",
         "feet": "",
         "movement": "",
-        "coat": "",
-        "color": ""
+        "coat": "Scurt, strâns și lucios. Tot părul sub 1 cm. Toate culorile și desenele admise (inclusiv Merle).",
+        "color": "",
+        "size": "Exotic Bully: 33–41 cm la greabăn. Micro Exotic Bully: sub 33 cm. Greutate proporțională cu înălțimea.",
+        "skin": ""
       },
       "temperament": {
-        "behavior": "Confident, people-oriented companion.",
+        "behavior": "",
         "ring_attitude": "",
         "expression": "",
         "temperament_notes": ""
       },
       "faults": {
-        "minor": [],
+        "minor": [
+          "Lipsă de pigment în jurul ochilor, buzelor ori nasului; membrană nictitantă căzută; riduri excesive; coadă răsucită, scurtă ori tăiată; maxilar strâmb; alb excesiv vizibil; bot lung ori ascuțit; maxilar slab; gât lung; picioare anterioare grav ieșite ori puternic arcuite; metacarpi coborâți; picioare deschise; jarete de vacă grave; genunchi drept; spate cifotic; posterior excesiv de înalt"
+        ],
         "serious": [],
-        "disqualifying": []
+        "disqualifying": [
+          "Câini albinoși",
+          "Păr cârlionțat, păros, lung ori ondulat; criptorhidie (un testicul)"
+        ]
       },
       "pedagogy": {
         "frequent_confusions": [],
@@ -15323,81 +15344,86 @@
       "references": [
         {
           "type": "official_standard",
-          "title": "Official WDF Breed Standard (PDF)",
-          "url": "https://wdf-international.org/page/16/",
-          "accessed_on": "2026-07-24"
+          "title": "Standard oficial WDF G04-146",
+          "url": "https://wdf-international.org/?wdf_standard_view=G04-146",
+          "accessed_on": "2026-08-08"
         }
       ],
       "internal_notes": "Standard WDF listat în arhiva de standarde (pagina 16 a site-ului WDF); nu are un link PDF direct la data culegerii. De completat când PDF-ul devine accesibil.",
       "difficulty_level": "",
       "exam_relevance": "",
       "teaching_priority": "",
-      "revision_status": "",
-      "source_verification_status": "",
-      "thematic_tags": [],
-      "study_track_tags": [],
+      "revision_status": "imported",
+      "source_verification_status": "imported",
+      "thematic_tags": [
+        "USA"
+      ],
+      "study_track_tags": [
+        "Group 4 Bull Type Dogs"
+      ],
       "recurring_judge_observations": [],
       "version": 1,
-      "revision_history": []
+      "revision_history": [],
+      "wdf_code": "G04-146"
     },
     {
-      "breed_name": "MINIATURE BULL TERRIER",
+      "breed_name": "Miniature Bull Terrier",
       "alternate_names": [],
       "group": "Group 4 Bull Type Dogs",
       "country_of_origin": "Great Britain",
       "wdf_status": "recognized",
-      "coat_type": "short",
+      "coat_type": "wire",
       "functional_type": "guard",
-      "source_standard_title": "WDF breed standard — MINIATURE BULL TERRIER",
-      "source_standard_url": "",
-      "last_updated": "2026-08-05",
+      "source_standard_title": "Standard oficial WDF G04-141",
+      "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-141",
+      "last_updated": "2026-08-08",
       "identity": {
-        "official_name": "MINIATURE BULL TERRIER",
+        "official_name": "Miniature Bull Terrier",
         "owner_country": "Great Britain",
         "historical_function": "Terrier.",
-        "general_impression": "Strongly built, muscular, well balanced and active with a keen, determined and intelligent expression. A unique feature is a downfaced, egg-shaped head. Irrespective of size dogs should look masculine and bitches feminine.",
+        "general_impression": "De construcție puternică, musculos, bine proporționat și activ, cu expresie interesată, hotărâtă și inteligentă. Unic prin capul în formă de ou cu nasul descendent. Indiferent de talie, masculii masculini și femelele feminine.",
         "important_proportions": "",
         "sexual_dimorphism": "",
-        "ideal_type_summary": "Strongly built, muscular, well balanced and active with a keen, determined and intelligent expression.",
-        "historical_summary": "It was a certain James Hinks who first standardised the breed type in the 1850s, selecting the egg-shaped head. The breed was first shown in its present form at Birmingham in 1862. The Bull Terrier Club was formed in 1887. The truly interesting thing about the breed is that the standard says quite deliberately: “There are neither weight nor height limits, but there should be the impression of maximum substance for size of dog consistent with quality and sex. Dog should at all times be balanced.” A smaller example of the Bull Terrier has been known since the early 19th century but fell out of favour prior to the First World War and was removed from the Kennel Club Breed Register in 1918. In 1938, a revival was spearheaded by Colonel Richard Glyn and a group of fellow enthusiasts who formed the Miniature Bull Terrier Club. The standard is the same as that of the Bull Terrier with the exception of a height limit.",
-        "classification": "Section 3 Bull type Terriers.",
-        "standard_published": "05.07.2011",
+        "ideal_type_summary": "De construcție puternică, musculos, bine proporționat și activ, cu expresie interesată, hotărâtă și inteligentă.",
+        "historical_summary": "James Hinks a redactat primul standard în 1850, selecționând capul în formă de ou. Rasa a fost expusă întâia oară în forma actuală la Birmingham, în 1862; Bull Terrier Club fondat în 1887. Un tip mai mic era cunoscut încă de la începutul secolului XIX, dar a pierdut popularitate înainte de Primul Război Mondial și a fost scos din Registrul Kennel Club în 1918. În 1938, un grup condus de colonelul Richard Glyn a fondat Miniature Bull Terrier Club pentru a reînvia rasa. Standardul e identic cu al Bull Terrierului, cu excepția limitei de înălțime.",
+        "classification": "",
+        "standard_published": "",
         "country_of_development": ""
       },
       "anatomy": {
-        "head": "",
-        "skull": "Top of skull almost flat from ear to ear.",
+        "head": "Lungă, puternică și adâncă până la capătul botului, dar nu grosolană. Din față, în formă de ou și bine plină, fără cavități. Din profil, o curbă blândă în jos, de la creștet la trufă.",
+        "skull": "Creștetul mai degrabă plat între urechi.",
         "stop": "",
-        "muzzle": "Nose: Should be black. Bent downwards at tip. Nostrils well developed. Lips: Clean and tight.",
-        "jaws_teeth": "Under-jaw deep and strong. Teeth sound, clean, strong, of good size, regular with a perfect, regular and complete scissor bite, i. e. upper teeth closely overlapping lower teeth and set square to the jaws.",
-        "eyes": "Appearing narrow and triangular, obliquely placed, black or as dark brown as possible so as to appear almost black and with a piercing glint. Distance from tip of nose to eyes perceptibly greater than that from eyes to top of skull. Blue or partly blue undesirable.",
-        "ears": "Small, thin and placed close together. Dog should be able to hold them stiffly erect, when they point straight upwards.",
-        "neck": "Very muscular, long, arched, tapering from shoulders to head and free from loose skin",
-        "topline": "Short, strong, with backline behind withers level, arching or roaching slightly over loins.",
-        "body": "Well rounded with marked spring of rib and great depth from withers to brisket, so that latter nearer ground than belly. Back: Short, strong, with backline behind withers level, arching or roaching slightly over loins. Loin: Broad, well muscled. Chest: Broad when viewed from front. Underline and belly: From brisket to belly forms a graceful upward curve.",
-        "chest": "Broad when viewed from front.",
-        "tail": "Short, set on low and carried horizontally. Thick at root, it tapers to a fine point.",
-        "forequarters": "General appearance: Dog should stand solidly upon legs and they should be perfectly parallel. In mature dogs length of forelegs should be approximately equal to depth of chest. Shoulder: Strong and muscular without loading. Shoulder blades wide, flat and held closely to chest wall and have a very pronounced backward slope of front edge from bottom to top, forming almost a right angle with upper arm. Elbow: Held straight and strong. Forearm: Forelegs have strongest type of round, quality bone. Metacarpus (Pastern): Upright. Forefeet: Round and compact with well arched toes.",
-        "hindquarters": "General appearance: Hind legs parallel when viewed from behind. Thigh: Muscular. Stifle (Knee): Joint well bent. Lower thigh: Well developed. Hock joint: Well angulated. Metatarsus (Rear pastern): Bone to foot short and strong. Hind feet: Round and compact with well arched toes.",
-        "feet": "Round and compact with well arched toes. Round and compact with well arched toes.",
-        "movement": "When moving appears well knit, smoothly covering ground with free, easy strides and with a typical jaunty air. When trotting, movement parallel, front and back, only converging towards centre line at faster speeds, forelegs reaching out well and hind legs moving smoothly at hip, flexing well at stifle and hock, with great thrust.",
-        "coat": "Short, flat, even and harsh to touch with a fine gloss. A soft textured undercoat may be present in winter.",
-        "color": "For White, pure white coat. Skin pigmentation and markings on head not to be penalised. For Coloured, colour predominates; all other things being equal, brindle preferred. Black brindle, red, fawn and tricolour acceptable. Tick markings in white coat undesirable. Blue and liver highly undesirable.",
-        "size": "Height should not exceed 35,5 cms. There should be an impression of substance to size of dog consistent with quality and sex. There is no weight limit. Dog should at all times be balanced.",
-        "skin": "Fitting dog tightly."
+        "muzzle": "Trufă neagră; la vârf înclinată în jos. Nări bine dezvoltate. Buze de croială netă, aderente.",
+        "jaws_teeth": "Maxilar inferior puternic și adânc. Dinți sănătoși, puternici, bine implantați. Mușcătură în foarfece perfectă, regulată și completă.",
+        "eyes": "Par îngusti și triunghiulari, oblici, negri ori maro cât mai închis; privire pătrunzătoare. Distanța trufă–ochi vizibil mai mare decât ochi–creștet. Ochii albaștri (total ori parțial) nedoriti.",
+        "ears": "Mici, fini și apropiați. Câinele trebuie să-i țină rigid ridicați, îndreptați înainte.",
+        "neck": "Foarte musculos, lung, cu profil superior arcuit; se îngustează de la umeri spre cap, fără salbă.",
+        "topline": "Scurt, puternic. Linia superioară orizontală după greabăn, apoi arcuită ori ușor convexă pe șale.",
+        "body": "Trunchi bine rotunjit, cu coaste marcat arcuite și torace bine coborât de la greabăn la stern.",
+        "chest": "Larg din față.",
+        "tail": "Scurtă, inserată jos și purtată orizontal. Groasă la bază, se subțiază spre vârf.",
+        "forequarters": "",
+        "hindquarters": "",
+        "feet": "",
+        "movement": "Compact în mișcare, cu pași ușori și fluizi, aer sprințar. La trap, membrele paralele (față și spate), convergând spre linia mediană doar la viteză. Bun alungit anterior și impuls posterior puternic.",
+        "coat": "Scurt, plat, uniform și dur la atingere, cu bun luciu. Iarna poate avea subpăr moale.",
+        "color": "La cei albi, alb pur; pigmentarea pielii și petele pe cap nu-s defect. La cei colorați, culoarea predomină peste alb; la calitate egală se preferă brindatul. Admise: negru, brindat, roșu, fulvo, tricolor. Muscăturile în alb nedoriti. Albastru și ficat foarte nedoriti.",
+        "size": "Înălțimea nu trebuie să depășească 35,5 cm. Impresie de substanță față de talie, ținând cont de calitate și sex. Fără limită de greutate. Mereu bine echilibrat.",
+        "skin": "Strâns aderentă pe tot corpul."
       },
       "temperament": {
-        "behavior": "Courageous, full of spirit, with a fun loving attitude. Of even temperament and amenable to discipline. Although obstinate is particularly good with people. HEAD Long, strong and deep right to end of muzzle, but not coarse. Viewed from front egg-shaped and completely filled, its surface free from hollows or indentations. Profile curves gently downwards from top of skull to tip of nose.",
+        "behavior": "Curajos, plin de vioiciune, cu caracter amabil și vesel. Calm și înclinat spre disciplină. Deși încăpățânat, e deosebit de bun cu oamenii.",
         "ring_attitude": "",
         "expression": "",
-        "temperament_notes": "• Male animals should have two apparently normal testicles fully descended into the scrotum (this expression is obligatory in every standard). • Only functionally and clinically healthy dogs, with breed typical conformation should be used for breeding."
+        "temperament_notes": "Masculii trebuie să aibă doi testiculi de aspect normal, complet coborâți în scrot. Doar subiecții sănătoși și tipici pot fi folosiți la reproducere."
       },
       "faults": {
         "minor": [],
         "serious": [],
         "disqualifying": [
-          "Aggressive or overly shy dogs",
-          "Any dog clearly showing physical or behavioural abnormalities"
+          "Subiect agresiv ori excesiv de timid",
+          "Orice câine cu anomalii fizice ori de comportament evidente"
         ]
       },
       "pedagogy": {
@@ -15416,9 +15442,9 @@
       "references": [
         {
           "type": "official_standard",
-          "title": "WDF breed standard (document received from the association)",
-          "url": "",
-          "accessed_on": "2026-08-05"
+          "title": "Standard oficial WDF G04-141",
+          "url": "https://wdf-international.org/?wdf_standard_view=G04-141",
+          "accessed_on": "2026-08-08"
         }
       ],
       "internal_notes": "",
@@ -15436,66 +15462,66 @@
       "recurring_judge_observations": [],
       "version": 1,
       "revision_history": [],
-      "id": "breed-144"
+      "id": "breed-144",
+      "wdf_code": "G04-141"
     },
     {
-      "breed_name": "STAFFORDSHIRE BULL TERRIER",
+      "breed_name": "Staffordshire Bull Terrier",
       "alternate_names": [],
       "group": "Group 4 Bull Type Dogs",
       "country_of_origin": "Great Britain",
       "wdf_status": "recognized",
       "coat_type": "short",
       "functional_type": "guard",
-      "source_standard_title": "WDF breed standard — STAFFORDSHIRE BULL TERRIER",
-      "source_standard_url": "",
-      "last_updated": "2026-08-05",
+      "source_standard_title": "Standard oficial WDF G04-148",
+      "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-148",
+      "last_updated": "2026-08-08",
       "identity": {
-        "official_name": "STAFFORDSHIRE BULL TERRIER",
+        "official_name": "Staffordshire Bull Terrier",
         "owner_country": "Great Britain",
         "historical_function": "Terrier.",
-        "general_impression": "Smooth-coated, well balanced, of great strength for his size. Muscular, active and agile.",
+        "general_impression": "Câine cu păr neted, bine proporționat, de mare forță pentru talia sa. Musculos, activ și agil.",
         "important_proportions": "",
         "sexual_dimorphism": "",
-        "ideal_type_summary": "Smooth-coated, well balanced, of great strength for his size.",
+        "ideal_type_summary": "Câine cu păr neted, bine proporționat, de mare forță pentru talia sa.",
         "historical_summary": "",
-        "classification": "Section 3 Bull type Terriers. Without working trial.",
-        "standard_published": "24.06.1987",
+        "classification": "",
+        "standard_published": "",
         "country_of_development": ""
       },
       "anatomy": {
-        "head": "Short.",
-        "skull": "Deep through with broad skull.",
-        "stop": "Distinct.",
-        "muzzle": "Short foreface. Nose: Black. Lips: Tight and clean.",
-        "jaws_teeth": "Jaws strong, teeth large, with a perfect, regular and complete scissor bite, i. e. upper teeth closely overlapping the lower teeth and set square to the jaw.",
-        "eyes": "Dark preferred but may bear some relation to coat colour. Round, of medium size, and set to look straight ahead. Eye rims dark.",
-        "ears": "Rose or half pricked, not large or heavy. Full, drop or pricked ears highly undesirable.",
-        "neck": "Muscular, rather short, clean in outline gradually widening towards shoulders.",
-        "topline": "Level.",
-        "body": "Close-coupled. Topline: Level. Chest: Wide front, deep brisket, well sprung ribs ; muscular and well defined.",
-        "chest": "Wide front, deep brisket, well sprung ribs ; muscular and well defined.",
-        "tail": "Medium length, low set, tapering to a point and carried rather low. Should not curl much and may be likened to an old-fashioned pump handle.",
-        "forequarters": "Legs straight and well boned, set rather wide apart, showing no weakness at the pasterns, from which point feet turn out a little. Shoulders: Well laid back. Elbows: No looseness. Forefeet: Well padded, strong and of medium size. Nails black in solid coloured dogs.",
-        "hindquarters": "Well muscled. Legs parallel when viewed from behind. Stifles: Well bent. Hocks: Well let down. Hind feet: Well padded, strong and of medium size. Nails black in solid coloured dogs.",
-        "feet": "Well padded, strong and of medium size. Nails black in solid coloured dogs. Well padded, strong and of medium size. Nails black in solid coloured dogs.",
-        "movement": "Free, powerfull and agile with economy of effort. Legs moving parallel when viewed from front or rear. Discernible drive from hindlegs.",
-        "coat": "Smooth, short and close. Colour: red, fawn, white, black or blue, or any one of these colours with white. Any shade of brindle or any shade of brindle with white. Black and tan or liver colour highly undesirable.",
-        "color": "red, fawn, white, black or blue, or any one of these colours with white. Any shade of brindle or any shade of brindle with white. Black and tan or liver colour highly undesirable.",
-        "size": "Desirable height at withers: 14-16 ins. (35,5 to 40,5 cm), these heights being related to the weights. Weight: Dogs : 28-38 lbs (12,7-17 kg). Bitches : 24-34 lbs (11-15,4 kg)",
+        "head": "Scurtă.",
+        "skull": "Adânc și larg.",
+        "stop": "Marcat.",
+        "muzzle": "Scurt. Trufă neagră. Buze aderente și de croială curată.",
+        "jaws_teeth": "Fălci puternice, dinți largi, cu mușcătură în foarfece perfectă, regulată și completă. Mușchii obrajilor foarte pronunciați.",
+        "eyes": "De preferat închiși, dar pot fi în armonie cu mantaua. Rotunzi, de mărime medie, îndreptați drept înainte. Margini palpebrale închise.",
+        "ears": "În roză ori semiridicate, nici mari, nici grele. Cele pline, căzute ori ascuțite sunt foarte nedoriti.",
+        "neck": "Musculos, mai degrabă scurt, cu profil net, se lărgește treptat spre umeri.",
+        "topline": "",
+        "body": "Compact. Linie superioară orizontală. Piept larg în față, stern adânc, coaste bine arcuite; musculos și bine definit.",
+        "chest": "",
+        "tail": "De lungime medie, inserată jos, se subțiază spre vârf; purtată mai degrabă jos. Nu ar trebui să se răsucească mult; se aseamănă cu un mâner de pompă de model vechi.",
+        "forequarters": "Membre drepte și cu bună osatură, mai degrabă distanțate, fără slăbiciune la metacarpi, de la care picioarele deviază puțin în afară. Umeri bine oblici. Coți nedeviați.",
+        "hindquarters": "Bine musculoși. Paraleli din spate. Genunchi bine unghiați. Jarete bine coborâte.",
+        "feet": "Cu perinițe bune, puternice și de mărime medie. Unghii negre la câinii unicolori.",
+        "movement": "Liberă, puternică și agilă, fără efort. Membrele se mișcă paralel din față și din spate. Impuls posterior evident.",
+        "coat": "Neted, scurt și des.",
+        "color": "Roșu, fulvo, alb, negru ori albastru, ori oricare din acestea cu alb. Orice nuanță de brindat ori brindat cu alb. Negrul cu foc ori culoarea ficatului — foarte nedoriti.",
+        "size": "Înălțime de dorit la greabăn: 35,5–40,5 cm, în armonie cu greutatea. Masculi 12,7–17 kg; femele 11–15,4 kg.",
         "skin": ""
       },
       "temperament": {
-        "behavior": "Traditionally of indomitable courage and tenacity. Highly intelligent and affectionate especially with children. Bold, fearless and totally reliable.",
+        "behavior": "Tradițional cu un curaj și o tenacitate de neînfrânt. Foarte inteligent și afectuos, mai ales cu copiii. Îndrăzneț, neînfricat și pe deplin demn de încredere.",
         "ring_attitude": "",
         "expression": "",
-        "temperament_notes": "• Male animals should have two apparently normal testicles fully descended into the scrotum. • Only functionally and clinically healthy dogs, with breed typical conformation, should be used for breeding."
+        "temperament_notes": "Masculii trebuie să aibă doi testiculi de aspect normal, complet coborâți în scrot."
       },
       "faults": {
         "minor": [],
         "serious": [],
         "disqualifying": [
-          "Aggressive or overly shy dogs",
-          "Any dog clearly showing physical or behavioural abnormalities"
+          "Orice câine cu anomalii fizice ori de comportament evidente"
         ]
       },
       "pedagogy": {
@@ -15514,9 +15540,9 @@
       "references": [
         {
           "type": "official_standard",
-          "title": "WDF breed standard (document received from the association)",
-          "url": "",
-          "accessed_on": "2026-08-05"
+          "title": "Standard oficial WDF G04-148",
+          "url": "https://wdf-international.org/?wdf_standard_view=G04-148",
+          "accessed_on": "2026-08-08"
         }
       ],
       "internal_notes": "",
@@ -15534,7 +15560,8 @@
       "recurring_judge_observations": [],
       "version": 1,
       "revision_history": [],
-      "id": "breed-145"
+      "id": "breed-145",
+      "wdf_code": "G04-148"
     },
     {
       "breed_name": "AKITA",
@@ -51276,6 +51303,777 @@
       ],
       "study_track_tags": [
         "Group 5 Dogs of the Primitive Type"
+      ],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-457",
+      "wdf_code": "G04-135",
+      "breed_name": "American Bulldog",
+      "alternate_names": [
+        "American Bulldog Jhonson",
+        "American Bulldog Johnson",
+        "American Bulldog Scott"
+      ],
+      "group": "Group 4 Bull Type Dogs",
+      "country_of_origin": "USA",
+      "wdf_status": "recognized",
+      "coat_type": "wire",
+      "functional_type": "guard",
+      "source_standard_title": "Standard oficial WDF G04-135",
+      "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-135",
+      "last_updated": "2026-08-08",
+      "identity": {
+        "official_name": "American Bulldog",
+        "owner_country": "USA",
+        "historical_function": "Câine de lucru polivalent, de prindere (bovine, porci) și de pază.",
+        "general_impression": "Câine puternic și atletic, cu păr scurt, foarte musculos și cu osatură bună. Corpul abia ceva mai lung decât înalt. Cap mare și larg, cu bot amplu. Urechi mici spre medii, inserate sus, pot fi căzute, semiridicate, în roză ori tăiate. Coada poate fi amputată ori naturală. Diferențe evidente între sexe (masculii mai mari și mai musculoși). Cicatricile de lucru nu se penalizează. Se evaluează ca și câine de lucru; exagerările ori defectele se penalizează proporțional cu cât împiedică lucrul. Notă: American Bulldog tineri pot fi rezervați cu străinii — nu se penalizează; siguranța de sine tipică apare pe la 18 luni.",
+        "important_proportions": "",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": "Câine puternic și atletic, cu păr scurt, foarte musculos și cu osatură bună.",
+        "historical_summary": "În Anglia, buldogii erau la origine câini de lucru care mânau și prindeau vitele și păzeau proprietatea. Forța și curajul rasei au dus la popularitatea ei în brutalul „bull-baiting”; când acesta a fost interzis, tipul original a dispărut din Marea Britanie, înlocuit de buldogul mai scund și mai puțin atletic de azi (Bulldogul englez). Tipul original a fost păstrat de imigranții din clasa muncitoare care și-au dus câinii în sudul SUA. După al Doilea Război Mondial rasa era aproape dispărută; John D. Johnson, veteran de război, a recuperat-o împreună cu Alan Scott și alți crescători. Au apărut linii distincte: tipul Johnson („bully”) — corp mai masiv, osatură grea, cap mare, stop marcat, bot scurt, prognatism inferior pronunțat; tipul Scott („standard”) — mai atletic și zvelt, osatură mai ușoară, bot mai lung, stop moderat. Azi mulți American Bulldog sunt hibrizi între linii.",
+        "classification": "",
+        "standard_published": "",
+        "country_of_development": ""
+      },
+      "anatomy": {
+        "head": "Mare și lată, cu impresie de mare putere. Din profil, craniul și botul sunt paralele, unite de un stop bine definit, foarte adânc și brusc, aproape în unghi drept cu botul. În ciuda adâncimii stopului, fruntea e mai lată decât înaltă.",
+        "skull": "Mare, plat, adânc și larg între urechi. De sus, pătrat. Șanț median adânc, mai puțin adânc spre occiput. Mușchii obrajilor proeminenți. La tipul bully craniul e de la pătrat la rotunjit, cu stop mai marcat și mai multe riduri; la tipul standard e pătrat ori în formă de pană. Defect grav: craniu excesiv de îngust, la orice tip.",
+        "stop": "",
+        "muzzle": "Larg și gros, cu o foarte ușoară îngustare de la stop spre trufă. Lungimea botului: 25–35% din lungimea capului la tipul bully, 30–40% la tipul standard. Fălci bine musculate și foarte puternice. Buze moderat de groase, dar nependinte; de preferat pigment negru. Bărbie bine definită. Defect grav: bot excesiv de îngust, la orice tip.",
+        "jaws_teeth": "Dentiție completă de 42 de dinți mari, albi și uniform distanțați. La tipul standard e de preferat mușcătura în foarfece inversă; se acceptă foarfecele ori un prognatism inferior moderat (până la ~6 mm). La tipul bully e de preferat prognatism inferior de circa 6 mm, dar se acceptă între 3 și 13 mm. Se admite cleștele, dar nu e preferat. Prognatismul extrem e defect în măsura în care împiedică lucrul. Dinții nu-s vizibili cu gura închisă. Se acceptă dinți uzați ori rupți.",
+        "eyes": "De mărime medie, de la rotunzi la migdalați, bine distanțați. Toate culorile se acceptă, dar se preferă maro-închis. Membrana nictitantă nevizibilă. De preferat margini palpebrale negre.",
+        "ears": "Pot fi tăiate, dar se preferă cele naturale — mici spre medii, inserate sus, căzute, semiridicate ori în roză. Căzute: inserate sus, la nivelul liniei superioare a craniului, ușor ridicate anterior la bază, apoi atârnă pe obraz cu vârf ușor rotunjit; trasă spre ochi, nu depășește unghiul extern. Semiridicate: ca cele căzute, dar doar vârfurile cad înainte. În roză: mici, inserate sus. Defect: urechi de copoi.",
+        "neck": "Prin gât exercită câinele forța de a doborî vitele. Suficient de lung pentru pârghie, dar destul de scurt pentru putere. Musculos, în punctul cel mai lat aproape cât capul, cu ușor arc al liniei superioare și o ușoară îngustare de la umeri spre cap. Se admite o ușoară salbă.",
+        "topline": "",
+        "body": "Torace adânc și moderat de larg, cu spațiu amplu pentru inimă și plămâni. Coaste bine arcuite de la coloană, apoi aplatizate, formând un corp adânc care la adulți ajunge cel puțin la coți. Linia superioară coboară foarte ușor de la greabănul bine dezvoltat spre un spate larg și musculos. Șale scurte, largi și ușor arcuite, racordate cu o crupă ușor înclinată. Flancul moderat retras și ferm.",
+        "chest": "",
+        "tail": "Naturală ori amputată, dar se preferă cea naturală — foarte groasă la bază, inserată jos, se subțiază spre vârf; ar trebui să ajungă la jaret. Se preferă coada „mâner de pompă”, dar se acceptă orice port, de la ridicată la relaxată între jarete.",
+        "forequarters": "Umeri puternici și bine musculați. Omoplat bine culcat spre spate, formând cu brațul un unghi aparent de 90°. Vârfurile omoplaților distanțate cu 2–3 degete. Membre anterioare cu osatură grea și foarte musculoase. Coți paraleli cu corpul, nedeviați. Din față, anteriorii perpendiculari pe sol (la un torace foarte larg pot înclina ușor spre interior). Metacarpi scurți, puternici, ușor înclinați lateral; din față drepți.",
+        "hindquarters": "Bine musculos și larg. Lățimea și unghiularea în echilibru cu anteriorul. Coapse bine dezvoltate, cu mușchi groși. Gambe musculoase și scurte. Metatarsi bine coborâți și perpendiculari pe sol; din spate drepți și paraleli.",
+        "feet": "Rotunzi, de mărime medie, bine arcuiți și compacți. Defect: picioare deschise (gravitatea după gradul de deschidere a degetelor).",
+        "movement": "La trap, fără efort, fluidă, puternică și coordonată, cu bun alungit al anteriorilor și bun impuls al posteriorilor. Linia superioară rămâne orizontală, cu doar o ușoară flexiune elastică. Nedeviat din nicio poziție; picioarele nu se încrucișează. La viteză, picioarele converg spre linia centrală. Mișcarea slabă se penalizează în măsura în care reduce capacitatea de lucru.",
+        "coat": "Scurt, aderent, de la moale la dur la atingere. Lungime de cel mult 2,5 cm.",
+        "color": "Orice culoare, desen ori combinație, în afară de negru uniform, albastru uniform, merle și tricolor. Nici masca neagră completă. Unele brindate foarte închise pot părea negre la lumină slabă — nu se descalifică pentru negru decât examinat la soare ori lumină echivalentă. Defect grav: sub 10% marcaje albe.",
+        "size": "",
+        "skin": ""
+      },
+      "temperament": {
+        "behavior": "",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [
+          "Membrană nictitantă foarte vizibilă"
+        ],
+        "serious": [
+          "Spate înșeuat; linie superioară înclinată"
+        ],
+        "disqualifying": [
+          "Agresivitate necontrolată ori timiditate extremă; lașitate"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Standard oficial WDF G04-135",
+          "url": "https://wdf-international.org/?wdf_standard_view=G04-135",
+          "accessed_on": "2026-08-08"
+        }
+      ],
+      "internal_notes": "",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "imported",
+      "source_verification_status": "imported",
+      "thematic_tags": [
+        "USA"
+      ],
+      "study_track_tags": [
+        "Group 4 Bull Type Dogs"
+      ],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-458",
+      "wdf_code": "G04-136",
+      "breed_name": "American Bully",
+      "alternate_names": [
+        "American Bully Pocket",
+        "American Bully Standard",
+        "American Bully Classic",
+        "American Bully XL"
+      ],
+      "group": "Group 4 Bull Type Dogs",
+      "country_of_origin": "USA",
+      "wdf_status": "recognized",
+      "coat_type": "wire",
+      "functional_type": "guard",
+      "source_standard_title": "Standard oficial WDF G04-136",
+      "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-136",
+      "last_updated": "2026-08-08",
+      "identity": {
+        "official_name": "American Bully",
+        "owner_country": "USA",
+        "historical_function": "Câine de companie de tip bull.",
+        "general_impression": "Câine specific de companie, complet docil și tovarăș, atât cu oamenii, cât și cu alte animale. Câine activ, mediu de energic, care iubește plimbarea și joaca. Varietăți: Pocket (cea mai mică și populară) — masculi 36–43 cm, femele 33–40 cm; Standard — masculi 43–51 cm, femele 40–48 cm; Classic — cel mai apropiat de „bully primitiv”, fizic mai puțin robust; XL (cea mai mare) — masculi 51–57 cm, femele 48–54 cm. Sănătate: consangvinizarea a dus la tendințe ereditare (cataractă, displazie de șold/cot, probleme cardiace, alergii, hipotiroidism, demodicoză, surditate).",
+        "important_proportions": "",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": "Câine specific de companie, complet docil și tovarăș, atât cu oamenii, cât și cu alte animale.",
+        "historical_summary": "American Bully s-a născut din dorința unui câine de companie complet docil, cu oameni și animale, dar cu aspect puternic și greu și cap aparte. Din anii ’90 varietatea a atras atenția prin culoarea albastră (nas albastru) și fizicul robust, compact, cu cap mare, primind porecla „bully style pit”. Alături de liniile Gotti (Gottiline) și Greyline, „mișcarea în stil bully” a apărut și în alte rase (American Bulldog, Olde English Bulldogge). Prin folosirea acestor linii, împreună cu consangvinizare și includerea unor rase bulldog (se bănuiesc Bulldog englez, Bulldog francez, American Bulldog, Dogue de Bordeaux la varietatea XL), selecția morfologică a dus la varietățile oficiale: Standard, Classic, Pocket și XL.",
+        "classification": "",
+        "standard_published": "",
+        "country_of_development": ""
+      },
+      "anatomy": {
+        "head": "Notabil de mare și lată, cu circumferință de 20 inci ori peste la masculi, 18 inci ori peste la femele, măsurată la nivelul molarilor și în jurul creștetului. Exemplifică tipul de rasă.",
+        "skull": "Larg, de lungime medie, cu mușchii obrajilor foarte pronunciați și stop net și adânc.",
+        "stop": "",
+        "muzzle": "Blocat ori ușor pătrat, cade net sub ochi și larg. Lungimea sub cea a craniului; distanța trufă–stop circa o treime din distanța trufă–ceafă. Linia superioară a botului dreaptă, nasul nici ascuțit, nici răsfrânt în sus din profil.",
+        "jaws_teeth": "Sub maxilar: tablă puternică și paralelă cu botul, niciodată răsfrântă în sus. Buze semiînchise și uniforme, un minim de lasitate acceptat, dar nepreferat. Dinți superiori strâns în afara celor inferiori, în foarfece.",
+        "eyes": "Toate culorile se acceptă în afară de albinism (roz spre roșu) — descalificare. Ochii albaștri și lipsa de pigment în jur sunt nedorite. Formă ovală spre migdalată, jos în craniu, bine distanțați. Ochii rotunzi nedoriti; ieșiți — defect. Vizibilitatea membranei nictitante minimă.",
+        "ears": "Inserate sus, naturale ori tăiate.",
+        "neck": "Greu, musculos, ușor arcuit, se îngustează de la umăr spre ceafă.",
+        "topline": "",
+        "body": "Corp voluminos și musculos, de lungime medie, compact, dând impresie de putere substanțială pentru mărime. Coaste bine arcuite formând un torace în butoi, cutia toracică ajunge la cot ori ceva mai jos. Spate de la scurt la mediu, ușor înclinat de la greabăn la crupă (ori drept). Impresie de corp pătrat, de lungime egală cu înălțimea. Posterior bine musculos, jarete coborâte, nedeviate; dezvoltarea și unghiularea posteriorului în echilibru cu anteriorul; din spate drept și paralel. Crupă cu ușoară înclinare.",
+        "chest": "Larg, adânc și bine plin, spațios și foarte musculos, adânc de la umăr până unde se unește cu toracele.",
+        "tail": "De mărime medie, inserată jos, se subțiază spre vârf, ajunge la jaret. Relaxată purtată jos; în mișcare la nivelul liniei spatelui ori ridicată (coadă de sfidare) când e agitat, dar niciodată răsucită. Fără pliuri, noduri ori curbe.",
+        "forequarters": "Drepți, bine distanțați, puternici, musculoși, cu osatură mare, metacarpi scurți și aproape verticali.",
+        "hindquarters": "Bine musculos; jaretele nu trebuie să se apropie prea mult ori să se atingă.",
+        "feet": "Rotunzi și de mărime moderată, proporționați cu câinele. Compacți, bine arcuiți și fermi.",
+        "movement": "Se mișcă mândru și atent. Mișcare liberă și fără efort, cu impuls posterior puternic. Alungit anterior moderat, echilibrat cu spatele. Picioarele nedeviate, neîncrucișate. Linia inferioară rămâne la nivel, cu ușoară flexiune.",
+        "coat": "Scurt, lucios, des, de la aspru la neted, sub 1 cm. Toate culorile și desenele admise, inclusiv Merle. Câinii sănătoși, nu obezi.",
+        "color": "",
+        "size": "Nu există o greutate anume. Măsurile diferă pe varietăți (vezi general_impression).",
+        "skin": ""
+      },
+      "temperament": {
+        "behavior": "",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [
+          "Membrană nictitantă excesiv de vizibilă, ochi ieșiți, bot prea lung ori ascuțit, lipsa stopului pronunțat, maxilar slab ori răsfrânt, nas roz-deschis ori răsfrânt, coadă prea lungă/scurtă ori răsucită, mușcătură în clește, gât prea scurt/lung, umeri drepți, antebraț prea scurt, anterior arcuit, metacarpi flexați, picioare deschise ori plate, jarete deviate, păr lung/ondulat, mișcare defectuoasă (rulare, buiestru, pas lateral)"
+        ],
+        "serious": [
+          "Prognatism ori enognatism grav (6 mm ori peste), coadă răsucită/înnodată/topită ori excesiv de scurtă, păr lung"
+        ],
+        "disqualifying": [
+          "Comportament agresiv față de oameni",
+          "Ochi roz ori albinoși",
+          "Criptorhidie uni- ori bilaterală"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Standard oficial WDF G04-136",
+          "url": "https://wdf-international.org/?wdf_standard_view=G04-136",
+          "accessed_on": "2026-08-08"
+        }
+      ],
+      "internal_notes": "",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "imported",
+      "source_verification_status": "imported",
+      "thematic_tags": [
+        "USA"
+      ],
+      "study_track_tags": [
+        "Group 4 Bull Type Dogs"
+      ],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-459",
+      "wdf_code": "G04-137",
+      "breed_name": "American Pit Bull Terrier",
+      "alternate_names": [],
+      "group": "Group 4 Bull Type Dogs",
+      "country_of_origin": "USA",
+      "wdf_status": "recognized",
+      "coat_type": "wire",
+      "functional_type": "guard",
+      "source_standard_title": "Standard oficial WDF G04-137",
+      "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-137",
+      "last_updated": "2026-08-08",
+      "identity": {
+        "official_name": "American Pit Bull Terrier",
+        "owner_country": "USA",
+        "historical_function": "Câine de prindere și de lucru polivalent; azi și câine de sport și companie.",
+        "general_impression": "Câine de talie medie, cu corp solid, păr scurt, musculatură netedă și bine definită. Puternic și atletic. Corpul ceva mai lung decât înalt (femelele pot fi ceva mai lungi). Lungimea anteriorului (cot–sol) ≈ jumătate din înălțimea la greabăn. Cap de lungime medie, craniu larg și plat, bot larg și adânc. Urechi mici spre medii, inserate sus, naturale ori tăiate. Coadă relativ scurtă, inserată jos, groasă la bază, se subțiază. Îmbină forța și atletismul cu grația și agilitatea; nu trebuie să pară niciodată masiv ori cu osatură fină. Trebuie să fie funcțional un câine de prindere. Defecte de eliminat: orice caracter disproporționat/exagerat (picioare scurte, osatură excesivă, cap/corp masiv) care împiedică activitatea. Descalificare: criptorhidie uni-/bilaterală; nanism.",
+        "important_proportions": "",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": "Câine de talie medie, cu corp solid, păr scurt, musculatură netedă și bine definită.",
+        "historical_summary": "În secolul XIX, pasionații din Anglia, Irlanda și Scoția au încrucișat Bulldog cu Terrier, căutând un câine care să îmbine tenacitatea terrierului cu forța și atletismul buldogului. Imigranții au adus acești Bull-and-Terrier în SUA, unde fermierii i-au folosit ca și câini de prindere pentru vite și porci, la vânătoare și ca tovarăși de familie. United Kennel Club a fost primul registru care a recunoscut rasa (fondatorul C.Z. Bennett i-a dat numărul UKC 1 câinelui său, în 1898). WDF lucrează azi în selecție pe varietăți definite prin utilizare și aptitudine (Standard, Sport & Work), plus o varietate pentru controlul tarelor genetice legate de colorațiile „exotice” (inclusiv Merle, sub verificări speciale).",
+        "classification": "",
+        "standard_published": "",
+        "country_of_development": ""
+      },
+      "anatomy": {
+        "head": "De lungime medie, în formă de cărămidă, cu craniu plat și larg la urechi. Obraji proeminenți și fără riduri.",
+        "skull": "",
+        "stop": "",
+        "muzzle": "Larg și adânc, cu fălci bine pronunțate și foarte puternice. Dinții arcadei superioare în foarfece perfect peste cei inferiori.",
+        "jaws_teeth": "",
+        "eyes": "Rotunzi, limpezi, bine distanțați, jos în craniu. Orice culoare admisă. Nas cu nări largi și bine dilatate, de orice culoare; nasul de lungime medie.",
+        "ears": "Pot fi tăiate ori nu, dar trebuie inserate sus și fără pliuri.",
+        "neck": "Foarte musculos, ușor arcuit, foarte pronunțat de la umeri spre cap.",
+        "topline": "",
+        "body": "Umeri puternici și musculoși, cu omoplați largi și oblici. Spate scurt și puternic, ușor descendent la crupă, ușor arcuit la șale. Torace adânc, larg dar nu prea, cu coaste ample și evidente; cele posterioare mai largi. Membre mari, cu oase rotunde; chișițe drepte și verticale, puternice. Picioare de mărime medie. Coapsă lungă, cu mușchi bine dezvoltați și jaret drept și jos.",
+        "chest": "",
+        "tail": "Medie spre scurtă față de talie; purtată jos, se subțiază spre vârf. Niciodată târâtă. Coada amputată nu se acceptă.",
+        "forequarters": "",
+        "hindquarters": "",
+        "feet": "",
+        "movement": "Se mișcă dezinvolt și sigur, ca și cum ar aștepta ceva nou. La trap, fluidă, puternică și coordonată, cu bun alungit anterior și bun impuls posterior. Linia superioară rămâne orizontală cu ușoară flexiune. Picioarele nedeviate, neîncrucișate; la viteză converg spre linia mediană.",
+        "coat": "Compact, scurt, lucios și aspru la atingere. Culoarea neimportantă; orice manta admisă în afară de merle. Merle și albinismul se descalifică la Show-urile oficiale UKC.",
+        "color": "",
+        "size": "De preferat 14–23 kg femelele, 16–27 kg masculii; 43–50,8 cm femelele, 45,7–53 cm masculii. Câinii mai mari nu se acceptă doar dacă-s prea înalți pe picioare, prea îndesați ori neproporționați. Varietatea Sport & Work e descrisă pentru doturile fizice deosebite la activități sportive și de efort.",
+        "skin": "Groasă, fără pliuri și bine aderentă pe tot corpul, în afară de gât și torace."
+      },
+      "temperament": {
+        "behavior": "Forță, siguranță și bucurie de viață. Dornic să placă și plin de entuziasm. Excelent tovarăș de familie, iubitor cu copiii. Mulți APBT arată agresivitate canină, deci cer un stăpân care socializează și dresează cu grijă. Nu-i cel mai bun câine de pază, fiind extrem de prietenos, chiar cu străinii. Agresivitatea față de oameni e neobișnuită și foarte nedorită.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [
+          "Umeri drepți ori încărcați; coți deviați; metacarpi coborâți; anteriori arcuiți; degete deviate; posterior îngust ori jos de la bazin la vintre; lipsă de musculatură; genunchi drept ori excesiv unghiat; jarete de vacă ori în seceră; picioare deschise; coadă lungă (vârful peste jaret); păr cârlionțat/ondulat/rar; picioare care nu se mișcă pe același plan ori se încrucișează; rulare, buiestru, pas lateral"
+        ],
+        "serious": [],
+        "disqualifying": [
+          "Anteriori (cot–sol) mai scurți decât jumătatea înălțimii la greabăn",
+          "Anteriori arcuiți încât împiedică mișcarea",
+          "Torace atât de larg încât împiedică mișcarea",
+          "Coadă scurtă ori în tirbușon",
+          "Păr lung",
+          "Câini excesiv de mari/masivi ori cu talie/greutate care compromit sănătatea, structura, mișcarea",
+          "Criptorhidie uni- ori bilaterală",
+          "Răutate ori timiditate extremă",
+          "Albinism",
+          "Surditate uni- ori bilaterală",
+          "Nanism"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Standard oficial WDF G04-137",
+          "url": "https://wdf-international.org/?wdf_standard_view=G04-137",
+          "accessed_on": "2026-08-08"
+        }
+      ],
+      "internal_notes": "",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "imported",
+      "source_verification_status": "imported",
+      "thematic_tags": [
+        "USA"
+      ],
+      "study_track_tags": [
+        "Group 4 Bull Type Dogs"
+      ],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-460",
+      "wdf_code": "G04-142",
+      "breed_name": "Exotic French Bulldog (Bouledogue Français Exotic)",
+      "alternate_names": [
+        "Exotic French Bulldog"
+      ],
+      "group": "Group 4 Bull Type Dogs",
+      "country_of_origin": "France",
+      "wdf_status": "recognized",
+      "coat_type": "medium",
+      "functional_type": "guard",
+      "source_standard_title": "Standard oficial WDF G04-142",
+      "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-142",
+      "last_updated": "2026-08-08",
+      "identity": {
+        "official_name": "Exotic French Bulldog (Bouledogue Français Exotic)",
+        "owner_country": "France",
+        "historical_function": "Câine de companie și de pază.",
+        "general_impression": "Molosoid tipic de talie mică. Puternic în dimensiunile reduse, scurt, îndesat, strâns în proporții, cu păr ras, bot scurt, nas cârn, urechi ridicate și coadă natural scurtă. Activ, inteligent, foarte musculos, compact, cu osatură solidă. Niciun caracter nu trebuie exagerat încât să strice armonia ori mișcarea.",
+        "important_proportions": "Lungimea trunchiului (vârful umărului–fesă) depășește puțin înălțimea la greabăn. Botul ≈ 1/6 din lungimea totală a capului.",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": "Molosoid tipic de talie mică.",
+        "historical_summary": "Descinde direct din Bouledogue Français Standard, printr-o selecție care urmărește colorațiile din afara standardului clasic. În 2015 a început un studiu genetic pentru a înțelege temeinicia îngrijorărilor legate de colorațiile de diluție a mantalei; după doi ani s-a arătat că colorația nu e cauza sigură a unor patologii precum alopecia, așa că a început o reproducere controlată a subiecților numiți acum „exotici”. În 2017 rasa a fost autorizată de cluburile KAS și ICBD, cu un nou standard („Bouledogue Français Exotic”), reprodusă doar cu controale specifice.",
+        "classification": "",
+        "standard_published": "",
+        "country_of_development": ""
+      },
+      "anatomy": {
+        "head": "Foarte puternică, lată și pătrată, cu piele formând pliuri și riduri aproape simetrice, fără exagerare. Caracteristică prin scurtarea regiunii maxilo-nazale și o înclinare ușoară spre medie a nasului spre spate; nasul ușor răsfrânt în sus.",
+        "skull": "Larg, aproape plat, cu frunte bombată. Arcade sprâncenare proeminente, separate de un șanț bine dezvoltat între ochi (nu se extinde pe frunte). Creastă occipitală foarte redusă.",
+        "stop": "Profund accentuat.",
+        "muzzle": "Scurt, larg, cu riduri concentrice simetrice. Trufă neagră, albastră, choccolate ori lillac, lată, cârnă, scurtă și răsfrântă în sus, cu nări bine deschise. Înclinarea nărilor și nasul cârn trebuie să permită respirația normală. Buze groase, ceva relaxate și negre; buza superioară o întâlnește pe cea inferioară la centru, acoperind dinții. Limba nevizibilă în repaus.",
+        "jaws_teeth": "Fălci largi și puternice. Maxilarul inferior se proiectează înaintea celui superior, cu o curbă în sus. Arcada incisivilor inferiori rotunjită. Fără deviere ori torsiune. Incisivii inferiori îi depășesc pe cei superiori. De dorit dentiție completă.",
+        "eyes": "Bine vizibili, cu expresie vioaie, inserați jos, departe de trufă și urechi, închiși, destul de mari, rotunzi; fără albul ochiului vizibil când privește înainte. Margini palpebrale negre.",
+        "ears": "De mărime medie, largi la bază și rotunjite la vârf. Inserate sus, nu prea apropiate, purtate ridicate. Pavilion deschis spre înainte. Piele fină și moale.",
+        "neck": "Scurt, puternic, ușor arcuit, fără salbă, se lărgește spre umeri. Linia superioară urcă progresiv de la greabăn spre șale (roach back). Spate larg și musculos. Șale scurte, largi și arcuite. Crupă bine înclinată. Torace cilindric și bine coborât (ceva sub coți), în butoi. Piept amplu, pătrat din față. Ventre și flancuri ridicate, fără a fi levretate.",
+        "topline": "",
+        "body": "",
+        "chest": "",
+        "tail": "Natural scurtă, ideal suficient de lungă să acopere anusul, inserată jos, mai degrabă dreaptă, lată la bază, se subțiază. Se admite răsucită, înnodată, ruptă ori relativ lungă (fără a depăși jaretul). Purtată jos, nu peste orizontală nici în mișcare.",
+        "forequarters": "Verticali și paraleli, din profil și din față.",
+        "hindquarters": "Puternici și musculoși, ceva mai lungi decât anteriorii, făcând posteriorul mai înalt. Gambe verticale și paralele.",
+        "feet": "Rotunzi, compacți, mici (de pisică), ușor răsuciți în afară. Degete strânse, cu unghii scurte, groase și negre.",
+        "movement": "Fluidă, puternică; membrele se mișcă paralel cu planul median.",
+        "coat": "Ras, des, lucios și moale, fără subpăr.",
+        "color": "Albastru, lillac, black and tan, blue and tan, merle, choccolate și toate nuanțele. Albastru: uniform, de la deschis la intens; se admit pete albe limitate și pestriț pe alb. Choccolate: maro uniform. Lillac: uniform, de la lila deschis la intens; pete albe limitate și pestriț admise. Black/Blue and Tan: predominant negru ori albastru, cu focuri fulvo clasice; se tolerează mici zone albe. Subiecții total albi (cu nas și margini palpebrale negre) se admit, dar nu se caută.",
+        "size": "Masculi 27–35 cm; femele 24–32 cm; toleranță ± 1 cm. Masculi 9–14 kg; femele 8–13 kg; toleranță +500 g dacă e bine în tip.",
+        "skin": "Bine întinsă."
+      },
+      "temperament": {
+        "behavior": "Câine de companie, sociabil, vioi, jucăuș, sportiv, treaz, posesiv.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": "Masculii trebuie să aibă doi testiculi de aspect normal, complet coborâți în scrot. Doar subiecții sănătoși și tipici pot fi folosiți la reproducere."
+      },
+      "faults": {
+        "minor": [
+          "Unghii deschise"
+        ],
+        "serious": [
+          "Hipertip, exagerarea caracterelor de rasă",
+          "Bot prea lung ori exagerat de scurt",
+          "Limbă vizibilă cu gura închisă",
+          "Linie superioară orizontală de la greabăn la șale",
+          "Depigmentare excesivă a buzelor, nasului ori pleoapelor (excepție colorațiile merle); mușcătură în clește"
+        ],
+        "disqualifying": [
+          "Subiecți agresivi ori fricoși",
+          "Orice câine cu anomalii fizice ori de comportament evidente",
+          "Lipsa tipului",
+          "Nări complet închise",
+          "Torsiune ori deviere laterală a mandibulei cu limba constant vizibilă",
+          "Incisivi inferiori în spatele celor superiori",
+          "Canini permanent vizibili cu gura închisă",
+          "Urechi neridicate",
+          "Lipsa cozii ori coadă încarnată",
+          "Pinteni la posteriori",
+          "Jarete inversate",
+          "Păr lung, dur ori lânos",
+          "Talie și greutate în afara limitelor",
+          "Subiecți cu semne de suferință respiratorie ori surditate"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Standard oficial WDF G04-142",
+          "url": "https://wdf-international.org/?wdf_standard_view=G04-142",
+          "accessed_on": "2026-08-08"
+        }
+      ],
+      "internal_notes": "",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "imported",
+      "source_verification_status": "imported",
+      "thematic_tags": [
+        "France"
+      ],
+      "study_track_tags": [
+        "Group 4 Bull Type Dogs"
+      ],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-461",
+      "wdf_code": "G04-144",
+      "breed_name": "Chongqing Dog",
+      "alternate_names": [
+        "Chongqing dog"
+      ],
+      "group": "Group 4 Bull Type Dogs",
+      "country_of_origin": "China",
+      "wdf_status": "recognized",
+      "coat_type": "wire",
+      "functional_type": "guard",
+      "source_standard_title": "Standard oficial WDF G04-144",
+      "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-144",
+      "last_updated": "2026-08-08",
+      "identity": {
+        "official_name": "Chongqing Dog",
+        "owner_country": "China",
+        "historical_function": "Câine de companie și de utilitate/pază.",
+        "general_impression": "Loiali, inteligenți, curajoși, agili. Rasă de talie medie, de corpolență pătrată, cu mare forță și musculatură pentru mărime. Corp acoperit cu păr scurt și dur. La greabăn și pe coloană mantaua e rară (până la 3 cm pe fiecare parte), extinsă până la crupă și pe coadă până la vârf.",
+        "important_proportions": "Lungimea craniului : lungimea botului ≈ 2:1. Înălțimea la cot ≈ jumătate din înălțimea la greabăn. Femelele pot fi ceva mai lungi. Paznic al proprietății și familiei, neînfricat, musculos, dur și agil. Botul cât mai larg și puternic; masca închisă e limitată la bot și în contrast net cu culoarea capului.",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": "Loiali, inteligenți, curajoși, agili.",
+        "historical_summary": "Rasă antică, răspândită la Chongqing. Strămoșii direcți sunt rasele autohtone din regiunile învecinate (Dazhu, Hechuan, Yongchuan, Lingshui, Guanan), numite colectiv câinele Chongqing, dezvoltate pentru vânătoare în zona muntoasă a Sichuanului de est. Câinii au fost folosiți și ca protectori spirituali pentru mormintele familiilor nobile. Prin urbanizare și-au pierdut scopul principal și populația a scăzut rapid; restaurarea rasei a reușit abia în anii ’70, devenind apoi un câine de utilitate popular la Chongqing.",
+        "classification": "",
+        "standard_published": "",
+        "country_of_development": ""
+      },
+      "anatomy": {
+        "head": "",
+        "skull": "Plat între urechi. Pătrat sus. Riduri naturale pe partea superioară a craniului.",
+        "stop": "Bine definit. Fruntea formează un stop net cu nasul. Riduri ușor lasate și subțiri, fără exces pe craniu.",
+        "muzzle": "Puternic, pătrat, notabil mai scurt decât craniul. Larg de la rădăcină la trufă, neascuțit, cu pliuri moderat evidente. Linia botului formează un unghi foarte obtuz în sus. Trufă neagră cu nări largi, niciodată culoarea ficatului, roșie ori maro. Buze bine întinse, bine pigmentate. Gură, limbă, gingii și palat de preferat negru-albăstrui; se admite limba pătată roz. Limba complet roz — foarte nedorită.",
+        "jaws_teeth": "Fălci puternice cu prognatism inferior, dinți perpendiculari pe fălci. Prognatism peste 5 mm — nedorit.",
+        "eyes": "Maro-închis ori căprui, destul de mari, ovali. Ușor ieșiți, dar niciodată exagerat. Margini palpebrale închise.",
+        "ears": "Inserate lateral pe craniu. De mărime medie, triunghiulare, înclinate înainte și bine drepte. Netăiate.",
+        "neck": "De lungime medie, puternic, bine inserat pe umăr.",
+        "topline": "Coboară ușor în spatele umerilor, urcând peste nivelul crupei.",
+        "body": "Riduri moderate la greabăn. Corpul ceva mai lung decât înalt.",
+        "chest": "Amplu, proeminent și adânc, ajunge la coți. Adâncimea = jumătate din înălțimea la greabăn. Bine coborât între anteriori.",
+        "tail": "Inserată sus, rămâne dreaptă, rigidă și purtată sus. Moderat de lungă, rotundă la bază, se subțiază spre vârf.",
+        "forequarters": "Umeri bine oblici, neîncărcați. Cot ferm, nedeviat. Antebraț drept, bine sub câine, de bună substanță, cu oase rotunde. Metacarp scurt și ușor oblic. Picioare anterioare strânse și ferme, bine articulate și cu perinițe groase; nu de iepure. Unghii scurte.",
+        "hindquarters": "Coapsă bine construită cu mușchi puternici. Genunchi bine îndoit. Jaret ferm, bine coborât și paralel. Picioare posterioare strânse și ferme, bine articulate, cu perinițe groase; nu de iepure. Unghii scurte.",
+        "feet": "Strânși și fermi, bine articulați și cu perinițe groase. Nu de iepure. Unghii scurte.",
+        "movement": "Robustă și puternică. Spatele la nivel, ferm, fără rulare. Pas liber, cu alungit în față, drept, fără acțiune înaltă. Fără apropiere în spate, fără buiestru ori încrucișare în față.",
+        "coat": "Scurt și foarte dur, fără subpăr.",
+        "color": "Roșu (de la închis la deschis) și negru.",
+        "size": "Înălțime ideală: masculi 40–45 cm, femele 35–40 cm.",
+        "skin": ""
+      },
+      "temperament": {
+        "behavior": "",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [
+          "Orice abatere de la punctele de mai sus e defect"
+        ],
+        "serious": [],
+        "disqualifying": []
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Standard oficial WDF G04-144",
+          "url": "https://wdf-international.org/?wdf_standard_view=G04-144",
+          "accessed_on": "2026-08-08"
+        }
+      ],
+      "internal_notes": "",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "imported",
+      "source_verification_status": "imported",
+      "thematic_tags": [
+        "China"
+      ],
+      "study_track_tags": [
+        "Group 4 Bull Type Dogs"
+      ],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-462",
+      "wdf_code": "G04-145",
+      "breed_name": "Continental Bulldog",
+      "alternate_names": [],
+      "group": "Group 4 Bull Type Dogs",
+      "country_of_origin": "Switzerland",
+      "wdf_status": "recognized",
+      "coat_type": "short",
+      "functional_type": "guard",
+      "source_standard_title": "Standard oficial WDF G04-145",
+      "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-145",
+      "last_updated": "2026-08-08",
+      "identity": {
+        "official_name": "Continental Bulldog",
+        "owner_country": "Switzerland",
+        "historical_function": "Câine de companie și de familie.",
+        "general_impression": "Câine de tip buldog, cu păr scurt, atletic, de talie medie și aproape pătrat. În ciuda construcției robuste, e agil și rezistent; chiar la trap rapid ori galop trebuie să respire fără zgomot. Greutatea între circa 20 și 30 kg, după talie. Masculi și femele trebuie să arate clar dimorfismul sexual.",
+        "important_proportions": "Înălțime la greabăn : adâncimea toracelui = 2:1. Înălțime la greabăn : lungimea corpului = 1:1,2. Înălțime la greabăn : lungimea greabăn–inserția cozii = 1:1. Măsuri orientative; determinantă e impresia generală și păstrarea tipului buldog.",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": "Câine de tip buldog, cu păr scurt, atletic, de talie medie și aproape pătrat.",
+        "historical_summary": "Obiectivul a fost crearea unui buldog de talie medie. Încrucișările cu Bulldog englez și Old English Bulldog au arătat curând că programul avea să ducă la o rasă nouă, apropiată de tipul original al buldogului. Pentru a o deosebi clar de English Bulldog, s-a ales numele „Continental Bulldog”.",
+        "classification": "",
+        "standard_published": "",
+        "country_of_development": ""
+      },
+      "anatomy": {
+        "head": "Circumferința capului (măsurată înaintea urechilor) nu ar trebui să depășească înălțimea la greabăn cu peste 10%. Din față, aproape pătrată, cu o ușoară proeminență a arcadelor zigomatice.",
+        "skull": "Regiunea frontală plată ori ușor convexă. Riduri frontale prezente, dar puțin pronunțate. De la stop pornește un șanț frontal larg și mai degrabă puțin adânc, până la mijlocul craniului.",
+        "stop": "Bine marcat, dar fără depresiune profundă.",
+        "muzzle": "Larg, aproape pătrat din față. Nasul drept, nici răsfrânt, nici descendent. Raportul cu lungimea totală a capului 1:3, cu toleranță până la 1:4. Se admit pliuri cutanate nu prea groase pe laturile nasului. Mandibula, cu bărbie, e lată și pătrată. Cu gura închisă nu se văd limba ori dinții. Bărbie bine definită, neacoperită de buzele superioare din față. Trufă lată, cu nări mari și deschise, mereu complet neagră. Buze groase, cu pigmentare bine închisă și cât mai completă; cele superioare acoperă lateral mandibula, cele inferioare cât mai aderente.",
+        "jaws_teeth": "Prognatism inferior ideal de 1–5 mm, tolerat până la 10 mm. Arcadele dentare drepte și paralele. Dinți puternici. Șase incisivi regulați între canini distanțați. Se admite lipsa PM1; M3 nu se iau în seamă. De dorit dentiție completă.",
+        "eyes": "Rotunzi, spre înainte și bine distanțați. Nici înfundați, nici ieșiți. Pleoape bine aderente și cât mai complet pigmentate. Fără albul ochiului vizibil când privește înainte. Iris maro-închis.",
+        "ears": "Inserate sus, mici și subțiri; inserția formează o linie cu profilul superior al craniului. Se admit urechi în roză ori pliate. În roză: pliate spre interior și spre spate, cu marginea anterioară căzând în afară și spre spate, interiorul parțial vizibil. Pliată: când e atent, se înclină înainte, cu vârful la nivelul unghiului extern al ochiului; în repaus aderă lateral. Alte forme — defect.",
+        "neck": "Mai degrabă scurt și puternic, dar nu atât încât capul să pară așezat direct pe umeri. Linia cefei bine arcuită. Se admit puține pliuri la gât.",
+        "topline": "Cât mai dreaptă.",
+        "body": "Greabănul doar ceva mai înalt decât regiunea lombară.",
+        "chest": "Adânc până la coți și, ideal, egal cu jumătate din înălțimea la greabăn. Coaste arcuite și cutie toracică amplă.",
+        "tail": "Inserată jos, puternică, groasă la rădăcină și treptat subțiată. Acoperită uniform cu păr des, fără franjuri. Ideal ajunge la jaret. Dreaptă ori ușor curbată. În repaus pendinte; în mișcare ridicată, dar nu peste spate.",
+        "forequarters": "",
+        "hindquarters": "",
+        "feet": "",
+        "movement": "Regulată și fluidă, cu bun alungit al anteriorilor și impuls amplu al posteriorilor.",
+        "coat": "Manta de acoperire scurtă, deasă, netedă, lucioasă, nezbârlită. Subpăr scurt, des și fin. Se admite absența subpărului.",
+        "color": "Fulvo, în toate nuanțele de la nisip la roșu, brindat, negru; cu ori fără marcaje albe (limitate, medii ori extinse) ori cu mască închisă. Se admite și albul, cu ori fără marcaje în culorile permise. Nu se caută un desen anume. Toate celelalte culori și combinații — neadmise.",
+        "size": "Masculi 42–50 cm; femele 40–48 cm. Masculi 30 kg; femele 25 kg.",
+        "skin": "Elastică, fără pliuri pe corp și membre."
+      },
+      "temperament": {
+        "behavior": "Atent, sigur de sine, prietenos, nici agresiv, nici timid.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": ""
+      },
+      "faults": {
+        "minor": [
+          "Distanță de la sol insuficientă",
+          "Circumferința capului cu 10–20% peste înălțimea la greabăn",
+          "Dinți puțin dezvoltați",
+          "Prognatism inferior de 11–15 mm",
+          "Urechi purtate inegal",
+          "Coadă scurtă și/ori ușor deformată",
+          "Manta puțin deasă",
+          "Talie peste/sub ideal, dar în toleranță, la un câine altfel corect",
+          "Buiestru ori picioare care ating solul"
+        ],
+        "serious": [
+          "Circumferința capului cu peste 20% peste înălțimea la greabăn",
+          "Pliuri cutanate căzute peste proeminențele frontale",
+          "Pliu nazal prea mare",
+          "Urechi ridicate"
+        ],
+        "disqualifying": [
+          "Câine agresiv ori excesiv de timid",
+          "Câine cu anomalii fizice ori tulburări de comportament evidente",
+          "Zgomote respiratorii în mișcare ori în stațiune",
+          "Ochi albaștri ori de culori diferite",
+          "Entropion / ectropion",
+          "Incisivi, canini ori limbă vizibile cu gura închisă",
+          "Prognatism inferior peste 15 mm",
+          "Deviere laterală a mandibulei",
+          "Coadă grav deformată",
+          "Absența cozii",
+          "Talie în afara toleranței",
+          "Raportul lungimea nasului : lungimea capului sub 1/4"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Standard oficial WDF G04-145",
+          "url": "https://wdf-international.org/?wdf_standard_view=G04-145",
+          "accessed_on": "2026-08-08"
+        }
+      ],
+      "internal_notes": "",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "imported",
+      "source_verification_status": "imported",
+      "thematic_tags": [
+        "Switzerland"
+      ],
+      "study_track_tags": [
+        "Group 4 Bull Type Dogs"
+      ],
+      "recurring_judge_observations": [],
+      "version": 1,
+      "revision_history": []
+    },
+    {
+      "id": "breed-463",
+      "wdf_code": "G04-147",
+      "breed_name": "Olde English Bulldogge",
+      "alternate_names": [],
+      "group": "Group 4 Bull Type Dogs",
+      "country_of_origin": "Great Britain",
+      "wdf_status": "recognized",
+      "coat_type": "short",
+      "functional_type": "guard",
+      "source_standard_title": "Standard oficial WDF G04-147",
+      "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-147",
+      "last_updated": "2026-08-08",
+      "identity": {
+        "official_name": "Olde English Bulldogge",
+        "owner_country": "Great Britain",
+        "historical_function": "Câine de descurajare și de pază.",
+        "general_impression": "Cu păr neted, nu foarte îndesat, un molos scund, larg, puternic și compact. Cap mai degrabă larg față de talie, dar nu excesiv. Bot relativ scurt, larg, trunchiat și ușor răsfrânt în sus. Câinii cu dificultăți respiratorii — foarte nedoriti. Corp bine construit, membre puternice, musculoase și robuste, fără tendință spre obezitate. Posterior înalt și puternic. Subiect longeviv și puternic.",
+        "important_proportions": "",
+        "sexual_dimorphism": "",
+        "ideal_type_summary": "Cu păr neted, nu foarte îndesat, un molos scund, larg, puternic și compact.",
+        "historical_summary": "Buldogul a fost clasificat ca atare întâia oară în 1630, cu mențiuni anterioare la tipuri similare („bandogs”). Folosit în arene, după 1835 a evoluat spre versiunea mai îndesată, cu bot mai scurt. A intrat în ringurile de expoziție în 1860. Câine încântător de urât, cu expresie de boxer, care ascunde o fire amabilă și afectuoasă. Una dintre cele mai vechi rase indigene, Câinele Național al Marii Britanii, asociat cu hotărârea britanică și cu John Bull. Azi își regăsește strălucirea prin proiectul de reactivare a primului standard al rasei — de aici numele „Old English Bulldog”.",
+        "classification": "",
+        "standard_published": "",
+        "country_of_development": ""
+      },
+      "anatomy": {
+        "head": "Din profil pare foarte înaltă și moderat de scurtă de la ceafă la trufă. Frunte plată, cu piele deasupra și în jurul capului ușor lasă și cu riduri bine făcute, fără exagerare. Fața de la pomeți la nas mai degrabă scurtă. Distanța de la unghiul intern al ochiului (ori centrul stopului) la vârful trufei nu trebuie să fie sub distanța trufă–marginea buzei inferioare.",
+        "skull": "Cu circumferință mai degrabă mare. Din față pare înalt de la unghiul maxilarului inferior la creștet; larg și pătrat. De la stop, un șanț se extinde până la mijlocul craniului.",
+        "stop": "Definit; din față, trăsăturile botului trebuie egal echilibrate de o parte și de alta a liniei mediane.",
+        "muzzle": "Scurt, larg, răsfrânt în sus și foarte adânc de la unghiul ochiului la cel al gurii. Ridul de pe nas nu trebuie să afecteze ochii ori nasul. Nările prea înguste — inacceptabile. Trufă și nări largi, cu o linie verticală dreaptă între ele; admise trufă neagră, maro și albastră. Buze superioare groase, largi și căzute, acoperind lateral maxilarul inferior, unindu-se pe față cu cele inferioare; dinții nevizibili.",
+        "jaws_teeth": "Fălci ample, puternice și pătrate; cea inferioară o depășește ușor pe cea superioară, moderat răsfrântă în sus. Șase incisivi mici între canini, în linie regulată; canini distanțați. Dinți largi și puternici, nevizibili cu gura închisă. Din față, maxilarul inferior direct sub cel superior și paralel.",
+        "eyes": "Din față, jos în craniu, departe de urechi. Ochii și stopul pe aceeași linie dreaptă, în unghi drept cu sutura metopică. Distanțați. Rotunzi, de mărime medie, nici înfundați, nici ieșiți, foarte închiși (aproape negri); fără albul vizibil când privește înainte. Fără probleme oculare evidente.",
+        "ears": "Inserate sus, cât mai departe una de alta și de ochi. Mici și subțiri; corect portul „în roză”.",
+        "neck": "De lungime moderată, foarte gros, adânc și puternic. Bine arcuit sus, cu ceva piele lasă și cu pliuri în jurul gâtului, formând o ușoară salbă pe fiecare parte.",
+        "topline": "",
+        "body": "Linia superioară coboară ușor în spatele umerilor (punctul cel mai jos), apoi urcă spre șale (punctul cel mai înalt, peste greabăn), curbându-se brusc spre coadă — un arc ușor, caracteristic. Spate scurt, puternic, larg la umeri. Torace amplu, proeminent și înalt de la greabăn la stern. Coaste bine arcuite spre spate. Piept coborât între membre, cu profiluri rotunjite.",
+        "chest": "",
+        "tail": "Inserată jos, se întinde în afară mai degrabă dreaptă, apoi se curbează în jos. Rotundă, netedă, fără franjuri. De lungime moderată — mai degrabă scurtă —, groasă la rădăcină, se subțiază rapid. Purtată în jos, niciodată peste spate. Lipsa cozii, coada încarnată ori extrem de aderentă — nedoriti.",
+        "forequarters": "Anteriori scurți față de posteriori, dar nu atât încât spatele să pară lung. Umeri largi, oblici și adânci, foarte puternici și musculoși, par „fixați” de corp. Coți jos și bine distanțați de coaste. Membre foarte robuste și puternice, distanțate, groase, musculoase și drepte, cu oase largi și drepte. Metacarpi scurți, drepți și puternici.",
+        "hindquarters": "",
+        "feet": "Drepți și ușor răsuciți în afară; de mărime medie și moderat rotunzi. Degete compacte și groase, bine despărțite, cu articulații proeminente și înalte.",
+        "movement": "Cu pași scurți și iuți pe vârfuri, cu picioarele posterioare care par să atingă solul; câinele merge cu un umăr ori altul mai degrabă înainte. Mișcarea viguroasă e de maximă importanță.",
+        "coat": "De textură fină, scurt, des și neted.",
+        "color": "Unicolor ori „smut” (unicolor cu mască ori bot negru). Culorile uniforme admise: brindatele, roșiile în diverse tonuri, fulvo, fulvo deschis etc., albele pistruiate. Culoarea „dudley”, negrul, negrul cu foc, choccolate și alte colorații admise doar cu controale de diluție.",
+        "size": "Greutate: masculi 25 kg; femele 23 kg.",
+        "skin": ""
+      },
+      "temperament": {
+        "behavior": "Impresie de hotărâre, forță și activitate. Treaz, îndrăzneț, loial, ascultător, curajos, cu aspect mândru, dar de fire afectuoasă.",
+        "ring_attitude": "",
+        "expression": "",
+        "temperament_notes": "Masculii trebuie să aibă doi testiculi de aspect normal, complet coborâți în scrot."
+      },
+      "faults": {
+        "minor": [
+          "Orice abatere de la caracterele descrise e defect, penalizat proporțional cu gravitatea și cu efectele asupra sănătății câinelui"
+        ],
+        "serious": [],
+        "disqualifying": [
+          "Câine agresiv ori excesiv de timid",
+          "Orice câine cu anomalii fizice ori de comportament evidente"
+        ]
+      },
+      "pedagogy": {
+        "frequent_confusions": [],
+        "key_markers": [],
+        "judge_notes": [],
+        "teaching_notes": [],
+        "similar_breeds": []
+      },
+      "judge_checklist": {
+        "first_impression": [],
+        "static_exam": [],
+        "movement_exam": [],
+        "final_attention_points": []
+      },
+      "references": [
+        {
+          "type": "official_standard",
+          "title": "Standard oficial WDF G04-147",
+          "url": "https://wdf-international.org/?wdf_standard_view=G04-147",
+          "accessed_on": "2026-08-08"
+        }
+      ],
+      "internal_notes": "",
+      "difficulty_level": "",
+      "exam_relevance": "",
+      "teaching_priority": "",
+      "revision_status": "imported",
+      "source_verification_status": "imported",
+      "thematic_tags": [
+        "Great Britain"
+      ],
+      "study_track_tags": [
+        "Group 4 Bull Type Dogs"
       ],
       "recurring_judge_observations": [],
       "version": 1,
