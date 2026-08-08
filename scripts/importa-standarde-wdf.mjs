@@ -1,6 +1,6 @@
 // importa-standarde-wdf.mjs — standardele WDF (.docx) -> baza aplicației Breed Explorer.
 //
-// DE CE EXISTĂ. Aplicația „CFCR Breed Standards Explorer" a pornit cu 32 de fișe scrise
+// DE CE EXISTĂ. Aplicația „Explorator de standarde CFC-Royal" a pornit cu 32 de fișe scrise
 // de mână. Asociația are însă standardele oficiale ale celor peste 330 de rase, pe grupe,
 // în documente Word. Transcrierea lor de mână ar fi durat luni și ar fi introdus greșeli;
 // scriptul le citește, le taie pe secțiuni și le așază în schema aplicației.
@@ -660,7 +660,7 @@ if (process.argv[1] && process.argv[1].endsWith("importa-standarde-wdf.mjs")) {
   const iesire = {
     schema_version: "1.1",
     meta: {
-      app: "CFCR Breed Standards Explorer",
+      app: "Explorator de standarde CFC-Royal",
       framework: "World Dog Federation (WDF)",
       dataset_type: "official breed standards (imported) + CFCR teaching notes",
       disclaimer:

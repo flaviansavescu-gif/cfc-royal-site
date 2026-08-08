@@ -1,5 +1,5 @@
 /* ============================================================
-   CFCR Breed Standards Explorer — app.js
+   Explorator de standarde CFC-Royal — app.js
    Vanilla JS. No framework. No build step.
    Framework: World Dog Federation (WDF).
 
@@ -111,7 +111,7 @@
     "Favorites": "Favorite", "Recently viewed": "Vizualizate recent",
     "Quick filter by group": "Filtru rapid pe grupă",
     "About this tool": "Despre acest instrument",
-    "CFCR Breed Standards Explorer is a professional reference and teaching instrument built around the World Dog Federation (WDF) framework. It separates official standard data, faults, pedagogical notes, and private internal notes so that judges and candidates can study, compare, and prepare with clarity.":
+    "Explorator de standarde CFC-Royal is a professional reference and teaching instrument built around the World Dog Federation (WDF) framework. It separates official standard data, faults, pedagogical notes, and private internal notes so that judges and candidates can study, compare, and prepare with clarity.":
       "Exploratorul de standarde CFC-Royal este un instrument profesional de referință și predare, construit pe cadrul World Dog Federation (WDF). Separă datele oficiale ale standardului, defectele, notele pedagogice și notele interne private, astfel încât arbitrii și candidații să studieze, să compare și să se pregătească cu claritate.",
     "The canonical dataset is a JSON file you can <strong>import</strong> and <strong>export</strong> at any time. Favorites, recently viewed breeds, and UI preferences are kept in your browser for convenience only.":
       "Setul de date canonic este un fișier JSON pe care îl poți <strong>importa</strong> și <strong>exporta</strong> oricând. Favoritele, rasele vizualizate recent și preferințele de interfață se păstrează în browser doar pentru comoditate.",
@@ -616,7 +616,7 @@
     return {
       schema_version: "1.0",
       meta: Object.assign(
-        { app: "CFCR Breed Standards Explorer", framework: "World Dog Federation (WDF)" },
+        { app: "Explorator de standarde CFC-Royal", framework: "World Dog Federation (WDF)" },
         state.meta,
         { exported_on: todayISO(), breed_count: state.breeds.length, lesson_count: state.lessons.length }
       ),
@@ -914,7 +914,7 @@
     // Intro panel
     wrap.appendChild(el("div", { class: "panel card intro-panel", style: "margin-top:16px" }, [
       el("h2", { text: "About this tool" }),
-      el("p", { text: "CFCR Breed Standards Explorer is a professional reference and teaching instrument built around the World Dog Federation (WDF) framework. It separates official standard data, faults, pedagogical notes, and private internal notes so that judges and candidates can study, compare, and prepare with clarity." }),
+      el("p", { text: "Explorator de standarde CFC-Royal is a professional reference and teaching instrument built around the World Dog Federation (WDF) framework. It separates official standard data, faults, pedagogical notes, and private internal notes so that judges and candidates can study, compare, and prepare with clarity." }),
       el("p", { html: "The canonical dataset is a JSON file you can <strong>import</strong> and <strong>export</strong> at any time. Favorites, recently viewed breeds, and UI preferences are kept in your browser for convenience only." }),
     ]));
 
@@ -1704,7 +1704,7 @@
     ]));
 
     wrap.appendChild(el("div", { class: "print-header" }, [
-      el("strong", { text: "CFCR Breed Standards Explorer — Comparison: " }), el("span", { text: names.join(" vs ") }),
+      el("strong", { text: "Explorator de standarde CFC-Royal — Comparison: " }), el("span", { text: names.join(" vs ") }),
     ]));
 
     if (state.compare.teaching) wrap.appendChild(teachingCompareSection(breeds));

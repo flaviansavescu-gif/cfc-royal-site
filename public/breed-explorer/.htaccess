@@ -1,4 +1,4 @@
-# CFCR Breed Standards Explorer — Apache hints (optional)
+# Explorator de standarde CFC-Royal — Apache hints (optional)
 # Most shared hosts are Apache; if yours is Nginx, ignore this file and set the
 # equivalents in your server config. Nothing here is required for the app to
 # work, but it improves PWA behaviour and update delivery.

@@ -20,7 +20,7 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
     <a class="btn btn--outline" href="/cursuri/admin/anatomie/">📐 Exerciții de anatomie →</a>
     <a class="btn btn--outline" href="#interese">🐾 Interese pe rase (orientare lectori) →</a>
     <a class="btn btn--outline" href="/cursuri/materiale/">📚 Biblioteca comună (toate cursurile) →</a>
-    <a class="btn btn--outline" href="/breed-explorer/" target="_blank" rel="noopener">📖 CFCR Breed Standards Explorer ↗</a>
+    <a class="btn btn--outline" href="/breed-explorer/" target="_blank" rel="noopener">📖 Explorator de standarde CFC-Royal ↗</a>
     <a class="btn btn--outline" href="/photo-annotator/" target="_blank" rel="noopener">📐 Photo Anatomy Annotator ↗</a>
     <a class="btn btn--outline" href="https://arbitraj.cfc-royal.ro" target="_blank" rel="noopener">🎯 Exerciții de arbitraj ↗</a>
     <a class="btn btn--outline" href="/cursuri/admin/asistente/">🎗️ Asistențe de ring →</a>
@@ -142,7 +142,7 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
 
   </details>
 
-  <h2 class="a-h2">Coduri de instalare — Breed Standards Explorer</h2>
+  <h2 class="a-h2">Coduri de instalare — Explorator de standarde CFC-Royal</h2>
   <p class="a-anunt-info">Aplicația se poate <strong>instala</strong> pe dispozitiv doar cu un cod de instalare — diferit de codul de acces în platformă. Generezi un cod și îl dai persoanei care instalează. Consultarea online rămâne liberă pentru candidați.</p>
   <div class="a-cand-form">
     <input id="a-inst-eticheta" type="text" placeholder="Etichetă (opțional): pentru cine / ce dispozitiv" />
@@ -802,7 +802,7 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
       finally { btn.disabled = false; }
     });
 
-    // ——— Coduri de instalare (Breed Standards Explorer) ———
+    // ——— Coduri de instalare (Explorator de standarde CFC-Royal) ———
     async function instCere(payload) {
       const res = await fetch("/.netlify/functions/breed-instalare", {
         method: "POST", headers: { "Content-Type": "application/json" },

@@ -1,4 +1,4 @@
-// breed-date.mjs — datele CFCR Breed Standards Explorer, doar pentru platformă.
+// breed-date.mjs — datele Explorator de standarde CFC-Royal, doar pentru platformă.
 //
 // DE CE EXISTĂ. Aplicația nu mai e publică: standardele se studiază numai din Școala de
 // Arbitraj. Nu ajunge să ascundem butoanele — dacă fișierul de date ar sta la o adresă

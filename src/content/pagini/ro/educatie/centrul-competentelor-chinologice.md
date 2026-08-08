@@ -49,14 +49,14 @@ Cursurile sunt susținute de arbitri licențiați **World Dog Federation** din c
 ### Instrument de studiu — Explorator de standarde de rasă
 
 Pentru pregătirea candidaților și consultarea rapidă în timpul studiului, Centrul pune la dispoziție
-**CFCR Breed Standards Explorer** — o bază de standarde de rasă orientată World Dog Federation, cu
+**Explorator de standarde CFC-Royal** — o bază de standarde de rasă orientată World Dog Federation, cu
 studiu comparativ. Funcționează direct în browser și se poate **instala ca aplicație** pe telefon sau
 desktop; după prima deschidere merge și fără internet.
 
 <div aria-disabled="true" style="display:flex;gap:1rem;align-items:center;max-width:640px;background:var(--color-surface);border:1px solid var(--color-border);border-left:4px solid var(--color-border);border-radius:var(--radius);padding:1.1rem 1.25rem;margin:1.1rem 0;opacity:.72;cursor:not-allowed">
 <span style="flex:0 0 auto;width:54px;height:54px;border-radius:12px;background:var(--color-text-muted);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-weight:700;font-size:20px">BS</span>
 <span style="flex:1 1 auto">
-<span style="display:block;font-family:var(--font-serif);font-weight:700;font-size:1.1rem;color:var(--color-primary)">CFCR Breed Standards Explorer</span>
+<span style="display:block;font-family:var(--font-serif);font-weight:700;font-size:1.1rem;color:var(--color-primary)">Explorator de standarde CFC-Royal</span>
 <span style="display:block;font-size:.9rem;color:var(--color-text-muted);margin-top:.2rem;line-height:1.45">Bază de standarde de rasă orientată WDF, pentru pregătirea arbitrilor, studiu comparativ și consultare rapidă. Se poate instala ca aplicație.</span>
 <span style="display:inline-flex;align-items:center;gap:.4rem;margin-top:.6rem;font-size:.85rem;font-weight:700;color:var(--color-text-muted)">🔒 Acces în platforma Școlii de Arbitraj</span>
 </span>

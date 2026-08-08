@@ -1,4 +1,4 @@
-// breed-instalare.mjs — coduri de INSTALARE pentru CFCR Breed Standards Explorer.
+// breed-instalare.mjs — coduri de INSTALARE pentru Explorator de standarde CFC-Royal.
 // Instalarea ca aplicație (PWA) cere DOUĂ chei: un cod generat de administrator (diferit
 // de codul de acces în platformă) ȘI aprobarea administratorului, printr-un link primit
 // pe e-mail. Codul singur nu mai instalează nimic — chiar dacă ar circula, instalarea nu
@@ -76,7 +76,7 @@ export default cuLimitareCod(async (req) => {
     return html(
       "<div style='width:56px;height:56px;border-radius:12px;background:#1F4D3A;color:#fff;display:inline-grid;place-items:center;font:700 1.4rem Georgia,serif'>BS</div>" +
       "<h2 style='color:#1F4D3A;margin:1rem 0 .3rem'>Aprobi instalarea?</h2>" +
-      "<p style='color:#444'>Cineva a cerut instalarea CFCR Breed Standards Explorer" +
+      "<p style='color:#444'>Cineva a cerut instalarea Explorator de standarde CFC-Royal" +
       (rec.eticheta ? " (cod: <strong>" + escapeHtml(rec.eticheta) + "</strong>)" : "") +
       ". Apasă butonul doar dacă recunoști cererea.</p>" +
       "<form method='POST' style='margin:1.4rem 0'>" +
@@ -120,7 +120,7 @@ export default cuLimitareCod(async (req) => {
     return html(
       "<div style='width:56px;height:56px;border-radius:12px;background:#1F4D3A;color:#fff;display:inline-grid;place-items:center;font:700 1.4rem Georgia,serif'>BS</div>" +
       "<h2 style='color:#1F4D3A;margin:1rem 0 .3rem'>Instalare aprobată ✓</h2>" +
-      "<p style='color:#444'>Ai aprobat instalarea CFCR Breed Standards Explorer pe dispozitivul care a cerut-o. " +
+      "<p style='color:#444'>Ai aprobat instalarea Explorator de standarde CFC-Royal pe dispozitivul care a cerut-o. " +
       "Persoana poate reveni în aplicație — instalarea se deblochează singură.</p>" +
       "<p style='color:#888;font-size:.85rem;margin-top:1.4rem'>Asociația Club Federal Chinologic – Royal · World Dog Federation</p>");
   }
@@ -159,10 +159,10 @@ export default cuLimitareCod(async (req) => {
       encodeURIComponent(id) + "&token=" + encodeURIComponent(token);
     const trimis = await trimite({
       catre: EMAIL_APROBARE,
-      subiect: "[CFC-Royal] Aprobă instalarea Breed Standards Explorer",
+      subiect: "[CFC-Royal] Aprobă instalarea Explorator de standarde CFC-Royal",
       html: pagina("Cerere de instalare", "#1F4D3A",
         `<p style="font-size:15px">Cineva a introdus un cod valid de instalare pentru ` +
-        `<strong>CFCR Breed Standards Explorer</strong>` +
+        `<strong>Explorator de standarde CFC-Royal</strong>` +
         (codRec.eticheta ? ` (cod: <strong>${escapeHtml(codRec.eticheta)}</strong>)` : "") + `.</p>` +
         `<p style="font-size:14px;color:#555">Dispozitiv: ${escapeHtml(agent || "necunoscut")}</p>` +
         `<p style="margin:22px 0"><a href="${link}" style="background:#1F4D3A;color:#fff;` +

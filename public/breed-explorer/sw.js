@@ -1,5 +1,5 @@
 /* ============================================================
-   CFCR Breed Standards Explorer — Service Worker
+   Explorator de standarde CFC-Royal — Service Worker
    Enables offline use and PWA installability when the app is
    served over HTTPS (e.g. https://cfc-royal.ro/breed-explorer/)
    or from http://localhost. It has no effect on file:// (where
@@ -26,7 +26,8 @@
 // (breed-date), deci NU se mai pun în cache aici: ar fi o copie fără poartă.
 // v5 = interfața tradusă integral în română + curățarea dublurilor/non-WDF (390 rase).
 // v5.0.1 = nota din date (disclaimer) tradusă + breed_count corect; forțează reîmprospătarea cache-ului.
-const CACHE_VERSION = "cfcr-v5.0.1";
+// v5.1.0 = redenumire: „CFCR Breed Standards Explorer" -> „Explorator de standarde CFC-Royal".
+const CACHE_VERSION = "cfcr-v5.1.0";
 const CACHE_NAME = "cfcr-cache-" + CACHE_VERSION;
 
 // Paths are relative to the service worker scope (the app folder).
