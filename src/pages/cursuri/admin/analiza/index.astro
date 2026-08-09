@@ -62,22 +62,21 @@ const allow = ["lector"];
   })();
 </script>
 
-<style>
-  .j-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+<style>.j-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
   .j-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
   .j-sub { color: var(--color-text-muted); max-width: 48rem; }
   .j-actiuni { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 1.25rem 0; }
   .j-stare { color: var(--color-text-muted); font-style: italic; }
   .j-list { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 0.7rem; }
-  .j-card { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.9rem 1.2rem; }
-  .j-card__body { flex: 1 1 16rem; display: flex; flex-direction: column; gap: 0.3rem; }
-  .j-card__body strong { color: var(--color-primary); }
-  .j-meta { font-size: 0.85rem; color: var(--color-text-muted); }
-  .j-urma { font-size: 0.78rem; color: var(--color-text-muted); font-style: italic; }
-  .j-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-  .j-badge { font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); }
-  .j-badge.st-published { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
-  .j-badge.st-closed { background: var(--color-surface-alt); }
-  .j-badge.st-draft { background: #fdf4e3; border-color: #e6cf9a; color: #8a6d1f; }
-  .btn--small { font-size: 0.85rem; padding: 0.45rem 0.9rem; }
+  :global(.j-card) { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.9rem 1.2rem; }
+  :global(.j-card__body) { flex: 1 1 16rem; display: flex; flex-direction: column; gap: 0.3rem; }
+  :global(.j-card__body strong) { color: var(--color-primary); }
+  :global(.j-meta) { font-size: 0.85rem; color: var(--color-text-muted); }
+  :global(.j-urma) { font-size: 0.78rem; color: var(--color-text-muted); font-style: italic; }
+  :global(.j-badges) { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  :global(.j-badge) { font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); }
+  :global(.j-badge.st-published) { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
+  :global(.j-badge.st-closed) { background: var(--color-surface-alt); }
+  :global(.j-badge.st-draft) { background: #fdf4e3; border-color: #e6cf9a; color: #8a6d1f; }
+  :global(.btn--small) { font-size: 0.85rem; padding: 0.45rem 0.9rem; }
 </style>

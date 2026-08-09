@@ -10,6 +10,8 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   <h1 class="dp-title">Cereri privind datele personale (GDPR)</h1>
   <p class="dp-sub">
     Cererile depuse din formularul public. Fiecare are un <strong>termen de 30 de zile</strong>.
+    Cererile închise (rezolvate sau refuzate) se păstrează <strong>3 ani</strong> ca probă a soluționării,
+    apoi se șterg automat.
     Înainte de a acționa, <strong>verifică identitatea</strong> solicitantului (răspunde-i pe e-mail
     și cere o dovadă). Un refuz cere un motiv — persoana are dreptul să-l afle. Formularul nu
     execută nimic singur; hotărârea e a ta și rămâne în jurnal.
@@ -30,26 +32,26 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .dp-filtre { display: flex; gap: .4rem; flex-wrap: wrap; margin: 1rem 0 .6rem; }
   .dp-filtru { padding: .4rem .9rem; border: 1px solid var(--color-border); border-radius: 999px;
     background: var(--color-surface-alt); cursor: pointer; font: inherit; font-size: .88rem; color: var(--color-text-muted); }
-  .dp-filtru.is-activ { background: var(--color-primary); color: #fbfaf7; border-color: var(--color-primary); font-weight: 600; }
+  :global(.dp-filtru.is-activ) { background: var(--color-primary); color: #fbfaf7; border-color: var(--color-primary); font-weight: 600; }
   .dp-lista { list-style: none; padding: 0; margin: 0; display: grid; gap: .7rem; max-width: 52rem; }
-  .dp-card { border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); padding: .85rem 1rem; }
-  .dp-l1 { display: flex; justify-content: space-between; gap: .6rem; flex-wrap: wrap; align-items: baseline; }
-  .dp-tip { font-weight: 700; color: var(--color-primary); }
-  .dp-stare { font-size: .76rem; padding: .12rem .55rem; border-radius: 999px; white-space: nowrap; }
-  .dp-stare.noua { background: #f7f1df; color: var(--color-accent-dark); }
-  .dp-stare.in-lucru { background: #e7eef7; color: #2a4d7a; }
-  .dp-stare.rezolvata { background: #e6f1eb; color: var(--color-success); }
-  .dp-stare.refuzata { background: #f7eaea; color: var(--color-danger); }
-  .dp-cine { color: var(--color-text); font-size: .9rem; margin: .3rem 0 0; }
-  .dp-cine a { color: var(--color-link); }
-  .dp-desc { color: var(--color-text); font-size: .9rem; margin: .4rem 0; white-space: pre-wrap;
+  :global(.dp-card) { border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); padding: .85rem 1rem; }
+  :global(.dp-l1) { display: flex; justify-content: space-between; gap: .6rem; flex-wrap: wrap; align-items: baseline; }
+  :global(.dp-tip) { font-weight: 700; color: var(--color-primary); }
+  :global(.dp-stare) { font-size: .76rem; padding: .12rem .55rem; border-radius: 999px; white-space: nowrap; }
+  :global(.dp-stare.noua) { background: #f7f1df; color: var(--color-accent-dark); }
+  :global(.dp-stare.in-lucru) { background: #e7eef7; color: #2a4d7a; }
+  :global(.dp-stare.rezolvata) { background: #e6f1eb; color: var(--color-success); }
+  :global(.dp-stare.refuzata) { background: #f7eaea; color: var(--color-danger); }
+  :global(.dp-cine) { color: var(--color-text); font-size: .9rem; margin: .3rem 0 0; }
+  :global(.dp-cine a) { color: var(--color-link); }
+  :global(.dp-desc) { color: var(--color-text); font-size: .9rem; margin: .4rem 0; white-space: pre-wrap;
     background: var(--color-surface-alt); border-radius: var(--radius); padding: .5rem .7rem; }
-  .dp-termen { font-size: .82rem; color: var(--color-text-muted); }
-  .dp-termen.aproape { color: var(--color-accent-dark); font-weight: 600; }
-  .dp-termen.depasit { color: var(--color-danger); font-weight: 700; }
-  .dp-actiuni { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .5rem; }
-  .dp-mic { color: var(--color-text-muted); font-size: .82rem; margin: .3rem 0 0; }
-  .dp-gol { color: var(--color-text-muted); font-style: italic; padding: .8rem 0; }
+  :global(.dp-termen) { font-size: .82rem; color: var(--color-text-muted); }
+  :global(.dp-termen.aproape) { color: var(--color-accent-dark); font-weight: 600; }
+  :global(.dp-termen.depasit) { color: var(--color-danger); font-weight: 700; }
+  :global(.dp-actiuni) { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .5rem; }
+  :global(.dp-mic) { color: var(--color-text-muted); font-size: .82rem; margin: .3rem 0 0; }
+  :global(.dp-gol) { color: var(--color-text-muted); font-style: italic; padding: .8rem 0; }
 </style>
 
 <script is:inline>

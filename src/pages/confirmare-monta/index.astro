@@ -174,19 +174,21 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   .k-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
   .k-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 1rem; }
   .k-title span { font-size: 0.6em; color: var(--color-text-muted); font-weight: 400; }
-  .k-en { color: var(--color-text-muted); font-weight: 400; }
+  :global(.k-en) { color: var(--color-text-muted); font-weight: 400; }
   .k-intro { max-width: 46rem; }
-  .k-intro .k-en { display: block; font-size: 0.9rem; margin-top: 0.3rem; }
+  :global(.k-intro .k-en) { display: block; font-size: 0.9rem; margin-top: 0.3rem; }
   .k-stare { color: var(--color-text-muted); font-style: italic; }
-  .k-stare[hidden], .k-eroare[hidden] { display: none; }
+  .k-stare[hidden],
+  .k-eroare[hidden] { display: none; }
   .k-eroare { max-width: 46rem; padding: 0.8rem 1rem; border-radius: var(--radius);
     background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; }
 
   .k-date { border-collapse: collapse; margin: 1.5rem 0; max-width: 44rem; width: 100%; }
-  .k-date th, .k-date td { border-bottom: 1px solid var(--color-border); padding: 0.5rem 0.7rem;
+  .k-date th,
+  .k-date td { border-bottom: 1px solid var(--color-border); padding: 0.5rem 0.7rem;
     text-align: left; vertical-align: top; font-size: 0.92rem; }
   .k-date th { color: var(--color-primary); width: 45%; font-weight: 600; }
-  .k-date th .k-en { font-size: 0.85em; margin-left: 0.2rem; }
+  :global(.k-date th .k-en) { font-size: 0.85em; margin-left: 0.2rem; }
 
   .k-form { display: grid; gap: 1.1rem; max-width: 36rem; margin-top: 1.5rem; }
   .k-alegere { border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.1rem;
@@ -196,14 +198,16 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   .k-radio input { margin-top: 0.25rem; }
   .k-camp { display: block; font-weight: 600; color: var(--color-primary); font-size: 0.9rem; }
   .k-camp[hidden] { display: none; }
-  .k-camp input, .k-camp textarea { display: block; width: 100%; margin-top: 0.25rem;
+  .k-camp input,
+  .k-camp textarea { display: block; width: 100%; margin-top: 0.25rem;
     padding: 0.55rem 0.7rem; border: 1px solid var(--color-border); border-radius: var(--radius);
     font: inherit; font-weight: 400; }
   .k-legal { font-size: 0.85rem; color: var(--color-text-muted); background: var(--color-surface-alt);
     border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.8rem 1rem; margin: 0; }
-  .k-legal .k-en { display: block; margin-top: 0.35rem; }
+  :global(.k-legal .k-en) { display: block; margin-top: 0.35rem; }
   .k-form button { justify-self: start; }
   .k-h2 { font-family: var(--font-serif); color: var(--color-primary); }
   .k-link { color: var(--color-accent-dark); }
-  #k-gata[hidden], #k-continut[hidden] { display: none; }
+  #k-gata[hidden],
+  #k-continut[hidden] { display: none; }
 </style>

@@ -289,29 +289,29 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
   })();
 </script>
 
-<style>
-  .ex-crumb { margin: 0 0 1.5rem; }
+<style>.ex-crumb { margin: 0 0 1.5rem; }
   .ex-crumb a { text-decoration: none; color: var(--color-text-muted); }
   .ex-crumb a:hover { color: var(--color-primary); }
   .ex-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0 0 0.5rem; }
   .ex-sub { color: var(--color-text-muted); max-width: 48rem; }
-  .ex-stare { margin: 1.5rem 0; padding: 1rem 1.25rem; max-width: 48rem; border-radius: var(--radius); border: 1px solid var(--color-border); background: var(--color-surface); }
-  .ex-stare.is-info { background: #f7f1df; border-color: var(--color-accent); }
-  .ex-stare.is-pass { background: #eef5f0; border-color: var(--color-primary); }
-  .ex-stare.is-wait { background: #f7f1df; border-color: var(--color-accent); }
-  .ex-stare.is-err, .ex-rezultat.is-fail { background: #f9efef; border-color: #8c1d2f; }
-  .ex-stare a { color: var(--color-accent-dark); }
+  :global(.ex-stare) { margin: 1.5rem 0; padding: 1rem 1.25rem; max-width: 48rem; border-radius: var(--radius); border: 1px solid var(--color-border); background: var(--color-surface); }
+  :global(.ex-stare.is-info) { background: #f7f1df; border-color: var(--color-accent); }
+  :global(.ex-stare.is-pass) { background: #eef5f0; border-color: var(--color-primary); }
+  :global(.ex-stare.is-wait) { background: #f7f1df; border-color: var(--color-accent); }
+  :global(.ex-stare.is-err),
+  :global(.ex-rezultat.is-fail) { background: #f9efef; border-color: #8c1d2f; }
+  :global(.ex-stare a) { color: var(--color-accent-dark); }
 
-  .ex-q { border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); padding: 1rem 1.25rem; margin: 0 0 1rem; }
-  .ex-q legend { font-weight: 600; padding: 0 0.4rem; }
-  .ex-qnr { color: var(--color-accent-dark); }
-  .ex-opt { display: flex; gap: 0.6rem; align-items: baseline; padding: 0.35rem 0.25rem; cursor: pointer; }
-  .ex-opt:hover { background: var(--color-surface-alt); border-radius: 6px; }
+  :global(.ex-q) { border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); padding: 1rem 1.25rem; margin: 0 0 1rem; }
+  :global(.ex-q legend) { font-weight: 600; padding: 0 0.4rem; }
+  :global(.ex-qnr) { color: var(--color-accent-dark); }
+  :global(.ex-opt) { display: flex; gap: 0.6rem; align-items: baseline; padding: 0.35rem 0.25rem; cursor: pointer; }
+  :global(.ex-opt:hover) { background: var(--color-surface-alt); border-radius: 6px; }
   #ex-submit { margin-top: 0.5rem; }
 
-  .ex-rezultat { margin-top: 1.5rem; padding: 1.25rem 1.5rem; max-width: 48rem; border-radius: var(--radius); border: 1px solid var(--color-border); }
-  .ex-rezultat.is-pass { background: #eef5f0; border-color: var(--color-primary); }
-  .ex-rezultat p { margin: 0.4rem 0 0; }
+  :global(.ex-rezultat) { margin-top: 1.5rem; padding: 1.25rem 1.5rem; max-width: 48rem; border-radius: var(--radius); border: 1px solid var(--color-border); }
+  :global(.ex-rezultat.is-pass) { background: #eef5f0; border-color: var(--color-primary); }
+  :global(.ex-rezultat p) { margin: 0.4rem 0 0; }
 
   .ex-sesiune { margin: 1rem 0; padding: 0.9rem 1.25rem; max-width: 48rem; border-radius: var(--radius); border: 1px solid var(--color-border); background: var(--color-surface-alt); }
   .ex-sesiune__titlu { margin: 0; }

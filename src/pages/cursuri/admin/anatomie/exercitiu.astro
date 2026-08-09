@@ -148,35 +148,36 @@ const allow = ["lector"];
   })();
 </script>
 
-<style>
-  .j-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+<style>.j-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
   .j-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.25rem 0 0; }
   .j-stare { color: var(--color-text-muted); font-style: italic; }
   .j-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-  .j-status { font-size: 0.78rem; padding: 0.3rem 0.7rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); }
-  .j-status.st-published { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
-  .j-status.st-draft { background: #fdf4e3; border-color: #e6cf9a; color: #8a6d1f; }
+  :global(.j-status) { font-size: 0.78rem; padding: 0.3rem 0.7rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); }
+  :global(.j-status.st-published) { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
+  :global(.j-status.st-draft) { background: #fdf4e3; border-color: #e6cf9a; color: #8a6d1f; }
   .j-toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; }
   .j-actiuni { display: flex; gap: 0.6rem; flex-wrap: wrap; margin: 1rem 0; }
-  .j-msg { padding: 0.6rem 0.9rem; border-radius: var(--radius); }
-  .j-msg.is-ok { background: #eaf5ec; border: 1px solid #b6dcbf; color: #1f5130; }
-  .j-msg.is-err { background: #fbeaec; border: 1px solid #e2b6bd; color: #8c1d2f; }
+  :global(.j-msg) { padding: 0.6rem 0.9rem; border-radius: var(--radius); }
+  :global(.j-msg.is-ok) { background: #eaf5ec; border: 1px solid #b6dcbf; color: #1f5130; }
+  :global(.j-msg.is-err) { background: #fbeaec; border: 1px solid #e2b6bd; color: #8c1d2f; }
   .j-sec { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.5rem 1rem; margin-bottom: 0.8rem; }
   .j-sec > summary { font-family: var(--font-serif); font-weight: 700; color: var(--color-primary); cursor: pointer; padding: 0.5rem 0; }
   .j-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-  @media (max-width: 640px) { .j-grid2 { grid-template-columns: 1fr; } }
+ @media (max-width: 640px) { .j-grid2 { grid-template-columns: 1fr; } }
   .j-field { display: flex; flex-direction: column; gap: 0.25rem; margin: 0.5rem 0; font-size: 0.85rem; }
   .j-field > span { color: var(--color-text-muted); }
-  .j-field input, .j-field textarea { padding: 0.5rem 0.65rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; width: 100%; }
-  .j-hint { font-size: 0.85rem; color: var(--color-text-muted); }
+  .j-field input,
+  .j-field textarea { padding: 0.5rem 0.65rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; width: 100%; }
+  :global(.j-hint) { font-size: 0.85rem; color: var(--color-text-muted); }
   .j-part { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.35rem; margin: 0.5rem 0; }
-  .j-check, .j-checkc { display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; margin: 0.4rem 0; }
-  .j-rez { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.8rem 1rem; margin-bottom: 0.8rem; }
-  .j-rez__top { display: flex; align-items: center; justify-content: space-between; }
-  .j-badge { font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); }
-  .j-prev { display: block; width: 100%; max-width: 360px; height: auto; border: 1px solid var(--color-border); border-radius: var(--radius); margin: 0.5rem 0; background: var(--color-surface-alt); }
-  .j-calrow { margin: 0.4rem 0; }
-  .j-calrow select { padding: 0.4rem 0.6rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
-  .btn--small { font-size: 0.85rem; padding: 0.4rem 0.8rem; }
+  .j-check,
+  :global(.j-checkc) { display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; margin: 0.4rem 0; }
+  :global(.j-rez) { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.8rem 1rem; margin-bottom: 0.8rem; }
+  :global(.j-rez__top) { display: flex; align-items: center; justify-content: space-between; }
+  :global(.j-badge) { font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); }
+  :global(.j-prev) { display: block; width: 100%; max-width: 360px; height: auto; border: 1px solid var(--color-border); border-radius: var(--radius); margin: 0.5rem 0; background: var(--color-surface-alt); }
+  :global(.j-calrow) { margin: 0.4rem 0; }
+  :global(.j-calrow select) { padding: 0.4rem 0.6rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
+  :global(.btn--small) { font-size: 0.85rem; padding: 0.4rem 0.8rem; }
   .btn--danger { color: #8c1d2f; }
 </style>

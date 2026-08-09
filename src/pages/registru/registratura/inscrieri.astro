@@ -371,9 +371,9 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   })();
 </script>
 
-<style>
-  /* Clasele „g-" sunt definite pe fiecare pagină a registrului: stilurile Astro sunt
-     legate de componentă, deci nu se moștenesc din pagina vecină. Identice cu cele din
+<style>/* Clasele „g-" sunt definite pe fiecare pagină a registrului: stilurile Astro sunt
+     legate de componentă,
+  deci nu se moștenesc din pagina vecină. Identice cu cele din
      /registru/registratura/. */
   .g-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
   .g-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.2rem; }
@@ -388,7 +388,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .g-filtru { padding: 0.4rem 0.9rem; border: 1px solid var(--color-border); border-radius: 999px;
     background: var(--color-surface-alt); cursor: pointer; font: inherit; font-size: 0.88rem;
     color: var(--color-text-muted); }
-  .g-filtru.is-activ { background: var(--color-primary); color: var(--color-text-inverse);
+  :global(.g-filtru.is-activ) { background: var(--color-primary); color: var(--color-text-inverse);
     border-color: var(--color-primary); font-weight: 600; }
 
   .i-btn { font: inherit; font-size: 0.85rem; padding: 0.35rem 0.8rem; cursor: pointer;
@@ -423,7 +423,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .i-val { font-weight: 600; }
   .i-membru { margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px dotted var(--color-border);
     display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
-  .i-membru .is-ales { outline: 2px solid var(--color-accent-dark); }
+  :global(.i-membru .is-ales) { outline: 2px solid var(--color-accent-dark); }
   .i-urma { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--color-text-muted); }
   .i-nota { width: 100%; margin-top: 0.6rem; padding: 0.4rem 0.6rem;
     border: 1px solid var(--color-border); border-radius: var(--radius); font-size: 0.9rem; }
@@ -432,7 +432,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .i-plata__sus { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem; }
   .i-plata__sus strong { color: var(--color-primary); }
   .i-dovada { margin-top: 0.6rem; }
-  .i-dovada__img { max-width: 100%; border: 1px solid var(--color-border); border-radius: var(--radius); }
+  :global(.i-dovada__img) { max-width: 100%; border: 1px solid var(--color-border); border-radius: var(--radius); }
 
   .i-audit { margin-top: 1.25rem; border: 1px solid var(--color-border);
     border-radius: var(--radius); background: var(--color-surface); }

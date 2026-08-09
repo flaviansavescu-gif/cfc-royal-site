@@ -100,21 +100,21 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
   .j-actiuni { margin: 1rem 0; }
   .j-stare { color: var(--color-text-muted); font-style: italic; }
   .j-list { list-style: none; margin: 1.5rem 0 0; padding: 0; display: grid; gap: 0.75rem; }
-  .j-card { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.25rem; }
-  .j-card__body { flex: 1 1 18rem; display: flex; flex-direction: column; gap: 0.35rem; }
-  .j-card__body strong { color: var(--color-primary); font-size: 1.05rem; }
-  .j-meta { font-size: 0.85rem; color: var(--color-text-muted); }
-  .j-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.15rem; }
-  .j-badge { font-size: 0.72rem; letter-spacing: 0.03em; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); }
-  .j-badge.is-open { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
-  .j-badge.is-closed { background: var(--color-surface-alt); }
-  .j-badge.resp-submitted { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
-  .j-card__act { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-  .btn--small { font-size: 0.85rem; padding: 0.45rem 0.9rem; }
+  :global(.j-card) { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.25rem; }
+  :global(.j-card__body) { flex: 1 1 18rem; display: flex; flex-direction: column; gap: 0.35rem; }
+  :global(.j-card__body strong) { color: var(--color-primary); font-size: 1.05rem; }
+  :global(.j-meta) { font-size: 0.85rem; color: var(--color-text-muted); }
+  :global(.j-badges) { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.15rem; }
+  :global(.j-badge) { font-size: 0.72rem; letter-spacing: 0.03em; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); }
+  :global(.j-badge.is-open) { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
+  :global(.j-badge.is-closed) { background: var(--color-surface-alt); }
+  :global(.j-badge.resp-submitted) { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
+  :global(.j-card__act) { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  :global(.btn--small) { font-size: 0.85rem; padding: 0.45rem 0.9rem; }
   .j-ist { margin-top: 2.5rem; }
   .j-h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.25rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem; }
   .j-ist-sum { font-size: 0.9rem; color: var(--color-accent-dark); font-weight: 600; }
-  .j-istrow { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.7rem 1rem; margin-bottom: 0.5rem; }
-  .j-istrow strong { color: var(--color-primary); }
-  .j-istbadges { display: block; font-size: 0.82rem; color: var(--color-text-muted); margin-top: 0.2rem; }
+  :global(.j-istrow) { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.7rem 1rem; margin-bottom: 0.5rem; }
+  :global(.j-istrow strong) { color: var(--color-primary); }
+  :global(.j-istbadges) { display: block; font-size: 0.82rem; color: var(--color-text-muted); margin-top: 0.2rem; }
 </style>

@@ -788,13 +788,14 @@ const CLASE = [
   })();
 </script>
 
-<style>
-  .ie { max-width: 44rem; margin-inline: auto; }
+<style>.ie { max-width: 44rem; margin-inline: auto; }
   .ie__titlu { font-family: var(--font-serif); color: var(--color-primary); }
   .ie__intro { color: var(--color-text-muted); }
-  .ie__stare, .ie__gol { color: var(--color-text-muted); font-style: italic; }
+  .ie__stare,
+  .ie__gol { color: var(--color-text-muted); font-style: italic; }
   /* Informarea expozantului: ce are de pregatit si ce se intampla dupa trimitere.
-     Sta intre intro si starea formularului, ca sa se vada si cand nu sunt expozitii
+     Sta intre intro si starea formularului,
+  ca sa se vada si cand nu sunt expozitii
      deschise — atunci oamenii afla din timp ce le trebuie. */
   .ie__cum { margin-block: 1.25rem; background: var(--color-surface-alt); border-radius: var(--radius); padding: 1rem 1.15rem; }
   .ie__cum-t { font-size: 1.05rem; margin: 0 0 0.5rem; }
@@ -802,16 +803,20 @@ const CLASE = [
   .ie__cum-l li { color: var(--color-text-muted); }
   .ie__cum-l b { color: var(--color-text); }
   .ie__form { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1.5rem; }
-  /* Capcana pentru roboți: scoasă din pagină, nu ascunsă cu `display:none` — unele
-     programe automate sar peste câmpurile ascunse astfel, dar îl completează pe acesta. */
+  /* Capcana pentru roboți: scoasă din pagină,
+  nu ascunsă cu `display:none` — unele
+     programe automate sar peste câmpurile ascunse astfel,
+  dar îl completează pe acesta. */
   .ie-capcana { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
   .ie__fs { border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.9rem; }
   .ie__fs legend { font-weight: 600; color: var(--color-primary); padding: 0 0.4rem; }
   .ie__f { display: flex; flex-direction: column; gap: 0.3rem; }
   .ie__f > span { font-weight: 600; font-size: 0.92rem; }
   .req { color: #8c1d2f; }
-  .ie__f input, .ie__f select { padding: 0.6rem 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
-  .ie__f input:focus, .ie__f select:focus { outline: 2px solid var(--color-primary); }
+  .ie__f input,
+  .ie__f select { padding: 0.6rem 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
+  .ie__f input:focus,
+  .ie__f select:focus { outline: 2px solid var(--color-primary); }
   .ie__row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
   .ie__radios { display: flex; gap: 1.25rem; padding-top: 0.4rem; }
   .ie__tip { display: flex; align-items: flex-start; gap: 0.5rem; background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
@@ -819,7 +824,7 @@ const CLASE = [
   .ie__tip small { color: var(--color-text-muted); }
   .ie__gdpr { margin: 0; font-size: 0.88rem; color: var(--color-text-muted); }
   .ie__taxa { margin: 0; font-size: 0.95rem; }
-  .ie__taxa-nota { display: block; font-size: 0.85rem; color: var(--color-text-muted); font-weight: 400; }
+  :global(.ie__taxa-nota) { display: block; font-size: 0.85rem; color: var(--color-text-muted); font-weight: 400; }
   .ie__intrebari { display: flex; flex-direction: column; gap: 0.85rem;
     background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.9rem 1.1rem; }
   .ie__intrebari[hidden] { display: none; }
@@ -839,7 +844,8 @@ const CLASE = [
     border-left: 3px solid var(--color-accent, #b8912f); background: var(--color-surface-alt, #f6f5f1); border-radius: 0 4px 4px 0; }
   .ie__termen small { color: var(--color-text-muted); }
 
-  /* Bannerul ține exact cât formularul: aceeași lățime, aceleași colțuri. */
+  /* Bannerul ține exact cât formularul: aceeași lățime,
+  aceleași colțuri. */
   .ie__afis { margin: 0 0 1.5rem; }
   .ie__afis img { width: 100%; height: auto; display: block; border-radius: 6px; }
   .ie__norme { margin: 0.4rem 0 0.8rem; padding-left: 1.15rem; font-size: 0.88rem; color: var(--color-text-muted); }
@@ -848,8 +854,10 @@ const CLASE = [
   .ie__consim input { margin-top: 0.2rem; }
   .ie__err { color: #8c1d2f; font-weight: 600; background: #f9efef; border: 1px solid #8c1d2f; border-radius: var(--radius); padding: 0.6rem 0.9rem; }
 
-  /* Banda de repetiție: dungi, ca la un șantier. Trebuie să nu semene cu nimic din
-     formularul adevărat, ca nimeni să nu completeze din greșeală o probă. */
+  /* Banda de repetiție: dungi,
+  ca la un șantier. Trebuie să nu semene cu nimic din
+     formularul adevărat,
+  ca nimeni să nu completeze din greșeală o probă. */
   .ie__repetitie {
     border: 2px dashed #9a6b00;
     background: repeating-linear-gradient(45deg, #fff8e6, #fff8e6 12px, #fdf1cf 12px, #fdf1cf 24px);
@@ -872,5 +880,5 @@ const CLASE = [
 
   .ie__succes { background: #eef5f0; border: 1px solid var(--color-primary); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
   .ie__succes p { margin: 0 0 0.75rem; color: var(--color-primary); font-weight: 600; }
-  @media (max-width: 560px) { .ie__row { grid-template-columns: 1fr; } }
+ @media (max-width: 560px) { .ie__row { grid-template-columns: 1fr; } }
 </style>

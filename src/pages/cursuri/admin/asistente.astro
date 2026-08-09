@@ -212,8 +212,7 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
   })();
 </script>
 
-<style>
-  .a-crumb { margin: 0 0 1.25rem; }
+<style>.a-crumb { margin: 0 0 1.25rem; }
   .a-crumb a { text-decoration: none; color: var(--color-text-muted); }
   .a-crumb a:hover { color: var(--color-primary); }
   .a-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
@@ -230,9 +229,9 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
   .a-expo__row { display: flex; gap: 0.6rem; }
   .a-expo__row label { flex: 1; }
   .a-save-row { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
-  .a-status { font-size: 0.9rem; }
-  .a-status.is-ok { color: var(--color-primary); font-weight: 600; }
-  .a-status.is-err { color: #8c1d2f; font-weight: 600; }
+  :global(.a-status) { font-size: 0.9rem; }
+  :global(.a-status.is-ok) { color: var(--color-primary); font-weight: 600; }
+  :global(.a-status.is-err) { color: #8c1d2f; font-weight: 600; }
 
   .a-legenda { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 1rem; }
   .a-lg { font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid var(--color-border); }
@@ -242,18 +241,19 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
 
   .a-matrice-wrap { overflow-x: auto; }
   .a-matrice { border-collapse: collapse; width: 100%; min-width: 46rem; }
-  .a-matrice th, .a-matrice td { border: 1px solid var(--color-border); padding: 0.5rem 0.6rem; text-align: center; }
+  .a-matrice th,
+  .a-matrice td { border: 1px solid var(--color-border); padding: 0.5rem 0.6rem; text-align: center; }
   .a-matrice th { background: var(--color-surface-alt); font-size: 0.8rem; }
-  .a-mx-cand { text-align: left !important; }
-  .a-mx-empty { text-align: center; color: var(--color-text-muted); font-style: italic; }
-  .a-mx-sel { padding: 0.35rem 0.4rem; border: 1px solid var(--color-border); border-radius: 6px; font: inherit; font-size: 0.82rem; background: #fff; }
-  .a-mx-sel.is-numit { background: #f7f1df; }
-  .a-mx-sel.is-prezent { background: #e7f0ea; }
-  .a-mx-sel.is-absent { background: #f9efef; }
-  /* Evaluarea arbitrului de bază (vine din Expo Manager); observațiile în tooltip. */
-  .a-mx-eval { margin-top: 0.25rem; font-size: 0.72rem; font-weight: 700; text-align: center; border-radius: 3px; padding: 0.1rem 0.25rem; cursor: help; }
-  .a-mx-eval.is-foarte_bine { background: var(--color-primary); color: #fbfaf7; }
-  .a-mx-eval.is-bine { background: #e7f0ea; color: var(--color-primary); }
-  .a-mx-eval.is-satisfacator { background: #f7f1df; color: #6b5416; }
-  .a-mx-eval.is-nesatisfacator { background: #f9efef; color: #8c1d2f; }
+  :global(.a-mx-cand) { text-align: left !important; }
+  :global(.a-mx-empty) { text-align: center; color: var(--color-text-muted); font-style: italic; }
+  :global(.a-mx-sel) { padding: 0.35rem 0.4rem; border: 1px solid var(--color-border); border-radius: 6px; font: inherit; font-size: 0.82rem; background: #fff; }
+  :global(.a-mx-sel.is-numit) { background: #f7f1df; }
+  :global(.a-mx-sel.is-prezent) { background: #e7f0ea; }
+  :global(.a-mx-sel.is-absent) { background: #f9efef; }
+  :global(/* Evaluarea arbitrului de bază (vine din Expo Manager); observațiile în tooltip. */
+  .a-mx-eval) { margin-top: 0.25rem; font-size: 0.72rem; font-weight: 700; text-align: center; border-radius: 3px; padding: 0.1rem 0.25rem; cursor: help; }
+  :global(.a-mx-eval.is-foarte_bine) { background: var(--color-primary); color: #fbfaf7; }
+  :global(.a-mx-eval.is-bine) { background: #e7f0ea; color: var(--color-primary); }
+  :global(.a-mx-eval.is-satisfacator) { background: #f7f1df; color: #6b5416; }
+  :global(.a-mx-eval.is-nesatisfacator) { background: #f9efef; color: #8c1d2f; }
 </style>

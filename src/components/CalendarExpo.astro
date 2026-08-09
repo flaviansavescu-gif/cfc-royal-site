@@ -102,12 +102,12 @@ const linkInscriere = lang === "en" ? "/en/inscriere-expozitie" : "/ro/inscriere
   .cal__sect { margin-top: 2rem; font-size: 1.15rem; color: var(--color-primary); border-bottom: 2px solid var(--color-accent, #B08D2E); padding-bottom: 0.3rem; }
   .cal__gol { color: var(--color-text-muted); font-style: italic; }
   .cal__lista { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 0.75rem; }
-  .cal__card { display: flex; align-items: center; gap: 1rem; border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.9rem 1.1rem; background: var(--color-surface, #fff); }
-  .cal__info { display: flex; flex-direction: column; gap: 0.15rem; flex: 1; min-width: 0; }
-  .cal__info span { color: var(--color-text-muted); font-size: 0.92rem; }
-  .cal__info small { color: var(--color-text-muted); font-size: 0.8rem; }
-  .cal__btn { flex: 0 0 auto; background: var(--color-primary); color: #fbfaf7; padding: 0.5rem 0.9rem; border-radius: var(--radius); font-size: 0.9rem; font-weight: 600; text-decoration: none; }
-  .cal__btn--sec { background: transparent; color: var(--color-primary); border: 1px solid var(--color-primary); }
+  :global(.cal__card) { display: flex; align-items: center; gap: 1rem; border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.9rem 1.1rem; background: var(--color-surface, #fff); }
+  :global(.cal__info) { display: flex; flex-direction: column; gap: 0.15rem; flex: 1; min-width: 0; }
+  :global(.cal__info span) { color: var(--color-text-muted); font-size: 0.92rem; }
+  :global(.cal__info small) { color: var(--color-text-muted); font-size: 0.8rem; }
+  :global(.cal__btn) { flex: 0 0 auto; background: var(--color-primary); color: #fbfaf7; padding: 0.5rem 0.9rem; border-radius: var(--radius); font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+  :global(.cal__btn--sec) { background: transparent; color: var(--color-primary); border: 1px solid var(--color-primary); }
   .cal__live { margin-top: 2.25rem; color: var(--color-text-muted); font-size: 0.92rem; }
-  @media (max-width: 480px) { .cal__card { flex-direction: column; align-items: flex-start; } }
+@media (max-width: 480px) { .cal__card { flex-direction: column; align-items: flex-start; } }
 </style>

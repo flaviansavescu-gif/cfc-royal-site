@@ -881,8 +881,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   })();
 </script>
 
-<style>
-  .g-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+<style>.g-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
   .g-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.2rem; }
   .g-sub { color: var(--color-text-muted); margin-top: 0; font-weight: 600; }
   .g-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2rem 0 0.5rem;
@@ -893,7 +892,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .g-nota { max-width: 46rem; font-size: 0.9rem; color: var(--color-text-muted);
     background: var(--color-surface-alt); border: 1px solid var(--color-border);
     border-radius: var(--radius); padding: 0.9rem 1.1rem; }
-  .g-gol { color: var(--color-text-muted); font-style: italic; }
+  :global(.g-gol) { color: var(--color-text-muted); font-style: italic; }
   .g-meta { display: block; font-size: 0.85rem; color: var(--color-text-muted); }
 
   .r-sectiune { border-bottom: 1px solid var(--color-border); max-width: 52rem; }
@@ -933,7 +932,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .g-filtru { padding: 0.4rem 0.9rem; border: 1px solid var(--color-border); border-radius: 999px;
     background: var(--color-surface-alt); cursor: pointer; font: inherit; font-size: 0.88rem;
     color: var(--color-text-muted); }
-  .g-filtru.is-activ { background: var(--color-primary); color: #fbfaf7; border-color: var(--color-primary); font-weight: 600; }
+  :global(.g-filtru.is-activ) { background: var(--color-primary); color: #fbfaf7; border-color: var(--color-primary); font-weight: 600; }
   .g-filtre input { flex: 1 1 14rem; padding: 0.4rem 0.7rem; border: 1px solid var(--color-border);
     border-radius: var(--radius); font: inherit; font-size: 0.88rem; }
   .g-explic { font-size: 0.85rem; color: var(--color-text-muted); max-width: 48rem; }
@@ -943,7 +942,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .g-respinge { display: grid; gap: 0.4rem; margin-top: 1.5rem; padding: 0.9rem 1.1rem;
     border: 1px solid #8c1d2f; border-radius: var(--radius); background: #fdf7f7; max-width: 40rem; }
   .g-respinge__eticheta { font-size: 0.85rem; font-weight: 600; color: #8c1d2f; }
-  .g-respinge__motiv { padding: 0.4rem 0.6rem; border: 1px solid var(--color-border);
+  :global(.g-respinge__motiv) { padding: 0.4rem 0.6rem; border: 1px solid var(--color-border);
     border-radius: var(--radius); font: inherit; font-size: 0.88rem; }
   .g-respinge button { justify-self: start; }
   .g-dosare { list-style: none; padding: 0; display: grid; gap: 0.5rem; max-width: 52rem; }
@@ -969,7 +968,8 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     margin: 0.2rem 0; }
   .g-conf { font-weight: 600; font-size: 0.92rem; margin: 0.3rem 0; }
   .g-conf.is-asteptare { color: var(--color-accent-dark); }
-  .g-conf.is-confirmat, .g-conf.is-alternativ { color: var(--color-primary); }
+  .g-conf.is-confirmat,
+  .g-conf.is-alternativ { color: var(--color-primary); }
   .g-conf.is-refuzat { color: #8c1d2f; }
   .g-motiv { background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f;
     border-radius: var(--radius); padding: 0.6rem 0.9rem; font-size: 0.88rem; }
@@ -977,7 +977,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     background: var(--color-surface-alt); border: 1px solid var(--color-border);
     border-radius: var(--radius); max-width: 36rem; }
   .g-alt__eticheta { font-size: 0.85rem; font-weight: 600; color: var(--color-primary); }
-  .g-alt__obs { padding: 0.35rem 0.6rem; border: 1px solid var(--color-border);
+  :global(.g-alt__obs) { padding: 0.35rem 0.6rem; border: 1px solid var(--color-border);
     border-radius: var(--radius); font: inherit; font-size: 0.85rem; }
   .g-alt__stare { font-size: 0.82rem; color: var(--color-text-muted); }
   /* Cererile de canisă */
@@ -999,7 +999,8 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .k-cerere__motiv { font-size: 0.85rem; color: #8c1d2f; margin: 0.4rem 0 0; }
   .k-cerere__actiuni { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-top: 0.6rem;
     border-top: 1px dashed var(--color-border); padding-top: 0.6rem; }
-  .k-cerere__actiuni select, .k-cerere__actiuni input { padding: 0.35rem 0.6rem; border: 1px solid var(--color-border);
+  .k-cerere__actiuni select,
+  .k-cerere__actiuni input { padding: 0.35rem 0.6rem; border: 1px solid var(--color-border);
     border-radius: var(--radius); font: inherit; font-size: 0.85rem; }
   .k-nr { width: 14rem; }
   .k-motiv { min-width: 16rem; flex: 1; }

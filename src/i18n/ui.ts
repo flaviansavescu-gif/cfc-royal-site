@@ -98,6 +98,7 @@ export const ui = {
     "legal.privacy": "Politica de confidențialitate",
     "legal.cookies": "Politica privind cookie-urile",
     "legal.terms": "Termeni și condiții",
+    "legal.security": "Securitatea datelor",
 
     // Cookie banner
     "cookie.message": "Folosim doar cookie-uri esențiale. Statisticile și conținutul terț se încarcă doar cu acordul tău.",
@@ -188,6 +189,7 @@ export const ui = {
     "legal.privacy": "Privacy Policy",
     "legal.cookies": "Cookie Policy",
     "legal.terms": "Terms & Conditions",
+    "legal.security": "Data security",
 
     "cookie.message": "We use only essential cookies. Analytics and third-party content load only with your consent.",
     "cookie.accept": "Accept",

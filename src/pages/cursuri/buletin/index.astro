@@ -137,17 +137,17 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
     padding: 0.55rem 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius);
     font: inherit; min-width: 16rem;
   }
-  .b-msg { margin: 0.75rem 0 0; font-weight: 600; }
-  .b-msg[hidden] { display: none; }
-  .b-msg.is-ok { color: var(--color-primary); }
-  .b-msg.is-err { color: #8c1d2f; }
+  :global(.b-msg) { margin: 0.75rem 0 0; font-weight: 600; }
+  :global(.b-msg[hidden]) { display: none; }
+  :global(.b-msg.is-ok) { color: var(--color-primary); }
+  :global(.b-msg.is-err) { color: #8c1d2f; }
 
   .b-lista { margin-top: 2rem; display: grid; gap: 1.25rem; color: var(--color-text-muted); }
-  .b-item {
+  :global(.b-item) {
     background: var(--color-surface); border: 1px solid var(--color-border);
     border-left: 4px solid var(--color-primary); border-radius: var(--radius); padding: 1.25rem 1.5rem;
   }
-  .b-item__data { margin: 0; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-accent-dark); }
-  .b-item__titlu { font-family: var(--font-serif); color: var(--color-primary); margin: 0.3rem 0 0.6rem; font-size: 1.3rem; }
-  .b-item__text { color: var(--color-text); white-space: pre-line; line-height: 1.55; }
+  :global(.b-item__data) { margin: 0; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-accent-dark); }
+  :global(.b-item__titlu) { font-family: var(--font-serif); color: var(--color-primary); margin: 0.3rem 0 0.6rem; font-size: 1.3rem; }
+  :global(.b-item__text) { color: var(--color-text); white-space: pre-line; line-height: 1.55; }
 </style>

@@ -549,45 +549,49 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
   .d-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 0 0 0.6rem;
     font-size: 1.3rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem; }
   .d-h3 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
-  .d-nota { color: var(--color-text-muted); font-size: 0.9rem; max-width: 46rem; }
-  .d-nota--mic { font-size: 0.83rem; }
+  :global(.d-nota) { color: var(--color-text-muted); font-size: 0.9rem; max-width: 46rem; }
+  :global(.d-nota--mic) { font-size: 0.83rem; }
   .d-opt { color: var(--color-text-muted); font-weight: 400; font-size: 0.85em; }
-  .d-gol { color: var(--color-text-muted); font-style: italic; }
+  :global(.d-gol) { color: var(--color-text-muted); font-style: italic; }
 
   .d-form label { display: block; font-weight: 600; color: var(--color-primary); font-size: 0.9rem; }
-  .d-form input:not([type=checkbox]):not([type=file]), .d-form textarea {
+  .d-form input:not([type=checkbox]):not([type=file]),
+  .d-form textarea {
     display: block; width: 100%; margin-top: 0.25rem; padding: 0.5rem 0.7rem;
     border: 1px solid var(--color-border); border-radius: var(--radius);
     font: inherit; font-weight: 400; color: var(--color-text);
   }
-  .d-grid2 { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+  :global(.d-grid2) { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
 
-  .d-termen { max-width: 46rem; padding: 0.6rem 0.9rem; border-radius: var(--radius); font-size: 0.88rem; margin-top: 0.9rem; }
-  .d-termen[hidden] { display: none; }
-  .d-termen.is-bun { background: #eef5f0; border: 1px solid var(--color-primary); color: var(--color-primary); }
-  .d-termen.is-rau { background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; }
+  :global(.d-termen) { max-width: 46rem; padding: 0.6rem 0.9rem; border-radius: var(--radius); font-size: 0.88rem; margin-top: 0.9rem; }
+  :global(.d-termen[hidden]) { display: none; }
+  :global(.d-termen.is-bun) { background: #eef5f0; border: 1px solid var(--color-primary); color: var(--color-primary); }
+  :global(.d-termen.is-rau) { background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; }
 
   .d-stat { border-collapse: collapse; max-width: 34rem; width: 100%; }
-  .d-stat th, .d-stat td { border: 1px solid var(--color-border); padding: 0.4rem 0.6rem; text-align: left; }
+  .d-stat th,
+  .d-stat td { border: 1px solid var(--color-border); padding: 0.4rem 0.6rem; text-align: left; }
   .d-stat thead th { background: var(--color-surface-alt); font-size: 0.85rem; }
   .d-stat tbody th { color: var(--color-primary); font-size: 0.9rem; }
   .d-stat input { width: 100%; }
   .d-total td { font-weight: 700; color: var(--color-primary); }
 
   .d-parinti { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); }
-  .d-parinte, .d-pui { border: 1px solid var(--color-border); border-radius: var(--radius);
+  .d-parinte,
+  :global(.d-pui) { border: 1px solid var(--color-border); border-radius: var(--radius);
     padding: 1rem 1.1rem; display: grid; gap: 0.7rem; }
-  .d-parinte legend, .d-pui legend { font-family: var(--font-serif); color: var(--color-primary);
+  .d-parinte legend,
+  :global(.d-pui legend) { font-family: var(--font-serif); color: var(--color-primary);
     font-weight: 700; padding: 0 0.4rem; }
-  .d-pui { margin-bottom: 1rem; }
+  :global(.d-pui) { margin-bottom: 1rem; }
 
   .d-fisiere { display: grid; gap: 0.7rem; max-width: 40rem; }
   .d-fis { display: grid; gap: 0.3rem; border: 1px solid var(--color-border); border-radius: var(--radius);
     padding: 0.7rem 0.9rem; background: var(--color-surface-alt); cursor: pointer; }
   .d-fis__nume { font-weight: 600; color: var(--color-primary); font-size: 0.9rem; }
-  .d-fis__stare { font-size: 0.82rem; color: var(--color-text-muted); }
-  .d-fis__stare.is-ok { color: var(--color-primary); font-weight: 600; }
-  .d-fis__stare.is-rau { color: #8c1d2f; font-weight: 600; }
+  :global(.d-fis__stare) { font-size: 0.82rem; color: var(--color-text-muted); }
+  :global(.d-fis__stare.is-ok) { color: var(--color-primary); font-weight: 600; }
+  :global(.d-fis__stare.is-rau) { color: #8c1d2f; font-weight: 600; }
 
   .d-bifa { display: grid; grid-template-columns: auto 1fr; gap: 0.6rem; align-items: start;
     margin-bottom: 0.8rem; font-weight: 400; color: var(--color-text); font-size: 0.9rem; max-width: 46rem; }

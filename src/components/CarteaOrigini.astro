@@ -464,7 +464,9 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
     border-radius: var(--radius); font-size: 1rem; }
   .k-eroare { padding: 0.7rem 1rem; border-radius: var(--radius);
     background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; }
-  .k-eroare[hidden], #k-fisa[hidden], .panou[hidden] { display: none; }
+  .k-eroare[hidden],
+  #k-fisa[hidden],
+  .panou[hidden] { display: none; }
 
   .fisa { display: grid; grid-template-columns: 15rem 1fr; gap: 1.5rem; align-items: start;
     background: var(--color-surface-alt); border: 1px solid var(--color-border);
@@ -474,14 +476,19 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
   .fisa__reg strong { font-family: var(--font-mono, monospace); color: var(--color-primary); font-size: 1rem; }
   .fisa__poza { aspect-ratio: 4 / 3; display: grid; place-items: center; font-size: 2.5rem;
     background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius); }
-  .fisa__mic, .fisa__date { border-collapse: collapse; width: 100%; }
+  .fisa__mic,
+  .fisa__date { border-collapse: collapse; width: 100%; }
   .fisa__mic { margin-top: 0.7rem; }
-  .fisa__mic th, .fisa__mic td, .fisa__date th, .fisa__date td {
+  .fisa__mic th,
+  .fisa__mic td,
+  .fisa__date th,
+  .fisa__date td {
     text-align: left; padding: 0.25rem 0.4rem; font-size: 0.85rem;
     border-bottom: 1px solid var(--color-border); vertical-align: top; }
-  .fisa__mic th, .fisa__date th { color: var(--color-text-muted); font-weight: 600; width: 42%; }
+  .fisa__mic th,
+  .fisa__date th { color: var(--color-text-muted); font-weight: 600; width: 42%; }
   .fisa__nume { font-family: var(--font-serif); color: var(--color-primary); margin: 0 0 0.2rem; }
-  .fisa__stare { font-size: 0.85rem; font-weight: 600; margin: 0 0 0.7rem; }
+  :global(.fisa__stare) { font-size: 0.85rem; font-weight: 600; margin: 0 0 0.7rem; }
   .k-rasfoieste { margin: 0.6rem 0 0; font-size: 0.92rem; }
   .k-rasfoieste a { color: var(--color-link); }
   .k-rasfoieste a:hover { color: var(--color-link-hover); }
@@ -495,15 +502,15 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
   .k-insigne { display: flex; flex-wrap: wrap; gap: 0.35rem; }
   .k-insigna { font-size: 0.78rem; font-weight: 600; padding: 0.15rem 0.55rem; border-radius: 999px;
     background: #e6f1eb; color: var(--color-success); border: 1px solid #cfe6d9; }
-  .fisa__stare.is-a { color: var(--color-primary); }
-  .fisa__stare.is-b { color: var(--color-accent-dark); }
-  .fisa__stare.is-anulat { color: #8c1d2f; }
+  :global(.fisa__stare.is-a) { color: var(--color-primary); }
+  :global(.fisa__stare.is-b) { color: var(--color-accent-dark); }
+  :global(.fisa__stare.is-anulat) { color: #8c1d2f; }
 
   .tab { display: flex; gap: 0.3rem; flex-wrap: wrap; margin: 1.5rem 0 0; }
   .tab__b { padding: 0.5rem 1rem; border: 1px solid var(--color-border); border-bottom: none;
     border-radius: var(--radius) var(--radius) 0 0; background: var(--color-surface-alt);
     cursor: pointer; font: inherit; font-size: 0.9rem; color: var(--color-text-muted); }
-  .tab__b.is-activ { background: var(--color-primary); color: #fbfaf7; border-color: var(--color-primary); font-weight: 600; }
+  :global(.tab__b.is-activ) { background: var(--color-primary); color: #fbfaf7; border-color: var(--color-primary); font-weight: 600; }
   .panou { border: 1px solid var(--color-border); border-radius: 0 var(--radius) var(--radius);
     padding: 1.2rem; overflow-x: auto; }
   .panou :global(.panou__gol) { color: var(--color-text-muted); font-style: italic; margin: 0; }
@@ -511,11 +518,15 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
 
 
   /* ——— Arborele de ascendență ———
-     ATENȚIE la scoping: cutiile arborelui sunt create din JavaScript, deci NU primesc
+     ATENȚIE la scoping: cutiile arborelui sunt create din JavaScript,
+  deci NU primesc
      atributul `data-astro-cid` pe care Astro îl pune pe elementele din șablon. O regulă
      scrisă simplu (`.nod { … }`) devine `.nod[data-astro-cid-…]` și nu le atinge — au
-     stat nestilizate, iar arborele arăta ca niște rânduri înșirate. De aceea tot ce
-     desenează JS-ul se scrie `:global(...)`, ancorat sub `.arbore` sau `.panou`, care
+     stat nestilizate,
+  iar arborele arăta ca niște rânduri înșirate. De aceea tot ce
+     desenează JS-ul se scrie `:global(...)`,
+  ancorat sub `.arbore` sau `.panou`,
+  care
      SUNT în șablon: stilul ajunge la noduri fără să scape în restul site-ului. */
   .arbore-cadru { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 0.5rem; }
   .arbore { display: grid; grid-template-columns: repeat(4, minmax(10rem, 1fr));
@@ -525,11 +536,12 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
     color: var(--color-text-muted); margin: 0 0 0.4rem; text-align: center; }
 
   /* Toate generațiile împart aceleași 16 rânduri; fiecare nod acoperă câte îi revin,
-     așa că un părinte cade exact la mijlocul perechii lui. */
+  așa că un părinte cade exact la mijlocul perechii lui. */
   .arbore :global(.arbore__grila) { flex: 1; display: grid; grid-template-rows: repeat(16, minmax(2.4rem, 1fr)); }
   .arbore :global(.arbore__celula) { position: relative; display: flex; align-items: center; }
 
-  /* Acolada: o linie orizontală care intră în cutie, plus jumătatea verticală care urcă
+  /* Acolada: o linie orizontală care intră în cutie,
+  plus jumătatea verticală care urcă
      sau coboară spre părinte. Cele două jumătăți ale unei perechi se întâlnesc exact la
      înălțimea părintelui. */
   .arbore :global(.arbore__celula.is-sus)::before,
@@ -551,8 +563,11 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
     width: calc(var(--arb-gol, 1.5rem) / 2); border-top: 1px solid var(--arb-linie, var(--color-border));
   }
 
-  /* Ramura tatălui se urmărește în verde, a mamei în auriu, până la stră-străbunici:
-     culoarea liniei spune din ce parte vine strămoșul, fără să numeri pozițiile. */
+  /* Ramura tatălui se urmărește în verde,
+  a mamei în auriu,
+  până la stră-străbunici:
+     culoarea liniei spune din ce parte vine strămoșul,
+  fără să numeri pozițiile. */
   .arbore :global(.arbore__celula.is-t) { --arb-linie: color-mix(in srgb, var(--color-primary) 45%, transparent); }
   .arbore :global(.arbore__celula.is-m) { --arb-linie: color-mix(in srgb, var(--color-accent-dark) 45%, transparent); }
 
@@ -561,7 +576,8 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
     border-radius: var(--radius); padding: 0.35rem 0.5rem; min-height: 2.6rem; background: var(--color-surface); }
   .arbore :global(.nod.is-t) { border-left-color: var(--color-primary); }
   .arbore :global(.nod.is-m) { border-left-color: var(--color-accent); }
-  .arbore :global(.nod.is-gol), .arbore :global(.nod.is-incomplet) { border-style: dashed; border-left-style: solid; }
+  .arbore :global(.nod.is-gol),
+  .arbore :global(.nod.is-incomplet) { border-style: dashed; border-left-style: solid; }
   .arbore :global(.nod__nume) { font-size: 0.78rem; line-height: 1.25; color: var(--color-primary); }
   .arbore :global(a.nod__nume) { text-decoration: none; }
   .arbore :global(a.nod__nume:hover) { text-decoration: underline; }
@@ -579,12 +595,13 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
   .panou :global(.cuib__cap) { font-family: var(--font-serif); color: var(--color-primary); font-size: 1rem; margin: 0 0 0.2rem; }
 
   .panou :global(.tabel) { border-collapse: collapse; width: 100%; }
-  .panou :global(.tabel th), .panou :global(.tabel td) { text-align: left; padding: 0.4rem 0.6rem; font-size: 0.88rem;
+  .panou :global(.tabel th),
+  .panou :global(.tabel td) { text-align: left; padding: 0.4rem 0.6rem; font-size: 0.88rem;
     border-bottom: 1px solid var(--color-border); }
   .panou :global(.tabel th) { color: var(--color-primary); font-weight: 600; }
   .panou :global(.tabel__titlu) { font-weight: 700; color: var(--color-accent-dark); }
 
-  @media (max-width: 50rem) {
+ @media (max-width: 50rem) {
     .fisa { grid-template-columns: 1fr; }
   }
 </style>

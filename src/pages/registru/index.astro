@@ -254,8 +254,7 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   })();
 </script>
 
-<style>
-  .r-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+<style>.r-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
   .r-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
   .r-sub { color: var(--color-text-muted); max-width: 44rem; }
   .r-form { display: grid; gap: 0.6rem; max-width: 22rem; margin: 2rem 0; }
@@ -278,24 +277,27 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   .r-cerere__intro { font-size: 0.9rem; color: var(--color-text-muted); }
   .r-form2 { display: grid; gap: 0.7rem; margin: 1.2rem 0; }
   .r-form2 label { display: block; font-weight: 600; color: var(--color-primary); font-size: 0.88rem; }
-  .r-form2 input, .r-form2 textarea {
+  .r-form2 input,
+  .r-form2 textarea {
     display: block; width: 100%; margin-top: 0.2rem; padding: 0.5rem 0.7rem;
     border: 1px solid var(--color-border); border-radius: var(--radius);
     font: inherit; font-weight: 400; text-transform: none; letter-spacing: normal;
   }
   .r-form2 .btn { justify-self: start; }
   .r-opt { color: var(--color-text-muted); font-weight: 400; font-size: 0.85em; }
-  /* Câmpul-capcană: scos din pagină, dar nu cu display:none — unii roboți îl caută anume. */
+  /* Câmpul-capcană: scos din pagină,
+  dar nu cu display:none — unii roboți îl caută anume. */
   .r-capcana { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
   .r-otp__intro { color: var(--color-text-muted); font-size: 0.92rem; margin: 0 0 0.4rem; }
   #r-otp { letter-spacing: 0.35em; font-size: 1.3rem; text-align: center; font-variant-numeric: tabular-nums; }
   .r-otp__nota { font-size: 0.83rem; color: var(--color-text-muted); margin: 0.5rem 0 0; }
   .r-linkbtn { background: none; border: none; padding: 0; font: inherit;
     color: var(--color-accent-dark); text-decoration: underline; cursor: pointer; }
-  #r-otp-form[hidden], #r-form[hidden] { display: none; }
-  .r-stare { margin: 0; font-size: 0.88rem; }
-  .r-stare.is-bun { color: var(--color-primary); font-weight: 600; }
-  .r-stare.is-rau { color: #8c1d2f; font-weight: 600; }
+  #r-otp-form[hidden],
+  #r-form[hidden] { display: none; }
+  :global(.r-stare) { margin: 0; font-size: 0.88rem; }
+  :global(.r-stare.is-bun) { color: var(--color-primary); font-weight: 600; }
+  :global(.r-stare.is-rau) { color: #8c1d2f; font-weight: 600; }
   .r-cerere__nota { font-size: 0.82rem; color: var(--color-text-muted); }
   .r-cerere__nota a { color: var(--color-accent-dark); }
 </style>

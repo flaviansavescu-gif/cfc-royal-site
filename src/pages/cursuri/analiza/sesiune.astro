@@ -210,32 +210,36 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
   .j-stare { color: var(--color-text-muted); font-style: italic; }
   .j-h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.2rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem; margin: 0 0 1rem; }
   .j-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1.5rem; align-items: start; }
-  @media (max-width: 820px) { .j-grid { grid-template-columns: 1fr; } }
+@media (max-width: 820px) { .j-grid { grid-template-columns: 1fr; } }
   .j-resurse { position: sticky; top: 1rem; }
   .j-imagini { display: grid; gap: 0.75rem; }
-  .j-img { background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); min-height: 8rem; display: flex; align-items: center; justify-content: center; color: var(--color-text-muted); overflow: hidden; }
-  .j-img img { width: 100%; height: auto; display: block; }
+  :global(.j-img) { background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); min-height: 8rem; display: flex; align-items: center; justify-content: center; color: var(--color-text-muted); overflow: hidden; }
+  :global(.j-img img) { width: 100%; height: auto; display: block; }
   .j-obj { margin-top: 1rem; background: var(--color-surface-alt); border-radius: var(--radius); padding: 0.75rem 1rem; }
   .j-obj h3 { margin: 0 0 0.3rem; font-size: 0.95rem; color: var(--color-primary); }
   .j-obj p { margin: 0; font-size: 0.9rem; }
   .j-timer { margin-top: 1rem; font-size: 0.9rem; color: var(--color-accent-dark); }
   .j-form { display: flex; flex-direction: column; gap: 1rem; }
-  .j-field { display: flex; flex-direction: column; gap: 0.3rem; }
-  .j-field > span { font-weight: 600; font-size: 0.9rem; }
-  .j-field textarea, .j-field select, .j-defect input, .j-defect select, .j-rank input {
+  :global(.j-field) { display: flex; flex-direction: column; gap: 0.3rem; }
+  :global(.j-field > span) { font-weight: 600; font-size: 0.9rem; }
+  :global(.j-field textarea),
+  :global(.j-field select),
+  :global(.j-defect input),
+  :global(.j-defect select),
+  :global(.j-rank input) {
     padding: 0.55rem 0.7rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; width: 100%;
   }
   .j-fieldset { border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.9rem; }
   .j-fieldset legend { font-weight: 700; font-size: 0.9rem; padding: 0 0.4rem; color: var(--color-primary); }
-  .j-defect { display: grid; grid-template-columns: 1fr auto 1fr auto; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; }
-  @media (max-width: 560px) { .j-defect { grid-template-columns: 1fr 1fr; } }
-  .j-rank { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.4rem; }
-  .j-rank input { width: 5rem; }
+  :global(.j-defect) { display: grid; grid-template-columns: 1fr auto 1fr auto; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; }
+@media (max-width: 560px) { .j-defect { grid-template-columns: 1fr 1fr; } }
+  :global(.j-rank) { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.4rem; }
+  :global(.j-rank input) { width: 5rem; }
   .j-form__actiuni { display: flex; gap: 0.6rem; flex-wrap: wrap; }
-  .j-form__msg { padding: 0.6rem 0.9rem; border-radius: var(--radius); }
-  .j-form__msg.is-ok { background: #eaf5ec; border: 1px solid #b6dcbf; color: #1f5130; }
-  .j-form__msg.is-err { background: #fbeaec; border: 1px solid #e2b6bd; color: #8c1d2f; }
+  :global(.j-form__msg) { padding: 0.6rem 0.9rem; border-radius: var(--radius); }
+  :global(.j-form__msg.is-ok) { background: #eaf5ec; border: 1px solid #b6dcbf; color: #1f5130; }
+  :global(.j-form__msg.is-err) { background: #fbeaec; border: 1px solid #e2b6bd; color: #8c1d2f; }
   .j-form__lock { color: var(--color-text-muted); font-style: italic; }
-  .btn--small { font-size: 0.85rem; padding: 0.4rem 0.8rem; }
-  .btn--danger { color: #8c1d2f; }
+  :global(.btn--small) { font-size: 0.85rem; padding: 0.4rem 0.8rem; }
+  :global(.btn--danger) { color: #8c1d2f; }
 </style>

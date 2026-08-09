@@ -93,26 +93,28 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .q-f > span em { color: var(--color-danger); font-style: normal; font-weight: 700; font-size: .82rem; }
   .q-help { color: var(--color-text-muted); font-size: .8rem; }
   .q-doi { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
-  .q-f input, .q-f select, .q-f textarea {
+  .q-f input,
+  .q-f select,
+  .q-f textarea {
     padding: .5rem .6rem; border: 1px solid var(--color-border); border-radius: var(--radius);
     font: inherit; background: var(--color-bg);
   }
   .q-fs { border: 1px solid var(--color-border); border-radius: var(--radius); padding: .8rem 1rem 1rem; display: grid; gap: .9rem; }
   .q-fs legend { font-weight: 600; font-size: .9rem; padding: 0 .4rem; color: var(--color-primary); }
-  .q-mesaj { margin: 0; padding: .6rem .8rem; border-radius: var(--radius); font-size: .92rem; }
-  .q-mesaj.ok { background: #e6f1eb; color: var(--color-success); }
-  .q-mesaj.err { background: #f7eaea; color: var(--color-danger); }
-  .q-mic { color: var(--color-text-muted); font-size: .85rem; }
-  .q-anunt { border: 1px solid var(--color-border); border-radius: var(--radius); padding: .8rem .95rem; margin-bottom: .7rem; }
-  .q-anunt .q-l1 { display: flex; justify-content: space-between; gap: .6rem; flex-wrap: wrap; align-items: baseline; }
-  .q-anunt strong { color: var(--color-text); }
-  .q-stare { font-size: .78rem; padding: .12rem .55rem; border-radius: 999px; white-space: nowrap; }
-  .q-stare.aprobat { background: #e6f1eb; color: var(--color-success); }
-  .q-stare.depus { background: #f7f1df; color: var(--color-accent-dark); }
-  .q-stare.respins { background: #f7eaea; color: var(--color-danger); }
-  .q-stare.retras { background: #eee; color: var(--color-text-muted); }
-  .q-anunt .q-det { color: var(--color-text-muted); font-size: .85rem; margin: .3rem 0 0; }
-  .q-retrage { margin-top: .5rem; }
+  :global(.q-mesaj) { margin: 0; padding: .6rem .8rem; border-radius: var(--radius); font-size: .92rem; }
+  :global(.q-mesaj.ok) { background: #e6f1eb; color: var(--color-success); }
+  :global(.q-mesaj.err) { background: #f7eaea; color: var(--color-danger); }
+  :global(.q-mic) { color: var(--color-text-muted); font-size: .85rem; }
+  :global(.q-anunt) { border: 1px solid var(--color-border); border-radius: var(--radius); padding: .8rem .95rem; margin-bottom: .7rem; }
+  :global(.q-anunt .q-l1) { display: flex; justify-content: space-between; gap: .6rem; flex-wrap: wrap; align-items: baseline; }
+  :global(.q-anunt strong) { color: var(--color-text); }
+  :global(.q-stare) { font-size: .78rem; padding: .12rem .55rem; border-radius: 999px; white-space: nowrap; }
+  :global(.q-stare.aprobat) { background: #e6f1eb; color: var(--color-success); }
+  :global(.q-stare.depus) { background: #f7f1df; color: var(--color-accent-dark); }
+  :global(.q-stare.respins) { background: #f7eaea; color: var(--color-danger); }
+  :global(.q-stare.retras) { background: #eee; color: var(--color-text-muted); }
+  :global(.q-anunt .q-det) { color: var(--color-text-muted); font-size: .85rem; margin: .3rem 0 0; }
+  :global(.q-retrage) { margin-top: .5rem; }
 </style>
 
 <script is:inline>

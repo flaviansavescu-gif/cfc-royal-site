@@ -139,9 +139,9 @@ import { MANUAL, PRAG_PROMOVARE } from "../../../../data/cursuri";
   .test__opt { display: flex; gap: 0.6rem; align-items: baseline; padding: 0.35rem 0.25rem; cursor: pointer; }
   .test__opt:hover { background: var(--color-surface-alt); border-radius: 6px; }
   .test__submit { margin-top: 0.5rem; }
-  .test__rezultat { margin-top: 1.5rem; padding: 1.25rem 1.5rem; border-radius: var(--radius); border: 1px solid var(--color-border); }
-  .test__rezultat.is-pass { background: #eef5f0; border-color: var(--color-primary); }
-  .test__rezultat.is-fail { background: #f9efef; border-color: #8c1d2f; }
-  .test__rezultat p { margin: 0.4rem 0 0; }
-  .test__gresite { color: var(--color-text-muted); font-size: 0.9rem; }
+  :global(.test__rezultat) { margin-top: 1.5rem; padding: 1.25rem 1.5rem; border-radius: var(--radius); border: 1px solid var(--color-border); }
+  :global(.test__rezultat.is-pass) { background: #eef5f0; border-color: var(--color-primary); }
+  :global(.test__rezultat.is-fail) { background: #f9efef; border-color: #8c1d2f; }
+  :global(.test__rezultat p) { margin: 0.4rem 0 0; }
+  :global(.test__gresite) { color: var(--color-text-muted); font-size: 0.9rem; }
 </style>

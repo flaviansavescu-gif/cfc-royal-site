@@ -238,7 +238,10 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
 <style>
   .c-eroare { max-width: 46rem; padding: 0.8rem 1rem; border-radius: var(--radius);
     background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; }
-  .c-eroare[hidden], .c-incarcare[hidden], .c-bara[hidden], .act[hidden] { display: none; }
+  .c-eroare[hidden],
+  .c-incarcare[hidden],
+  .c-bara[hidden],
+  .act[hidden] { display: none; }
   .c-incarcare { color: var(--color-text-muted); font-style: italic; }
   .c-bara { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
   .c-hint { font-size: 0.82rem; color: var(--color-text-muted); }
@@ -255,10 +258,10 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   .act__adresa { font-size: 0.72rem; color: #555; margin-top: 0.2rem !important; }
   .act__tip { text-align: center; }
   .act__tip-eticheta { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: #666; }
-  .act__tip-litera { font-family: var(--font-serif); font-size: 1.5rem; padding: 0.1rem 0.7rem;
+  :global(.act__tip-litera) { font-family: var(--font-serif); font-size: 1.5rem; padding: 0.1rem 0.7rem;
     border: 2px solid var(--color-primary); border-radius: 4px; color: var(--color-primary); display: inline-block; }
-  .act__tip-litera.is-b { border-color: var(--color-accent-dark); color: var(--color-accent-dark); }
-  .act__tip-litera.is-c { border-color: var(--color-info); color: var(--color-info); }
+  :global(.act__tip-litera.is-b) { border-color: var(--color-accent-dark); color: var(--color-accent-dark); }
+  :global(.act__tip-litera.is-c) { border-color: var(--color-info); color: var(--color-info); }
 
   .act__titlu { font-family: var(--font-serif); text-align: center; color: var(--color-primary);
     margin: 1rem 0 0.2rem; font-size: 1.7rem; letter-spacing: 0.02em; }
@@ -270,7 +273,8 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 0.3rem;
     border-bottom: 1px solid var(--color-border); padding-bottom: 0.15rem; }
   .act__tabel { border-collapse: collapse; width: 100%; }
-  .act__tabel th, .act__tabel td { text-align: left; padding: 0.18rem 0.4rem; font-size: 0.82rem;
+  .act__tabel th,
+  .act__tabel td { text-align: left; padding: 0.18rem 0.4rem; font-size: 0.82rem;
     border-bottom: 1px dotted #ccc; vertical-align: top; }
   .act__tabel th { color: #555; font-weight: 600; width: 38%; }
   .act__parti { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem; }
@@ -285,11 +289,12 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     border: 1px solid #bbb; border-radius: 2px; padding: 0.25rem 0.4rem; min-height: 2.2rem; }
   .asc__cutie.is-t { background: #f4f7f5; }
   .asc__cutie.is-m { background: #faf7f2; }
-  .asc__cutie.is-gol, .asc__cutie.is-incomplet { border-style: dashed; }
+  :global(.asc__cutie.is-gol),
+  :global(.asc__cutie.is-incomplet) { border-style: dashed; }
   .asc__nume { font-size: 0.74rem; line-height: 1.2; }
   .asc__titluri { font-size: 0.64rem; color: var(--color-accent-dark); }
   .asc__nr { font-size: 0.64rem; color: #666; font-family: var(--font-mono, monospace); }
-  .asc__cutie.is-gol .asc__nr { font-style: italic; }
+  :global(.asc__cutie.is-gol .asc__nr) { font-style: italic; }
   .act__lipsa { margin-top: 0.6rem; font-size: 0.78rem; color: var(--color-accent-dark);
     background: #fdf6e8; border: 1px solid var(--color-accent); border-radius: 2px; padding: 0.4rem 0.7rem; }
 
@@ -299,7 +304,7 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   .act__qr img { display: block; }
   .act__qr-text { font-size: 0.62rem; color: #555; margin: 0.25rem 0 0; word-break: break-all; }
   .act__qr-unelte { display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem; }
-  @media print { .act__qr-unelte { display: none !important; } }
+ @media print { .act__qr-unelte { display: none !important; } }
   .act__emis { font-size: 0.78rem; color: #555; margin: 0 0 1.4rem; }
   .act__semn { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
   .act__semn span { border-top: 1px solid #888; padding-top: 0.2rem; font-size: 0.72rem;
@@ -311,14 +316,26 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   .act__cap2 { display: none; }
 
   /* ——— Tipărire ———
-     O coală A4 culcată, tipărită față-verso, ca un pedigree de hârtie:
-       • fața  — emitentul, identitatea câinelui, crescătorul, proprietarul;
-       • versoul — ascendența pe patru generații, semnăturile, codul QR.
-     Măsurat pe un certificat plin, fața ocupă ~580px din cei ~718 disponibili, iar
+     O coală A4 culcată,
+  tipărită față-verso,
+  ca un pedigree de hârtie:
+       • fața  — emitentul,
+  identitatea câinelui,
+  crescătorul,
+  proprietarul;
+       • versoul — ascendența pe patru generații,
+  semnăturile,
+  codul QR.
+     Măsurat pe un certificat plin,
+  fața ocupă ~580px din cei ~718 disponibili,
+  iar
      versoul ~745 — de aceea versoul se strânge puțin mai mult decât fața. */
   @media print {
-    @page { size: A4 landscape; margin: 10mm; }
-    :global(.c-header), :global(.c-footer), .c-bara, .c-incarcare { display: none !important; }
+   @page { size: A4 landscape; margin: 10mm; }
+    :global(.c-header),
+  :global(.c-footer),
+  .c-bara,
+  .c-incarcare { display: none !important; }
     :global(.c-main) { max-width: none; padding: 0; }
     .act { border-width: 2px; padding: 0.8rem 1rem; margin: 0; }
     .act__titlu { font-size: 1.4rem; margin-top: 0.5rem; }
@@ -328,7 +345,8 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
       border-bottom: 1px solid var(--color-accent); padding-bottom: 0.25rem;
       font-family: var(--font-mono, monospace); }
     .asc__nume { font-size: 0.68rem; }
-    .asc__nr, .asc__titluri { font-size: 0.58rem; }
+    .asc__nr,
+  .asc__titluri { font-size: 0.58rem; }
     .act__subsol { margin-top: 0.7rem; padding-top: 0.5rem; break-inside: avoid; }
     .act__emis { margin-bottom: 0.9rem; }
     .act__legal { margin-top: 0.5rem; font-size: 0.6rem; }

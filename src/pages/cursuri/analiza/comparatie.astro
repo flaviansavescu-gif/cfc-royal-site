@@ -73,21 +73,22 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
   .j-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.75rem; }
   .j-actiuni { margin: 0 0 1rem; }
   .j-stare { color: var(--color-text-muted); font-style: italic; }
-  .j-sec { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; }
-  .j-h2 { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.1rem; margin: 0 0 0.6rem; }
-  .j-line { margin: 0 0 0.3rem; }
-  .j-motiv { font-size: 0.88rem; color: var(--color-text-muted); margin: 0.2rem 0; }
-  .j-sumar { font-size: 0.85rem; font-weight: 600; color: var(--color-accent-dark); margin-top: 0.5rem; }
-  .j-tab { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  .j-tab th, .j-tab td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--color-border); vertical-align: top; }
-  .j-tab th { color: var(--color-primary); }
-  .j-obs { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.3rem; }
-  .b { display: inline-block; font-size: 0.75rem; padding: 0.1rem 0.5rem; border-radius: 999px; border: 1px solid; }
+  :global(.j-sec) { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  :global(.j-h2) { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.1rem; margin: 0 0 0.6rem; }
+  :global(.j-line) { margin: 0 0 0.3rem; }
+  :global(.j-motiv) { font-size: 0.88rem; color: var(--color-text-muted); margin: 0.2rem 0; }
+  :global(.j-sumar) { font-size: 0.85rem; font-weight: 600; color: var(--color-accent-dark); margin-top: 0.5rem; }
+  :global(.j-tab) { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  :global(.j-tab th),
+  :global(.j-tab td) { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+  :global(.j-tab th) { color: var(--color-primary); }
+  :global(.j-obs) { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.3rem; }
+  :global(.b) { display: inline-block; font-size: 0.75rem; padding: 0.1rem 0.5rem; border-radius: 999px; border: 1px solid; }
   .b-ok { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
   .b-warn { background: #fdf4e3; border-color: #e6cf9a; color: #8a6d1f; }
   .b-bad { background: #fbeaec; border-color: #e2b6bd; color: #8c1d2f; }
   .b-muted { background: var(--color-surface-alt); border-color: var(--color-border); color: var(--color-text-muted); }
-  .j-fb h3 { font-size: 0.95rem; color: var(--color-primary); margin: 0.6rem 0 0.2rem; }
-  .j-fb p { white-space: pre-line; margin: 0; }
+  :global(.j-fb h3) { font-size: 0.95rem; color: var(--color-primary); margin: 0.6rem 0 0.2rem; }
+  :global(.j-fb p) { white-space: pre-line; margin: 0; }
   .btn--small { font-size: 0.85rem; padding: 0.4rem 0.8rem; }
 </style>

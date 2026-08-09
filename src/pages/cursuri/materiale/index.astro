@@ -78,8 +78,7 @@ const cuMateriale = LECTORI.filter((l) => l.materiale.length);
   <p class="m-nota">Pentru a încărca un material nou în spațiul comun, trimite-l secretariatului Școlii — apare aici pentru toți lectorii.</p>
 </CursuriLayout>
 
-<style>
-  .m-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+<style>.m-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
   .m-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
   .m-sub { color: var(--color-text-muted); max-width: 50rem; }
   .m-actiuni { display: flex; gap: 0.7rem; flex-wrap: wrap; margin: 1.25rem 0; }
@@ -89,8 +88,8 @@ const cuMateriale = LECTORI.filter((l) => l.materiale.length);
   .m-modul { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.9rem 1.1rem; }
   .m-modul__head { display: flex; gap: 0.9rem; align-items: flex-start; }
   .m-nr { flex: 0 0 auto; width: 2.2rem; height: 2.2rem; display: grid; place-items: center; background: var(--color-primary); color: #fbfaf7; border-radius: 50%; font-family: var(--font-serif); }
-  .m-modul__titlu { font-family: var(--font-serif); font-weight: 700; color: var(--color-primary); text-decoration: none; }
-  .m-modul__titlu:hover { text-decoration: underline; }
+  :global(.m-modul__titlu) { font-family: var(--font-serif); font-weight: 700; color: var(--color-primary); text-decoration: none; }
+  :global(.m-modul__titlu:hover) { text-decoration: underline; }
   .m-modul__obj { margin: 0.2rem 0 0; font-size: 0.88rem; color: var(--color-text-muted); }
   .m-lecturi { list-style: none; margin: 0.6rem 0 0 3.1rem; padding: 0; display: grid; gap: 0.25rem; }
   .m-lecturi a { font-size: 0.85rem; color: var(--color-accent-dark); text-decoration: none; }

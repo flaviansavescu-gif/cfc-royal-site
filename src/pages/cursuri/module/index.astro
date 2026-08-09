@@ -157,8 +157,7 @@ import { MODULE } from "../../../data/cursuri";
   })();
 </script>
 
-<style>
-  .d-hi { margin: 0 0 0.35rem; font-weight: 600; color: var(--color-accent-dark); }
+<style>.d-hi { margin: 0 0 0.35rem; font-weight: 600; color: var(--color-accent-dark); }
   .d-actiuni { margin: 1.5rem 0 0; display: flex; flex-wrap: wrap; gap: 0.75rem; }
   .d-stagiu { display: inline-block; text-decoration: none; font-weight: 600; color: var(--color-primary);
     background: var(--color-surface); border: 1px solid var(--color-accent); border-radius: var(--radius); padding: 0.7rem 1.1rem; }
@@ -183,12 +182,12 @@ import { MODULE } from "../../../data/cursuri";
   .d-title { font-family: var(--font-serif); color: var(--color-primary); margin-bottom: 0.5rem; }
   .d-sub { color: var(--color-text-muted); max-width: 46rem; }
   .d-list { list-style: none; margin: 2rem 0 0; padding: 0; display: grid; gap: 0.85rem; }
-  .d-item__link {
+  :global(.d-item__link) {
     display: flex; align-items: center; gap: 1.1rem; text-decoration: none;
     background: var(--color-surface); border: 1px solid var(--color-border);
     border-radius: var(--radius); padding: 1rem 1.25rem;
   }
-  .d-item__link:hover { border-color: var(--color-primary); }
+  :global(.d-item__link:hover) { border-color: var(--color-primary); }
   .d-item__nr {
     flex: 0 0 auto; width: 2.6rem; height: 2.6rem; display: grid; place-items: center;
     background: var(--color-primary); color: #fbfaf7; border-radius: 50%;
@@ -208,15 +207,15 @@ import { MODULE } from "../../../data/cursuri";
   .d-anunturi__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
   .d-anunturi__list li { display: flex; flex-direction: column; gap: 0.15rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(176,141,46,0.3); }
   .d-anunturi__list li:last-child { border-bottom: 0; padding-bottom: 0; }
-  .d-anunt__data { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-accent-dark); }
-  .d-anunt__text { color: var(--color-text); white-space: pre-line; }
-  .d-item__prog { font-size: 0.82rem; font-weight: 600; margin-top: 0.15rem; }
-  .d-item__prog.is-pass { color: var(--color-primary); }
-  .d-item__prog.is-fail { color: #8c1d2f; }
-  .d-item__link.is-locked { opacity: 0.55; cursor: not-allowed; }
-  .d-item__link.is-locked:hover { border-color: var(--color-border); }
-  @media (max-width: 640px) {
-    .d-item__link { flex-wrap: wrap; }
+  :global(.d-anunt__data) { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-accent-dark); }
+  :global(.d-anunt__text) { color: var(--color-text); white-space: pre-line; }
+  :global(.d-item__prog) { font-size: 0.82rem; font-weight: 600; margin-top: 0.15rem; }
+  :global(.d-item__prog.is-pass) { color: var(--color-primary); }
+  :global(.d-item__prog.is-fail) { color: #8c1d2f; }
+  :global(.d-item__link.is-locked) { opacity: 0.55; cursor: not-allowed; }
+  :global(.d-item__link.is-locked:hover) { border-color: var(--color-border); }
+ @media (max-width: 640px) {
+    :global(.d-item__link) { flex-wrap: wrap; }
     .d-item__badge { margin-left: 3.7rem; }
   }
 </style>

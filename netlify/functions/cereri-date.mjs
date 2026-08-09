@@ -182,12 +182,33 @@ export default cuLimitareCod(async (req) => {
 
   // —— Registrul cererilor. ——
   if (actiune === "lista") {
+    // Retenție (GDPR, limitarea stocării): o cerere REZOLVATĂ sau REFUZATĂ se păstrează
+    // 3 ani de la închidere — proba modului de soluționare, aliniată termenului general
+    // de prescripție — apoi se șterge de la sine la prima deschidere a registrului.
+    // Cererile încă deschise nu se șterg NICIODATĂ automat. Ștergerea lasă urmă în jurnal.
+    const RETENTIE_MS = 3 * 365 * 24 * 3600e3;
+    const inchisaLa = (c) => {
+      const ist = Array.isArray(c.istoric) ? c.istoric : [];
+      const ultima = [...ist].reverse().find((i) => i.stare === "rezolvata" || i.stare === "refuzata");
+      return ultima?.la || c.creat;
+    };
     const cereri = [];
     try {
       const { blobs } = await s.list({ prefix: "dsar/" });
       for (const b of blobs) {
         const c = await s.get(b.key, { type: "json" }).catch(() => null);
-        if (c) cereri.push(rezumat(c));
+        if (!c) continue;
+        const inchisa = c.stare === "rezolvata" || c.stare === "refuzata";
+        if (inchisa && Date.now() - Date.parse(inchisaLa(c)) > RETENTIE_MS) {
+          await jurnalizeazaObligatoriu(s, {
+            fapta: "dsar-stearsa-retentie", actor: "sistem (retenție 3 ani)",
+            obiect: TIPURI[c.tip] || c.tip, detalii: `cerere din ${c.creat}, închisă ${inchisaLa(c)}`,
+            ip: "-",
+          });
+          await s.delete(b.key).catch((err) => console.error("Ștergere DSAR la retenție eșuată:", err));
+          continue;
+        }
+        cereri.push(rezumat(c));
       }
     } catch (err) { console.error("Listare cereri GDPR eșuată:", err); }
     // Cele mai noi întâi; cele nerezolvate, oricum, se văd după termenul care se apropie.

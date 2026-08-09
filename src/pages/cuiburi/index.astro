@@ -44,7 +44,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
   .cu__intro { color: var(--color-text-muted); max-width: 48rem; }
   .cu__intro small { color: var(--color-text-muted); }
   .cu__filtre { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1.2rem 0 .4rem; }
-  .cu__filtre input, .cu__filtre select {
+  .cu__filtre input,
+  .cu__filtre select {
     padding: .55rem .7rem; border: 1px solid var(--color-border); border-radius: var(--radius);
     font: inherit; background: var(--color-surface);
   }
@@ -52,31 +53,31 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
   .cu__nr { color: var(--color-text-muted); font-size: .88rem; margin: .3rem 0 .6rem; }
   .cu__lista { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); }
-  .cu__card {
+  :global(.cu__card) {
     border: 1px solid var(--color-border); border-radius: var(--radius);
     background: var(--color-surface); padding: 1rem 1.1rem 1.1rem; display: flex; flex-direction: column; gap: .5rem;
   }
-  .cu__cap { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; flex-wrap: wrap; }
-  .cu__rasa { font-weight: 700; color: var(--color-primary); font-size: 1.05rem; }
-  .cu__afix a { color: var(--color-link); text-decoration: none; font-size: .88rem; }
-  .cu__afix a:hover { text-decoration: underline; }
-  .cu__disp { font-size: .9rem; }
-  .cu__disp strong { color: var(--color-text); }
-  .cu__parinti { display: grid; gap: .4rem; margin: .2rem 0; }
-  .cu__par { border-left: 3px solid var(--color-border); padding: .1rem 0 .1rem .6rem; font-size: .9rem; }
-  .cu__par-rol { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--color-text-muted); }
-  .cu__par-nume a { color: var(--color-link); text-decoration: none; font-weight: 600; }
-  .cu__par-nume a:hover { text-decoration: underline; }
-  .cu__reco { display: inline-block; font-size: .72rem; font-weight: 600; color: var(--color-success); margin-left: .3rem; white-space: nowrap; }
-  .cu__insigne { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .2rem; }
-  .cu__insigna { font-size: .72rem; background: var(--color-surface-alt); border: 1px solid var(--color-border);
+  :global(.cu__cap) { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; flex-wrap: wrap; }
+  :global(.cu__rasa) { font-weight: 700; color: var(--color-primary); font-size: 1.05rem; }
+  :global(.cu__afix a) { color: var(--color-link); text-decoration: none; font-size: .88rem; }
+  :global(.cu__afix a:hover) { text-decoration: underline; }
+  :global(.cu__disp) { font-size: .9rem; }
+  :global(.cu__disp strong) { color: var(--color-text); }
+  :global(.cu__parinti) { display: grid; gap: .4rem; margin: .2rem 0; }
+  :global(.cu__par) { border-left: 3px solid var(--color-border); padding: .1rem 0 .1rem .6rem; font-size: .9rem; }
+  :global(.cu__par-rol) { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--color-text-muted); }
+  :global(.cu__par-nume a) { color: var(--color-link); text-decoration: none; font-weight: 600; }
+  :global(.cu__par-nume a:hover) { text-decoration: underline; }
+  :global(.cu__reco) { display: inline-block; font-size: .72rem; font-weight: 600; color: var(--color-success); margin-left: .3rem; white-space: nowrap; }
+  :global(.cu__insigne) { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .2rem; }
+  :global(.cu__insigna) { font-size: .72rem; background: var(--color-surface-alt); border: 1px solid var(--color-border);
     border-radius: 999px; padding: .05rem .5rem; color: var(--color-text-muted); }
-  .cu__nota { font-size: .88rem; color: var(--color-text); background: var(--color-surface-alt);
+  :global(.cu__nota) { font-size: .88rem; color: var(--color-text); background: var(--color-surface-alt);
     border-radius: var(--radius); padding: .5rem .7rem; }
-  .cu__contact { font-size: .88rem; margin-top: auto; padding-top: .3rem; border-top: 1px dashed var(--color-border); }
-  .cu__contact strong { color: var(--color-primary); }
-  .cu__meta { font-size: .78rem; color: var(--color-text-muted); }
-  .cu__gol { color: var(--color-text-muted); padding: .8rem 0; }
+  :global(.cu__contact) { font-size: .88rem; margin-top: auto; padding-top: .3rem; border-top: 1px dashed var(--color-border); }
+  :global(.cu__contact strong) { color: var(--color-primary); }
+  :global(.cu__meta) { font-size: .78rem; color: var(--color-text-muted); }
+  :global(.cu__gol) { color: var(--color-text-muted); padding: .8rem 0; }
   .cu__crescator { margin-top: 2rem; color: var(--color-text-muted); }
   .cu__crescator a { color: var(--color-link); }
 </style>

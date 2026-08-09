@@ -1,0 +1,72 @@
+---
+// Pagina publică de securitate: ce facem ca datele membrilor să fie în siguranță și
+// unde se raportează o problemă de securitate. Text cinstit, fără promisiuni absolute.
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+const lang = "ro" as const;
+---
+<BaseLayout
+  title="Securitatea datelor"
+  lang={lang}
+  description="Cum protejăm datele membrilor și ale expozanților: criptare în tranzit, acces pe bază de coduri, jurnal de audit, copii de siguranță criptate. Raportează o problemă de securitate."
+>
+  <div class="container" style="padding-block: 2.5rem 3.5rem;">
+    <p class="sec-cale"><a href="/ro/">Acasă</a> · Securitatea datelor</p>
+    <h1 class="sec-title">Securitatea datelor</h1>
+    <p class="sec-intro">
+      Gestionăm date care contează pentru membri: cartea de origini, înscrierile la expoziții,
+      evidențele Școlii de Arbitraj. Iată, pe scurt și cinstit, ce facem ca ele să fie în siguranță.
+    </p>
+
+    <h2>Ce facem</h2>
+    <ul class="sec-lista">
+      <li><strong>Criptare în tranzit.</strong> Tot site-ul funcționează exclusiv prin HTTPS.</li>
+      <li><strong>Acces pe bază de coduri, cu limitarea încercărilor.</strong> Zonele interne (registratură,
+        platforma de cursuri, administrare) se deschid doar cu coduri individuale; încercările greșite repetate
+        se blochează automat, iar codurile se pot revoca oricând.</li>
+      <li><strong>Secretele stau doar pe server.</strong> Cheile de verificare ale codurilor și ale sesiunilor nu
+        ajung niciodată în paginile publice.</li>
+      <li><strong>Jurnal de audit.</strong> Operațiunile sensibile din registre (emiteri, modificări, ștergeri)
+        se consemnează cu autor și dată.</li>
+      <li><strong>Copii de siguranță criptate.</strong> Evidențele au copii de rezervă criptate (AES-256),
+        păstrate separat de sistemele de lucru; restaurarea e testată.</li>
+      <li><strong>Minimizarea datelor.</strong> Cerem doar ce e necesar scopului, iar paginile publice afișează
+        doar ce trebuie să fie public (de ex. datele de contact ale proprietarilor nu apar în varianta web a
+        catalogului). Vezi și <a href="/ro/juridic/confidentialitate/">politica de confidențialitate</a> și
+        <a href="/ro/juridic/cereri-date/">cererile privind datele personale</a>.</li>
+      <li><strong>Actualizări la zi.</strong> Componentele software se actualizează regulat, iar sistemul e
+        verificat periodic pentru vulnerabilități cunoscute.</li>
+    </ul>
+
+    <h2>Ce nu promitem</h2>
+    <p class="sec-text">
+      Nicio organizație nu poate garanta securitate absolută. Promitem în schimb că luăm măsurile de mai sus în
+      serios, că reparăm cu prioritate ce se descoperă și că, dacă un incident ar afecta datele cuiva, îl anunțăm
+      conform legii.
+    </p>
+
+    <h2>Ai găsit o problemă de securitate?</h2>
+    <div class="sec-nota">
+      Scrie-ne la <a href="mailto:contact@cfc-royal.ro"><strong>contact@cfc-royal.ro</strong></a> cu subiectul
+      „Securitate". Descrie ce ai găsit și cum se poate reproduce; te rugăm să nu accesezi datele altora și să
+      nu faci publică problema înainte să apucăm să o reparăm. Răspundem cât putem de repede și îți mulțumim —
+      raportările de bună-credință ajută pe toată lumea.
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .sec-cale { font-size: .85rem; color: var(--color-text-muted); margin: 0 0 .3rem; }
+  .sec-cale a { color: var(--color-link); }
+  .sec-title { color: var(--color-primary); }
+  .sec-intro, .sec-text { color: var(--color-text-muted); max-width: 46rem; }
+  h2 { color: var(--color-primary); margin-top: 1.6rem; font-size: 1.25rem; }
+  .sec-lista { max-width: 46rem; display: grid; gap: .55rem; padding-left: 1.2rem; }
+  .sec-lista li { line-height: 1.5; }
+  .sec-lista a { color: var(--color-link); }
+  .sec-nota {
+    max-width: 46rem; margin-top: .6rem; padding: .85rem 1.1rem;
+    background: #f7f1df; border: 1px solid var(--color-accent); border-left-width: 4px;
+    border-radius: var(--radius); font-size: .95rem; color: var(--color-text);
+  }
+  .sec-nota a { color: var(--color-link); }
+</style>

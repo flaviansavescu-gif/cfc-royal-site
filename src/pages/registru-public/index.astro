@@ -60,34 +60,35 @@ const grupe = GRUPE_WDF.map((g) => ({ nr: g.nr, ro: g.ro }));
   .rp__intro { color: var(--color-text-muted); max-width: 48rem; }
   .rp__intro a { color: var(--color-link); }
   .rp__filtre { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1.2rem 0 .4rem; }
-  .rp__filtre input, .rp__filtre select {
+  .rp__filtre input,
+  .rp__filtre select {
     padding: .55rem .7rem; border: 1px solid var(--color-border); border-radius: var(--radius);
     font: inherit; background: var(--color-surface);
   }
   .rp__filtre input { flex: 1 1 16rem; }
   .rp__nr { color: var(--color-text-muted); font-size: .88rem; margin: .3rem 0 .6rem; }
   .rp__lista { list-style: none; padding: 0; margin: 0; display: grid; gap: .5rem; }
-  .rp__caine {
+  :global(.rp__caine) {
     display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap;
     padding: .7rem .95rem; border: 1px solid var(--color-border); border-radius: var(--radius);
     background: var(--color-surface); text-decoration: none; color: var(--color-text);
   }
-  .rp__caine:hover { border-color: var(--color-primary-light); background: var(--color-surface-alt); }
-  .rp__caine.anulat { opacity: .6; }
-  .rp__nume { font-weight: 600; }
-  .rp__nume .rp-anulat { font-size: .72rem; font-weight: 600; color: var(--color-danger); margin-left: .4rem; }
-  .rp__nume .rp__reco { font-size: .72rem; font-weight: 600; color: var(--color-success); margin-left: .45rem; white-space: nowrap; }
-  .rp__meta { color: var(--color-text-muted); font-size: .85rem; text-align: right; }
-  .rp__afix-nr { font-family: var(--font-mono); }
-  .rp__afix-link { color: var(--color-link); text-decoration: none; font-weight: 600; }
-  .rp__afix-link:hover { text-decoration: underline; }
-  .rp__gol { color: var(--color-text-muted); padding: .8rem 0; }
+  :global(.rp__caine:hover) { border-color: var(--color-primary-light); background: var(--color-surface-alt); }
+  :global(.rp__caine.anulat) { opacity: .6; }
+  :global(.rp__nume) { font-weight: 600; }
+  :global(.rp__nume .rp-anulat) { font-size: .72rem; font-weight: 600; color: var(--color-danger); margin-left: .4rem; }
+  :global(.rp__nume .rp__reco) { font-size: .72rem; font-weight: 600; color: var(--color-success); margin-left: .45rem; white-space: nowrap; }
+  :global(.rp__meta) { color: var(--color-text-muted); font-size: .85rem; text-align: right; }
+  :global(.rp__afix-nr) { font-family: var(--font-mono); }
+  :global(.rp__afix-link) { color: var(--color-link); text-decoration: none; font-weight: 600; }
+  :global(.rp__afix-link:hover) { text-decoration: underline; }
+  :global(.rp__gol) { color: var(--color-text-muted); padding: .8rem 0; }
   .rp__h2 { color: var(--color-primary); margin-top: 2rem; }
   .rp__afixe { list-style: none; padding: 0; margin: 0; display: grid; gap: .35rem;
     grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
   .rp__afixe li { padding: .5rem .8rem; border: 1px solid var(--color-border); border-radius: var(--radius);
     background: var(--color-surface); display: flex; justify-content: space-between; gap: .6rem; }
-  .rp__afixe .rp__afix-nr { color: var(--color-text-muted); font-size: .82rem; }
+  :global(.rp__afixe .rp__afix-nr) { color: var(--color-text-muted); font-size: .82rem; }
 </style>
 
 <script is:inline>

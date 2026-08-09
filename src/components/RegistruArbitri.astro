@@ -213,22 +213,22 @@ const Tc = { allBreed: T.allBreed, certificat: T.certificat, unu: T.unu, multi: 
   .ar__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin: 1.5rem 0 1rem; }
   .ar__filtru { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--color-text); }
   .ar__filtru select { padding: 0.5rem 0.7rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; background: var(--color-surface); }
-  .ar__count { color: var(--color-text-muted); font-size: 0.9rem; }
+  :global(.ar__count) { color: var(--color-text-muted); font-size: 0.9rem; }
   .ar__stare { color: var(--color-text-muted); font-style: italic; }
   .ar__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); }
-  .ar__card[hidden] { display: none; }
-  .ar__link { display: flex; gap: 0.9rem; text-decoration: none; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.1rem; height: 100%; }
-  .ar__link:hover { border-color: var(--color-primary); }
-  .ar__link--static { cursor: default; }
-  .ar__link--static:hover { border-color: var(--color-border); }
+  :global(.ar__card[hidden]) { display: none; }
+  :global(.ar__link) { display: flex; gap: 0.9rem; text-decoration: none; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.1rem; height: 100%; }
+  :global(.ar__link:hover) { border-color: var(--color-primary); }
+  :global(.ar__link--static) { cursor: default; }
+  :global(.ar__link--static:hover) { border-color: var(--color-border); }
   .ar__foto { flex: 0 0 auto; width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-accent); }
-  .ar__body { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
-  .ar__nume { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.1rem; font-weight: 700; }
-  .ar__meta { font-size: 0.85rem; color: var(--color-text-muted); }
-  .ar__badges { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.35rem; }
-  .ar__badge { font-size: 0.78rem; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: 999px; padding: 0.15rem 0.55rem; color: var(--color-text); }
-  .ar__badge strong { color: var(--color-primary); }
+  :global(.ar__body) { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+  :global(.ar__nume) { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.1rem; font-weight: 700; }
+  :global(.ar__meta) { font-size: 0.85rem; color: var(--color-text-muted); }
+  :global(.ar__badges) { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.35rem; }
+  :global(.ar__badge) { font-size: 0.78rem; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: 999px; padding: 0.15rem 0.55rem; color: var(--color-text); }
+  :global(.ar__badge strong) { color: var(--color-primary); }
   .ar__badge--all { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
   .ar__profil { margin-top: 0.5rem; font-size: 0.82rem; font-weight: 600; color: var(--color-accent-dark); }
-  .ar__cert { margin-top: 0.5rem; font-size: 0.72rem; font-weight: 600; color: var(--color-accent-dark); }
+  :global(.ar__cert) { margin-top: 0.5rem; font-size: 0.72rem; font-weight: 600; color: var(--color-accent-dark); }
 </style>

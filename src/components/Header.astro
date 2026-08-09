@@ -107,7 +107,8 @@ function isActive(slug: string): boolean {
     display: block; padding: 0.5rem 0.55rem; border-radius: var(--radius);
     font-weight: 600; font-size: 0.95rem; color: var(--color-text); text-decoration: none; white-space: nowrap;
   }
-  .mainnav__link:hover, .mainnav__item:focus-within > .mainnav__link { background: var(--color-surface-alt); color: var(--color-primary); }
+  .mainnav__link:hover,
+  .mainnav__item:focus-within > .mainnav__link { background: var(--color-surface-alt); color: var(--color-primary); }
   .mainnav__link[aria-current="page"] { color: var(--color-primary); box-shadow: inset 0 -2px 0 var(--color-accent); }
 
   /* Submeniu (dropdown desktop) */
@@ -117,13 +118,16 @@ function isActive(slug: string): boolean {
     border-radius: var(--radius); box-shadow: 0 8px 24px rgba(0,0,0,0.08);
     padding: 0.35rem; display: none; z-index: 10;
   }
-  .has-children:hover > .submenu, .has-children:focus-within > .submenu { display: block; }
+  .has-children:hover > .submenu,
+  .has-children:focus-within > .submenu { display: block; }
   .submenu__link { display: block; padding: 0.45rem 0.6rem; border-radius: var(--radius); font-size: var(--fs-400); color: var(--color-text); text-decoration: none; }
   .submenu__link:hover { background: var(--color-surface-alt); color: var(--color-primary); }
 
   /* Buton meniu mobil */
   .nav-toggle { display: none; width: 2.75rem; height: 2.75rem; border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); position: relative; }
-  .nav-toggle__bar, .nav-toggle__bar::before, .nav-toggle__bar::after {
+  .nav-toggle__bar,
+  .nav-toggle__bar::before,
+  .nav-toggle__bar::after {
     content: ""; position: absolute; left: 50%; width: 1.25rem; height: 2px; background: var(--color-text);
     transform: translateX(-50%); transition: transform 0.2s ease, opacity 0.2s ease;
   }
@@ -142,7 +146,7 @@ function isActive(slug: string): boolean {
       background: var(--color-surface); border-bottom: 1px solid var(--color-border);
       box-shadow: 0 8px 24px rgba(0,0,0,0.08); max-height: 80vh; overflow-y: auto;
     }
-    .mainnav.is-open { display: block; }
+    :global(.mainnav.is-open) { display: block; }
     .mainnav__list { flex-direction: column; gap: 0; padding: 0.5rem; }
     .mainnav__link { padding: 0.7rem; }
     .submenu {
@@ -151,7 +155,7 @@ function isActive(slug: string): boolean {
     }
     .brand__tag { display: none; }
   }
-  @media (max-width: 480px) {
+ @media (max-width: 480px) {
     .topbar__links a:not(:first-child) { display: none; }
   }
 </style>

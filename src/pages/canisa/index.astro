@@ -36,20 +36,20 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
   .cn__nr { color: var(--color-text-muted); font-family: var(--font-mono); font-size: .9rem; margin: .2rem 0 0; }
   .cn__intro { color: var(--color-text-muted); }
   .cn__lista { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: .5rem; }
-  .cn__caine {
+  :global(.cn__caine) {
     display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap;
     padding: .7rem .95rem; border: 1px solid var(--color-border); border-radius: var(--radius);
     background: var(--color-surface); text-decoration: none; color: var(--color-text);
   }
-  .cn__caine:hover { border-color: var(--color-primary-light); background: var(--color-surface-alt); }
-  .cn__caine.anulat { opacity: .6; }
-  .cn__nume { font-weight: 600; }
-  .cn__nume .cn-anulat { font-size: .72rem; font-weight: 600; color: var(--color-danger); margin-left: .4rem; }
-  .cn__reco {
+  :global(.cn__caine:hover) { border-color: var(--color-primary-light); background: var(--color-surface-alt); }
+  :global(.cn__caine.anulat) { opacity: .6; }
+  :global(.cn__nume) { font-weight: 600; }
+  :global(.cn__nume .cn-anulat) { font-size: .72rem; font-weight: 600; color: var(--color-danger); margin-left: .4rem; }
+  :global(.cn__reco) {
     display: inline-block; margin-left: .5rem; font-size: .72rem; font-weight: 600;
     color: var(--color-success); white-space: nowrap;
   }
-  .cn__meta { color: var(--color-text-muted); font-size: .85rem; text-align: right; }
+  :global(.cn__meta) { color: var(--color-text-muted); font-size: .85rem; text-align: right; }
   .cn__inapoi { margin-top: 1.5rem; }
   .cn__inapoi a { color: var(--color-link); }
 </style>

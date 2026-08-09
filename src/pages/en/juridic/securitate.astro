@@ -1,0 +1,71 @@
+---
+// Public security page (EN mirror of /ro/juridic/securitate/).
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+const lang = "en" as const;
+---
+<BaseLayout
+  title="Data security"
+  lang={lang}
+  description="How we protect members' and exhibitors' data: encryption in transit, code-based access, audit trail, encrypted backups. Report a security issue."
+>
+  <div class="container" style="padding-block: 2.5rem 3.5rem;">
+    <p class="sec-cale"><a href="/en/">Home</a> · Data security</p>
+    <h1 class="sec-title">Data security</h1>
+    <p class="sec-intro">
+      We manage data that matters to our members: the studbook, show entries, the Judges' School records.
+      Here is, briefly and honestly, what we do to keep it safe.
+    </p>
+
+    <h2>What we do</h2>
+    <ul class="sec-lista">
+      <li><strong>Encryption in transit.</strong> The whole site runs exclusively over HTTPS.</li>
+      <li><strong>Code-based access with rate limiting.</strong> Internal areas (registry office, courses
+        platform, administration) open only with individual codes; repeated failed attempts are blocked
+        automatically, and codes can be revoked at any time.</li>
+      <li><strong>Secrets live only on the server.</strong> The verification keys for codes and sessions never
+        reach the public pages.</li>
+      <li><strong>Audit trail.</strong> Sensitive registry operations (issuing, changes, deletions) are recorded
+        with author and date.</li>
+      <li><strong>Encrypted backups.</strong> Records have encrypted backup copies (AES-256), kept separately
+        from the working systems; restoration is tested.</li>
+      <li><strong>Data minimisation.</strong> We ask only for what the purpose requires, and public pages show
+        only what must be public (e.g. owners' contact details do not appear in the web version of the
+        catalogue). See also the <a href="/en/juridic/confidentialitate/">privacy policy</a> and
+        <a href="/en/juridic/cereri-date/">personal data requests</a>.</li>
+      <li><strong>Up-to-date software.</strong> Components are updated regularly and the system is checked
+        periodically for known vulnerabilities.</li>
+    </ul>
+
+    <h2>What we do not promise</h2>
+    <p class="sec-text">
+      No organisation can guarantee absolute security. What we do promise is that we take the measures above
+      seriously, fix what is found as a priority, and, should an incident affect anyone's data, notify them as
+      the law requires.
+    </p>
+
+    <h2>Found a security issue?</h2>
+    <div class="sec-nota">
+      Write to <a href="mailto:contact@cfc-royal.ro"><strong>contact@cfc-royal.ro</strong></a> with the subject
+      "Security". Describe what you found and how to reproduce it; please do not access other people's data and
+      do not disclose the issue publicly before we have had a chance to fix it. We reply as fast as we can, and
+      we thank you — good-faith reports help everyone.
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .sec-cale { font-size: .85rem; color: var(--color-text-muted); margin: 0 0 .3rem; }
+  .sec-cale a { color: var(--color-link); }
+  .sec-title { color: var(--color-primary); }
+  .sec-intro, .sec-text { color: var(--color-text-muted); max-width: 46rem; }
+  h2 { color: var(--color-primary); margin-top: 1.6rem; font-size: 1.25rem; }
+  .sec-lista { max-width: 46rem; display: grid; gap: .55rem; padding-left: 1.2rem; }
+  .sec-lista li { line-height: 1.5; }
+  .sec-lista a { color: var(--color-link); }
+  .sec-nota {
+    max-width: 46rem; margin-top: .6rem; padding: .85rem 1.1rem;
+    background: #f7f1df; border: 1px solid var(--color-accent); border-left-width: 4px;
+    border-radius: var(--radius); font-size: .95rem; color: var(--color-text);
+  }
+  .sec-nota a { color: var(--color-link); }
+</style>
