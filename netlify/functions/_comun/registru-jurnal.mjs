@@ -86,6 +86,9 @@ export const FAPTE = {
   "dsar-in-lucru": "Cerere privind datele — luată în lucru",
   "dsar-rezolvata": "Cerere privind datele — rezolvată",
   "dsar-refuzata": "Cerere privind datele — refuzată (cu motiv)",
+  // Limitarea stocării: o cerere ÎNCHISĂ se șterge automat la 3 ani de la soluționare.
+  // Ștergerea nu e tăcută — rămâne fapta, ca proba retenției înseși.
+  "dsar-stearsa-retentie": "Cerere privind datele — ștearsă (retenție 3 ani)",
   // Acces
   "cod-generat": "Cod de acces generat",
   "cod-trimis": "Cod de acces trimis pe e-mail",

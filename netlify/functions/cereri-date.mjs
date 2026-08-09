@@ -187,10 +187,14 @@ export default cuLimitareCod(async (req) => {
     // de prescripție — apoi se șterge de la sine la prima deschidere a registrului.
     // Cererile încă deschise nu se șterg NICIODATĂ automat. Ștergerea lasă urmă în jurnal.
     const RETENTIE_MS = 3 * 365 * 24 * 3600e3;
+    // Momentul închiderii se ia DIN ISTORIC. Dacă istoricul nu-l conține (date vechi,
+    // istoric trunchiat), NU ștergem: mai bine păstrăm o cerere în plus decât să
+    // aruncăm proba unei soluționări proaspete pe baza datei de depunere.
     const inchisaLa = (c) => {
       const ist = Array.isArray(c.istoric) ? c.istoric : [];
       const ultima = [...ist].reverse().find((i) => i.stare === "rezolvata" || i.stare === "refuzata");
-      return ultima?.la || c.creat;
+      const t = Date.parse(ultima?.la ?? "");
+      return Number.isFinite(t) ? t : null;
     };
     const cereri = [];
     try {
@@ -198,15 +202,26 @@ export default cuLimitareCod(async (req) => {
       for (const b of blobs) {
         const c = await s.get(b.key, { type: "json" }).catch(() => null);
         if (!c) continue;
-        const inchisa = c.stare === "rezolvata" || c.stare === "refuzata";
-        if (inchisa && Date.now() - Date.parse(inchisaLa(c)) > RETENTIE_MS) {
-          await jurnalizeazaObligatoriu(s, {
-            fapta: "dsar-stearsa-retentie", actor: "sistem (retenție 3 ani)",
-            obiect: TIPURI[c.tip] || c.tip, detalii: `cerere din ${c.creat}, închisă ${inchisaLa(c)}`,
-            ip: "-",
-          });
-          await s.delete(b.key).catch((err) => console.error("Ștergere DSAR la retenție eșuată:", err));
-          continue;
+        // O cerere cu probleme (jurnal, ștergere) NU trebuie să oprească listarea:
+        // registrul are termene legale de 30 de zile, iar o listă trunchiată în tăcere
+        // ar ascunde tocmai cererile deschise. De aceea fiecare pas are plasa lui.
+        try {
+          const inchisa = c.stare === "rezolvata" || c.stare === "refuzata";
+          const inchisLa = inchisa ? inchisaLa(c) : null;
+          if (inchisLa !== null && Date.now() - inchisLa > RETENTIE_MS) {
+            // Întâi ștergem, apoi consemnăm — ca jurnalul să nu declare o ștergere
+            // care n-a avut loc. Dacă ștergerea eșuează, cererea rămâne în listă.
+            await s.delete(b.key);
+            await jurnalizeazaObligatoriu(s, {
+              fapta: "dsar-stearsa-retentie", actor: actorJurnal(eu),
+              obiect: TIPURI[c.tip] || c.tip,
+              detalii: `cerere din ${c.creat}, închisă ${new Date(inchisLa).toISOString().slice(0, 10)} — ștearsă automat la termenul de 3 ani`,
+              ip: ipCerere(req),
+            });
+            continue;
+          }
+        } catch (err) {
+          console.error("Retenție DSAR eșuată pentru", b.key, err);
         }
         cereri.push(rezumat(c));
       }

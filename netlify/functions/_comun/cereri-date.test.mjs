@@ -1,4 +1,5 @@
 import { valideazaCerere, tipValid, termenDin, TIPURI, STARI } from "../cereri-date.mjs";
+import { FAPTE } from "./registru-jurnal.mjs";
 
 let ok = 0, rau = 0;
 const t = (n, c, info) => { if (c) { ok++; console.log("  ok  " + n); } else { rau++; console.log("  RAU " + n + (info ? " -> " + info : "")); } };
@@ -32,6 +33,15 @@ t("in-lucru mapează la faptă", STARI["in-lucru"] === "dsar-in-lucru");
 t("rezolvata mapează la faptă", STARI["rezolvata"] === "dsar-rezolvata");
 t("refuzata mapează la faptă", STARI["refuzata"] === "dsar-refuzata");
 t("stare inventată nu există", !STARI["altceva"]);
+
+// Faptele trebuie să existe în nomenclatorul jurnalului. `jurnalizeazaObligatoriu`
+// ARUNCĂ la o faptă necunoscută — iar dacă asta se întâmplă în bucla de listare a
+// registrului, lista iese trunchiată în tăcere (au fost ascunse inclusiv cereri
+// deschise, cu termen legal). S-a întâmplat o dată, cu „dsar-stearsa-retentie".
+console.log("— faptele DSAR există în jurnal —");
+for (const f of Object.values(STARI)) t(f + " e faptă cunoscută", !!FAPTE[f], "lipsește din FAPTE");
+t("dsar-primita e faptă cunoscută", !!FAPTE["dsar-primita"]);
+t("dsar-stearsa-retentie e faptă cunoscută", !!FAPTE["dsar-stearsa-retentie"]);
 
 console.log("\n" + ok + " ok, " + rau + " rău");
 if (rau) process.exit(1);
