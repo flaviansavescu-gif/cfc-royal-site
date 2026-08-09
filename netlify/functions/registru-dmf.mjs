@@ -893,6 +893,12 @@ export default cuLimitareCod(async (req) => {
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
 
+    // Un dosar cu certificate EMISE nu se șterge: pedigree-urile, indecșii după microcip
+    // și fișa publică /caine/ ar rămâne orfane (arătând acte ale unui dosar inexistent).
+    // Corecția unui dosar emis are calea ei dedicată (registru-corectie), cu invariante.
+    if (d.stare === "emis")
+      return json({ eroare: "Dosarul are certificate emise — nu se șterge. Pentru îndreptări folosește calea de corecție." }, 409);
+
     // Urma se scrie ÎNAINTE de ștergere și, dacă nu se poate scrie, nu ștergem nimic.
     // Un dosar care dispare fără urmă e mai rău decât un dosar rămas în plus.
     try {

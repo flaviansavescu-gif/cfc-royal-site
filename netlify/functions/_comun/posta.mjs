@@ -21,7 +21,7 @@ const EXPEDITOR = { name: "Registrul genealogic CFC-Royal", email: "newsletter@c
 export const ADRESA_ASOCIATIEI = process.env.ALERTE_EMAIL || "flavian.savescu@gmail.com";
 
 export const escapeHtml = (s) =>
-  String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 /** E configurată trimiterea? Fără cheie, nimic nu pleacă nicăieri. */
 export const postaConfigurata = () => !!process.env.BREVO_API_KEY;

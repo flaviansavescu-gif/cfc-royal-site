@@ -47,8 +47,12 @@ export default cuLimitareCod(async (req) => {
     return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
 
     if (body.delete) {
+      // Numai chei de anunț: fără garda de prefix, un apel malformat putea șterge
+      // `candidat/…`, `stare-module` sau `dispozitiv/…` din aceeași magazie.
+      const cheie = String(body.delete);
+      if (!cheie.startsWith("anunt/")) return json({ eroare: "Cheie invalidă." }, 400);
       try {
-        await store.delete(String(body.delete));
+        await store.delete(cheie);
       } catch (err) {
         return json({ eroare: "Nu am putut șterge anunțul." }, 500);
       }

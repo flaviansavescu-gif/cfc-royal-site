@@ -16,6 +16,7 @@
 import { getStore } from "@netlify/blobs";
 import { createHash, randomBytes, randomUUID, randomInt } from "node:crypto";
 import { cuLimitareCod, ipClient } from "./_comun/limitare.mjs";
+import { secretEgal } from "./_comun/secret.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
@@ -64,7 +65,7 @@ export default cuLimitareCod(async (req) => {
     const id = taie(u.searchParams.get("id"), 64);
     const token = taie(u.searchParams.get("token"), 64);
     const rec = await store.get("cerere-instalare/" + id, { type: "json" }).catch(() => null);
-    if (!rec || rec.token !== token)
+    if (!rec || !secretEgal(token, rec.token))
       return html("<h2 style='color:#8a1d1d'>Link nevalid</h2><p>Cererea de instalare nu există sau linkul e greșit.</p>", 404);
     if (Date.parse(rec.expira) < Date.now())
       return html("<h2 style='color:#8a1d1d'>Link expirat</h2><p>Cererea a trecut de termen. Cere din nou instalarea din aplicație.</p>", 410);
@@ -108,7 +109,7 @@ export default cuLimitareCod(async (req) => {
     const id = taie(body.id, 64);
     const token = taie(body.token, 64);
     const rec = await store.get("cerere-instalare/" + id, { type: "json" }).catch(() => null);
-    if (!rec || rec.token !== token)
+    if (!rec || !secretEgal(token, rec.token))
       return html("<h2 style='color:#8a1d1d'>Link nevalid</h2><p>Cererea nu există sau linkul e greșit.</p>", 404);
     if (Date.parse(rec.expira) < Date.now())
       return html("<h2 style='color:#8a1d1d'>Link expirat</h2><p>Cere din nou instalarea din aplicație.</p>", 410);

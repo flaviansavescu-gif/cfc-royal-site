@@ -14,7 +14,9 @@ exports.handler = async (event) => {
   // deschisă (open redirect): un link „de pe cfc-royal.ro" putea duce pe orice domeniu de
   // phishing. Acceptăm doar o cale care începe cu un singur „/" (respinge „//gazda",
   // „http:", „\\" și orice URL absolut); altfel, pagina de mulțumire.
-  const cerut = params.get("redirect") || "";
+  // Curățăm întâi caracterele de control (CR/LF etc.), care altfel treceau de regex și
+  // permiteau injecție în antetul Location; apoi plafonăm lungimea.
+  const cerut = (params.get("redirect") || "").replace(/[\u0000-\u001f]/g, "").slice(0, 200);
   const redirect = /^\/[^/\\]/.test(cerut) ? cerut : "/ro/newsletter-ok/";
 
   const back = (status = 303) => ({ statusCode: status, headers: { Location: redirect }, body: "" });

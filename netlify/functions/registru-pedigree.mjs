@@ -199,16 +199,24 @@ export function schimbaValabilitatea(cert, { anuleaza, motiv, deCatre, acum } = 
   };
 }
 
-/** Serie unică, cu același mecanism ca la declarații: marcaj înainte de returnare. */
+/** Serie unică, cu același mecanism ca la declarații: marcaj înainte de returnare.
+ *  Certificatul propriu-zis (`pedigree/<serie>`) se scrie mult mai târziu; între alocare
+ *  și scriere, două emiteri simultane ar putea primi aceeași serie. De aceea REZERVĂM
+ *  seria cu `serie-pedigree/<serie>` chiar acum — coliziunea se vede și se trece mai departe. */
 async function serieNoua(an) {
   const s = store();
   for (let i = 0; i < 30; i++) {
     const c = await s.get("contor/pedigree-" + an, { type: "json" }).catch(() => null);
     const urm = (c?.ultim || 0) + 1;
     const serie = `CFCR-P-${an}-${String(urm).padStart(4, "0")}`;
-    const ocupat = await s.get("pedigree/" + serie, { type: "json" }).catch(() => null);
+    const ocupat =
+      (await s.get("serie-pedigree/" + serie, { type: "json" }).catch(() => null)) ||
+      (await s.get("pedigree/" + serie, { type: "json" }).catch(() => null));
+    // Contorul se avansează în ambele cazuri: dacă seria e luată, n-o mai încercăm.
     await s.setJSON("contor/pedigree-" + an, { ultim: urm });
-    if (!ocupat) return serie;
+    if (ocupat) continue;
+    await s.setJSON("serie-pedigree/" + serie, { rezervat: new Date().toISOString() });
+    return serie;
   }
   return null;
 }
@@ -535,10 +543,21 @@ export default cuLimitareCod(async (req) => {
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
     if (d.numarWDF) return json({ ok: true, numarWDF: d.numarWDF, deja: true });
 
-    const c = await s.get("contor/wdf", { type: "json" }).catch(() => null);
-    const urm = Math.max(c?.ultim || 0, WDF_ULTIMUL_PE_HARTIE) + 1;
-    const numarWDF = "WDF-" + String(urm).padStart(4, "0");
-    await s.setJSON("contor/wdf", { ultim: urm });
+    // Rezervare cu marcaj (ca la serii): două verificări simultane nu mai pot da același
+    // număr WDF pe două cuiburi. `wdf/<numar>` se scrie înainte, coliziunea se vede.
+    let numarWDF = null;
+    for (let i = 0; i < 30; i++) {
+      const c = await s.get("contor/wdf", { type: "json" }).catch(() => null);
+      const urm = Math.max(c?.ultim || 0, WDF_ULTIMUL_PE_HARTIE) + 1;
+      const cand = "WDF-" + String(urm).padStart(4, "0");
+      const ocupat = await s.get("wdf/" + cand, { type: "json" }).catch(() => null);
+      await s.setJSON("contor/wdf", { ultim: urm });
+      if (ocupat) continue;
+      await s.setJSON("wdf/" + cand, { serie: d.serie, rezervat: new Date().toISOString() });
+      numarWDF = cand;
+      break;
+    }
+    if (!numarWDF) return json({ eroare: "Nu am putut aloca un număr WDF unic. Reîncearcă." }, 500);
     await s.setJSON("dmf/" + id, { ...d, numarWDF });
     await jurnalizeaza(s, {
       fapta: "numar-wdf",

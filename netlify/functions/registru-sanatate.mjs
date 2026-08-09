@@ -121,8 +121,11 @@ export default cuLimitareCod(async (req) => {
       data: t.data || null, emitent: t.emitent || null, insigna: insignaTest(t.tip, t.rezultat),
     });
 
-    // Registratura/admin văd tot dosarul.
+    // Registratura/admin văd tot dosarul — dar numai cu al doilea factor (dosarul complet
+    // conține stări, motive de respingere, cine a depus: date de administrare, nu publice).
     if (eu && (eu.rol === "registratura" || eu.rol === "admin")) {
+      if (!(await dispozitivCunoscut(s, taie(body.dispozitiv, 80), eu.rol)))
+        return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
       return json({ microcip: cip, teste: (dosar?.teste || []).map(complet), insigne, recomandare });
     }
     // Un membru vede testele VERIFICATE (publice oricum) + PROPRIILE depuneri, orice stare.
@@ -153,6 +156,12 @@ export default cuLimitareCod(async (req) => {
     if (eu.rol !== "membru") return json({ eroare: "Doar membrii depun rezultate de sănătate." }, 403);
     const cip = normCip(body.microcip);
     if (!cipValid(cip)) return json({ eroare: "Microcip invalid (10 sau 15 cifre)." }, 400);
+    // Proprietate/existență: un rezultat se atașează DOAR unui câine din Cartea de origini
+    // (cu pedigree emis). Fără verificarea asta, un membru putea polua dosarul oricărui
+    // microcip — sau inventa unul (era și vectorul de injecție în fișa publică).
+    const inregistrat = await s.get("pedigree-caine/" + cip, { type: "json" }).catch(() => null);
+    if (!inregistrat)
+      return json({ eroare: "Microcipul nu există în Cartea de origini. Rezultatele de sănătate se atașează doar câinilor înregistrați." }, 404);
     const tip = taie(body.tip, 20);
     if (!tipValid(tip)) return json({ eroare: "Tip de test necunoscut." }, 400);
     const v = valideaza(tip, body.rezultat);
