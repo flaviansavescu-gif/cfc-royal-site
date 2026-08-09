@@ -129,7 +129,9 @@ export default cuLimitareCod(async (req) => {
       });
     }
 
-    return json({ corecte, total: CHEIE.length, procent, promovat, prag: PRAG, gresite });
+    // Întrebările greșite se dau doar la promovare — la eșec, doar scorul (altfel cheia
+    // s-ar reconstrui din câteva încercări picate).
+    return json({ corecte, total: CHEIE.length, procent, promovat, prag: PRAG, gresite: promovat ? gresite : undefined });
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);

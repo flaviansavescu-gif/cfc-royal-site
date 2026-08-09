@@ -182,5 +182,7 @@ export default cuLimitareCod(async (req) => {
     console.error("BREVO_API_KEY lipsește — rezultatul nu a fost trimis pe e-mail.");
   }
 
-  return json({ total, corecte, procent, promovat, gresite });
+  // Lista întrebărilor greșite se întoarce DOAR la promovare (recapitulare legitimă).
+  // La eșec dăm doar scorul: altfel, două-trei încercări picate reconstruiau cheia.
+  return json({ total, corecte, procent, promovat, gresite: promovat ? gresite : undefined });
 });

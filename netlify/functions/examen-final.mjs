@@ -27,8 +27,11 @@ import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
-const NR_INTREBARI = 25;      // câte se extrag la un examen (sau toată banca, dacă e mai mică)
-const MIN_ACTIV = 10;         // banca minimă pentru ca examenul să fie „activ”
+const NR_INTREBARI = 25;      // câte se extrag la un examen
+// Banca minimă pentru ca examenul să fie „activ”. TREBUIE > NR_INTREBARI: altfel se extrage
+// TOATĂ banca la fiecare candidat (nu un subset aleatoriu), iar examenul devine previzibil.
+// Cât timp banca nu depășește 25, examenul rămâne inactiv (semnal că mai are de completat).
+const MIN_ACTIV = 40;
 const PRAG = 75;              // procent minim de promovare
 const COOLDOWN_ZILE = 7;      // pauză după o picare
 const COOLDOWN_MS = COOLDOWN_ZILE * 24 * 60 * 60 * 1000;
