@@ -68,13 +68,17 @@ export const ACCES_SCRYPT = "847ab9436dbb99aad28c095d11c73999acc2328c7750611dcdf
  * aici intră mai departe doar cu codul — nu ne prefacem că-l apărăm trimițând codul
  * altcuiva. Se completează pe măsură ce adresele sunt confirmate de fiecare în parte.
  */
+// `hash` = scryptTare(sha256(cod)) — KDF lent+sărat, ca la codul comun de candidați.
+// Nu mai e SHA-256 simplu (crăpabil offline la o scurgere a depozitului). Cheia de DATE
+// a lectorului (dosar formare/cod-etic, sesiuni JCR/PAA) e `slug`-ul, nu amprenta — deci
+// amprenta poate fi acum lentă fără să afecteze cheile. Codurile regenerate 09.08.2026.
 export const LECTORI = [
-  { slug: "flavian-savescu", nume: "Flavian-Sergiu Savescu", hash: "1604036be0bc0d666209789a9599257419813a13750b950734da13faa3330d1d", grupe: "all", email: "flavian.savescu@gmail.com" },
-  { slug: "mihail-cosmin-neagu", nume: "Mihail Cosmin Neagu", hash: "21048e2893df687a5195519e5d665440c99a6060e11044fb2509b886ca0cc8b9", grupe: "all" },
-  { slug: "georgeta-mihaela-chivu", nume: "Georgeta Mihaela Chivu", hash: "ddd1b278ddf55141d8f2bca8857160b38cc64024e3f5b4368cbebee329442817", grupe: "all" },
-  { slug: "mihail-sorin-iacob", nume: "Mihail Sorin Iacob", hash: "d3c043092f13a97d4d83dd0df96be08162ec7e26ea7241dc1da685c8d89e1b18", grupe: "all" },
-  { slug: "andreea-daniela-popescu", nume: "Andreea-Daniela Popescu", hash: "3a7948f0609b92e2a9a46075b909600eec39244f36bc2477c32f9bbc1484f697", grupe: [3, 5, 9] },
-  { slug: "alexandru-paul-ciolac", nume: "Alexandru Paul Ciolac", hash: "eb393a27cbaf6fd51833e060e8a421912f17b1b12ea8c499e2084305397cc1d7", grupe: [2, 3, 4, 6, 8] },
+  { slug: "flavian-savescu", nume: "Flavian-Sergiu Savescu", hash: "296f79cabccd93eed62e3e8fdc65b484dd3e78a1f4155257481d647a37c4d8a9", grupe: "all", email: "flavian.savescu@gmail.com" },
+  { slug: "mihail-cosmin-neagu", nume: "Mihail Cosmin Neagu", hash: "3119be2a009f3b4a15550aea0711fdd8f345a205097525c8df64e29c0604744d", grupe: "all" },
+  { slug: "georgeta-mihaela-chivu", nume: "Georgeta Mihaela Chivu", hash: "f9341b2787cbcc1d5d932004363b1adcdf0a5e5e295d7185e4fa39466be233ff", grupe: "all" },
+  { slug: "mihail-sorin-iacob", nume: "Mihail Sorin Iacob", hash: "b02bfdc8767a3f31b5085613f553c6caf3bcf7b5865a42587a0c0a22d8d5584a", grupe: "all" },
+  { slug: "andreea-daniela-popescu", nume: "Andreea-Daniela Popescu", hash: "cda654b9a9cd8a5527d05e11311221c7a61d7bee872745b87a7bac76dfd71355", grupe: [3, 5, 9] },
+  { slug: "alexandru-paul-ciolac", nume: "Alexandru Paul Ciolac", hash: "a1582dce3456a7a887180fa57c97535e443423a1b62b14d9cc5f863edbf6e857", grupe: [2, 3, 4, 6, 8] },
 ];
 
 /**
@@ -113,8 +117,12 @@ export function lectoriCuGrupe() {
 export function actorDinCod(cod) {
   const h = sha256(cod || "");
   if (egal(h, ADMIN_HASH)) return { rol: "admin", hash: h };
-  const l = LECTORI.find((x) => egal(x.hash, h));
-  if (l) return { rol: "lector", slug: l.slug, nume: l.nume, email: l.email || "", hash: h };
+  // Lectorii se verifică prin scrypt (lent+sărat), nu prin SHA-256. Calculăm scrypt DOAR
+  // după ce codul nu e al adminului, ca să nu plătim KDF-ul lent pe fiecare cod greșit
+  // înainte de a-l fi exclus pe cel de admin. `insigna: slug` e cheia de date stabilă.
+  const hs = scryptTare(h);
+  const l = LECTORI.find((x) => egal(x.hash, hs));
+  if (l) return { rol: "lector", slug: l.slug, nume: l.nume, email: l.email || "", insigna: l.slug, hash: h };
   return null;
 }
 

@@ -57,7 +57,7 @@ async function membrul(body, store) {
   const cod = String(body.cod || "").trim();
   if (cod) {
     const fix = rolLaIntrare(cod);
-    if (fix?.rol === "lector") return { id: sha256(cod), nume: fix.nume, rol: "lector" };
+    if (fix?.rol === "lector") return { id: fix.slug, nume: fix.nume, rol: "lector" };
     if (fix) return null; // adminul și codul comun nu au dosar personal de asumare
     try {
       const a = await store.get("arbitru/" + sha256(cod), { type: "json" });
@@ -108,8 +108,8 @@ export default cuLimitareCod(async (req) => {
     // Toți cei care TREBUIE să asume: candidați + arbitri + lectori.
     const membri = [];
     for (const l of LECTORI) {
-      const a = asumari[l.hash];
-      membri.push({ nume: l.nume, rol: "lector", asumat: !!a, data: a?.data ?? null, anterior: a ? null : vechi[l.hash] ?? null });
+      const a = asumari[l.slug];
+      membri.push({ nume: l.nume, rol: "lector", asumat: !!a, data: a?.data ?? null, anterior: a ? null : vechi[l.slug] ?? null });
     }
     for (const [prefix, rol] of [["arbitru/", "arbitru"], ["candidat/", "candidat"]]) {
       try {

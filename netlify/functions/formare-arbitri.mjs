@@ -30,7 +30,7 @@ async function arbitrul(cod, store) {
   const c = String(cod || "").trim();
   if (!c) return null;
   const fix = rolLaIntrare(c);
-  if (fix?.rol === "lector") return { id: sha256(c), nume: fix.nume, rol: "lector" };
+  if (fix?.rol === "lector") return { id: fix.slug, nume: fix.nume, rol: "lector" };
   if (fix) return null; // admin/cod comun nu au dosar de formare
   try {
     const a = await store.get("arbitru/" + sha256(c), { type: "json" });
@@ -68,7 +68,7 @@ export default cuLimitareCod(async (req) => {
     } catch (err) { console.error(err); }
     const arbitri = [];
     for (const l of LECTORI) {
-      const d = dosare[l.hash] || null;
+      const d = dosare[l.slug] || null;
       arbitri.push({ nume: l.nume, rol: "lector", promovat: !!d?.promovat, procent: d?.procent ?? null, data: d?.data ?? null });
     }
     try {
