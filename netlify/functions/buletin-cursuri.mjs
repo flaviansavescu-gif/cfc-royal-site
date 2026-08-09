@@ -17,6 +17,7 @@
 // POST { actiune:"abonati",     cod }              -> { abonati:[...] }         (doar admin)
 import { getStore } from "@netlify/blobs";
 import { rolLaIntrare, actorDinCod, sha256 } from "./_comun/roluri.mjs";
+import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const json = (body, status = 200) =>
@@ -138,6 +139,10 @@ export default cuLimitareCod(async (req) => {
   if (!esteAdmin) return json({ eroare: "Doar administratorul poate face această operație." }, 401);
 
   const store = getStore("cursuri");
+  // A doua cheie: codul de admin singur nu ajunge (trimitere în masă, ștergere, listă de
+  // abonați). Cere jetonul dispozitivului, ca restul funcțiilor de administrare.
+  if (!(await dispozitivCunoscut(store, String(body.dispozitiv || "").trim(), "admin")))
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
 
   if (actiune === "abonati") {
     const abonati = [];

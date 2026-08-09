@@ -22,7 +22,7 @@
 // POST { cod, actiune:"contestatii" }          -> { contestatii:[...] }
 // POST { cod, actiune:"solutioneaza", candidatId, decizie, motivare } -> { ok }
 import { getStore } from "@netlify/blobs";
-import { createHash } from "node:crypto";
+import { createHash, randomInt } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
@@ -71,7 +71,7 @@ const activ = () => BANCA.length >= MIN_ACTIV;
 function amesteca(arr) {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = randomInt(0, i + 1);
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;

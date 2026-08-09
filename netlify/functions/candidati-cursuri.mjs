@@ -7,7 +7,7 @@
 // POST { cod, actiune:"adauga", nume }   -> { ok, candidat:{ nume, cod, id, creat } }  (generează un cod unic)
 // POST { cod, actiune:"sterge", id }     -> { ok }  (șterge candidatul și progresul lui)
 import { getStore } from "@netlify/blobs";
-import { createHash } from "node:crypto";
+import { createHash, randomInt } from "node:crypto";
 import { stergeUrmeleCandidatului, curataOrfanii } from "./_comun/curatare.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
@@ -29,7 +29,7 @@ const json = (body, status = 200) =>
 // de la intrare. Codurile deja emise (de 4) rămân valabile: se caută după amprentă.
 function codNou() {
   let c = "ARB-";
-  for (let i = 0; i < 8; i++) c += ALFABET[Math.floor(Math.random() * ALFABET.length)];
+  for (let i = 0; i < 8; i++) c += ALFABET[randomInt(0, ALFABET.length)];
   return c;
 }
 

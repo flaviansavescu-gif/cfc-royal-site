@@ -81,7 +81,9 @@ for (const f of deRulat) {
   const r = spawnSync(process.execPath, [join(RADACINA, f)], {
     cwd: RADACINA,
     encoding: "utf8",
-    env: { ...process.env, NO_COLOR: "1" },
+    // ADMIN_HASH nu e în mediu la probe (e secret în Netlify). Rolurile fac fail-closed
+    // fără el; punem o amprentă de test validă ca probele de format/rol să aibă ce verifica.
+    env: { ADMIN_HASH: process.env.ADMIN_HASH || "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", ...process.env, NO_COLOR: "1" },
   });
   const iesire = (r.stdout || "") + (r.stderr || "");
   const nume = f.replace(/\\/g, "/");

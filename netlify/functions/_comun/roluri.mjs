@@ -44,13 +44,15 @@ export function egal(a, b) {
  * Amprenta nouă se obține din codul dorit cu:
  *   node -e "console.log(require('crypto').createHash('sha256').update('CODUL').digest('hex'))"
  */
-const ADMIN_HASH_IMPLICIT = "66c260e81fd07dae6c76578609d8e4982cb92bd510a7fde396069de586bd2bfb";
-
+// Amprenta administratorului vine EXCLUSIV din mediu (Netlify env ADMIN_HASH). Nu mai
+// există rezervă în cod: o amprentă comisă în depozit ar însemna că o scurgere a codului
+// sursă + o spargere offline a unui cod scurt = acces de administrator. Fără variabilă,
+// poarta se închide (fail-closed), ca la verifica-act.mjs.
 const dinMediu = String(process.env.ADMIN_HASH || "").trim().toLowerCase();
-export const ADMIN_HASH = /^[0-9a-f]{64}$/.test(dinMediu) ? dinMediu : ADMIN_HASH_IMPLICIT;
+export const ADMIN_HASH = /^[0-9a-f]{64}$/.test(dinMediu) ? dinMediu : "";
 
-if (dinMediu && dinMediu !== ADMIN_HASH) {
-  console.error("ADMIN_HASH din mediu nu e o amprentă SHA-256 validă (64 de cifre hexazecimale) — se folosește cea din cod.");
+if (!ADMIN_HASH) {
+  console.error("ADMIN_HASH lipsește sau nu e o amprentă SHA-256 validă în mediu — administrarea rămâne ÎNCHISĂ până e pusă variabila în Netlify.");
 }
 
 /** Codul COMUN de candidați (acces la zona de curs fără cod individual). Amprenta e scrypt
@@ -82,6 +84,7 @@ export const LECTORI = [
  * hașurarea și compară în timp constant. Cine o folosește nu mai are ce copia greșit.
  */
 export function esteAdmin(cod) {
+  if (!ADMIN_HASH) return false; // fără amprentă în mediu, nimeni nu e admin (fail-closed)
   return egal(sha256(cod || ""), ADMIN_HASH);
 }
 

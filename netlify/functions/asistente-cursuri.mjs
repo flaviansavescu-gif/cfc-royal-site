@@ -121,9 +121,13 @@ export default cuLimitareCod(async (req) => {
 
   const actiune = body.actiune || "eu";
 
-  // ——— Candidatul își vede propriile numiri ȘI evaluări (id = sha256(cod)) ———
+  // ——— Candidatul își vede propriile numiri ȘI evaluări ———
+  // Câmpul `id` poartă acum CODUL candidatului, nu insigna. Serverul calculează insigna
+  // (sha256), ca la autorizare-cursuri — altfel insigna era un jeton la purtător: oricine
+  // o vedea într-o listă (lector/admin) putea citi dosarul acelui candidat.
   if (actiune === "eu") {
-    const id = taie(body.id, 128);
+    const cod = taie(body.id, 128);
+    const id = cod ? sha256(cod) : "";
     const expozitii = await citesteExpozitii(store);
     let numiri = numiriCurate({});
     let evaluari = evaluariCurate({});

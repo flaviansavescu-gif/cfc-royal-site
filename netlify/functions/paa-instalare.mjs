@@ -2,7 +2,7 @@
 // Breed Explorer). Instalarea ca aplicație (PWA) e permisă doar cu un cod generat de admin.
 // Store „paa": install-cod/<sha256(cod)> -> { cod, eticheta, creat }
 import { getStore } from "@netlify/blobs";
-import { createHash } from "node:crypto";
+import { createHash, randomInt } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
@@ -11,7 +11,7 @@ const ALFABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const sha256 = (s) => createHash("sha256").update(String(s)).digest("hex");
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 const json = (b, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
-function codNou() { let c = "PAA-"; for (let i = 0; i < 5; i++) c += ALFABET[Math.floor(Math.random() * ALFABET.length)]; return c; }
+function codNou() { let c = "PAA-"; for (let i = 0; i < 5; i++) c += ALFABET[randomInt(0, ALFABET.length)]; return c; }
 
 export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);

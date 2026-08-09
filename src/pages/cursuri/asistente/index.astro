@@ -53,7 +53,7 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
       const res = await fetch("/.netlify/functions/asistente-cursuri", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ actiune: "eu", id: cand && cand.id ? cand.id : "" }),
+        body: JSON.stringify({ actiune: "eu", id: cand && cand.cod ? cand.cod : "" }),
       });
       if (res.ok) date = await res.json();
     } catch (e) {}

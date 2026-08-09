@@ -101,9 +101,13 @@ test("mesajul de refuz al dispozitivului folosește un ajutor care există în f
     // Unde se răspunde cu `json(...)`, funcția `json` trebuie să existe în fișier.
     const foloseste = /return json\(\{ eroare: "Dispozitiv nerecunoscut/.test(sursa);
     if (!foloseste) continue;
+    // `json` e valid fie declarat local, fie IMPORTAT dintr-un ajutor comun (ex. _paa/lib).
+    const jsonDisponibil =
+      /\bconst json = |\bfunction json\(/.test(sursa) ||
+      /^import\b[^;]*\bjson\b[^;]*from/m.test(sursa);
     assert.ok(
-      /\bconst json = |\bfunction json\(/.test(sursa),
-      `${nume}: răspunde cu json(...) dar nu are funcția json — ReferenceError în producție.`,
+      jsonDisponibil,
+      `${nume}: răspunde cu json(...) dar nu are funcția json (nici local, nici importată) — ReferenceError în producție.`,
     );
   }
 });

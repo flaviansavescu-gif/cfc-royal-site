@@ -10,6 +10,7 @@
 // POST { cod, actiune:"trimite", raspunsuri }   -> { corecte, total, procent, promovat }
 // POST { cod, actiune:"situatie" }              -> { an, arbitri:[...] }   (doar admin)
 import { getStore } from "@netlify/blobs";
+import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { rolLaIntrare, actorDinCod, sha256, LECTORI } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
@@ -54,6 +55,8 @@ export default cuLimitareCod(async (req) => {
     if (actorDinCod(String(body.cod || ""))?.rol !== "admin")
       return json({ eroare: "Doar administratorul vede situația." }, 401);
     const store = getStore("cursuri");
+    if (!(await dispozitivCunoscut(store, String(body.dispozitiv || "").trim(), "admin")))
+      return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
     // Toți cei care AR TREBUI să facă formarea: lectorii (din roluri) + arbitrii din registru.
     const dosare = {};
     try {

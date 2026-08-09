@@ -155,6 +155,14 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       });
     }
     function mesaj(el, text, ok) { el.hidden = false; el.textContent = text; el.className = "s-mesaj " + (ok ? "ok" : "err"); }
+    // Escapare pentru textele scrise de membru (nume test, emitent, rezultat, motiv) înainte
+    // de a le pune în innerHTML — altfel un rezultat cu HTML ar rula pe pagina unde stau
+    // codul de registru și jetonul de dispozitiv (XSS cu furt de acces). Include ' și ".
+    function esc(s) {
+      return String(s == null ? "" : s)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
 
     var form = document.getElementById("s-form");
     var mForm = document.getElementById("f-mesaj");
@@ -191,12 +199,12 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     // ——— Vezi dosarul unui câine ———
     var STARI = { verificat: "verificat", "in-asteptare": "în verificare", respins: "respins" };
     function randTest(t) {
-      var linia1 = "<div class='s-linia1'><strong>" + t.nume + (t.subtip ? " — " + t.subtip : "") +
-        ": " + t.rezultat + "</strong><span class='s-stare " + t.stare + "'>" + (STARI[t.stare] || t.stare) + "</span></div>";
+      var linia1 = "<div class='s-linia1'><strong>" + esc(t.nume) + (t.subtip ? " — " + esc(t.subtip) : "") +
+        ": " + esc(t.rezultat) + "</strong><span class='s-stare " + esc(t.stare) + "'>" + esc(STARI[t.stare] || t.stare) + "</span></div>";
       var det = [];
-      if (t.data) det.push("data: " + t.data);
-      if (t.emitent) det.push("emis de: " + t.emitent);
-      if (t.stare === "respins" && t.motiv) det.push("motiv: " + t.motiv);
+      if (t.data) det.push("data: " + esc(t.data));
+      if (t.emitent) det.push("emis de: " + esc(t.emitent));
+      if (t.stare === "respins" && t.motiv) det.push("motiv: " + esc(t.motiv));
       var mic = det.length ? "<p class='s-mic'>" + det.join(" · ") + "</p>" : "";
       return "<div class='s-test'>" + linia1 + mic + "</div>";
     }

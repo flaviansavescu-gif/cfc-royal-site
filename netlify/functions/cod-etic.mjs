@@ -13,6 +13,7 @@
 // POST { cid|cod, actiune:"asuma" }  -> { ok, data }
 // POST { cod, actiune:"situatie" }   -> { versiune, membri:[...] }   (doar admin)
 import { getStore } from "@netlify/blobs";
+import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { rolLaIntrare, actorDinCod, sha256, LECTORI } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
@@ -79,6 +80,8 @@ export default cuLimitareCod(async (req) => {
     if (actorDinCod(String(body.cod || ""))?.rol !== "admin")
       return json({ eroare: "Doar administratorul vede situația." }, 401);
     const store = getStore("cursuri");
+    if (!(await dispozitivCunoscut(store, String(body.dispozitiv || "").trim(), "admin")))
+      return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
 
     const asumari = {};
     try {

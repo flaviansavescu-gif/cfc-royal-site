@@ -2,6 +2,7 @@
 // Candidat, lector SAU admin (cid): lista | creaza | salveaza | detalii | sterge — fiecare
 // pe sesiunile LUI. (Review lector — a vedea sesiunile altui candidat — rămâne Faza 2.)
 import { json, taie, acum, idNou, store, cineDinCod } from "./_paa/lib.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 async function citesteIndex(userId) { try { return (await store().get("session-index/" + userId, { type: "json" })) || []; } catch { return []; } }
 async function scrieIndex(userId, s) {
@@ -38,7 +39,9 @@ function curataSesiune(inp, baza, userId) {
   };
 }
 
-export default async (req) => {
+// Poartă limitată: `cid` e o acreditare care se poate ghici (inclusiv codul de admin,
+// prin cineDinCod) — fără limitare, funcția era un oracol de ghicire nelimitat.
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
   let body;
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
@@ -85,4 +88,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

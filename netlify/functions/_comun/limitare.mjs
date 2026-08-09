@@ -108,7 +108,10 @@ export function cuLimitareCod(handler) {
     try {
       if (req.method === "POST") {
         const b = await req.clone().json();
-        areCod = !!String(b?.cod || "").trim();
+        // Codul de acces circulă în `cod`, dar după refactorul „M1" candidatul îl trimite
+        // în `cid`, iar unele funcții îl primesc ca `id`. Toate trei sunt acreditări care
+        // se pot ghici — deci toate trebuie limitate, altfel poarta e liberă pe acele căi.
+        areCod = !!(String(b?.cod || "").trim() || String(b?.cid || "").trim() || String(b?.id || "").trim());
       }
     } catch { areCod = false; }
     if (!areCod) return handler(req, context);

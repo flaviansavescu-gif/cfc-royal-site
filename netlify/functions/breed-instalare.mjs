@@ -14,7 +14,7 @@
 // POST { actiune:"genereaza", cod:ADMIN, eticheta }-> { ok, cod:{ cod, eticheta, creat, id } }
 // POST { actiune:"revoca", cod:ADMIN, id }         -> { ok }
 import { getStore } from "@netlify/blobs";
-import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID, randomInt } from "node:crypto";
 import { cuLimitareCod, ipClient } from "./_comun/limitare.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
@@ -45,7 +45,7 @@ const html = (corp, status = 200) =>
 
 function codNou() {
   let c = "BSE-";
-  for (let i = 0; i < 5; i++) c += ALFABET[Math.floor(Math.random() * ALFABET.length)];
+  for (let i = 0; i < 5; i++) c += ALFABET[randomInt(0, ALFABET.length)];
   return c;
 }
 

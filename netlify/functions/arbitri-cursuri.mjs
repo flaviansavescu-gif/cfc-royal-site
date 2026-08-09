@@ -11,7 +11,7 @@
 // POST { cod, actiune:"adauga", nume } -> { ok, arbitru:{ nume, cod, id, creat } }
 // POST { cod, actiune:"sterge", id }   -> { ok }
 import { getStore } from "@netlify/blobs";
-import { createHash } from "node:crypto";
+import { createHash, randomInt } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
@@ -31,7 +31,7 @@ const json = (body, status = 200) =>
 // vadă dintr-o privire ce fel de cod ține cineva în mână.
 function codNou() {
   let c = "COL-";
-  for (let i = 0; i < 8; i++) c += ALFABET[Math.floor(Math.random() * ALFABET.length)];
+  for (let i = 0; i < 8; i++) c += ALFABET[randomInt(0, ALFABET.length)];
   return c;
 }
 

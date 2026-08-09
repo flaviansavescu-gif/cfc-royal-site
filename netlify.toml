@@ -72,6 +72,12 @@
   [headers.values]
     Cache-Control = "no-cache"
     X-Robots-Tag = "noindex"
+# Suporturile de curs ale lectorilor: nu trebuie găsite prin căutare (sunt materiale
+# de studiu, nu conținut public). Le scoatem din index; accesul rămâne pe link partajat.
+[[headers]]
+  for = "/cursuri-materiale/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
 
 # Rădăcina (apex cfc-royal.ro) SERVEȘTE direct conținutul homepage-ului RO (rewrite 200, NU redirect).
 # Motiv: linkul scurt cfc-royal.ro trebuie să afișeze cardul social (WhatsApp/Facebook). Un redirect

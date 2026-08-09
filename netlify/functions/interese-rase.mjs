@@ -15,6 +15,7 @@ import { getStore } from "@netlify/blobs";
 import { json, taie, acum, candidatDinId, audit, candidatDinCod} from "./_paa/lib.mjs";
 // Rolurile, lectorii ȘI competențele lor pe grupe vin din SURSA UNICĂ.
 import { actorDinCod, LECTORI, lectoriCuGrupe } from "./_comun/roluri.mjs";
+import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 // Logica pură (sanitizare, lărgime, sugestii, agregare) — testată separat.
 import {
@@ -142,6 +143,9 @@ export default cuLimitareCod(async (req) => {
 
   // —— restul e doar pentru admin ——
   if (!esteAdmin) return json({ eroare: "Necesită cod de administrator." }, 403);
+  // A doua cheie: codul de admin singur nu poate realoca toți candidații.
+  if (!(await dispozitivCunoscut(storeCursuri(), String(body.dispozitiv || "").trim(), "admin")))
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
 
   if (actiune === "toate") {
     let toate = await toateProfilurile();

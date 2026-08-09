@@ -27,6 +27,7 @@
 // POST { cod, actiune:"membri" | "membru-adauga" | "membru-cotizatie" | "membru-sterge" }  (admin)
 // POST { cod, actiune:"registratori" | "registrator-adauga" | "registrator-sterge" }       (admin)
 import { getStore } from "@netlify/blobs";
+import { randomInt } from "node:crypto";
 import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { poateFace, jurnalDoarAleMele, motivRefuz, ANTET_REFUZ_DREPT } from "./_comun/drepturi-registru.mjs";
 import { cuLimitareCod, ipClient } from "./_comun/limitare.mjs";
@@ -60,7 +61,7 @@ const store = () => getStore({ name: "registru", consistency: "strong" });
 const ALFABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 function codNou(prefix) {
   let c = prefix;
-  for (let i = 0; i < 8; i++) c += ALFABET[Math.floor(Math.random() * ALFABET.length)];
+  for (let i = 0; i < 8; i++) c += ALFABET[randomInt(0, ALFABET.length)];
   return c;
 }
 
