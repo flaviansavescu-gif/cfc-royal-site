@@ -81,7 +81,10 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
     <button id="a-bul-add" class="btn btn--primary" type="button">Publică buletinul</button>
   </div>
   <p class="a-cand-feedback" id="a-bul-feedback" role="status" hidden></p>
-  <ul class="a-anunt-list" id="a-bul-list"></ul>
+  <details class="a-bul-abonati-det" id="a-bul-arhiva-det" hidden>
+    <summary id="a-bul-arhiva-sumar">Vezi buletinele arhivate</summary>
+    <ul class="a-anunt-list" id="a-bul-list"></ul>
+  </details>
 
   <details class="a-sectiune" data-sectiune="candidati">
   <summary class="a-sumar">
@@ -315,16 +318,21 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
 
     async function incarcaBuletine() {
       const list = document.getElementById("a-bul-list");
+      const det = document.getElementById("a-bul-arhiva-det");
+      const sumar = document.getElementById("a-bul-arhiva-sumar");
       list.innerHTML = "";
       try {
         const d = await buletinCere({ actiune: "lista" });
+        det.hidden = false;
         if (!d.buletine.length) {
+          sumar.textContent = "Vezi buletinele arhivate";
           const li = document.createElement("li");
           li.className = "a-cand-empty";
           li.textContent = "Niciun buletin publicat încă.";
           list.appendChild(li);
           return;
         }
+        sumar.textContent = "Vezi buletinele arhivate (" + d.buletine.length + ")";
         d.buletine.forEach((b) => {
           const li = document.createElement("li");
           const info = document.createElement("div");
@@ -348,6 +356,8 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
           list.appendChild(li);
         });
       } catch (e) {
+        det.hidden = false;
+        sumar.textContent = "Vezi buletinele arhivate";
         const li = document.createElement("li");
         li.className = "a-cand-empty";
         li.textContent = "Nu am putut încărca buletinele.";

@@ -87,6 +87,9 @@ if (def.groupBy) {
     {def.bannerBottom && (
       <figure class="archive-banner archive-banner--bottom">
         <img src={def.bannerBottom.src} alt={def.bannerBottom.alt[lang]} width="1254" height="1254" loading="lazy" />
+        {def.bannerBottom.caption && (
+          <figcaption class="archive-banner__caption">{def.bannerBottom.caption[lang]}</figcaption>
+        )}
       </figure>
     )}
   </Section>
@@ -101,4 +104,5 @@ if (def.groupBy) {
   .archive-banner img { display: block; width: 100%; height: auto; border-radius: var(--radius); border: 1px solid var(--color-border); }
   /* Afiș în josul arhivei (ex. Exploratorul de standarde): centrat și mai îngust decât banner-ul lat. */
   .archive-banner--bottom { margin: 2.5rem auto 0; max-width: 44rem; }
+  .archive-banner__caption { margin: 0.75rem auto 0; max-width: 40rem; text-align: center; font-size: var(--fs-300); font-style: italic; color: var(--color-text-muted); line-height: 1.5; }
 </style>
