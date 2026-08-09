@@ -481,12 +481,12 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
   .fisa__mic { margin-top: 0.7rem; }
   .fisa__mic th,
   .fisa__mic td,
-  .fisa__date th,
-  .fisa__date td {
+  :global(.fisa__date th),
+  :global(.fisa__date td) {
     text-align: left; padding: 0.25rem 0.4rem; font-size: 0.85rem;
     border-bottom: 1px solid var(--color-border); vertical-align: top; }
   .fisa__mic th,
-  .fisa__date th { color: var(--color-text-muted); font-weight: 600; width: 42%; }
+  :global(.fisa__date th) { color: var(--color-text-muted); font-weight: 600; width: 42%; }
   .fisa__nume { font-family: var(--font-serif); color: var(--color-primary); margin: 0 0 0.2rem; }
   :global(.fisa__stare) { font-size: 0.85rem; font-weight: 600; margin: 0 0 0.7rem; }
   .k-rasfoieste { margin: 0.6rem 0 0; font-size: 0.92rem; }
@@ -601,7 +601,7 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
   .panou :global(.tabel th) { color: var(--color-primary); font-weight: 600; }
   .panou :global(.tabel__titlu) { font-weight: 700; color: var(--color-accent-dark); }
 
- @media (max-width: 50rem) {
+@media (max-width: 50rem) {
     .fisa { grid-template-columns: 1fr; }
   }
 </style>

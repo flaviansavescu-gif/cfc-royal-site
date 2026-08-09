@@ -200,10 +200,10 @@ const bazaFisa = lang === "en" ? "/en/caine/" : "/caine/";
   :global(.v-valid.is-bun) { background: #eef5f0; border: 1px solid var(--color-primary); color: var(--color-primary); }
   :global(.v-valid.is-anulat) { background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; }
   .v-tabel { border-collapse: collapse; width: 100%; margin-top: 1rem; }
-  .v-tabel th,
-  .v-tabel td { text-align: left; padding: 0.45rem 0.6rem; font-size: 0.92rem;
+  :global(.v-tabel th),
+  :global(.v-tabel td) { text-align: left; padding: 0.45rem 0.6rem; font-size: 0.92rem;
     border-bottom: 1px solid var(--color-border); }
-  .v-tabel th { color: var(--color-primary); width: 42%; font-weight: 600; }
+  :global(.v-tabel th) { color: var(--color-primary); width: 42%; font-weight: 600; }
   .v-fisa[hidden] { display: none; }
   .v-fisa { margin-top: 1.2rem; }
   .v-nota { font-size: 0.85rem; color: var(--color-text-muted); margin-top: 1.2rem; }

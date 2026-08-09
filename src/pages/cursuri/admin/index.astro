@@ -1154,8 +1154,10 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
   .a-anunt-form input { width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; resize: vertical; }
   :global(.a-anunt-form .btn) { align-self: flex-start; }
   .a-anunt-list { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid; gap: 0.6rem; max-width: 44rem; }
-  .a-anunt-list li { display: flex; align-items: flex-start; gap: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.7rem 1rem; }
-  .a-anunt-list li > div { flex: 1; }
+  /* `li`-urile listelor sunt create din JavaScript, deci selectorii care le țintesc
+     trebuie să fie globali — altfel cardurile rămân fără fundal, chenar și așezare. */
+  :global(.a-anunt-list li) { display: flex; align-items: flex-start; gap: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.7rem 1rem; }
+  :global(.a-anunt-list li > div) { flex: 1; }
   :global(.a-anunt-date) { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-accent-dark); }
   :global(.a-anunt-txt) { margin: 0.2rem 0 0; white-space: pre-line; }
   :global(.a-anunt-empty) { color: var(--color-text-muted); font-style: italic; border: 0 !important; background: transparent !important; padding: 0 !important; }
@@ -1167,7 +1169,7 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
   :global(.a-cand-feedback__hint) { flex-basis: 100%; font-size: 0.85rem; color: var(--color-text-muted); }
   .a-cand-count { max-width: 44rem; margin: 1.1rem 0 0; font-size: 0.9rem; color: var(--color-accent-dark); font-weight: 600; }
   .a-cand-list { list-style: none; margin: 0.6rem 0 0; padding: 0; display: grid; gap: 0.6rem; max-width: 44rem; }
-  .a-cand-list li { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.7rem 1rem; }
+  :global(.a-cand-list li) { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.7rem 1rem; }
   :global(.a-cand-list li.is-nou) { border-color: #b6dcbf; box-shadow: 0 0 0 2px #eaf5ec; }
   :global(.a-cand-info) { flex: 1 1 14rem; display: flex; flex-direction: column; gap: 0.2rem; }
   :global(.a-cand-meta) { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; font-size: 0.8rem; color: var(--color-text-muted); margin-top: 0.15rem; }

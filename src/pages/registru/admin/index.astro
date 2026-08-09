@@ -942,8 +942,8 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
   :global(.a-adauga-email input) { flex: 1 1 14rem; padding: 0.4rem 0.6rem; border: 1px solid var(--color-border);
     border-radius: var(--radius); font: inherit; font-size: 0.88rem; }
 
-  :global(/* —— Starea sistemului —— */
-  .a-monitor) { max-width: 44rem; padding: 0.9rem 1.1rem; border: 1px solid var(--color-border);
+  /* —— Starea sistemului —— */
+  :global(.a-monitor) { max-width: 44rem; padding: 0.9rem 1.1rem; border: 1px solid var(--color-border);
     border-left: 4px solid var(--color-border); border-radius: var(--radius);
     background: var(--color-surface); color: var(--color-text-muted); font-size: 0.9rem; }
   :global(.a-monitor.is-bun) { border-left-color: var(--color-primary); }
@@ -959,8 +959,8 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
   :global(.a-monitor__lista li.is-rau strong) { color: #8c1d2f; font-weight: 700; }
   :global(.a-monitor__lista span) { color: var(--color-text-muted); }
 
-  :global(/* —— Anularea unui certificat —— */
-  .a-cert) { display: grid; gap: 0.5rem; max-width: 40rem; padding: 0.9rem 1.1rem;
+  /* —— Anularea unui certificat —— */
+  :global(.a-cert) { display: grid; gap: 0.5rem; max-width: 40rem; padding: 0.9rem 1.1rem;
     border: 1px solid var(--color-border); border-left: 4px solid var(--color-border);
     border-radius: var(--radius); background: var(--color-surface); }
   :global(.a-cert[hidden]) { display: none; }
@@ -985,7 +985,7 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
   }
   .a-filtre input { flex: 1 1 16rem; }
   .a-jurnal { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.4rem; }
-  .a-jurnal li { display: grid; gap: 0.15rem; padding: 0.6rem 0.8rem;
+  :global(.a-jurnal li) { display: grid; gap: 0.15rem; padding: 0.6rem 0.8rem;
     border: 1px solid var(--color-border); border-left: 3px solid var(--color-accent);
     border-radius: var(--radius); background: var(--color-surface); }
   :global(.a-jurnal li.a-gol) { border-left-color: var(--color-border); color: var(--color-text-muted);

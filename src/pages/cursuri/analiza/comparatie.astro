@@ -84,10 +84,12 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
   :global(.j-tab th) { color: var(--color-primary); }
   :global(.j-obs) { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.3rem; }
   :global(.b) { display: inline-block; font-size: 0.75rem; padding: 0.1rem 0.5rem; border-radius: 999px; border: 1px solid; }
-  .b-ok { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
-  .b-warn { background: #fdf4e3; border-color: #e6cf9a; color: #8a6d1f; }
-  .b-bad { background: #fbeaec; border-color: #e2b6bd; color: #8c1d2f; }
-  .b-muted { background: var(--color-surface-alt); border-color: var(--color-border); color: var(--color-text-muted); }
+  /* Pastilele se desenează din JavaScript (class="b b-…"), deci și modificatorii trebuie
+     să fie globali — altfel forma vine de la `.b`, dar culoarea nu se aplică niciodată. */
+  :global(.b-ok) { background: #eaf5ec; border-color: #b6dcbf; color: #1f5130; }
+  :global(.b-warn) { background: #fdf4e3; border-color: #e6cf9a; color: #8a6d1f; }
+  :global(.b-bad) { background: #fbeaec; border-color: #e2b6bd; color: #8c1d2f; }
+  :global(.b-muted) { background: var(--color-surface-alt); border-color: var(--color-border); color: var(--color-text-muted); }
   :global(.j-fb h3) { font-size: 0.95rem; color: var(--color-primary); margin: 0.6rem 0 0.2rem; }
   :global(.j-fb p) { white-space: pre-line; margin: 0; }
   .btn--small { font-size: 0.85rem; padding: 0.4rem 0.8rem; }

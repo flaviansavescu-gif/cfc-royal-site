@@ -92,8 +92,7 @@ const lang = "ro" as const;
   })();
 </script>
 
-<style>
-  .vf { max-width: 44rem; margin: 0 auto; text-align: center; }
+<style>.vf { max-width: 44rem; margin: 0 auto; text-align: center; }
   .vf__eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
   .vf__title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.4rem 0 1.5rem; }
   .vf__card { border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); padding: 2rem; text-align: left; }
@@ -105,7 +104,7 @@ const lang = "ro" as const;
   .vf__card[data-stare="invalid"] .vf__stare { color: #8c1d2f; }
   .vf__card[data-stare="anulat"] .vf__stare { color: #b45309; }
   .vf__detalii { display: grid; grid-template-columns: max-content 1fr; gap: 0.5rem 1.25rem; margin: 1.5rem 0 0; }
-  .vf__detalii dt { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); align-self: center; }
-  .vf__detalii dd { margin: 0; font-weight: 600; color: var(--color-text); }
+  :global(.vf__detalii dt) { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); align-self: center; }
+  :global(.vf__detalii dd) { margin: 0; font-weight: 600; color: var(--color-text); }
   .vf__nota { margin: 1.25rem 0 0; font-size: 0.85rem; color: var(--color-text-muted); text-align: center; }
 </style>
