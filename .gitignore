@@ -26,3 +26,12 @@ Thumbs.db
 
 # codurile de acces personale (local, niciodată în git)
 CODURILE-MELE.txt
+
+# Documente INTERNE — nu intră în depozit: acesta e PUBLIC.
+# Politici, referate, procese-verbale, documente cu antet și semnături.
+# Locul lor e „De pus in folder CODE/Documente interne/", în afara depozitului.
+docs/*.docx
+docs/*.xlsx
+docs/*.doc
+*.docx
+*.xlsx
