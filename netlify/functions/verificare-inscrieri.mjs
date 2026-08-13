@@ -233,8 +233,11 @@ export default cuLimitareCod(async (req) => {
       for (const b of blobs) {
         const c = await s.get(b.key, { type: "json" }).catch(() => null);
         if (!c || !c.showId) continue;
+        // Și o expoziție FĂRĂ înscrieri se arată: registratura trebuie să vadă că
+        // expoziția există și că pur și simplu n-a intrat încă nimic — altfel, după
+        // o curățenie sau înaintea primei înscrieri, meniul ar fi gol și ar părea
+        // stricat. Numărătorile ies pe zero de la sine.
         const marcaje = await marcajeDin(c.showId);
-        if (!marcaje.length) continue;
         expozitii.push({
           showId: c.showId, nume: c.nume, data: c.data, locatie: c.locatie || "",
           termen: c.termen || null, ...rezumat(marcaje),
