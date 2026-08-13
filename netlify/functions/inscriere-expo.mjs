@@ -582,6 +582,43 @@ export default async (req) => {
     } catch (err) {
       console.error("Email confirmare eșuat:", err);
     }
+
+    // ——— Înștiințarea secretariatului: aceeași înscriere, văzută dinspre asociație ———
+    //
+    // Expozantul își primește confirmarea; fără e-mailul acesta, asociația află de
+    // înscriere abia când apasă cineva pe importul din manager. Secretariatul vrea să
+    // știe PE LOC că a intrat o înscriere — mai ales că plata se declară la trimitere
+    // și trebuie căutată în extras. Destinatarii se pot schimba fără cod prin
+    // INSCRIERI_EMAIL (adrese despărțite prin virgulă).
+    const destinatari = String(process.env.INSCRIERI_EMAIL || "contact@cfc-royal.ro, flavian.savescu@gmail.com")
+      .split(",").map((a) => a.trim()).filter(Boolean);
+    const liniiSecretariat = pregatite.map((x) => {
+      const i = x.inscriere;
+      return `<li><b>${escapeHtml(i.numeCaine)}</b> — ${escapeHtml(i.rasaNumeRo)}, ${i.sex === "M" ? "mascul" : "femelă"}, clasa ${escapeHtml(i.clasa)}${x.taxa > 0 ? " — " + x.taxa + " lei" : ""}</li>`;
+    }).join("");
+    const htmlSecretariat = `<p>Înscriere nouă la <b>${escapeHtml(config.nume)}</b>:</p>
+      <ul>${liniiSecretariat}</ul>
+      <p>Proprietar: <b>${escapeHtml(numeProp)}</b> · <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>${body.telefon ? " · tel. " + escapeHtml(String(body.telefon)) : ""}</p>
+      ${total > 0
+        ? `<p>Taxă declarată ca plătită: <b>${total} lei</b>${dovadaBuf ? " — dovada e atașată fișei și se vede la verificarea din registratură" : ""}. De confirmat în extras.</p>`
+        : "<p>Fără taxă de înscriere.</p>"}
+      <p style="color:#555">Fișele așteaptă în coada site-ului; se aduc în Manager cu butonul de import.</p>`;
+    try {
+      await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          sender: { name: "CFC-Royal Expoziții", email: "newsletter@cfc-royal.ro" },
+          to: destinatari.map((a) => ({ email: a })),
+          subject: `Înscriere nouă — ${config.nume} (${pregatite.length} ${pregatite.length === 1 ? "câine" : "câini"}${total > 0 ? ", " + total + " lei" : ""})`,
+          htmlContent: htmlSecretariat,
+        }),
+      });
+    } catch (err) {
+      // Înștiințarea e utilă, nu vitală: fișa e deja scrisă în coadă, expozantul e
+      // confirmat — nu stricăm înscrierea pentru un e-mail intern căzut.
+      console.error("Email secretariat eșuat:", err);
+    }
   }
 
   return json({ ok: true, caini: pregatite.length, total });

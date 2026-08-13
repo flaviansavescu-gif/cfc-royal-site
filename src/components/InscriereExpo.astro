@@ -390,7 +390,7 @@ const CLASE = [
   </form>
 </section>
 
-<script is:inline define:vars={{ AFISE, txtInchisOptiune: T.inchisOptiune, txtInchisButon: T.inchisButon, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit, txtCaine: (lang === "en" ? "Dog" : "Câinele"), txtCampuriCaine: (lang === "en" ? "Dog {n}: fill in the required fields — name, breed (from the list), sex, date of birth, class and microchip (min. 6). Pedigree is required unless you tick typicity." : "Câinele {n}: completează câmpurile obligatorii — nume, rasă (din listă), sex, data nașterii, clasă și microcip (min. 6). Pedigree obligatoriu dacă nu bifezi tipicitatea."), txtTaxaTotal: (lang === "en" ? "Total entry fee:" : "Taxa totală de înscriere:") }}>
+<script is:inline define:vars={{ AFISE, txtInchisOptiune: T.inchisOptiune, txtInchisButon: T.inchisButon, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit, txtCaine: (lang === "en" ? "Dog" : "Câinele"), txtCampuriCaine: (lang === "en" ? "Dog {n}: fill in the required fields — name, breed (from the list), sex, date of birth, class and microchip (min. 6). Pedigree is required unless you tick typicity." : "Câinele {n}: completează câmpurile obligatorii — nume, rasă (din listă), sex, data nașterii, clasă și microcip (min. 6). Pedigree obligatoriu dacă nu bifezi tipicitatea."), txtTaxaTotal: (lang === "en" ? "Total entry fee:" : "Taxa totală de înscriere:"), txtNuTrimis: (lang === "en" ? "NOT sent yet — please complete:" : "NU s-a trimis încă — mai completează:") }}>
   (async function () {
     const form = document.getElementById("ie-form");
     const loading = document.getElementById("ie-loading");
@@ -691,6 +691,51 @@ const CLASE = [
       return a + "-" + l + "-" + z;
     }
 
+    // ——— Ce lipsește, spus pe nume ———
+    //
+    // Balonul browserului de pe câmpul necompletat dispare într-o secundă și, pe telefon,
+    // trece neobservat: omul apasă Trimite, nu vede nimic, închide pagina convins că s-a
+    // înscris. De aceea, la fiecare apăsare pe un formular incomplet, scriem NOI, într-o
+    // casetă care rămâne pe ecran, exact ce câmpuri mai lipsesc — cu numele lor din
+    // formular, deci corect în ambele limbi — și le conturăm cu roșu până sunt completate.
+    function etichetaCampului(el) {
+      const lb = el.closest("label");
+      const span = lb && lb.querySelector("span");
+      let text = (span ? span.textContent : "") || el.name || "";
+      text = text.replace(/\*/g, "").replace(/\s+/g, " ").trim();
+      // Bifele au explicații lungi; păstrăm doar începutul, cât să fie recunoscut câmpul.
+      if (text.length > 60) text = text.slice(0, 57).trimEnd() + "…";
+      return text;
+    }
+    function arataLipsurile() {
+      const lipsa = [...form.querySelectorAll(":invalid")].filter((el) => el.tagName !== "FIELDSET");
+      const nume = [];
+      for (const el of lipsa) {
+        el.classList.add("ie-lipsa");
+        const e = etichetaCampului(el);
+        if (e && !nume.includes(e)) nume.push(e);
+      }
+      err.textContent = txtNuTrimis + " " + nume.join(" · ");
+      err.hidden = false;
+      err.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    const butonTrimite = document.getElementById("ie-submit");
+    butonTrimite.addEventListener("click", () => {
+      // Câmpurile din blocurile de câini se validează în handler-ul de submit; aici
+      // prindem doar ce ar bloca browserul în tăcere (required necompletate).
+      if (!form.checkValidity()) arataLipsurile();
+    });
+    // Bifele și fișierul anunță prin change, câmpurile de text prin input — ascultăm ambele.
+    const scoateSemnul = (ev) => {
+      const el = ev.target;
+      if (el.classList && el.classList.contains("ie-lipsa") && el.checkValidity()) el.classList.remove("ie-lipsa");
+      // Când nu mai lipsește nimic, caseta rosie dispare singură — altfel ar contrazice
+      // formularul deja complet.
+      if (!err.hidden && err.textContent.startsWith(txtNuTrimis) && form.checkValidity()) err.hidden = true;
+    };
+    form.addEventListener("input", scoateSemnul);
+    form.addEventListener("change", scoateSemnul);
+
     form.addEventListener("submit", async (ev) => {
       ev.preventDefault();
       err.hidden = true;
@@ -852,7 +897,10 @@ const CLASE = [
   .ie__norme li { margin-bottom: 0.35rem; }
   .ie__consim { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.92rem; }
   .ie__consim input { margin-top: 0.2rem; }
-  .ie__err { color: #8c1d2f; font-weight: 600; background: #f9efef; border: 1px solid #8c1d2f; border-radius: var(--radius); padding: 0.6rem 0.9rem; }
+  .ie__err { color: #8c1d2f; font-weight: 600; background: #f9efef; border: 2px solid #8c1d2f; border-radius: var(--radius); padding: 0.75rem 1rem; font-size: 1.05rem; scroll-margin: 6rem; }
+  /* Câmpurile rămase necompletate la apăsarea pe Trimite: contur roșu până sunt completate.
+     Elementele vin și din șablonul clonat de JS, deci selectorul trebuie să fie global. */
+  :global(#ie-form .ie-lipsa) { outline: 2px solid #8c1d2f; outline-offset: 2px; border-radius: 4px; }
 
   /* Banda de repetiție: dungi,
   ca la un șantier. Trebuie să nu semene cu nimic din
@@ -878,7 +926,8 @@ const CLASE = [
   .ie__caine-del:hover { border-color: #8c1d2f; background: #fbf0f0; }
   .ie__addcaine { align-self: flex-start; }
 
-  .ie__succes { background: #eef5f0; border: 1px solid var(--color-primary); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
+  .ie__succes { background: #eef5f0; border: 3px solid var(--color-primary); border-radius: var(--radius); padding: 1.75rem 1.75rem; margin-top: 1.5rem; box-shadow: 0 4px 18px rgba(31, 77, 58, 0.18); }
   .ie__succes p { margin: 0 0 0.75rem; color: var(--color-primary); font-weight: 600; }
+  .ie__succes p:first-child { font-size: 1.35rem; }
  @media (max-width: 560px) { .ie__row { grid-template-columns: 1fr; } }
 </style>
