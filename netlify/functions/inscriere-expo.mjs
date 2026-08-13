@@ -307,6 +307,38 @@ export default async (req) => {
       }
       return json({ ok: true });
     }
+
+    // ——— Gospodărirea magaziei: ce există și ce se poate arunca ———
+    //
+    // Formularul și registratura NU șterg nimic; dar probele tehnice și expozițiile
+    // de încercare din perioada construcției rămân altfel pe veci în magazie și apar
+    // în meniurile registraturii. Cele două acțiuni de mai jos sunt unelte de curățenie
+    // pentru administrator (cer secretul managerului): una VEDE, cealaltă ȘTERGE doar
+    // cheile primite explicit, și numai din prefixele care țin de circuitul înscrierii.
+    // Rezultatele publicate (rezultate/) nu pot fi atinse de aici: au cod public REZ-…
+    // și propria cale de anulare, cu urmă.
+    if (body.actiune === "inventar") {
+      const inventar = {};
+      for (const prefix of ["config/", "coada/", "verificare/", "dovada/", "proprietar/"]) {
+        const { blobs } = await store.list({ prefix });
+        inventar[prefix] = blobs.map((b) => b.key);
+      }
+      return json({ inventar });
+    }
+    if (body.actiune === "sterge") {
+      const ingaduite = ["config/", "coada/", "verificare/", "dovada/", "proprietar/"];
+      let sterse = 0;
+      const refuzate = [];
+      for (const key of body.chei || []) {
+        if (typeof key !== "string" || !ingaduite.some((p) => key.startsWith(p))) {
+          refuzate.push(String(key).slice(0, 80));
+          continue;
+        }
+        await store.delete(key).catch(() => {});
+        sterse++;
+      }
+      return json({ ok: true, sterse, refuzate });
+    }
     if (body.actiune === "dovada") {
       // Managerul trage dovada plății atașată unei înscrieri din coadă.
       const cheie = String(body.cheie || "");
