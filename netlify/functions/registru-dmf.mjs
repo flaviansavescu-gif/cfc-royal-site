@@ -34,7 +34,7 @@
 import { getStore } from "@netlify/blobs";
 import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
-import { membruDinCod, registratorDinCod } from "./registru-acces.mjs";
+import { membruDinCod, registratorDinCod, chinotehnistDinCod } from "./registru-acces.mjs";
 import {
   jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, actorExtern, ipCerere,
 } from "./_comun/registru-jurnal.mjs";
@@ -154,7 +154,19 @@ async function cine(cod) {
   if (m) return { rol: "membru", membru: m };
   const r = await registratorDinCod(cod);
   if (r) return { rol: "registratura", registrator: r };
+  // Chinotehnistul asociației afiliate: depune declarații ÎN NUMELE crescătorilor ei.
+  // Aceeași coadă, aceeași verificare — doar poarta de intrare diferă.
+  const k = await chinotehnistDinCod(cod);
+  if (k) return { rol: "chinotehnist", chinotehnist: k };
   return null;
+}
+
+/** Ciorna e a celui care a deschis-o — membru sau chinotehnist, nu se amestecă. */
+function ciornaAMea(ciorna, eu) {
+  if (!ciorna) return false;
+  if (eu.rol === "membru") return ciorna.membruId === eu.membru.id;
+  if (eu.rol === "chinotehnist") return ciorna.chinotehnistId === eu.chinotehnist.id;
+  return false;
 }
 
 const esc = (s) =>
@@ -473,21 +485,35 @@ export default cuLimitareCod(async (req) => {
   // Patru fotografii de telefon într-o singură cerere depășesc limita de mărime și
   // depunerea ar eșua exact la omul cu poze mari. Fiecare piesă merge separat.
   if (actiune === "ciorna-noua") {
-    if (eu.rol !== "membru") return json({ eroare: "Doar membrii depun declarații." }, 403);
-    if (!eu.membru.cotizatieLaZi)
-      return json({ eroare: "Cotizația a expirat. Reînnoiește-o pentru a putea depune declarații." }, 403);
-    const id = idNou();
-    await s.setJSON("ciorna/" + id, { membruId: eu.membru.id, creat: new Date().toISOString() });
-    return json({ ok: true, ciornaId: id });
+    if (eu.rol === "membru") {
+      if (!eu.membru.cotizatieLaZi)
+        return json({ eroare: "Cotizația a expirat. Reînnoiește-o pentru a putea depune declarații." }, 403);
+      const id = idNou();
+      await s.setJSON("ciorna/" + id, { membruId: eu.membru.id, creat: new Date().toISOString() });
+      return json({ ok: true, ciornaId: id });
+    }
+    if (eu.rol === "chinotehnist") {
+      // Fără verificare de cotizație: crescătorul afiliat nu e membru direct, iar taxa
+      // DMF o plătește el în contul CFCR — dovada plății e piesă obligatorie la dosar.
+      const id = idNou();
+      await s.setJSON("ciorna/" + id, {
+        chinotehnistId: eu.chinotehnist.id,
+        asociatieSlug: eu.chinotehnist.asociatieSlug,
+        creat: new Date().toISOString(),
+      });
+      return json({ ok: true, ciornaId: id });
+    }
+    return json({ eroare: "Doar membrii și chinotehniștii depun declarații." }, 403);
   }
 
   if (actiune === "fisier") {
-    if (eu.rol !== "membru") return json({ eroare: "Doar membrii încarcă piese la dosar." }, 403);
+    if (eu.rol !== "membru" && eu.rol !== "chinotehnist")
+      return json({ eroare: "Doar membrii și chinotehniștii încarcă piese la dosar." }, 403);
     const ciornaId = taie(body.ciornaId, 40);
     const fel = taie(body.fel, 32);
     if (!FELURI[fel]) return json({ eroare: "Piesă necunoscută." }, 400);
     const ciorna = await s.get("ciorna/" + ciornaId, { type: "json" }).catch(() => null);
-    if (!ciorna || ciorna.membruId !== eu.membru.id) return json({ eroare: "Dosar inexistent." }, 404);
+    if (!ciornaAMea(ciorna, eu)) return json({ eroare: "Dosar inexistent." }, 404);
 
     const tip = taie(body.tip, 60);
     if (!TIPURI_OK.includes(tip)) return json({ eroare: "Acceptăm doar JPEG, PNG, WEBP sau PDF." }, 400);
@@ -512,12 +538,13 @@ export default cuLimitareCod(async (req) => {
   // locul lor. Un dosar cu bucăți nelipite n-are piesa: nimic pe jumătate nu ajunge în
   // dosar, nici dacă omul închide pagina la mijloc.
   if (actiune === "fisier-parte" || actiune === "fisier-gata") {
-    if (eu.rol !== "membru") return json({ eroare: "Doar membrii încarcă piese la dosar." }, 403);
+    if (eu.rol !== "membru" && eu.rol !== "chinotehnist")
+      return json({ eroare: "Doar membrii și chinotehniștii încarcă piese la dosar." }, 403);
     const ciornaId = taie(body.ciornaId, 40);
     const fel = taie(body.fel, 32);
     if (!FELURI[fel]) return json({ eroare: "Piesă necunoscută." }, 400);
     const ciorna = await s.get("ciorna/" + ciornaId, { type: "json" }).catch(() => null);
-    if (!ciorna || ciorna.membruId !== eu.membru.id) return json({ eroare: "Dosar inexistent." }, 404);
+    if (!ciornaAMea(ciorna, eu)) return json({ eroare: "Dosar inexistent." }, 404);
 
     const tip = taie(body.tip, 60);
     if (!TIPURI_OK.includes(tip)) return json({ eroare: "Acceptăm doar JPEG, PNG, WEBP sau PDF." }, 400);
@@ -573,16 +600,33 @@ export default cuLimitareCod(async (req) => {
   }
 
   if (actiune === "depune") {
-    if (eu.rol !== "membru") return json({ eroare: "Doar membrii depun declarații." }, 403);
+    if (eu.rol !== "membru" && eu.rol !== "chinotehnist")
+      return json({ eroare: "Doar membrii și chinotehniștii depun declarații." }, 403);
     // Cotizația se verifică ACUM, nu la deschiderea ciornei: între timp putea expira.
-    if (!eu.membru.cotizatieLaZi)
+    if (eu.rol === "membru" && !eu.membru.cotizatieLaZi)
       return json({ eroare: "Cotizația a expirat. Reînnoiește-o pentru a putea depune declarații." }, 403);
 
     const ciornaId = taie(body.ciornaId, 40);
     const ciorna = await s.get("ciorna/" + ciornaId, { type: "json" }).catch(() => null);
-    if (!ciorna || ciorna.membruId !== eu.membru.id) return json({ eroare: "Dosar inexistent." }, 404);
+    if (!ciornaAMea(ciorna, eu)) return json({ eroare: "Dosar inexistent." }, 404);
 
-    const v = valideazaDeclaratia(body, eu.membru);
+    // Chinotehnistul depune ÎN NUMELE unui crescător al asociației lui — deci dosarul
+    // trebuie să spună al cui e cuibul. Datele vin din declarația semnată pe hârtie,
+    // pe care chinotehnistul a încărcat-o la dosar (piesa dreptului de montă o poartă).
+    let crescator = null;
+    if (eu.rol === "chinotehnist") {
+      const cNume = taie(body.crescator?.nume, 120);
+      const cTelefon = taie(body.crescator?.telefon, 30);
+      const cEmail = taie(body.crescator?.email, 200).toLowerCase();
+      const cLocalitate = taie(body.crescator?.localitate, 120);
+      if (cNume.length < 3) return json({ eroare: "Scrie numele crescătorului pentru care depui." }, 400);
+      if (cTelefon.replace(/\D/g, "").length < 10)
+        return json({ eroare: "Scrie telefonul crescătorului — pe el se fac lămuririle registraturii." }, 400);
+      if (cEmail && !EMAIL_RE.test(cEmail)) return json({ eroare: "Adresa de e-mail a crescătorului nu este validă." }, 400);
+      crescator = { nume: cNume, telefon: cTelefon, email: cEmail, localitate: cLocalitate };
+    }
+
+    const v = valideazaDeclaratia(body, eu.rol === "membru" ? eu.membru : { nume: crescator.nume });
     if (v.eroare) return json({ eroare: v.eroare }, 400);
 
     // Toate cele patru piese trebuie să existe. Verificarea se face la depunere, nu la
@@ -598,14 +642,31 @@ export default cuLimitareCod(async (req) => {
     const serie = await serieNoua(an);
     if (!serie) return json({ eroare: "Nu am putut aloca un număr de înregistrare. Reîncearcă." }, 500);
 
+    // Pe cine poartă dosarul: crescătorul. La membrul direct, el e și depunătorul; la
+    // depunerea prin asociația afiliată, crescătorul e cel din declarația semnată, iar
+    // e-mailul lui (dacă are) primește confirmările — altfel merg la chinotehnist.
+    const eAfiliat = eu.rol === "chinotehnist";
     const d = {
       ...v.d,
       id: ciornaId, serie,
       numarWDF: null,                       // îl completează registratura la înregistrarea cuibului
       stare: "depus",
-      membruId: eu.membru.id,
-      membruNume: eu.membru.nume,
-      membruEmail: eu.membru.email,
+      membruId: eAfiliat ? null : eu.membru.id,
+      membruNume: eAfiliat ? crescator.nume : eu.membru.nume,
+      membruEmail: eAfiliat ? (crescator.email || eu.chinotehnist.email) : eu.membru.email,
+      ...(eAfiliat
+        ? {
+            crescatorTelefon: crescator.telefon,
+            crescatorLocalitate: crescator.localitate,
+            depunere: {
+              fel: "chinotehnist",
+              chinotehnistId: eu.chinotehnist.id,
+              chinotehnistNume: eu.chinotehnist.nume,
+              asociatie: eu.chinotehnist.asociatie,
+              asociatieSlug: eu.chinotehnist.asociatieSlug,
+            },
+          }
+        : {}),
       creat: new Date().toISOString(),
       // Urma semnăturii: numele scris de om, momentul și de unde. Asta transformă bifa
       // într-o asumare verificabilă, nu doar într-o casetă bifată de un cont.
@@ -632,16 +693,26 @@ export default cuLimitareCod(async (req) => {
         if (c) await s.setJSON("descendent-cip/" + c + "/" + ciornaId, { dmfId: ciornaId });
       }
     } catch (err) { console.error("Index descendenți (scriere) eșuat:", err); }
-    await s.setJSON("dmf-membru/" + eu.membru.id + "/" + ciornaId, {
+    // Rezumatul pentru listă: al membrului sau al asociației afiliate — spațiul e al
+    // asociației, deci toți chinotehniștii ei văd aceleași dosare.
+    const rezumat = {
       id: ciornaId, serie, rasa: d.rasa, dataFatarii: d.dataFatarii,
       pui: d.pui.length, stare: d.stare, pesteTermen: d.pesteTermen, creat: d.creat,
-    });
+      ...(eAfiliat ? { crescator: crescator.nume, depusDe: eu.chinotehnist.nume } : {}),
+    };
+    await s.setJSON(
+      eAfiliat
+        ? "dmf-afiliat/" + eu.chinotehnist.asociatieSlug + "/" + ciornaId
+        : "dmf-membru/" + eu.membru.id + "/" + ciornaId,
+      rezumat,
+    );
     await s.delete("ciorna/" + ciornaId).catch(() => {});
 
     // Afixul scris pe declarație completează fișa de membru dacă acolo nu era niciunul
     // (canisă înregistrată după înscriere). Nu suprascrie niciodată un afix existent —
-    // acela e dat de asociație, nu de formular.
-    if (v.d.afix && !eu.membru.afix) {
+    // acela e dat de asociație, nu de formular. La depunerea prin asociația afiliată nu
+    // există fișă de membru, deci nu e nimic de completat.
+    if (!eAfiliat && v.d.afix && !eu.membru.afix) {
       try {
         const fisa = await s.get("membru/" + eu.membru.id, { type: "json" });
         if (fisa && !fisa.afix) {
@@ -650,7 +721,8 @@ export default cuLimitareCod(async (req) => {
       } catch (err) { console.error("Completarea afixului în fișa de membru a eșuat:", err); }
     }
 
-    const emailTrimis = await trimiteConfirmarea(eu.membru, d);
+    const emailTrimis = await trimiteConfirmarea(
+      eAfiliat ? { nume: crescator.nume, email: d.membruEmail } : eu.membru, d);
     const { jeton } = await deschideConfirmarea(ciornaId, d.mascul.email);
     const cerereTrimisa = await trimiteCerereaCatreMascul(d, jeton);
     await jurnalizeaza(s, {
@@ -658,6 +730,7 @@ export default cuLimitareCod(async (req) => {
       actor: actorJurnal(eu),
       obiect: serie,
       detalii: `${d.rasa}, fătare ${d.dataFatarii}, ${d.pui.length} pui` +
+        (eAfiliat ? ` — pentru ${crescator.nume}, prin ${eu.chinotehnist.asociatie}` : "") +
         (d.pesteTermen ? ` — PESTE TERMEN (${d.zileDeLaFatare} zile)` : ""),
       ip: d.semnaturaUrma.ip,
     });
@@ -665,10 +738,15 @@ export default cuLimitareCod(async (req) => {
   }
 
   if (actiune === "mele") {
-    if (eu.rol !== "membru") return json({ eroare: "Nepermis." }, 403);
+    if (eu.rol !== "membru" && eu.rol !== "chinotehnist") return json({ eroare: "Nepermis." }, 403);
     const lista = [];
     try {
-      const { blobs } = await s.list({ prefix: "dmf-membru/" + eu.membru.id + "/" });
+      // Membrul își vede dosarele lui; chinotehnistul — TOATE dosarele asociației,
+      // inclusiv ale colegilor: spațiul e al asociației, nu al persoanei.
+      const prefixListei = eu.rol === "chinotehnist"
+        ? "dmf-afiliat/" + eu.chinotehnist.asociatieSlug + "/"
+        : "dmf-membru/" + eu.membru.id + "/";
+      const { blobs } = await s.list({ prefix: prefixListei });
       for (const b of blobs) {
         const x = await s.get(b.key, { type: "json" });
         if (!x) continue;
@@ -692,11 +770,14 @@ export default cuLimitareCod(async (req) => {
   // așteaptă la nesfârșit. Corectarea e permisă O SINGURĂ dată și numai cât timp nimeni
   // n-a răspuns — altfel s-ar putea căuta o adresă complezentă până iese un „da".
   if (actiune === "confirmare-retrimite") {
-    if (eu.rol !== "membru") return json({ eroare: "Nepermis." }, 403);
+    if (eu.rol !== "membru" && eu.rol !== "chinotehnist") return json({ eroare: "Nepermis." }, 403);
     const id = taie(body.id, 40);
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
-    if (d.membruId !== eu.membru.id) return json({ eroare: "Nepermis." }, 403);
+    const alMeuRetrimite = eu.rol === "membru"
+      ? d.membruId === eu.membru.id
+      : d.depunere?.asociatieSlug === eu.chinotehnist.asociatieSlug;
+    if (!alMeuRetrimite) return json({ eroare: "Nepermis." }, 403);
     const c = d.confirmare || {};
     if (c.stare === "confirmat" || c.stare === "refuzat" || c.stare === "alternativ")
       return json({ eroare: "Dosarul are deja un răspuns; adresa nu mai poate fi schimbată." }, 409);
@@ -759,7 +840,8 @@ export default cuLimitareCod(async (req) => {
         // Căutarea merge peste serie, rasă și numele crescătorului: astea trei sunt ce
         // ține omul minte când revine la un dosar vechi.
         if (cauta) {
-          const paie = [x.serie, x.rasa, x.membruNume, x.numarWDF].filter(Boolean).join(" ").toLowerCase();
+          const paie = [x.serie, x.rasa, x.membruNume, x.numarWDF,
+            x.depunere?.asociatie, x.depunere?.chinotehnistNume].filter(Boolean).join(" ").toLowerCase();
           if (!paie.includes(cauta)) continue;
         }
         lista.push({
@@ -767,6 +849,10 @@ export default cuLimitareCod(async (req) => {
           dataFatarii: x.dataFatarii, pui: (x.pui || []).length, stare: x.stare,
           pesteTermen: x.pesteTermen, membruNume: x.membruNume, creat: x.creat,
           confirmare: x.confirmare?.stare || "asteptare", arhivat,
+          // Proveniența: dosarul depus prin asociația afiliată se vede dintr-o privire.
+          depunere: x.depunere
+            ? { asociatie: x.depunere.asociatie || "", chinotehnist: x.depunere.chinotehnistNume || "" }
+            : null,
         });
       }
     } catch (err) { console.error("Listare dosare eșuată:", err); }
@@ -812,7 +898,11 @@ export default cuLimitareCod(async (req) => {
     const id = taie(body.id, 40);
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
-    const alMeu = eu.rol === "membru" && d.membruId === eu.membru.id;
+    const alMeu =
+      (eu.rol === "membru" && d.membruId === eu.membru.id) ||
+      // Dosarul depus prin asociația afiliată e al asociației: orice chinotehnist al ei
+      // îl vede — colegii răspund crescătorilor și când depunătorul e în concediu.
+      (eu.rol === "chinotehnist" && d.depunere?.asociatieSlug === eu.chinotehnist.asociatieSlug);
     if (!alMeu && eu.rol !== "registratura" && eu.rol !== "admin") return json({ eroare: "Nepermis." }, 403);
     return json({ dosar: d });
   }
@@ -868,7 +958,11 @@ export default cuLimitareCod(async (req) => {
     if (!TOATE_FELURILE[fel]) return json({ eroare: "Piesă necunoscută." }, 400);
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
-    const alMeu = eu.rol === "membru" && d.membruId === eu.membru.id;
+    const alMeu =
+      (eu.rol === "membru" && d.membruId === eu.membru.id) ||
+      // Dosarul depus prin asociația afiliată e al asociației: orice chinotehnist al ei
+      // îl vede — colegii răspund crescătorilor și când depunătorul e în concediu.
+      (eu.rol === "chinotehnist" && d.depunere?.asociatieSlug === eu.chinotehnist.asociatieSlug);
     if (!alMeu && eu.rol !== "registratura" && eu.rol !== "admin") return json({ eroare: "Nepermis." }, 403);
     const f = await s.getWithMetadata("dmf-fisier/" + id + "/" + fel, { type: "arrayBuffer" }).catch(() => null);
     if (!f) return json({ eroare: "Piesa lipsește de la dosar." }, 404);

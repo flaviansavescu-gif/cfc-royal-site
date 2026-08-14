@@ -546,6 +546,13 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
          "născuți " + (d.nascutiM + d.nascutiF), "rămași " + d.pui.length,
          d.afix ? "afix " + d.afix : null].filter(Boolean).join(" · "));
       detaliu.appendChild(meta);
+      if (d.depunere) {
+        detaliu.appendChild(el("p", "g-afiliat",
+          "Depusă prin " + (d.depunere.asociatie || "asociația afiliată") +
+          " · chinotehnist " + (d.depunere.chinotehnistNume || "?") +
+          (d.crescatorTelefon ? " · telefonul crescătorului: " + d.crescatorTelefon : "") +
+          ". Crescătorul nu e membru direct — nu are cotizație de verificat; taxa e plătită de el în contul CFC-Royal (dovada e la dosar)."));
+      }
       if (d.pesteTermen) detaliu.appendChild(el("p", "g-termen", "Depusă după " + d.zileDeLaFatare + " de zile — peste termenul de 90."));
 
       for (const [cheie, eticheta] of [["mascul", "♂ Masculul"], ["femela", "♀ Femela"]]) {
@@ -734,6 +741,10 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
               [x.rasa, x.membruNume, "fătare " + dataRo(x.dataFatarii), x.pui + " pui",
                x.numarWDF || null].filter(Boolean).join(" · ")));
             b.appendChild(el("span", "g-dosar__stare", ETICHETA_STARE[x.stare] || x.stare));
+            // Proveniența: dosarul venit prin asociația afiliată se recunoaște fără să-l
+            // deschizi — crescătorul lui nu e membru direct, deci nu are cotizație de
+            // verificat, dar are dovada plății taxei la dosar.
+            if (x.depunere) b.appendChild(el("span", "g-dosar__afiliat", "prin " + (x.depunere.asociatie || "asociație afiliată")));
             if (x.pesteTermen) b.appendChild(el("span", "g-dosar__termen", "peste termen"));
             b.addEventListener("click", () => deschide(x.id));
             li.appendChild(b);
@@ -954,6 +965,11 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .g-dosar__det { color: var(--color-text-muted); font-size: 0.88rem; }
   .g-dosar__termen { margin-left: auto; font-size: 0.8rem; border: 1px solid #8c1d2f; color: #8c1d2f;
     border-radius: 999px; padding: 0.2rem 0.7rem; }
+  /* Insignele sunt desenate de JavaScript, deci selectorii trebuie ancorați global. */
+  :global(.g-dosar__afiliat) { font-size: 0.8rem; border: 1px solid var(--color-primary); color: var(--color-primary);
+    border-radius: 999px; padding: 0.2rem 0.7rem; background: #eef5f0; }
+  :global(.g-afiliat) { max-width: 46rem; font-size: 0.88rem; padding: 0.6rem 0.9rem; border-radius: var(--radius);
+    background: #eef5f0; border: 1px solid var(--color-primary); color: var(--color-primary); }
   .g-detaliu[hidden] { display: none; }
   .g-detaliu { margin-top: 2rem; border-top: 2px solid var(--color-accent); padding-top: 1rem; max-width: 52rem; }
   .g-dh { font-family: var(--font-serif); color: var(--color-primary); margin: 0 0 0.3rem; }

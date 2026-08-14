@@ -1,0 +1,193 @@
+---
+// /registru/afiliate/ — spațiul asociației afiliate (Membru Colectiv).
+//
+// Aici chinotehnistul depune Declarațiile de Montă și Fătare ÎN NUMELE crescătorilor
+// asociației lui și urmărește stadiul dosarelor. Nu e un circuit paralel: dosarele
+// intră în aceeași coadă și se verifică de aceeași registratură ca ale membrilor
+// direcți — doar poarta de intrare diferă. Spațiul e AL ASOCIAȚIEI: doi chinotehniști
+// ai aceleiași asociații văd aceleași dosare.
+import RegistruLayout from "../../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Spațiul asociației afiliate" allow={["chinotehnist"]}>
+  <p class="c-eyebrow">Registrul genealogic · spațiul asociației afiliate</p>
+  <h1 class="c-title" id="a-nume">Chinotehnist</h1>
+  <p class="c-sub" id="a-asociatie"></p>
+
+  <div class="c-card">
+    <div>
+      <strong>📋 Declarație de Montă și Fătare — pentru un crescător al asociației</strong>
+      <p>Se depune în cel mult <strong>90 de zile de la fătare</strong>, pe baza declarației
+      <strong>semnate de crescător</strong>. Dosarul cuprinde declarația cu datele cuibului,
+      pedigree-urile ambilor părinți, dovada dreptului de montă al femelei și
+      <strong>dovada plății taxei</strong> — plătită de crescător în contul CFC-Royal.
+      La depunere, numărul de înregistrare pleacă pe e-mailul crescătorului (sau al tău,
+      dacă el nu are).</p>
+    </div>
+    <a class="btn btn--primary" href="/crescatori/dmf/">Depune o declarație →</a>
+  </div>
+
+  <h2 class="c-h2">Declarațiile asociației</h2>
+  <ul class="c-declaratii" id="a-declaratii"><li class="c-gol">Se încarcă…</li></ul>
+
+  <div class="c-ajutor">
+    <p><strong>Declarația semnată rămâne la asociație</strong> — ea poartă semnătura
+    crescătorului pentru datele declarate și pentru prelucrarea lor; la dosar se încarcă
+    copia ei digitală.</p>
+    <p><strong>Proprietarul masculului</strong> primește pe e-mail un link unic prin care
+    confirmă monta, ca la orice dosar — inclusiv dacă e din altă asociație sau din străinătate.</p>
+    <p>Codul tău este personal: pe el se consemnează cine a depus fiecare dosar.</p>
+  </div>
+</RegistruLayout>
+
+<script is:inline>
+  (function () {
+    let r = null;
+    try { r = JSON.parse(localStorage.getItem("cfcrRegistru") || "null"); } catch (e) {}
+    if (!r) return;
+    if (r.nume) document.getElementById("a-nume").textContent = r.nume;
+    document.getElementById("a-asociatie").textContent =
+      r.asociatie ? "Chinotehnist al asociației " + r.asociatie : "";
+
+    const lista = document.getElementById("a-declaratii");
+    const ETICHETE = { depus: "Depusă", "in-verificare": "În verificare", aprobat: "Aprobată", respins: "Respinsă", emis: "Certificate emise" };
+    const dataRo = (s) => { const x = new Date(s); return isNaN(x) ? String(s || "") : x.toLocaleDateString("ro-RO"); };
+    const post = (b) => fetch("/.netlify/functions/registru-dmf", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ cod: localStorage.getItem("cfcrRegistruCod") || "" }, b)),
+    });
+
+    // Aceeași logică de confirmare ca în spațiul membrului: cât timp proprietarul
+    // masculului n-a răspuns, cererea se poate retrimite, iar adresa se poate corecta
+    // O SINGURĂ dată.
+    function randConfirmare(x) {
+      const box = document.createElement("div");
+      box.className = "c-conf";
+      const eticheta = document.createElement("span");
+      eticheta.className = "c-conf__stare is-" + (x.confirmare || "asteptare");
+      eticheta.textContent = {
+        asteptare: "⏳ Așteaptă confirmarea proprietarului masculului",
+        confirmat: "✓ Monta a fost confirmată de proprietarul masculului",
+        refuzat: "⚠ Proprietarul masculului nu a confirmat — registratura analizează",
+        alternativ: "✓ Confirmare acceptată de registratură pe baza dovezii semnate",
+      }[x.confirmare] || x.confirmare;
+      box.appendChild(eticheta);
+      if (x.confirmare !== "asteptare") return box;
+
+      const adresa = document.createElement("span");
+      adresa.className = "c-conf__adresa";
+      adresa.textContent = "trimisă la " + (x.confirmareEmail || "—");
+      box.appendChild(adresa);
+
+      const actiuni = document.createElement("div");
+      actiuni.className = "c-conf__actiuni";
+      const camp = document.createElement("input");
+      camp.type = "email";
+      camp.placeholder = x.adresaCorectata ? "adresa a fost deja corectată" : "altă adresă (o singură dată)";
+      camp.disabled = !!x.adresaCorectata;
+      const buton = document.createElement("button");
+      buton.className = "btn btn--small btn--outline";
+      buton.textContent = "Retrimite cererea";
+      buton.addEventListener("click", async () => {
+        buton.disabled = true; buton.textContent = "Se trimite…";
+        try {
+          const res = await post({ actiune: "confirmare-retrimite", id: x.id, emailNou: camp.value.trim() });
+          const d = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(d.eroare || "Nu am putut retrimite.");
+          buton.textContent = d.trimis ? "✓ Trimisă la " + d.email : "Înregistrată, dar e-mailul nu a plecat";
+        } catch (e) {
+          buton.disabled = false; buton.textContent = "Retrimite cererea";
+          alert(e.message);
+        }
+      });
+      actiuni.append(camp, buton);
+      box.appendChild(actiuni);
+      return box;
+    }
+
+    post({ actiune: "mele" })
+      .then((res) => res.json())
+      .then((d) => {
+        lista.textContent = "";
+        const arr = d.declaratii || [];
+        if (!arr.length) {
+          const li = document.createElement("li");
+          li.className = "c-gol";
+          li.textContent = "Nicio declarație depusă încă pentru crescătorii asociației.";
+          lista.appendChild(li);
+          return;
+        }
+        for (const x of arr) {
+          const li = document.createElement("li");
+          li.className = "c-decl";
+          const cap = document.createElement("div");
+          cap.className = "c-decl__cap";
+          const serie = document.createElement("strong");
+          serie.className = "c-decl__serie";
+          serie.textContent = x.serie;
+          const det = document.createElement("span");
+          det.className = "c-decl__det";
+          det.textContent = [
+            x.crescator ? "crescător " + x.crescator : "",
+            x.rasa, "fătare " + dataRo(x.dataFatarii), x.pui + " pui",
+            x.depusDe ? "depusă de " + x.depusDe : "",
+          ].filter(Boolean).join(" · ");
+          const st = document.createElement("span");
+          st.className = "c-decl__stare";
+          st.textContent = ETICHETE[x.stare] || x.stare;
+          cap.append(serie, det, st);
+          if (x.pesteTermen) {
+            const t = document.createElement("span");
+            t.className = "c-decl__termen";
+            t.textContent = "peste termen";
+            cap.appendChild(t);
+          }
+          li.appendChild(cap);
+          li.appendChild(randConfirmare(x));
+          lista.appendChild(li);
+        }
+      })
+      .catch(() => {
+        lista.textContent = "";
+        const li = document.createElement("li");
+        li.className = "c-gol";
+        li.textContent = "Nu am putut încărca lista declarațiilor.";
+        lista.appendChild(li);
+      });
+  })();
+</script>
+
+<style>
+  .c-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .c-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.2rem; }
+  .c-sub { color: var(--color-text-muted); margin-top: 0; }
+  .c-h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2.25rem 0 0.5rem;
+    font-size: 1.3rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem; }
+  .c-card { display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap;
+    margin-top: 1.5rem; padding: 1.1rem 1.4rem;
+    background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); }
+  .c-card p { margin: 0.3rem 0 0; font-size: 0.9rem; color: var(--color-text-muted); max-width: 36rem; }
+  :global(.c-gol) { color: var(--color-text-muted); font-style: italic; }
+  .c-declaratii { list-style: none; padding: 0; display: grid; gap: 0.5rem; max-width: 52rem; }
+  :global(.c-decl) { display: grid; gap: 0.6rem;
+    padding: 0.7rem 0.9rem; border: 1px solid var(--color-border); border-radius: var(--radius); }
+  :global(.c-decl__cap) { display: flex; align-items: baseline; gap: 0.9rem; flex-wrap: wrap; }
+  :global(.c-conf) { display: grid; gap: 0.4rem; border-top: 1px dashed var(--color-border); padding-top: 0.5rem; }
+  :global(.c-conf__stare) { font-size: 0.85rem; font-weight: 600; }
+  :global(.c-conf__stare.is-asteptare) { color: var(--color-accent-dark); }
+  :global(.c-conf__stare.is-confirmat),
+  :global(.c-conf__stare.is-alternativ) { color: var(--color-primary); }
+  :global(.c-conf__stare.is-refuzat) { color: #8c1d2f; }
+  :global(.c-conf__adresa) { font-size: 0.82rem; color: var(--color-text-muted); }
+  :global(.c-conf__actiuni) { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+  :global(.c-conf__actiuni input) { padding: 0.35rem 0.6rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.85rem; min-width: 16rem; }
+  :global(.c-decl__serie) { font-family: var(--font-mono, monospace); color: var(--color-primary); }
+  :global(.c-decl__det) { color: var(--color-text-muted); font-size: 0.88rem; }
+  :global(.c-decl__stare) { margin-left: auto; font-size: 0.8rem; border: 1px solid var(--color-accent);
+    color: var(--color-accent-dark); border-radius: 999px; padding: 0.2rem 0.7rem; }
+  :global(.c-decl__termen) { font-size: 0.8rem; border: 1px solid #8c1d2f; color: #8c1d2f;
+    border-radius: 999px; padding: 0.2rem 0.7rem; }
+  .c-ajutor { margin-top: 2rem; border-top: 1px solid var(--color-border); padding-top: 1rem; max-width: 44rem; }
+  .c-ajutor p { font-size: 0.88rem; color: var(--color-text-muted); }
+</style>

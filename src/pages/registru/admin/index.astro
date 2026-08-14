@@ -107,6 +107,29 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
   <ul class="a-lista" id="a-registratori"><li class="a-gol">Se încarcă…</li></ul>
   </details>
 
+  <details class="a-sectiune" data-sectiune="chinotehnisti">
+  <summary class="a-sumar">
+    <span class="a-sumar__titlu">Chinotehniștii asociațiilor afiliate</span>
+    <span class="a-numar" id="a-cht-numar" hidden></span>
+  </summary>
+  <p class="a-note">
+    Persoanele din asociațiile afiliate (Membri Colectivi) care depun Declarațiile de Montă
+    și Fătare pentru crescătorii lor, din spațiul <strong>/registru/afiliate/</strong>.
+    Codul e <strong>nominal</strong>: dacă omul pleacă, i se revocă lui codul, fără să se
+    blocheze asociația. Doi chinotehniști ai aceleiași asociații își văd unul altuia
+    dosarele — spațiul e al asociației. Pe e-mail pleacă numărul de înregistrare al
+    fiecărei declarații depuse.
+  </p>
+  <form class="a-form a-form--mic" id="a-cht-form">
+    <input id="a-cht-nume" type="text" placeholder="Numele chinotehnistului" required />
+    <input id="a-cht-asociatie" type="text" placeholder="Asociația afiliată (numele complet)" required />
+    <input id="a-cht-email" type="email" placeholder="E-mail (obligatoriu)" required />
+    <button class="btn btn--primary" type="submit">Generează cod de chinotehnist</button>
+  </form>
+  <p class="a-cod-nou" id="a-cht-cod" hidden></p>
+  <ul class="a-lista" id="a-chinotehnisti"><li class="a-gol">Se încarcă…</li></ul>
+  </details>
+
   <details class="a-sectiune" data-sectiune="declaratii">
   <summary class="a-sumar">
     <span class="a-sumar__titlu">Declarațiile depuse</span>
@@ -494,6 +517,60 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
       } catch (e) { ul.innerHTML = "<li class='a-gol'>Nu am putut încărca lista.</li>"; }
     }
 
+    async function incarcaChinotehnisti() {
+      const ul = document.getElementById("a-chinotehnisti");
+      ul.innerHTML = "";
+      try {
+        const d = await cere({ actiune: "chinotehnisti" });
+        numarSectiune("a-cht-numar", d.chinotehnisti.length, "persoană", "persoane");
+        if (!d.chinotehnisti.length) { ul.innerHTML = "<li class='a-gol'>Niciun chinotehnist încă.</li>"; return; }
+        d.chinotehnisti.forEach((r) => {
+          const li = document.createElement("li");
+          const info = document.createElement("div");
+          const tare = document.createElement("strong");
+          tare.textContent = r.nume;
+          info.appendChild(tare);
+          const meta = document.createElement("span");
+          meta.className = "a-meta";
+          meta.textContent = [
+            r.asociatie, r.email,
+            r.ultima_logare ? "ultima intrare " + dataRo(r.ultima_logare) : "nu a intrat încă",
+          ].filter(Boolean).join(" · ");
+          info.appendChild(meta);
+          li.appendChild(info);
+          const del = document.createElement("button");
+          del.className = "btn btn--small btn--danger";
+          del.textContent = "Revocă";
+          del.addEventListener("click", async () => {
+            if (!confirm("Revoci accesul lui „" + r.nume + "” (" + (r.asociatie || "?") + ")? Dosarele depuse rămân.")) return;
+            del.disabled = true;
+            try { await cere({ actiune: "chinotehnist-sterge", id: r.id }); incarcaChinotehnisti(); }
+            catch (e) { alert("Nu am putut revoca: " + e.message); del.disabled = false; }
+          });
+          li.appendChild(del);
+          ul.appendChild(li);
+        });
+      } catch (e) { ul.innerHTML = "<li class='a-gol'>Nu am putut încărca lista.</li>"; }
+    }
+
+    document.getElementById("a-cht-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector("button[type=submit]");
+      btn.disabled = true; btn.textContent = "Se generează…";
+      try {
+        const d = await cere({
+          actiune: "chinotehnist-adauga",
+          nume: document.getElementById("a-cht-nume").value.trim(),
+          asociatie: document.getElementById("a-cht-asociatie").value.trim(),
+          email: document.getElementById("a-cht-email").value.trim(),
+        });
+        arataCod(document.getElementById("a-cht-cod"), d.chinotehnist.nume + " (" + d.chinotehnist.asociatie + ")", d.chinotehnist.cod);
+        e.target.reset();
+        incarcaChinotehnisti();
+      } catch (err) { alert("Nu am putut genera codul: " + err.message); }
+      finally { btn.disabled = false; btn.textContent = "Generează cod de chinotehnist"; }
+    });
+
     // Declarațiile stau în altă funcție (registru-dmf), cu aceeași poartă de administrator.
     async function cereDmf(payload) {
       const res = await fetch("/.netlify/functions/registru-dmf", {
@@ -856,6 +933,7 @@ const caniseSite = (await getCollection("canise", (c) => c.id.startsWith("ro/") 
     const INCARCATOARE = {
       membri: incarcaMembri,
       registratori: incarcaRegistratori,
+      chinotehnisti: incarcaChinotehnisti,
       declaratii: incarcaDeclaratii,
       jurnal: incarcaJurnal,
     };

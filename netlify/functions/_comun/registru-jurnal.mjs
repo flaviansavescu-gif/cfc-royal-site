@@ -136,6 +136,17 @@ export function actorJurnal(eu) {
   if (eu.rol === "membru") {
     return { rol: "membru", nume: taie(eu.membru?.nume, 120) || "membru", id: taie(eu.membru?.id, 40) };
   }
+  if (eu.rol === "chinotehnist") {
+    // Numele poartă și asociația: în jurnal trebuie să se vadă dintr-o privire în
+    // numele cui a lucrat omul, nu doar cine e.
+    const nume = taie(eu.chinotehnist?.nume, 120) || "chinotehnist";
+    const asociatie = taie(eu.chinotehnist?.asociatie, 120);
+    return {
+      rol: "chinotehnist",
+      nume: asociatie ? nume + " (" + asociatie + ")" : nume,
+      id: taie(eu.chinotehnist?.id, 40),
+    };
+  }
   return { rol: taie(eu.rol, 24) || "necunoscut", nume: taie(eu.nume, 120) || "necunoscut" };
 }
 

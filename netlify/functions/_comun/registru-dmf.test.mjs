@@ -115,5 +115,25 @@ const suprascris = valideazaDeclaratia(baza({ afix: "din Banat" }), membru);
 t("ce scrie in formular are intaietate", suprascris.d && suprascris.d.afix === "din Banat");
 t("afixul ramane optional", !valideazaDeclaratia(baza(), faraCanisa).eroare);
 
+console.log("— poarta chinotehnistului (asociatii afiliate) —");
+{
+  const handler = (await import("../registru-dmf.mjs")).default;
+  const cere = (b) => handler(new Request("https://x/y", { method: "POST",
+    headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }), {});
+  // Fara cod, niciuna dintre actiunile de depunere nu raspunde cu succes.
+  for (const actiune of ["ciorna-noua", "depune", "mele"]) {
+    const r = await cere({ actiune });
+    t("actiunea " + actiune + " fara cod e refuzata", r.status === 401 || r.status === 403, "status " + r.status);
+  }
+  // Sursa trebuie sa lege lista chinotehnistului de SLUGUL ASOCIATIEI, nu de persoana:
+  // spatiul e al asociatiei — regresia ar rupe exact intelegerea cu Membrii Colectivi.
+  const { readFileSync } = await import("node:fs");
+  const sursa = readFileSync(new URL("../registru-dmf.mjs", import.meta.url), "utf8");
+  t("lista afiliatilor e pe slugul asociatiei", sursa.includes('"dmf-afiliat/" + eu.chinotehnist.asociatieSlug'));
+  t("dosarul poarta provenienta depunerii", sursa.includes('fel: "chinotehnist"'));
+  t("cotizatia nu se cere chinotehnistului la depunere",
+    /eu\.rol === "membru" && !eu\.membru\.cotizatieLaZi/.test(sursa));
+}
+
 console.log(`\n${ok} trecute, ${rau} căzute`);
 process.exit(rau ? 1 : 0);

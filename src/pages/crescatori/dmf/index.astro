@@ -15,7 +15,7 @@ import { RASE_WDF } from "../../../data/nomenclator-wdf";
 const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "ro"));
 ---
 
-<RegistruLayout title="Declarație de Montă și Fătare" allow={["membru"]}>
+<RegistruLayout title="Declarație de Montă și Fătare" allow={["membru", "chinotehnist"]}>
   <p class="d-eyebrow">Registrul genealogic</p>
   <h1 class="d-title">Declarație de Montă și Fătare</h1>
   <p class="d-sub">
@@ -27,6 +27,21 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
   <p class="d-cotizatie" id="d-cotizatie" hidden></p>
 
   <form id="d-form" class="d-form">
+    <!-- ——— Crescătorul (doar la depunerea prin asociația afiliată) ———
+         Chinotehnistul depune în numele unui crescător al asociației lui; dosarul
+         trebuie să spună al cui e cuibul. Datele vin din declarația semnată pe hârtie. -->
+    <section class="d-sect" id="d-crescator-zona" hidden>
+      <h2 class="d-h2">Crescătorul pentru care depui</h2>
+      <p class="d-nota">Datele vin din declarația semnată de crescător — copia ei se încarcă
+        la dosar. Pe telefonul lui se fac lămuririle registraturii; pe e-mail (dacă are)
+        primește numărul de înregistrare.</p>
+      <div class="d-grid2">
+        <label>Numele și prenumele crescătorului <input name="crescator.nume" /></label>
+        <label>Telefonul crescătorului <input name="crescator.telefon" type="tel" /></label>
+        <label>E-mailul crescătorului <span class="d-opt">(opțional)</span><input name="crescator.email" type="email" /></label>
+        <label>Localitatea <span class="d-opt">(opțional)</span><input name="crescator.localitate" /></label>
+      </div>
+    </section>
     <!-- ——— Cuibul ——— -->
     <section class="d-sect">
       <h2 class="d-h2">Cuibul</h2>
@@ -248,6 +263,22 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
     try { membru = JSON.parse(localStorage.getItem("cfcrRegistru") || "null"); } catch (e) {}
     const g = (n) => form.querySelector('[name="' + n + '"]');
 
+    // —— Regimul chinotehnistului: același formular, plus blocul crescătorului ——
+    // Fișa lui nu are cotizație (avertismentul de mai jos nu se declanșează) și nici
+    // afix propriu — afixul e al crescătorului, scris aici după declarația semnată.
+    const eChinotehnist = membru && membru.rol === "chinotehnist";
+    if (eChinotehnist) {
+      const zona = document.getElementById("d-crescator-zona");
+      zona.hidden = false;
+      g("crescator.nume").required = true;
+      g("crescator.telefon").required = true;
+      // Drumurile de întoarcere duc în spațiul asociației, nu în cel al membrului.
+      document.querySelectorAll('a[href="/crescatori/"]').forEach((a) => {
+        a.href = "/registru/afiliate/";
+        if (a.textContent.includes("spațiul meu")) a.textContent = "Înapoi în spațiul asociației";
+      });
+    }
+
     // —— Cotizația: se vede de la început de ce nu merge, nu abia la trimitere ——
     if (membru && membru.cotizatiePana && !membru.cotizatieLaZi) {
       const c = document.getElementById("d-cotizatie");
@@ -260,7 +291,9 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
     // cel scris aici o completează — fără să suprascrie vreodată unul existent.
     if (membru && membru.afix) g("afix").value = membru.afix;
     if (membru && membru.nrAfix) g("nrAfix").value = membru.nrAfix;
-    document.getElementById("d-afix").textContent = membru && membru.afix
+    document.getElementById("d-afix").textContent = eChinotehnist
+      ? "Afixul e al CRESCĂTORULUI pentru care depui — scrie-l cum apare pe declarația semnată, dacă are unul."
+      : membru && membru.afix
       ? "Afixul vine din fișa ta de membru. Îl poți schimba aici dacă între timp s-a modificat."
       : "În fișa ta de membru nu e trecut niciun afix. Dacă ți-ai înregistrat canisa între timp, scrie-l aici — se va trece pe declarație și în fișa ta.";
 
@@ -486,6 +519,12 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
       }));
       return {
         cod: cod(), actiune: "depune", ciornaId,
+        ...(eChinotehnist
+          ? { crescator: {
+              nume: val("crescator.nume"), telefon: val("crescator.telefon"),
+              email: val("crescator.email"), localitate: val("crescator.localitate"),
+            } }
+          : {}),
         rasa: val("rasa"), varietate: val("varietate"),
         afix: val("afix"), nrAfix: val("nrAfix"),
         dataMontei: val("dataMontei"), dataFatarii: val("dataFatarii"),

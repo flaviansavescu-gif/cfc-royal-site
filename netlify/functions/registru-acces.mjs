@@ -124,6 +124,36 @@ export async function registratorDinCod(cod) {
   }
 }
 
+/**
+ * Chinotehnistul din cod — omul asociației afiliate (Membru Colectiv) care depune
+ * Declarațiile de Montă și Fătare în numele crescătorilor ei.
+ *
+ * Codul e NOMINAL, nu al asociației: dacă omul pleacă, i se revocă codul lui, fără să
+ * se blocheze asociația; iar în jurnal se vede cine anume a depus fiecare dosar, nu
+ * doar „cineva de la asociație". Fișa poartă și asociația (nume + slug) — pe slug se
+ * leagă dosarele, ca doi chinotehniști ai aceleiași asociații să-și vadă unul altuia
+ * depunerile: spațiul e al asociației, nu al persoanei.
+ */
+export async function chinotehnistDinCod(cod) {
+  const c = taie(cod, 60);
+  if (!c) return null;
+  try {
+    const x = await store().get("chinotehnist/" + sha256(c), { type: "json" });
+    return x ? { ...x, id: sha256(c) } : null;
+  } catch (err) {
+    console.error("Căutare chinotehnist eșuată:", err);
+    return null;
+  }
+}
+
+/** Slugul asociației: pe el se leagă dosarele. Fără diacritice, fără spații. */
+export function slugAsociatie(nume) {
+  return String(nume || "")
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+}
+
 /** Marchează intrarea, fără să blocheze autentificarea dacă scrierea eșuează. */
 async function marcheazaIntrarea(cheie, brut) {
   try {
@@ -161,7 +191,7 @@ export async function curataMagazia() {
   };
   const FELURI = ["pedigree-mascul", "pedigree-femela", "drept-monta", "plata", "confirmare-alternativa"];
 
-  for (const prefix of ["membru/", "registrator/"]) {
+  for (const prefix of ["membru/", "registrator/", "chinotehnist/"]) {
     try {
       const { blobs } = await s.list({ prefix });
       for (const b of blobs) {
@@ -366,6 +396,18 @@ export default cuLimitareCod(async (req) => {
       });
     }
 
+    // Chinotehnistul asociației afiliate: intră ca membrul (fără a doua cheie — depune
+    // dosare, nu emite acte), dar destinația lui e spațiul asociației.
+    const k = await chinotehnistDinCod(cod);
+    if (k) {
+      await marcheazaIntrarea("chinotehnist/" + k.id, k);
+      return json({
+        rol: "chinotehnist", id: k.id, nume: k.nume,
+        asociatie: k.asociatie || "", asociatieSlug: k.asociatieSlug || "",
+        dest: "/registru/afiliate/",
+      });
+    }
+
     const r = await registratorDinCod(cod);
     if (r) {
       const emailLui = taie(r.email, 200);
@@ -541,7 +583,8 @@ export default cuLimitareCod(async (req) => {
 
     const m = await membruDinCod(codNou);
     const r = m ? null : await registratorDinCod(codNou);
-    const cine = m || r;
+    const k = m || r ? null : await chinotehnistDinCod(codNou);
+    const cine = m || r || k;
     if (!cine) return json({ eroare: "Codul nu aparține niciunei fișe din registru." }, 404);
 
     const catre = taie(cine.email, 200);
@@ -550,18 +593,24 @@ export default cuLimitareCod(async (req) => {
     }
 
     const eMembru = !!m;
+    const eChinotehnist = !!k;
+    const adresaSpatiului = eChinotehnist ? "cfc-royal.ro/registru/afiliate/" : "cfc-royal.ro/registru/";
     const corp =
       `<p style="font-size:15px">Bună ziua, <strong>${escapeHtml(cine.nume)}</strong>!</p>` +
       `<p style="font-size:15px">Ați primit acces la Registrul genealogic al Asociației ` +
       `Club Federal Chinologic – Royal.</p>` +
       `<table style="border-collapse:collapse;font-size:15px;margin:18px 0">` +
       `<tr><td style="padding:4px 14px 4px 0;color:#666">Adresa</td>` +
-      `<td><a href="https://cfc-royal.ro/registru/">cfc-royal.ro/registru/</a></td></tr>` +
+      `<td><a href="https://${adresaSpatiului}">${adresaSpatiului}</a></td></tr>` +
       `<tr><td style="padding:4px 14px 4px 0;color:#666">Codul dumneavoastră</td>` +
       `<td style="font-family:monospace;font-size:19px;font-weight:700;letter-spacing:0.06em;` +
       `color:#1F4D3A">${escapeHtml(codNou)}</td></tr>` +
       `</table>` +
-      (eMembru
+      (eChinotehnist
+        ? `<p style="font-size:15px">Cu el depuneți <strong>Declarațiile de Montă și Fătare</strong> ` +
+          `pentru crescătorii asociației <strong>${escapeHtml(cine.asociatie || "")}</strong>, ` +
+          `primiți numărul de înregistrare pe loc și urmăriți stadiul dosarelor asociației.</p>`
+        : eMembru
         ? `<p style="font-size:15px">Cu el depuneți <strong>Declarația de Montă și Fătare</strong> ` +
           `direct din cont, primiți numărul de înregistrare pe loc, urmăriți stadiul dosarului ` +
           `și solicitați Certificatele de Origine pentru pui.</p>` +
@@ -592,7 +641,7 @@ export default cuLimitareCod(async (req) => {
       fapta: "cod-trimis",
       actor: { rol: eu.rol, nume: eu.nume },
       obiect: cine.nume,
-      detalii: `Cod de ${eMembru ? "membru" : "registratură"} trimis la ${catre}`,
+      detalii: `Cod de ${eMembru ? "membru" : eChinotehnist ? "chinotehnist" : "registratură"} trimis la ${catre}`,
       ip: ipCerere(req),
     });
     return json({ ok: true, catre: mascheaza(catre) });
@@ -722,6 +771,76 @@ export default cuLimitareCod(async (req) => {
       ip: ipCerere(req),
     });
     return json({ ok: true, solicitareInchisa: !!inchisa, registrator: { ...registrator, cod: nou.cod, id: nou.id } });
+  }
+
+  // —— Chinotehniștii asociațiilor afiliate ——
+  //
+  // Toate cele trei acțiuni sunt ALE ADMINISTRATORULUI, prin regula implicită a
+  // tabelului de drepturi: o acțiune neenumerată e închisă pentru registratură.
+  // Codurile le generează cine răspunde de relația cu Membrii Colectivi.
+  if (actiune === "chinotehnisti") {
+    const lista = [];
+    try {
+      const { blobs } = await store().list({ prefix: "chinotehnist/" });
+      for (const b of blobs) {
+        const x = await store().get(b.key, { type: "json" });
+        if (x) lista.push({ ...x, id: b.key.slice("chinotehnist/".length) });
+      }
+    } catch (err) { console.error("Listare chinotehniști eșuată:", err); }
+    lista.sort((a, b) =>
+      String(a.asociatie || "").localeCompare(String(b.asociatie || ""), "ro") ||
+      String(a.nume || "").localeCompare(String(b.nume || ""), "ro"));
+    return json({ chinotehnisti: lista });
+  }
+
+  if (actiune === "chinotehnist-adauga") {
+    const nume = taie(body.nume, 120);
+    const email = taie(body.email, 200).toLowerCase();
+    const asociatie = taie(body.asociatie, 160);
+    if (nume.length < 3) return json({ eroare: "Scrie numele chinotehnistului." }, 400);
+    if (asociatie.length < 3) return json({ eroare: "Scrie numele asociației afiliate." }, 400);
+    // E-mailul e obligatoriu: pe el pleacă numărul de înregistrare al fiecărei declarații
+    // depuse, la fel ca la membri.
+    if (!EMAIL_RE.test(email)) return json({ eroare: "Scrie o adresă de e-mail validă." }, 400);
+    const asociatieSlug = slugAsociatie(asociatie);
+    if (!asociatieSlug) return json({ eroare: "Numele asociației nu poate fi transformat în identificator." }, 400);
+
+    const nou = await codUnic("CHT-", "chinotehnist/");
+    if (!nou) return json({ eroare: "Nu am putut genera un cod unic. Reîncearcă." }, 500);
+    // Ca la membri: fișa NU conține codul — cheia e amprenta lui. Codul pleacă o
+    // singură dată, în răspunsul acesta.
+    const chinotehnist = { nume, email, asociatie, asociatieSlug, creat: new Date().toISOString() };
+    await store().setJSON("chinotehnist/" + nou.id, chinotehnist);
+    await jurnalizeaza(store(), {
+      fapta: "cod-generat",
+      actor: { rol: eu.rol, nume: eu.nume },
+      obiect: nume,
+      detalii: `Acces de CHINOTEHNIST pentru ${email}, asociația ${asociatie} (${asociatieSlug})`,
+      ip: ipCerere(req),
+    });
+    return json({ ok: true, chinotehnist: { ...chinotehnist, cod: nou.cod, id: nou.id } });
+  }
+
+  if (actiune === "chinotehnist-sterge") {
+    const id = taie(body.id, 128);
+    if (!id) return json({ eroare: "Lipsește persoana." }, 400);
+    const x = await store().get("chinotehnist/" + id, { type: "json" }).catch(() => null);
+    if (!x) return json({ eroare: "Chinotehnist inexistent." }, 404);
+    // Jurnalul întâi, ștergerea pe urmă — o revocare neconsemnată nu se face.
+    try {
+      await jurnalizeazaObligatoriu(store(), {
+        fapta: "cod-sters",
+        actor: { rol: eu.rol, nume: eu.nume },
+        obiect: x.nume,
+        detalii: `Acces de chinotehnist revocat (asociația ${x.asociatie || "?"}). Dosarele depuse rămân.`,
+        ip: ipCerere(req),
+      });
+    } catch (err) {
+      console.error("Jurnalul nu a putut fi scris; revocarea a fost oprită:", err);
+      return json({ eroare: "Nu am putut consemna revocarea în jurnal, deci nu am revocat." }, 503);
+    }
+    await store().delete("chinotehnist/" + id).catch((err) => console.error(err));
+    return json({ ok: true });
   }
 
   // —— Solicitările de acces, pentru administrator ——

@@ -33,5 +33,27 @@ await t("trimitere cod fara drept de administrator", { actiune: "trimite-cod", c
     "destinatarul e-mailului NU se ia din corpul cererii");
 }
 
+console.log("— chinotehnistii asociatiilor afiliate —");
+await t("listare chinotehnisti fara cod", { actiune: "chinotehnisti" }, 401);
+await t("adaugare chinotehnist fara cod", { actiune: "chinotehnist-adauga", nume: "Ion Pop", asociatie: "Asociatia X", email: "a@b.ro" }, 401);
+await t("revocare chinotehnist fara cod", { actiune: "chinotehnist-sterge", id: "x" }, 401);
+
+// Slugul asociatiei: pe el se leaga dosarele — diacriticele si spatiile trebuie sa
+// dispara la fel de fiecare data, altfel aceeasi asociatie ar avea doua spatii.
+{
+  const { slugAsociatie } = await import("../registru-acces.mjs");
+  const cazuri = [
+    ["Asociația Chinologică Profesională CARPAȚII", "asociatia-chinologica-profesionala-carpatii"],
+    ["  Strajerii   Munților  ", "strajerii-muntilor"],
+    ["", ""],
+  ];
+  for (const [intrare, astept] of cazuri) {
+    const gasit = slugAsociatie(intrare);
+    const bun = gasit === astept;
+    if (!bun) rau++;
+    console.log((bun ? "  ok  " : "  RAU ") + "slug(" + JSON.stringify(intrare) + ") -> " + JSON.stringify(gasit));
+  }
+}
+
 console.log(rau ? rau + " cazute" : "toate trecute");
 process.exit(rau ? 1 : 0);
