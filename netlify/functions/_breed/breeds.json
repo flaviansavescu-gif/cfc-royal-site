@@ -43927,6 +43927,180 @@
    "revision_history": [],
    "id": "breed-525",
    "wdf_code": ""
+  },
+  {
+   "breed_name": "Volkodav",
+   "alternate_names": [
+    "Volkodav (câine de pază de tip asiatic)"
+   ],
+   "group": "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs",
+   "country_of_origin": "Central Asia",
+   "wdf_status": "not_recognized",
+   "coat_type": "short",
+   "functional_type": "guard",
+   "source_standard_title": "",
+   "source_standard_url": "",
+   "last_updated": "2026-08-14",
+   "identity": {
+    "official_name": "Volkodav",
+    "owner_country": "Central Asia",
+    "historical_function": "Paza turmelor și a proprietății împotriva prădătorilor mari, inclusiv a lupilor.",
+    "general_impression": "Denumire tradițională rusă (volkodav = zdrobitor de lupi) pentru câinii de pază a turmelor de tip molosoid din spațiul central-asiatic, înrudiți cu Ciobănescul de Asia Centrală. De mare talie, cu osatură masivă și instinct de pază pronunțat.",
+    "important_proportions": "",
+    "sexual_dimorphism": "",
+    "ideal_type_summary": "",
+    "historical_summary": "",
+    "classification": "",
+    "standard_published": "",
+    "country_of_development": ""
+   },
+   "anatomy": {
+    "head": "",
+    "skull": "",
+    "stop": "",
+    "muzzle": "",
+    "jaws_teeth": "",
+    "eyes": "",
+    "ears": "",
+    "neck": "",
+    "topline": "",
+    "body": "",
+    "chest": "",
+    "tail": "",
+    "forequarters": "",
+    "hindquarters": "",
+    "feet": "",
+    "movement": "",
+    "coat": "",
+    "color": "",
+    "size": "",
+    "skin": ""
+   },
+   "temperament": {
+    "behavior": "",
+    "ring_attitude": "",
+    "expression": "",
+    "temperament_notes": ""
+   },
+   "faults": {
+    "minor": [],
+    "serious": [],
+    "disqualifying": []
+   },
+   "pedagogy": {
+    "frequent_confusions": [],
+    "key_markers": [],
+    "judge_notes": [],
+    "teaching_notes": [],
+    "similar_breeds": []
+   },
+   "judge_checklist": {
+    "first_impression": [],
+    "static_exam": [],
+    "movement_exam": [],
+    "final_attention_points": []
+   },
+   "references": [],
+   "internal_notes": "Adăugată la cererea asociației (14.08.2026) pentru înscrieri. ATENȚIE la încadrare: exemplarele cu acte de Central Asian Shepherd Dog / Alabai (G02-051, G02-066) se înscriu la rasa lor WDF; fișa aceasta e pentru câinii înregistrați ca Volkodav. De completat de un lector.",
+   "difficulty_level": "",
+   "exam_relevance": "",
+   "teaching_priority": "",
+   "revision_status": "draft",
+   "source_verification_status": "unverified",
+   "thematic_tags": [],
+   "study_track_tags": [],
+   "recurring_judge_observations": [],
+   "version": 1,
+   "revision_history": [],
+   "id": "breed-526",
+   "wdf_code": ""
+  },
+  {
+   "breed_name": "Moscow Watchdog (Moskovskaya Storozhevaya)",
+   "alternate_names": [
+    "Păzitorul Moscovei"
+   ],
+   "group": "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs",
+   "country_of_origin": "Russia",
+   "wdf_status": "not_recognized",
+   "coat_type": "long",
+   "functional_type": "guard",
+   "source_standard_title": "",
+   "source_standard_url": "",
+   "last_updated": "2026-08-14",
+   "identity": {
+    "official_name": "Moscow Watchdog (Moskovskaya Storozhevaya)",
+    "owner_country": "Russia",
+    "historical_function": "Câine de pază a proprietății, dezvoltat pentru vigilența caucazianului și talia saint-bernardului.",
+    "general_impression": "Rasă rusă de mare talie creată după 1945 la canisa Krasnaia Zvezda din încrucișarea Saint Bernard cu Ciobănescul Caucazian; robă semilungă alb-roșcată, construcție masivă, temperament de pază echilibrat.",
+    "important_proportions": "",
+    "sexual_dimorphism": "",
+    "ideal_type_summary": "",
+    "historical_summary": "",
+    "classification": "",
+    "standard_published": "",
+    "country_of_development": ""
+   },
+   "anatomy": {
+    "head": "",
+    "skull": "",
+    "stop": "",
+    "muzzle": "",
+    "jaws_teeth": "",
+    "eyes": "",
+    "ears": "",
+    "neck": "",
+    "topline": "",
+    "body": "",
+    "chest": "",
+    "tail": "",
+    "forequarters": "",
+    "hindquarters": "",
+    "feet": "",
+    "movement": "",
+    "coat": "",
+    "color": "",
+    "size": "",
+    "skin": ""
+   },
+   "temperament": {
+    "behavior": "",
+    "ring_attitude": "",
+    "expression": "",
+    "temperament_notes": ""
+   },
+   "faults": {
+    "minor": [],
+    "serious": [],
+    "disqualifying": []
+   },
+   "pedagogy": {
+    "frequent_confusions": [],
+    "key_markers": [],
+    "judge_notes": [],
+    "teaching_notes": [],
+    "similar_breeds": []
+   },
+   "judge_checklist": {
+    "first_impression": [],
+    "static_exam": [],
+    "movement_exam": [],
+    "final_attention_points": []
+   },
+   "references": [],
+   "internal_notes": "Adăugată la cererea asociației (14.08.2026) pentru înscrieri; rasă fără standard WDF — fișă de completat de un lector.",
+   "difficulty_level": "",
+   "exam_relevance": "",
+   "teaching_priority": "",
+   "revision_status": "draft",
+   "source_verification_status": "unverified",
+   "thematic_tags": [],
+   "study_track_tags": [],
+   "recurring_judge_observations": [],
+   "version": 1,
+   "revision_history": [],
+   "id": "breed-527",
+   "wdf_code": ""
   }
  ],
  "lessons": [
