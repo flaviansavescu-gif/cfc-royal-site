@@ -1,0 +1,89 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { SITE } from "../../data/site";
+const lang = "ro" as const;
+// Numărul registraturii pentru înscrierile asistate; adresa poștală e cea oficială
+// a asociației, din sursa unică (site.ts) — dacă se mută sediul, pagina se ține singură.
+const TELEFON = "0755 330 404";
+const ADRESA_POSTALA = SITE.contact.address.ro;
+---
+<BaseLayout
+  title="Înscriere fără internet"
+  lang={lang}
+  description="Cum înscrii un câine la expozițiile CFC-Royal dacă nu ai calculator sau adresă de e-mail: prin telefon, pe hârtie sau personal."
+>
+  <div class="container fni">
+    <h1>Înscriere fără internet</h1>
+    <p class="fni__intro">
+      Nu ai calculator sau adresă de e-mail? Câinele tău poate fi înscris la fel de bine.
+      Registratura asociației introduce înscrierea în sistem <b>în numele tău</b> — tu alegi
+      doar calea care îți e la îndemână.
+    </p>
+
+    <section class="fni__cale">
+      <h2>1 · Prin telefon — cel mai simplu</h2>
+      <p>
+        Sună la registratură{TELEFON ? <>, la <b class="fni__tel">{TELEFON}</b>,</> : <span> (numărul se anunță în curând)</span>}
+        cu actele câinelui în față: pedigree-ul (dacă are), numărul de microcip, data nașterii.
+        Registratorul completează formularul împreună cu tine, la telefon — durează câteva minute.
+      </p>
+    </section>
+
+    <section class="fni__cale">
+      <h2>2 · Pe hârtie</h2>
+      <p>
+        Descarcă și tipărește formularul, sau cere-l tipărit de la asociația ta:
+      </p>
+      <p>
+        <a class="btn btn--primary" href="/documente/formulare/inscriere-expozitie-pe-hartie.pdf" download>
+          Descarcă formularul de înscriere (PDF, 2 pagini)
+        </a>
+      </p>
+      <p>
+        Completează-l cu pixul, semnează-l și trimite-l împreună cu dovada plății:
+      </p>
+      <ul>
+        <li><b>fotografiat, pe WhatsApp</b>{TELEFON ? <> la <b class="fni__tel">{TELEFON}</b></> : <span> (numărul se anunță în curând)</span>} — poate trimite oricine din familie;</li>
+        <li><b>prin poștă</b>{ADRESA_POSTALA ? <>, la adresa: {ADRESA_POSTALA}</> : <span> (adresa se anunță în curând)</span>} — cu cel puțin o săptămână înainte de termenul de închidere;</li>
+        <li><b>predat personal</b> la asociația membră de care aparții.</li>
+      </ul>
+    </section>
+
+    <section class="fni__cale">
+      <h2>Plata taxei</h2>
+      <p>
+        Taxa se plătește <b>înainte</b> de înscriere, la ghișeul oricărei bănci sau prin mandat
+        poștal, în contul organizatorului anunțat pentru expoziție — îl afli telefonic de la
+        registratură sau de pe pagina de înscriere. La detaliile plății scrie numele câinelui,
+        iar chitanța de la ghișeu este dovada plății.
+      </p>
+    </section>
+
+    <section class="fni__cale">
+      <h2>Cum primești confirmarea</h2>
+      <p>
+        În locul e-mailului, <b>registratura te sună</b>: o dată după ce înscrierea a fost
+        verificată și validată, și încă o dată la închiderea catalogului, ca să îți spună
+        numărul de concurs. De aceea numărul tău de telefon e obligatoriu pe formular.
+      </p>
+      <p class="fni__gdpr">
+        Datele tale și ale câinelui sunt folosite exclusiv pentru organizarea expoziției,
+        la fel ca la înscrierea online — vezi <a href="/ro/juridic/confidentialitate/">politica de confidențialitate</a>.
+      </p>
+    </section>
+
+    <p class="fni__inapoi">
+      Ai totuși acces la internet? <a href="/ro/inscriere-expozitie/">Formularul online</a> rămâne calea cea mai rapidă.
+    </p>
+  </div>
+</BaseLayout>
+
+<style>
+  .fni { padding-block: 3rem; max-width: 46rem; }
+  .fni__intro { font-size: 1.1rem; }
+  .fni__cale { margin-block: 2rem; }
+  .fni__cale h2 { color: var(--color-primary); margin-bottom: 0.5rem; }
+  .fni__tel { font-size: 1.15em; white-space: nowrap; }
+  .fni__gdpr { font-size: 0.9rem; color: var(--color-muted, #6b6b62); }
+  .fni__inapoi { margin-top: 2.5rem; border-top: 1px solid var(--color-border); padding-top: 1rem; }
+</style>

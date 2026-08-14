@@ -1,0 +1,38 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+const lang = "en" as const;
+const TELEFON = "0755 330 404";
+---
+<BaseLayout
+  title="Entry without internet"
+  lang={lang}
+  description="How to enter a dog in CFC-Royal shows without a computer or e-mail address: by phone, on paper or in person."
+>
+  <div class="container fni">
+    <h1>Entry without internet</h1>
+    <p>
+      No computer or e-mail address? The association registry can enter your dog <b>on your
+      behalf</b>: call the registry{TELEFON ? <> at <b>{TELEFON}</b></> : <span> (phone number to be announced)</span>}
+      with the dog's papers at hand, or download the paper form, fill it in, sign it and send a
+      photo of it via WhatsApp, by post, or hand it in at your member club, together with proof
+      of payment.
+    </p>
+    <p>
+      <a class="btn btn--primary" href="/documente/formulare/inscriere-expozitie-pe-hartie.pdf" download>
+        Download the paper entry form (PDF, in Romanian)
+      </a>
+    </p>
+    <p>
+      The fee is paid in advance at any bank counter or by postal order to the organiser's
+      account announced for the show. Instead of e-mail confirmations, the registry calls you
+      by phone — once after validation and once with your catalogue number.
+    </p>
+    <p>
+      Have internet access after all? The <a href="/en/inscriere-expozitie/">online form</a> is the fastest way.
+    </p>
+  </div>
+</BaseLayout>
+
+<style>
+  .fni { padding-block: 3rem; max-width: 46rem; }
+</style>

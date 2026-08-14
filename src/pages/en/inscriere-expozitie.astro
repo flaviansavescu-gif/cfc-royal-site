@@ -5,6 +5,21 @@ const lang = "en" as const;
 ---
 <BaseLayout title="Show entry" lang={lang} description="Enter a dog online in a show of Club Federal Chinologic – Royal (WDF).">
   <div class="container" style="padding-block: 3rem;">
+    <p class="fara-net">
+      No computer or e-mail? <a href="/en/inscriere-fara-internet/">Enter your dog by phone or on paper</a> — the registry fills it in for you.
+    </p>
     <InscriereExpo lang={lang} />
   </div>
 </BaseLayout>
+
+<style>
+  .fara-net {
+    background: #f5f1e6;
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    max-width: 52rem;
+  }
+</style>
