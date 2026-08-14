@@ -21,7 +21,7 @@
 import { getStore } from "@netlify/blobs";
 import { actorDinCod } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
-import { membruDinCod, registratorDinCod } from "./registru-acces.mjs";
+import { membruDinCod, registratorDinCod, chinotehnistDinCod } from "./registru-acces.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
 import { jurnalizeazaObligatoriu, actorJurnal, ipCerere } from "./_comun/registru-jurnal.mjs";
 import { recomandareDin, insignaTest, numeTest } from "./_comun/teste-sanatate.mjs";
@@ -94,8 +94,17 @@ async function cine(cod) {
   if (m) return { rol: "membru", membru: m };
   const r = await registratorDinCod(cod);
   if (r) return { rol: "registratura", registrator: r };
+  // Chinotehnistul publică anunțuri pentru cuiburile depuse prin asociația lui —
+  // crescătorii afiliați nu au cod propriu, dar cuiburile lor sunt la fel de reale.
+  const k = await chinotehnistDinCod(cod);
+  if (k) return { rol: "chinotehnist", chinotehnist: k };
   return null;
 }
+
+/** Unde stă rezumatul anunțului pentru lista depunătorului: a membrului sau a asociației. */
+const cheiaListei = (a) => a.depunere?.asociatieSlug
+  ? "anunt-cuib-afiliat/" + a.depunere.asociatieSlug + "/" + a.id
+  : cheiaMembru(a.membruId, a.id);
 
 export const expirat = (a, acum = Date.now()) => {
   const t = Date.parse(a?.expiraLa || "");
@@ -189,20 +198,30 @@ export default cuLimitareCod(async (req) => {
 
   // —— Crescătorul depune un anunț, legat de un DMF real al lui. ——
   if (actiune === "depune") {
-    if (eu.rol !== "membru") return json({ eroare: "Doar crescătorii publică anunțuri de cuiburi." }, 403);
-    if (!eu.membru.cotizatieLaZi)
+    if (eu.rol !== "membru" && eu.rol !== "chinotehnist")
+      return json({ eroare: "Doar crescătorii și chinotehniștii publică anunțuri de cuiburi." }, 403);
+    // Cotizația e a membrilor direcți; crescătorul afiliat plătește taxa DMF pe dosar.
+    if (eu.rol === "membru" && !eu.membru.cotizatieLaZi)
       return json({ eroare: "Cotizația nu e la zi. Anunțurile de cuiburi sunt pentru membrii cu cotizația achitată." }, 403);
+    const eAfil = eu.rol === "chinotehnist";
 
     const dmfId = taie(body.dmfId, 60);
     if (!dmfId) return json({ eroare: "Alege cuibul (declarația de montă și fătare)." }, 400);
     const d = await s.get("dmf/" + dmfId, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Declarația nu există." }, 404);
-    if (d.membruId !== eu.membru.id) return json({ eroare: "Poți publica doar cuiburile tale." }, 403);
+    const alMeuCuib = eAfil
+      ? d.depunere?.asociatieSlug === eu.chinotehnist.asociatieSlug
+      : d.membruId === eu.membru.id;
+    if (!alMeuCuib) return json({ eroare: "Poți publica doar cuiburile tale." }, 403);
     if (d.stare === "respins") return json({ eroare: "Cuibul acestei declarații a fost respins — nu poate fi publicat." }, 409);
 
     // Un singur anunț activ per cuib: nu împânzim pagina cu același cuib de mai multe ori.
     try {
-      const { blobs } = await s.list({ prefix: "anunt-cuib-membru/" + eu.membru.id + "/" });
+      const { blobs } = await s.list({
+        prefix: eAfil
+          ? "anunt-cuib-afiliat/" + eu.chinotehnist.asociatieSlug + "/"
+          : "anunt-cuib-membru/" + eu.membru.id + "/",
+      });
       for (const b of blobs) {
         const r = await s.get(b.key, { type: "json" }).catch(() => null);
         if (!r || r.dmfSerie !== d.serie) continue;
@@ -212,7 +231,9 @@ export default cuLimitareCod(async (req) => {
       }
     } catch { /* dacă listarea eșuează, lăsăm depunerea — dublura se prinde la aprobare */ }
 
-    const v = valideazaAnunt(body, eu.membru.nume || "");
+    // Numele prestabilit de contact e al CRESCĂTORULUI: la membru e chiar el, la
+    // depunerea prin asociație e cel de pe dosar (chinotehnistul poate scrie altul).
+    const v = valideazaAnunt(body, (eAfil ? d.membruNume : eu.membru.nume) || "");
     if (v.eroare) return json({ eroare: v.eroare }, 400);
     const { disponibiliM, disponibiliF, nota, contactNume, contactTelefon, contactEmail } = v;
 
@@ -221,9 +242,17 @@ export default cuLimitareCod(async (req) => {
     const anunt = {
       id, creat: acum,
       dmfId, dmfSerie: d.serie,
-      membruId: eu.membru.id, membruNume: eu.membru.nume || "",
+      membruId: eAfil ? null : eu.membru.id,
+      membruNume: (eAfil ? d.membruNume : eu.membru.nume) || "",
+      ...(eAfil
+        ? { depunere: {
+            asociatie: eu.chinotehnist.asociatie || "",
+            asociatieSlug: eu.chinotehnist.asociatieSlug || "",
+            chinotehnistNume: eu.chinotehnist.nume || "",
+          } }
+        : {}),
       rasa: d.rasa || "", varietate: d.varietate || "",
-      afix: d.afix || eu.membru.afix || "", nrAfix: d.nrAfix || eu.membru.nrAfix || "",
+      afix: d.afix || (eAfil ? "" : eu.membru.afix) || "", nrAfix: d.nrAfix || (eAfil ? "" : eu.membru.nrAfix) || "",
       dataFatarii: d.dataFatarii || "",
       tata: { nume: d.mascul?.nume || "", microcip: normCip(d.mascul?.microcip) },
       mama: { nume: d.femela?.nume || "", microcip: normCip(d.femela?.microcip) },
@@ -237,16 +266,20 @@ export default cuLimitareCod(async (req) => {
       detalii: `${d.rasa} — ${disponibiliM}M/${disponibiliF}F disponibili`, ip: ipCerere(req),
     });
     await s.setJSON(cheiaAnunt(id), anunt);
-    await s.setJSON(cheiaMembru(eu.membru.id, id), rezumatMembru(anunt));
+    await s.setJSON(cheiaListei(anunt), rezumatMembru(anunt));
     return json({ ok: true, id });
   }
 
   // —— Crescătorul: anunțurile lui. ——
   if (actiune === "mele") {
-    if (eu.rol !== "membru") return json({ eroare: "Nepermis." }, 403);
+    if (eu.rol !== "membru" && eu.rol !== "chinotehnist") return json({ eroare: "Nepermis." }, 403);
     const lista = [];
     try {
-      const { blobs } = await s.list({ prefix: "anunt-cuib-membru/" + eu.membru.id + "/" });
+      const { blobs } = await s.list({
+        prefix: eu.rol === "chinotehnist"
+          ? "anunt-cuib-afiliat/" + eu.chinotehnist.asociatieSlug + "/"
+          : "anunt-cuib-membru/" + eu.membru.id + "/",
+      });
       for (const b of blobs) {
         const r = await s.get(b.key, { type: "json" }).catch(() => null);
         if (r) lista.push(r);
@@ -258,11 +291,14 @@ export default cuLimitareCod(async (req) => {
 
   // —— Crescătorul retrage un anunț al lui. ——
   if (actiune === "retrage") {
-    if (eu.rol !== "membru") return json({ eroare: "Nepermis." }, 403);
+    if (eu.rol !== "membru" && eu.rol !== "chinotehnist") return json({ eroare: "Nepermis." }, 403);
     const id = taie(body.id, 60);
     const a = await s.get(cheiaAnunt(id), { type: "json" }).catch(() => null);
     if (!a) return json({ eroare: "Anunț inexistent." }, 404);
-    if (a.membruId !== eu.membru.id) return json({ eroare: "Nu e anunțul tău." }, 403);
+    const alMeuAnunt = eu.rol === "membru"
+      ? a.membruId === eu.membru.id
+      : a.depunere?.asociatieSlug === eu.chinotehnist.asociatieSlug;
+    if (!alMeuAnunt) return json({ eroare: "Nu e anunțul tău." }, 403);
     if (a.stare === "retras") return json({ ok: true });
     await jurnalizeazaObligatoriu(s, {
       fapta: "anunt-cuib-retras", actor: actorJurnal(eu), obiect: a.dmfSerie,
@@ -270,7 +306,7 @@ export default cuLimitareCod(async (req) => {
     });
     a.stare = "retras"; a.retrasLa = new Date().toISOString();
     await s.setJSON(cheiaAnunt(id), a);
-    await s.setJSON(cheiaMembru(eu.membru.id, id), rezumatMembru(a));
+    await s.setJSON(cheiaListei(a), rezumatMembru(a));
     await s.delete(CHEIE_INDEX).catch(() => {});     // reconstrucție la următoarea citire
     return json({ ok: true });
   }
@@ -321,7 +357,7 @@ export default cuLimitareCod(async (req) => {
       a.expiraLa = new Date(acum.getTime() + ZILE_VALABIL * 86400e3).toISOString();
     }
     await s.setJSON(cheiaAnunt(id), a);
-    await s.setJSON(cheiaMembru(a.membruId, id), rezumatMembru(a));
+    await s.setJSON(cheiaListei(a), rezumatMembru(a));
     await s.delete(CHEIE_INDEX).catch(() => {});     // publicul vede schimbarea la reconstrucție
     return json({ ok: true });
   }

@@ -32,7 +32,7 @@ import { getStore } from "@netlify/blobs";
 import QRCode from "qrcode";
 import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
-import { membruDinCod, registratorDinCod } from "./registru-acces.mjs";
+import { membruDinCod, registratorDinCod, chinotehnistDinCod } from "./registru-acces.mjs";
 import {
   jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, ipCerere,
 } from "./_comun/registru-jurnal.mjs";
@@ -155,10 +155,20 @@ async function cine(cod) {
   if (r) return { rol: "registratura", registrator: r };
   const m = await membruDinCod(cod);
   if (m) return { rol: "membru", membru: m };
+  // Chinotehnistul vede certificatele CUIBURILOR DEPUSE PRIN ASOCIAȚIA LUI — ca să le
+  // poată tipări pentru crescători. Fără branșa asta, codul CHT- ar fi „cod greșit"
+  // aici și ar fi numărat de limitator ca încercare de spargere.
+  const k = await chinotehnistDinCod(cod);
+  if (k) return { rol: "chinotehnist", chinotehnist: k };
   return null;
 }
 
 const potVerifica = (eu) => eu.rol === "registratura" || eu.rol === "admin";
+
+/** Dosarul e „al meu" pentru crescătorul lui direct SAU pentru asociația prin care a fost depus. */
+const dosarAlMeu = (d, eu) =>
+  (eu.rol === "membru" && d && d.membruId === eu.membru.id) ||
+  (eu.rol === "chinotehnist" && d && d.depunere?.asociatieSlug === eu.chinotehnist.asociatieSlug);
 
 /** Motivul cel mai scurt acceptat la anulare. „Fals" nu e un motiv, e o etichetă. */
 export const MOTIV_MINIM = 10;
@@ -651,10 +661,9 @@ export default cuLimitareCod(async (req) => {
     const c = await s.get("pedigree/" + serie, { type: "json" }).catch(() => null);
     if (!c) return json({ eroare: "Certificat inexistent." }, 404);
     if (!potVerifica(eu)) {
-      // Crescătorul își vede propriile certificate, nimic altceva.
+      // Crescătorul (sau asociația prin care s-a depus) își vede propriile certificate.
       const d = await s.get("dmf/" + c.dmfId, { type: "json" }).catch(() => null);
-      const alMeu = eu.rol === "membru" && d && d.membruId === eu.membru.id;
-      if (!alMeu) return json({ eroare: "Nepermis." }, 403);
+      if (!dosarAlMeu(d, eu)) return json({ eroare: "Nepermis." }, 403);
     }
     // Codul QR se face pe server: pagina de tipărire rămâne fără dependențe, iar
     // imaginea e gata înainte ca omul să apese Ctrl+P.
@@ -677,8 +686,7 @@ export default cuLimitareCod(async (req) => {
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
     if (!potVerifica(eu)) {
-      const alMeu = eu.rol === "membru" && d.membruId === eu.membru.id;
-      if (!alMeu) return json({ eroare: "Nepermis." }, 403);
+      if (!dosarAlMeu(d, eu)) return json({ eroare: "Nepermis." }, 403);
     }
     const lista = [];
     try {

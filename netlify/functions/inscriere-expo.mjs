@@ -429,6 +429,16 @@ export default async (req) => {
   }
 
   const showId = String(body.showId || "");
+  // Capcana pentru roboți, cu perechea ei DE SERVER. Câmpul „website" e invizibil în
+  // pagină, deci un om nu-l completează niciodată; roboții umplu tot ce găsesc. Le
+  // răspundem cu un succes prefăcut — o eroare le-ar spune că au fost prinși și ar
+  // încerca altfel — și nu scriem nimic, nu trimitem niciun e-mail. Până azi, promisiunea
+  // asta exista doar în comentariul formularului: capcana se trimitea, dar serverul o
+  // ignora și înscrierea robotului intra în coadă.
+  if (String(body.website || "").trim()) {
+    return json({ ok: true, caini: Array.isArray(body.caini) ? body.caini.length : 1, total: 0 });
+  }
+
   const config = await store.get("config/" + showId, { type: "json" });
   if (!config) return json({ eroare: "Expoziție inexistentă." }, 404);
   if (inchisPentruInscrieri(config)) return json({ eroare: "Înscrierile pentru această expoziție nu mai sunt deschise." }, 400);
