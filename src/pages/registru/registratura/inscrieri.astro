@@ -32,6 +32,39 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     <span>Pentru căutarea exemplarului după numărul de pedigree sau microcip.</span>
   </p>
 
+  {/* Ghidul înscrierilor asistate stă chiar aici, unde se lucrează: registratorul nu
+      trebuie să caute un document tipărit ca să-și amintească regula adreselor. Se
+      descuie odată cu lista expozițiilor, ca restul uneltelor paginii. */}
+  <details class="i-audit" id="i-ghid" hidden>
+    <summary class="i-audit__sumar">📞 Ghidul înscrierilor asistate — pentru membrii fără calculator sau e-mail</summary>
+    <div class="i-ghid__corp">
+      <p>Omul dă datele <b>prin telefon (0755 330 404)</b>, pe <b>formularul de hârtie</b>
+        (foto pe WhatsApp, poștă sau predat personal) ori la sediu — iar registratura le
+        introduce în <a href="/ro/inscriere-expozitie/" target="_blank" rel="noopener">formularul online</a>,
+        în numele lui. Nu există circuit paralel: fișa intră în aceeași coadă și se
+        verifică tot aici.</p>
+
+      <p class="i-ghid__regula"><b>Regula de aur — adresa de e-mail.</b> Taxa „primul câine /
+        următorii" se socotește pe adresă, deci fiecare om fără e-mail primește adresa lui:
+        <code>contact+numedefamilie@cfc-royal.ro</code> (litere mici, fără diacritice; la doi
+        cu același nume: <code>contact+popescu.maria@</code>). Toate ajung în căsuța
+        contact@ — nu se creează nimic. <b>Niciodată</b> aceeași adresă la doi oameni
+        diferiți; la același om, la aceeași expoziție, se <b>refolosește</b> adresa lui.</p>
+
+      <ul class="i-ghid__pasi">
+        <li>La <b>telefon</b> treceți numărul real al omului — pe el se fac confirmările, în locul e-mailului.</li>
+        <li>Declarațiile de taxă (membru / primul câine / student) se bifează cum le declară omul — se verifică oricum aici, la validare.</li>
+        <li>Bifa „Am plătit" se pune <b>doar</b> dacă a plătit efectiv; dovada = fotografia chitanței de la ghișeu.</li>
+        <li>Normele + GDPR: pe hârtie le acoperă semnătura olografă (formularul se păstrează în dosarul expoziției); la telefon se citește rezumatul și se consemnează acordul verbal.</li>
+        <li>După trimitere: sunați omul că înscrierea a fost primită; îl mai sunați după validare și la închiderea catalogului, cu numărul de concurs.</li>
+        <li>Termenul e un <b>moment</b> precis — contează introducerea în sistem, nu ștampila poștei.</li>
+      </ul>
+
+      <p class="i-ghid__nota">Formularul tipăribil: <a href="/documente/formulare/inscriere-expozitie-pe-hartie.pdf" target="_blank" rel="noopener">PDF pe site</a> ·
+        instrucțiunile publice: <a href="/ro/inscriere-fara-internet/" target="_blank" rel="noopener">/ro/inscriere-fara-internet/</a></p>
+    </div>
+  </details>
+
   <label class="i-alege">
     <span>Expoziția</span>
     <select id="i-expo"><option value="">Se încarcă…</option></select>
@@ -94,6 +127,9 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       const d = await res.json().catch(() => ({}));
       if (!res.ok) { expoSel.innerHTML = ""; expoSel.appendChild(el("option", null, d.eroare || "Eroare")); return; }
       const lst = d.expozitii || [];
+      // Codul a fost primit: uneltele paginii se descuie, inclusiv ghidul asistat.
+      const ghid = document.getElementById("i-ghid");
+      if (ghid) ghid.hidden = false;
       expoSel.textContent = "";
       if (!lst.length) { expoSel.appendChild(el("option", null, "Nicio expoziție cu înscrieri")); return; }
       lst.forEach((x) => {
@@ -443,6 +479,12 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   .i-audit__sumar::before { content: "▸ "; color: var(--color-accent-dark); }
   .i-audit[open] > .i-audit__sumar::before { content: "▾ "; }
   .i-audit__corp { padding: 0 1rem 1rem; }
+  .i-ghid__corp { padding: 0 1rem 1rem; font-size: 0.95rem; }
+  .i-ghid__corp code { background: #efebdd; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.9em; }
+  .i-ghid__regula { background: #f5f1e6; border-left: 4px solid var(--color-primary); padding: 0.6rem 0.9rem; border-radius: var(--radius); }
+  .i-ghid__pasi { padding-left: 1.2rem; }
+  .i-ghid__pasi li { margin-bottom: 0.35rem; }
+  .i-ghid__nota { color: #6b6b62; font-size: 0.9rem; }
   .i-audit__rezumat { margin: 0 0 0.5rem; font-size: 0.9rem; color: var(--color-text-muted); }
   .i-audit__h { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em;
     color: var(--color-accent-dark); margin: 1rem 0 0.35rem; }
