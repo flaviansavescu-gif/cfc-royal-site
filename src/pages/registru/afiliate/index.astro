@@ -28,6 +28,65 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     <a class="btn" href="/crescatori/cuiburi/" style="margin-left:.5rem">🐾 Anunțuri de cuiburi →</a>
   </div>
 
+  {/* Ghidul stă chiar aici, unde se lucrează — ca la registratură: chinotehnistul nu
+      trebuie să caute un document ca să-și amintească pașii sau regulile. */}
+  <details class="g-ghid">
+    <summary class="g-ghid__sumar">📖 Ghidul chinotehnistului — cum se depune și ce urmează</summary>
+    <div class="g-ghid__corp">
+      <p><b>Principiul.</b> Depui Declarațiile de Montă și Fătare <b>în numele crescătorilor
+        asociației tale</b>. Nu există un circuit separat: dosarul intră în aceeași coadă,
+        primește număr din același registru și e verificat de aceeași registratură ca al
+        membrilor direcți. Codul tău e <b>personal</b> — pe el se consemnează în jurnal
+        fiecare depunere.</p>
+
+      <p class="g-ghid__pas"><b>Înainte de depunere — ce aduni de la crescător:</b></p>
+      <ul class="g-ghid__lista">
+        <li><b>Declarația semnată</b> de crescător, pe hârtie — semnătura lui acoperă datele
+          declarate și prelucrarea lor; originalul rămâne în dosarul asociației, copia
+          (fotografie sau scan) se încarcă la depunere;</li>
+        <li>copiile <b>pedigree-urilor ambilor părinți</b>;</li>
+        <li><b>dovada dreptului de montă al femelei</b> (minimum un calificativ „Bun" —
+          fișa de arbitraj sau carnetul de performanță);</li>
+        <li><b>dovada plății taxei</b> — plătită de crescător <b>direct în contul
+          CFC-Royal</b>, la ghișeul băncii sau prin transfer; chitanța e piesă obligatorie;</li>
+        <li>telefonul crescătorului (obligatoriu) și e-mailul lui, dacă are.</li>
+      </ul>
+
+      <p class="g-ghid__pas"><b>Depunerea, pas cu pas:</b></p>
+      <ol class="g-ghid__lista">
+        <li>Apasă <b>Depune o declarație</b> — se deschide formularul cunoscut, cu un bloc în
+          plus: <b>Crescătorul pentru care depui</b> (nume + telefon obligatorii; pe telefon
+          se fac lămuririle registraturii, pe e-mail — dacă are — pleacă numărul de înregistrare;
+          altfel numărul vine pe adresa ta și i-l transmiți tu);</li>
+        <li>completează cuibul: rasa, datele montei și fătării, statistica puilor — rândurile
+          de pui apar singure din statistică;</li>
+        <li>afixul e <b>al crescătorului</b> — scrie-l cum apare pe declarația semnată, dacă are;</li>
+        <li>încarcă cele <b>patru piese</b> ale dosarului;</li>
+        <li>trimite — primești <b>numărul de înregistrare pe loc</b>; el dovedește depunerea
+          în termen. <b>Termenul de 90 de zile</b> de la fătare e un moment precis: peste el,
+          dosarul se marchează „peste termen" și decide registratura.</li>
+      </ol>
+
+      <p class="g-ghid__pas"><b>După depunere:</b></p>
+      <ul class="g-ghid__lista">
+        <li><b>proprietarul masculului</b> primește pe e-mail un link prin care confirmă monta
+          (ține locul semnăturii lui); cât timp n-a răspuns, poți retrimite cererea din listă
+          și poți corecta adresa <b>o singură dată</b>;</li>
+        <li>urmărește <b>starea dosarului</b> în lista de mai jos — o văd și colegii tăi:
+          spațiul e al asociației, cine e de serviciu poate răspunde crescătorilor;</li>
+        <li>după verificare, registratura atribuie numărul de cuib WDF și <b>emite
+          certificatele</b> — le poți deschide și tipări pentru crescător;</li>
+        <li>cu <b>🐾 Anunțuri de cuiburi</b> poți publica pe site cuibul disponibil: anunțul se
+          leagă de dosar, îl aprobă registratura, nu conține prețuri și expiră în 90 de zile —
+          contactul afișat e al crescătorului.</li>
+      </ul>
+
+      <p class="g-ghid__nota">Codul nu se împarte cu nimeni — dacă pleci din funcție sau îl
+        pierzi, administratorul îl revocă și emite altul. Formularul tipăribil al declarației
+        și lămuriri: registratura, contact@cfc-royal.ro.</p>
+    </div>
+  </details>
+
   <h2 class="c-h2">Declarațiile asociației</h2>
   <ul class="c-declaratii" id="a-declaratii"><li class="c-gol">Se încarcă…</li></ul>
 
@@ -191,4 +250,18 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     border-radius: 999px; padding: 0.2rem 0.7rem; }
   .c-ajutor { margin-top: 2rem; border-top: 1px solid var(--color-border); padding-top: 1rem; max-width: 44rem; }
   .c-ajutor p { font-size: 0.88rem; color: var(--color-text-muted); }
+  .g-ghid { margin: 1.75rem 0 0.5rem; max-width: 52rem;
+    border: 1px solid var(--color-accent); border-left-width: 4px; border-radius: var(--radius);
+    background: var(--color-surface-alt); }
+  .g-ghid__sumar { cursor: pointer; padding: 0.85rem 1.1rem; font-weight: 600; color: var(--color-primary);
+    list-style-position: inside; }
+  .g-ghid__sumar:hover { color: var(--color-accent-dark); }
+  .g-ghid__corp { padding: 0 1.3rem 1.1rem; border-top: 1px dashed var(--color-border); }
+  .g-ghid__corp p { font-size: 0.92rem; max-width: 46rem; }
+  .g-ghid__corp b { color: var(--color-primary-dark, var(--color-primary)); }
+  .g-ghid__pas { margin: 1.1rem 0 0.3rem; }
+  .g-ghid__lista { margin: 0.2rem 0 0.6rem; padding-left: 1.4rem; display: grid; gap: 0.35rem;
+    font-size: 0.92rem; max-width: 46rem; }
+  .g-ghid__nota { margin-top: 1rem; padding-top: 0.7rem; border-top: 1px dashed var(--color-border);
+    font-size: 0.85rem; color: var(--color-text-muted); }
 </style>
