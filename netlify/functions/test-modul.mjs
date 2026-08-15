@@ -12,6 +12,7 @@
 import { getStore } from "@netlify/blobs";
 import { rolLaIntrare, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { stareTermen, aplicaPenalizarea, formateazaTermen } from "./_comun/termen-test.mjs";
 
 const PRAG = 70; // procent minim de promovare
 
@@ -99,6 +100,25 @@ export default cuLimitareCod(async (req) => {
   const eu = await cine({ cod, store });
   if (!eu) return json({ eroare: "Intră în Școala de Arbitraj cu codul tău pentru a susține testul." }, 401);
 
+  // ——— TERMENUL DE SUSȚINERE ———
+  // Bariera stă AICI, la corectare — singurul loc prin care trece orice test — deci nu
+  // poate fi ocolită din pagină. După termen: refuz, fără corectare, fără salvare, fără
+  // e-mail. Într-o fereastră de reactivare: nota se reduce cu penalizarea ferestrei.
+  // Administratorul și lectorii previzualizează liber (rezultatele lor nu sunt candidaturi).
+  const eSupraveghetor = eu.rol === "admin" || eu.rol === "lector";
+  let penalizare = 0;
+  if (!eSupraveghetor) {
+    const termene = await store.get("termene-module", { type: "json" }).catch(() => null);
+    const t = stareTermen(termene && termene[modul]);
+    if (t.inchis)
+      return json({
+        eroare: "Testul acestui modul s-a închis la " + formateazaTermen(termene[modul].pana) +
+          ". Pentru o nouă perioadă de susținere, scrie secretariatului: contact@cfc-royal.ro.",
+        inchis: true,
+      }, 403);
+    penalizare = t.penalizare;
+  }
+
   // Identitatea candidatului: pentru un candidat cu cod individual, numele e cel din
   // registru (autoritativ, fără typo) și progresul se leagă de identitatea AUTENTIFICATĂ.
   // Pentru cod comun / admin-lector care previzualizează — numele scris în formular.
@@ -114,7 +134,10 @@ export default cuLimitareCod(async (req) => {
     else gresite.push(i + 1);
   });
   const total = cheie.length;
-  const procent = Math.round((corecte / total) * 100);
+  // Nota brută → nota finală: în fereastra de reactivare, penalizarea reduce nota, iar
+  // promovarea (pragul de 70%) se judecă pe nota REDUSĂ — altfel penalizarea ar fi de formă.
+  const procentBrut = Math.round((corecte / total) * 100);
+  const procent = aplicaPenalizarea(procentBrut, penalizare);
   const promovat = procent >= PRAG;
   cand = cand.slice(0, 120);
   const titlu = TITLURI[modul] || modul;
@@ -131,6 +154,10 @@ export default cuLimitareCod(async (req) => {
       corecte,
       total,
       procent,
+      // Într-o fereastră de reactivare, registrul păstrează ambele valori: se vede
+      // oricând ce a știut candidatul (brut) și ce a primit (după penalizare).
+      procentBrut: penalizare ? procentBrut : undefined,
+      penalizare: penalizare || undefined,
       promovat,
       data: new Date().toISOString(),
     });
@@ -162,6 +189,7 @@ export default cuLimitareCod(async (req) => {
       <p><b>Candidat:</b> ${esc(cand)}</p>
       <p><b>Test:</b> ${titlu}</p>
       <p><b>Scor:</b> ${corecte} / ${total} (${procent}%) — <b>${promovat ? "PROMOVAT ✅" : "NEPROMOVAT ❌"}</b></p>
+      ${penalizare ? `<p><b>Fereastră de reactivare:</b> scor brut ${procentBrut}%, penalizare ${penalizare}% pentru depășirea termenului inițial.</p>` : ""}
       ${gresite.length ? `<p><b>Întrebări greșite:</b> ${gresite.join(", ")}</p>` : "<p>Fără greșeli. 🎉</p>"}
       <p style="color:#888;font-size:12px">Trimis automat de platforma de cursuri — cfc-royal.ro/cursuri/</p>`;
     try {
@@ -184,5 +212,10 @@ export default cuLimitareCod(async (req) => {
 
   // Lista întrebărilor greșite se întoarce DOAR la promovare (recapitulare legitimă).
   // La eșec dăm doar scorul: altfel, două-trei încercări picate reconstruiau cheia.
-  return json({ total, corecte, procent, promovat, gresite: promovat ? gresite : undefined });
+  return json({
+    total, corecte, procent, promovat,
+    procentBrut: penalizare ? procentBrut : undefined,
+    penalizare: penalizare || undefined,
+    gresite: promovat ? gresite : undefined,
+  });
 });

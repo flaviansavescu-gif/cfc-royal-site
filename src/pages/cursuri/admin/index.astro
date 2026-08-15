@@ -4,6 +4,13 @@
 // online/ascuns pentru candidați (bifa are efect instant).
 import CursuriLayout from "../../../layouts/CursuriLayout.astro";
 import { LECTORI, MODULE } from "../../../data/cursuri";
+
+// Testele care pot primi termen de susținere: modulele cu întrebări + manualul.
+// Cheile sunt aceleași cu cele din corectare (test-modul: CHEI) — pe ele stă termenul.
+const TESTE = [
+  ...MODULE.filter((m) => m.intrebari).map((m) => ({ slug: m.slug, titlu: `Modul ${m.nr} — ${m.titlu}` })),
+  { slug: "manual-studiu", titlu: "Manualul de studiu individual" },
+];
 ---
 
 <CursuriLayout title="Administrare" allow={["admin"]}>
@@ -57,6 +64,38 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
     ))}
   </ul>
 
+  </details>
+
+  <details class="a-sectiune" data-sectiune="termene">
+  <summary class="a-sumar">
+    <span class="a-sumar__titlu">Termenele testelor — până când se pot susține</span>
+    <span class="a-numar">{TESTE.length} teste</span>
+  </summary>
+  <p class="a-anunt-info">
+    Fiecare test poate primi un <strong>termen</strong>: după el, testul se închide singur —
+    serverul refuză corectarea. Un test închis se <strong>reactivează</strong> dând un termen nou
+    și o <strong>penalizare</strong> (procent ales de tine): orice notă obținută în fereastra
+    reactivată se reduce cu acel procent, iar promovarea se judecă pe nota redusă. Cine a promovat
+    în termen își păstrează nota. Fără termen setat, testul e deschis ca până acum.
+  </p>
+  <ul class="a-termene">
+    {TESTE.map((t) => (
+      <li class="a-termen" data-termen={t.slug}>
+        <div class="a-termen__cap">
+          <strong>{t.titlu}</strong>
+          <span class="a-termen__stare">…</span>
+        </div>
+        <div class="a-termen__controale">
+          <label class="a-termen__camp">Deschis până la
+            <input type="datetime-local" data-tpana={t.slug} /></label>
+          <label class="a-termen__camp">Penalizare %
+            <input type="number" min="0" max="90" step="1" value="0" data-tpen={t.slug} /></label>
+          <button class="btn btn--small btn--primary" type="button" data-tsalveaza={t.slug}>Salvează termenul</button>
+          <button class="btn btn--small" type="button" data-tsterge={t.slug}>Fără termen</button>
+        </div>
+      </li>
+    ))}
+  </ul>
   </details>
 
   <h2 class="a-h2">Anunțuri pentru candidați</h2>
@@ -226,6 +265,84 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
         stareEl.textContent = "Nu am putut încărca starea. Reîncarcă pagina.";
       }
     }
+
+    // ——— Termenele testelor ———
+    // Ora se scrie/citește în ora locală a administratorului (adică a României) și se
+    // trimite serverului ca moment absolut (ISO). Serverul o compară cu ceasul lui —
+    // nu contează în ce fus rulează Netlify.
+    const dataRo = (d) => d.toLocaleString("ro-RO", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    function valoareLocala(d) {
+      const p = (n) => String(n).padStart(2, "0");
+      return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes());
+    }
+
+    async function incarcaTermene() {
+      let termene = {};
+      try {
+        const stare = await (await fetch("/.netlify/functions/stare-cursuri")).json();
+        termene = stare._termene || {};
+      } catch (e) {}
+      document.querySelectorAll("[data-termen]").forEach((rand) => {
+        const slug = rand.dataset.termen;
+        const t = termene[slug];
+        const stareT = rand.querySelector(".a-termen__stare");
+        const inPana = rand.querySelector("input[data-tpana]");
+        const inPen = rand.querySelector("input[data-tpen]");
+        if (t && t.pana) {
+          const d = new Date(t.pana);
+          inPana.value = valoareLocala(d);
+          inPen.value = t.penalizare || 0;
+          const inchis = Date.now() > d.getTime();
+          stareT.textContent = (inchis ? "🔒 închis din " : "⏳ deschis până la ") + dataRo(d) +
+            (t.penalizare ? " · penalizare " + t.penalizare + "%" : "");
+          stareT.className = "a-termen__stare " + (inchis ? "is-inchis" : "is-activ");
+        } else {
+          inPana.value = "";
+          inPen.value = 0;
+          stareT.textContent = "fără termen — deschis";
+          stareT.className = "a-termen__stare";
+        }
+      });
+    }
+
+    async function trimiteTermen(slug, pana, penalizare, btn) {
+      btn.disabled = true;
+      let cod = codAdmin();
+      let dispozitiv = "";
+      try { dispozitiv = localStorage.getItem("cfcrScoalaDispozitiv") || ""; } catch (e) {}
+      try {
+        const res = await fetch("/.netlify/functions/stare-cursuri", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ actiune: "termen", id: slug, pana, penalizare, cod, dispozitiv }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.eroare || "Eroare");
+        await incarcaTermene();
+      } catch (err) {
+        alert("Nu am putut salva termenul: " + err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    document.querySelectorAll("[data-tsalveaza]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const slug = btn.getAttribute("data-tsalveaza");
+        const rand = btn.closest("[data-termen]");
+        const pana = rand.querySelector("input[data-tpana]").value;
+        const pen = Number(rand.querySelector("input[data-tpen]").value) || 0;
+        if (!pana) { alert("Alege data și ora până la care testul rămâne deschis."); return; }
+        // datetime-local e în ora locală; îl trimitem ca moment absolut.
+        trimiteTermen(slug, new Date(pana).toISOString(), pen, btn);
+      });
+    });
+    document.querySelectorAll("[data-tsterge]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (!confirm("Scoți termenul? Testul rămâne deschis, fără limită și fără penalizare.")) return;
+        trimiteTermen(btn.getAttribute("data-tsterge"), "", 0, btn);
+      });
+    });
 
     // ——— Anunțuri ———
     /** Pastila cu numarul de fise din titlul sectiunii, ca sa se vada fara deschidere. */
@@ -1011,11 +1128,13 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
         let cod = null;
         try { cod = localStorage.getItem("cfcrAccesCod"); } catch (e) {}
         if (!cod) cod = prompt("Confirmă codul de administrator:");
+        let dispozitiv = "";
+        try { dispozitiv = localStorage.getItem("cfcrScoalaDispozitiv") || ""; } catch (e) {}
         try {
           const res = await fetch("/.netlify/functions/stare-cursuri", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: slug, online, cod }),
+            body: JSON.stringify({ id: slug, online, cod, dispozitiv }),
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.eroare || "Eroare");
@@ -1036,6 +1155,7 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
     // la prima deschidere, iar numărul de fișe stă în titlu, vizibil și închis.
     const INCARCATOARE = {
       module: incarcaModule,
+      termene: incarcaTermene,
       candidati: incarcaCandidati,
       formare: incarcaFormare,
       interese: incarcaInterese,
@@ -1146,6 +1266,21 @@ import { LECTORI, MODULE } from "../../../data/cursuri";
   .a-switch input:checked + .a-switch__track { background: var(--color-primary); }
   .a-switch input:checked + .a-switch__track::after { transform: translateX(1.3rem); }
   .a-switch input:disabled + .a-switch__track { opacity: 0.55; }
+
+  .a-termene { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; max-width: 52rem; }
+  .a-termen { background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius); padding: 0.8rem 1rem; display: grid; gap: 0.55rem; }
+  .a-termen__cap { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
+  /* Starea o rescrie JavaScript-ul (clasele is-activ / is-inchis), deci selectorii ei
+     trebuie să fie globali — regula casei pentru tot ce desenează scriptul. */
+  :global(.a-termen__stare) { font-size: 0.82rem; color: var(--color-text-muted); }
+  :global(.a-termen__stare.is-activ) { color: var(--color-primary); font-weight: 600; }
+  :global(.a-termen__stare.is-inchis) { color: #8c1d2f; font-weight: 600; }
+  .a-termen__controale { display: flex; align-items: end; gap: 0.75rem; flex-wrap: wrap; }
+  .a-termen__camp { display: grid; gap: 0.25rem; font-size: 0.82rem; font-weight: 600; }
+  .a-termen__camp input { padding: 0.45rem 0.6rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; font-size: 0.9rem; }
+  .a-termen__camp input[type="number"] { width: 6.5rem; }
 
   .a-anunt-info { color: var(--color-text-muted); margin: 0 0 0.85rem; }
   .a-anunt-form { display: flex; flex-direction: column; gap: 0.6rem; max-width: 44rem; }

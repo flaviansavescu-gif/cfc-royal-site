@@ -45,6 +45,9 @@ const { m } = Astro.props;
   {m.intrebari ? (
     <section class="test" id="test">
       <h2 class="m-h2">Testul modulului</h2>
+      {/* Termenul de susținere, dacă administratorul a fixat unul. Bannerul e doar
+          informativ — bariera reală e pe server, la corectare. */}
+      <div class="m-termen" id="m-termen" hidden></div>
       <p class="test__info">
         {m.intrebari.length} întrebări grilă · un singur răspuns corect per întrebare · prag de
         promovare {PRAG_PROMOVARE}%. Rezultatul se afișează imediat și este transmis secretariatului.
@@ -103,10 +106,45 @@ const { m } = Astro.props;
       if (t) t.remove();
     }
     let online = true; // dacă starea nu se poate citi, nu blocăm candidații
+    let termen = null;
     try {
       const stare = await (await fetch("/.netlify/functions/stare-cursuri")).json();
       online = !!stare[slugModul];
+      termen = (stare._termene || {})[slugModul] || null;
     } catch (e) {}
+
+    // ——— Termenul de susținere ———
+    // Bannerul spune dinainte ce va spune serverul la corectare: deschis până la...,
+    // fereastră de reactivare cu penalizare, sau închis. La închis, formularul dispare
+    // pentru candidați (serverul l-ar refuza oricum); administratorul îl păstrează,
+    // ca să poată previzualiza testul.
+    const banner = document.getElementById("m-termen");
+    if (banner && termen && termen.pana) {
+      const pana = Date.parse(termen.pana);
+      const cand = new Date(pana).toLocaleString("ro-RO", {
+        day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
+      });
+      const pen = Number(termen.penalizare) || 0;
+      banner.hidden = false;
+      if (Date.now() > pana) {
+        banner.className = "m-termen is-inchis";
+        banner.innerHTML = "<strong>🔒 Testul s-a închis la " + cand + ".</strong> " +
+          "Pentru o nouă perioadă de susținere, scrie secretariatului: contact@cfc-royal.ro.";
+        if (!esteAdmin) {
+          const f = document.getElementById("test-form");
+          if (f) f.hidden = true;
+        }
+      } else if (pen > 0) {
+        banner.className = "m-termen is-penalizat";
+        banner.innerHTML = "<strong>⏳ Fereastră de reactivare — deschisă până la " + cand + ".</strong> " +
+          "Nota obținută acum se reduce cu <strong>" + pen + "%</strong> pentru depășirea termenului inițial.";
+      } else {
+        banner.className = "m-termen is-deschis";
+        banner.innerHTML = "<strong>⏳ Testul e deschis până la " + cand + ".</strong> " +
+          "După acest termen, testul se închide.";
+      }
+    }
+
     if (online || esteAdmin) {
       continut.hidden = false;
       if (esteAdmin && !online) document.getElementById("m-admin-banner").hidden = false;
@@ -183,7 +221,8 @@ const { m } = Astro.props;
         rez.className = "test__rezultat " + (data.promovat ? "is-pass" : "is-fail");
         rez.innerHTML =
           "<strong>" + (data.promovat ? "Felicitări — test promovat! 🎉" : "Test nepromovat.") + "</strong>" +
-          "<p>Scor: <b>" + data.corecte + " / " + data.total + "</b> (" + data.procent + "%). " +
+          "<p>Scor: <b>" + data.corecte + " / " + data.total + "</b> (" + data.procent + "%" +
+          (data.penalizare ? " — din " + data.procentBrut + "% brut, cu penalizare de " + data.penalizare + "% pentru depășirea termenului" : "") + "). " +
           (data.promovat
             ? "Rezultatul a fost transmis secretariatului."
             : "Poți relua testul după ce recitești lecturile modulului.") + "</p>" +
@@ -226,6 +265,11 @@ const { m } = Astro.props;
   .m-pending { margin: 1.25rem 0; padding: 1rem 1.25rem; max-width: 46rem; color: var(--color-text-muted);
     background: var(--color-surface); border: 1px dashed var(--color-border); border-radius: var(--radius); }
 
+  :global(.m-termen) { margin: 0 0 1rem; padding: 0.85rem 1.25rem; max-width: 46rem;
+    border-radius: var(--radius); border: 1px solid var(--color-border); font-size: 0.95rem; }
+  :global(.m-termen.is-deschis) { background: #eef5f0; border-color: var(--color-primary); }
+  :global(.m-termen.is-penalizat) { background: #f7f1df; border-color: var(--color-accent); }
+  :global(.m-termen.is-inchis) { background: #f9efef; border-color: #8c1d2f; }
   .test__info { color: var(--color-text-muted); max-width: 46rem; }
   .test__field { margin: 1.25rem 0; max-width: 26rem; }
   .test__field label { display: block; font-weight: 600; margin-bottom: 0.35rem; }
