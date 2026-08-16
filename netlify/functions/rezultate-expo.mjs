@@ -71,8 +71,17 @@ export default async (req) => {
         arbitru: String(t?.arbitru || "").slice(0, 120),
         clasa: String(t?.clasa || "").slice(0, 60),
       })) : [];
+      // Progresul spre titlurile de campion — „Drumul spre Campion". Vine gata calculat
+      // din motorul de omologare al Managerului (Art. 39); aici doar se igienizează.
+      const campionate = Array.isArray(body.campionate) ? body.campionate.slice(0, 10).map((c) => ({
+        cod: String(c?.cod || "").slice(0, 40),
+        eticheta: String(c?.eticheta || "").slice(0, 60),
+        indeplinit: !!c?.indeplinit,
+        detaliu: String(c?.detaliu || "").slice(0, 300),
+        omologari: Array.isArray(c?.omologari) ? c.omologari.slice(0, 20).map((a) => Number(a) || 0).filter(Boolean) : [],
+      })) : [];
       await store.setJSON("titluri/" + microcip, {
-        titluri, nume: String(body.nume || "").slice(0, 120), actualizat: new Date().toISOString(),
+        titluri, campionate, nume: String(body.nume || "").slice(0, 120), actualizat: new Date().toISOString(),
       });
       return json({ ok: true, microcip, titluri: titluri.length });
     }

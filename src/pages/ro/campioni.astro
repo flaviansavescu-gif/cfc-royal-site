@@ -6,5 +6,12 @@ const lang = "ro" as const;
 <BaseLayout title="Câini campioni" lang={lang} description="Câini de rasă cu titluri de campion acordate de Asociația Club Federal Chinologic – Royal: titluri obținute în România și titluri obținute în afara României, cu documentele justificative.">
   <div class="container" style="padding-block: 3rem;">
     <Campioni lang={lang} />
+    <p class="spre-drum">🏆 Cum se ajunge aici și unde se află câinele tău pe drum:
+      <a href="/drumul-spre-campion/">Drumul spre Campion →</a></p>
   </div>
+  <style>
+    .spre-drum { margin-top: 2rem; padding: 0.9rem 1.2rem; background: var(--color-surface-alt);
+      border: 1px solid var(--color-accent); border-left-width: 4px; border-radius: var(--radius); }
+    .spre-drum a { color: var(--color-link); font-weight: 600; }
+  </style>
 </BaseLayout>

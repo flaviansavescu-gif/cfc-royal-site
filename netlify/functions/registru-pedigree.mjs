@@ -370,6 +370,8 @@ export default cuLimitareCod(async (req) => {
       pozitii: pozitiiAscendenta().map((p) => ({ ...p, eticheta: etichetaPozitie(p.cod) })),
       frati, descendenti,
       titluri: titluri?.titluri || [],
+      // Drumul spre Campion: progresul calculat de Manager la publicarea palmaresului.
+      campionate: titluri?.campionate || [],
     });
   }
 
