@@ -56,6 +56,7 @@ export const mainNav: NavItem[] = [
       { slug: "expozitii", label: { ro: "Expoziții organizate", en: "Organized dog shows" } },
       { slug: "manager-expozitii", label: { ro: "Manager de Expoziții", en: "Exhibition Manager" } },
       { slug: "campioni", label: { ro: "Câini campioni", en: "Champion dogs" } },
+      { slug: "/drumul-spre-campion/", label: { ro: "Drumul spre Campion", en: "Road to Champion" } },
     ],
   },
   {
