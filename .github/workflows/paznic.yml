@@ -1,0 +1,61 @@
+# =========================================================================
+# paznic.yml — paznicul de disponibilitate al ecosistemului CFC-Royal.
+#
+# DE CE. Toate apărările din cod presupun că site-ul RĂSPUNDE. Dacă Netlify cade,
+# dacă domeniul expiră sau dacă o funcție moare, nimeni nu afla — până se plângea
+# un om, poate în dimineața unei expoziții. Paznicul rulează pe serverele GitHub
+# (în afara Netlify, deci vede și căderile Netlify) și încearcă, din 10 în 10
+# minute, ușile care contează.
+#
+# ALARMA. Fără chei, fără servicii noi: când o verificare cade, rularea EȘUEAZĂ,
+# iar GitHub trimite singur e-mail proprietarului depozitului — mecanismul lui
+# standard pentru atelierele picate. Cât timp totul e verde, tăcere deplină.
+#
+# Fiecare încercare are 3 reluări cu pauză: o sughițare de rețea de o secundă nu
+# trebuie să sune alarma. Programarea GitHub are un joc de câteva minute — nu e
+# ceas elvețian, e paznic de noapte.
+# =========================================================================
+name: Paznic de disponibilitate
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  paznic:
+    name: "PAZNIC — cfc-royal.ro raspunde?"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Pagina principala
+        run: |
+          curl --silent --show-error --fail --retry 3 --retry-delay 15 --retry-all-errors \
+            --max-time 20 "https://cfc-royal.ro/ro/" | grep -q "Chinologic" \
+            || { echo "::error::Pagina principala nu raspunde sau nu are continutul asteptat."; exit 1; }
+
+      - name: Formularul de inscriere la expozitii
+        run: |
+          curl --silent --show-error --fail --retry 3 --retry-delay 15 --retry-all-errors \
+            --max-time 20 "https://cfc-royal.ro/ro/inscriere-expozitie/" >/dev/null \
+            || { echo "::error::Pagina de inscriere la expozitii nu raspunde."; exit 1; }
+
+      - name: Cartea de origini (pagina publica)
+        run: |
+          curl --silent --show-error --fail --retry 3 --retry-delay 15 --retry-all-errors \
+            --max-time 20 "https://cfc-royal.ro/caine/" >/dev/null \
+            || { echo "::error::Cartea de origini nu raspunde."; exit 1; }
+
+      - name: Functiile de server (stare-cursuri, GET public)
+        run: |
+          raspuns=$(curl --silent --show-error --fail --retry 3 --retry-delay 15 --retry-all-errors \
+            --max-time 20 "https://cfc-royal.ro/.netlify/functions/stare-cursuri") \
+            || { echo "::error::Functiile de server nu raspund deloc."; exit 1; }
+          echo "$raspuns" | grep -q "_termene" \
+            || { echo "::error::Functia stare-cursuri a raspuns, dar nu cu forma asteptata."; exit 1; }
+
+      - name: Scoala de Arbitraj (poarta platformei)
+        run: |
+          curl --silent --show-error --fail --retry 3 --retry-delay 15 --retry-all-errors \
+            --max-time 20 "https://cfc-royal.ro/cursuri/" >/dev/null \
+            || { echo "::error::Pagina Scolii de Arbitraj nu raspunde."; exit 1; }
