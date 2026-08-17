@@ -19,7 +19,10 @@ Completează formularul de mai jos pentru a-ți depune cererea de înscriere ca 
 
 <p><a href="https://docs.google.com/forms/d/e/1FAIpQLSfJgo9FdGo8cHO3lVLsuUjO7nx2k0bRfUj6UJvtsHckqFeZCg/viewform" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.5rem;background:var(--color-accent);color:var(--color-primary-dark);font-weight:700;padding:.7rem 1.4rem;border-radius:var(--radius);text-decoration:none">Deschide formularul ↗</a></p>
 
-<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfJgo9FdGo8cHO3lVLsuUjO7nx2k0bRfUj6UJvtsHckqFeZCg/viewform?embedded=true" width="100%" height="1500" style="border:1px solid var(--color-border);border-radius:var(--radius);margin-top:1rem" loading="lazy" title="Formular de înscriere membru">Se încarcă formularul…</iframe>
+<div style="border:1px solid var(--color-border);border-radius:var(--radius);padding:1.5rem;margin-top:1rem;background:var(--color-surface-alt);text-align:center">
+  <p style="margin:0 0 1rem">Formularul este găzduit de <strong>Google Forms</strong> și se încarcă <strong>doar dacă apeși butonul de mai jos</strong>. La încărcare, Google poate plasa cookie-uri proprii. Preferi să nu? Folosește butonul <em>„Deschide formularul ↗"</em> de mai sus — se deschide într-o filă nouă.</p>
+  <button type="button" data-src="https://docs.google.com/forms/d/e/1FAIpQLSfJgo9FdGo8cHO3lVLsuUjO7nx2k0bRfUj6UJvtsHckqFeZCg/viewform?embedded=true" onclick="var f=document.createElement('iframe');f.src=this.getAttribute('data-src');f.width='100%';f.height='1500';f.title='Formular de înscriere membru';f.setAttribute('style','border:1px solid var(--color-border);border-radius:var(--radius);margin-top:1rem');this.parentElement.replaceWith(f)" style="background:var(--color-accent);color:var(--color-primary-dark);font-weight:700;padding:.7rem 1.4rem;border-radius:var(--radius);border:0;cursor:pointer;font:inherit">Încarcă formularul aici</button>
+</div>
 
 ## Pașii înscrierii
 
