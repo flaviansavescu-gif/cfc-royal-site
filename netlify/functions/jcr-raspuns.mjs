@@ -1,6 +1,7 @@
 // jcr-raspuns.mjs — răspunsul individual al cursantului (schiță / trimitere).
 // Cursant: schita | trimite | a-mea.  Răspunsul NU e vizibil altor cursanți.
 import { json, taie, acum, candidatDinId, store, citesteParticipanti, esteParticipant, audit, candidatDinCod} from "./_jcr/lib.mjs";
+import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const FORM_VERSION = 1;
 
@@ -25,7 +26,11 @@ function curataRaspuns(inp, baza) {
   };
 }
 
-export default async (req) => {
+// Zidul anti-ghicire, ca la toate celelalte funcții care primesc un cod. Era singura
+// funcție din Judge Comparison Room fără el — și tocmai ea răspunde 401 la un `cid`
+// greșit, deci era o ghicitoare de coduri nelimitată. Celelalte șase îl aveau; asta
+// scăpase, iar o apărare care are o singură ușă deschisă nu e o apărare.
+export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
   let body;
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
@@ -68,4 +73,4 @@ export default async (req) => {
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);
-};
+});

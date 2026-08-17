@@ -127,9 +127,15 @@ async function deschideConfirmarea(dmfId, email) {
 
 /**
  * Număr de înregistrare unic: CFCR-DMF-<an>-<0001>.
- * Contorul singur n-ar ajunge — două depuneri simultane l-ar citi la fel. Marcajul
- * `serie/<serie>` e scris înainte de a returna numărul, deci coliziunea se vede și
- * se trece la următorul, în loc să iasă două declarații cu același număr.
+ *
+ * Contorul singur n-ar ajunge — două depuneri simultane l-ar citi la fel. Dar nici
+ * „citesc, văd că-i liber, apoi scriu" nu ajunge: între citire și scriere încape
+ * cealaltă depunere, care vede tot liber. Amândouă ies cu ACELAȘI număr de
+ * înregistrare, iar a doua o suprascrie pe prima în registru.
+ *
+ * Rezervarea se face acum cu `onlyIfNew`: magazia însăși hotărâne cine a fost primul, iar
+ * cine pierde primește `modified:false` și trece la numărul următor. Nu mai există
+ * fereastră între verificare și scriere, fiindcă sunt aceeași faptă.
  */
 async function serieNoua(an) {
   const s = store();
@@ -137,12 +143,16 @@ async function serieNoua(an) {
     const c = await s.get("contor/dmf-" + an, { type: "json" }).catch(() => null);
     const urm = (c?.ultim || 0) + 1;
     const serie = `CFCR-DMF-${an}-${String(urm).padStart(4, "0")}`;
-    const ocupat = await s.get("serie/" + serie, { type: "json" }).catch(() => null);
-    // Contorul se avansează în ambele cazuri: dacă numărul e luat, nu-l mai încercăm.
+    // Contorul se avansează oricum: dacă numărul e luat, nu-l mai încercăm.
     await s.setJSON("contor/dmf-" + an, { ultim: urm });
-    if (ocupat) continue;
-    await s.setJSON("serie/" + serie, { rezervat: new Date().toISOString() });
-    return serie;
+    let alMeu = false;
+    try {
+      const r = await s.setJSON("serie/" + serie, { rezervat: new Date().toISOString() }, { onlyIfNew: true });
+      alMeu = r?.modified !== false; // magazii vechi fără răspuns => tratăm ca reușită
+    } catch (err) {
+      console.error("Rezervarea seriei a eșuat:", serie, err);
+    }
+    if (alMeu) return serie;
   }
   return null;
 }

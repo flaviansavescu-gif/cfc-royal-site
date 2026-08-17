@@ -8,10 +8,22 @@ import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 const ALFABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+/**
+ * Lungimea partii aleatoare a codului de instalare.
+ *
+ * Erau 5 caractere din 31 = 28,6 milioane de variante. Suna mult, dar nu e: limitarea de
+ * incercari e pe ADRESA IP, iar cine roteste adrese (un bot, o retea mobila) macina
+ * spatiul asta intr-un timp masurabil. Cu 8 caractere sunt 852 de miliarde — aceeasi
+ * socoteala ca la codurile de candidat, unde e scrisa pe larg in `_comun/limitare.mjs`.
+ *
+ * Codurile deja emise, mai scurte, raman valabile: cautarea se face pe amprenta, nu pe
+ * lungime. Se inlocuiesc singure pe masura ce se genereaza altele.
+ */
+const LUNGIME_COD = 8;
 const sha256 = (s) => createHash("sha256").update(String(s)).digest("hex");
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 const json = (b, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
-function codNou() { let c = "PAA-"; for (let i = 0; i < 5; i++) c += ALFABET[randomInt(0, ALFABET.length)]; return c; }
+function codNou() { let c = "PAA-"; for (let i = 0; i < LUNGIME_COD; i++) c += ALFABET[randomInt(0, ALFABET.length)]; return c; }
 
 export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
@@ -39,7 +51,7 @@ export default cuLimitareCod(async (req) => {
     const lista = [];
     try {
       const { blobs } = await store.list({ prefix: "install-cod/" });
-      for (const b of blobs) { const r = await store.get(b.key, { type: "json" }); if (r) lista.push({ cod: r.cod, eticheta: r.eticheta || "", creat: r.creat, id: b.key.slice("install-cod/".length) }); }
+      for (const b of blobs) { const r = await store.get(b.key, { type: "json" }); if (r) lista.push({ cod: r.cod || null, eticheta: r.eticheta || "", creat: r.creat, id: b.key.slice("install-cod/".length) }); }
     } catch (err) { console.error(err); }
     lista.sort((a, b) => String(b.creat || "").localeCompare(String(a.creat || "")));
     return json(lista);
@@ -48,9 +60,10 @@ export default cuLimitareCod(async (req) => {
     let cod, id, exista = true, i = 0;
     while (exista && i < 12) { cod = codNou(); id = sha256(cod); exista = !!(await store.get("install-cod/" + id, { type: "json" })); i++; }
     if (exista) return json({ eroare: "Nu am putut genera un cod unic." }, 500);
-    const rec = { cod, eticheta: taie(body.eticheta, 120), creat: new Date().toISOString() };
+    const rec = { eticheta: taie(body.eticheta, 120), creat: new Date().toISOString() };
     await store.setJSON("install-cod/" + id, rec);
-    return json({ ok: true, cod: { ...rec, id } });
+    // Codul pleaca ACUM, o singura data. In magazie ramane doar amprenta lui (cheia).
+    return json({ ok: true, cod: { ...rec, cod, id } });
   }
   if (actiune === "revoca") {
     const id = taie(body.id, 80);

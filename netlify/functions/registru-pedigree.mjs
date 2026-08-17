@@ -220,14 +220,24 @@ async function serieNoua(an) {
     const c = await s.get("contor/pedigree-" + an, { type: "json" }).catch(() => null);
     const urm = (c?.ultim || 0) + 1;
     const serie = `CFCR-P-${an}-${String(urm).padStart(4, "0")}`;
-    const ocupat =
-      (await s.get("serie-pedigree/" + serie, { type: "json" }).catch(() => null)) ||
-      (await s.get("pedigree/" + serie, { type: "json" }).catch(() => null));
-    // Contorul se avansează în ambele cazuri: dacă seria e luată, n-o mai încercăm.
+    // Contorul se avansează oricum: dacă seria e luată, n-o mai încercăm.
     await s.setJSON("contor/pedigree-" + an, { ultim: urm });
-    if (ocupat) continue;
-    await s.setJSON("serie-pedigree/" + serie, { rezervat: new Date().toISOString() });
-    return serie;
+
+    // Un certificat deja EMIS pe seria asta o ocupă la fel de bine ca o rezervare.
+    const emis = await s.get("pedigree/" + serie, { type: "json" }).catch(() => null);
+    if (emis) continue;
+
+    // Rezervarea, cu `onlyIfNew`: verificarea și scrierea sunt aceeași faptă, deci
+    // nu mai există fereastra în care două emiteri simultane văd amândouă „liber" și
+    // ies cu aceeași serie de certificat. Cine pierde primește `modified:false`.
+    let alMeu = false;
+    try {
+      const r = await s.setJSON("serie-pedigree/" + serie, { rezervat: new Date().toISOString() }, { onlyIfNew: true });
+      alMeu = r?.modified !== false; // magazii vechi fără răspuns => tratăm ca reușită
+    } catch (err) {
+      console.error("Rezervarea seriei a eșuat:", serie, err);
+    }
+    if (alMeu) return serie;
   }
   return null;
 }

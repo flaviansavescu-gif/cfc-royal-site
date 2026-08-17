@@ -951,13 +951,17 @@ const TESTE = [
     function randInstalare(c) {
       const li = document.createElement("li");
       const info = document.createElement("div"); info.className = "a-cand-info";
-      const cod = document.createElement("code"); cod.className = "a-cand-cod"; cod.textContent = c.cod;
+      // Codul NU se mai pastreaza in magazie: se vede o singura data, la generare.
+      // Aici ramane amprenta lui, ca sa se poata deosebi si revoca.
+      const etichetaCod = c.cod || "••••• (aratat o singura data) · " + String(c.id || "").slice(0, 8);
+      const cod = document.createElement("code"); cod.className = "a-cand-cod"; cod.textContent = etichetaCod;
       info.appendChild(cod);
       if (c.eticheta) { const et = document.createElement("span"); et.className = "a-cand-meta"; et.innerHTML = "<span>" + c.eticheta.replace(/[&<>]/g, "") + "</span>"; info.appendChild(et); }
       const copy = document.createElement("button"); copy.className = "btn btn--small btn--outline"; copy.textContent = "Copiază";
-      copy.addEventListener("click", async () => { try { await navigator.clipboard.writeText(c.cod); copy.textContent = "Copiat ✓"; setTimeout(() => (copy.textContent = "Copiază"), 1500); } catch (e) { alert("Cod: " + c.cod); } });
+      if (!c.cod) { copy.disabled = true; copy.title = "Codul se vede o singură dată, la generare. Dacă s-a pierdut, revocă-l și generează altul."; }
+      copy.addEventListener("click", async () => { if (!c.cod) return; try { await navigator.clipboard.writeText(c.cod); copy.textContent = "Copiat ✓"; setTimeout(() => (copy.textContent = "Copiază"), 1500); } catch (e) { alert("Cod: " + c.cod); } });
       const del = document.createElement("button"); del.className = "btn btn--small btn--danger"; del.textContent = "Revocă";
-      del.addEventListener("click", async () => { if (!confirm("Revoci codul „" + c.cod + "”? Nu va mai permite instalarea.")) return; del.disabled = true; try { await instCere({ actiune: "revoca", id: c.id }); incarcaInstalare(); } catch (err) { alert("Nu am putut revoca: " + err.message); del.disabled = false; } });
+      del.addEventListener("click", async () => { if (!confirm("Revoci codul „" + etichetaCod + "”? Nu va mai permite instalarea.")) return; del.disabled = true; try { await instCere({ actiune: "revoca", id: c.id }); incarcaInstalare(); } catch (err) { alert("Nu am putut revoca: " + err.message); del.disabled = false; } });
       li.appendChild(info); li.appendChild(copy); li.appendChild(del);
       return li;
     }
@@ -967,7 +971,7 @@ const TESTE = [
         const d = await instCere({ actiune: "genereaza", eticheta: document.getElementById("a-inst-eticheta").value.trim() });
         document.getElementById("a-inst-eticheta").value = "";
         incarcaInstalare();
-        if (d.cod) alert("Cod de instalare generat:\n\n" + d.cod.cod + "\n\nDă-l persoanei care instalează aplicația. Cu el, din butonul „Install app”, aplicația se poate instala pe dispozitiv.");
+        if (d.cod) alert("Cod de instalare generat:\n\n" + d.cod.cod + "\n\nNOTEAZĂ-L ACUM: se arată o singură dată și nu se mai poate citi din listă.\n\nDă-l persoanei care instalează aplicația. Cu el, din butonul „Install app”, aplicația se poate instala pe dispozitiv.");
       } catch (err) { alert("Nu am putut genera: " + err.message); }
       finally { btn.disabled = false; btn.textContent = "Generează cod de instalare"; }
     });
@@ -986,15 +990,16 @@ const TESTE = [
     }
     function randPaa(c) {
       const li = document.createElement("li"); const info = document.createElement("div"); info.className = "a-cand-info";
-      const cod = document.createElement("code"); cod.className = "a-cand-cod"; cod.textContent = c.cod; info.appendChild(cod);
+      const etichetaCod = c.cod || "••••• (aratat o singura data) · " + String(c.id || "").slice(0, 8);
+      const cod = document.createElement("code"); cod.className = "a-cand-cod"; cod.textContent = etichetaCod; info.appendChild(cod);
       if (c.eticheta) { const et = document.createElement("span"); et.className = "a-cand-meta"; et.innerHTML = "<span>" + c.eticheta.replace(/[&<>]/g, "") + "</span>"; info.appendChild(et); }
-      const copy = document.createElement("button"); copy.className = "btn btn--small btn--outline"; copy.textContent = "Copiază"; copy.addEventListener("click", async () => { try { await navigator.clipboard.writeText(c.cod); copy.textContent = "Copiat ✓"; setTimeout(() => (copy.textContent = "Copiază"), 1500); } catch (e) { alert("Cod: " + c.cod); } });
-      const del = document.createElement("button"); del.className = "btn btn--small btn--danger"; del.textContent = "Revocă"; del.addEventListener("click", async () => { if (!confirm("Revoci codul „" + c.cod + "”?")) return; del.disabled = true; try { await paaCere({ actiune: "revoca", id: c.id }); incarcaPaa(); } catch (err) { alert("Nu am putut revoca: " + err.message); del.disabled = false; } });
+      const copy = document.createElement("button"); copy.className = "btn btn--small btn--outline"; copy.textContent = "Copiază"; if (!c.cod) { copy.disabled = true; copy.title = "Codul se vede o singură dată, la generare."; } copy.addEventListener("click", async () => { if (!c.cod) return; try { await navigator.clipboard.writeText(c.cod); copy.textContent = "Copiat ✓"; setTimeout(() => (copy.textContent = "Copiază"), 1500); } catch (e) { alert("Cod: " + c.cod); } });
+      const del = document.createElement("button"); del.className = "btn btn--small btn--danger"; del.textContent = "Revocă"; del.addEventListener("click", async () => { if (!confirm("Revoci codul „" + etichetaCod + "”?")) return; del.disabled = true; try { await paaCere({ actiune: "revoca", id: c.id }); incarcaPaa(); } catch (err) { alert("Nu am putut revoca: " + err.message); del.disabled = false; } });
       li.appendChild(info); li.appendChild(copy); li.appendChild(del); return li;
     }
     document.getElementById("a-paa-gen").addEventListener("click", async () => {
       const btn = document.getElementById("a-paa-gen"); btn.disabled = true; btn.textContent = "Se generează…";
-      try { const d = await paaCere({ actiune: "genereaza", eticheta: document.getElementById("a-paa-eticheta").value.trim() }); document.getElementById("a-paa-eticheta").value = ""; incarcaPaa(); if (d.cod) alert("Cod de instalare PAA:\n\n" + d.cod.cod + "\n\nDă-l persoanei care instalează Photo Anatomy Annotator."); }
+      try { const d = await paaCere({ actiune: "genereaza", eticheta: document.getElementById("a-paa-eticheta").value.trim() }); document.getElementById("a-paa-eticheta").value = ""; incarcaPaa(); if (d.cod) alert("Cod de instalare PAA:\n\n" + d.cod.cod + "\n\nNOTEAZĂ-L ACUM: se arată o singură dată și nu se mai poate citi din listă.\n\nDă-l persoanei care instalează Photo Anatomy Annotator."); }
       catch (err) { alert("Nu am putut genera: " + err.message); } finally { btn.disabled = false; btn.textContent = "Generează cod de instalare (PAA)"; }
     });
     document.getElementById("a-paa-seed").addEventListener("click", async () => {

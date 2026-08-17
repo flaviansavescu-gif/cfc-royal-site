@@ -43,13 +43,29 @@ const json = (body, status = 200) =>
     headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
   });
 
-/** Lista actelor anulate, publicată de manager. Dacă lipsește, verificarea merge mai departe. */
+/**
+ * Lista actelor anulate, publicată de manager.
+ *
+ * FAIL-CLOSED. Până azi, orice eroare la citire întorcea o listă GOALĂ — adică „niciun
+ * act nu e anulat". Consecința: un sughiț al magaziei transforma un certificat RETRAS
+ * într-unul confirmat public drept autentic, exact în clipa în care cineva îl verifică.
+ * Tăcerea unei magazii nu are voie să repună în vigoare un act pe care delegatul WDF l-a
+ * anulat.
+ *
+ * De acum deosebim trei stări: lista citită (`serii`), lista care nu s-a publicat
+ * niciodată (`serii: []`, e în regulă — nu s-a anulat nimic încă) și EROAREA (`null`),
+ * la care verificarea răspunde cinstit că nu poate confirma acum.
+ *
+ * @returns {Promise<string[]|null>} seriile anulate, sau `null` dacă lista nu s-a putut citi
+ */
 async function citesteRevocari(store) {
   try {
     const v = await store.get(CHEIE, { type: "json" });
-    return Array.isArray(v?.serii) ? v.serii : [];
-  } catch {
-    return [];
+    if (v == null) return [];                       // nepublicată încă — nimic anulat
+    return Array.isArray(v.serii) ? v.serii : [];
+  } catch (err) {
+    console.error("Lista actelor anulate NU s-a putut citi:", err);
+    return null;
   }
 }
 
@@ -115,6 +131,20 @@ export default async (req) => {
 
   // Semnătura e bună, dar actul poate fi între timp invalidat de delegatul WDF.
   const revocate = await citesteRevocari(store);
+  if (revocate === null) {
+    // Nu știm dacă actul e anulat. Un „valid" spus acum ar putea confirma un act retras,
+    // deci nu-l spunem — la fel cum nu inventăm un răspuns când lipsește secretul.
+    return json({
+      valid: false,
+      nedeterminat: true,
+      stareText: "Nu putem confirma acum",
+      motiv:
+        "Registrul actelor anulate nu răspunde în acest moment, iar fără el nu putem spune " +
+        "dacă actul mai e în vigoare. Semnătura codului este corectă. Încearcă din nou peste " +
+        "câteva minute; dacă situația se repetă, scrie la contact@cfc-royal.ro.",
+      act,
+    }, 503);
+  }
   if (act.serie && revocate.includes(act.serie)) {
     return json({
       valid: false,

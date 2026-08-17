@@ -172,6 +172,60 @@ const protejat = allowList.length > 0 || candidatOk;
         };
       })();
     </script>
+
+    <script is:inline>
+      // ——— Materialele de curs: linkuri care trec prin poartă ———
+      //
+      // Suporturile lectorilor nu mai stau în `public/`: se puteau descărca de oricine le
+      // nimerea adresa, deși paginile astea au poartă de rol. Acum le dă funcția
+      // `material-curs`, după verificarea codului — iar linkul din pagină arată la fel,
+      // dar duce prin ea.
+      //
+      // Fereastra se deschide ÎNAINTE de cerere, nu după: un `window.open` de după un
+      // `await` e blocat de browsere ca fereastră nesolicitată, iar omul ar apăsa pe un
+      // link care nu face nimic.
+      (function () {
+        function codPlatforma() {
+          try {
+            var a = localStorage.getItem("cfcrAccesCod");
+            if (a) return { cod: a };
+            var c = JSON.parse(localStorage.getItem("cfcrCandidat") || "null");
+            if (c && c.cod) return { cid: c.cod };
+          } catch (e) {}
+          return null;
+        }
+
+        window.deschideMaterialCurs = async function (cale, fereastra) {
+          var acr = codPlatforma();
+          if (!acr) { location.href = "/cursuri/?motiv=sesiune"; return; }
+          try {
+            var r = await fetch("/.netlify/functions/material-curs", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(Object.assign({ actiune: "fisier", fisier: cale }, acr)),
+            });
+            if (!r.ok) throw new Error("stare " + r.status);
+            var blob = await r.blob();
+            var adresa = URL.createObjectURL(blob);
+            if (fereastra) fereastra.location = adresa;
+            else window.open(adresa, "_blank", "noopener");
+            // Eliberăm adresa după ce fereastra a apucat s-o citească.
+            setTimeout(function () { URL.revokeObjectURL(adresa); }, 60000);
+          } catch (e) {
+            if (fereastra) try { fereastra.close(); } catch (e2) {}
+            alert("Materialul nu s-a putut deschide acum. Reîncearcă peste câteva momente.");
+          }
+        };
+
+        document.addEventListener("click", function (ev) {
+          var a = ev.target && ev.target.closest ? ev.target.closest('a[href^="/cursuri-materiale/"]') : null;
+          if (!a) return;
+          ev.preventDefault();
+          var f = window.open("", "_blank");
+          window.deschideMaterialCurs(a.getAttribute("href"), f);
+        });
+      })();
+    </script>
     <header class="c-header">
       <div class="c-header__inner">
         <a class="c-brand" href="/cursuri/">

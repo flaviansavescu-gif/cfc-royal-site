@@ -155,3 +155,10 @@
 
 [functions."material-protejat"]
   included_files = ["material-studiu/**"]
+
+# Suporturile de curs ale lectorilor: aceeași regulă. Au stat până acum în `public/`,
+# adică se puteau descărca de oricine le nimerea adresa, deși paginile Școlii aveau
+# poartă de rol. Acum nu se mai publică — se includ aici și pleacă doar prin
+# `material-curs`, după verificarea codului.
+[functions."material-curs"]
+  included_files = ["cursuri-materiale/**"]

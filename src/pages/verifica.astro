@@ -68,6 +68,24 @@ const lang = "ro" as const;
       return;
     }
 
+    // Nu știm, și spunem că nu știm. Se întâmplă când registrul actelor anulate nu
+    // răspunde: semnătura codului e bună, dar fără lista anulărilor un „autentic" ar
+    // putea confirma un act retras. „Neconfirmat" ar fi la fel de greșit — ar arunca
+    // vina pe hârtia omului pentru o defecțiune de-a noastră.
+    if (d.nedeterminat) {
+      card.dataset.stare = "nedeterminat";
+      stare.textContent = d.stareText || "Nu putem confirma acum";
+      const a = d.act || {};
+      rand(a.etichetaCod || "Serie", a.serie);
+      rand("Titlu / Premiu", a.titlu);
+      rand("Câine", a.caine);
+      rand("Expoziție", a.expozitie);
+      detalii.hidden = false;
+      nota.hidden = false;
+      nota.textContent = d.motiv || "Reîncearcă peste câteva minute.";
+      return;
+    }
+
     if (!d.valid) {
       card.dataset.stare = "invalid";
       stare.textContent = "✕ Certificat neconfirmat";
@@ -99,10 +117,12 @@ const lang = "ro" as const;
   .vf__card[data-stare="valid"] { border-color: #1F7A4D; background: #f0f7f2; }
   .vf__card[data-stare="invalid"] { border-color: #8c1d2f; background: #f9efef; }
   .vf__card[data-stare="anulat"] { border-color: #b45309; background: #fdf6ec; }
+  .vf__card[data-stare="nedeterminat"] { border-color: #64748b; background: #f4f5f7; }
   .vf__stare { margin: 0; text-align: center; font-family: var(--font-serif); font-size: 1.5rem; font-weight: 700; color: var(--color-text); }
   .vf__card[data-stare="valid"] .vf__stare { color: #1F7A4D; }
   .vf__card[data-stare="invalid"] .vf__stare { color: #8c1d2f; }
   .vf__card[data-stare="anulat"] .vf__stare { color: #b45309; }
+  .vf__card[data-stare="nedeterminat"] .vf__stare { color: #475569; }
   .vf__detalii { display: grid; grid-template-columns: max-content 1fr; gap: 0.5rem 1.25rem; margin: 1.5rem 0 0; }
   :global(.vf__detalii dt) { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); align-self: center; }
   :global(.vf__detalii dd) { margin: 0; font-weight: 600; color: var(--color-text); }

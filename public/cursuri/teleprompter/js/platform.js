@@ -69,10 +69,38 @@ TP.Platform = (function () {
     });
   }
 
+  /**
+   * Codul cu care e intrat în platformă, din aceeași magazie locală ca restul Școlii.
+   * Materialele nu mai stau în `public/` — se cer prin `material-curs`, care verifică
+   * rolul. Sufletul e o pagină statică, nu trece prin CursuriLayout, deci își aduce
+   * singur acreditarea.
+   */
+  function acreditare() {
+    try {
+      var a = localStorage.getItem("cfcrAccesCod");
+      if (a) return { cod: a };
+      var c = JSON.parse(localStorage.getItem("cfcrCandidat") || "null");
+      if (c && c.cod) return { cid: c.cod };
+    } catch (e) {}
+    return null;
+  }
+
+  function ceruMaterial(cale) {
+    var acr = acreditare();
+    if (!acr) return Promise.reject(new Error("fara-cod"));
+    var corp = { actiune: "fisier", fisier: cale };
+    for (var k in acr) if (Object.prototype.hasOwnProperty.call(acr, k)) corp[k] = acr[k];
+    return fetch("/.netlify/functions/material-curs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(corp),
+    });
+  }
+
   function incarca(curs, item) {
     item.disabled = true;
     item.textContent = curs.titlu + " — se încarcă…";
-    fetch(curs.url)
+    ceruMaterial(curs.url)
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
       .then(function (text) {
         TP.Library.addScript(curs.titlu, text);

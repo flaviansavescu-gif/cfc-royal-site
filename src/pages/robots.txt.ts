@@ -7,7 +7,6 @@ export const GET: APIRoute = ({ site }) => {
   const body = `User-agent: *
 Allow: /
 Disallow: /cursuri/
-Disallow: /cursuri-materiale/
 Disallow: /in-curand/
 Disallow: /breed-explorer/
 
