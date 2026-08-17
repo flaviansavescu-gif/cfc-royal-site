@@ -41,13 +41,14 @@ export function egal(a, b) {
  * platforma să funcționeze și fără variabilă — dar odată pusă variabila, ea are ultimul
  * cuvânt.
  *
- * Amprenta nouă se obține din codul dorit cu:
- *   node -e "console.log(require('crypto').createHash('sha256').update('CODUL').digest('hex'))"
+ * Amprenta nouă se obține din codul dorit cu (scrypt sărat, ca la lectori):
+ *   node -e "const{createHash,scryptSync}=require('crypto');const s='5bc690c359954798d5149721d0f7cada';console.log(scryptSync(createHash('sha256').update('CODUL').digest('hex'),s,32).toString('hex'))"
  */
-// Amprenta administratorului vine EXCLUSIV din mediu (Netlify env ADMIN_HASH). Nu mai
-// există rezervă în cod: o amprentă comisă în depozit ar însemna că o scurgere a codului
-// sursă + o spargere offline a unui cod scurt = acces de administrator. Fără variabilă,
-// poarta se închide (fail-closed), ca la verifica-act.mjs.
+// Amprenta administratorului vine EXCLUSIV din mediu (Netlify env ADMIN_HASH) și e acum
+// scrypt SĂRAT, nu SHA-256 simplu: chiar dacă amprenta ar scăpa vreodată (istoric git,
+// log), spargerea offline a unui cod ar dura ani, nu secunde. Fără variabilă, poarta se
+// închide (fail-closed), ca la verifica-act.mjs. Amprentele SHA-256 vechi din istoricul
+// depozitului sunt de acum inutile: nu se mai compară cu ele nicăieri.
 const dinMediu = String(process.env.ADMIN_HASH || "").trim().toLowerCase();
 export const ADMIN_HASH = /^[0-9a-f]{64}$/.test(dinMediu) ? dinMediu : "";
 
@@ -89,7 +90,7 @@ export const LECTORI = [
  */
 export function esteAdmin(cod) {
   if (!ADMIN_HASH) return false; // fără amprentă în mediu, nimeni nu e admin (fail-closed)
-  return egal(sha256(cod || ""), ADMIN_HASH);
+  return egal(scryptTare(sha256(cod || "")), ADMIN_HASH);
 }
 
 export const TOATE_GRUPELE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -116,11 +117,10 @@ export function lectoriCuGrupe() {
  */
 export function actorDinCod(cod) {
   const h = sha256(cod || "");
-  if (egal(h, ADMIN_HASH)) return { rol: "admin", hash: h };
-  // Lectorii se verifică prin scrypt (lent+sărat), nu prin SHA-256. Calculăm scrypt DOAR
-  // după ce codul nu e al adminului, ca să nu plătim KDF-ul lent pe fiecare cod greșit
-  // înainte de a-l fi exclus pe cel de admin. `insigna: slug` e cheia de date stabilă.
+  // Admin ȘI lectori se verifică acum prin scrypt (lent+sărat), deci calculăm KDF-ul o
+  // singură dată și îl comparăm cu ambele. `insigna: slug` rămâne cheia de date stabilă.
   const hs = scryptTare(h);
+  if (ADMIN_HASH && egal(hs, ADMIN_HASH)) return { rol: "admin", hash: h };
   const l = LECTORI.find((x) => egal(x.hash, hs));
   if (l) return { rol: "lector", slug: l.slug, nume: l.nume, email: l.email || "", insigna: l.slug, hash: h };
   return null;
