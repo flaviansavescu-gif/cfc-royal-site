@@ -195,14 +195,31 @@ async function trimiteAlerta(alerta, stare) {
 }
 
 export default async () => {
-  const verificari = await ruleaza();
+  let verificari = await ruleaza();
   const store = getStore("registru");
 
   let veche = null;
   try { veche = await store.get("monitor/stare", { type: "json" }); }
   catch (err) { console.error("Citirea stării de monitorizare a eșuat:", err); }
 
+  // A DOUA PĂRERE înainte de alarmă. Pe 17.08 un singur sughiț al GitHub-ului (404
+  // trecător la listarea copiilor) a sunat alarma, deși totul era sănătos — la rularea
+  // următoare trecuse de la sine. O alarmă falsă obosește exact urechea care trebuie să
+  // rămână atentă. Fără pauze de așteptare (funcția are 10 secunde): PRIMA cădere dintr-o
+  // stare sănătoasă se notează doar ca „suspectă" și nu alarmează; dacă și rularea
+  // următoare (peste 15 minute) cade, căderea e reală și alarma pleacă. O cădere deja
+  // anunțată (stare „cazut") trece nefiltrată, ca reamintirile și revenirea să curgă normal.
+  const cadeAcum = verificari.some((x) => !x.ok);
+  let suspecta = false;
+  if (cadeAcum && !veche?.suspecta && veche?.stare !== "cazut") {
+    suspecta = true;
+    console.warn("MONITOR: prima cădere — se reconfirmă la rularea următoare înainte de alarmă.");
+    verificari = verificari.map((x) =>
+      x.ok ? x : { ...x, ok: true, detaliu: x.detaliu + " (prima cădere — se reconfirmă la următoarea rulare)" });
+  }
+
   const { stare, alerta } = decide(veche, verificari, Date.now());
+  stare.suspecta = suspecta;
 
   if (alerta) {
     const trimis = await trimiteAlerta(alerta, stare);
