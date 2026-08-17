@@ -19,6 +19,27 @@ import { getStore } from "@netlify/blobs";
 import { rolLaIntrare, actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { magazie as magazieJetoane, cheieDezabonare, jetonNou } from "./_comun/buletin-acord.mjs";
+
+/**
+ * Jetonul de dezabonare al unui abonat: îl face dacă nu-l are, îl întoarce dacă îl are.
+ *
+ * Cu el, linkul din josul fiecărui buletin scoate adresa dintr-un singur clic, fără cod
+ * și fără formular — cum promite politica de confidențialitate. Abonații mai vechi
+ * (dinainte de regula asta) își primesc jetonul la prima trimitere de după.
+ */
+async function jetonDezabonare(store, cheie, abonat) {
+  if (abonat?.jetonDezabonare) return abonat.jetonDezabonare;
+  const jeton = jetonNou();
+  try {
+    await magazieJetoane().setJSON(cheieDezabonare(jeton), { email: abonat.email, lista: "scoala" });
+    await store.setJSON(cheie, { ...abonat, jetonDezabonare: jeton });
+  } catch (err) {
+    console.error("Jetonul de dezabonare nu s-a putut păstra:", err);
+    return null;
+  }
+  return jeton;
+}
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -114,13 +135,18 @@ export default cuLimitareCod(async (req) => {
       // O adresă aparține unui singur membru: nu se poate prelua adresa altcuiva.
       if (existent && existent.membruId && existent.membruId !== membru.id)
         return json({ eroare: "Adresa este deja abonată de alt membru al platformei." }, 409);
-      await store.setJSON(cheie, {
+      const inregistrare = {
         email,
         membruId: membru.id,
         nume: membru.nume,
         rol: membru.rol,
         creat: existent?.creat || new Date().toISOString(),
-      });
+        jetonDezabonare: existent?.jetonDezabonare || null,
+      };
+      await store.setJSON(cheie, inregistrare);
+      // Jetonul se face acum, nu la prima trimitere: linkul de dezabonare trebuie să
+      // existe din clipa în care există abonarea.
+      await jetonDezabonare(store, cheie, inregistrare);
       return json({ ok: true });
     }
 
@@ -132,6 +158,12 @@ export default cuLimitareCod(async (req) => {
         return json({ eroare: "Poți dezabona doar adresa pe care ai abonat-o tu." }, 403);
     }
     try { await store.delete(cheie); } catch (err) { console.error(err); }
+    // …și jetonul din linkurile deja trimise: după ce omul a ieșit, un link rămas valabil
+    // ar dezabona a doua oară o adresă care nu mai e abonată.
+    if (existent?.jetonDezabonare) {
+      try { await magazieJetoane().delete(cheieDezabonare(existent.jetonDezabonare)); }
+      catch (err) { console.error(err); }
+    }
     return json({ ok: true });
   }
 
@@ -180,26 +212,36 @@ export default cuLimitareCod(async (req) => {
     let trimise = 0, esuate = 0;
     const apiKey = process.env.BREVO_API_KEY;
     if (apiKey) {
+      // Fiecare abonat vine cu jetonul lui: linkul de dezabonare e personal, altfel n-ar
+      // avea cum să scoată exact adresa aceea dintr-un singur clic.
       let abonati = [];
       try {
         const { blobs } = await store.list({ prefix: "abonat/" });
         for (const b of blobs) {
           const a = await store.get(b.key, { type: "json" });
-          if (a?.email) abonati.push(a.email);
+          if (!a?.email) continue;
+          abonati.push({ email: a.email, jeton: await jetonDezabonare(store, b.key, a) });
         }
       } catch (err) { console.error(err); }
 
-      const html =
+      const corp =
         `<h2 style="margin:0 0 12px;color:#1F4D3A">${esc(titlu)}</h2>` +
         `<div style="white-space:pre-line;line-height:1.55">${esc(text)}</div>` +
-        `<hr style="margin:20px 0;border:none;border-top:1px solid #ddd">` +
+        `<hr style="margin:20px 0;border:none;border-top:1px solid #ddd">`;
+      const htmlPentru = (jeton) =>
+        corp +
         `<p style="color:#888;font-size:12px">Buletinul Școlii de Arbitraj — CFC-Royal · ` +
-        `arhiva completă și dezabonarea: <a href="https://cfc-royal.ro/cursuri/buletin/">cfc-royal.ro/cursuri/buletin/</a></p>`;
+        `arhiva completă: <a href="https://cfc-royal.ro/cursuri/buletin/">cfc-royal.ro/cursuri/buletin/</a></p>` +
+        (jeton
+          ? `<p style="color:#888;font-size:12px">Nu mai vrei buletinul? ` +
+            `<a href="https://cfc-royal.ro/.netlify/functions/buletin-dezabonare?j=${jeton}">Dezabonează-mă</a>` +
+            ` — un singur clic, fără cod și fără formular.</p>`
+          : `<p style="color:#888;font-size:12px">Dezabonarea: din pagina buletinului, cu codul tău.</p>`);
 
       // În LOTURI paralele, nu unul câte unul: secvențial, la ~300 ms per e-mail,
       // funcția expira pe la 30 de abonați și o parte din oameni nu primeau nimic.
       const LOT = 8;
-      async function trimiteUnul(email) {
+      async function trimiteUnul({ email, jeton }) {
         try {
           const res = await fetch("https://api.brevo.com/v3/smtp/email", {
             method: "POST",
@@ -208,7 +250,7 @@ export default cuLimitareCod(async (req) => {
               sender: { name: "Școala de Arbitraj CFC-Royal", email: "newsletter@cfc-royal.ro" },
               to: [{ email }],
               subject: "[Școala de Arbitraj] " + titlu,
-              htmlContent: html,
+              htmlContent: htmlPentru(jeton),
             }),
           });
           if (res.ok) trimise++; else { esuate++; console.error("Brevo:", res.status, await res.text()); }

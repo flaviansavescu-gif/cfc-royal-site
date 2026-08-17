@@ -38,6 +38,7 @@ import {
 } from "./_comun/registru-jurnal.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
 import { poateCereExtras, numarDinText, intervalulCerut, inInterval, inValuri } from "./_comun/extrase.mjs";
+import { mascheazaCip } from "./_comun/microcip.mjs";
 
 // CITIRE TARE, ca la poarta de acces.
 //
@@ -253,7 +254,10 @@ export default cuLimitareCod(async (req) => {
         caine: {
           nume: c.caine.nume, rasa: c.caine.rasa, varietate: c.caine.varietate,
           sex: c.caine.sex, dataNasterii: c.caine.dataNasterii,
-          culoare: c.caine.culoare, microcip: c.caine.microcip,
+          culoare: c.caine.culoare,
+          // Mascat: cine ține certificatul în mână compară ultimele patru cifre și se
+          // lămurește. Cine culege cipuri de la o adresă publică nu mai are ce culege.
+          microcip: mascheazaCip(c.caine.microcip),
         },
         numarWDF: c.numarWDF, afixCrescator: c.crescator?.afix || null,
         anulat: !!c.anulat,
@@ -362,6 +366,11 @@ export default cuLimitareCod(async (req) => {
         serie: cert.serie, tip: cert.tip, numarWDF: cert.numarWDFCaine || null,
         numarCuib: cert.numarWDF, dmfSerie: cert.dmfSerie,
         ...cert.caine,
+        // …dar cipul iese mascat. Fișa e publică și fără poartă: întreg, el s-ar fi putut
+        // culege pentru toți câinii din registru, iar cu un microcip se caută în bazele
+        // veterinare și se revendică un exemplar. Ultimele patru cifre ajung ca stăpânul
+        // să recunoască fișa propriului câine.
+        microcip: mascheazaCip(cert.caine.microcip),
         crescator: cert.crescator,           // cu nume și afix: creșterea e publică
         proprietarCod: codProp,              // doar codul: deținerea nu e
         emis: cert.emis, anulat: !!cert.anulat,

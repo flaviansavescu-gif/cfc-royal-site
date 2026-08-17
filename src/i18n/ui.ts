@@ -92,6 +92,8 @@ export const ui = {
     "footer.newsletter": "Newsletter",
     "footer.newsletter.cta": "Abonează-te",
     "footer.newsletter.placeholder": "Adresa ta de e-mail",
+    "footer.newsletter.consent":
+      "Sunt de acord să primesc buletinul informativ pe e-mail. Mă pot dezabona oricând, dintr-un clic. Am citit",
     "footer.rights": "Toate drepturile rezervate.",
 
     // Pagini juridice
@@ -184,6 +186,8 @@ export const ui = {
     "footer.newsletter": "Newsletter",
     "footer.newsletter.cta": "Subscribe",
     "footer.newsletter.placeholder": "Your email address",
+    "footer.newsletter.consent":
+      "I agree to receive the newsletter by email. I can unsubscribe at any time, with one click. I have read the",
     "footer.rights": "All rights reserved.",
 
     "legal.privacy": "Privacy Policy",

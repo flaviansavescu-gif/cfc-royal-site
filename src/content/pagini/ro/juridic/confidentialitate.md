@@ -51,6 +51,11 @@ Fătare, scanurile pedigree-urilor ascendenților, seriile certificatelor emise.
 **Temei:** ținerea evidenței originilor, ca organizație afiliată World Dog Federation, și
 executarea cererii tale (art. 6 alin. 1 lit. b și f).
 
+Pe fișa publică a câinelui și la verificarea unui certificat prin cod QR, **microcipul se
+arată mascat** — doar ultimele patru cifre. Atât cât să recunoști fișa câinelui tău sau să
+compari cu actul pe care îl ții în mână, nu cât să poată fi folosit de altcineva. Întreg
+îl văd doar registratura, administratorul și crescătorul căruia îi aparține dosarul.
+
 ### 5. Dosarul de sănătate al câinilor
 
 Microcipul câinelui, rezultatele testelor depuse (displazie de șold și de cot, examen
@@ -78,11 +83,22 @@ asistențele la ring, contestațiile și motivele lor, asumarea Codului Etic.
 **Temei:** executarea raportului de formare și interesul legitim al asociației de a putea
 proba pregătirea arbitrilor pe care îi autorizează.
 
-### 8. Buletinul Școlii
+### 8. Buletinul informativ și Buletinul Școlii
 
-Adresa de e-mail, atât.
-**Temei:** consimțământul tău (art. 6 alin. 1 lit. a). Se retrage dintr-un singur clic,
-din orice mesaj primit.
+Adresa de e-mail, atât — plus **dovada acordului**: textul pe care l-ai bifat, versiunea
+lui, momentul cererii și al confirmării și o amprentă a adresei IP de la care au venit
+(nu IP-ul în clar). Legea ne cere să putem dovedi că acordul a fost dat (art. 7 alin. 1),
+iar dovada asta e singurul lucru care te apără dacă cineva ar susține contrariul.
+**Temei:** consimțământul tău (art. 6 alin. 1 lit. a).
+
+Abonarea se face în **doi pași**: ceri abonarea de pe site, apoi confirmi dintr-un e-mail
+trimis la adresa aceea. Fără al doilea pas, adresa nu intră nicăieri — și cererea se
+șterge singură după 48 de ore. Așa nimeni nu te poate abona în locul tău.
+
+Retragerea se face **dintr-un singur clic**, din orice mesaj primit: linkul din josul
+mesajului scoate adresa pe loc, fără cod, fără formular și fără să te întrebe de ce.
+Dovada acordului rămâne, cu momentul retragerii scris în ea — ca să putem arăta, la
+nevoie, exact când ai ieșit.
 
 ### 9. Jurnalul de audit și siguranța sistemului
 
@@ -109,6 +125,8 @@ Vezi secțiunea de mai jos.
 | Dosarul candidatului la arbitraj | pe durata formării + 10 ani de la autorizare | un arbitru trebuie să-și poată dovedi pregătirea |
 | Contestații și hotărâri | 10 ani | valoare de probă și de precedent |
 | Adresa la buletin | până la dezabonare | |
+| Dovada acordului la buletin | 3 ani de la retragere | cât poate fi contestată o comunicare primită |
+| Cerere de abonare neconfirmată | 48 de ore, apoi se șterge singură | fără confirmare nu există acord, deci nici temei de păstrare |
 | Jurnalul de audit | 5 ani | cât poate fi contestat un act emis |
 | Adrese IP, jetoane de dispozitiv, numărători de încercări | 30 de zile | expiră singure și nu se restaurează din copii |
 | Fotografii de la evenimente | până la cererea de retragere | arhiva activității asociației |

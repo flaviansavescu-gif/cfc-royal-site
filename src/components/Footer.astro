@@ -80,6 +80,16 @@ const socials = (
           />
           <button type="submit">{t("footer.newsletter.cta")}</button>
         </div>
+        <!-- Bifa e OBLIGATORIE. O adresă scrisă într-un câmp nu e un consimțământ
+             neechivoc (art. 4 pct. 11 GDPR); o bifă, lângă textul pe care omul îl citește,
+             este. Textul de aici e același cu cel păstrat în dovada acordului. -->
+        <label class="newsletter__acord">
+          <input type="checkbox" name="acord" value="da" required />
+          <span>
+            {t("footer.newsletter.consent")}{" "}
+            <a href={localizePath("juridic/confidentialitate", lang)}>{t("legal.privacy")}</a>.
+          </span>
+        </label>
       </form>
 
       {socials.length > 0 && (
@@ -155,6 +165,12 @@ const socials = (
     background: var(--color-accent); color: var(--color-primary-dark); font-weight: 700;
   }
   .newsletter button:hover { background: #c79e3a; }
+  .newsletter__acord {
+    display: flex; gap: 0.5rem; align-items: flex-start;
+    margin-top: 0.7rem; font-size: var(--fs-300); line-height: 1.45; opacity: 0.92;
+  }
+  .newsletter__acord input { margin-top: 0.15rem; flex: none; accent-color: var(--color-accent); }
+  .newsletter__acord a { text-decoration: underline; }
   .hp { position: absolute; left: -5000px; } /* honeypot ascuns */
   .social { margin-top: 1.5rem; }
   .social__list { display: flex; flex-wrap: wrap; gap: 1rem; font-size: var(--fs-400); }

@@ -52,6 +52,12 @@ scans of the ancestors' pedigrees, the series of the certificates issued.
 **Basis:** keeping the record of origins, as an organisation affiliated to the World Dog
 Federation, and performance of your request (Art. 6(1)(b) and (f)).
 
+On the public dog record and when a certificate is checked through its QR code, the
+**microchip is shown masked** — only the last four digits. Enough to recognise your own
+dog's record or to compare it with the document in your hand, not enough for anyone else
+to use it. The full number is seen only by the registry office, the administrator and the
+breeder the file belongs to.
+
 ### 5. The dogs' health file
 
 The dog's microchip, the results of the tests filed (hip and elbow dysplasia, eye
@@ -80,10 +86,23 @@ assistantships, appeals and their grounds, acceptance of the Code of Ethics.
 **Basis:** performance of the training relationship and the association's legitimate
 interest in being able to evidence the training of the judges it authorises.
 
-### 8. The School bulletin
+### 8. The newsletter and the School bulletin
 
-The e-mail address, nothing more.
-**Basis:** your consent (Art. 6(1)(a)). Withdrawn in a single click, from any message.
+The e-mail address, nothing more — plus the **proof of consent**: the text you ticked, its
+version, the moment of the request and of the confirmation, and a fingerprint of the IP
+address they came from (not the IP itself). The law requires us to be able to demonstrate
+that consent was given (Art. 7(1)), and that proof is the only thing that protects you if
+anyone were to claim otherwise.
+**Basis:** your consent (Art. 6(1)(a)).
+
+Subscribing takes **two steps**: you ask from the site, then you confirm from an e-mail
+sent to that address. Without the second step the address goes nowhere — and the request
+deletes itself after 48 hours. That way nobody can subscribe you in your place.
+
+Withdrawal takes **a single click**, from any message you receive: the link at the bottom
+removes the address on the spot, with no code, no form and no questions asked. The proof of
+consent remains, with the moment of withdrawal written into it — so that we can show, if
+needed, exactly when you left.
 
 ### 9. Audit log and system security
 
@@ -110,6 +129,8 @@ See the section below.
 | Judging candidate's file | during training + 10 years after authorisation | a judge must be able to evidence their training |
 | Appeals and decisions | 10 years | evidential value and precedent |
 | Bulletin address | until unsubscribed | |
+| Proof of consent to the bulletin | 3 years from withdrawal | as long as a message received can be disputed |
+| Unconfirmed subscription request | 48 hours, then deleted automatically | without confirmation there is no consent, hence no basis to keep it |
 | Audit log | 5 years | as long as an issued document may be challenged |
 | IP addresses, device tokens, attempt counters | 30 days | they expire on their own and are not restored from backups |
 | Event photographs | until withdrawal is requested | the archive of the association's activity |
