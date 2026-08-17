@@ -166,6 +166,8 @@ function ciornaAMea(ciorna, eu) {
   if (!ciorna) return false;
   if (eu.rol === "membru") return ciorna.membruId === eu.membru.id;
   if (eu.rol === "chinotehnist") return ciorna.chinotehnistId === eu.chinotehnist.id;
+  // Depunerea telefonică: registratura deschide ciorna în numele unui membru.
+  if (eu.rol === "registratura") return ciorna.registratorId === eu.registrator.id;
   return false;
 }
 
@@ -503,12 +505,20 @@ export default cuLimitareCod(async (req) => {
       });
       return json({ ok: true, ciornaId: id });
     }
-    return json({ eroare: "Doar membrii și chinotehniștii depun declarații." }, 403);
+    if (eu.rol === "registratura") {
+      // Depunerea telefonică: registratura depune ÎN NUMELE unui membru care nu folosește
+      // formularul online. Titularul dosarului rămâne membrul; registratura e doar mâna
+      // care scrie — proveniența se consemnează pe dosar și în jurnal.
+      const id = idNou();
+      await s.setJSON("ciorna/" + id, { registratorId: eu.registrator.id, creat: new Date().toISOString() });
+      return json({ ok: true, ciornaId: id });
+    }
+    return json({ eroare: "Doar membrii, chinotehniștii și registratura depun declarații." }, 403);
   }
 
   if (actiune === "fisier") {
-    if (eu.rol !== "membru" && eu.rol !== "chinotehnist")
-      return json({ eroare: "Doar membrii și chinotehniștii încarcă piese la dosar." }, 403);
+    if (eu.rol !== "membru" && eu.rol !== "chinotehnist" && eu.rol !== "registratura")
+      return json({ eroare: "Doar membrii, chinotehniștii și registratura încarcă piese la dosar." }, 403);
     const ciornaId = taie(body.ciornaId, 40);
     const fel = taie(body.fel, 32);
     if (!FELURI[fel]) return json({ eroare: "Piesă necunoscută." }, 400);
@@ -538,8 +548,8 @@ export default cuLimitareCod(async (req) => {
   // locul lor. Un dosar cu bucăți nelipite n-are piesa: nimic pe jumătate nu ajunge în
   // dosar, nici dacă omul închide pagina la mijloc.
   if (actiune === "fisier-parte" || actiune === "fisier-gata") {
-    if (eu.rol !== "membru" && eu.rol !== "chinotehnist")
-      return json({ eroare: "Doar membrii și chinotehniștii încarcă piese la dosar." }, 403);
+    if (eu.rol !== "membru" && eu.rol !== "chinotehnist" && eu.rol !== "registratura")
+      return json({ eroare: "Doar membrii, chinotehniștii și registratura încarcă piese la dosar." }, 403);
     const ciornaId = taie(body.ciornaId, 40);
     const fel = taie(body.fel, 32);
     if (!FELURI[fel]) return json({ eroare: "Piesă necunoscută." }, 400);
@@ -600,8 +610,8 @@ export default cuLimitareCod(async (req) => {
   }
 
   if (actiune === "depune") {
-    if (eu.rol !== "membru" && eu.rol !== "chinotehnist")
-      return json({ eroare: "Doar membrii și chinotehniștii depun declarații." }, 403);
+    if (eu.rol !== "membru" && eu.rol !== "chinotehnist" && eu.rol !== "registratura")
+      return json({ eroare: "Doar membrii, chinotehniștii și registratura depun declarații." }, 403);
     // Cotizația se verifică ACUM, nu la deschiderea ciornei: între timp putea expira.
     if (eu.rol === "membru" && !eu.membru.cotizatieLaZi)
       return json({ eroare: "Cotizația a expirat. Reînnoiește-o pentru a putea depune declarații." }, 403);
@@ -614,7 +624,7 @@ export default cuLimitareCod(async (req) => {
     // trebuie să spună al cui e cuibul. Datele vin din declarația semnată pe hârtie,
     // pe care chinotehnistul a încărcat-o la dosar (piesa dreptului de montă o poartă).
     let crescator = null;
-    if (eu.rol === "chinotehnist") {
+    if (eu.rol === "chinotehnist" || eu.rol === "registratura") {
       const cNume = taie(body.crescator?.nume, 120);
       const cTelefon = taie(body.crescator?.telefon, 30);
       const cEmail = taie(body.crescator?.email, 200).toLowerCase();
@@ -646,25 +656,35 @@ export default cuLimitareCod(async (req) => {
     // depunerea prin asociația afiliată, crescătorul e cel din declarația semnată, iar
     // e-mailul lui (dacă are) primește confirmările — altfel merg la chinotehnist.
     const eAfiliat = eu.rol === "chinotehnist";
+    const eRegistratura = eu.rol === "registratura";
+    const eAsistat = eAfiliat || eRegistratura;
     const d = {
       ...v.d,
       id: ciornaId, serie,
       numarWDF: null,                       // îl completează registratura la înregistrarea cuibului
       stare: "depus",
-      membruId: eAfiliat ? null : eu.membru.id,
-      membruNume: eAfiliat ? crescator.nume : eu.membru.nume,
-      membruEmail: eAfiliat ? (crescator.email || eu.chinotehnist.email) : eu.membru.email,
-      ...(eAfiliat
+      membruId: eAsistat ? null : eu.membru.id,
+      membruNume: eAsistat ? crescator.nume : eu.membru.nume,
+      membruEmail: eAsistat ? (crescator.email || (eAfiliat ? eu.chinotehnist.email : "")) : eu.membru.email,
+      ...(eAsistat
         ? {
             crescatorTelefon: crescator.telefon,
             crescatorLocalitate: crescator.localitate,
-            depunere: {
-              fel: "chinotehnist",
-              chinotehnistId: eu.chinotehnist.id,
-              chinotehnistNume: eu.chinotehnist.nume,
-              asociatie: eu.chinotehnist.asociatie,
-              asociatieSlug: eu.chinotehnist.asociatieSlug,
-            },
+            depunere: eAfiliat
+              ? {
+                  fel: "chinotehnist",
+                  chinotehnistId: eu.chinotehnist.id,
+                  chinotehnistNume: eu.chinotehnist.nume,
+                  asociatie: eu.chinotehnist.asociatie,
+                  asociatieSlug: eu.chinotehnist.asociatieSlug,
+                }
+              : {
+                  // Depunerea telefonică: membrul e titularul, registratura doar scrie.
+                  fel: "registratura",
+                  telefonic: true,
+                  registratorId: eu.registrator.id,
+                  registratorNume: eu.registrator.nume || "registratură",
+                },
           }
         : {}),
       creat: new Date().toISOString(),
@@ -698,12 +718,14 @@ export default cuLimitareCod(async (req) => {
     const rezumat = {
       id: ciornaId, serie, rasa: d.rasa, dataFatarii: d.dataFatarii,
       pui: d.pui.length, stare: d.stare, pesteTermen: d.pesteTermen, creat: d.creat,
-      ...(eAfiliat ? { crescator: crescator.nume, depusDe: eu.chinotehnist.nume } : {}),
+      ...(eAsistat ? { crescator: crescator.nume, depusDe: eAfiliat ? eu.chinotehnist.nume : (eu.registrator.nume || "registratură") } : {}),
     };
     await s.setJSON(
       eAfiliat
         ? "dmf-afiliat/" + eu.chinotehnist.asociatieSlug + "/" + ciornaId
-        : "dmf-membru/" + eu.membru.id + "/" + ciornaId,
+        : eRegistratura
+          ? "dmf-registratura/" + ciornaId
+          : "dmf-membru/" + eu.membru.id + "/" + ciornaId,
       rezumat,
     );
     await s.delete("ciorna/" + ciornaId).catch(() => {});
@@ -712,7 +734,7 @@ export default cuLimitareCod(async (req) => {
     // (canisă înregistrată după înscriere). Nu suprascrie niciodată un afix existent —
     // acela e dat de asociație, nu de formular. La depunerea prin asociația afiliată nu
     // există fișă de membru, deci nu e nimic de completat.
-    if (!eAfiliat && v.d.afix && !eu.membru.afix) {
+    if (eu.rol === "membru" && v.d.afix && !eu.membru.afix) {
       try {
         const fisa = await s.get("membru/" + eu.membru.id, { type: "json" });
         if (fisa && !fisa.afix) {
@@ -722,7 +744,7 @@ export default cuLimitareCod(async (req) => {
     }
 
     const emailTrimis = await trimiteConfirmarea(
-      eAfiliat ? { nume: crescator.nume, email: d.membruEmail } : eu.membru, d);
+      eAsistat ? { nume: crescator.nume, email: d.membruEmail } : eu.membru, d);
     const { jeton } = await deschideConfirmarea(ciornaId, d.mascul.email);
     const cerereTrimisa = await trimiteCerereaCatreMascul(d, jeton);
     await jurnalizeaza(s, {
@@ -731,6 +753,7 @@ export default cuLimitareCod(async (req) => {
       obiect: serie,
       detalii: `${d.rasa}, fătare ${d.dataFatarii}, ${d.pui.length} pui` +
         (eAfiliat ? ` — pentru ${crescator.nume}, prin ${eu.chinotehnist.asociatie}` : "") +
+        (eRegistratura ? ` — pentru ${crescator.nume}, depus telefonic prin registratură` : "") +
         (d.pesteTermen ? ` — PESTE TERMEN (${d.zileDeLaFatare} zile)` : ""),
       ip: d.semnaturaUrma.ip,
     });
@@ -738,14 +761,16 @@ export default cuLimitareCod(async (req) => {
   }
 
   if (actiune === "mele") {
-    if (eu.rol !== "membru" && eu.rol !== "chinotehnist") return json({ eroare: "Nepermis." }, 403);
+    if (eu.rol !== "membru" && eu.rol !== "chinotehnist" && eu.rol !== "registratura") return json({ eroare: "Nepermis." }, 403);
     const lista = [];
     try {
       // Membrul își vede dosarele lui; chinotehnistul — TOATE dosarele asociației,
       // inclusiv ale colegilor: spațiul e al asociației, nu al persoanei.
       const prefixListei = eu.rol === "chinotehnist"
         ? "dmf-afiliat/" + eu.chinotehnist.asociatieSlug + "/"
-        : "dmf-membru/" + eu.membru.id + "/";
+        : eu.rol === "registratura"
+          ? "dmf-registratura/"
+          : "dmf-membru/" + eu.membru.id + "/";
       const { blobs } = await s.list({ prefix: prefixListei });
       for (const b of blobs) {
         const x = await s.get(b.key, { type: "json" });

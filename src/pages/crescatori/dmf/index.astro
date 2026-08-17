@@ -15,7 +15,7 @@ import { RASE_WDF } from "../../../data/nomenclator-wdf";
 const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "ro"));
 ---
 
-<RegistruLayout title="Declarație de Montă și Fătare" allow={["membru", "chinotehnist"]}>
+<RegistruLayout title="Declarație de Montă și Fătare" allow={["membru", "chinotehnist", "registratura", "admin"]}>
   <p class="d-eyebrow">Registrul genealogic</p>
   <h1 class="d-title">Declarație de Montă și Fătare</h1>
   <p class="d-sub">
@@ -25,6 +25,17 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
   </p>
 
   <p class="d-cotizatie" id="d-cotizatie" hidden></p>
+
+  {/* Aceeași plasă de siguranță ca la înscrierea în expoziții: cine nu se descurcă cu
+      formularul online are formularul de hârtie și telefonul registraturii. */}
+  <div class="d-fara-net">
+    <strong>Nu te descurci cu formularul de mai jos?</strong> Nicio grijă — declarația se
+    poate depune și pe hârtie sau prin telefon:
+    descarcă <a href="/documente/formulare/declaratie-monta-fatare-pe-hartie.pdf" download>formularul
+    tipăribil (PDF)</a>, completează-l și trimite-l fotografiat ori prin poștă — sau
+    sună la registratură la <strong>0755&nbsp;330&nbsp;404</strong> și îl completați împreună.
+    Pașii compleți: <a href="/ro/inscriere-fara-internet/">înscriere fără internet</a>.
+  </div>
 
   <form id="d-form" class="d-form">
     <!-- ——— Crescătorul (doar la depunerea prin asociația afiliată) ———
@@ -263,16 +274,29 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
     // Fișa lui nu are cotizație (avertismentul de mai jos nu se declanșează) și nici
     // afix propriu — afixul e al crescătorului, scris aici după declarația semnată.
     const eChinotehnist = membru && membru.rol === "chinotehnist";
-    if (eChinotehnist) {
+    // Depunerea telefonică: registratura (sau administratorul) completează formularul în
+    // numele unui membru care nu folosește calculatorul. Același bloc al crescătorului.
+    const eRegistratura = membru && (membru.rol === "registratura" || membru.rol === "admin");
+    const eAsistat = eChinotehnist || eRegistratura;
+    if (eAsistat) {
       const zona = document.getElementById("d-crescator-zona");
       zona.hidden = false;
       g("crescator.nume").required = true;
       g("crescator.telefon").required = true;
-      // Drumurile de întoarcere duc în spațiul asociației, nu în cel al membrului.
+      // Drumurile de întoarcere duc în spațiul potrivit, nu în cel al membrului.
       document.querySelectorAll('a[href="/crescatori/"]').forEach((a) => {
-        a.href = "/registru/afiliate/";
-        if (a.textContent.includes("spațiul meu")) a.textContent = "Înapoi în spațiul asociației";
+        a.href = eChinotehnist ? "/registru/afiliate/" : "/registru/registratura/";
+        if (a.textContent.includes("spațiul meu"))
+          a.textContent = eChinotehnist ? "Înapoi în spațiul asociației" : "Înapoi la registratură";
       });
+      if (eRegistratura) {
+        const titluZona = zona.querySelector(".d-h2");
+        if (titluZona) titluZona.textContent = "Membrul pentru care depui (telefonic)";
+        const notaZona = zona.querySelector(".d-nota");
+        if (notaZona) notaZona.textContent = "Depunere telefonică: datele vin de la membru, prin telefon. " +
+          "Declarația SEMNATĂ de el pe hârtie se încarcă la dosar (fotografia ține loc de copie de lucru); " +
+          "numărul de înregistrare i-l comunici prin telefon.";
+      }
     }
 
     // —— Cotizația: se vede de la început de ce nu merge, nu abia la trimitere ——
@@ -287,7 +311,7 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
     // cel scris aici o completează — fără să suprascrie vreodată unul existent.
     if (membru && membru.afix) g("afix").value = membru.afix;
     if (membru && membru.nrAfix) g("nrAfix").value = membru.nrAfix;
-    document.getElementById("d-afix").textContent = eChinotehnist
+    document.getElementById("d-afix").textContent = eAsistat
       ? "Afixul e al CRESCĂTORULUI pentru care depui — scrie-l cum apare pe declarația semnată, dacă are unul."
       : membru && membru.afix
       ? "Afixul vine din fișa ta de membru. Îl poți schimba aici dacă între timp s-a modificat."
@@ -515,7 +539,7 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
       }));
       return {
         cod: cod(), actiune: "depune", ciornaId,
-        ...(eChinotehnist
+        ...(eAsistat
           ? { crescator: {
               nume: val("crescator.nume"), telefon: val("crescator.telefon"),
               email: val("crescator.email"), localitate: val("crescator.localitate"),
@@ -576,6 +600,10 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
   .d-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
   .d-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.4rem; }
   .d-sub { color: var(--color-text-muted); max-width: 46rem; }
+  .d-fara-net { max-width: 46rem; margin: 0 0 1.2rem; padding: 0.85rem 1.1rem; font-size: 0.92rem;
+    background: #f7f1df; border: 1px solid var(--color-accent); border-left-width: 4px;
+    border-radius: var(--radius); }
+  .d-fara-net a { color: var(--color-link); }
   .d-cotizatie { max-width: 46rem; padding: 0.7rem 1rem; border-radius: var(--radius); font-size: 0.9rem;
     font-weight: 600; background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; }
   .d-cotizatie[hidden] { display: none; }

@@ -19,6 +19,9 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   </p>
 
   <p class="g-unelte">
+    <a class="btn btn--outline" href="/crescatori/dmf/">
+      📞 Depune DMF în numele unui membru (telefonic)
+    </a>
     <a class="btn btn--outline" href="/registru/registratura/ghid-citire/">
       📖 Îndrumar: citirea pedigree-urilor →
     </a>
@@ -545,7 +548,12 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
          "născuți " + (d.nascutiM + d.nascutiF), "rămași " + d.pui.length,
          d.afix ? "afix " + d.afix : null].filter(Boolean).join(" · "));
       detaliu.appendChild(meta);
-      if (d.depunere) {
+      if (d.depunere && d.depunere.fel === "registratura") {
+        detaliu.appendChild(el("p", "g-afiliat",
+          "Depunere TELEFONICĂ, prin registratură (" + (d.depunere.registratorNume || "?") + ")" +
+          (d.crescatorTelefon ? " · telefonul membrului: " + d.crescatorTelefon : "") +
+          ". Membrul e titularul dosarului; declarația SEMNATĂ de el e piesa de la dosar, iar numărul de înregistrare i se comunică prin telefon."));
+      } else if (d.depunere) {
         detaliu.appendChild(el("p", "g-afiliat",
           "Depusă prin " + (d.depunere.asociatie || "asociația afiliată") +
           " · chinotehnist " + (d.depunere.chinotehnistNume || "?") +
@@ -743,7 +751,8 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
             // Proveniența: dosarul venit prin asociația afiliată se recunoaște fără să-l
             // deschizi — crescătorul lui nu e membru direct, deci nu are cotizație de
             // verificat, dar are dovada plății taxei la dosar.
-            if (x.depunere) b.appendChild(el("span", "g-dosar__afiliat", "prin " + (x.depunere.asociatie || "asociație afiliată")));
+            if (x.depunere) b.appendChild(el("span", "g-dosar__afiliat",
+              x.depunere.fel === "registratura" ? "telefonic, prin registratură" : "prin " + (x.depunere.asociatie || "asociație afiliată")));
             if (x.pesteTermen) b.appendChild(el("span", "g-dosar__termen", "peste termen"));
             b.addEventListener("click", () => deschide(x.id));
             li.appendChild(b);
