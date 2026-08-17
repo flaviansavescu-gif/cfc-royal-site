@@ -29,9 +29,15 @@ export default cuLimitareCod(async (req) => {
   const id = cod ? sha256(cod) : "";
   if (!id) return json({});
 
+  // Cod NECUNOSCUT => 401, nu 200 cu obiect gol. Un 200 la un cod inexistent făcea din
+  // funcția asta un poligon de ghicit fără penalizare (eșecurile nu se numărau) — și,
+  // până azi, ștergea și contorul celorlalte porți. Acum ghicitul se plătește.
+  const store = getStore("cursuri");
+  const cand = await store.get("candidat/" + id, { type: "json" }).catch(() => null);
+  if (!cand) return json({ eroare: "Cod necunoscut." }, 401);
+
   const out = {};
   try {
-    const store = getStore("cursuri");
     const prefix = "progres/" + id + "/";
     const { blobs } = await store.list({ prefix });
     for (const b of blobs) {

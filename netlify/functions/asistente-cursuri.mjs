@@ -128,16 +128,17 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "eu") {
     const cod = taie(body.id, 128);
     const id = cod ? sha256(cod) : "";
+    // Cod necunoscut => 401 (nu 200 cu liste goale): altfel ghicitul nu se numără.
+    const cand = id ? await store.get("candidat/" + id, { type: "json" }).catch(() => null) : null;
+    if (!cand) return json({ eroare: "Cod necunoscut." }, 401);
     const expozitii = await citesteExpozitii(store);
     let numiri = numiriCurate({});
     let evaluari = evaluariCurate({});
-    if (id) {
-      try {
-        const n = await store.get("asistente/numire/" + id, { type: "json" });
-        if (n) numiri = numiriCurate(n);
-      } catch {}
-      evaluari = await citesteEvaluari(store, id);
-    }
+    try {
+      const n = await store.get("asistente/numire/" + id, { type: "json" });
+      if (n) numiri = numiriCurate(n);
+    } catch {}
+    evaluari = await citesteEvaluari(store, id);
     return json({ expozitii, numiri, evaluari });
   }
 

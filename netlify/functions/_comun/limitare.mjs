@@ -113,7 +113,14 @@ export function cuLimitareCod(handler) {
         // se pot ghici — deci toate trebuie limitate, altfel poarta e liberă pe acele căi.
         areCod = !!(String(b?.cod || "").trim() || String(b?.cid || "").trim() || String(b?.id || "").trim());
       }
-    } catch { areCod = false; }
+    } catch {
+      // CORPUL NU E JSON. Până azi însemna „fără cod, treci nelimitat" — și era o portiță
+      // reală: `breed-instalare` acceptă și corpuri de FORMULAR, deci un cod trimis așa
+      // trecea complet NENUMĂRAT (ghicire nelimitată, inclusiv a codului de admin).
+      // De acum e invers: dacă nu putem citi corpul, presupunem că poartă un cod și
+      // limităm. Fail-closed, ca peste tot în casă.
+      areCod = req.method === "POST";
+    }
     if (!areCod) return handler(req, context);
 
     let cheie = null;
@@ -146,7 +153,11 @@ export function cuLimitareCod(handler) {
         // n-are voie la acea acțiune. Numărat, l-ar duce la blocare pentru un clic greșit.
         const refuzDeDrept = raspuns.headers.get(ANTET_REFUZ_DREPT) === "1";
         if (!refuzDeDrept && (raspuns.status === 401 || raspuns.status === 403)) await inregistreazaEsec(cheie);
-        else if (raspuns.ok) await resetLimita(cheie);
+        // NU mai resetăm contorul la orice 200. Era o portiță: funcții ca `progres-cursuri`
+        // sau acțiunile „eu" răspund 200 și pentru un cod INEXISTENT, deci 19 ghiciri
+        // urmate de o cerere fără valoare ștergeau contorul — la nesfârșit. Resetarea
+        // rămâne treaba funcțiilor care chiar au DOVEDIT o acreditare: ele cheamă explicit
+        // `resetLimita` (acces-cursuri, breed-date). Aici doar numărăm eșecurile.
       } catch (err) { console.error("Limitare (numărare) eșuată:", err); }
     }
     return raspuns;

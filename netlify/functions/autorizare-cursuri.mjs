@@ -105,13 +105,14 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "eu") {
     const codC = taie(body.id, 64);
     const id = codC ? sha256(codC) : "";
+    // Cod necunoscut => 401 (nu 200 cu listă goală): altfel ghicitul nu se numără.
+    const cand = id ? await store.get("candidat/" + id, { type: "json" }).catch(() => null) : null;
+    if (!cand) return json({ eroare: "Cod necunoscut." }, 401);
     let grupe = [];
-    if (id) {
-      try {
-        const a = await store.get("autorizare/" + id, { type: "json" });
-        if (a) grupe = grupeCurate(a.grupe);
-      } catch {}
-    }
+    try {
+      const a = await store.get("autorizare/" + id, { type: "json" });
+      if (a) grupe = grupeCurate(a.grupe);
+    } catch {}
     return json({ grupe });
   }
 
