@@ -28,7 +28,13 @@ import { felActului, etichetaCod, textStare, notaValid, motivAnulare } from "./_
 // verificarea.
 //
 // Mai bine o verificare care spune cinstit că nu poate funcționa decât una care minte.
-const SECRET = process.env.EXPO_SYNC_SECRET || "";
+// Puntea (secretul care lasă managerul să scrie pe site) și SEMNĂTURA ACTELOR au acum
+// chei DIFERITE. Cu o singură cheie, o scurgere a punții însemna și fabricarea de
+// certificate „autentice"; despărțite, o scurgere n-o mai atinge pe cealaltă.
+// Trecere lină: cât timp VERIFICARE_SECRET nu e pusă, se folosește vechea cheie, deci
+// codurile deja tipărite se verifică mai departe. Managerul face exact la fel.
+const SECRET = process.env.EXPO_SYNC_SECRET || "";                       // puntea
+const SECRET_ACTE = process.env.VERIFICARE_SECRET || SECRET || "";       // semnătura actelor
 const CHEIE = "lista";
 
 const json = (body, status = 200) =>
@@ -51,8 +57,8 @@ export default async (req) => {
   // Fără secret nu se poate verifica nimic — și NU inventăm un răspuns. Un „certificat
   // neconfirmat" ar arunca vina pe hârtia omului; 503 spune adevărul: serviciul e
   // indisponibil, nu actul e fals.
-  if (!SECRET) {
-    console.error("VERIFICAREA ACTELOR E OPRITĂ: lipsește EXPO_SYNC_SECRET din mediu.");
+  if (!SECRET_ACTE) {
+    console.error("VERIFICAREA ACTELOR E OPRITĂ: lipsesc și VERIFICARE_SECRET, și EXPO_SYNC_SECRET din mediu.");
     return json({
       eroare: "Verificarea certificatelor este momentan indisponibilă. Scrie la contact@cfc-royal.ro.",
     }, 503);
@@ -81,7 +87,7 @@ export default async (req) => {
   const [payload, sig] = c.split(".");
   if (!payload || !sig) return json({ valid: false, motiv: "Cod de verificare incomplet." });
 
-  const asteptat = crypto.createHmac("sha256", SECRET).update(payload).digest("hex").slice(0, 24);
+  const asteptat = crypto.createHmac("sha256", SECRET_ACTE).update(payload).digest("hex").slice(0, 24);
   let okSig = false;
   try {
     okSig = sig.length === asteptat.length && crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(asteptat));
