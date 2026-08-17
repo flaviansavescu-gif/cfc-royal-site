@@ -65,10 +65,27 @@ function varstaInLuni(nastere, laData) {
   return luni;
 }
 
-function clasaValida(clasa, nastere, dataShow) {
+export function clasaValida(clasa, nastere, dataShow) {
   const r = VARSTA[clasa];
   if (!r) return false;
-  const luni = varstaInLuni(nastere, dataShow);
+
+  // Datele se verifică ÎNAINTE de a socoti vârsta, și se verifică amândouă capcanele:
+  //
+  //   1. Dată necitibilă („candva", câmp gol) → `NaN`. Iar `NaN < min` și `NaN >= max`
+  //      sunt AMÂNDOUĂ false, deci vechea funcție răspundea „clasa e bună" pentru ORICE
+  //      clasă — un câine cu data stricată intra la Champion sau la Veterani.
+  //   2. `null`/`undefined` → `new Date(null)` NU e invalidă, e 1 ianuarie 1970. Un câmp
+  //      gol devenea astfel un câine de peste cincizeci de ani: perfect „valid" la
+  //      Veterani (min. 120 de luni).
+  //
+  // `?? NaN` acoperă al doilea caz, `isNaN` pe primul. Fără dată bună nu se poate spune
+  // nimic despre clasă, deci răspunsul corect e refuzul.
+  const d1 = new Date(nastere ?? NaN);
+  const d2 = new Date(dataShow ?? NaN);
+  if (isNaN(d1.getTime()) || isNaN(d2.getTime())) return false;
+
+  const luni = varstaInLuni(d1, d2);
+  if (!Number.isFinite(luni)) return false;
   if (luni < r.min) return false;
   if (r.max !== null && luni >= r.max) return false;
   return true;
