@@ -31,6 +31,7 @@ standardele World Dog Federation (WDF) și International Institute of Profession
 - [Regulamentul Colegiului de Arbitri](/ro/documente/regulamentul-colegiului-de-arbitri/) — Anexa 3 · Hotărârea nr. 147/01-08-2026
 - [Regulamentul de înregistrare a caniselor și de rezervare a afixului](/ro/documente/regulament-inregistrare-canise/) — Hotărârea nr. 146/01-08-2026
 - [Regulamentul de creștere și sănătate](/ro/documente/regulament-crestere-sanatate/) — Hotărârea nr. 181/13-08-2026
+- [Regulamentul de organizare a expozițiilor](/ro/documente/regulament-organizare-expozitii/) — Hotărârea nr. 182/13-08-2026
 
 ## Adoptarea documentelor
 
