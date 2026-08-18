@@ -45,6 +45,7 @@ export interface CollectionDef {
 
 // Categorii regulamente: cheia (RO, din schema) -> etichetă localizată
 const REG_CATS: Record<string, Record<Lang, string>> = {
+  "Regulamentul general": { ro: "Regulamentul general", en: "General regulations" },
   "Titluri": { ro: "Titluri", en: "Titles" },
   "Proceduri de arbitraj": { ro: "Proceduri de arbitraj", en: "Judging procedures" },
   "Etică și conduită": { ro: "Etică și conduită", en: "Ethics & conduct" },
@@ -441,7 +442,7 @@ export const collectionDefs: CollectionDef[] = [
     eyebrow: { ro: "Expoziții", en: "Dog Shows" },
     sort: (a, b) => (a.order ?? 999) - (b.order ?? 999) || a.title.localeCompare(b.title, "ro"),
     groupBy: (d) => d.category,
-    groupOrder: ["Titluri", "Proceduri de arbitraj", "Etică și conduită", "Contestații și abateri", "Roluri"],
+    groupOrder: ["Regulamentul general", "Titluri", "Proceduri de arbitraj", "Etică și conduită", "Contestații și abateri", "Roluri"],
     groupLabel: regCat,
     card: (d, lang) => ({ title: d.title, tag: regCat(d.category, lang), excerpt: d.summary }),
     metaRows: (d, lang) => rows(row(L(lang, "Categorie", "Category"), regCat(d.category, lang)), randAdoptare(d, lang)),

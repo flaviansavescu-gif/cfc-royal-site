@@ -298,6 +298,7 @@ const regulamente = defineCollection({
     ...adoptare,
     category: z
       .enum([
+        "Regulamentul general",
         "Titluri",
         "Proceduri de arbitraj",
         "Etică și conduită",

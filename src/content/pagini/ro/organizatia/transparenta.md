@@ -33,6 +33,7 @@ standardele World Dog Federation (WDF) și International Institute of Profession
 - [Regulamentul de creștere și sănătate](/ro/documente/regulament-crestere-sanatate/) — Hotărârea nr. 181/13-08-2026
 - [Regulamentul de organizare a expozițiilor](/ro/documente/regulament-organizare-expozitii/) — Hotărârea nr. 182/13-08-2026
 - [Regulamentul Centrului de Dezvoltare a Competențelor Chinologice](/ro/documente/regulamentul-centrului-de-dezvoltare/) — Școala de Arbitraj · Hotărârea nr. 183/13-08-2026
+- [Regulamentul Oficial al Expozițiilor Canine de Frumusețe (WDF)](/ro/regulamente/regulamentul-oficial-al-expozitiilor/) — regulamentul-mamă al federației, versiunea în limba română · Hotărârea nr. 184/13-08-2026
 
 ## Adoptarea documentelor
 
