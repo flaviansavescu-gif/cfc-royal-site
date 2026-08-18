@@ -550,7 +550,7 @@ După ce rapoartele și carnetele de calificări au fost înmânate expozanțilo
 
 Comitetele de organizare sunt obligate să folosească tipizatele/paperistica stabilită și aprobată de WDF.
 
-## Presa
+## Premii
 
 ### Articolul 30
 
