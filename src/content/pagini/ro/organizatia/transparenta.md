@@ -11,6 +11,15 @@ summary: "Date oficiale, statut, regulamente și documente publice."
 - **CIF:** 48828041
 - **IBAN:** RO07 RNCB 0263 1767 9657 0001 — Banca Comercială Română (BCR)
 
+## Actul fondator
+
+- [Statutul Asociației](/ro/documente/statut/) — adoptat de Adunarea Generală constitutivă
+  din 15 august 2023
+
+Din Statut decurg toate celelalte documente de mai jos. Versiunea publicată are acoperite
+datele personale ale membrilor fondatori (cod numeric personal, adresă, act de identitate)
+și semnăturile — numele și funcțiile au rămas.
+
 ## Regulamente interne
 
 Documentele fundamentale ale Asociației, anexe la Regulamentul intern de funcționare, aliniate la
@@ -34,5 +43,6 @@ site-ului.
 
 ## Documente publice
 
-Statutul, actul constitutiv, hotărârile Consiliului Director și situațiile financiare se
-publică în secțiunea [Documente](/ro/documente/), pe măsură ce sunt pregătite.
+[Statutul](/ro/documente/statut/) este publicat. Actul constitutiv, hotărârile Consiliului
+Director și situațiile financiare se publică în secțiunea [Documente](/ro/documente/), pe
+măsură ce sunt pregătite.

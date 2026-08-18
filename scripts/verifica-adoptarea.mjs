@@ -59,10 +59,19 @@ for (const loc of LOCURI) {
 
     const adoptat = (/^adoptat:\s*(.+?)\s*$/m.exec(cap) || [])[1];
     const hotarare = (/^hotarare:\s*"?(.+?)"?\s*$/m.exec(cap) || [])[1];
+    // Actele FONDATOARE (Statutul, actul constitutiv) n-au număr de hotărâre a
+    // Consiliului Director: sunt adoptate de Adunarea Generală constitutivă, înaintea
+    // Consiliului însuși. Pentru ele se scrie CINE le-a adoptat, în loc de un număr —
+    // altfel singura ieșire ar fi să inventăm unul, iar un număr inventat pe un act
+    // public e mai rău decât lipsa lui.
+    const adoptareDe = (/^adoptareDe:\s*"?(.+?)"?\s*$/m.exec(cap) || [])[1];
 
     if (!adoptat) rele.push([scurt, "nu are `adoptat` în frontmatter"]);
-    if (!hotarare) rele.push([scurt, "nu are `hotarare` în frontmatter"]);
-    else if (!FORMA.test(hotarare)) rele.push([scurt, `numărul hotărârii „${hotarare}" nu are forma 142/01-08-2026`]);
+    if (hotarare) {
+      if (!FORMA.test(hotarare)) rele.push([scurt, `numărul hotărârii „${hotarare}" nu are forma 142/01-08-2026`]);
+    } else if (!adoptareDe) {
+      rele.push([scurt, "nu are nici `hotarare`, nici `adoptareDe` în frontmatter"]);
+    }
 
     // Locurile goale rămase în text sunt mai rele decât lipsa unei date în frontmatter:
     // ele se VĂD de oricine deschide documentul.

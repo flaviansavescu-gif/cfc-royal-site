@@ -43,6 +43,15 @@ const galleryItem = z.union([
 const adoptare = {
   adoptat: z.coerce.date().optional(),   // ziua ședinței Consiliului Director
   hotarare: z.string().optional(),       // numărul hotărârii, ex. „142/01-08-2026"
+  /**
+   * Cine a adoptat, când NU e o hotărâre numerotată a Consiliului Director.
+   *
+   * Regula scrisă în 2026 presupunea că orice act al asociației vine dintr-o hotărâre a
+   * Consiliului. Statutul o contrazice: el e actul FONDATOR, adoptat de Adunarea Generală
+   * constitutivă din 15 august 2023 — înaintea Consiliului însuși. Alternativa ar fi fost
+   * să-i inventăm un număr de hotărâre, ceea ce nu se face niciodată în casa asta.
+   */
+  adoptareDe: z.string().optional(),
 };
 
 // câmpuri comune tuturor colecțiilor
