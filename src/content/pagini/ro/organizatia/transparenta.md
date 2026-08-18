@@ -32,6 +32,7 @@ standardele World Dog Federation (WDF) și International Institute of Profession
 - [Regulamentul de înregistrare a caniselor și de rezervare a afixului](/ro/documente/regulament-inregistrare-canise/) — Hotărârea nr. 146/01-08-2026
 - [Regulamentul de creștere și sănătate](/ro/documente/regulament-crestere-sanatate/) — Hotărârea nr. 181/13-08-2026
 - [Regulamentul de organizare a expozițiilor](/ro/documente/regulament-organizare-expozitii/) — Hotărârea nr. 182/13-08-2026
+- [Regulamentul Centrului de Dezvoltare a Competențelor Chinologice](/ro/documente/regulamentul-centrului-de-dezvoltare/) — Școala de Arbitraj · Hotărârea nr. 183/13-08-2026
 
 ## Adoptarea documentelor
 
