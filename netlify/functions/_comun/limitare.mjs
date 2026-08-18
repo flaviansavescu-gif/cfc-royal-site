@@ -6,6 +6,7 @@
 import { getStore } from "@netlify/blobs";
 import { ANTET_REFUZ_DREPT } from "./drepturi-registru.mjs";
 import { createHash } from "node:crypto";
+import { consemneaza, usaDinUrl } from "./paznic.mjs";
 
 const store = () => getStore("acces");
 
@@ -152,7 +153,15 @@ export function cuLimitareCod(handler) {
         // Refuzul de DREPT nu e o încercare de spargere: omul e cine spune că e, doar
         // n-are voie la acea acțiune. Numărat, l-ar duce la blocare pentru un clic greșit.
         const refuzDeDrept = raspuns.headers.get(ANTET_REFUZ_DREPT) === "1";
-        if (!refuzDeDrept && (raspuns.status === 401 || raspuns.status === 403)) await inregistreazaEsec(cheie);
+        if (!refuzDeDrept && (raspuns.status === 401 || raspuns.status === 403)) {
+          await inregistreazaEsec(cheie);
+          // …și paznicul de intruziune ține minte. Contorul de mai sus e o STARE (se
+          // resetează, se șterge); paznicul are nevoie de memorie, ca să poată vedea
+          // tiparul peste ore și peste uși. Aici e singurul loc din casă prin care trec
+          // TOATE refuzurile de acreditare — deci singurul loc unde merită pus.
+          const usa = usaDinUrl(req.url);
+          if (usa) await consemneaza(store(), { usa, amprenta: cheie });
+        }
         // NU mai resetăm contorul la orice 200. Era o portiță: funcții ca `progres-cursuri`
         // sau acțiunile „eu" răspund 200 și pentru un cod INEXISTENT, deci 19 ghiciri
         // urmate de o cerere fără valoare ștergeau contorul — la nesfârșit. Resetarea

@@ -107,6 +107,12 @@ dispozitivelor recunoscute, numărul încercărilor de intrare eșuate.
 **Temei:** interesul legitim de a putea dovedi cine a emis un act și de a apăra sistemul
 împotriva accesului neautorizat.
 
+Tot aici intră **paznicul de intruziune**: la fiecare cod greșit se notează ce fel de
+intrare s-a încercat, în ce oră și de la ce **amprentă** de adresă IP — niciodată adresa
+în clar și niciodată codul încercat. Fără aceste însemnări nu s-ar putea deosebi un om
+care și-a uitat codul de cineva care caută metodic o intrare. Se șterg singure după 30 de
+zile.
+
 ### 10. Fotografii de la evenimente
 
 Vezi secțiunea de mai jos.

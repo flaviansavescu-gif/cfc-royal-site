@@ -1,0 +1,212 @@
+---
+// /registru/admin/paznic/ — fereastra către paznicul de intruziune.
+//
+// Nu e un ecran de urmărit zilnic. E locul unde te uiți când te întrebi ceva: după o
+// scrisoare de la paznic, sau când vrei să vezi cu ochii tăi cum arată o săptămână
+// obișnuită. Restul timpului, raportul de luni spune tot ce e de spus.
+//
+// Ce NU e aici: butoane de blocare. Paznicul povestește, nu oprește — hotărâre luată
+// fiindcă o adresă IP e împărțită de tot blocul, iar o blocare pripită ar închide pe
+// dinafară chiar oamenii asociației.
+import RegistruLayout from "../../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Paznicul de intruziune" allow={["admin"]}>
+  <p class="a-eyebrow">Administrare · Siguranță</p>
+  <h1 class="a-title">Paznicul de intruziune</h1>
+  <p class="a-sub">
+    Cine a bătut la uși și cum. Paznicul se trezește la fiecare jumătate de oră, judecă
+    tiparul ultimelor trei ore și scrie doar când are ce spune. Lunea, la ora 8, trimite
+    raportul săptămânal chiar și când n-a fost nimic.
+  </p>
+
+  <section class="a-sectiune">
+    <div class="p-verdict" id="p-verdict" data-stare="asteapta">
+      <p class="p-verdict__stare" id="p-stare">Se citește…</p>
+      <p class="p-verdict__motiv" id="p-motiv"></p>
+    </div>
+
+    <div class="p-cifre" id="p-cifre" hidden>
+      <div class="p-cifra"><b id="p-acum-refuzuri">—</b><span>coduri greșite, ultimele 3 ore</span></div>
+      <div class="p-cifra"><b id="p-acum-urme">—</b><span>vizitatori diferiți</span></div>
+      <div class="p-cifra"><b id="p-sapt-refuzuri">—</b><span>coduri greșite, ultimele 7 zile</span></div>
+      <div class="p-cifra"><b id="p-sapt-urme">—</b><span>vizitatori, 7 zile</span></div>
+    </div>
+  </section>
+
+  <section class="a-sectiune">
+    <h2 class="p-h2">La ce uși s-a bătut <span class="p-perioada">ultimele 7 zile</span></h2>
+    <div class="p-tabel-strat">
+      <table class="p-tabel" id="p-usi">
+        <thead><tr><th>Ușa</th><th class="p-n">Coduri greșite</th></tr></thead>
+        <tbody><tr><td colspan="2" class="a-gol">Se citește…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="a-sectiune">
+    <h2 class="p-h2">Vizitatorii cu cele mai multe uși încercate</h2>
+    <p class="p-nota">
+      Un vizitator care a bătut la <b>o singură ușă</b>, de două-trei ori, e aproape sigur
+      cineva care și-a uitat codul. Trei uși fără legătură între ele înseamnă altceva —
+      și de aceea paznicul scrie. Urma e o amprentă, nu o adresă: deosebește două rânduri
+      între ele, dar nu spune nimic despre o persoană.
+    </p>
+    <div class="p-tabel-strat">
+      <table class="p-tabel" id="p-vizitatori">
+        <thead><tr><th>Urma</th><th class="p-n">Încercări</th><th>Uși</th></tr></thead>
+        <tbody><tr><td colspan="3" class="a-gol">Se citește…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="a-sectiune">
+    <h2 class="p-h2">Pragurile de acum</h2>
+    <ul class="p-praguri" id="p-praguri"><li class="a-gol">Se citesc…</li></ul>
+    <p class="p-nota">
+      Sunt ridicate dinadins. Un paznic care sună des ajunge ignorat în câteva săptămâni —
+      și atunci nu mai apără nimic.
+    </p>
+  </section>
+
+  <script is:inline>
+    (function () {
+      const dispozitivAdmin = () => { try { return localStorage.getItem("cfcrRegistruDispozitiv") || ""; } catch (e) { return ""; } };
+      function codAdmin() {
+        let c = null;
+        try { c = localStorage.getItem("cfcrRegistruCod"); } catch (e) {}
+        return c || prompt("Confirmă codul de administrator:");
+      }
+
+      const $ = (id) => document.getElementById(id);
+      const nr = (n) => new Intl.NumberFormat("ro-RO").format(Number(n) || 0);
+
+      function rand(tabel, celule) {
+        const tr = document.createElement("tr");
+        for (const c of celule) {
+          const td = document.createElement("td");
+          if (c.clasa) td.className = c.clasa;
+          td.textContent = c.text;
+          tr.appendChild(td);
+        }
+        tabel.appendChild(tr);
+      }
+      function gol(tabel, coloane, text) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = coloane; td.className = "a-gol"; td.textContent = text;
+        tr.appendChild(td); tabel.appendChild(tr);
+      }
+
+      const CUVINTE = {
+        liniste: "Liniște — nimic de semnalat",
+        semnal: "Semnal — merită o privire",
+        alarma: "Alarmă — încercări susținute",
+      };
+
+      async function incarca() {
+        let d;
+        try {
+          const res = await fetch("/.netlify/functions/paznic-raport", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivAdmin(), zile: 7 }),
+          });
+          d = await res.json();
+          if (!res.ok) throw new Error(d.eroare || "Eroare de server.");
+        } catch (e) {
+          $("p-verdict").dataset.stare = "eroare";
+          $("p-stare").textContent = "Nu am putut citi";
+          $("p-motiv").textContent = e.message;
+          return;
+        }
+
+        const v = d.verdict || {};
+        $("p-verdict").dataset.stare = v.stare || "liniste";
+        $("p-stare").textContent = CUVINTE[v.stare] || "Liniște";
+        $("p-motiv").textContent =
+          (v.stare === "liniste"
+            ? "Nimeni n-a încercat să intre într-un fel care să semene cu o căutare."
+            : v.motiv) + " · citit " + d.la;
+
+        $("p-cifre").hidden = false;
+        $("p-acum-refuzuri").textContent = nr(d.acum.refuzuri) + (d.acum.estimat ? "≈" : "");
+        $("p-acum-urme").textContent = nr(d.acum.urme);
+        $("p-sapt-refuzuri").textContent = nr(d.perioada.refuzuri) + (d.perioada.estimat ? "≈" : "");
+        $("p-sapt-urme").textContent = nr(d.perioada.urme);
+
+        const tUsi = $("p-usi").querySelector("tbody");
+        tUsi.textContent = "";
+        if (!d.perioada.peUsa.length) gol(tUsi, 2, "Nicio ușă atinsă în această perioadă.");
+        else for (const u of d.perioada.peUsa) rand(tUsi, [{ text: u.usa }, { text: nr(u.n), clasa: "p-n" }]);
+
+        const tViz = $("p-vizitatori").querySelector("tbody");
+        tViz.textContent = "";
+        if (!d.perioada.vizitatori.length) gol(tViz, 3, "Niciun vizitator refuzat în această perioadă.");
+        else for (const x of d.perioada.vizitatori) {
+          rand(tViz, [
+            { text: x.urma + "…", clasa: "p-urma" },
+            { text: nr(x.incercari), clasa: "p-n" },
+            { text: x.usi.join(", ") },
+          ]);
+        }
+
+        const p = d.praguri || {};
+        const lista = $("p-praguri");
+        lista.textContent = "";
+        for (const t of [
+          "Semnal: aceeași urmă la " + p.usiPentruSemnal + " uși diferite.",
+          "Alarmă: peste " + nr(p.refuzuriPentruAlarma) + " de încercări de la cel puțin " +
+            p.urmePentruAlarma + " urme, în " + p.oreVeghe + " ore.",
+          "Memoria paznicului se șterge singură după " + p.retentieZile + " de zile.",
+          d.ultimaScrisoare
+            ? "Ultima scrisoare trimisă: " + CUVINTE[d.ultimaScrisoare.stare] + "."
+            : "Nicio scrisoare trimisă până acum.",
+        ]) {
+          const li = document.createElement("li");
+          li.textContent = t;
+          lista.appendChild(li);
+        }
+      }
+
+      incarca();
+    })();
+  </script>
+
+  <style>
+    .p-h2 { font-family: var(--font-serif); font-size: 1.15rem; margin: 0 0 .5rem; color: var(--color-primary-dark); }
+    .p-perioada { font-weight: 400; font-size: .8rem; color: var(--color-text-muted); }
+    .p-sub, .a-sub { color: var(--color-text-muted); }
+
+    .p-verdict { border: 1px solid var(--color-border); border-left-width: 4px; border-radius: var(--radius); padding: 1rem 1.15rem; }
+    .p-verdict[data-stare="liniste"] { border-left-color: #1F7A4D; background: #f2f8f4; }
+    .p-verdict[data-stare="semnal"] { border-left-color: #A9611B; background: #fdf7ef; }
+    .p-verdict[data-stare="alarma"] { border-left-color: #8c1d2f; background: #f9efef; }
+    .p-verdict[data-stare="eroare"], .p-verdict[data-stare="asteapta"] { border-left-color: var(--color-border); }
+    .p-verdict__stare { margin: 0; font-weight: 700; font-size: 1.05rem; }
+    .p-verdict__motiv { margin: .3rem 0 0; font-size: .9rem; color: var(--color-text-muted); }
+
+    .p-cifre { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .75rem; margin-top: 1rem; }
+    .p-cifra { border: 1px solid var(--color-border); border-radius: var(--radius); padding: .7rem .85rem; }
+    .p-cifra b { display: block; font-size: 1.5rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+    .p-cifra span { font-size: .78rem; color: var(--color-text-muted); }
+
+    .p-tabel-strat { overflow-x: auto; }
+    .p-tabel { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    .p-tabel th { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--color-text-muted); }
+
+    /* RÂNDURILE SUNT DESENATE DE JAVASCRIPT. Stilurile din `<style>` sunt scoped: Astro
+       le pune un atribut de identificare elementelor din șablon, iar elementele născute
+       la rulare nu-l au — deci un `.p-n` obișnuit nu li s-ar aplica NICIODATĂ. De aceea
+       `:global(...)`, ancorat de tabelul care ESTE în șablon, ca să nu scape în restul
+       site-ului. (Lecție plătită o dată, pe 21 de pagini.) */
+    .p-tabel :global(th),
+    .p-tabel :global(td) { text-align: left; padding: .4rem .8rem .4rem 0; border-bottom: 1px solid var(--color-border); }
+    .p-tabel :global(.p-n) { text-align: right; padding-right: 0; font-variant-numeric: tabular-nums; }
+    .p-tabel :global(.p-urma) { font-family: var(--font-mono); font-size: .85em; color: var(--color-text-muted); }
+    .p-tabel :global(.a-gol) { color: var(--color-text-muted); font-style: italic; }
+
+    .p-nota { font-size: .86rem; color: var(--color-text-muted); max-width: 42rem; }
+    .p-praguri { margin: 0; padding-left: 1.1rem; font-size: .9rem; color: var(--color-text-muted); display: flex; flex-direction: column; gap: .3rem; }
+    .p-praguri :global(li) { margin: 0; } /* și acestea sunt scrise de JavaScript */
+  </style>
+</RegistruLayout>

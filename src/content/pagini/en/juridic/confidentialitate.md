@@ -111,6 +111,12 @@ recognised devices, the count of failed sign-in attempts.
 **Basis:** the legitimate interest in being able to prove who issued a document and in
 defending the system against unauthorised access.
 
+This also covers the **intrusion watchdog**: on every wrong code we record what kind of
+entrance was attempted, in which hour, and from which IP **fingerprint** — never the
+address itself and never the code that was tried. Without these notes there would be no
+way to tell someone who forgot their code from someone methodically looking for a way in.
+They delete themselves after 30 days.
+
 ### 10. Photographs taken at events
 
 See the section below.
