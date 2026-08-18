@@ -102,7 +102,12 @@ const t = useTranslations(lang);
   .record__body :global(h2) { color: var(--color-primary); margin-top: 2rem; }
   .record__body :global(h3) { margin-top: 1.5rem; }
   .record__body :global(ul), .record__body :global(ol) { padding-left: 1.25rem; }
-  .record__body :global(a) { color: var(--color-link); }
+  /* Legăturile din text, VERZI — dar nu și butoanele.
+     Fără `:not(.btn)`, regula asta (specificitate 0,2,1) bătea `.btn--primary` (0,1,0)
+     și scria textul butonului cu VERDELE FUNDALULUI: contrast 1.00, adică un buton
+     perfect invizibil. S-a văzut la butonul de descărcare al Statutului, dar lovea orice
+     buton pus vreodată în corpul unui document. Probă: scripts/butoane-vizibile.test.mjs */
+  .record__body :global(a:not(.btn)) { color: var(--color-link); }
   .record__body :global(img) { border-radius: var(--radius); border: 1px solid var(--color-border); }
 
   /* Tabelele din conținut (termene de păstrare, furnizori, liste de taxe). `display: block`
