@@ -22,6 +22,10 @@ const baza = (o) => Object.assign({
   mascul: parinte({ nume: "Tata", email: "tata@x.ro" }),
   femela: parinte({ nume: "Mama" }),
   pui: pui(3, 2),
+  // Ceruta de Regulamentul de crestere (Art. 9 alin. 2) la montele de dupa 13.08.2026.
+  // Sta in baza ca probele cu date RELATIVE (zileInUrma) sa nu cada cand calendarul
+  // trece pragul — fara ea, "zileInUrma(100)" ar deveni intr-o zi o monta post-regulament.
+  fatareCezariana: "nu",
   consimtaminte: { adn: true, predare60: true, gdpr: true, semnatura: true },
   semnatura: "Ion Popescu",
 }, o || {});
@@ -32,6 +36,23 @@ t("declarație validă trece", !bun.eroare, bun.eroare);
 t("afixul vine din contul membrului", bun.d && bun.d.afix === "de Cerna");
 t("nu e peste termen la 37 de zile", bun.d && bun.d.pesteTermen === false);
 t("zilele de la fătare calculate", bun.d && bun.d.zileDeLaFatare === 37, bun.d && bun.d.zileDeLaFatare);
+
+console.log("— cezariana (Art. 9 din Regulamentul de crestere si sanatate) —");
+{
+  // O monta sigur DUPA intrarea in vigoare (13.08.2026) si o fatare care nu e nici in
+  // viitor, nici inaintea montei. Ordinea datelor conteaza, nu durata gestatiei.
+  const dupa = { dataMontei: "2026-08-14", dataFatarii: zileInUrma(1) };
+  const fara = valideazaDeclaratia(baza({ ...dupa, fatareCezariana: "" }), membru);
+  t("monta post-regulament fara rubrica cezarienei e respinsa", !!fara.eroare && /cezarian/.test(fara.eroare), fara.eroare);
+  const cuDa = valideazaDeclaratia(baza({ ...dupa, fatareCezariana: "da" }), membru);
+  t("„da” se pastreaza ca adevarat", !cuDa.eroare && cuDa.d.fatareCezariana === true, cuDa.eroare);
+  const cuNu = valideazaDeclaratia(baza(dupa), membru);
+  t("„nu” se pastreaza ca fals", !cuNu.eroare && cuNu.d.fatareCezariana === false, cuNu.eroare);
+  const veche = valideazaDeclaratia(baza({ dataMontei: "2026-06-01", dataFatarii: "2026-08-05", fatareCezariana: "" }), membru);
+  t("monta dinaintea regulamentului nu cere rubrica (Art. 27)", !veche.eroare && veche.d.fatareCezariana === null, veche.eroare);
+  const motiv = valideazaDeclaratia(baza({ ...dupa, motivSelectie: "Fixarea tipului de cap." }), membru);
+  t("motivul de selectie se pastreaza in declaratie", !motiv.eroare && motiv.d.motivSelectie === "Fixarea tipului de cap.", motiv.eroare);
+}
 
 console.log("— termenul —");
 const tarziu = valideazaDeclaratia(baza({ dataMontei: zileInUrma(183), dataFatarii: zileInUrma(120) }), membru);

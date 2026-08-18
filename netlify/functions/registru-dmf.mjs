@@ -40,6 +40,7 @@ import {
 } from "./_comun/registru-jurnal.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
 import { cheileCitirii } from "./_comun/citire-documente.mjs";
+import { START_PORTI, PRAG, luniIntre, portiCrestere, mesajOpriri } from "./_comun/porti-crestere.mjs";
 
 // CITIRE TARE, ca la poarta de acces.
 //
@@ -169,6 +170,52 @@ async function cine(cod) {
   const k = await chinotehnistDinCod(cod);
   if (k) return { rol: "chinotehnist", chinotehnist: k };
   return null;
+}
+
+/**
+ * Culege din magazie ce le trebuie porților de creștere (Art. 22): fătările
+ * NEREspinse ale femelei, ascendențele părinților din fișele registrului și, la
+ * masculul de 12–14 luni, profilul ADN verificat din registrul de sănătate.
+ *
+ * COSTUL: o listare a dosarelor plus câte o citire de dosar. La sutele de DMF-uri
+ * de azi încape lejer în cele 10 secunde ale funcției; când registrul va crește
+ * spre mii, aici se pune un index pe microcipul femelei — nu se renunță la poartă.
+ */
+async function culegePentruPorti(s, d) {
+  const fatariAnterioare = [];
+  const { blobs } = await s.list({ prefix: "dmf/" });
+  for (const b of blobs) {
+    const x = await s.get(b.key, { type: "json" }).catch(() => null);
+    if (!x || x.stare === "respins") continue;
+    if (x.femela?.microcip !== d.femela.microcip) continue;
+    fatariAnterioare.push({
+      serie: x.serie, dataFatarii: x.dataFatarii,
+      cezariana: x.fatareCezariana === true,
+    });
+  }
+
+  // Fișa unui părinte: microcip -> serie -> certificat (cu ascendența lui).
+  const asc = async (cip) => {
+    const leg = await s.get("pedigree-caine/" + cip, { type: "json" }).catch(() => null);
+    if (!leg?.serie) return null;
+    const cert = await s.get("pedigree/" + leg.serie, { type: "json" }).catch(() => null);
+    return cert?.ascendenta || null;
+  };
+
+  // ADN-ul se caută doar când poarta l-ar cere — o citire mai puțin la dosarele obișnuite.
+  let adnMasculVerificat = false;
+  const vM = luniIntre(d.mascul.dataNasterii, d.dataMontei);
+  if (vM !== null && vM >= PRAG.MASCUL_MIN_LUNI && vM < PRAG.MASCUL_ADN_LUNI) {
+    const dosar = await s.get("sanatate/" + d.mascul.microcip, { type: "json" }).catch(() => null);
+    adnMasculVerificat = (dosar?.teste || []).some((t) => t.tip === "adn" && t.stare === "verificat");
+  }
+
+  return {
+    fatariAnterioare,
+    ascMascul: await asc(d.mascul.microcip),
+    ascFemela: await asc(d.femela.microcip),
+    adnMasculVerificat,
+  };
 }
 
 /** Ciorna e a celui care a deschis-o — membru sau chinotehnist, nu se amestecă. */
@@ -381,6 +428,21 @@ export function valideazaDeclaratia(body, membru) {
   if (!c.adn || !c.predare60 || !c.gdpr)
     return { eroare: "Toate cele trei declarații pe propria răspundere trebuie bifate." };
 
+  // CEZARIANA (Art. 9 alin. 2 din Regulamentul de creștere și sănătate): crescătorul
+  // declară odată cu DMF dacă fătarea s-a făcut prin operație. Obligatoriu DOAR la
+  // montele de după intrarea în vigoare (Art. 27) — un cuib vechi, depus târziu, nu
+  // poate fi respins pentru o rubrică pe care formularul de atunci n-o avea.
+  const cez = taie(body.fatareCezariana, 4).toLowerCase();
+  let fatareCezariana = null;
+  if (cez === "da") fatareCezariana = true;
+  else if (cez === "nu") fatareCezariana = false;
+  else if (dataMontei >= START_PORTI)
+    return { eroare: "Spune dacă fătarea s-a făcut prin operație cezariană (da sau nu) — Regulamentul de creștere și sănătate, Art. 9 alin. (2)." };
+
+  // Motivul de selecție (Art. 12) — cerut de poartă doar când părinții sunt rude de
+  // gradul al doilea; aici doar se taie la lungime.
+  const motivSelectie = taie(body.motivSelectie, 400);
+
   // SEMNĂTURA. Formularul tipărit are rubrica „Semnătura"; online îi ține locul numele
   // scris de om plus bifa explicită. Se cer amândouă — o bifă singură nu spune cine a
   // semnat, iar un nume fără bifă nu spune că și-a asumat.
@@ -402,6 +464,7 @@ export function valideazaDeclaratia(body, membru) {
       rasa, varietate, dataMontei, dataFatarii,
       nascutiM, nascutiF, ramasiM, ramasiF,
       mascul: m.p, femela: f.p, pui,
+      fatareCezariana, motivSelectie,
       consimtaminte: { adn: true, predare60: true, gdpr: true, semnatura: true },
       semnatura,
       afix, nrAfix,
@@ -658,6 +721,19 @@ export default cuLimitareCod(async (req) => {
     }
     if (lipsa.length) return json({ eroare: "Lipsesc de la dosar: " + lipsa.join(", ") + "." }, 400);
 
+    // ——— Porțile de creștere (Art. 22 din Regulamentul de creștere și sănătate) ———
+    // ÎNAINTE de alocarea seriei: un dosar care nu poate trece nu primește număr.
+    // Opririle întorc motivul scris, cu articolul (Art. 22 alin. 2); semnalele nu
+    // opresc, ci rămân pe dosar, pentru ochiul registraturii.
+    const cules = await culegePentruPorti(s, v.d);
+    const porti = portiCrestere({
+      dataMontei: v.d.dataMontei, dataFatarii: v.d.dataFatarii,
+      mascul: v.d.mascul, femela: v.d.femela,
+      fatareCezariana: v.d.fatareCezariana, motivSelectie: v.d.motivSelectie,
+      ...cules,
+    });
+    if (porti.opriri.length) return json({ eroare: mesajOpriri(porti.opriri) }, 400);
+
     const an = new Date().getFullYear();
     const serie = await serieNoua(an);
     if (!serie) return json({ eroare: "Nu am putut aloca un număr de înregistrare. Reîncearcă." }, 500);
@@ -673,6 +749,9 @@ export default cuLimitareCod(async (req) => {
       id: ciornaId, serie,
       numarWDF: null,                       // îl completează registratura la înregistrarea cuibului
       stare: "depus",
+      // Ce au văzut porțile de creștere la depunere (Art. 22). Semnalele nu opresc
+      // dosarul, dar registratura trebuie să le vadă înainte de validare.
+      porti: { verificatLa: new Date().toISOString(), semnale: porti.semnale },
       membruId: eAsistat ? null : eu.membru.id,
       membruNume: eAsistat ? crescator.nume : eu.membru.nume,
       membruEmail: eAsistat ? (crescator.email || (eAfiliat ? eu.chinotehnist.email : "")) : eu.membru.email,

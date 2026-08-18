@@ -562,6 +562,21 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       }
       if (d.pesteTermen) detaliu.appendChild(el("p", "g-termen", "Depusă după " + d.zileDeLaFatare + " de zile — peste termenul de 90."));
 
+      // —— Porțile de creștere (Art. 22 din Regulamentul de creștere și sănătate) ——
+      // Semnalele nu au oprit depunerea, dar cer ochiul registraturii ÎNAINTE de
+      // validare: avizul veterinar la femela de 8–9 ani, ADN-ul masculului tânăr,
+      // motivul de selecție la rudele de gradul al doilea.
+      if (d.fatareCezariana === true)
+        detaliu.appendChild(el("p", "g-termen", "⚠ Fătare declarată prin operație CEZARIANĂ — după a doua, femela iese din reproducție (Art. 9)."));
+      if (d.porti && d.porti.semnale && d.porti.semnale.length) {
+        detaliu.appendChild(el("h4", "g-dh4", "Semnalele porților de creștere"));
+        const lp = el("ul", "g-pui");
+        for (const sgn of d.porti.semnale) lp.appendChild(el("li", null, "⚠ " + sgn.motiv + " (" + sgn.articol + ")"));
+        detaliu.appendChild(lp);
+      }
+      if (d.motivSelectie)
+        detaliu.appendChild(el("p", "g-dmeta", "Motiv de selecție (rude de gradul II, Art. 12 — NU se publică): " + d.motivSelectie));
+
       for (const [cheie, eticheta] of [["mascul", "♂ Masculul"], ["femela", "♀ Femela"]]) {
         const p = d[cheie];
         detaliu.appendChild(el("h4", "g-dh4", eticheta + ": " + p.nume));

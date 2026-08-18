@@ -96,6 +96,17 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
         </tbody>
       </table>
       <p class="d-nota">Rândurile de pui de mai jos se generează din „rămași pentru creștere".</p>
+
+      <!-- Art. 9 alin. (2) din Regulamentul de creștere și sănătate: cezariana se
+           declară odată cu DMF. După a doua, femela iese din reproducție — regula
+           o ocrotește pe ea, nu pedepsește crescătorul. -->
+      <fieldset class="d-cez">
+        <legend>Fătarea s-a făcut prin operație cezariană?</legend>
+        <label class="d-cez__opt"><input type="radio" name="fatareCezariana" value="nu" required /> Nu</label>
+        <label class="d-cez__opt"><input type="radio" name="fatareCezariana" value="da" /> Da</label>
+        <p class="d-nota d-nota--mic">Se declară potrivit Regulamentului de creștere și sănătate, Art. 9.
+        Nedeclararea unei cezariene constituie abatere disciplinară.</p>
+      </fieldset>
     </section>
 
     <!-- ——— Părinții ——— -->
@@ -136,6 +147,15 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
           <label>Telefon <span class="d-opt">(opțional)</span><input name="femela.telefon" /></label>
         </fieldset>
       </div>
+
+      <!-- Art. 12 din Regulamentul de creștere și sănătate: împerecherile între rude de
+           gradul al doilea se pot înregistra numai cu motivul de selecție scris aici.
+           Rămâne în dosar; NU se publică pe fișa câinelui. -->
+      <label class="d-motiv-sel">Motiv de selecție <span class="d-opt">(doar dacă părinții sunt rude
+        de gradul al doilea — bunic și nepoată, frați cu un singur părinte comun)</span>
+        <textarea name="motivSelectie" rows="2" maxlength="400"
+          placeholder="ce însușire a liniei se urmărește prin această împerechere"></textarea>
+      </label>
     </section>
 
     <!-- ——— Puii ——— -->
@@ -550,6 +570,8 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
         dataMontei: val("dataMontei"), dataFatarii: val("dataFatarii"),
         nascutiM: Number(val("nascutiM")) || 0, nascutiF: Number(val("nascutiF")) || 0,
         ramasiM: Number(val("ramasiM")) || 0, ramasiF: Number(val("ramasiF")) || 0,
+        fatareCezariana: (form.querySelector('input[name="fatareCezariana"]:checked') || {}).value || "",
+        motivSelectie: val("motivSelectie"),
         mascul: parinte("mascul"), femela: parinte("femela"), pui,
         consimtaminte: {
           adn: g("c.adn").checked, predare60: g("c.predare60").checked,
@@ -663,6 +685,15 @@ const rase = [...RASE_WDF].map((r) => r.ro).sort((a, b) => a.localeCompare(b, "r
     border-left: 4px solid var(--color-accent); border-radius: var(--radius); padding: 0.9rem 1.1rem; }
   .d-lista-bifa { display: grid; gap: 0.35rem; margin: 0.5rem 0; padding-left: 0.9rem; }
   .d-camp-semn { display: block; max-width: 26rem; margin-bottom: 0.9rem; }
+
+  /* Cezariana (Art. 9) și motivul de selecție (Art. 12) din Regulamentul de creștere */
+  .d-cez { max-width: 46rem; margin-top: 1rem; padding: 0.8rem 1.1rem;
+    border: 1px solid var(--color-border); border-radius: var(--radius);
+    background: var(--color-surface-alt); }
+  .d-cez legend { font-weight: 600; padding-inline: 0.3rem; }
+  .d-cez__opt { display: inline-flex; align-items: center; gap: 0.4rem; margin-right: 1.6rem;
+    font-weight: 400; }
+  .d-motiv-sel { display: block; max-width: 46rem; margin-top: 1rem; }
 
   .d-eroare { max-width: 46rem; margin-top: 1.5rem; padding: 0.7rem 1rem; border-radius: var(--radius);
     background: #f9efef; border: 1px solid #8c1d2f; color: #8c1d2f; font-size: 0.9rem; }
