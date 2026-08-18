@@ -8,7 +8,7 @@ adoptat: 2026-08-01
 hotarare: "142/01-08-2026"
 ---
 
-_Anexa 1 la Regulamentul intern de funcționare, al Asociației **Club Federal Chinologic – Royal**._
+_Anexa 1 la Regulamentul intern, al Asociației **Club Federal Chinologic – Royal**._
 
 _Aliniat la standardele **World Dog Federation (WDF)** și **International Institute of Professional Cynology (IIPC)**._
 
@@ -28,7 +28,7 @@ Prezentul Cod Etic stabilește standardele de conduită pe care toți cei afilia
 
 (1) Prezentul Cod Etic stabilește principiile, valorile și regulile de conduită profesională aplicabile tuturor persoanelor afiliate Asociației, în orice calitate.
 
-(2) Codul completează prevederile Statutului și ale Regulamentului intern de funcționare, fără a contraveni acestora.
+(2) Codul completează prevederile Statutului și ale Regulamentului intern, fără a contraveni acestora.
 
 (3) Codul constituie reper de evaluare a abaterilor disciplinare conform Capitolului VII din Regulament.
 
@@ -424,7 +424,7 @@ c) terți, dacă fapta sesizată afectează reputația Asociației sau bunăstar
 
 (3) Sesizările anonime nu se înregistrează, cu excepția cazurilor de gravitate evidentă privind bunăstarea animalului, când pot constitui temei pentru autosesizare a Comisiei.
 
-(4) Procedura urmează prevederile Art. 30 din Regulamentul intern de funcționare.
+(4) Procedura urmează prevederile Art. 30 din Regulamentul intern.
 
 ### Art. 29. Confidențialitatea procedurii
 
@@ -438,7 +438,7 @@ c) terți, dacă fapta sesizată afectează reputația Asociației sau bunăstar
 
 ### Art. 30. Sancțiuni și relația cu procedura disciplinară
 
-(1) Încălcarea prezentului Cod atrage răspundere disciplinară conform Capitolului VII din Regulamentul intern de funcționare.
+(1) Încălcarea prezentului Cod atrage răspundere disciplinară conform Capitolului VII din Regulamentul intern.
 
 (2) Gravitatea sancțiunii se stabilește în funcție de:
 

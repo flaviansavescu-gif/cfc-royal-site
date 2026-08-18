@@ -8,7 +8,7 @@ adoptat: 2026-08-01
 hotarare: "145/01-08-2026"
 ---
 
-_Anexa 2 la Regulamentul intern de funcționare, al Asociației **Club Federal Chinologic – Royal**._
+_Anexa 2 la Regulamentul intern, al Asociației **Club Federal Chinologic – Royal**._
 
 _Aliniată la standardele **World Dog Federation (WDF)** și **International Institute of Professional Cynology (IIPC)**._
 
@@ -18,7 +18,7 @@ _Aprobată de Consiliul Director prin Hotărârea nr. 145/01-08-2026._
 
 Procedura disciplinară este instrumentul prin care Asociația răspunde, în mod predictibil și echitabil, la abaterile săvârșite de persoanele afiliate ei. Calitatea acestei proceduri nu se măsoară prin severitatea sancțiunilor, ci prin capacitatea de a separa faptele dovedite de acuzațiile nedovedite, prin respectarea dreptului la apărare al persoanei cercetate și prin asigurarea unei decizii motivate, proporționale și transparente.
 
-Prezenta Procedură detaliază prevederile Capitolului VII din Regulamentul intern de funcționare și se aplică tuturor situațiilor în care este reclamată o încălcare a Statutului, a Regulamentului, a Codului Etic sau a oricărui regulament specific adoptat de Asociație.
+Prezenta Procedură detaliază prevederile Capitolului VII din Regulamentul intern și se aplică tuturor situațiilor în care este reclamată o încălcare a Statutului, a Regulamentului, a Codului Etic sau a oricărui regulament specific adoptat de Asociație.
 
 ## Capitolul I. Dispoziții generale
 
@@ -40,7 +40,7 @@ a) Ordonanța Guvernului nr. 26/2000 privind asociațiile și fundațiile;
 
 b) Statutul Asociației;
 
-c) Regulamentul intern de funcționare, în special Capitolul VII (Art. 28-30);
+c) Regulamentul intern, în special Capitolul VII (Art. 28-30);
 
 d) Codul Etic — Anexa 1 la Regulament.
 

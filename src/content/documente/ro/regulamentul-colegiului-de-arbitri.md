@@ -8,7 +8,7 @@ adoptat: 2026-08-01
 hotarare: "147/01-08-2026"
 ---
 
-_Anexa 3 la Regulamentul intern de funcționare, al Asociației **Club Federal Chinologic – Royal**._
+_Anexa 3 la Regulamentul intern, al Asociației **Club Federal Chinologic – Royal**._
 
 _Aliniat la standardele **World Dog Federation (WDF)** și **International Institute of Professional Cynology (IIPC)**._
 
@@ -46,7 +46,7 @@ Prezentul Regulament se întemeiază pe și completează:
 
 a) Statutul Asociației;
 
-b) Regulamentul intern de funcționare, în special Art. 10 (atribuțiile Vicepreședintelui Tehnic) și Art. 6 lit. a (Colegiul de Arbitri);
+b) Regulamentul intern, în special Art. 10 (atribuțiile Vicepreședintelui Tehnic) și Art. 6 lit. a (Colegiul de Arbitri);
 
 c) Codul Etic — Anexa 1, în special Capitolul V (Etica în arbitraj) și Capitolul VI (Bunăstarea animalului);
 
@@ -150,7 +150,7 @@ i) starea curentă (activ, suspendat, retras, exclus).
 
 ### Art. 9. Vicepreședintele Tehnic și de Arbitraj — Președinte al Colegiului
 
-(1) Vicepreședintele Tehnic și de Arbitraj este, ex officio, Președintele Colegiului de Arbitri. El coordonează general Colegiul conform Art. 10 din Regulamentul intern de funcționare.
+(1) Vicepreședintele Tehnic și de Arbitraj este, ex officio, Președintele Colegiului de Arbitri. El coordonează general Colegiul conform Art. 10 din Regulamentul intern.
 
 (2) În această calitate, Vicepreședintele Tehnic:
 
@@ -178,7 +178,7 @@ a) Vicepreședintele Tehnic și de Arbitraj, Președinte al Colegiului, ex offic
 
 b) trei (3) membri aleși de Adunarea Colegiului, reprezentând, în măsura posibilului, principalele specializări ale Colegiului.
 
-(3) Mandatul membrilor aleși este de [3] ani, reînnoibil.
+(3) Mandatul membrilor aleși este de 4 ani, reînnoibil.
 
 (4) Consiliul Colegiului se convoacă de Vicepreședintele Tehnic atunci când este nevoie. Convocarea este obligatorie pentru deciziile tehnice majore privind:
 
@@ -224,9 +224,9 @@ e) propune modificări ale prezentului Regulament.
 
 Pentru a fi admisă ca arbitru stagiar, persoana trebuie să îndeplinească cumulativ următoarele condiții:
 
-a) să aibă vârsta minimă de [25] ani;
+a) să aibă vârsta minimă de 25 ani;
 
-b) să aibă o experiență chinologică verificabilă de minimum [5] ani (creștere, expoziții, sport, activitate clubistică);
+b) să aibă o experiență chinologică verificabilă de minimum 5 ani (creștere, expoziții, sport, activitate clubistică);
 
 c) să dețină studii superioare sau, în lipsa acestora, o pregătire chinologică de specialitate echivalentă, dovedită prin diplome, certificate sau publicații;
 
@@ -248,15 +248,15 @@ f) să prezinte două recomandări scrise de la arbitri seniori sau internațion
 
 ### Art. 14. Etapa de stagiu
 
-(1) Etapa de stagiu are o durată minimă de [18] luni și o durată maximă de [36] luni de la admitere.
+(1) Etapa de stagiu are o durată minimă de 18 luni și o durată maximă de 36 luni de la admitere.
 
 (2) Fiecare stagiar este însoțit de un Mentor, arbitru senior sau internațional din aceeași specializare, desemnat de Consiliul Colegiului.
 
 (3) Pe durata stagiului, stagiarul are obligația:
 
-a) să participe la programul de formare teoretică organizat de Centru, cu o încărcătură de minimum [60] ore;
+a) să participe la programul de formare teoretică organizat de Centru, cu o încărcătură de minimum 60 ore;
 
-b) să asiste mentorul la minimum [10] misiuni de arbitraj reale, ca observator activ;
+b) să asiste mentorul la minimum 8 misiuni de arbitraj reale, ca observator activ;
 
 c) să întocmească, pentru fiecare misiune asistată, un raport scris cu observații proprii și aprecierea mentorului;
 
@@ -296,11 +296,11 @@ c) probă practică (evaluarea reală a unor exemplare sau prestații, sub supra
 
 (1) Promovarea de la arbitru național la arbitru internațional se face la cerere, după îndeplinirea cumulativă a următoarelor condiții:
 
-a) minimum [5] ani de activitate ca arbitru național;
+a) minimum 5 ani de activitate ca arbitru național;
 
-b) minimum [30] misiuni de arbitraj autonome desfășurate;
+b) minimum 30 misiuni de arbitraj autonome desfășurate;
 
-c) minimum [60] ore de formare continuă în ultimii 3 ani;
+c) minimum 60 ore de formare continuă în ultimii 3 ani;
 
 d) participarea la minimum trei (3) seminarii internaționale (WDF, IIPC) sau echivalente;
 
@@ -318,13 +318,13 @@ g) două recomandări scrise de la arbitri seniori sau internaționali.
 
 (2) Condițiile minime:
 
-a) minimum [10] ani de activitate ca arbitru internațional;
+a) minimum 10 ani de activitate ca arbitru internațional;
 
-b) activitate documentată de mentorat (minimum [3] stagiari conduși cu succes);
+b) activitate documentată de mentorat (minimum 3 stagiari conduși cu succes);
 
 c) contribuții publice de specialitate (articole, conferințe, manuale);
 
-d) lipsa antecedentelor disciplinare în ultimii [5] ani.
+d) lipsa antecedentelor disciplinare în ultimii 5 ani.
 
 (3) Decizia de acordare a titlului aparține Adunării Colegiului, prin vot deschis cu majoritate simplă, și se ratifică de Consiliul Director.
 
@@ -338,7 +338,7 @@ b) decizie disciplinară de excludere, conform Procedurii disciplinare;
 
 c) neîndeplinirea obligațiilor de formare continuă pe perioade prelungite, conform Art. 25;
 
-d) neexercitarea calității, fără motiv întemeiat, pe o perioadă mai mare de [3] ani;
+d) neexercitarea calității, fără motiv întemeiat, pe o perioadă mai mare de 3 ani;
 
 e) incompatibilitate definitivă cu standardele profesionale ale Colegiului;
 
@@ -414,7 +414,7 @@ f) să nu folosească calitatea de arbitru în scopuri comerciale personale (pro
 
 ### Art. 24. Obligația declarării anuale a intereselor
 
-(1) Fiecare arbitru depune anual, până la data de [31 ianuarie], o Declarație de interese care cuprinde:
+(1) Fiecare arbitru depune anual, până la data de 31 ianuarie, o Declarație de interese care cuprinde:
 
 a) câinii pe care îi deține personal sau prin familie (până la gradul II);
 
@@ -438,11 +438,11 @@ f) rolurile didactice (cursanți pe care îi formează curent în calitate de me
 
 (1) Fiecare arbitru are obligația de a participa anual la activități de formare continuă, după cum urmează:
 
-a) Arbitrul național: minimum [20] ore/an;
+a) Arbitrul național: minimum 20 ore/an;
 
-b) Arbitrul internațional: minimum [30] ore/an, dintre care cel puțin [10] ore la evenimente internaționale;
+b) Arbitrul internațional: minimum 30 ore/an, dintre care cel puțin 10 ore la evenimente internaționale;
 
-c) Arbitrul senior: minimum [30] ore/an, cu participare regulată la evenimente formative;
+c) Arbitrul senior: minimum 30 ore/an, cu participare regulată la evenimente formative;
 
 d) Arbitrul stagiar: conform Art. 14.
 
@@ -470,7 +470,7 @@ c) la a treia ocazie consecutivă, propunerea retragerii calității, conform Ar
 
 ### Art. 26. Obligația de raportare a activității
 
-(1) Pentru fiecare misiune de arbitraj exercitată, arbitrul transmite Secretariatului General, în termen de [15] zile de la eveniment, un Raport al misiunii care cuprinde:
+(1) Pentru fiecare misiune de arbitraj exercitată, arbitrul transmite Secretariatului General, în termen de 15 zile de la eveniment, un Raport al misiunii care cuprinde:
 
 a) datele evenimentului (organizator, locație, dată);
 
@@ -494,7 +494,7 @@ f) eventuale incidente sau probleme constatate.
 
 (1) Organizatorul unui eveniment chinologic invită arbitrii direct, alegându-i din Registrul Colegiului, în funcție de specializarea cerută.
 
-(2) Invitația trebuie comunicată în scris cu minimum [60] zile înainte de eveniment, pentru evenimentele internaționale, și [30] zile, pentru cele naționale, cu următoarele elemente:
+(2) Invitația trebuie comunicată în scris cu minimum 60 zile înainte de eveniment, pentru evenimentele internaționale, și 30 zile, pentru cele naționale, cu următoarele elemente:
 
 a) natura evenimentului;
 
@@ -514,7 +514,7 @@ f) informații despre proprietarii/crescătorii principali așteptați (când es
 
 ### Art. 28. Declarația de incompatibilitate pre-eveniment
 
-(1) Cu minimum [7] zile înainte de eveniment, după primirea catalogului de înscrieri, arbitrul depune la organizator și la Secretariatul General Asociației o Declarație de incompatibilitate pre-eveniment, prin care:
+(1) Cu minimum 7 zile înainte de eveniment, după primirea catalogului de înscrieri, arbitrul depune la organizator și la Secretariatul General Asociației o Declarație de incompatibilitate pre-eveniment, prin care:
 
 a) confirmă absența incompatibilităților cunoscute;
 
@@ -562,7 +562,7 @@ e) nu comentează deciziile altor arbitri din același eveniment în timpul desf
 
 a) semnează cataloagele oficiale și predă documentația organizatorului;
 
-b) în termen de [15] zile, transmite Raportul misiunii conform Art. 26;
+b) în termen de 15 zile, transmite Raportul misiunii conform Art. 26;
 
 c) raportează imediat Vicepreședintelui Tehnic orice incident grav constatat (suspiciuni de fraudă, abuz asupra animalelor, presiuni asupra sa).
 
@@ -572,7 +572,7 @@ c) raportează imediat Vicepreședintelui Tehnic orice incident grav constatat (
 
 ### Art. 32. Evaluarea periodică
 
-(1) Fiecare arbitru face obiectul unei evaluări periodice, la fiecare [3] ani de la certificare sau ultima evaluare.
+(1) Fiecare arbitru face obiectul unei evaluări periodice, la fiecare 3 ani de la certificare sau ultima evaluare.
 
 (2) Evaluarea se realizează de Consiliul Colegiului, în calitatea sa consultativă, pe baza:
 

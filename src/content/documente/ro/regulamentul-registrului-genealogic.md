@@ -19,7 +19,7 @@ _Aliniat la standardele **World Dog Federation (WDF)**._
 
 ### Art. 2. Cadru normativ
 
-Standardele World Dog Federation, Statutul și Regulamentul intern de funcționare al Asociației, Regulamentul de înregistrare a caniselor și de rezervare a afixului, Codul Etic și Procedura disciplinară.
+Standardele World Dog Federation, Statutul și Regulamentul intern al Asociației, Regulamentul de înregistrare a caniselor și de rezervare a afixului, Codul Etic și Procedura disciplinară.
 
 ### Art. 3. Definiții
 

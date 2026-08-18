@@ -22,9 +22,10 @@ datele personale ale membrilor fondatori (cod numeric personal, adresă, act de 
 
 ## Regulamente interne
 
-Documentele fundamentale ale Asociației, anexe la Regulamentul intern de funcționare, aliniate la
+Documentele fundamentale ale Asociației, aliniate la
 standardele World Dog Federation (WDF) și International Institute of Professional Cynology (IIPC):
 
+- [Regulamentul intern](/ro/documente/regulamentul-intern/) — Regulamentul de ordine interioară (art. 34 lit. g din Statut) · Hotărârea nr. 180/13-08-2026
 - [Codul Etic](/ro/documente/cod-etic/) — Anexa 1 · Hotărârea nr. 142/01-08-2026
 - [Procedura disciplinară detaliată](/ro/documente/procedura-disciplinara/) — Anexa 2 · Hotărârea nr. 145/01-08-2026
 - [Regulamentul Colegiului de Arbitri](/ro/documente/regulamentul-colegiului-de-arbitri/) — Anexa 3 · Hotărârea nr. 147/01-08-2026
