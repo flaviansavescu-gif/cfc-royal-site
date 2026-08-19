@@ -423,6 +423,35 @@ export default cuLimitareCod(async (req) => {
     return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
   }
 
+  // —— Reconstrucția indexului de descendenți (PERF-001) ——
+  //
+  // Indexul microcip->declarație se scrie INCREMENTAL la fiecare depunere de DMF și la
+  // import, deci se ține singur la zi. Backfill-ul pentru declarațiile istorice (de
+  // dinainte de index) se putea face doar din prima cerere PUBLICĂ de fișă — adică un
+  // vizitator plătea o scanare a întregului registru. Acțiunea de aici mută acel cost pe
+  // registratură/admin: se rulează o dată, ridică steagul, iar fișa publică merge de atunci
+  // mereu pe calea rapidă. Fallback-ul public rămâne neatins, ca plasă de siguranță.
+  if (actiune === "reindex-descendenti") {
+    if (!potVerifica(eu)) return json({ eroare: "Nepermis." }, 403);
+    let legaturi = 0;
+    try {
+      const { blobs } = await s.list({ prefix: "dmf/" });
+      for (const b of blobs) {
+        const d = await s.get(b.key, { type: "json" }).catch(() => null);
+        if (!d) continue;
+        for (const pc of [d.mascul?.microcip, d.femela?.microcip]) {
+          const c = String(pc || "").replace(/[\s-]/g, "");
+          if (c) { await s.setJSON("descendent-cip/" + c + "/" + d.id, { dmfId: d.id }).catch(() => {}); legaturi++; }
+        }
+      }
+      await s.setJSON("descendent-index-gata", { creat: new Date().toISOString(), reindexatDe: eu.rol }).catch(() => {});
+    } catch (err) {
+      console.error("Reindexare descendenți eșuată:", err);
+      return json({ eroare: "Nu am putut reconstrui indexul. Încearcă din nou." }, 500);
+    }
+    return json({ ok: true, legaturi });
+  }
+
   // —— Anularea unui certificat emis ——
   //
   // Formularul de declarație și pagina registrului spun, amândouă, că declararea de date
