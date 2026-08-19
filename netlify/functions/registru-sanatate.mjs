@@ -22,6 +22,7 @@
 import { getStore } from "@netlify/blobs";
 import { actorDinCod } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import { membruDinCod, registratorDinCod } from "./registru-acces.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
 import { jurnalizeazaObligatoriu, actorJurnal, ipCerere } from "./_comun/registru-jurnal.mjs";
@@ -244,6 +245,7 @@ export default cuLimitareCod(async (req) => {
       return json({ eroare: "Doar registratura hotărăște." }, 403);
     const cip = normCip(body.microcip);
     const testId = taie(body.testId, 40);
+    if (!segmentCheieValid(testId)) return json({ eroare: "Referință invalidă." }, 400);
     if (!cipValid(cip) || !testId) return json({ eroare: "Lipsește câinele sau testul." }, 400);
     const dosar = await s.get(cheiaDosar(cip), { type: "json" }).catch(() => null);
     const t = dosar?.teste?.find((x) => x.id === testId);
@@ -287,6 +289,7 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "vezi-fisier") {
     const cip = normCip(body.microcip);
     const testId = taie(body.testId, 40);
+    if (!segmentCheieValid(testId)) return json({ eroare: "Referință invalidă." }, 400);
     if (!cipValid(cip) || !testId) return json({ eroare: "Lipsește câinele sau testul." }, 400);
     const dosar = await s.get(cheiaDosar(cip), { type: "json" }).catch(() => null);
     const t = dosar?.teste?.find((x) => x.id === testId);

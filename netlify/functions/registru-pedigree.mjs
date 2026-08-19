@@ -32,6 +32,7 @@ import { getStore } from "@netlify/blobs";
 import QRCode from "qrcode";
 import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import { membruDinCod, registratorDinCod, chinotehnistDinCod } from "./registru-acces.mjs";
 import {
   jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, ipCerere,
@@ -255,6 +256,7 @@ export default cuLimitareCod(async (req) => {
   // proprietarului nu au ce căuta la o adresă publică.
   if (actiune === "verifica") {
     const serie = taie(body.serie, 40).toUpperCase();
+    if (!segmentCheieValid(serie)) return json({ eroare: "Referință invalidă." }, 400);
     if (!serie) return json({ eroare: "Scrie seria certificatului." }, 400);
     const c = await store().get("pedigree/" + serie, { type: "json" }).catch(() => null);
     if (!c) return json({ eroare: "Nu există niciun certificat cu această serie." }, 404);
@@ -281,6 +283,7 @@ export default cuLimitareCod(async (req) => {
   // se poate consulta nu ajută pe nimeni.
   if (actiune === "caine") {
     const cautat = taie(body.cautat, 60).toUpperCase();
+    if (!segmentCheieValid(cautat)) return json({ eroare: "Referință invalidă." }, 400);
     if (!cautat) return json({ eroare: "Scrie seria, numărul WDF sau microcipul." }, 400);
     const s0 = store();
 
@@ -421,6 +424,7 @@ export default cuLimitareCod(async (req) => {
     if (eu.rol !== "admin")
       return json({ eroare: "Doar administratorul poate anula sau repune în vigoare un certificat." }, 403);
     const serie = taie(body.serie, 40).toUpperCase();
+    if (!segmentCheieValid(serie)) return json({ eroare: "Referință invalidă." }, 400);
     const motiv = taie(body.motiv, 600);
     const c = await s.get("pedigree/" + serie, { type: "json" }).catch(() => null);
     if (!c) return json({ eroare: "Certificat inexistent." }, 404);
@@ -455,6 +459,7 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "certificat-stare") {
     if (!potVerifica(eu)) return json({ eroare: "Nepermis." }, 403);
     const serie = taie(body.serie, 40).toUpperCase();
+    if (!segmentCheieValid(serie)) return json({ eroare: "Referință invalidă." }, 400);
     const c = await s.get("pedigree/" + serie, { type: "json" }).catch(() => null);
     if (!c) return json({ eroare: "Nu există niciun certificat cu această serie." }, 404);
     return json({
@@ -475,6 +480,7 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "wdf-caine") {
     if (!potVerifica(eu)) return json({ eroare: "Nepermis." }, 403);
     const serie = taie(body.serie, 40).toUpperCase();
+    if (!segmentCheieValid(serie)) return json({ eroare: "Referință invalidă." }, 400);
     const numar = taie(body.numarWDFCaine, 40).toUpperCase();
     const c = await s.get("pedigree/" + serie, { type: "json" }).catch(() => null);
     if (!c) return json({ eroare: "Certificat inexistent." }, 404);
@@ -504,7 +510,9 @@ export default cuLimitareCod(async (req) => {
   // —— Dosarul pregătit pentru ascendență ——
   if (actiune === "ascendenta") {
     if (!potVerifica(eu)) return json({ eroare: "Nepermis." }, 403);
-    const d = await s.get("dmf/" + taie(body.id, 40), { type: "json" }).catch(() => null);
+    const idAsc = taie(body.id, 40);
+    if (!segmentCheieValid(idAsc)) return json({ eroare: "Referință invalidă." }, 400);
+    const d = await s.get("dmf/" + idAsc, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
     // Părinții se completează singuri din declarație: sunt deja acolo, cu pedigree și
     // microcip, iar recopiatul lor cu mâna e doar o ocazie de greșeală.
@@ -529,6 +537,7 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "ascendenta-salveaza") {
     if (!potVerifica(eu)) return json({ eroare: "Nepermis." }, 403);
     const id = taie(body.id, 40);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
 
@@ -570,6 +579,7 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "numar-wdf") {
     if (!potVerifica(eu)) return json({ eroare: "Nepermis." }, 403);
     const id = taie(body.id, 40);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
     if (d.numarWDF) return json({ ok: true, numarWDF: d.numarWDF, deja: true });
@@ -581,12 +591,22 @@ export default cuLimitareCod(async (req) => {
       const c = await s.get("contor/wdf", { type: "json" }).catch(() => null);
       const urm = Math.max(c?.ultim || 0, WDF_ULTIMUL_PE_HARTIE) + 1;
       const cand = "WDF-" + String(urm).padStart(4, "0");
-      const ocupat = await s.get("wdf/" + cand, { type: "json" }).catch(() => null);
+      // Contorul se avansează oricum: dacă numărul e luat, nu-l mai încercăm.
       await s.setJSON("contor/wdf", { ultim: urm });
-      if (ocupat) continue;
-      await s.setJSON("wdf/" + cand, { serie: d.serie, rezervat: new Date().toISOString() });
-      numarWDF = cand;
-      break;
+
+      // Rezervarea cu `onlyIfNew`: verificarea și scrierea sunt aceeași faptă, deci două
+      // atribuiri simultane nu mai pot ieși cu ACELAȘI număr WDF pe două cuiburi. Cine
+      // pierde primește `modified:false` și încearcă următorul candidat. Același mecanism
+      // atomic ca la `serieNoua` — înainte, scrierea era necondiționată și coliziunea NU
+      // se vedea, deși comentariul pretindea că da (SEC-002).
+      let alMeu = false;
+      try {
+        const r = await s.setJSON("wdf/" + cand, { serie: d.serie, rezervat: new Date().toISOString() }, { onlyIfNew: true });
+        alMeu = r?.modified !== false; // magazii vechi fără răspuns => tratăm ca reușită
+      } catch (err) {
+        console.error("Rezervarea numărului WDF a eșuat:", cand, err);
+      }
+      if (alMeu) { numarWDF = cand; break; }
     }
     if (!numarWDF) return json({ eroare: "Nu am putut aloca un număr WDF unic. Reîncearcă." }, 500);
     await s.setJSON("dmf/" + id, { ...d, numarWDF });
@@ -604,6 +624,7 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "emite") {
     if (!potVerifica(eu)) return json({ eroare: "Nepermis." }, 403);
     const id = taie(body.id, 40);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
     if (!d.numarWDF) return json({ eroare: "Atribuie întâi numărul de cuib WDF." }, 400);
@@ -679,6 +700,7 @@ export default cuLimitareCod(async (req) => {
   // —— Certificatul complet (pentru tipărire) ——
   if (actiune === "certificat") {
     const serie = taie(body.serie, 40).toUpperCase();
+    if (!segmentCheieValid(serie)) return json({ eroare: "Referință invalidă." }, 400);
     const c = await s.get("pedigree/" + serie, { type: "json" }).catch(() => null);
     if (!c) return json({ eroare: "Certificat inexistent." }, 404);
     if (!potVerifica(eu)) {
@@ -704,6 +726,7 @@ export default cuLimitareCod(async (req) => {
   // —— Certificatele unui cuib ——
   if (actiune === "certificate-cuib") {
     const id = taie(body.id, 40);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
     if (!potVerifica(eu)) {

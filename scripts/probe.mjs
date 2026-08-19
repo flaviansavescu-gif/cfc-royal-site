@@ -28,6 +28,8 @@ const RADACINA = fileURLToPath(new URL("..", import.meta.url));
 const LOCURI = [
   "netlify/functions/_comun",
   "netlify/functions/_jcr",
+  "netlify/functions/_interese",
+  "netlify/functions/_paa",
   "src/data",
   "scripts",
 ];

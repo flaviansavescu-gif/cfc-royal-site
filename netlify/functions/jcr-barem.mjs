@@ -3,6 +3,7 @@
 // Întărire: autentificarea se face ÎNAINTE de a atinge sesiunea.
 import { json, taie, acum, cereLector, candidatDinId, poateAdministraSesiunea, store, citesteParticipanti, esteParticipant, audit, scrieInIndex, baremDeblocat, candidatDinCod} from "./_jcr/lib.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 function curataBarem(inp, baza) {
   const b = baza || {};
@@ -27,6 +28,7 @@ export default cuLimitareCod(async (req) => {
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
   const actiune = taie(body.actiune, 20);
   const id = taie(body.id, 40);
+  if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
   if (!id) return json({ eroare: "Lipsește sesiunea." }, 400);
   const st = store();
 

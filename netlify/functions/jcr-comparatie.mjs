@@ -4,6 +4,7 @@
 import { json, taie, cereLector, candidatDinId, poateAdministraSesiunea, store, storeCursuri, citesteParticipanti, esteParticipant, baremDeblocat, candidatDinCod} from "./_jcr/lib.mjs";
 import { comparaRaspuns, comparaDefecte, spearman } from "./_jcr/compare.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
@@ -11,6 +12,7 @@ export default cuLimitareCod(async (req) => {
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
   const actiune = taie(body.actiune, 20);
   const id = taie(body.id, 40);
+  if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
   if (!id) return json({ eroare: "Lipsește sesiunea." }, 400);
   const st = store();
 

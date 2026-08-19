@@ -13,6 +13,7 @@ import { eRobot, limiteazaTrimiterile, minuteText } from "./_comun/formular-publ
 import { escapeHtml } from "./_comun/posta.mjs";
 import { calculeazaTaxa, taxaVeche } from "./_comun/taxa-expo.mjs";
 import { egal } from "./_comun/citire-documente.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import { versiuneaNormelor } from "./_comun/norme-participare.mjs";
 // MODUL REPETIȚIE. Lanțul înscriere → verificare → import → catalog → ring → rezultate
 // n-a trecut niciodată printr-o expoziție adevărată. Repetiția generală îl trece, cu date
@@ -446,6 +447,7 @@ export default async (req) => {
   }
 
   const showId = String(body.showId || "");
+  if (!segmentCheieValid(showId)) return json({ eroare: "Referință invalidă." }, 400);
   const config = await store.get("config/" + showId, { type: "json" });
   if (!config) return json({ eroare: "Expoziție inexistentă." }, 404);
   if (inchisPentruInscrieri(config)) return json({ eroare: "Înscrierile pentru această expoziție nu mai sunt deschise." }, 400);

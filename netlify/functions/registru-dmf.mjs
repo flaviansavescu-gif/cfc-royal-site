@@ -34,6 +34,7 @@
 import { getStore } from "@netlify/blobs";
 import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import { membruDinCod, registratorDinCod, chinotehnistDinCod } from "./registru-acces.mjs";
 import {
   jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, actorExtern, ipCerere,
@@ -593,6 +594,7 @@ export default cuLimitareCod(async (req) => {
     if (eu.rol !== "membru" && eu.rol !== "chinotehnist" && eu.rol !== "registratura")
       return json({ eroare: "Doar membrii, chinotehniștii și registratura încarcă piese la dosar." }, 403);
     const ciornaId = taie(body.ciornaId, 40);
+    if (!segmentCheieValid(ciornaId)) return json({ eroare: "Referință invalidă." }, 400);
     const fel = taie(body.fel, 32);
     if (!FELURI[fel]) return json({ eroare: "Piesă necunoscută." }, 400);
     const ciorna = await s.get("ciorna/" + ciornaId, { type: "json" }).catch(() => null);
@@ -624,6 +626,7 @@ export default cuLimitareCod(async (req) => {
     if (eu.rol !== "membru" && eu.rol !== "chinotehnist" && eu.rol !== "registratura")
       return json({ eroare: "Doar membrii, chinotehniștii și registratura încarcă piese la dosar." }, 403);
     const ciornaId = taie(body.ciornaId, 40);
+    if (!segmentCheieValid(ciornaId)) return json({ eroare: "Referință invalidă." }, 400);
     const fel = taie(body.fel, 32);
     if (!FELURI[fel]) return json({ eroare: "Piesă necunoscută." }, 400);
     const ciorna = await s.get("ciorna/" + ciornaId, { type: "json" }).catch(() => null);
@@ -690,6 +693,7 @@ export default cuLimitareCod(async (req) => {
       return json({ eroare: "Cotizația a expirat. Reînnoiește-o pentru a putea depune declarații." }, 403);
 
     const ciornaId = taie(body.ciornaId, 40);
+    if (!segmentCheieValid(ciornaId)) return json({ eroare: "Referință invalidă." }, 400);
     const ciorna = await s.get("ciorna/" + ciornaId, { type: "json" }).catch(() => null);
     if (!ciornaAMea(ciorna, eu)) return json({ eroare: "Dosar inexistent." }, 404);
 
@@ -886,6 +890,7 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "confirmare-retrimite") {
     if (eu.rol !== "membru" && eu.rol !== "chinotehnist") return json({ eroare: "Nepermis." }, 403);
     const id = taie(body.id, 40);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
     const alMeuRetrimite = eu.rol === "membru"
@@ -985,6 +990,7 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "dosar-respinge") {
     if (eu.rol !== "registratura" && eu.rol !== "admin") return json({ eroare: "Nepermis." }, 403);
     const id = taie(body.id, 40);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const motiv = taie(body.motiv, 600);
     if (motiv.length < 5) return json({ eroare: "Scrie motivul respingerii." }, 400);
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
@@ -1010,6 +1016,7 @@ export default cuLimitareCod(async (req) => {
 
   if (actiune === "dosar") {
     const id = taie(body.id, 40);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
     const alMeu =
@@ -1028,6 +1035,7 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "confirmare-alternativa") {
     if (eu.rol !== "registratura" && eu.rol !== "admin") return json({ eroare: "Nepermis." }, 403);
     const id = taie(body.id, 40);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
 
@@ -1068,6 +1076,7 @@ export default cuLimitareCod(async (req) => {
   // sau pentru registratură. Pedigree-urile și dovada plății sunt date personale.
   if (actiune === "vezi-fisier") {
     const id = taie(body.id, 40);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const fel = taie(body.fel, 32);
     if (!TOATE_FELURILE[fel]) return json({ eroare: "Piesă necunoscută." }, 400);
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
@@ -1098,6 +1107,7 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "dmf-sterge") {
     if (eu.rol !== "admin") return json({ eroare: "Doar administratorul poate șterge un dosar." }, 403);
     const id = taie(body.id, 40);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const d = await s.get("dmf/" + id, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosar inexistent." }, 404);
 
