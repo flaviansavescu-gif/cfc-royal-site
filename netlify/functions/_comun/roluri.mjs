@@ -37,9 +37,8 @@ export function egal(a, b) {
  *
  * `ADMIN_HASH_ENV` permite schimbarea codului DIN NETLIFY, fără atingerea codului sursă
  * și fără publicare: pui amprenta nouă în variabila de mediu și codul vechi moare în
- * aceeași clipă, în toate funcțiile deodată. Valoarea de mai jos rămâne ca rezervă, ca
- * platforma să funcționeze și fără variabilă — dar odată pusă variabila, ea are ultimul
- * cuvânt.
+ * aceeași clipă, în toate funcțiile deodată. NU există o valoare de rezervă în sursă:
+ * fără variabilă, poarta de administrare rămâne ÎNCHISĂ (fail-closed) — vezi mai jos.
  *
  * Amprenta nouă se obține din codul dorit cu (scrypt sărat, ca la lectori):
  *   node -e "const{createHash,scryptSync}=require('crypto');const s='5bc690c359954798d5149721d0f7cada';console.log(scryptSync(createHash('sha256').update('CODUL').digest('hex'),s,32).toString('hex'))"

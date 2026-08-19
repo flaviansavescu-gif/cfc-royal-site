@@ -813,8 +813,11 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     function esc(s) { return String(s == null ? "" : s).replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); }
     function rand(x) {
       var key = esc(x.microcip) + "|" + esc(x.testId);
+      var avert = x.depunereDeNeproprietar
+        ? "<div style='margin-top:.4rem;background:#f9efef;border:1px solid #8c1d2f;color:#8c1d2f;border-radius:6px;padding:.4rem .6rem;font-size:.85rem'>⚠ Depusă de cineva care NU e confirmat proprietar/crescător al câinelui. Verifică documentul cu atenție sporită înainte de aprobare.</div>"
+        : "";
       return "<li class='g-dosar'><div><strong>" + esc(x.nume) + (x.subtip ? " — " + esc(x.subtip) : "") + ": " + esc(x.rezultat) + "</strong>"
-        + "<div class='g-mic'>microcip " + esc(x.microcip) + " · emis de " + esc(x.emitent || "—") + " · depus de " + esc(x.depusDeNume || "membru") + "</div></div>"
+        + "<div class='g-mic'>microcip " + esc(x.microcip) + " · emis de " + esc(x.emitent || "—") + " · depus de " + esc(x.depusDeNume || "membru") + "</div>" + avert + "</div>"
         + "<div style='display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem'>"
         + "<button class='btn' data-vezi='" + key + "'>Vezi certificatul</button>"
         + "<button class='btn btn--primary' data-ok='" + key + "'>Verifică</button>"

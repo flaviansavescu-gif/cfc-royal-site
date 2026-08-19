@@ -363,7 +363,7 @@ export default cuLimitareCod(async (req) => {
           afix: c.afix, nrAfix: c.nrAfix || "", titular: c.nume || "", inregistrat: c.creat || "",
         });
       }
-    } catch (err) { return json({ eroare: "Nu am putut citi registrul caniselor: " + err.message }, 500); }
+    } catch (err) { console.error("registru-canise:", err); return json({ eroare: "Nu am putut citi registrul caniselor. Încearcă din nou." }, 500); }
     try {
       const chei = (await s.list({ prefix: "membru/" })).blobs.map((b) => b.key);
       for (const m of await inValuri(chei, 12, (k) => s.get(k, { type: "json" }).catch(() => null))) {

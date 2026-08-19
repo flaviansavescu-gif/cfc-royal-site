@@ -67,6 +67,6 @@ export default cuLimitareCod(async (req) => {
     });
   } catch (err) {
     console.error("Exportul registrului a eșuat:", err);
-    return json({ eroare: "Nu am putut construi arhiva: " + err.message }, 500);
+    console.error("registru-export:", err); return json({ eroare: "Nu am putut construi arhiva. Încearcă din nou." }, 500);
   }
 });

@@ -142,12 +142,27 @@ async function codProprietar(nume, localitate) {
   const cheie = "proprietar-cod/" + sha256(identitate);
   const existent = await s.get(cheie, { type: "json" }).catch(() => null);
   if (existent?.cod) return existent.cod;
-  const c = await s.get("contor/proprietar", { type: "json" }).catch(() => null);
-  const urm = (c?.ultim || 0) + 1;
-  const cod = "P-" + String(urm).padStart(6, "0");
-  await s.setJSON("contor/proprietar", { ultim: urm });
-  await s.setJSON(cheie, { cod });
-  return cod;
+  // Alocare ATOMICĂ a numărului (SEC-008): înainte, două prime-vizualizări simultane pentru
+  // proprietari DIFERIȚI citeau același contor și ieșeau cu ACELAȘI cod P-. Rezervăm numărul
+  // cu `onlyIfNew` (ca la `serieNoua`); cine pierde încearcă următorul. Formatul codului și
+  // codurile deja emise rămân neatinse — marcajul de rezervare e o cheie internă nouă.
+  for (let i = 0; i < 40; i++) {
+    const c = await s.get("contor/proprietar", { type: "json" }).catch(() => null);
+    const urm = (c?.ultim || 0) + 1;
+    await s.setJSON("contor/proprietar", { ultim: urm });
+    let alMeu = false;
+    try {
+      const r = await s.setJSON("cod-proprietar-luat/" + urm, { rezervat: new Date().toISOString() }, { onlyIfNew: true });
+      alMeu = r?.modified !== false; // magazii vechi fără răspuns => tratăm ca reușită
+    } catch (err) {
+      console.error("Rezervarea codului de proprietar a eșuat:", urm, err);
+    }
+    if (!alMeu) continue;
+    const cod = "P-" + String(urm).padStart(6, "0");
+    await s.setJSON(cheie, { cod });
+    return cod;
+  }
+  return null;
 }
 
 /** Cine cere. */
@@ -764,7 +779,7 @@ export default cuLimitareCod(async (req) => {
     // nu coada de lucru.
     let chei = [];
     try { chei = (await s.list({ prefix: "dmf/" })).blobs.map((b) => b.key); }
-    catch (err) { return json({ eroare: "Nu am putut citi registrul: " + err.message }, 500); }
+    catch (err) { console.error("registru-pedigree:", err); return json({ eroare: "Nu am putut citi registrul. Încearcă din nou." }, 500); }
 
     const dosare = (await inValuri(chei, 12, async (k) => {
       const d = await s.get(k, { type: "json" }).catch(() => null);

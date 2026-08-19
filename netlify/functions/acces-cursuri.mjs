@@ -15,6 +15,7 @@ import {
   dispozitivCunoscut, deschideIntrarea, confirmaIntrarea, OTP_MINUTE, DISPOZITIV_ZILE,
 } from "./_comun/al-doilea-factor.mjs";
 import { trimite, pagina, escapeHtml, ADRESA_ASOCIATIEI, postaConfigurata } from "./_comun/posta.mjs";
+import { consemneaza } from "./_comun/paznic.mjs";
 
 /** Adresa, arătată pe jumătate — cine intră trebuie să știe unde să caute codul. */
 function mascheaza(email) {
@@ -158,5 +159,11 @@ export default async (req) => {
   }
 
   const ramase = await inregistreazaEsec(cheie);
+  // SEC-004: hrănim paznicul central de intruziune — poarta Școlii nu trece prin
+  // `cuLimitareCod`, deci era singura ușă ale cărei refuzuri nu ajungeau în tiparul urmărit
+  // de paznic. Consemnăm DOAR refuzul de acreditare (cod invalid), cu amprenta IP-ului (nu
+  // IP-ul în clar) — fără cod, fără e-mail, fără date personale. Un acces valid iese mai sus
+  // și nu ajunge aici, deci nu e raportat ca atac. Eșecul consemnării nu blochează intrarea.
+  try { await consemneaza(getStore("acces"), { usa: "acces-cursuri", amprenta: cheie }); } catch { /* paznicul nu oprește poarta */ }
   return json({ eroare: "Cod incorect.", incercariRamase: ramase }, 401);
 };

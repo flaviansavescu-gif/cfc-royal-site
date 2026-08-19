@@ -45,7 +45,7 @@ export default async () => {
     await asiguraRamura();
   } catch (err) {
     console.error("COPIA MAGAZIILOR A EȘUAT (ramura):", err);
-    return json({ ok: false, eroare: err.message }, 500);
+    console.error("magazii-backup:", err); return json({ ok: false, eroare: "A apărut o eroare internă. Încearcă din nou." }, 500);
   }
 
   for (const { nume } of MAGAZII) {

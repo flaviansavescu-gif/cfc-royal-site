@@ -120,7 +120,7 @@ export default async (req) => {
     });
   } catch (err) {
     console.error("Jurnalul nu a putut fi scris; nu s-a importat nimic:", err);
-    return json({ eroare: "Nu am putut consemna fapta în jurnal, deci nu am scris nimic. " + err.message }, 503);
+    console.error("registru-import jurnal:", err); return json({ eroare: "Nu am putut consemna fapta în jurnal, deci nu am scris nimic. Încearcă din nou." }, 503);
   }
 
   try {
@@ -133,7 +133,7 @@ export default async (req) => {
       }
     } catch (e) { console.error("Index descendenți (import) eșuat:", e); }
   } catch (err) {
-    return json({ eroare: "Nu am putut scrie dosarul: " + err.message }, 500);
+    console.error("registru-import scriere:", err); return json({ eroare: "Nu am putut scrie dosarul. Încearcă din nou." }, 500);
   }
 
   for (let i = 0; i < c.pui.length; i++) {

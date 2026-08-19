@@ -54,6 +54,14 @@ jobs:
       - name: Instalează exact ce scrie în package-lock
         run: npm ci
 
+      # DEP-001: o vulnerabilitate cunoscută în dependențe trebuie să fie VIZIBILĂ la fiecare
+      # verificare, nu descoperită târziu. Pragul e „high": high/critical opresc verificarea,
+      # iar moderate/low rămân un avertisment (nu fac CI-ul fragil pentru advisory-uri minore
+      # sau tranzitive fără cale de exploatare). NU rulăm `npm audit fix` — deciziile de
+      # versiune rămân manuale.
+      - name: Vulnerabilități în dependențe (audit)
+        run: npm audit --audit-level=high
+
       - name: Sintaxa scripturilor din pagini
         run: node scripts/verifica-scripturi.mjs
 

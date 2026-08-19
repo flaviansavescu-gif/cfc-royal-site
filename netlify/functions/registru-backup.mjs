@@ -87,7 +87,7 @@ export default async () => {
     return json({ ok: true, cale, ...rezumat, curatenie, copiiVechiSterse: vechi?.sterse?.length ?? 0 });
   } catch (err) {
     console.error("COPIA REGISTRULUI A EȘUAT:", err);
-    return json({ ok: false, eroare: err.message }, 500);
+    console.error("registru-backup:", err); return json({ ok: false, eroare: "A apărut o eroare internă. Încearcă din nou." }, 500);
   }
 };
 

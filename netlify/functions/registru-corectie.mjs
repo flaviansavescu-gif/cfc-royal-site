@@ -145,7 +145,7 @@ export default async (req) => {
     });
   } catch (err) {
     console.error("Jurnalul nu a putut fi scris; nu s-a corectat nimic:", err);
-    return json({ eroare: "Nu am putut consemna fapta în jurnal, deci nu am schimbat nimic. " + err.message }, 503);
+    console.error("registru-corectie jurnal:", err); return json({ eroare: "Nu am putut consemna fapta în jurnal, deci nu am schimbat nimic. Încearcă din nou." }, 503);
   }
 
   const schimbate = [];
@@ -160,7 +160,7 @@ export default async (req) => {
       corectatLa: new Date().toISOString(),
     });
   } catch (err) {
-    return json({ eroare: "Nu am putut scrie dosarul: " + err.message }, 500);
+    console.error("registru-corectie scriere:", err); return json({ eroare: "Nu am putut scrie dosarul. Încearcă din nou." }, 500);
   }
 
   for (const p of planificate) {

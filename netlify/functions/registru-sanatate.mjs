@@ -48,6 +48,33 @@ const cheiaDosar = (cip) => "sanatate/" + cip;
 const cheiaFisier = (cip, id) => "sanatate-fisier/" + cip + "/" + id;
 const cheiaCoada = (cip, id) => "sanatate-neverif/" + cip + "__" + id;
 
+// Numele adus la o formă comparabilă: minuscule, fără diacritice, spații colapsate.
+const faraDiacritice = (t) => t.normalize("NFD").split("").filter((c) => {
+  const n = c.charCodeAt(0); return n < 0x300 || n > 0x36f; // scoate marcajele combinate
+}).join("");
+const normNume = (v) => faraDiacritice(String(v || "").toLowerCase()).replace(/\s+/g, " ").trim();
+
+/**
+ * Poate fi CONFIRMAT membrul ca proprietar/crescător al câinelui, din datele registrului?
+ * Semnal tare: e crescătorul cuibului (dmf.membruId === membru.id). Semnal mai slab, dar
+ * util: numele lui se potrivește cu proprietarul sau crescătorul de pe certificat. NU
+ * blochează depunerea (SEC-003) — doar spune registraturii dacă e nevoie de un ochi în
+ * plus înainte de aprobare. Fără serie/certificat => nu se poate confirma.
+ * Exportată pentru probe.
+ */
+export async function actorConfirmatProprietar(s, serie, membru) {
+  if (!serie) return false;
+  const cert = await s.get("pedigree/" + serie, { type: "json" }).catch(() => null);
+  if (!cert) return false;
+  if (cert.dmfId) {
+    const d = await s.get("dmf/" + cert.dmfId, { type: "json" }).catch(() => null);
+    if (d && d.membruId && membru?.id && d.membruId === membru.id) return true;
+  }
+  const nume = normNume(membru?.nume);
+  if (nume && (normNume(cert.proprietar?.nume) === nume || normNume(cert.crescator?.nume) === nume)) return true;
+  return false;
+}
+
 async function cine(cod) {
   if (actorDinCod(cod)?.rol === "admin") return { rol: "admin" };
   const m = await membruDinCod(cod);
@@ -115,6 +142,7 @@ export default cuLimitareCod(async (req) => {
       id: t.id, tip: t.tip, nume: numeTest(t.tip), subtip: t.subtip || null, rezultat: t.rezultat,
       data: t.data || null, emitent: t.emitent || null, stare: t.stare, motiv: t.motiv || null,
       areFisier: !!t.areFisier, insigna: insignaTest(t.tip, t.rezultat), depusLa: t.depusLa || null,
+      depunereDeNeproprietar: !!t.depunereDeNeproprietar,
     });
     // Forma publică — ce vede oricine: doar rezultatul verificat, fără stare/motiv.
     const pubForma = (t) => ({
@@ -181,7 +209,7 @@ export default cuLimitareCod(async (req) => {
     const tipFisier = taie(body.tipFisier, 60);
     if (!TIPURI_FISIER.includes(tipFisier)) return json({ eroare: "Acceptăm doar JPEG, PNG, WEBP sau PDF." }, 400);
     if (String(body.continut).length > MAX_FISIER)
-      return json({ eroare: "Certificatul e prea mare (max. ~4 MB). Redu dimensiunea sau trimite un JPEG." }, 400);
+      return json({ eroare: "Certificatul e prea mare (max. ~6 MB). Redu dimensiunea sau trimite un JPEG." }, 400);
     let fisier;
     try { fisier = Buffer.from(String(body.continut), "base64"); }
     catch { return json({ eroare: "Certificat ilizibil." }, 400); }
@@ -201,10 +229,16 @@ export default cuLimitareCod(async (req) => {
 
     await s.set(cheiaFisier(cip, testId), fisier, { metadata: { contentType: tipFisier } });
 
+    // SEC-003: se poate confirma, din registru, că membrul e proprietarul/crescătorul
+    // câinelui? Dacă NU, marcăm server-side (nu blocăm) — registratura să nu trateze
+    // depunerea ca pe una obișnuită. Marcajul e calculat aici, nu din body: clientul nu-l
+    // poate falsifica.
+    const confirmatProprietar = await actorConfirmatProprietar(s, inregistrat.serie, eu.membru);
     const nou = {
       id: testId, tip, subtip: subtip || undefined, rezultat: v.rezultat, data: data || null,
       emitent, areFisier: true, stare: "in-asteptare",
       depusDe: eu.membru.id, depusDeNume: eu.membru.nume || "", depusLa: acum,
+      depunereDeNeproprietar: !confirmatProprietar,
     };
     // Scriere concurent-sigură: dacă altcineva atinge dosarul între timp, recitim și reaplicăm.
     // Idempotentă la reîncercare — nu adăugăm testul de două ori (îl căutăm după id).
@@ -218,6 +252,7 @@ export default cuLimitareCod(async (req) => {
     await s.setJSON(cheiaCoada(cip, testId), {
       microcip: cip, testId, tip, rezultat: v.rezultat, subtip: subtip || null,
       emitent, depusDeNume: eu.membru.nume || "", depusLa: acum,
+      depunereDeNeproprietar: !confirmatProprietar,
     }).catch(() => {});
 
     return json({ ok: true, testId });
