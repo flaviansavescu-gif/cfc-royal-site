@@ -68,5 +68,9 @@ export const reqJSON = (body) =>
 
 /** Instalează mock-ul de `@netlify/blobs` care întoarce mereu magazia dată. */
 export function mockBlobs(store) {
-  mock.module("@netlify/blobs", { exports: { getStore: () => store } });
+  // `namedExports` funcționează pe Node 22 (CI + Netlify) ȘI pe Node 24 (local). Opțiunea
+  // mai nouă `exports` merge doar pe Node 24 — pe Node 22 nu expune `getStore` ca export
+  // numit (SyntaxError). `namedExports` e depreciată pe 24, dar depreciat != scos; avertismentul
+  // e cosmetic, iar compatibilitatea cu versiunea din CI/Netlify e ce contează.
+  mock.module("@netlify/blobs", { namedExports: { getStore: () => store } });
 }
