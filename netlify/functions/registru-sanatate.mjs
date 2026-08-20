@@ -28,6 +28,7 @@ import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.
 import { jurnalizeazaObligatoriu, actorJurnal, ipCerere } from "./_comun/registru-jurnal.mjs";
 import { valideaza, tipValid, numeTest, insignaTest, recomandareDin } from "./_comun/teste-sanatate.mjs";
 import { json } from "./_comun/raspuns.mjs";
+import { invalideazaIndexPublic } from "./_comun/index-public.mjs";
 
 const store = () => getStore({ name: "registru", consistency: "strong" });
 
@@ -107,7 +108,11 @@ async function cuDosar(s, cip, muta, incercari = 5) {
     if (rez?.eroare) return rez;
     const optiuni = cur?.etag ? { onlyIfMatch: cur.etag } : { onlyIfNew: true };
     const scris = await s.setJSON(cheiaDosar(cip), rez.dosar, optiuni).catch(() => ({ modified: false }));
-    if (scris?.modified !== false) return { ok: true };
+    if (scris?.modified !== false) {
+      // Dosarul de sănătate intră în steagul „recomandat" din cartea răsfoibilă.
+      await invalideazaIndexPublic(s);
+      return { ok: true };
+    }
   }
   return { eroare: "Prea multe scrieri deodată pe acest dosar. Reîncearcă." };
 }

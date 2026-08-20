@@ -15,6 +15,7 @@ import { AFIXE_OFICIALE } from "./_comun/afixe-oficiale.mjs";
 import { normalizeazaAfix, PREFIX_CANISE } from "./_comun/canise.mjs";
 import { recomandareDin } from "./_comun/teste-sanatate.mjs";
 import { obtineIndexCachedat } from "./_comun/index-cachedat.mjs";
+import { CHEIE_INDEX_PUBLIC } from "./_comun/index-public.mjs";
 
 const normCip = (v) => String(v || "").replace(/[\s-]/g, "");
 
@@ -45,8 +46,12 @@ const json = (body, status = 200) =>
     headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=300" },
   });
 
-const TTL_MS = 5 * 60e3;        // reîmprospătarea indexului, cel mult o dată la 5 minute
-const CHEIE_INDEX = "registru-public/index";
+// TTL-ul e acum doar PLASĂ DE SIGURANȚĂ: scrierile care schimbă registrul șterg indexul
+// pe loc (invalideazaIndexPublic, chemată din pedigree/import/sănătate/canise), deci
+// datele proaspete apar imediat, nu la expirarea ceasului. Reconstrucția scumpă (scanarea
+// întregului registru) nu se mai plătește decât după o schimbare reală — sau, rar, aici.
+const TTL_MS = 30 * 60e3;
+const CHEIE_INDEX = CHEIE_INDEX_PUBLIC;
 
 async function construieste(s) {
   const recomandati = await microcipuriRecomandate(s);

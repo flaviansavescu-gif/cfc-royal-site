@@ -280,6 +280,7 @@ export default cuLimitareCod(async (req) => {
     await s.setJSON(cheiaCererii(id), {
       ...c, stare: "aprobata", afixAcordat: afixAles, nrAfix, hotarata: acum, deCatre: actorJurnal(eu),
     });
+    await invalideazaIndexPublic(s); // canisa nouă să apară imediat în lista publică de afixe
 
     if (c.email) {
       await trimite({

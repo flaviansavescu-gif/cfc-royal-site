@@ -40,6 +40,7 @@ import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.
 import { poateCereExtras, numarDinText, intervalulCerut, inInterval, inValuri } from "./_comun/extrase.mjs";
 import { mascheazaCip } from "./_comun/microcip.mjs";
 import { json } from "./_comun/raspuns.mjs";
+import { invalideazaIndexPublic } from "./_comun/index-public.mjs";
 
 // CITIRE TARE, ca la poarta de acces.
 //
@@ -489,6 +490,7 @@ export default cuLimitareCod(async (req) => {
     }
 
     await s.setJSON("pedigree/" + serie, rez.cert);
+    await invalideazaIndexPublic(s); // starea „anulat" se vede în cartea răsfoibilă
     return json({ ok: true, serie, anulat: anuleaza });
   }
 
@@ -725,6 +727,7 @@ export default cuLimitareCod(async (req) => {
     }
     await s.setJSON("dmf/" + id, { ...(await s.get("dmf/" + id, { type: "json" })), stare: "emis" });
     const noi = emise.filter((x) => !x.deja);
+    if (noi.length) await invalideazaIndexPublic(s); // câinii noi să apară imediat în cartea răsfoibilă
     if (noi.length) {
       await jurnalizeaza(s, {
         fapta: "certificat-emis",

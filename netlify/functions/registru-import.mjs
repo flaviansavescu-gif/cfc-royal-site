@@ -30,6 +30,7 @@ import { getStore } from "@netlify/blobs";
 import { secretEgal } from "./_comun/secret.mjs";
 import { tipCertificat } from "./registru-pedigree.mjs";
 import { jurnalizeazaObligatoriu } from "./_comun/registru-jurnal.mjs";
+import { invalideazaIndexPublic } from "./_comun/index-public.mjs";
 
 const json = (b, s = 200) =>
   new Response(JSON.stringify(b, null, 2), { status: s, headers: { "Content-Type": "application/json; charset=utf-8" } });
@@ -188,6 +189,8 @@ export default async (req) => {
       erori.push({ serie, nume: p?.nume, eroare: err.message });
     }
   }
+
+  if (scrise.length) await invalideazaIndexPublic(s); // arhiva importată să apară imediat
 
   return json({
     ok: erori.length === 0,

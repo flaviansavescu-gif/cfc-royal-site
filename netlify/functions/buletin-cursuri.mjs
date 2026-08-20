@@ -19,32 +19,10 @@ import { getStore } from "@netlify/blobs";
 import { rolLaIntrare, actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
-import { magazie as magazieJetoane, cheieDezabonare, jetonNou } from "./_comun/buletin-acord.mjs";
-import { trimite } from "./_comun/posta.mjs";
+import {
+  magazie as magazieJetoane, cheieDezabonare, jetonNou, jetonDezabonare,
+} from "./_comun/buletin-acord.mjs";
 import { json } from "./_comun/raspuns.mjs";
-
-/**
- * Jetonul de dezabonare al unui abonat: îl face dacă nu-l are, îl întoarce dacă îl are.
- *
- * Cu el, linkul din josul fiecărui buletin scoate adresa dintr-un singur clic, fără cod
- * și fără formular — cum promite politica de confidențialitate. Abonații mai vechi
- * (dinainte de regula asta) își primesc jetonul la prima trimitere de după.
- */
-async function jetonDezabonare(store, cheie, abonat) {
-  if (abonat?.jetonDezabonare) return abonat.jetonDezabonare;
-  const jeton = jetonNou();
-  try {
-    await magazieJetoane().setJSON(cheieDezabonare(jeton), { email: abonat.email, lista: "scoala" });
-    await store.setJSON(cheie, { ...abonat, jetonDezabonare: jeton });
-  } catch (err) {
-    console.error("Jetonul de dezabonare nu s-a putut păstra:", err);
-    return null;
-  }
-  return jeton;
-}
-
-const esc = (s) =>
-  String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 /** E membru al platformei? (candidat cu cod individual, arbitru, lector, admin sau cod comun) */
 async function esteMembru(body, store) {
@@ -203,57 +181,48 @@ export default cuLimitareCod(async (req) => {
     const key = "buletin/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
     await store.setJSON(key, { titlu, text, data });
 
-    // Trimiterea pe e-mail: către toți abonații, individual (adresele nu se văd între ele).
-    // Un eșec de e-mail nu anulează publicarea — arhiva din platformă e sursa de adevăr.
-    let trimise = 0, esuate = 0;
-    const apiKey = process.env.BREVO_API_KEY;
-    if (apiKey) {
-      // Fiecare abonat vine cu jetonul lui: linkul de dezabonare e personal, altfel n-ar
-      // avea cum să scoată exact adresa aceea dintr-un singur clic.
-      let abonati = [];
+    // TRIMITEREA S-A MUTAT ÎN FUNDAL (buletin-trimite-background): funcțiile obișnuite
+    // au 10 secunde, iar trimiterea sincronă ar fi fost retezată pe la ~120–150 de
+    // abonați — o parte primeau buletinul, o parte nu, fără nicio eroare vizibilă.
+    // Aici doar numărăm abonații, scriem jetonul de pornire (o singură folosință, ca la
+    // registratura-citeste) și pornim fundalul. Arhiva e deja scrisă — ea e sursa de
+    // adevăr; un e-mail care nu pleacă nu anulează publicarea.
+    let abonati = 0;
+    try { abonati = (await store.list({ prefix: "abonat/" })).blobs.length; } catch (err) { console.error(err); }
+
+    let trimitere = "pornita";
+    if (abonati > 0) {
+      const jeton = jetonNou();
+      await store.setJSON("buletin-fundal/" + jeton, { key, titlu, text, creat: new Date().toISOString() });
+      const origine = process.env.URL || new URL(req.url).origin;
       try {
-        const { blobs } = await store.list({ prefix: "abonat/" });
-        for (const b of blobs) {
-          const a = await store.get(b.key, { type: "json" });
-          if (!a?.email) continue;
-          abonati.push({ email: a.email, jeton: await jetonDezabonare(store, b.key, a) });
-        }
-      } catch (err) { console.error(err); }
-
-      const corp =
-        `<h2 style="margin:0 0 12px;color:#1F4D3A">${esc(titlu)}</h2>` +
-        `<div style="white-space:pre-line;line-height:1.55">${esc(text)}</div>` +
-        `<hr style="margin:20px 0;border:none;border-top:1px solid #ddd">`;
-      const htmlPentru = (jeton) =>
-        corp +
-        `<p style="color:#888;font-size:12px">Buletinul Școlii de Arbitraj — CFC-Royal · ` +
-        `arhiva completă: <a href="https://cfc-royal.ro/cursuri/buletin/">cfc-royal.ro/cursuri/buletin/</a></p>` +
-        (jeton
-          ? `<p style="color:#888;font-size:12px">Nu mai vrei buletinul? ` +
-            `<a href="https://cfc-royal.ro/.netlify/functions/buletin-dezabonare?j=${jeton}">Dezabonează-mă</a>` +
-            ` — un singur clic, fără cod și fără formular.</p>`
-          : `<p style="color:#888;font-size:12px">Dezabonarea: din pagina buletinului, cu codul tău.</p>`);
-
-      // În LOTURI paralele, nu unul câte unul: secvențial, la ~300 ms per e-mail,
-      // funcția expira pe la 30 de abonați și o parte din oameni nu primeau nimic.
-      const LOT = 8;
-      async function trimiteUnul({ email, jeton }) {
-        const ok = await trimite({
-          catre: email,
-          subiect: "[Școala de Arbitraj] " + titlu,
-          html: htmlPentru(jeton),
-          expeditor: { name: "Școala de Arbitraj CFC-Royal", email: "newsletter@cfc-royal.ro" },
+        const r = await fetch(origine + "/.netlify/functions/buletin-trimite-background", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jeton }),
         });
-        if (ok) trimise++; else esuate++;
+        if (r.status !== 202 && !r.ok) throw new Error("fundalul a răspuns " + r.status);
+      } catch (err) {
+        // Dacă fundalul n-a pornit, jetonul se șterge (să nu rămână o pornire moartă),
+        // iar panoul află cinstit: buletinul E publicat în arhivă, dar e-mailurile nu
+        // au plecat — se poate reîncerca publicarea sau anunța altfel.
+        await store.delete("buletin-fundal/" + jeton).catch(() => {});
+        console.error("Trimiterea în fundal nu a pornit:", err?.message || err);
+        trimitere = "nepornita";
       }
-      for (let i = 0; i < abonati.length; i += LOT) {
-        await Promise.all(abonati.slice(i, i + LOT).map(trimiteUnul));
-      }
-    } else if ((await store.list({ prefix: "abonat/" })).blobs.length) {
-      console.error("BREVO_API_KEY lipsește — buletinul NU a plecat pe e-mail.");
+    } else {
+      trimitere = "fara-abonati";
     }
 
-    return json({ ok: true, key, trimise, esuate });
+    return json({ ok: true, key, abonati, trimitere });
+  }
+
+  // Rezultatul trimiterii din fundal, pentru panoul de administrare.
+  if (actiune === "stare-trimitere") {
+    const key = String(body.key || "");
+    if (!key.startsWith("buletin/")) return json({ eroare: "Cheie invalidă." }, 400);
+    const stare = await store.get("buletin-trimitere/" + key.replace(/^buletin\//, ""), { type: "json" }).catch(() => null);
+    return json({ stare: stare || null });
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);

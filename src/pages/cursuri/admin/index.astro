@@ -423,9 +423,14 @@ const TESTE = [
 
     // ——— Buletinul Școlii (newsletter intern) ———
     async function buletinCere(payload) {
+      // A doua cheie (jetonul dispozitivului), ca la celelalte acțiuni de administrare:
+      // poarta din buletin-cursuri o cere din 09.08, dar apelul acesta n-o trimitea —
+      // acțiunile de admin ale buletinului cădeau cu 403 de pe acest panou.
+      let dispozitiv = "";
+      try { dispozitiv = localStorage.getItem("cfcrScoalaDispozitiv") || ""; } catch (e) {}
       const res = await fetch("/.netlify/functions/buletin-cursuri", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+        body: JSON.stringify({ cod: codAdmin(), dispozitiv, ...payload }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.eroare || "Eroare de server.");
@@ -538,8 +543,33 @@ const TESTE = [
         inTitlu.value = ""; inText.value = "";
         fb.hidden = false;
         fb.className = "a-cand-feedback is-ok";
-        fb.textContent = "✓ Buletin publicat. E-mailuri trimise: " + (d.trimise || 0) +
-          (d.esuate ? " · eșuate: " + d.esuate + " (vezi jurnalul funcției)" : "") + ".";
+        // Trimiterea merge acum în FUNDAL (are 15 minute, nu 10 secunde) — răspunsul
+        // spune doar că a pornit; rezultatul se cere apoi și se completează aici.
+        if (d.trimitere === "fara-abonati") {
+          fb.textContent = "✓ Buletin publicat în arhivă. Niciun abonat pe e-mail deocamdată.";
+        } else if (d.trimitere === "nepornita") {
+          fb.className = "a-cand-feedback is-err";
+          fb.textContent = "Buletinul E publicat în arhivă, dar trimiterea pe e-mail NU a pornit. " +
+            "Poți șterge buletinul din arhivă și publica din nou.";
+        } else {
+          fb.textContent = "✓ Buletin publicat. Trimiterea pe e-mail a pornit către " + (d.abonati || 0) +
+            (d.abonati === 1 ? " abonat" : " abonați") + "…";
+          // Rezultatul, când e gata (întrebăm de câteva ori, apoi ne oprim politicos).
+          let ramase = 6;
+          const intreaba = async () => {
+            try {
+              const s = await buletinCere({ actiune: "stare-trimitere", key: d.key });
+              if (s.stare && s.stare.terminat) {
+                fb.textContent = "✓ Buletin publicat. E-mailuri trimise: " + (s.stare.trimise || 0) +
+                  (s.stare.esuate ? " · eșuate: " + s.stare.esuate + " (vezi jurnalul funcției)" : "") + ".";
+                return;
+              }
+            } catch (e) {}
+            if (--ramase > 0) setTimeout(intreaba, 5000);
+            else fb.textContent += " Rezultatul apare în jurnalul funcției (trimiterea continuă în fundal).";
+          };
+          setTimeout(intreaba, 5000);
+        }
         incarcaBuletine();
       } catch (err) {
         fb.hidden = false;

@@ -71,6 +71,25 @@ export const cheieAsteptare = (jeton) => "buletin-asteptare/" + jeton;
 export const cheieDezabonare = (jeton) => "buletin-dezabonare/" + jeton;
 export const cheieDovada = (email) => "buletin-acord/" + amprentaEmail(email);
 
+/**
+ * Jetonul de dezabonare al unui abonat al BULETINULUI ȘCOLII: îl face dacă nu-l are,
+ * îl întoarce dacă îl are. Folosit și la abonare (buletin-cursuri), și la trimiterea
+ * din fundal (buletin-trimite-background) — de aceea stă aici, în locul comun.
+ * `store` e magazia „cursuri" (acolo stau abonații); jetoanele stau în magazia „acces".
+ */
+export async function jetonDezabonare(store, cheie, abonat) {
+  if (abonat?.jetonDezabonare) return abonat.jetonDezabonare;
+  const jeton = jetonNou();
+  try {
+    await magazie().setJSON(cheieDezabonare(jeton), { email: abonat.email, lista: "scoala" });
+    await store.setJSON(cheie, { ...abonat, jetonDezabonare: jeton });
+  } catch (err) {
+    console.error("Jetonul de dezabonare nu s-a putut păstra:", err);
+    return null;
+  }
+  return jeton;
+}
+
 /** A expirat cererea de confirmare? */
 export const expirat = (cerere, acum = Date.now()) => {
   const t = Date.parse(cerere?.cerut || "");
