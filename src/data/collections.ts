@@ -9,6 +9,17 @@ import type { Lang } from "../i18n/ui";
 import { formatDate } from "../i18n/content";
 
 type Data = Record<string, any>;
+
+// Valorile „status" din frontmatter sunt scrise în română (o singură sursă în conținut);
+// pe paginile EN se traduc aici. O valoare necunoscută trece neschimbată.
+const STATUS_EN: Record<string, string> = {
+  "activ": "active",
+  "activă": "active",
+  "anunțată": "announced",
+  "încheiată": "concluded",
+  "înscrieri deschise": "entries open",
+};
+const statusL = (lang: Lang, v?: string) => (lang === "en" && v ? STATUS_EN[v] ?? v : v);
 export interface MetaRow { label: string; value: string; wide?: boolean }
 export interface CardData { title: string; meta?: string; excerpt?: string; tag?: string; image?: string }
 
@@ -223,7 +234,7 @@ export const collectionDefs: CollectionDef[] = [
         row(L(lang, "Oraș", "City"), d.city),
         row(L(lang, "Afiliere", "Affiliation"), d.affiliation),
         row(L(lang, "Nr. licență", "Licence no."), d.licenseNumber),
-        row(L(lang, "Status", "Status"), d.status),
+        row(L(lang, "Status", "Status"), statusL(lang, d.status)),
       ),
   },
 
@@ -255,7 +266,7 @@ export const collectionDefs: CollectionDef[] = [
         row(L(lang, "Rase", "Breeds"), (d.breeds || []).join(", ")),
         row(L(lang, "Nr. înregistrare", "Reg. no."), d.registrationNumber),
         row(L(lang, "Localitate", "Location"), [d.city, d.county].filter(Boolean).join(", ")),
-        row(L(lang, "Status", "Status"), d.status),
+        row(L(lang, "Status", "Status"), statusL(lang, d.status)),
       ),
   },
 
@@ -367,22 +378,6 @@ export const collectionDefs: CollectionDef[] = [
       rows(
         row(L(lang, "Categorie", "Category"), d.category),
         row(L(lang, "Publicat", "Published"), fmt(d.publishedAt, lang)),
-      ),
-  },
-
-  {
-    name: "evenimente",
-    slug: "evenimente",
-    label: { ro: "Evenimente", en: "Events" },
-    intro: { ro: "Evenimente organizate de club.", en: "Events organised by the club." },
-    empty: { ro: "Niciun eveniment publicat momentan.", en: "No events published yet." },
-    eyebrow: { ro: "Noutăți", en: "News" },
-    sort: (a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0),
-    card: (d, lang) => ({ title: d.title, meta: fmt(d.date, lang), excerpt: d.summary }),
-    metaRows: (d, lang) =>
-      rows(
-        row(L(lang, "Dată", "Date"), fmt(d.date, lang)),
-        row(L(lang, "Locație", "Location"), d.location),
       ),
   },
 

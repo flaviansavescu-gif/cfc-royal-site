@@ -138,6 +138,20 @@
   status = 301
   force = true
 
+# Secțiunea „Evenimente" (colecție rămasă goală) a fost scoasă; vechile adrese duc la
+# calendarul expozițional — singurul calendar real al asociației.
+[[redirects]]
+  from = "/ro/evenimente/*"
+  to = "/ro/calendar-expozitional/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/en/evenimente/*"
+  to = "/en/calendar-expozitional/"
+  status = 301
+  force = true
+
 # Redenumire secțiune: Afiliați → Asociații membre (slug /afiliati/ → /membrii/)
 [[redirects]]
   from = "/ro/afiliati/*"

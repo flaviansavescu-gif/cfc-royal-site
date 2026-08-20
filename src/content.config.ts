@@ -208,15 +208,6 @@ const comunicate = defineCollection({
   }),
 });
 
-const evenimente = defineCollection({
-  loader: loader("evenimente"),
-  schema: z.object({
-    ...base,
-    date: z.coerce.date(),
-    location: z.string().optional(),
-  }),
-});
-
 const organizatiiAfiliate = defineCollection({
   loader: loader("organizatii-afiliate"),
   schema: z.object({
@@ -329,7 +320,6 @@ export const collections = {
   canise,
   "standarde-rasa": standardeRasa,
   comunicate,
-  evenimente,
   "organizatii-afiliate": organizatiiAfiliate,
   "membri-onoare": membriOnoare,
   cursuri,

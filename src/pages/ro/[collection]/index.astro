@@ -12,9 +12,10 @@ import { isLang, entrySlug } from "../../../i18n/content";
 const lang = "ro" as const;
 
 export function getStaticPaths() {
-  // „arbitri" are pagină-index dedicată (registrul cu filtrare pe grupe): src/pages/ro/arbitri.astro
+  // „arbitri", „campioni" și „expozițiile" au pagini-index dedicate (src/pages/ro/*.astro);
+  // generarea lor și de aici ar produce doar conflicte de rută la build.
   return collectionDefs
-    .filter((def) => def.slug !== "arbitri" && def.slug !== "campioni")
+    .filter((def) => def.slug !== "arbitri" && def.slug !== "campioni" && def.slug !== "expozitii")
     .map((def) => ({ params: { collection: def.slug }, props: { def } }));
 }
 
@@ -44,8 +45,8 @@ if (def.groupBy) {
   groups = keys.map((k) => ({ title: k, items: map.get(k)! }));
 }
 ---
-<BaseLayout title={def.label[lang]} lang={lang}>
-  <Section eyebrow={def.eyebrow[lang]} title={def.label[lang]} intro={def.intro[lang]}>
+<BaseLayout title={def.label[lang]} description={def.intro[lang]} lang={lang}>
+  <Section main eyebrow={def.eyebrow[lang]} title={def.label[lang]} intro={def.intro[lang]}>
     {def.extraLink && (
       <div class="archive-actions">
         <a

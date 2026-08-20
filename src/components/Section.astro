@@ -1,6 +1,8 @@
 ---
 // Section.astro — înveliș de secțiune cu eyebrow + titlu + intro opțional + link „vezi tot".
 // `alt` = fundal alternant. Conținutul vine în slot.
+// `main` = secțiunea ESTE pagina (arhivele de colecții): titlul devine <h1>, ca pagina
+// să aibă un titlu principal pentru cititoarele de ecran și motoarele de căutare.
 interface Props {
   id?: string;
   title: string;
@@ -9,15 +11,17 @@ interface Props {
   viewAllLabel?: string;
   viewAllHref?: string;
   alt?: boolean;
+  main?: boolean;
 }
-const { id, title, intro, eyebrow, viewAllLabel, viewAllHref, alt = false } = Astro.props;
+const { id, title, intro, eyebrow, viewAllLabel, viewAllHref, alt = false, main = false } = Astro.props;
+const Titlu = main ? "h1" : "h2";
 ---
 <section id={id} class={`section${alt ? " section--alt" : ""}`}>
   <div class="container">
     <div class="section__head">
       <div>
         {eyebrow && <p class="eyebrow">{eyebrow}</p>}
-        <h2 class="section__title">{title}</h2>
+        <Titlu class="section__title">{title}</Titlu>
         {intro && <p class="section__intro">{intro}</p>}
       </div>
       {viewAllLabel && viewAllHref && (

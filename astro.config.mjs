@@ -21,9 +21,14 @@ export default defineConfig({
   },
   integrations: [
     sitemap({
-      // Platforma de cursuri (/cursuri/...) e privată: robots o interzice, deci nu apare nici în sitemap.
+      // Zonele private/noindex nu au ce căuta în sitemap — altfel Google reclamă
+      // „URL trimis, dar marcat noindex". Aici: platforma de cursuri, registrul
+      // genealogic (spațiile de lucru), spațiul crescătorilor și confirmarea de montă.
       // Paginile publice /ro/cursuri/ și /en/cursuri/ rămân incluse (nu încep cu /cursuri/).
-      filter: (page) => !new URL(page).pathname.startsWith("/cursuri/"),
+      filter: (page) => {
+        const cale = new URL(page).pathname;
+        return !["/cursuri/", "/registru/", "/crescatori/", "/confirmare-monta/"].some((p) => cale.startsWith(p));
+      },
     }),
   ],
   build: {

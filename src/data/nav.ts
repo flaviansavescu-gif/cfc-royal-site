@@ -92,7 +92,6 @@ export const mainNav: NavItem[] = [
     children: [
       { slug: "comunicate", label: { ro: "Comunicate", en: "Press releases" } },
       { slug: "articole", label: { ro: "Articole", en: "Articles" } },
-      { slug: "evenimente", label: { ro: "Evenimente", en: "Events" } },
     ],
   },
   { slug: "magazin", label: { ro: "Magazin", en: "Shop" } },
