@@ -8,6 +8,7 @@
 // EXCLUSIV aici. `src/data/cursuri.ts` păstrează doar datele publice
 // (slug, nume, rol afișat, materiale) și NU mai conține amprente.
 import { createHash, timingSafeEqual, scryptSync } from "node:crypto";
+import { LECTORI_PERSOANE } from "../../../src/data/persoane.mjs";
 
 export const sha256 = (s) => createHash("sha256").update(String(s)).digest("hex");
 
@@ -72,13 +73,28 @@ export const ACCES_SCRYPT = "847ab9436dbb99aad28c095d11c73999acc2328c7750611dcdf
 // Nu mai e SHA-256 simplu (crăpabil offline la o scurgere a depozitului). Cheia de DATE
 // a lectorului (dosar formare/cod-etic, sesiuni JCR/PAA) e `slug`-ul, nu amprenta — deci
 // amprenta poate fi acum lentă fără să afecteze cheile. Codurile regenerate 09.08.2026.
-export const LECTORI = [
-  { slug: "flavian-savescu", nume: "Flavian-Sergiu Savescu", hash: "296f79cabccd93eed62e3e8fdc65b484dd3e78a1f4155257481d647a37c4d8a9", grupe: "all", email: "flavian.savescu@gmail.com" },
-  { slug: "mihail-cosmin-neagu", nume: "Mihail Cosmin Neagu", hash: "3119be2a009f3b4a15550aea0711fdd8f345a205097525c8df64e29c0604744d", grupe: "all" },
-  { slug: "mihail-sorin-iacob", nume: "Mihail Sorin Iacob", hash: "b02bfdc8767a3f31b5085613f553c6caf3bcf7b5865a42587a0c0a22d8d5584a", grupe: "all" },
-  { slug: "andreea-daniela-popescu", nume: "Andreea-Daniela Popescu", hash: "cda654b9a9cd8a5527d05e11311221c7a61d7bee872745b87a7bac76dfd71355", grupe: [3, 5, 9] },
-  { slug: "alexandru-paul-ciolac", nume: "Alexandru Paul Ciolac", hash: "a1582dce3456a7a887180fa57c97535e443423a1b62b14d9cc5f863edbf6e857", grupe: [2, 3, 4, 6, 8] },
-];
+//
+// CINE sunt lectorii (slug, nume, grupe) vine din SURSA UNICĂ src/data/persoane.mjs.
+// Aici rămân DOAR datele serverului: amprenta codului și, unde e confirmată, adresa
+// pentru a doua cheie — ele n-au ce căuta într-un fișier importat și de pagini.
+// FAIL-CLOSED: o persoană fără amprentă nu intră în listă (deci nu are acces), iar o
+// amprentă fără persoană rămâne moartă. Proba persoane.test.mjs oprește build-ul dacă
+// cele două liste nu se acoperă una pe alta.
+const AMPRENTE_LECTORI = {
+  "flavian-savescu": { hash: "296f79cabccd93eed62e3e8fdc65b484dd3e78a1f4155257481d647a37c4d8a9", email: "flavian.savescu@gmail.com" },
+  "mihail-cosmin-neagu": { hash: "3119be2a009f3b4a15550aea0711fdd8f345a205097525c8df64e29c0604744d" },
+  "mihail-sorin-iacob": { hash: "b02bfdc8767a3f31b5085613f553c6caf3bcf7b5865a42587a0c0a22d8d5584a" },
+  "andreea-daniela-popescu": { hash: "cda654b9a9cd8a5527d05e11311221c7a61d7bee872745b87a7bac76dfd71355" },
+  "alexandru-paul-ciolac": { hash: "a1582dce3456a7a887180fa57c97535e443423a1b62b14d9cc5f863edbf6e857" },
+};
+
+export const LECTORI = LECTORI_PERSOANE
+  .filter((p) => AMPRENTE_LECTORI[p.slug]?.hash)
+  .map((p) => ({ slug: p.slug, nume: p.nume, grupe: p.grupe, ...AMPRENTE_LECTORI[p.slug] }));
+
+/** Slug-urile cu amprentă dar fără persoană — doar pentru proba de consistență. */
+export const AMPRENTE_ORFANE = Object.keys(AMPRENTE_LECTORI)
+  .filter((slug) => !LECTORI_PERSOANE.some((p) => p.slug === slug));
 
 /**
  * E codul acesta al administratorului?

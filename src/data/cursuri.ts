@@ -4,6 +4,7 @@
 // Întrebările de test NU conțin răspunsurile corecte — cheile de corectare
 // stau exclusiv pe server, în netlify/functions/test-modul.js.
 // =========================================================================
+import { LECTORI_PERSOANE, rolLector } from "./persoane.mjs";
 
 export interface Lectura {
   titlu: string;
@@ -426,48 +427,30 @@ export interface Lector {
   // Amprenta codului personal NU se află aici — vezi nota de securitate de mai sus.
 }
 
-export const LECTORI: Lector[] = [
-  {
-    slug: "flavian-savescu",
-    nume: "Flavian-Sergiu Savescu",
-    rol: "Președinte al Colegiului de Arbitri · WDF All Breed",
-    materiale: [
-      { titlu: "Suport de curs 4.1 — Regulamente WDF și standarde (PDF)", url: "/cursuri-materiale/flavian-savescu/suport-curs-4-1-regulamente-wdf-si-standarde.pdf", md: "/cursuri-materiale/flavian-savescu/suport-curs-4-1-regulamente-wdf-si-standarde.md" },
-      { titlu: "Suport de curs 4.3 — Codul Etic al arbitrului (PDF)", url: "/cursuri-materiale/flavian-savescu/suport-curs-4-3-cod-etic-arbitru.pdf", md: "/cursuri-materiale/flavian-savescu/suport-curs-4-3-cod-etic-arbitru.md" },
-      { titlu: "Orarul cursurilor 4.1 și 4.3 (PDF)", url: "/cursuri-materiale/flavian-savescu/orar-curs-4-1-si-4-3.pdf" },
-    ],
-  },
-  {
-    slug: "mihail-cosmin-neagu",
-    nume: "Mihail Cosmin Neagu",
-    rol: "Arbitru WDF · All Breed",
-    materiale: [],
-  },
-  {
-    slug: "mihail-sorin-iacob",
-    nume: "Mihail Sorin Iacob",
-    rol: "Arbitru WDF · All Breed",
-    materiale: [],
-  },
-  {
-    slug: "andreea-daniela-popescu",
-    nume: "Andreea-Daniela Popescu",
-    rol: "Arbitru WDF · Grupele 3, 5, 9",
-    materiale: [],
-  },
-  {
-    slug: "alexandru-paul-ciolac",
-    nume: "Alexandru Paul Ciolac",
-    rol: "Arbitru WDF · Grupele 2, 3, 4, 6, 8",
-    // Fără versiunea .md pentru teleprompter: PDF-urile sunt pagini-imagine, textul nu se
-    // poate scoate din ele. Dacă sosesc și fișierele-sursă (Word), se adaugă.
-    materiale: [
-      { titlu: "Suport de curs — Preambul (PDF)", url: "/cursuri-materiale/alexandru-paul-ciolac/suport-curs-01-preambul.pdf" },
-      { titlu: "Suport de curs 1.1 — Capitolul I: Importanța studiului (PDF)", url: "/cursuri-materiale/alexandru-paul-ciolac/suport-curs-1-1-importanta-studiului.pdf" },
-      { titlu: "Suport de curs 1.2 — Capitolul I: Chinologia în plan mondial (PDF)", url: "/cursuri-materiale/alexandru-paul-ciolac/suport-curs-1-2-chinologia-in-plan-mondial.pdf" },
-    ],
-  },
-];
+// CINE sunt lectorii (slug, nume, grupe, rol) vine din SURSA UNICĂ src/data/persoane.mjs
+// — aceeași pe care o folosește și serverul de roluri. Aici rămân doar MATERIALELE
+// fiecăruia, pe slug. Proba persoane.test.mjs oprește build-ul la orice nepotrivire.
+const MATERIALE_LECTORI: Record<string, Material[]> = {
+  "flavian-savescu": [
+    { titlu: "Suport de curs 4.1 — Regulamente WDF și standarde (PDF)", url: "/cursuri-materiale/flavian-savescu/suport-curs-4-1-regulamente-wdf-si-standarde.pdf", md: "/cursuri-materiale/flavian-savescu/suport-curs-4-1-regulamente-wdf-si-standarde.md" },
+    { titlu: "Suport de curs 4.3 — Codul Etic al arbitrului (PDF)", url: "/cursuri-materiale/flavian-savescu/suport-curs-4-3-cod-etic-arbitru.pdf", md: "/cursuri-materiale/flavian-savescu/suport-curs-4-3-cod-etic-arbitru.md" },
+    { titlu: "Orarul cursurilor 4.1 și 4.3 (PDF)", url: "/cursuri-materiale/flavian-savescu/orar-curs-4-1-si-4-3.pdf" },
+  ],
+  // Fără versiunea .md pentru teleprompter: PDF-urile sunt pagini-imagine, textul nu se
+  // poate scoate din ele. Dacă sosesc și fișierele-sursă (Word), se adaugă.
+  "alexandru-paul-ciolac": [
+    { titlu: "Suport de curs — Preambul (PDF)", url: "/cursuri-materiale/alexandru-paul-ciolac/suport-curs-01-preambul.pdf" },
+    { titlu: "Suport de curs 1.1 — Capitolul I: Importanța studiului (PDF)", url: "/cursuri-materiale/alexandru-paul-ciolac/suport-curs-1-1-importanta-studiului.pdf" },
+    { titlu: "Suport de curs 1.2 — Capitolul I: Chinologia în plan mondial (PDF)", url: "/cursuri-materiale/alexandru-paul-ciolac/suport-curs-1-2-chinologia-in-plan-mondial.pdf" },
+  ],
+};
+
+export const LECTORI: Lector[] = LECTORI_PERSOANE.map((p) => ({
+  slug: p.slug,
+  nume: p.nume,
+  rol: rolLector(p),
+  materiale: MATERIALE_LECTORI[p.slug] || [],
+}));
 
 // =========================================================================
 // MANUALUL DE STUDIU INDIVIDUAL — material COMUN (candidați + lectori).
