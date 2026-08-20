@@ -39,6 +39,13 @@ const TESTE = [
     <a class="btn btn--outline" href="/registru/?din=cursuri">🧬 Registrul genealogic (coduri de membru) →</a>
   </p>
 
+  {/* Atenționările candidaților: cele două obligații de la intrare, urmărite NOMINAL.
+      Verde când toți le-au îndeplinit; chihlimbar cu numele celor restanți când nu. */}
+  <div class="a-atentionari" id="a-atentionari" hidden>
+    <p class="a-atentionare" id="a-at-codetic"></p>
+    <p class="a-atentionare" id="a-at-buletin"></p>
+  </div>
+
   {/* ——— Secțiunile lungi se pliază ———
        Cele patru de aici sunt listele care cresc: 17 module, candidații, arbitrii din
        formarea continuă, profilurile de interese. Ținute deschise, împing tot restul
@@ -353,6 +360,9 @@ const TESTE = [
       e.textContent = n ? n + " " + (n === 1 ? singular : plural) : "";
     }
 
+    // A doua cheie a administratorului — cerută de TOATE funcțiile de administrare din
+    // 09.08; apelurile care n-o trimiteau cădeau cu 403. O sursă, toate apelurile.
+    function dispozitivScoala() { try { return localStorage.getItem("cfcrScoalaDispozitiv") || ""; } catch (e) { return ""; } }
     function codAdmin() {
       let c = null;
       try { c = localStorage.getItem("cfcrAccesCod"); } catch (e) {}
@@ -389,7 +399,7 @@ const TESTE = [
           try {
             const res = await fetch("/.netlify/functions/anunturi-cursuri", {
               method: "POST", headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ cod: codAdmin(), delete: a.key }),
+              body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), delete: a.key }),
             });
             if (!res.ok) throw new Error((await res.json()).eroare || "Eroare");
             incarcaAnunturi();
@@ -410,7 +420,7 @@ const TESTE = [
       try {
         const res = await fetch("/.netlify/functions/anunturi-cursuri", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cod: codAdmin(), text }),
+          body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), text }),
         });
         if (!res.ok) throw new Error((await res.json()).eroare || "Eroare");
         ta.value = "";
@@ -586,12 +596,43 @@ const TESTE = [
     async function candidatiCere(payload) {
       const res = await fetch("/.netlify/functions/candidati-cursuri", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+        body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), ...payload }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.eroare || "Eroare");
       return data;
     }
+
+    // ——— Atenționările candidaților: Codul Etic + Buletinul, urmărite NOMINAL ———
+    // Când toți le-au îndeplinit, rândul o spune pe verde; când nu, spune CINE nu.
+    function scrieAtentionare(el, restanti, total, textToti, textRestanti) {
+      el.classList.remove("e-ok", "e-restanta");
+      if (!total) { el.textContent = "Niciun candidat înregistrat încă."; return; }
+      if (!restanti.length) {
+        el.classList.add("e-ok");
+        el.textContent = "✅ " + textToti.replace("{n}", total);
+      } else {
+        el.classList.add("e-restanta");
+        el.textContent = "⚠️ " + textRestanti.replace("{n}", restanti.length).replace("{total}", total)
+          + ": " + restanti.join(", ") + ".";
+      }
+    }
+    async function incarcaAtentionari() {
+      try {
+        const d = await candidatiCere({ actiune: "atentionari" });
+        const c = d.candidati || [];
+        const faraCod = c.filter((x) => !x.asumatCodEtic).map((x) => x.nume);
+        const faraBul = c.filter((x) => !x.abonatBuletin).map((x) => x.nume);
+        scrieAtentionare(document.getElementById("a-at-codetic"), faraCod, c.length,
+          "Toți cei {n} candidați și-au asumat Codul Etic (versiunea " + d.versiuneCodEtic + ").",
+          "{n} din {total} candidați NU și-au asumat Codul Etic");
+        scrieAtentionare(document.getElementById("a-at-buletin"), faraBul, c.length,
+          "Toți cei {n} candidați sunt abonați la Buletinul Școlii.",
+          "{n} din {total} candidați NU sunt abonați la Buletin — singurul canal prin care se ține legătura");
+        document.getElementById("a-atentionari").hidden = false;
+      } catch (e) { console.error("Atenționările nu s-au putut încărca:", e); }
+    }
+    incarcaAtentionari();
 
     function fmtData(iso, cuOra) {
       if (!iso) return "";
@@ -733,7 +774,7 @@ const TESTE = [
       const res = await fetch("/.netlify/functions/arbitri-cursuri", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+        body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), ...payload }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.eroare || "Eroare de server.");
@@ -862,7 +903,7 @@ const TESTE = [
       try {
         const res = await fetch("/.netlify/functions/cod-etic", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cod: codAdmin(), actiune: "situatie" }),
+          body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), actiune: "situatie" }),
         });
         const d = await res.json();
         if (!res.ok) throw new Error(d.eroare || "Eroare");
@@ -903,7 +944,7 @@ const TESTE = [
       try {
         const res = await fetch("/.netlify/functions/formare-arbitri", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cod: codAdmin(), actiune: "situatie" }),
+          body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), actiune: "situatie" }),
         });
         const d = await res.json();
         if (!res.ok) throw new Error(d.eroare || "Eroare");
@@ -962,7 +1003,7 @@ const TESTE = [
     async function instCere(payload) {
       const res = await fetch("/.netlify/functions/breed-instalare", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+        body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), ...payload }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.eroare || "Eroare");
@@ -1009,7 +1050,7 @@ const TESTE = [
 
     // ——— Photo Anatomy Annotator: coduri PAA + seed standard demo ———
     async function paaCere(payload) {
-      const res = await fetch("/.netlify/functions/paa-instalare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cod: codAdmin(), ...payload }) });
+      const res = await fetch("/.netlify/functions/paa-instalare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), ...payload }) });
       const d = await res.json().catch(() => ({})); if (!res.ok) throw new Error(d.eroare || "Eroare"); return d;
     }
     async function incarcaPaa() {
@@ -1033,7 +1074,7 @@ const TESTE = [
       catch (err) { alert("Nu am putut genera: " + err.message); } finally { btn.disabled = false; btn.textContent = "Generează cod de instalare (PAA)"; }
     });
     document.getElementById("a-paa-seed").addEventListener("click", async () => {
-      try { const res = await fetch("/.netlify/functions/paa-standarde", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cod: codAdmin(), actiune: "seed-demo" }) }); const d = await res.json(); if (res.ok) alert(d.existent ? "Standardul demo există deja." : "Standardul demonstrativ a fost încărcat."); else alert(d.eroare || "Eroare"); }
+      try { const res = await fetch("/.netlify/functions/paa-standarde", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), actiune: "seed-demo" }) }); const d = await res.json(); if (res.ok) alert(d.existent ? "Standardul demo există deja." : "Standardul demonstrativ a fost încărcat."); else alert(d.eroare || "Eroare"); }
       catch (e) { alert("Nu am putut încărca standardul demo."); }
     });
     incarcaPaa();
@@ -1042,7 +1083,7 @@ const TESTE = [
     async function interCere(payload) {
       const res = await fetch("/.netlify/functions/interese-rase", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+        body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), ...payload }),
       });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(d.eroare || "Eroare");
@@ -1392,4 +1433,11 @@ const TESTE = [
   .a-bul-abonati-det[hidden] { display: none; }
   .a-bul-abonati-det summary { cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--color-accent-dark); }
   .a-bul-abonati-det .a-cand-list { margin-top: 0.6rem; }
+
+  /* Atenționările candidaților (Cod Etic + Buletin): verde = toți; chihlimbar = cine nu. */
+  .a-atentionari { display: grid; gap: .5rem; margin: 1rem 0 1.25rem; }
+  :global(.a-atentionare) { margin: 0; padding: .65rem 1rem; border-radius: var(--radius);
+    border: 1px solid var(--color-border); border-left-width: 4px; font-size: .95rem; }
+  :global(.a-atentionare.e-ok) { border-left-color: var(--color-success); background: #eef5f0; }
+  :global(.a-atentionare.e-restanta) { border-left-color: #b08d2e; background: #f7f1df; font-weight: 600; }
 </style>

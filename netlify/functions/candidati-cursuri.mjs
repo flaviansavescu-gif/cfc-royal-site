@@ -14,6 +14,7 @@ import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { json } from "./_comun/raspuns.mjs";
+import { VERSIUNE as VERSIUNE_COD_ETIC } from "./cod-etic.mjs";
 // Alfabet fără caractere ambigue (0/O, 1/I/L) — codurile se dictează ușor la telefon.
 const ALFABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
@@ -66,6 +67,42 @@ export default cuLimitareCod(async (req) => {
     }
     lista.sort((a, b) => (a.nume || "").localeCompare(b.nume || "", "ro"));
     return json(lista);
+  }
+
+  // ——— Atenționările candidaților: cine NU și-a asumat Codul Etic / NU e abonat ———
+  // Două obligații de la intrarea în Școală, urmărite nominal: asumarea versiunii
+  // CURENTE a Codului Etic (actul pe care se sprijină procedura disciplinară) și
+  // abonarea la Buletin — singurul canal prin care se ține legătura cu candidații.
+  if (actiune === "atentionari") {
+    // Cine a asumat versiunea curentă (cheia = insigna membrului).
+    const asumati = new Set();
+    try {
+      const { blobs } = await store.list({ prefix: `cod-etic/${VERSIUNE_COD_ETIC}/` });
+      for (const b of blobs) asumati.add(b.key.slice(`cod-etic/${VERSIUNE_COD_ETIC}/`.length));
+    } catch (err) { console.error("Atenționări: asumările nu s-au putut citi:", err); }
+
+    // Cine e abonat la buletin (abonările personale poartă insigna în membruId).
+    const abonati = new Set();
+    try {
+      const { blobs } = await store.list({ prefix: "abonat/" });
+      for (const b of blobs) {
+        const a = await store.get(b.key, { type: "json" }).catch(() => null);
+        if (a?.membruId) abonati.add(a.membruId);
+      }
+    } catch (err) { console.error("Atenționări: abonații nu s-au putut citi:", err); }
+
+    const candidati = [];
+    try {
+      const { blobs } = await store.list({ prefix: "candidat/" });
+      for (const b of blobs) {
+        const c = await store.get(b.key, { type: "json" }).catch(() => null);
+        if (!c) continue;
+        const id = b.key.slice("candidat/".length);
+        candidati.push({ nume: c.nume, asumatCodEtic: asumati.has(id), abonatBuletin: abonati.has(id) });
+      }
+    } catch (err) { console.error("Atenționări: candidații nu s-au putut citi:", err); }
+    candidati.sort((a, b) => (a.nume || "").localeCompare(b.nume || "", "ro"));
+    return json({ versiuneCodEtic: VERSIUNE_COD_ETIC, candidati });
   }
 
   if (actiune === "progres") {
