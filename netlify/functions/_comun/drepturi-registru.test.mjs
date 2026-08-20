@@ -77,7 +77,10 @@ console.log("— alerta de cerere ajunge la cine poate rezolva —");
   e("cererea strânge adresele registratorilor", acc.includes("anuntaLa"));
   const jur = readFileSync(new URL("./registru-jurnal.mjs", import.meta.url), "utf8");
   e("jurnalul le folosește", jur.includes("anunta(intrare, date?.anuntaLa)"));
-  e("adresa asociației rămâne rezervă", jur.includes("destinatari.length ? destinatari.join"));
+  // Lista se dă ÎNTREAGĂ lui trimite() — join(",") făcea din două adrese UN „destinatar"
+  // pe care Brevo îl respingea în tăcere (defect reparat 20.08).
+  e("adresa asociației rămâne rezervă", jur.includes("destinatari.length ? destinatari : ADRESA_ASOCIATIEI"));
+  e("lista NU se mai lipește cu virgulă", !jur.includes("destinatari.join"));
   e("textul nu mai trimite la secțiunea scoasă", !jur.includes("Solicitări de acces"));
   e("textul trimite la spațiul Registraturii", jur.includes("registru/registratura"));
 }

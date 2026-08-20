@@ -687,7 +687,10 @@ export default cuLimitareCod(async (req) => {
 
       const serie = await serieNoua(an);
       if (!serie) return json({ eroare: "Nu am putut aloca o serie. Reîncearcă." }, 500);
-      const microcip = taie(pui.identificare, 30);
+      // Cipul se NORMALIZEAZĂ (fără spații/cratime), ca la importul istoric și ca la
+      // căutare — altfel un cip scris „941 000..." făcea câinele negăsibil după microcip
+      // și rupea legătura părinte→fișă din /cuiburi/ și steaua din registrul public.
+      const microcip = taie(pui.identificare, 30).replace(/[\s-]/g, "");
       const cert = {
         serie, tip: t.tip, lipsaAscendenta: t.lipsa,
         dmfId: id, dmfSerie: d.serie, numarWDF: d.numarWDF, puiIndex: i,
@@ -717,7 +720,7 @@ export default cuLimitareCod(async (req) => {
       };
       await s.setJSON("pedigree/" + serie, cert);
       await s.setJSON("pedigree-cuib/" + id + "/" + i, { serie, nume: pui.nume, tip: t.tip });
-      if (microcip) await s.setJSON("pedigree-caine/" + microcip, { serie });
+      if (microcip && segmentCheieValid(microcip)) await s.setJSON("pedigree-caine/" + microcip, { serie });
       emise.push({ index: i, serie, tip: t.tip });
     }
     await s.setJSON("dmf/" + id, { ...(await s.get("dmf/" + id, { type: "json" })), stare: "emis" });

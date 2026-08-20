@@ -28,7 +28,8 @@ async function iaLacatul(s, cheieLacat) {
  * servește copia veche (stale-while-revalidate); la rece (fără nicio copie) se reconstruiește.
  */
 export async function obtineIndexCachedat(s, { cheie, ttlMs, construieste }) {
-  const idx = await s.get(cheie, { type: "json" }).catch(() => null);
+  const cur = await s.getWithMetadata(cheie, { type: "json" }).catch(() => null);
+  const idx = cur?.data || null;
   if (idx && Date.now() - Date.parse(idx.generat || 0) <= ttlMs) return idx;
 
   const cheieLacat = cheie + "-lacat";
@@ -36,7 +37,13 @@ export async function obtineIndexCachedat(s, { cheie, ttlMs, construieste }) {
   if (!amLacatul && idx) return idx;   // altcineva reconstruiește; dă copia veche, nu mai scana
 
   const nou = await construieste(s);
-  await s.setJSON(cheie, nou).catch(() => {});
+  // Scriere CONDIȚIONATĂ pe starea citită la intrare. Fără condiție, o publicare care
+  // ȘTERGE indexul (ca ediția nouă să apară imediat) putea fi suprascrisă de o
+  // reconstrucție pornită cu o clipă înainte — iar indexul vechi, fără ediția proaspătă,
+  // trăia până la TTL. Dacă între timp cheia a fost ștearsă sau rescrisă, ștergerea
+  // câștigă: nu persistăm, doar servim acestei cereri ce am construit.
+  const conditie = cur?.etag ? { onlyIfMatch: cur.etag } : { onlyIfNew: true };
+  await s.setJSON(cheie, nou, conditie).catch(() => {});
   if (amLacatul) await s.delete(cheieLacat).catch(() => {});
   return nou;
 }

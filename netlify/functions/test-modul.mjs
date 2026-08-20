@@ -89,7 +89,9 @@ export default cuLimitareCod(async (req) => {
   }
 
   const { modul, nume, cod, raspunsuri } = date || {};
-  const cheie = CHEI[modul];
+  // Object.hasOwn: pe obiect literal, `CHEI["constructor"]` ar trece prin moștenirea
+  // de prototip și ar produce un 500 mai jos — poarta trebuie să vadă doar cheile reale.
+  const cheie = Object.hasOwn(CHEI, String(modul || "")) ? CHEI[modul] : null;
   if (!cheie) return json({ eroare: "Testul acestui modul nu este activ." }, 404);
   if (!Array.isArray(raspunsuri) || raspunsuri.length !== cheie.length)
     return json({ eroare: "Răspunde la toate întrebările." }, 400);

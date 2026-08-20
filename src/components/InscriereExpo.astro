@@ -76,7 +76,7 @@ const T = {
     studentBifa: "Sunt student (reducere suplimentară)",
     studentNota: "Reducerea se acordă pe baza carnetului de student sau a unei adeverințe, prezentate la secretariat.",
     taxaTa: "Taxa ta de înscriere:",
-    taxaDetaliu: "Aceasta este suma pe care o achiți acum.",
+    taxaDetaliu: "Aceasta este suma pe care o achiți acum. Dacă ai mai trimis deja câini la această expoziție, tariful redus pentru «următorii» se aplică automat — suma corectă apare în confirmarea de după trimitere.",
     vezeTarife: "Vezi toate tarifele asociației",
     plataCum: "Plata se face prin transfer bancar, înainte de trimiterea înscrierii:",
     titularEticheta: "Beneficiar:",
@@ -147,7 +147,7 @@ const T = {
     studentBifa: "I am a student (additional discount)",
     studentNota: "The discount is granted on presentation of a student card or certificate at the secretariat.",
     taxaTa: "Your entry fee:",
-    taxaDetaliu: "This is the amount you pay now.",
+    taxaDetaliu: "This is the amount you pay now. If you have already entered dogs in this show, the reduced rate for subsequent dogs is applied automatically — the correct amount appears in the confirmation after you submit.",
     vezeTarife: "See all the association fees",
     plataCum: "Payment is made by bank transfer, before submitting the entry:",
     titularEticheta: "Account holder:",
@@ -389,7 +389,7 @@ const CLASE = [
   </form>
 </section>
 
-<script is:inline define:vars={{ AFISE, txtInchisOptiune: T.inchisOptiune, txtInchisButon: T.inchisButon, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit, txtCaine: (lang === "en" ? "Dog" : "Câinele"), txtCampuriCaine: (lang === "en" ? "Dog {n}: fill in the required fields — name, breed (from the list), sex, date of birth, class and microchip (min. 6). Pedigree is required unless you tick typicity." : "Câinele {n}: completează câmpurile obligatorii — nume, rasă (din listă), sex, data nașterii, clasă și microcip (min. 6). Pedigree obligatoriu dacă nu bifezi tipicitatea."), txtTaxaTotal: (lang === "en" ? "Total entry fee:" : "Taxa totală de înscriere:"), txtNuTrimis: (lang === "en" ? "NOT sent yet — please complete:" : "NU s-a trimis încă — mai completează:") }}>
+<script is:inline define:vars={{ AFISE, txtInchisOptiune: T.inchisOptiune, txtInchisButon: T.inchisButon, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit, txtCaine: (lang === "en" ? "Dog" : "Câinele"), txtCampuriCaine: (lang === "en" ? "Dog {n}: fill in the required fields — name, breed (from the list), sex, date of birth, class and microchip (min. 6). Pedigree is required unless you tick typicity." : "Câinele {n}: completează câmpurile obligatorii — nume, rasă (din listă), sex, data nașterii, clasă și microcip (min. 6). Pedigree obligatoriu dacă nu bifezi tipicitatea."), txtTaxaTotal: (lang === "en" ? "Total entry fee:" : "Taxa totală de înscriere:"), txtTaxaInregistrata: (lang === "en" ? "Registered entry fee:" : "Taxă înregistrată:"), txtNuTrimis: (lang === "en" ? "NOT sent yet — please complete:" : "NU s-a trimis încă — mai completează:") }}>
   (async function () {
     const form = document.getElementById("ie-form");
     const loading = document.getElementById("ie-loading");
@@ -809,7 +809,12 @@ const CLASE = [
         const rez = document.getElementById("ie-succes-rezumat");
         const numeExpo = showSel && showSel.selectedIndex >= 0 ? showSel.options[showSel.selectedIndex].text : "";
         const nume = caini.map((c) => c.numeCaine).join(", ");
-        rez.innerHTML = "<b>" + nume + "</b> — " + numeExpo + " — " + succesDetaliu;
+        // Suma din confirmare e a SERVERULUI (el știe și câinii trimiși mai devreme de
+        // același proprietar) — nu estimarea de pe ecran, care vede doar lotul curent.
+        const taxaServer = typeof data.total === "number" && data.total > 0
+          ? " <b>" + txtTaxaInregistrata + " " + data.total + " " + txtLei + ".</b>"
+          : "";
+        rez.innerHTML = "<b>" + nume + "</b> — " + numeExpo + " — " + succesDetaliu + taxaServer;
         form.hidden = true; succes.hidden = false; form.reset();
         succes.scrollIntoView({ behavior: "smooth", block: "center" });
       } catch (e2) {

@@ -48,7 +48,9 @@ const VARSTA = {
   intermediara: { min: 15, max: 24 },
   deschisa: { min: 18, max: null },
   working: { min: 18, max: null },
-  winner: { min: 15, max: null },
+  // Winner cere câine ADULT (18 luni) — regulamentul „Clasa Winner" + managerul spun la
+  // fel; aici scria 15 și formularul primea câini pe care importul îi refuza apoi.
+  winner: { min: 18, max: null },
   champion: { min: 15, max: null },
   foreign_champion: { min: 15, max: null },
   veterani: { min: 120, max: null },

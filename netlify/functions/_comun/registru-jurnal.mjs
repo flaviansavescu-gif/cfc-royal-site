@@ -209,9 +209,12 @@ async function anunta(intrare, catre) {
   // Alerta trebuie să ajungă la cine POATE rezolva. Cererile de acces se lucrează la
   // registratură, deci acolo pleacă — altfel omul care primește vestea n-are ce face cu
   // ea, iar cel care ar avea, n-o află. Adresa asociației rămâne rezerva.
+  // Lista se dă ÎNTREAGĂ lui trimite() — lipite cu virgulă deveneau UN singur
+  // „destinatar" pe care Brevo îl respingea în tăcere: cu doi registratori, alerta
+  // nu pleca deloc.
   const destinatari = (Array.isArray(catre) ? catre : [catre]).filter(Boolean);
   return trimite({
-    catre: destinatari.length ? destinatari.join(",") : ADRESA_ASOCIATIEI,
+    catre: destinatari.length ? destinatari : ADRESA_ASOCIATIEI,
     subiect: `[CFC-Royal] ${intrare.eticheta}${intrare.obiect ? " — " + intrare.obiect : ""}`,
     html: pagina(titlu, culoare, corp),
   });

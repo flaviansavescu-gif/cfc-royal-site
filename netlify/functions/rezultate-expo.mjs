@@ -11,6 +11,7 @@
 import { getStore } from "@netlify/blobs";
 import { secretEgal } from "./_comun/secret.mjs";
 import { obtineIndexCachedat } from "./_comun/index-cachedat.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 // Indexul edițiilor publicate, cachedat (PERF: fără list()+get() per ediție la fiecare
 // vizitator). TTL generos, fiindcă publicarea/retragerea ȘTERG cache-ul pe loc — în ziua
@@ -32,7 +33,8 @@ async function construiesteIndexRezultate(store) {
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json; charset=utf-8" } });
 
-const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+// Scapă și ghilimelele/apostroful: valorile intră și în atribute (href="...").
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 // CSP defensiv pentru paginile de rezultate (adăugat la auditul de securitate). Pagina cu
 // titluri e HTML BRUT, publicat de Manager cu secretul comun, și e servită pe ORIGINEA APEX
@@ -63,9 +65,12 @@ export default async (req) => {
       return json({ eroare: "Neautorizat" }, 401);
     }
     if (body.actiune === "publica") {
-      const showId = String(body.showId || "");
+      // Regula casei (SEC-001): orice segment de cheie Blob venit din afară trece prin
+      // segmentCheieValid — chiar și în spatele secretului Managerului.
+      const showId = String(body.showId || "").slice(0, 80);
       const html = String(body.html || "");
-      if (!showId || !html.startsWith("<!doctype html>")) return json({ eroare: "Pagină invalidă." }, 400);
+      if (!showId || !segmentCheieValid(showId)) return json({ eroare: "Referință invalidă." }, 400);
+      if (!html.startsWith("<!doctype html>")) return json({ eroare: "Pagină invalidă." }, 400);
       if (html.length > 900_000) return json({ eroare: "Pagina depășește limita." }, 400);
       await store.setJSON("rezultate/" + showId, {
         nume: String(body.nume || "").slice(0, 200),
@@ -106,7 +111,9 @@ export default async (req) => {
     }
 
     if (body.actiune === "retrage") {
-      await store.delete("rezultate/" + String(body.showId || ""));
+      const showIdRetras = String(body.showId || "").slice(0, 80);
+      if (!segmentCheieValid(showIdRetras)) return json({ eroare: "Referință invalidă." }, 400);
+      await store.delete("rezultate/" + showIdRetras);
       await store.delete(CHEIE_INDEX).catch(() => {}); // ediția retrasă să dispară imediat din listă
       return json({ ok: true });
     }
