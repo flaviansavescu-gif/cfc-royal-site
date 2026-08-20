@@ -251,6 +251,16 @@ export default async () => {
   stare.suspecta = suspecta;
 
   if (alerta) {
+    // Istoricul alertelor, pe luni — hrana raportului lunar. Starea curentă se
+    // suprascrie mereu; fără însemnarea asta, „câte alerte au fost și cât au ținut"
+    // nu s-ar mai putea spune după o lună. `de` = de când ține starea, deci la
+    // „revenire" diferența la − de e chiar durata avariei.
+    try {
+      const la = new Date().toISOString();
+      await store.setJSON(`monitor-alerte/${la.slice(0, 7)}/${la}`, {
+        tip: alerta.tip, subiect: alerta.subiect || "", la, de: stare.de || null,
+      });
+    } catch (err) { console.error("Istoricul alertelor nu s-a putut scrie:", err); }
     const trimis = await trimiteAlerta(alerta, stare);
     stare.ultimaAlertaTrimisa = trimis;
     // Dacă e-mailul n-a plecat, NU marcăm alerta ca dată: la rularea următoare se
