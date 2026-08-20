@@ -75,7 +75,6 @@ export const ACCES_SCRYPT = "847ab9436dbb99aad28c095d11c73999acc2328c7750611dcdf
 export const LECTORI = [
   { slug: "flavian-savescu", nume: "Flavian-Sergiu Savescu", hash: "296f79cabccd93eed62e3e8fdc65b484dd3e78a1f4155257481d647a37c4d8a9", grupe: "all", email: "flavian.savescu@gmail.com" },
   { slug: "mihail-cosmin-neagu", nume: "Mihail Cosmin Neagu", hash: "3119be2a009f3b4a15550aea0711fdd8f345a205097525c8df64e29c0604744d", grupe: "all" },
-  { slug: "georgeta-mihaela-chivu", nume: "Georgeta Mihaela Chivu", hash: "f9341b2787cbcc1d5d932004363b1adcdf0a5e5e295d7185e4fa39466be233ff", grupe: "all" },
   { slug: "mihail-sorin-iacob", nume: "Mihail Sorin Iacob", hash: "b02bfdc8767a3f31b5085613f553c6caf3bcf7b5865a42587a0c0a22d8d5584a", grupe: "all" },
   { slug: "andreea-daniela-popescu", nume: "Andreea-Daniela Popescu", hash: "cda654b9a9cd8a5527d05e11311221c7a61d7bee872745b87a7bac76dfd71355", grupe: [3, 5, 9] },
   { slug: "alexandru-paul-ciolac", nume: "Alexandru Paul Ciolac", hash: "a1582dce3456a7a887180fa57c97535e443423a1b62b14d9cc5f863edbf6e857", grupe: [2, 3, 4, 6, 8] },

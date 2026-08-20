@@ -444,16 +444,6 @@ export const LECTORI: Lector[] = [
     materiale: [],
   },
   {
-    slug: "georgeta-mihaela-chivu",
-    nume: "Georgeta Mihaela Chivu",
-    rol: "Arbitru WDF · All Breed",
-    materiale: [
-      { titlu: "Suport de curs 4.2.4 — Handling expozițional (PDF)", url: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-2-4-handling-expozitional.pdf", md: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-2-4-handling-expozitional.md" },
-      { titlu: "Suport de curs 4.4.5 — Grooming canin (PDF)", url: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-4-5-grooming-canin.pdf", md: "/cursuri-materiale/georgeta-mihaela-chivu/suport-curs-4-4-5-grooming-canin.md" },
-      { titlu: "Orarul cursurilor 4.2.4 și 4.4.5 (PDF)", url: "/cursuri-materiale/georgeta-mihaela-chivu/orar-curs-4-2-4-si-4-4-5.pdf" },
-    ],
-  },
-  {
     slug: "mihail-sorin-iacob",
     nume: "Mihail Sorin Iacob",
     rol: "Arbitru WDF · All Breed",

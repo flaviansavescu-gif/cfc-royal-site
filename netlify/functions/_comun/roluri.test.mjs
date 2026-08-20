@@ -69,10 +69,10 @@ test("grupeLector întoarce o copie (nu se poate altera lista sursă)", () => {
   assert.deepEqual(grupeLector("andreea-daniela-popescu"), [3, 5, 9]);
 });
 
-test("lectoriCuGrupe: 6 lectori, 4 All Breed, grupe valide", () => {
+test("lectoriCuGrupe: 5 lectori, 3 All Breed, grupe valide", () => {
   const l = lectoriCuGrupe();
-  assert.equal(l.length, 6);
-  assert.equal(l.filter((x) => x.allBreed).length, 4);
+  assert.equal(l.length, 5);
+  assert.equal(l.filter((x) => x.allBreed).length, 3);
   for (const x of l) {
     assert.ok(x.slug && x.nume, "fiecare lector are slug și nume");
     assert.ok(x.grupe.length >= 1, "fiecare lector acoperă cel puțin o grupă");
