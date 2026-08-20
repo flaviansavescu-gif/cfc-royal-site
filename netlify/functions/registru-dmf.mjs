@@ -44,6 +44,7 @@ import { cheileCitirii } from "./_comun/citire-documente.mjs";
 import { trimite } from "./_comun/posta.mjs";
 import { START_PORTI, PRAG, luniIntre, portiCrestere, mesajOpriri } from "./_comun/porti-crestere.mjs";
 import { json } from "./_comun/raspuns.mjs";
+import { refuzaDacaInchis } from "./_comun/poarta-scrieri.mjs";
 
 // CITIRE TARE, ca la poarta de acces.
 //
@@ -664,6 +665,9 @@ export default cuLimitareCod(async (req) => {
   }
 
   if (actiune === "depune") {
+    // Comutatorul de urgență al administratorului: mentenanță = doar citiri.
+    { const oprit = await refuzaDacaInchis(json); if (oprit) return oprit; }
+
     if (eu.rol !== "membru" && eu.rol !== "chinotehnist" && eu.rol !== "registratura")
       return json({ eroare: "Doar membrii, chinotehniștii și registratura depun declarații." }, 403);
     // Cotizația se verifică ACUM, nu la deschiderea ciornei: între timp putea expira.

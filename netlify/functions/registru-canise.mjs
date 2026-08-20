@@ -33,6 +33,7 @@ import {
 import { poateCereExtras, numarDinText, intervalulCerut, inInterval, inValuri } from "./_comun/extrase.mjs";
 import { AFIXE_OFICIALE } from "./_comun/afixe-oficiale.mjs";
 import { json } from "./_comun/raspuns.mjs";
+import { refuzaDacaInchis } from "./_comun/poarta-scrieri.mjs";
 
 // Citire tare, ca peste tot în registru: o cerere hotărâtă trebuie văzută hotărâtă imediat.
 const store = () => getStore({ name: "registru", consistency: "strong" });
@@ -127,6 +128,9 @@ export default cuLimitareCod(async (req) => {
 
   // ——— MEMBRUL: depune cererea ———
   if (actiune === "cerere") {
+    // Comutatorul de urgență al administratorului: mentenanță = doar citiri.
+    { const oprit = await refuzaDacaInchis(json); if (oprit) return oprit; }
+
     if (eu.rol !== "membru") return json({ eroare: "Doar membrii pot cere înregistrarea unei canise." }, 403);
     const m = eu.membru;
     if (!m.cotizatieLaZi)

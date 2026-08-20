@@ -1,0 +1,222 @@
+---
+// /registru/admin/stare/ — tabloul de stare al ecosistemului, pentru administrator.
+//
+// Un singur ecran care răspunde la trei întrebări: SISTEMUL MERGE? (inimile funcțiilor
+// programate, poșta, monitorul, copiile), CE MĂ AȘTEAPTĂ AZI? (cozile de decizie) și,
+// la nevoie, butonul pe care paznicul de intruziune — dinadins — nu-l are: comutatorul
+// de urgență al scrierilor publice. Sistemul nu blochează singur; omul, de aici, poate.
+import RegistruLayout from "../../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Starea ecosistemului" allow={["admin"]}>
+  <p class="a-eyebrow">Administrare · Vedere de ansamblu</p>
+  <h1 class="a-title">Starea ecosistemului</h1>
+  <p class="a-sub">
+    Sănătatea sistemului și cozile care așteaptă o decizie — dintr-o privire.
+    Paginile de lucru rămân cele știute: <a href="/registru/registratura/">Registratura</a>,
+    <a href="/registru/admin/paznic/">Paznicul de intruziune</a>, <a href="/cursuri/admin/">Școala</a>.
+  </p>
+
+  <section class="a-sectiune">
+    <div class="s-verdict" id="s-verdict" data-stare="asteapta">
+      <p class="s-verdict__stare" id="s-stare">Se citește…</p>
+      <p class="s-verdict__motiv" id="s-motiv"></p>
+    </div>
+  </section>
+
+  <section class="a-sectiune" id="s-cozi-sec" hidden>
+    <h2 class="s-h2">Ce așteaptă o decizie</h2>
+    <div class="s-cifre" id="s-cozi"></div>
+  </section>
+
+  <section class="a-sectiune" id="s-sanatate-sec" hidden>
+    <h2 class="s-h2">Sănătatea sistemului</h2>
+    <div class="s-tabel-strat"><table class="s-tabel" id="s-sanatate"></table></div>
+    <p class="s-nota">Inimile: fiecare funcție programată își scrie ora la fiecare rulare;
+      paznicul din GitHub Actions sună dacă vreuna tace peste prag. Săptămânalele bat duminică dimineața.</p>
+  </section>
+
+  <section class="a-sectiune" id="s-poarta-sec" hidden>
+    <h2 class="s-h2">Comutatorul de urgență — scrierile publice</h2>
+    <div class="s-poarta" id="s-poarta-cutie">
+      <p id="s-poarta-text"></p>
+      <div class="s-poarta__controale" id="s-poarta-inchide-zona">
+        <input id="s-motiv-input" type="text" maxlength="200"
+               placeholder="Motivul (apare în mesajul către oameni și în jurnal)" />
+        <button class="btn btn--danger" id="s-btn-inchide" type="button">Închide scrierile publice</button>
+      </div>
+      <button class="btn btn--primary" id="s-btn-deschide" type="button" hidden>Redeschide scrierile</button>
+    </div>
+    <p class="s-nota">Închis: depunerile de DMF, testele de sănătate, cererile de afix și înscrierile
+      la expoziții primesc un refuz politicos. Cititul, registratura, administrarea și Managerul merg normal.
+      Închiderea și redeschiderea se consemnează în jurnal.</p>
+  </section>
+</RegistruLayout>
+
+<style>
+  .s-verdict { border: 1px solid var(--color-border); border-left-width: 5px; border-radius: var(--radius);
+    padding: 1rem 1.3rem; background: var(--color-surface); }
+  .s-verdict[data-stare="bine"] { border-left-color: var(--color-success); }
+  .s-verdict[data-stare="atentie"] { border-left-color: #b08d2e; }
+  .s-verdict[data-stare="rau"], .s-verdict[data-stare="eroare"] { border-left-color: var(--color-danger); }
+  .s-verdict__stare { font-weight: 700; font-size: 1.15rem; margin: 0; color: var(--color-primary); }
+  .s-verdict__motiv { margin: .3rem 0 0; color: var(--color-text-muted); }
+  .s-h2 { color: var(--color-primary); font-size: 1.15rem; margin: 0 0 .7rem; }
+  .s-cifre { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); }
+  :global(.s-cifra) { border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface);
+    padding: .7rem .9rem; text-decoration: none; color: var(--color-text); display: block; }
+  :global(.s-cifra b) { display: block; font-size: 1.5rem; color: var(--color-primary); }
+  :global(.s-cifra.e-plina) { border-color: #b08d2e; background: #f7f1df; }
+  :global(.s-cifra span) { font-size: .82rem; color: var(--color-text-muted); }
+  .s-tabel-strat { overflow-x: auto; }
+  .s-tabel { border-collapse: collapse; width: 100%; font-size: .92rem; }
+  :global(.s-tabel td) { padding: .45rem .7rem; border-bottom: 1px solid var(--color-border); }
+  :global(.s-tabel .e-ok) { color: var(--color-success); font-weight: 700; }
+  :global(.s-tabel .e-rau) { color: var(--color-danger); font-weight: 700; }
+  :global(.s-tabel .e-gri) { color: var(--color-text-muted); }
+  .s-nota { font-size: .85rem; color: var(--color-text-muted); margin-top: .6rem; max-width: 46rem; }
+  .s-poarta { border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface);
+    padding: .9rem 1.1rem; }
+  .s-poarta__controale { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .6rem; }
+  .s-poarta__controale input { flex: 1 1 20rem; padding: .55rem .7rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; }
+  :global(.btn--danger) { background: #8c1d2f; border-color: #8c1d2f; color: #fff; }
+</style>
+
+<script is:inline>
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    const dispozitivAdmin = () => { try { return localStorage.getItem("cfcrRegistruDispozitiv") || ""; } catch (e) { return ""; } };
+    function codAdmin() {
+      let c = null;
+      try { c = localStorage.getItem("cfcrRegistruCod"); } catch (e) {}
+      return c || prompt("Confirmă codul de administrator:");
+    }
+    async function cere(payload) {
+      const res = await fetch("/.netlify/functions/stare-ecosistem", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivAdmin(), ...(payload || {}) }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.eroare || "Eroare de server.");
+      return d;
+    }
+
+    function randTabel(tabel, celule) {
+      const tr = document.createElement("tr");
+      for (const c of celule) {
+        const td = document.createElement("td");
+        if (c.clasa) td.className = c.clasa;
+        td.textContent = c.text;
+        tr.appendChild(td);
+      }
+      tabel.appendChild(tr);
+    }
+
+    function cifra(container, numar, eticheta, href) {
+      const el = document.createElement(href ? "a" : "div");
+      el.className = "s-cifra" + (numar > 0 ? " e-plina" : "");
+      if (href) el.href = href;
+      const b = document.createElement("b");
+      b.textContent = numar == null ? "?" : String(numar);
+      const span = document.createElement("span");
+      span.textContent = eticheta + (numar == null ? " (nu s-a putut număra)" : "");
+      el.appendChild(b); el.appendChild(span);
+      container.appendChild(el);
+    }
+
+    function arataPoarta(p) {
+      const inchisa = !!(p && p.inchis);
+      $("s-poarta-text").textContent = inchisa
+        ? "ÎNCHISE din " + String(p.de || "").slice(0, 16).replace("T", ", ") + (p.motiv ? " — motiv: " + p.motiv : "")
+        : "Scrierile publice sunt DESCHISE (starea obișnuită).";
+      $("s-poarta-inchide-zona").hidden = inchisa;
+      $("s-btn-deschide").hidden = !inchisa;
+    }
+
+    function arata(d) {
+      // Verdictul general: rău dacă ceva din sănătate e căzut; atenție dacă poarta e închisă.
+      const probleme = [];
+      if (!d.inimi.ok) probleme.push("o funcție programată a tăcut peste prag");
+      if (d.posta && d.posta.ok === false) probleme.push("poșta (Brevo) nu poate trimite");
+      if (d.monitor && d.monitor.stare === "cazut") probleme.push("monitorul vede fluxul critic căzut");
+      const v = $("s-verdict");
+      if (probleme.length) {
+        v.dataset.stare = "rau";
+        $("s-stare").textContent = "Ceva cere atenție";
+        $("s-motiv").textContent = probleme.join(" · ");
+      } else if (d.poarta && d.poarta.inchis) {
+        v.dataset.stare = "atentie";
+        $("s-stare").textContent = "Sănătos — dar scrierile publice sunt ÎNCHISE";
+        $("s-motiv").textContent = "Redeschide-le mai jos când mentenanța s-a încheiat.";
+      } else {
+        v.dataset.stare = "bine";
+        $("s-stare").textContent = "Totul e în ordine";
+        $("s-motiv").textContent = "Inimile bat, poșta trimite, monitorul e verde.";
+      }
+
+      // Cozile
+      const cozi = $("s-cozi"); cozi.textContent = "";
+      cifra(cozi, d.cozi.dmfDeLucru, "dosare DMF în lucru", "/registru/registratura/");
+      cifra(cozi, d.cozi.sanatateNeverif, "teste de sănătate de verificat", "/registru/registratura/");
+      cifra(cozi, d.cozi.cereriCanise, "cereri de afix nehotărâte", "/registru/registratura/");
+      cifra(cozi, d.cozi.dsarDeschise, "cereri GDPR deschise", "/registru/date-personale/");
+      cifra(cozi, d.cozi.inscrieriNeimportate, "înscrieri neimportate în Manager", null);
+      $("s-cozi-sec").hidden = false;
+
+      // Sănătatea — inimile + poșta + monitorul
+      const t = $("s-sanatate"); t.textContent = "";
+      for (const [nume, reguli] of Object.entries(d.inimi.reguli)) {
+        const intarziata = d.inimi.intarziate.find((x) => x.nume === nume);
+        const nebatuta = d.inimi.nebatute.includes(nume);
+        const bataie = d.inimi.batai[nume];
+        randTabel(t, [
+          { text: intarziata ? "✕" : (nebatuta ? "…" : "✓"), clasa: intarziata ? "e-rau" : (nebatuta ? "e-gri" : "e-ok") },
+          { text: "Inima „" + nume + "” (" + reguli.cadenta + ")" },
+          { text: intarziata ? "tace de " + intarziata.deMinute + " min" : (nebatuta ? "încă n-a bătut (prima rulare urmează)" : "ultima bătaie: " + String(bataie.la).slice(0, 16).replace("T", ", ")), clasa: "e-gri" },
+        ]);
+      }
+      randTabel(t, [
+        { text: d.posta.ok ? "✓" : "✕", clasa: d.posta.ok ? "e-ok" : "e-rau" },
+        { text: "Poșta (Brevo)" },
+        { text: d.posta.detaliu || "", clasa: "e-gri" },
+      ]);
+      if (d.monitor) {
+        for (const x of d.monitor.verificari || []) {
+          randTabel(t, [
+            { text: x.ok ? "✓" : "✕", clasa: x.ok ? "e-ok" : "e-rau" },
+            { text: "Monitor: " + x.nume },
+            { text: x.detaliu || "", clasa: "e-gri" },
+          ]);
+        }
+      }
+      $("s-sanatate-sec").hidden = false;
+
+      arataPoarta(d.poarta);
+      $("s-poarta-sec").hidden = false;
+    }
+
+    async function incarca() {
+      try { arata(await cere()); }
+      catch (e) {
+        $("s-verdict").dataset.stare = "eroare";
+        $("s-stare").textContent = "Nu am putut citi starea";
+        $("s-motiv").textContent = e.message;
+      }
+    }
+
+    $("s-btn-inchide").addEventListener("click", async () => {
+      const motiv = $("s-motiv-input").value.trim();
+      if (!confirm("Închizi scrierile publice? Depunerile, cererile și înscrierile vor primi un refuz politicos până le redeschizi. Cititul rămâne deschis.")) return;
+      try { arataPoarta((await cere({ actiune: "poarta-inchide", motiv })).poarta); incarca(); }
+      catch (e) { alert("Nu am putut închide: " + e.message); }
+    });
+    $("s-btn-deschide").addEventListener("click", async () => {
+      if (!confirm("Redeschizi scrierile publice?")) return;
+      try { arataPoarta((await cere({ actiune: "poarta-deschide" })).poarta); incarca(); }
+      catch (e) { alert("Nu am putut redeschide: " + e.message); }
+    });
+
+    incarca();
+  })();
+</script>

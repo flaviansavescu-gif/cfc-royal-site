@@ -28,6 +28,7 @@ import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.
 import { jurnalizeazaObligatoriu, actorJurnal, ipCerere } from "./_comun/registru-jurnal.mjs";
 import { valideaza, tipValid, numeTest, insignaTest, recomandareDin } from "./_comun/teste-sanatate.mjs";
 import { json } from "./_comun/raspuns.mjs";
+import { refuzaDacaInchis } from "./_comun/poarta-scrieri.mjs";
 import { invalideazaIndexPublic } from "./_comun/index-public.mjs";
 
 const store = () => getStore({ name: "registru", consistency: "strong" });
@@ -183,6 +184,9 @@ export default cuLimitareCod(async (req) => {
 
   // —— Membrul depune un rezultat (cu scanul certificatului, opțional). ——
   if (actiune === "depune") {
+    // Comutatorul de urgență al administratorului: mentenanță = doar citiri.
+    { const oprit = await refuzaDacaInchis(json); if (oprit) return oprit; }
+
     if (eu.rol !== "membru") return json({ eroare: "Doar membrii depun rezultate de sănătate." }, 403);
     const cip = normCip(body.microcip);
     if (!cipValid(cip)) return json({ eroare: "Microcip invalid (10 sau 15 cifre)." }, 400);

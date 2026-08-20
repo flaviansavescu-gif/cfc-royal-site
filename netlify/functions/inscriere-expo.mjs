@@ -11,6 +11,7 @@
 import { getStore } from "@netlify/blobs";
 import { eRobot, limiteazaTrimiterile, minuteText } from "./_comun/formular-public.mjs";
 import { escapeHtml, trimite } from "./_comun/posta.mjs";
+import { refuzaDacaInchis } from "./_comun/poarta-scrieri.mjs";
 import { calculeazaTaxa, taxaVeche } from "./_comun/taxa-expo.mjs";
 import { egal } from "./_comun/citire-documente.mjs";
 import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
@@ -431,6 +432,9 @@ export default async (req) => {
   // De aici încolo, oricine de pe internet scrie în magazie și declanșează un e-mail.
   // Capcana și limita stau ÎNAINTE de orice validare și înainte de orice citire din
   // magazie: un robot nu trebuie să ne coste nici măcar o căutare de configurație.
+  // Comutatorul de urgență al administratorului: mentenanță = doar citiri.
+  { const oprit = await refuzaDacaInchis(json); if (oprit) return oprit; }
+
   if (eRobot(body)) return json({ ok: true, inscriere: { id: "—" } });   // succes prefăcut
 
   const lim = await limiteazaTrimiterile(store, "inscriere-ip", req, {

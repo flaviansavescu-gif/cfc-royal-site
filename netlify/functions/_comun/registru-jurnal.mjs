@@ -56,6 +56,9 @@ export const FAPTE = {
   // iar 17 certificate au intrat fără urmă. Un act apărut în registru fără să se știe
   // cine l-a pus și din ce dosar de hârtie provine nu se poate apăra la o contestație.
   "import-istoric": "Cuib adus din arhiva de hârtie",
+  // Comutatorul de urgență al scrierilor publice (tabloul de stare al administratorului)
+  "poarta-inchisa": "Scrierile publice ÎNCHISE (mentenanță pornită de administrator)",
+  "poarta-deschisa": "Scrierile publice redeschise",
   // Îndreptarea textului ascendenței la actele aduse din arhiva de hârtie. Cititorul de
   // formulare lipea codul WDF în numele părintelui și lua „- N/A" drept număr de pedigree.
   // Fapta se consemnează separat de emitere: cine se uită peste un act trebuie să vadă
