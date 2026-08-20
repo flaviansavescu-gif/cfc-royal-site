@@ -31,7 +31,9 @@ const MAX_FISIERE_AUTO = 15 * 1024 * 1024;
 
 import { json } from "./_comun/raspuns.mjs";
 
+import { bateInima } from "./_comun/inima.mjs";
 export default async () => {
+  await bateInima("registru-backup"); // paznicul paznicilor: tăcerea peste prag sună alarma din GitHub Actions
   const parola = process.env.BACKUP_REGISTRU_PAROLA;
   // Lipsa configurării NU e o eroare tăcută: fără mesajul ăsta în jurnal, cineva ar
   // putea crede ani la rând că are copii de siguranță.

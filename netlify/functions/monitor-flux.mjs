@@ -109,7 +109,42 @@ async function ruleaza() {
     });
   }
 
-  // 5. Prospețimea copiei de siguranță. Fără jeton, sărim — nu raportăm fals.
+  // 5. Sănătatea poștei (Brevo). Toate alarmele pleacă prin ea: dacă cheia a expirat
+  //    sau creditul s-a terminat, exact canalul care trebuia să anunțe e cel mort — și
+  //    ar muri în tăcere. Verificăm contul (o citire, nu o trimitere); rezultatul se
+  //    scrie și în `posta-sanatate` (magazia „acces"), de unde fereastra publică
+  //    `stare-inimi` îl dă paznicului din GitHub Actions — canalul INDEPENDENT care
+  //    poate suna chiar și când Brevo nu mai poate.
+  {
+    let ok = false, detaliu = "";
+    if (!process.env.BREVO_API_KEY) {
+      detaliu = "BREVO_API_KEY lipsește din mediu — niciun e-mail nu poate pleca";
+    } else {
+      const r = await cere("https://api.brevo.com/v3/account", {
+        headers: { "api-key": process.env.BREVO_API_KEY, Accept: "application/json" },
+      });
+      if (r.status === 200) {
+        ok = true;
+        detaliu = "cheia e validă";
+        try {
+          const cont = JSON.parse(r.text);
+          const credite = (cont.plan || []).map((p) => p.credits).find((c) => Number.isFinite(c));
+          if (Number.isFinite(credite)) {
+            detaliu += ` · credite rămase: ${credite}`;
+            if (credite <= 0) { ok = false; detaliu += " — EPUIZATE, e-mailurile nu mai pleacă"; }
+          }
+        } catch { /* forma răspunsului nu e garantată; cheia validă rămâne vestea bună */ }
+      } else {
+        detaliu = r.eroare || `Brevo a răspuns ${r.status} — cheia e respinsă sau contul are o problemă`;
+      }
+    }
+    v.push({ nume: "Poșta (Brevo)", ok, detaliu });
+    try {
+      await getStore("acces").setJSON("posta-sanatate", { ok, detaliu, verificatLa: new Date().toISOString() });
+    } catch (err) { console.error("Starea poștei nu s-a putut scrie:", err); }
+  }
+
+  // 6. Prospețimea copiei de siguranță. Fără jeton, sărim — nu raportăm fals.
   if (process.env.BACKUP_GITHUB_TOKEN) {
     const r = await cere(`https://api.github.com/repos/${REPO}/contents/copii?ref=${RAMURA}`, {
       headers: {
@@ -186,7 +221,9 @@ async function trimiteAlerta(alerta, stare) {
   });
 }
 
+import { bateInima } from "./_comun/inima.mjs";
 export default async () => {
+  await bateInima("monitor-flux"); // paznicul paznicilor: tăcerea peste prag sună alarma din GitHub Actions
   let verificari = await ruleaza();
   const store = getStore("registru");
 

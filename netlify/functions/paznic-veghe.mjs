@@ -173,7 +173,9 @@ async function curata(s, acum) {
 
 // ——————————————————————— Veghea ———————————————————————
 
+import { bateInima } from "./_comun/inima.mjs";
 export default async () => {
+  await bateInima("paznic-veghe"); // paznicul paznicilor: tăcerea peste prag sună alarma din GitHub Actions
   const acum = new Date();
   const s = magazie();
 

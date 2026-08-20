@@ -59,3 +59,20 @@ jobs:
           curl --silent --show-error --fail --retry 3 --retry-delay 15 --retry-all-errors \
             --max-time 20 "https://cfc-royal.ro/cursuri/" >/dev/null \
             || { echo "::error::Pagina Scolii de Arbitraj nu raspunde."; exit 1; }
+
+      # PAZNICUL PAZNICILOR. Functiile programate (monitorul, paznicul de intruziune,
+      # copiile saptamanale) pot inceta sa ruleze IN TACERE — iar lipsa de alarme arata
+      # exact ca sanatatea. Fereastra publica stare-inimi spune cand a batut ultima data
+      # inima fiecareia si daca posta (Brevo) mai poate trimite; `ok:false` inseamna ca
+      # o functie care mergea s-a oprit, sau ca alarmele insesi au ramas fara canal —
+      # si atunci suna ACEST paznic, care nu depinde nici de Netlify Scheduler, nici de
+      # Brevo. Detaliul din raspuns se afiseaza in jurnalul rularii, ca e-mailul de la
+      # GitHub sa duca direct la cauza.
+      - name: Inimile functiilor programate + posta (stare-inimi)
+        run: |
+          raspuns=$(curl --silent --show-error --fail --retry 3 --retry-delay 15 --retry-all-errors \
+            --max-time 20 "https://cfc-royal.ro/.netlify/functions/stare-inimi") \
+            || { echo "::error::Fereastra stare-inimi nu raspunde."; exit 1; }
+          echo "$raspuns"
+          echo "$raspuns" | grep -q '"ok":true' \
+            || { echo "::error::O functie programata a tacut peste prag sau posta (Brevo) nu mai poate trimite — vezi raspunsul de mai sus."; exit 1; }

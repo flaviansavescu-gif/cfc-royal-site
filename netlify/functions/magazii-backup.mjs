@@ -26,7 +26,9 @@ const MAX_FISIERE = 10 * 1024 * 1024;
 
 import { json } from "./_comun/raspuns.mjs";
 
+import { bateInima } from "./_comun/inima.mjs";
 export default async () => {
+  await bateInima("magazii-backup"); // paznicul paznicilor: tăcerea peste prag sună alarma din GitHub Actions
   const lipsa = configurareLipsa();
   // Lipsa configurării NU e o eroare tăcută: fără mesajul ăsta în jurnal, cineva ar putea
   // crede ani la rând că are copii de siguranță.

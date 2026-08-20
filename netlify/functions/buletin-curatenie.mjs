@@ -30,7 +30,9 @@ export function deSters(momentIso, termenMs, acum = Date.now()) {
   return Number.isFinite(t) && acum - t > termenMs;
 }
 
+import { bateInima } from "./_comun/inima.mjs";
 export default async () => {
+  await bateInima("buletin-curatenie"); // paznicul paznicilor: tăcerea peste prag sună alarma din GitHub Actions
   const s = magazie();
   const acum = Date.now();
   let cereriSterse = 0, dovezSterse = 0, jetoaneSterse = 0, cazute = 0;
