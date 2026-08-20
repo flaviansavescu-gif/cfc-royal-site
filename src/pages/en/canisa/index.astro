@@ -1,0 +1,15 @@
+---
+// /en/canisa/?a=<afixNorm> — the public page of a kennel, in English.
+// The Romanian version lives at /canisa/; the whole page lives in the shared
+// FisaCanisa component (same pattern as /caine/ ↔ /en/caine/).
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import FisaCanisa from "../../../components/FisaCanisa.astro";
+---
+
+<BaseLayout
+  lang="en"
+  title="Kennel — public register"
+  description="The dogs bred by a kennel registered with the Royal Federal Canine Club, with pedigree, titles and the quality breeding recommendation."
+>
+  <FisaCanisa lang="en" />
+</BaseLayout>

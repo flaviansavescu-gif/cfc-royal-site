@@ -40,11 +40,11 @@ async function microcipuriRecomandate(s) {
 
 const store = () => getStore({ name: "registru", consistency: "strong" });
 
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=300" },
-  });
+import { json as raspunsJson } from "./_comun/raspuns.mjs";
+// Singurul răspuns JSON al sitului GÂNDIT pentru cache: indexul public e același
+// pentru toți vizitatorii, iar 5 minute de cache în browser taie majoritatea
+// cererilor. Restul politicii vine din locul comun.
+const json = (b, s = 200) => raspunsJson(b, s, { antete: { "Cache-Control": "public, max-age=300" } });
 
 // TTL-ul e acum doar PLASĂ DE SIGURANȚĂ: scrierile care schimbă registrul șterg indexul
 // pe loc (invalideazaIndexPublic, chemată din pedigree/import/sănătate/canise), deci

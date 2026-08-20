@@ -30,8 +30,7 @@ async function construiesteIndexRezultate(store) {
   return { generat: new Date().toISOString(), randuri };
 }
 
-const json = (obj, status = 200) =>
-  new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json; charset=utf-8" } });
+import { json } from "./_comun/raspuns.mjs";
 
 // Scapă și ghilimelele/apostroful: valorile intră și în atribute (href="...").
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));

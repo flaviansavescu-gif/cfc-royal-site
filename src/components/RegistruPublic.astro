@@ -29,6 +29,7 @@ const RO = {
   canizeIntro: "Afixele înregistrate ale clubului — prefixul sau sufixul din numele oficial al câinilor unei canise.",
   niciunAfix: "Niciun afix înregistrat încă.",
   caineHref: "/caine/",
+  canisaHref: "/canisa/",
 };
 const EN = {
   acasa: "Home", acasaHref: "/en/", pagina: "Stud book",
@@ -46,6 +47,7 @@ const EN = {
   canizeIntro: "The club's registered affixes — the prefix or suffix in the official names of a kennel's dogs.",
   niciunAfix: "No affix registered yet.",
   caineHref: "/en/caine/",
+  canisaHref: "/en/canisa/",
 };
 const T = lang === "en" ? EN : RO;
 const grupe = GRUPE_WDF.map((g) => ({ nr: g.nr, nume: lang === "en" ? g.en : g.ro }));
@@ -188,7 +190,7 @@ const grupe = GRUPE_WDF.map((g) => ({ nr: g.nr, nume: lang === "en" ? g.en : g.r
         if (elT) elT.textContent = T.canise + " (" + af.length + ")";
         elA.innerHTML = af.length
           ? af.map(function (a) {
-              var href = a.afixNorm ? "/canisa/?a=" + encodeURIComponent(a.afixNorm) : null;
+              var href = a.afixNorm ? T.canisaHref + "?a=" + encodeURIComponent(a.afixNorm) : null;
               var nr = "<span class='rp__afix-nr'>" + esc(a.nrAfix || "") + "</span>";
               return href
                 ? "<li><a class='rp__afix-link' href='" + href + "'>" + esc(a.afix) + "</a>" + nr + "</li>"

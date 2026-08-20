@@ -77,6 +77,7 @@ export const PAGINI_REGISTRU = [
   "/registru-public/",
   "/cuiburi/",
   "/drumul-spre-campion/",
+  "/canisa/",
 ];
 
 export { languages, defaultLang };

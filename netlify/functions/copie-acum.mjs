@@ -24,10 +24,10 @@ import { secretEgal } from "./_comun/secret.mjs";
 import magaziiBackup from "./magazii-backup.mjs";
 import { descifreaza, REPO, RAMURA } from "./_comun/copie-cifrata.mjs";
 
-const json = (obj, status = 200) =>
-  new Response(JSON.stringify(obj, null, 2), {
-    status, headers: { "Content-Type": "application/json; charset=utf-8" },
-  });
+import { json as raspunsJson } from "./_comun/raspuns.mjs";
+// Lizibil: răspunsurile acestei unelte se citesc de OM (panou de administrare,
+// depanare), nu de cod — restul politicii (charset, no-store) vine din locul comun.
+const json = (b, s = 200) => raspunsJson(b, s, { lizibil: true });
 
 /** Aduce o arhivă de pe ramura de copii și încearcă s-o deschidă cu parola din mediu. */
 async function probeazaArhiva(cale) {

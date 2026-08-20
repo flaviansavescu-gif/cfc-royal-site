@@ -22,8 +22,7 @@ import { magazie, VALABILITATE_CONFIRMARE_MS } from "./_comun/buletin-acord.mjs"
 /** Dovada se păstrează 3 ani de la RETRAGERE — aceeași socoteală ca la cererile DSAR. */
 export const RETENTIE_DOVADA_MS = 3 * 365 * 24 * 3600e3;
 
-const json = (b, s = 200) =>
-  new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json; charset=utf-8" } });
+import { json } from "./_comun/raspuns.mjs";
 
 /** A trecut termenul? `null`/nedatat = NU ștergem (mai bine o păstrăm în plus). */
 export function deSters(momentIso, termenMs, acum = Date.now()) {

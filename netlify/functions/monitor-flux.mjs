@@ -36,8 +36,7 @@ const ZILE_COPIE = 8;
 /** O verificare care nu răspunde în atât înseamnă oricum că omul a plecat din pagină. */
 const RABDARE_MS = 8000;
 
-const json = (b, s = 200) =>
-  new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json; charset=utf-8" } });
+import { json } from "./_comun/raspuns.mjs";
 
 const esc = (s) =>
   String(s == null ? "" : s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));

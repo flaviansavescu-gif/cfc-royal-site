@@ -24,8 +24,7 @@ import { cripteaza, asiguraRamura, puneCopia, configurareLipsa } from "./_comun/
 /** Cât încape într-un fișier trimis prin API-ul GitHub, cu marjă. */
 const MAX_FISIERE = 10 * 1024 * 1024;
 
-const json = (b, s = 200) =>
-  new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json; charset=utf-8" } });
+import { json } from "./_comun/raspuns.mjs";
 
 export default async () => {
   const lipsa = configurareLipsa();

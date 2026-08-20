@@ -35,8 +35,10 @@ import { tipCertificat } from "./registru-pedigree.mjs";
 import { idDosar, verificaCuib } from "./registru-import.mjs";
 import { jurnalizeazaObligatoriu } from "./_comun/registru-jurnal.mjs";
 
-const json = (b, s = 200) =>
-  new Response(JSON.stringify(b, null, 2), { status: s, headers: { "Content-Type": "application/json; charset=utf-8" } });
+import { json as raspunsJson } from "./_comun/raspuns.mjs";
+// Lizibil: răspunsurile acestei unelte se citesc de OM (panou de administrare,
+// depanare), nu de cod — restul politicii (charset, no-store) vine din locul comun.
+const json = (b, s = 200) => raspunsJson(b, s, { lizibil: true });
 
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 

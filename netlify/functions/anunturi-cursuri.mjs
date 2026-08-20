@@ -10,11 +10,7 @@ import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 
-const json = (body, status = 200, extra = {}) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", ...extra },
-  });
+import { json } from "./_comun/raspuns.mjs";
 
 export default cuLimitareCod(async (req) => {
   const store = getStore("cursuri");
@@ -31,7 +27,7 @@ export default cuLimitareCod(async (req) => {
       console.error("Citire anunțuri eșuată:", err);
     }
     anunturi.sort((a, b) => (b.data || "").localeCompare(a.data || ""));
-    return json(anunturi, 200, { "Cache-Control": "no-store" });
+    return json(anunturi);
   }
 
   if (req.method === "POST") {

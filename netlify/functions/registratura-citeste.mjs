@@ -23,11 +23,10 @@ import {
   PLAFON_ZI, cheiaZilei, cheiaStarii, cheiaJetonului, jetonNou, amprenta, ABANDONAT_MS,
 } from "./_comun/citire-documente.mjs";
 
-const json = (b, s = 200) =>
-  new Response(JSON.stringify(b, null, 2), {
-    status: s,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
+import { json as raspunsJson } from "./_comun/raspuns.mjs";
+// Lizibil: răspunsurile acestei unelte se citesc de OM (panou de administrare,
+// depanare), nu de cod — restul politicii (charset, no-store) vine din locul comun.
+const json = (b, s = 200) => raspunsJson(b, s, { lizibil: true });
 
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 const store = () => getStore({ name: "registru", consistency: "strong" });

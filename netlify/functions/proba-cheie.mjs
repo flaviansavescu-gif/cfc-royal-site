@@ -21,11 +21,10 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { secretEgal } from "./_comun/secret.mjs";
 
-const json = (b, s = 200) =>
-  new Response(JSON.stringify(b, null, 2), {
-    status: s,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
+import { json as raspunsJson } from "./_comun/raspuns.mjs";
+// Lizibil: răspunsurile acestei unelte se citesc de OM (panou de administrare,
+// depanare), nu de cod — restul politicii (charset, no-store) vine din locul comun.
+const json = (b, s = 200) => raspunsJson(b, s, { lizibil: true });
 
 // Prețul modelului, ca să spunem costul în bani, nu doar în jetoane.
 const PRET = { intrare: 5 / 1_000_000, iesire: 25 / 1_000_000 };   // USD per jeton, Claude Opus 5

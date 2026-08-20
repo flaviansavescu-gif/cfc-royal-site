@@ -1,0 +1,140 @@
+---
+// FisaCanisa.astro — pagina publică a unei canise, bilingvă (ca RegistruPublic).
+// Pagina RO stă la /canisa/, cea EN la /en/canisa/. Datele vin din indexul răsfoibil
+// (funcția registru-public), filtrate în browser după afixul normalizat. Fără proprietari.
+import type { Lang } from "../i18n/ui";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const RO = {
+  acasa: "Acasă", acasaHref: "/ro/", cartea: "Cartea de origini", canisa: "Canisă",
+  registruHref: "/registru-public/", caineHref: "/caine/",
+  seIncarca: "Se încarcă…",
+  nuSeIncarca: "Registrul nu se poate încărca acum. Reîncearcă mai târziu.",
+  faraAfix: "Nicio canisă indicată.", veziToate: "Vezi toate caniselele",
+  afixInregistrat: "Afix înregistrat:",
+  faraCaini: "Această canisă nu are încă niciun câine cu certificat în registru.",
+  negasit: "Nu am găsit nicio canisă sau câine pentru acest afix.",
+  caine: "câine", caini: "câini", cuCertificat: "cu certificat",
+  recoUnul: "recomandat pentru montă", recoMulti: "recomandați pentru montă",
+  mascul: "mascul", femela: "femelă", anulat: "anulat",
+  reco: "★ Recomandat pentru montă", recoTitlu: "Are recomandarea de calitate CFC-Royal",
+  inapoi: "← Toate caniselele și câinii",
+  titluPagina: "— canisă — registrul public",
+};
+const EN = {
+  acasa: "Home", acasaHref: "/en/", cartea: "Stud book", canisa: "Kennel",
+  registruHref: "/en/registru-public/", caineHref: "/en/caine/",
+  seIncarca: "Loading…",
+  nuSeIncarca: "The register cannot be loaded right now. Please try again later.",
+  faraAfix: "No kennel specified.", veziToate: "See all kennels",
+  afixInregistrat: "Registered affix:",
+  faraCaini: "This kennel has no dog with a certificate in the register yet.",
+  negasit: "We could not find a kennel or dog for this affix.",
+  caine: "dog", caini: "dogs", cuCertificat: "with a certificate",
+  recoUnul: "recommended for breeding", recoMulti: "recommended for breeding",
+  mascul: "male", femela: "female", anulat: "revoked",
+  reco: "★ Recommended for breeding", recoTitlu: "Holds the CFC-Royal quality breeding recommendation",
+  inapoi: "← All kennels and dogs",
+  titluPagina: "— kennel — public register",
+};
+const T = lang === "en" ? EN : RO;
+---
+
+<section class="cn">
+  <p class="cn__cale"><a href={T.acasaHref}>{T.acasa}</a> · <a href={T.registruHref}>{T.cartea}</a> · <span id="cn-cale-afix">{T.canisa}</span></p>
+
+  <header class="cn__cap" id="cn-cap" hidden>
+    <h1 class="cn__title" id="cn-afix">—</h1>
+    <p class="cn__nr" id="cn-nr"></p>
+  </header>
+
+  <p class="cn__intro" id="cn-stare">{T.seIncarca}</p>
+
+  <ul class="cn__lista" id="cn-lista"></ul>
+
+  <p class="cn__inapoi"><a href={T.registruHref}>{T.inapoi}</a></p>
+</section>
+
+<style>
+  .cn { max-width: var(--maxw); margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  .cn__cale { font-size: .85rem; color: var(--color-text-muted); margin: 0 0 .3rem; }
+  .cn__cale a { color: var(--color-link); }
+  .cn__cap { margin: .4rem 0 1rem; }
+  .cn__title { color: var(--color-primary); margin: 0; }
+  .cn__nr { color: var(--color-text-muted); font-family: var(--font-mono); font-size: .9rem; margin: .2rem 0 0; }
+  .cn__intro { color: var(--color-text-muted); }
+  .cn__lista { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: .5rem; }
+  :global(.cn__caine) {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap;
+    padding: .7rem .95rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    background: var(--color-surface); text-decoration: none; color: var(--color-text);
+  }
+  :global(.cn__caine:hover) { border-color: var(--color-primary-light); background: var(--color-surface-alt); }
+  :global(.cn__caine.anulat) { opacity: .6; }
+  :global(.cn__nume) { font-weight: 600; }
+  :global(.cn__nume .cn-anulat) { font-size: .72rem; font-weight: 600; color: var(--color-danger); margin-left: .4rem; }
+  :global(.cn__reco) {
+    display: inline-block; margin-left: .5rem; font-size: .72rem; font-weight: 600;
+    color: var(--color-success); white-space: nowrap;
+  }
+  :global(.cn__meta) { color: var(--color-text-muted); font-size: .85rem; text-align: right; }
+  .cn__inapoi { margin-top: 1.5rem; }
+  .cn__inapoi a { color: var(--color-link); }
+</style>
+
+<script is:inline define:vars={{ T }}>
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var afixCerut = (params.get("a") || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    var capEl = document.getElementById("cn-cap");
+    var afixEl = document.getElementById("cn-afix");
+    var nrEl = document.getElementById("cn-nr");
+    var caleAfix = document.getElementById("cn-cale-afix");
+    var stareEl = document.getElementById("cn-stare");
+    var lista = document.getElementById("cn-lista");
+
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+    function randCaine(c) {
+      var meta = [c.rasa, c.sex === "M" ? T.mascul : (c.sex === "F" ? T.femela : ""), c.an].filter(Boolean).join(" · ");
+      var reco = c.recomandat ? "<span class='cn__reco' title='" + esc(T.recoTitlu) + "'>" + esc(T.reco) + "</span>" : "";
+      return "<a class='cn__caine" + (c.anulat ? " anulat" : "") + "' href='" + T.caineHref + "?r=" + encodeURIComponent(c.serie) + "'>"
+        + "<span class='cn__nume'>" + esc(c.nume || "—") + (c.anulat ? "<span class='cn-anulat'>" + esc(T.anulat) + "</span>" : "") + reco + "</span>"
+        + "<span class='cn__meta'>" + esc(meta) + (c.numarWDF ? " · " + esc(c.numarWDF) : "") + "</span></a>";
+    }
+
+    if (!afixCerut) {
+      stareEl.innerHTML = esc(T.faraAfix) + " <a href='" + T.registruHref + "'>" + esc(T.veziToate) + "</a>.";
+      return;
+    }
+
+    fetch("/.netlify/functions/registru-public")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) { stareEl.textContent = T.nuSeIncarca; return; }
+        var canisa = (d.canise || []).filter(function (a) { return a.afixNorm === afixCerut; })[0];
+        var afixNume = canisa ? canisa.afix : afixCerut;
+        // Titlul din datele canisei, sau — dacă afixul nu e în evidență — din primul câine.
+        var caini = (d.caini || []).filter(function (c) { return c.afixNorm === afixCerut; });
+        if (!canisa && caini.length && caini[0].afix) afixNume = caini[0].afix;
+
+        document.title = afixNume + " " + T.titluPagina;
+        afixEl.textContent = afixNume;
+        caleAfix.textContent = afixNume;
+        if (canisa && canisa.nrAfix) nrEl.textContent = T.afixInregistrat + " " + canisa.nrAfix;
+        capEl.hidden = false;
+
+        if (!caini.length) {
+          stareEl.textContent = canisa ? T.faraCaini : T.negasit;
+          return;
+        }
+        var reco = caini.filter(function (c) { return c.recomandat; }).length;
+        stareEl.textContent = caini.length + " " + (caini.length === 1 ? T.caine : T.caini)
+          + " " + T.cuCertificat + (reco ? " · " + reco + " " + (reco === 1 ? T.recoUnul : T.recoMulti) : "") + ".";
+        lista.innerHTML = caini.map(randCaine).join("");
+      })
+      .catch(function () { stareEl.textContent = T.nuSeIncarca; });
+  })();
+</script>

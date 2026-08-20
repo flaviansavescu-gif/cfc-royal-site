@@ -8,9 +8,16 @@
 // rămână în cache-ul browserului sau al unui proxy. Funcțiile care VOR cache pe un
 // răspuns public (ex. rezultatele publicate) își declară antetul lor, local.
 
-/** Răspuns JSON: obiect -> Response cu charset și Cache-Control: no-store. */
-export const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
+/**
+ * Răspuns JSON: obiect -> Response cu charset și Cache-Control: no-store.
+ *
+ * Opțiuni (rar folosite — implicitul acoperă aproape tot):
+ *   lizibil — JSON cu indentare, pentru uneltele citite de OM (panouri, depanare);
+ *   antete  — anteturi în plus sau în loc (ex. registrul public își pune propriul
+ *             Cache-Control, fiindcă răspunsul lui e chiar gândit pentru cache).
+ */
+export const json = (body, status = 200, { lizibil = false, antete = {} } = {}) =>
+  new Response(JSON.stringify(body, null, lizibil ? 2 : 0), {
     status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
+    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...antete },
   });

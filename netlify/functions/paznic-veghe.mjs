@@ -30,8 +30,7 @@ const magazie = () => getStore("acces");
 const CHEIE_STARE = "paznic-stare";
 const CHEIE_RAPORT = "paznic-ultimul-raport";
 
-const json = (b, s = 200) =>
-  new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json; charset=utf-8" } });
+import { json } from "./_comun/raspuns.mjs";
 
 const nr = (n) => new Intl.NumberFormat("ro-RO").format(n);
 const cifra = (t) => `<span style="font-variant-numeric:tabular-nums">${t}</span>`;

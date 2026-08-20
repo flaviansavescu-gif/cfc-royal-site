@@ -69,11 +69,7 @@ const TITLURI = {
   "manual-studiu": "Manual de studiu individual — Noțiuni de bază în arbitrajul chinologic",
 };
 
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8" },
-  });
+import { json } from "./_comun/raspuns.mjs";
 
 const esc = (s) =>
   String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));

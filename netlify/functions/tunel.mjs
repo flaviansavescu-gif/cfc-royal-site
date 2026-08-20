@@ -16,8 +16,7 @@ const CHEIE = "tunel/curent";
 // Scriptul de tunel reanunță adresa la câteva minute; peste pragul ăsta îl considerăm mort.
 const PROSPETIME_MS = 15 * 60 * 1000;
 
-const json = (obj, status = 200) =>
-  new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json; charset=utf-8" } });
+import { json } from "./_comun/raspuns.mjs";
 
 const paginaAsteptare = `<!doctype html>
 <html lang="ro"><head><meta charset="utf-8">

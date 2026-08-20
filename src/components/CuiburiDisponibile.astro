@@ -24,6 +24,7 @@ const RO = {
   crescator: "Ești crescător membru și ai pui disponibili?",
   crescatorLink: "Publică un anunț din spațiul tău →",
   caineHref: "/caine/",
+  canisaHref: "/canisa/",
 };
 const EN = {
   acasa: "Home", acasaHref: "/en/", pagina: "Available litters",
@@ -41,6 +42,7 @@ const EN = {
   crescator: "Are you a member breeder with available puppies?",
   crescatorLink: "Post a listing from your breeder space →",
   caineHref: "/en/caine/",
+  canisaHref: "/en/canisa/",
 };
 const T = lang === "en" ? EN : RO;
 ---
@@ -151,7 +153,7 @@ const T = lang === "en" ? EN : RO;
       if (a.disponibiliM) disp.push(a.disponibiliM + " " + (a.disponibiliM === 1 ? T.mascul : T.masculi));
       if (a.disponibiliF) disp.push(a.disponibiliF + " " + (a.disponibiliF === 1 ? T.femela : T.femele));
       var afix = a.afix
-        ? "<span class='cu__afix'>" + (a.afixNorm ? "<a href='/canisa/?a=" + encodeURIComponent(a.afixNorm) + "'>" + esc(a.afix) + "</a>" : esc(a.afix)) + "</span>"
+        ? "<span class='cu__afix'>" + (a.afixNorm ? "<a href='" + T.canisaHref + "?a=" + encodeURIComponent(a.afixNorm) + "'>" + esc(a.afix) + "</a>" : esc(a.afix)) + "</span>"
         : "";
       var contact = [
         a.contactNume ? esc(a.contactNume) : "",
