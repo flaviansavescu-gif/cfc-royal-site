@@ -1,0 +1,201 @@
+---
+// RegistruPublic.astro — Cartea de origini RĂSFOIBILĂ, bilingvă (ca CarteaOrigini).
+// Pagina RO stă la /registru-public/, cea EN la /en/registru-public/. Datele din
+// registru (numele raselor, afixele) rămân cum sunt înregistrate — aici se traduce
+// INTERFAȚA. Sursa: funcția registru-public (index cachedat).
+import { RASE_WDF, GRUPE_WDF } from "../data/nomenclator-wdf.ts";
+import type { Lang } from "../i18n/ui";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+// Mapare rasă (RO, cum stă în registru) -> grupă WDF, ca filtrul pe grupă să meargă în browser.
+const rasaGrupa: Record<string, number> = {};
+for (const r of RASE_WDF) rasaGrupa[r.ro] = r.g;
+
+const RO = {
+  acasa: "Acasă", acasaHref: "/ro/", pagina: "Cartea de origini",
+  titlu: "Cartea de origini — registrul public",
+  cauta: "Caută după numele câinelui sau afix…",
+  toateRasele: "Toate rasele", grupa: "Grupa", toateGrupele: "Toate grupele",
+  ambeleSexe: "Ambele sexe", masculi: "Masculi", femele: "Femele",
+  seIncarca: "Se încarcă registrul…", seIncarcaScurt: "Se încarcă…",
+  nuSeIncarca: "Registrul nu se poate încărca acum. Reîncearcă mai târziu.",
+  niciunCaine: "Niciun câine nu corespunde filtrelor.",
+  caine: "câine", caini: "câini", din: "din",
+  mascul: "mascul", femela: "femelă", anulat: "anulat",
+  reco: "★ montă", recoTitlu: "Are recomandarea de calitate CFC-Royal",
+  canise: "Canise și afixe",
+  canizeIntro: "Afixele înregistrate ale clubului — prefixul sau sufixul din numele oficial al câinilor unei canise.",
+  niciunAfix: "Niciun afix înregistrat încă.",
+  caineHref: "/caine/",
+};
+const EN = {
+  acasa: "Home", acasaHref: "/en/", pagina: "Stud book",
+  titlu: "The stud book — public register",
+  cauta: "Search by dog name or affix…",
+  toateRasele: "All breeds", grupa: "Group", toateGrupele: "All groups",
+  ambeleSexe: "Both sexes", masculi: "Males", femele: "Females",
+  seIncarca: "Loading the register…", seIncarcaScurt: "Loading…",
+  nuSeIncarca: "The register cannot be loaded right now. Please try again later.",
+  niciunCaine: "No dog matches the filters.",
+  caine: "dog", caini: "dogs", din: "of",
+  mascul: "male", femela: "female", anulat: "revoked",
+  reco: "★ breeding", recoTitlu: "Holds the CFC-Royal quality breeding recommendation",
+  canise: "Kennels and affixes",
+  canizeIntro: "The club's registered affixes — the prefix or suffix in the official names of a kennel's dogs.",
+  niciunAfix: "No affix registered yet.",
+  caineHref: "/en/caine/",
+};
+const T = lang === "en" ? EN : RO;
+const grupe = GRUPE_WDF.map((g) => ({ nr: g.nr, nume: lang === "en" ? g.en : g.ro }));
+---
+
+<section class="rp">
+  <p class="rp__cale"><a href={T.acasaHref}>{T.acasa}</a> · {T.pagina}</p>
+  <h1 class="rp__title">{T.titlu}</h1>
+  <p class="rp__intro">
+    {lang === "en" ? (
+      <>Here you can <strong>browse the entire register</strong> — every dog with a certificate
+      of origin issued by the club, and every affix. Search by name or filter by breed, WDF group
+      or sex; click a dog to open its full record (pedigree, littermates, titles, health tests).
+      Breed names appear as registered, in Romanian. To verify a specific certificate by series
+      or microchip, use the <a href={T.caineHref}>direct search</a>.</>
+    ) : (
+      <>Aici poți <strong>răsfoi întreg registrul</strong> — toți câinii cu certificat de origine
+      emis de club și toate afixele. Caută după nume sau filtrează după rasă, grupă WDF sau sex;
+      apasă un câine ca să-i vezi fișa completă (ascendență, frați, titluri, teste de sănătate).
+      Pentru a verifica un anume certificat după serie sau microcip, folosește <a href={T.caineHref}>căutarea directă</a>.</>
+    )}
+  </p>
+
+  <div class="rp__filtre" role="search">
+    <input id="rp-cauta" type="search" placeholder={T.cauta} aria-label={T.cauta} />
+    <select id="rp-rasa" aria-label={lang === "en" ? "Breed" : "Rasă"}><option value="">{T.toateRasele}</option></select>
+    <select id="rp-grupa" aria-label={lang === "en" ? "WDF group" : "Grupă WDF"}>
+      <option value="">{T.toateGrupele}</option>
+      {grupe.map((g) => <option value={g.nr}>{T.grupa} {g.nr} — {g.nume}</option>)}
+    </select>
+    <select id="rp-sex" aria-label="Sex">
+      <option value="">{T.ambeleSexe}</option>
+      <option value="M">{T.masculi}</option>
+      <option value="F">{T.femele}</option>
+    </select>
+  </div>
+
+  <p class="rp__nr" id="rp-nr" aria-live="polite"></p>
+  <ul class="rp__lista" id="rp-lista"><li class="rp__gol">{T.seIncarca}</li></ul>
+
+  <h2 class="rp__h2" id="rp-canise-t">{T.canise}</h2>
+  <p class="rp__intro">{T.canizeIntro}</p>
+  <ul class="rp__afixe" id="rp-afixe"><li class="rp__gol">{T.seIncarcaScurt}</li></ul>
+</section>
+
+<script type="application/json" id="rp-rasa-grupa" set:html={JSON.stringify(rasaGrupa)}></script>
+
+<style>
+  .rp { max-width: var(--maxw); margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  .rp__cale { font-size: .85rem; color: var(--color-text-muted); margin: 0 0 .3rem; }
+  .rp__cale a { color: var(--color-link); }
+  .rp__title { color: var(--color-primary); }
+  .rp__intro { color: var(--color-text-muted); max-width: 48rem; }
+  .rp__intro a { color: var(--color-link); }
+  .rp__filtre { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1.2rem 0 .4rem; }
+  .rp__filtre input,
+  .rp__filtre select {
+    padding: .55rem .7rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    font: inherit; background: var(--color-surface);
+  }
+  .rp__filtre input { flex: 1 1 16rem; }
+  .rp__nr { color: var(--color-text-muted); font-size: .88rem; margin: .3rem 0 .6rem; }
+  .rp__lista { list-style: none; padding: 0; margin: 0; display: grid; gap: .5rem; }
+  :global(.rp__caine) {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap;
+    padding: .7rem .95rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    background: var(--color-surface); text-decoration: none; color: var(--color-text);
+  }
+  :global(.rp__caine:hover) { border-color: var(--color-primary-light); background: var(--color-surface-alt); }
+  :global(.rp__caine.anulat) { opacity: .6; }
+  :global(.rp__nume) { font-weight: 600; }
+  :global(.rp__nume .rp-anulat) { font-size: .72rem; font-weight: 600; color: var(--color-danger); margin-left: .4rem; }
+  :global(.rp__nume .rp__reco) { font-size: .72rem; font-weight: 600; color: var(--color-success); margin-left: .45rem; white-space: nowrap; }
+  :global(.rp__meta) { color: var(--color-text-muted); font-size: .85rem; text-align: right; }
+  :global(.rp__afix-nr) { font-family: var(--font-mono); }
+  :global(.rp__afix-link) { color: var(--color-link); text-decoration: none; font-weight: 600; }
+  :global(.rp__afix-link:hover) { text-decoration: underline; }
+  :global(.rp__gol) { color: var(--color-text-muted); padding: .8rem 0; }
+  .rp__h2 { color: var(--color-primary); margin-top: 2rem; }
+  .rp__afixe { list-style: none; padding: 0; margin: 0; display: grid; gap: .35rem;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+  :global(.rp__afixe li) { padding: .5rem .8rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+    background: var(--color-surface); display: flex; justify-content: space-between; gap: .6rem; }
+  :global(.rp__afixe .rp__afix-nr) { color: var(--color-text-muted); font-size: .82rem; }
+</style>
+
+<script is:inline define:vars={{ T }}>
+  (function () {
+    var rasaGrupa = {};
+    try { rasaGrupa = JSON.parse(document.getElementById("rp-rasa-grupa").textContent || "{}"); } catch (e) {}
+    var toti = [];
+    var cauta = document.getElementById("rp-cauta");
+    var fRasa = document.getElementById("rp-rasa");
+    var fGrupa = document.getElementById("rp-grupa");
+    var fSex = document.getElementById("rp-sex");
+    var lista = document.getElementById("rp-lista");
+    var nrEl = document.getElementById("rp-nr");
+
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    function faraDiac(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+
+    function randCaine(c) {
+      var meta = [c.rasa, c.sex === "M" ? T.mascul : (c.sex === "F" ? T.femela : ""), c.an].filter(Boolean).join(" · ");
+      var reco = c.recomandat ? "<span class='rp__reco' title='" + esc(T.recoTitlu) + "'>" + esc(T.reco) + "</span>" : "";
+      return "<a class='rp__caine" + (c.anulat ? " anulat" : "") + "' href='" + T.caineHref + "?r=" + encodeURIComponent(c.serie) + "'>"
+        + "<span class='rp__nume'>" + esc(c.nume || "—") + (c.anulat ? "<span class='rp-anulat'>" + esc(T.anulat) + "</span>" : "") + reco + "</span>"
+        + "<span class='rp__meta'>" + esc(meta) + (c.numarWDF ? " · " + esc(c.numarWDF) : "") + "</span></a>";
+    }
+
+    function aplica() {
+      var q = faraDiac(cauta.value.trim());
+      var rasa = fRasa.value, grupa = fGrupa.value, sex = fSex.value;
+      var out = toti.filter(function (c) {
+        if (rasa && c.rasa !== rasa) return false;
+        if (grupa && String(rasaGrupa[c.rasa] || "") !== grupa) return false;
+        if (sex && c.sex !== sex) return false;
+        if (q && faraDiac(c.nume).indexOf(q) === -1 && faraDiac(c.afix).indexOf(q) === -1) return false;
+        return true;
+      });
+      nrEl.textContent = out.length + " " + (out.length === 1 ? T.caine : T.caini) + " " + T.din + " " + toti.length;
+      lista.innerHTML = out.length
+        ? out.map(randCaine).join("")
+        : "<li class='rp__gol'>" + esc(T.niciunCaine) + "</li>";
+    }
+    [cauta, fRasa, fGrupa, fSex].forEach(function (el) { el.addEventListener("input", aplica); el.addEventListener("change", aplica); });
+
+    fetch("/.netlify/functions/registru-public")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) { lista.innerHTML = "<li class='rp__gol'>" + esc(T.nuSeIncarca) + "</li>"; return; }
+        toti = d.caini || [];
+        // Opțiunile de rasă, doar cele prezente în registru.
+        var rase = Array.from(new Set(toti.map(function (c) { return c.rasa; }).filter(Boolean))).sort(function (a, b) { return a.localeCompare(b, "ro"); });
+        fRasa.insertAdjacentHTML("beforeend", rase.map(function (r) { return "<option value='" + esc(r) + "'>" + esc(r) + "</option>"; }).join(""));
+        aplica();
+        // Canise / afixe
+        var af = d.canise || [];
+        var elA = document.getElementById("rp-afixe");
+        var elT = document.getElementById("rp-canise-t");
+        if (elT) elT.textContent = T.canise + " (" + af.length + ")";
+        elA.innerHTML = af.length
+          ? af.map(function (a) {
+              var href = a.afixNorm ? "/canisa/?a=" + encodeURIComponent(a.afixNorm) : null;
+              var nr = "<span class='rp__afix-nr'>" + esc(a.nrAfix || "") + "</span>";
+              return href
+                ? "<li><a class='rp__afix-link' href='" + href + "'>" + esc(a.afix) + "</a>" + nr + "</li>"
+                : "<li><span>" + esc(a.afix) + "</span>" + nr + "</li>";
+            }).join("")
+          : "<li class='rp__gol'>" + esc(T.niciunAfix) + "</li>";
+      })
+      .catch(function () { lista.innerHTML = "<li class='rp__gol'>" + esc(T.nuSeIncarca) + "</li>"; });
+  })();
+</script>

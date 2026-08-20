@@ -1,0 +1,15 @@
+---
+// /en/registru-public/ — the browsable stud book, in English.
+// The Romanian version lives at /registru-public/; the whole page lives in the
+// shared RegistruPublic component (same pattern as /caine/ ↔ /en/caine/).
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import RegistruPublic from "../../../components/RegistruPublic.astro";
+---
+
+<BaseLayout
+  lang="en"
+  title="The stud book — public register"
+  description="Browse the genealogical register of the Royal Federal Canine Club: every dog with a certificate of origin and every affix, with pedigree, titles and health tests."
+>
+  <RegistruPublic lang="en" />
+</BaseLayout>

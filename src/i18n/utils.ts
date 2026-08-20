@@ -68,9 +68,16 @@ export function switchLangPath(url: URL, toLang: Lang, fallback?: string): strin
 
 /**
  * Paginile publice ale registrului genealogic: RO la rădăcină, EN sub „/en/".
- * Sunt singurele rute nesimetrice din site, din cauza codurilor QR deja tipărite.
+ * Sunt singurele rute nesimetrice din site — /caine/ din cauza codurilor QR deja
+ * tipărite, iar celelalte ca să stea alături de el, în aceeași familie de adrese.
  */
-export const PAGINI_REGISTRU = ["/caine/", "/verifica-pedigree/"];
+export const PAGINI_REGISTRU = [
+  "/caine/",
+  "/verifica-pedigree/",
+  "/registru-public/",
+  "/cuiburi/",
+  "/drumul-spre-campion/",
+];
 
 export { languages, defaultLang };
 export type { Lang, UiKey };

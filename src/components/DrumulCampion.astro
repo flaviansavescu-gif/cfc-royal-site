@@ -1,0 +1,278 @@
+---
+// DrumulCampion.astro — sistemul de titluri WDF + progresul unui câine, bilingv.
+// Pagina RO stă la /drumul-spre-campion/, cea EN la /en/drumul-spre-campion/.
+//
+// Condițiile sunt citate din regulamentul public „Titlurile oficiale de campion WDF"
+// (Hotărârea Consiliului Director nr. 167/01-08-2026) — nu se modifică aici fără
+// modificarea regulamentului. Progresul vine GATA CALCULAT de motorul de omologare
+// al Managerului (Art. 39); aici doar se afișează.
+import type { Lang } from "../i18n/ui";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const TREPTE_RO = [
+  { emoji: "📝", titlu: "Înscrierea", text: "Câinele cu pedigree se înscrie la o expoziție, în clasa potrivită vârstei lui." },
+  { emoji: "🎖️", titlu: "Calificativul", text: "Arbitrul descrie și notează exemplarul; treapta cea mai înaltă este Excelent." },
+  { emoji: "📜", titlu: "Certificatul", text: "Câștigătorul clasei cu Excelent poate primi certificatul: CAJC la tineret, CAC la adulți, CACIB la expozițiile internaționale." },
+  { emoji: "🏆", titlu: "Titlul de campion", text: "Certificatele adunate, de la arbitri diferiți, se omologhează în titluri de campion — la cererea proprietarului." },
+];
+const TREPTE_EN = [
+  { emoji: "📝", titlu: "Entry", text: "A pedigreed dog is entered in a show, in the class matching its age." },
+  { emoji: "🎖️", titlu: "The grade", text: "The judge describes and grades the dog; the highest grade is Excellent." },
+  { emoji: "📜", titlu: "The certificate", text: "The class winner graded Excellent may receive the certificate: CAJC in the junior classes, CAC for adults, CACIB at international shows." },
+  { emoji: "🏆", titlu: "The champion title", text: "Certificates collected from different judges are homologated into champion titles — at the owner's request." },
+];
+
+const TITLURI_RO = [
+  { cod: "junior_champion", nume: "Campion Junior", cerinte: "4 certificate CAJC, de la cel puțin 3 arbitri diferiți. CAJC se acordă în clasele de tineret (9–18 luni)." },
+  { cod: "campion_national", nume: "Campion Național", cerinte: "6 certificate CAC, de la minimum 4 arbitri diferiți, dintre care cel puțin unul obținut la o expoziție internațională. Se poate obține o dată pentru fiecare an de viață, până la vârsta de 10 ani." },
+  { cod: "campion_international", nume: "Campion Internațional", cerinte: "6 CACIB de la 4 arbitri diferiți, la expoziții internaționale din propria țară — sau 3 CACIB (2 din țara de origine + 1 dintr-o altă țară membră WDF; calea externă se omologhează cu actele la registratură)." },
+  { cod: "grand_champion", nume: "Mare Campion (Grand Champion)", cerinte: "3 titluri de Campion Național omologate, în ani de viață diferiți. O singură dată în viață." },
+  { cod: "multi_champion", nume: "Multi Campion", cerinte: "Titlurile Grand Champion și Campion Internațional, ambele omologate. O singură dată în viață. Titlul suprem al ierarhiei WDF." },
+  { cod: "reproducer", nume: "Campion Reproducător", cerinte: "Se acordă pe baza descendenților, din cel puțin 2 cuiburi diferite: 6 descendenți cu Excelent sau 3 descendenți Campioni Naționali. Omologare cu dovezile la registratură." },
+  { cod: "world_champion", nume: "Campion Mondial", cerinte: "Certificatul Internațional de Frumusețe (CACIB) obținut la World Cup WDF. Se acordă o singură dată în viață." },
+];
+const TITLURI_EN = [
+  { cod: "junior_champion", nume: "Junior Champion", cerinte: "4 CAJC certificates, from at least 3 different judges. CAJC is awarded in the junior classes (9–18 months)." },
+  { cod: "campion_national", nume: "National Champion", cerinte: "6 CAC certificates, from at least 4 different judges, of which at least one obtained at an international show. It can be earned once for each year of the dog's life, up to the age of 10." },
+  { cod: "campion_international", nume: "International Champion", cerinte: "6 CACIB from 4 different judges, at international shows in the dog's own country — or 3 CACIB (2 from the country of origin + 1 from another WDF member country; the external route is homologated with the documents at the registry office)." },
+  { cod: "grand_champion", nume: "Grand Champion", cerinte: "3 homologated National Champion titles, in different years of the dog's life. Once in a lifetime." },
+  { cod: "multi_champion", nume: "Multi Champion", cerinte: "The Grand Champion and International Champion titles, both homologated. Once in a lifetime. The supreme title of the WDF hierarchy." },
+  { cod: "reproducer", nume: "Champion Producer", cerinte: "Awarded on the strength of the progeny, from at least 2 different litters: 6 descendants graded Excellent, or 3 descendants that are National Champions. Homologated with the evidence at the registry office." },
+  { cod: "world_champion", nume: "World Champion", cerinte: "The International Beauty Certificate (CACIB) obtained at the WDF World Cup. Awarded once in a lifetime." },
+];
+
+const RO = {
+  acasa: "Acasă", acasaHref: "/ro/", pagina: "Drumul spre Campion",
+  titlu: "Drumul spre Campion",
+  cumSeUrca: "Cum se urcă", titluri: "Titlurile de campion WDF",
+  unde: "Unde se află câinele tău?",
+  cautaNota1: "Caută după", serie: "seria certificatului", nrWdf: "numărul WDF",
+  sau: "sau", microcip: "microcip", caIn: "ca în", carteaOriginilor: "Cartea de origini",
+  arata: "Arată drumul",
+  regNota1: "Condițiile de mai jos sunt cele din regulamentul public",
+  regNume: "„Titlurile oficiale de campion WDF”",
+  regNota2: "(Hotărârea Consiliului Director nr. 167/01-08-2026). Titlurile se omologhează",
+  laCerere: "la cererea proprietarului",
+  regNota3: ", după verificarea certificatelor de către club. Omologarea este gratuită.",
+  final1: "Titlurile și certificatele fiecărui exemplar se văd și pe",
+  fisa: "fișa lui publică",
+  final2: ", alături de ascendență. Pentru omologarea unui titlu cu condițiile îndeplinite:",
+  regHref: "/ro/regulamente/titlurile-oficiale-de-campion-wdf/",
+  caineHref: "/caine/",
+  // pentru script:
+  omologat: "✅ OMOLOGAT", gata: "🎉 Condiții îndeplinite — cere omologarea", inLucru: "în lucru",
+  faraCampionate: "Exemplarul nu are încă certificate consemnate în registrul de campionate. Drumul începe la prima expoziție — vezi calendarul competițional.",
+  titluriDoarFisa: "Exemplarul are titluri pe fișă, dar progresul detaliat spre campionate apare după următoarea publicare a palmaresului de către club.",
+  dinRegistru: "Progresul de mai sus, la fiecare titlu, vine din registrul oficial de campionate al clubului.",
+  negasit: "Nu am găsit exemplarul.",
+  verifica: "Verifică seria sau microcipul și încearcă din nou.",
+};
+const EN = {
+  acasa: "Home", acasaHref: "/en/", pagina: "Road to Champion",
+  titlu: "Road to Champion",
+  cumSeUrca: "How the climb works", titluri: "The WDF champion titles",
+  unde: "Where is your dog on the road?",
+  cautaNota1: "Search by", serie: "certificate series", nrWdf: "WDF number",
+  sau: "or", microcip: "microchip", caIn: "as in the", carteaOriginilor: "stud book",
+  arata: "Show the road",
+  regNota1: "The requirements below are those of the public regulation",
+  regNume: "„The official WDF champion titles”",
+  regNota2: "(Board of Directors Decision no. 167/01-08-2026). Titles are homologated",
+  laCerere: "at the owner's request",
+  regNota3: ", after the club verifies the certificates. Homologation is free of charge.",
+  final1: "Each dog's titles and certificates are also shown on",
+  fisa: "its public record",
+  final2: ", together with the pedigree. To homologate a title whose requirements are met:",
+  regHref: "/en/regulamente/titlurile-oficiale-de-campion-wdf/",
+  caineHref: "/en/caine/",
+  omologat: "✅ HOMOLOGATED", gata: "🎉 Requirements met — request homologation", inLucru: "in progress",
+  faraCampionate: "This dog has no certificates recorded in the championship register yet. The road starts at the first show — see the show calendar.",
+  titluriDoarFisa: "This dog has titles on its record, but the detailed championship progress appears after the club next publishes its results.",
+  dinRegistru: "The progress above, for each title, comes from the club's official championship register.",
+  negasit: "We could not find this dog.",
+  verifica: "Check the series or microchip and try again.",
+};
+const T = lang === "en" ? EN : RO;
+const TREPTE = lang === "en" ? TREPTE_EN : TREPTE_RO;
+const TITLURI = lang === "en" ? TITLURI_EN : TITLURI_RO;
+---
+
+<section class="dc">
+  <p class="dc__cale"><a href={T.acasaHref}>{T.acasa}</a> · {T.pagina}</p>
+  <h1 class="dc__title">{T.titlu}</h1>
+  <p class="dc__intro">
+    {lang === "en" ? (
+      <>From the first show entry to the Multi Champion title there is a road with precise
+      rules, the same for everyone. This page shows it step by step — and if you have a dog
+      in the CFC-Royal register, it shows you <strong>exactly where the dog stands on the road</strong>,
+      from the club's official data.</>
+    ) : (
+      <>De la prima înscriere într-o expoziție până la titlul de Multi Campion e un drum cu
+      reguli precise, aceleași pentru toți. Pagina de față îl arată pas cu pas — iar dacă
+      ai un câine în registrul CFC-Royal, îți arată <strong>exact unde se află el pe drum</strong>,
+      din datele oficiale ale clubului.</>
+    )}
+  </p>
+
+  <h2 class="dc__h2">{T.cumSeUrca}</h2>
+  <ol class="dc__trepte">
+    {TREPTE.map((t, i) => (
+      <li class="dc__treapta">
+        <span class="dc__nr">{i + 1}</span>
+        <span class="dc__emoji" aria-hidden="true">{t.emoji}</span>
+        <div><strong>{t.titlu}.</strong> {t.text}</div>
+      </li>
+    ))}
+  </ol>
+
+  <h2 class="dc__h2">{T.titluri}</h2>
+  <p class="dc__nota">{T.regNota1} <a href={T.regHref}>{T.regNume}</a> {T.regNota2} <strong>{T.laCerere}</strong>{T.regNota3}</p>
+  <ul class="dc__titluri" id="dc-titluri">
+    {TITLURI.map((t) => (
+      <li class="dc__titlu" data-titlu={t.cod}>
+        <div class="dc__titlu-cap">
+          <strong>🏆 {t.nume}</strong>
+          <span class="dc__stare" data-stare={t.cod} hidden></span>
+        </div>
+        <p class="dc__cerinte">{t.cerinte}</p>
+        <p class="dc__progres" data-progres={t.cod} hidden></p>
+      </li>
+    ))}
+  </ul>
+
+  <h2 class="dc__h2" id="cauta">{T.unde}</h2>
+  <p class="dc__nota">{T.cautaNota1} <strong>{T.serie}</strong>, <strong>{T.nrWdf}</strong> {T.sau} <strong>{T.microcip}</strong> — {T.caIn} <a href={T.caineHref}>{T.carteaOriginilor}</a>.</p>
+  <form class="dc__cauta" id="dc-form">
+    <input id="dc-input" type="text" placeholder="CFCR-P-2026-0001 · WDF.RO… · 941000024600001"
+           autocomplete="off" spellcheck="false" required
+           aria-label={T.serie} />
+    <button class="btn btn--primary" type="submit">{T.arata}</button>
+  </form>
+  <p class="dc__eroare" id="dc-eroare" role="alert" hidden></p>
+  <div class="dc__caine" id="dc-caine" hidden>
+    <h3 class="dc__caine-nume" id="dc-nume"></h3>
+    <p class="dc__caine-nota" id="dc-nota"></p>
+  </div>
+
+  <p class="dc__final">{T.final1} <a href={T.caineHref}>{T.fisa}</a>{T.final2} <strong>contact@cfc-royal.ro</strong>.</p>
+</section>
+
+<script is:inline define:vars={{ T }}>
+  (function () {
+    const F = "/.netlify/functions/registru-pedigree";
+    const form = document.getElementById("dc-form");
+    const input = document.getElementById("dc-input");
+    const eroare = document.getElementById("dc-eroare");
+    const cutie = document.getElementById("dc-caine");
+
+    function curata() {
+      document.querySelectorAll("[data-stare]").forEach((e) => { e.hidden = true; e.className = "dc__stare"; });
+      document.querySelectorAll("[data-progres]").forEach((e) => { e.hidden = true; });
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const cautat = input.value.trim();
+      if (!cautat) return;
+      eroare.hidden = true;
+      cutie.hidden = true;
+      curata();
+      const btn = form.querySelector("button");
+      btn.disabled = true;
+      try {
+        const r = await fetch(F, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ actiune: "caine", cautat }),
+        });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.eroare || T.negasit);
+
+        cutie.hidden = false;
+        document.getElementById("dc-nume").textContent = "🐾 " + (d.caine && d.caine.nume ? d.caine.nume : cautat);
+        const nota = document.getElementById("dc-nota");
+
+        const campionate = Array.isArray(d.campionate) ? d.campionate : [];
+        if (!campionate.length) {
+          nota.textContent = (Array.isArray(d.titluri) && d.titluri.length)
+            ? T.titluriDoarFisa
+            : T.faraCampionate;
+          return;
+        }
+        nota.textContent = T.dinRegistru;
+        campionate.forEach((c) => {
+          const st = document.querySelector('[data-stare="' + CSS.escape(c.cod) + '"]');
+          const pr = document.querySelector('[data-progres="' + CSS.escape(c.cod) + '"]');
+          if (!st || !pr) return;
+          st.hidden = false;
+          if (c.omologari && c.omologari.length) {
+            st.textContent = T.omologat + " " + c.omologari.join(", ");
+            st.className = "dc__stare is-omologat";
+          } else if (c.indeplinit) {
+            st.textContent = T.gata;
+            st.className = "dc__stare is-gata";
+          } else {
+            st.textContent = T.inLucru;
+            st.className = "dc__stare is-drum";
+          }
+          pr.hidden = false;
+          pr.textContent = c.detaliu || "";
+        });
+        document.getElementById("dc-titluri").scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (err) {
+        eroare.hidden = false;
+        eroare.textContent = err.message + " " + T.verifica;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  })();
+</script>
+
+<style>
+  .dc { max-width: 56rem; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+  .dc__cale { font-size: 0.85rem; color: var(--color-text-muted); }
+  .dc__cale a { color: var(--color-link); }
+  .dc__title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.3rem 0 0.5rem; }
+  .dc__intro { max-width: 46rem; color: var(--color-text); }
+  .dc__h2 { font-family: var(--font-serif); color: var(--color-primary); margin: 2.25rem 0 0.75rem;
+    font-size: 1.35rem; border-bottom: 2px solid var(--color-accent); padding-bottom: 0.35rem; }
+  .dc__nota { color: var(--color-text-muted); max-width: 46rem; font-size: 0.95rem; }
+  .dc__nota a { color: var(--color-link); }
+
+  .dc__trepte { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 0.7rem; }
+  .dc__treapta { display: flex; align-items: baseline; gap: 0.8rem; background: var(--color-surface);
+    border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.85rem 1.1rem; }
+  .dc__nr { flex: none; width: 1.7rem; height: 1.7rem; border-radius: 50%; background: var(--color-primary);
+    color: var(--color-text-inverse); font-weight: 700; font-size: 0.9rem; display: grid; place-items: center;
+    align-self: center; }
+  .dc__emoji { font-size: 1.2rem; align-self: center; }
+
+  .dc__titluri { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 0.8rem; }
+  .dc__titlu { background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius); padding: 0.95rem 1.2rem; }
+  .dc__titlu-cap { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
+  .dc__titlu-cap strong { color: var(--color-primary); }
+  .dc__cerinte { margin: 0.45rem 0 0; font-size: 0.92rem; color: var(--color-text-muted); max-width: 46rem; }
+  :global(.dc__stare) { font-size: 0.8rem; font-weight: 700; padding: 0.2rem 0.7rem; border-radius: 999px;
+    border: 1px solid var(--color-border); color: var(--color-text-muted); white-space: nowrap; }
+  :global(.dc__stare.is-omologat) { background: #eef5f0; border-color: var(--color-primary); color: var(--color-primary); }
+  :global(.dc__stare.is-gata) { background: #f7f1df; border-color: var(--color-accent); color: var(--color-accent-dark); }
+  :global(.dc__progres) { margin: 0.5rem 0 0; font-size: 0.9rem; color: var(--color-text);
+    border-top: 1px dashed var(--color-border); padding-top: 0.5rem; }
+
+  .dc__cauta { display: flex; gap: 0.6rem; flex-wrap: wrap; margin: 1rem 0; }
+  .dc__cauta input { flex: 1 1 22rem; padding: 0.7rem 0.9rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; }
+  :global(.dc__eroare) { color: #8c1d2f; background: #f9efef; border: 1px solid #8c1d2f;
+    border-radius: var(--radius); padding: 0.7rem 1rem; max-width: 46rem; }
+  .dc__caine { margin-top: 1rem; padding: 1rem 1.25rem; background: var(--color-surface-alt);
+    border: 1px solid var(--color-accent); border-left-width: 4px; border-radius: var(--radius); max-width: 46rem; }
+  .dc__caine-nume { margin: 0 0 0.3rem; font-family: var(--font-serif); color: var(--color-primary); }
+  .dc__caine-nota { margin: 0; font-size: 0.9rem; color: var(--color-text-muted); }
+  .dc__final { margin-top: 2rem; color: var(--color-text-muted); max-width: 46rem; font-size: 0.95rem;
+    border-top: 1px solid var(--color-border); padding-top: 1rem; }
+  .dc__final a { color: var(--color-link); }
+</style>

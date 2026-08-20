@@ -1,0 +1,15 @@
+---
+// /en/cuiburi/ — available litters, in English.
+// The Romanian version lives at /cuiburi/; the whole page lives in the shared
+// CuiburiDisponibile component (same pattern as /caine/ ↔ /en/caine/).
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import CuiburiDisponibile from "../../../components/CuiburiDisponibile.astro";
+---
+
+<BaseLayout
+  lang="en"
+  title="Available litters"
+  description="Litter listings with available puppies at the kennels of the Royal Federal Canine Club: the breed, both parents with verified health tests, and the breeder's contact. No prices."
+>
+  <CuiburiDisponibile lang="en" />
+</BaseLayout>
