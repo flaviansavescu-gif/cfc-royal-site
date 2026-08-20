@@ -9,11 +9,9 @@ export { sha256, ADMIN_HASH, LECTORI, actorDinCod };
 export const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 export const acum = () => new Date().toISOString();
 
-export const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
+// Răspunsul JSON vine din locul comun; re-exportat aici ca handler-ele JCR să-l ia
+// împreună cu restul uneltelor, dintr-un singur import.
+export { json } from "../_comun/raspuns.mjs";
 
 /** Baremul e vizibil cursantului? La închiderea sesiunii (dacă așa e configurat) sau la
  *  deblocarea manuală de către lector. */

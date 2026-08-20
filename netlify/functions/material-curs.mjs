@@ -20,14 +20,9 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { cititorCursuri } from "./_comun/cititor-cursuri.mjs";
+import { json } from "./_comun/raspuns.mjs";
 
 const RADACINA_MATERIALE = "cursuri-materiale";
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 /** Rădăcina pachetului diferă între `netlify dev` și Lambda — o găsim o dată. */
 let radacina = null;

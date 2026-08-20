@@ -40,17 +40,12 @@ import { registratorDinCod } from "./registru-acces.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
 import { jurnalizeaza, ipCerere } from "./_comun/registru-jurnal.mjs";
+import { json } from "./_comun/raspuns.mjs";
 
 // Înscrierile stau în magazia expozițiilor; cheile de dispozitiv, în cea a registrului.
 // Nu le amesteca: o căutare de jeton în magazia greșită a ținut deja pe cineva afară.
 const expo = () => getStore({ name: "expozitii", consistency: "strong" });
 const registru = () => getStore({ name: "registru", consistency: "strong" });
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 const taie = (v, n) => String(v == null ? "" : v).trim().slice(0, n);
 

@@ -13,17 +13,12 @@ import { getStore } from "@netlify/blobs";
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { rolLaIntrare, actorDinCod, sha256, LECTORI } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { json } from "./_comun/raspuns.mjs";
 
 const AN = 2026;
 const PRAG = 70;
 // Cheia testului „Actualizarea anuală 2026" — indexul opțiunii corecte per întrebare.
 const CHEIE = [1, 2, 0, 1, 0, 2, 0, 1, 0, 2];
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 /** Cine susține formarea? Arbitru din registru sau lector (lectorii sunt și ei arbitri). */
 async function arbitrul(cod, store) {

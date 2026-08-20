@@ -18,12 +18,7 @@ import {
   strange, strangeZile, judeca, momentLocal,
   ORE_VEGHE, RETENTIE_ZILE, USI_PENTRU_SEMNAL, REFUZURI_PENTRU_ALARMA, URME_PENTRU_ALARMA,
 } from "./_comun/paznic.mjs";
-
-const json = (b, s = 200) =>
-  new Response(JSON.stringify(b), {
-    status: s,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
+import { json } from "./_comun/raspuns.mjs";
 
 /** Ce se poate arăta din faptele strânse — fără amprente întregi. */
 function pentruEcran(f) {

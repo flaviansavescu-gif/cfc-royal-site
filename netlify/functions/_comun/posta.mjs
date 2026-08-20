@@ -27,6 +27,7 @@ export const escapeHtml = (s) =>
 export const postaConfigurata = () => !!process.env.BREVO_API_KEY;
 
 /**
+ * `catre` poate fi o adresă sau o listă de adrese (ex. registratura + organizatorul).
  * @returns {Promise<boolean>} a plecat?
  */
 export async function trimite({ catre, subiect, html, expeditor }) {
@@ -35,7 +36,8 @@ export async function trimite({ catre, subiect, html, expeditor }) {
     console.error(`E-MAIL NETRIMIS (lipsește BREVO_API_KEY): „${subiect}" către ${catre}`);
     return false;
   }
-  if (!catre) {
+  const destinatari = (Array.isArray(catre) ? catre : [catre]).filter(Boolean);
+  if (!destinatari.length) {
     console.error(`E-MAIL NETRIMIS (fără destinatar): „${subiect}"`);
     return false;
   }
@@ -45,7 +47,7 @@ export async function trimite({ catre, subiect, html, expeditor }) {
       headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
         sender: expeditor || EXPEDITOR,
-        to: [{ email: catre }],
+        to: destinatari.map((email) => ({ email })),
         subject: subiect,
         htmlContent: html,
       }),

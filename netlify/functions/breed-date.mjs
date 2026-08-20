@@ -15,11 +15,7 @@ import { ipClient, verificaLimita, inregistreazaEsec, resetLimita } from "./_com
 // pe care bundler-ul îl inline-uiește) — nu e un fișier servit public. Îl scrie tot
 // `scripts/importa-standarde-wdf.mjs`, dar în netlify/functions/_breed, nu în `public/`.
 import DATASET from "./_breed/breeds.json" with { type: "json" };
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
+import { json } from "./_comun/raspuns.mjs";
 
 /**
  * Cine cere: oricine e în platforma Școlii de Arbitraj — administrator, lector, arbitru

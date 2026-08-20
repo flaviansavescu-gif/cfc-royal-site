@@ -22,18 +22,13 @@ import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
+import { json } from "./_comun/raspuns.mjs";
 const NR_ASISTENTE = 5;
 const STARI = ["", "numit", "prezent", "absent"];
 // Scara evaluării prestației (decizie 21.07.2026) + observațiile text ale arbitrului.
 const CALIFICATIVE = ["foarte_bine", "bine", "satisfacator", "nesatisfacator"];
 
 const sha256 = (s) => createHash("sha256").update(String(s)).digest("hex");
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 

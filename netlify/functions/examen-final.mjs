@@ -24,9 +24,11 @@
 import { getStore } from "@netlify/blobs";
 import { createHash, randomInt } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { trimite } from "./_comun/posta.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
+import { json } from "./_comun/raspuns.mjs";
 const NR_INTREBARI = 25;      // câte se extrag la un examen
 // Banca minimă pentru ca examenul să fie „activ”. TREBUIE > NR_INTREBARI: altfel se extrage
 // TOATĂ banca la fiecare candidat (nu un subset aleatoriu), iar examenul devine previzibil.
@@ -60,12 +62,6 @@ const BANCA = [
 
 const sha256 = (s) => createHash("sha256").update(String(s)).digest("hex");
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 const nrExtrase = () => Math.min(NR_INTREBARI, BANCA.length);
 const activ = () => BANCA.length >= MIN_ACTIV;
@@ -143,20 +139,10 @@ function poateContesta(dosar, contestatie) {
 }
 
 async function anuntaSecretariatul(subiect, html) {
-  const apiKey = process.env.BREVO_API_KEY;
-  if (!apiKey) { console.error("BREVO_API_KEY lipsește:", subiect); return; }
-  try {
-    await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        sender: { name: "Școala de Arbitraj CFC-Royal", email: "newsletter@cfc-royal.ro" },
-        to: [{ email: "contact@cfc-royal.ro" }],
-        subject: subiect,
-        htmlContent: html,
-      }),
-    });
-  } catch (err) { console.error("E-mail eșuat:", err); }
+  await trimite({
+    catre: "contact@cfc-royal.ro", subiect, html,
+    expeditor: { name: "Școala de Arbitraj CFC-Royal", email: "newsletter@cfc-royal.ro" },
+  });
 }
 
 export default cuLimitareCod(async (req) => {
@@ -412,29 +398,14 @@ export default cuLimitareCod(async (req) => {
     const nouDosar = { promovat: !!(dosar && dosar.promovat) || promovat, ultimaData: acum, incercari };
     try { await store.setJSON("examen/" + id, nouDosar); } catch (err) { console.error("Salvare examen eșuată:", err); }
 
-    // Notificare secretariat (Brevo).
-    const apiKey = process.env.BREVO_API_KEY;
-    if (apiKey) {
-      const html = `
-        <h2 style="margin:0 0 8px">Examen final — Școala de Arbitraj</h2>
+    // Notificare secretariat — prin același drum ca restul veștilor de la examen.
+    await anuntaSecretariatul(
+      `[Examen final ${promovat ? "PROMOVAT" : "nepromovat"}] ${nume} (${procent}%)`,
+      `<h2 style="margin:0 0 8px">Examen final — Școala de Arbitraj</h2>
         <p><b>Candidat:</b> ${nume.replace(/</g, "&lt;")}</p>
         <p><b>Scor:</b> ${corecte} / ${total} (${procent}%) — <b>${promovat ? "PROMOVAT ✅" : "NEPROMOVAT ❌"}</b></p>
-        <p style="color:#888;font-size:12px">Trimis automat de platforma de cursuri — cfc-royal.ro/cursuri/</p>`;
-      try {
-        await fetch("https://api.brevo.com/v3/smtp/email", {
-          method: "POST",
-          headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({
-            sender: { name: "Școala de Arbitraj CFC-Royal", email: "newsletter@cfc-royal.ro" },
-            to: [{ email: "contact@cfc-royal.ro" }],
-            subject: `[Examen final ${promovat ? "PROMOVAT" : "nepromovat"}] ${nume} (${procent}%)`,
-            htmlContent: html,
-          }),
-        });
-      } catch (err) { console.error("E-mail examen eșuat:", err); }
-    } else {
-      console.error("BREVO_API_KEY lipsește — rezultatul examenului nu a fost trimis pe e-mail.");
-    }
+        <p style="color:#888;font-size:12px">Trimis automat de platforma de cursuri — cfc-royal.ro/cursuri/</p>`,
+    );
 
     const urmatoareaData = promovat ? null : new Date(Date.now() + COOLDOWN_MS).toISOString();
     return json({ corecte, total, procent, promovat, prag: PRAG, urmatoareaData });

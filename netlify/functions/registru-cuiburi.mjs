@@ -27,13 +27,9 @@ import { jurnalizeazaObligatoriu, actorJurnal, ipCerere } from "./_comun/registr
 import { recomandareDin, insignaTest, numeTest } from "./_comun/teste-sanatate.mjs";
 import { normalizeazaAfix } from "./_comun/canise.mjs";
 import { obtineIndexCachedat } from "./_comun/index-cachedat.mjs";
+import { json } from "./_comun/raspuns.mjs";
 
 const store = () => getStore({ name: "registru", consistency: "strong" });
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 const normCip = (v) => String(v || "").replace(/[\s-]/g, "");

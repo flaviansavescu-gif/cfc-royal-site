@@ -39,7 +39,7 @@ import {
   opritDinMediu, OTP_MINUTE, DISPOZITIV_ZILE,
 } from "./_comun/al-doilea-factor.mjs";
 import { trimite, pagina, escapeHtml, ADRESA_ASOCIATIEI, postaConfigurata } from "./_comun/posta.mjs";
-
+import { json } from "./_comun/raspuns.mjs";
 
 /**
  * CITIRE TARE, dinadins.
@@ -64,12 +64,6 @@ function codNou(prefix) {
   for (let i = 0; i < 8; i++) c += ALFABET[randomInt(0, ALFABET.length)];
   return c;
 }
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 const EMAIL_RE = /^[^@\s]+@[^@\s.]+\.[^@\s]+$/;

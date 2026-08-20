@@ -10,7 +10,7 @@
 // POST { secret, actiune:"marcheaza", showId, ids } -> managerul marchează înscrierile ca importate
 import { getStore } from "@netlify/blobs";
 import { eRobot, limiteazaTrimiterile, minuteText } from "./_comun/formular-public.mjs";
-import { escapeHtml } from "./_comun/posta.mjs";
+import { escapeHtml, trimite } from "./_comun/posta.mjs";
 import { calculeazaTaxa, taxaVeche } from "./_comun/taxa-expo.mjs";
 import { egal } from "./_comun/citire-documente.mjs";
 import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
@@ -25,6 +25,7 @@ import {
   seVedeInFormular, seVedeInCalendar,
 } from "./_comun/repetitie.mjs";
 import { createHash } from "node:crypto";
+import { json } from "./_comun/raspuns.mjs";
 
 const SECRET = process.env.EXPO_SYNC_SECRET || "";
 
@@ -52,12 +53,6 @@ const VARSTA = {
   foreign_champion: { min: 15, max: null },
   veterani: { min: 120, max: null },
 };
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 function varstaInLuni(nastere, laData) {
   const d1 = new Date(nastere), d2 = new Date(laData);
@@ -619,20 +614,12 @@ export default async (req) => {
         : ""}
       <p>După verificarea de către secretariat vei primi e-mailul de validare, iar la închiderea catalogului — numerele de concurs și ecusoanele de tipărit.</p>
       <p>— Club Federal Chinologic Royal · World Dog Federation</p>`;
-    try {
-      await fetch("https://api.brevo.com/v3/smtp/email", {
-        method: "POST",
-        headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          sender: { name: "CFC-Royal Expoziții", email: "newsletter@cfc-royal.ro" },
-          to: [{ email }],
-          subject: `Înscriere primită — ${config.nume}`,
-          htmlContent: html,
-        }),
-      });
-    } catch (err) {
-      console.error("Email confirmare eșuat:", err);
-    }
+    await trimite({
+      catre: email,
+      subiect: `Înscriere primită — ${config.nume}`,
+      html,
+      expeditor: { name: "CFC-Royal Expoziții", email: "newsletter@cfc-royal.ro" },
+    });
 
     // ——— Înștiințarea secretariatului: aceeași înscriere, văzută dinspre asociație ———
     //
@@ -654,22 +641,14 @@ export default async (req) => {
         ? `<p>Taxă declarată ca plătită: <b>${total} lei</b>${dovadaBuf ? " — dovada e atașată fișei și se vede la verificarea din registratură" : ""}. De confirmat în extras.</p>`
         : "<p>Fără taxă de înscriere.</p>"}
       <p style="color:#555">Fișele așteaptă în coada site-ului; se aduc în Manager cu butonul de import.</p>`;
-    try {
-      await fetch("https://api.brevo.com/v3/smtp/email", {
-        method: "POST",
-        headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          sender: { name: "CFC-Royal Expoziții", email: "newsletter@cfc-royal.ro" },
-          to: destinatari.map((a) => ({ email: a })),
-          subject: `Înscriere nouă — ${config.nume} (${pregatite.length} ${pregatite.length === 1 ? "câine" : "câini"}${total > 0 ? ", " + total + " lei" : ""})`,
-          htmlContent: htmlSecretariat,
-        }),
-      });
-    } catch (err) {
-      // Înștiințarea e utilă, nu vitală: fișa e deja scrisă în coadă, expozantul e
-      // confirmat — nu stricăm înscrierea pentru un e-mail intern căzut.
-      console.error("Email secretariat eșuat:", err);
-    }
+    // Înștiințarea e utilă, nu vitală: fișa e deja scrisă în coadă, expozantul e
+    // confirmat — `trimite()` nu aruncă, deci un e-mail intern căzut nu strică înscrierea.
+    await trimite({
+      catre: destinatari,
+      subiect: `Înscriere nouă — ${config.nume} (${pregatite.length} ${pregatite.length === 1 ? "câine" : "câini"}${total > 0 ? ", " + total + " lei" : ""})`,
+      html: htmlSecretariat,
+      expeditor: { name: "CFC-Royal Expoziții", email: "newsletter@cfc-royal.ro" },
+    });
   }
 
   return json({ ok: true, caini: pregatite.length, total });

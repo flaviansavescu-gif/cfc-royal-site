@@ -16,6 +16,7 @@ import { getStore } from "@netlify/blobs";
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { rolLaIntrare, actorDinCod, sha256, LECTORI } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { json } from "./_comun/raspuns.mjs";
 
 /** Versiunea Codului Etic asumată acum. Se ridică DOAR când se schimbă textul. */
 export const VERSIUNE = "2026-07.2";
@@ -25,12 +26,6 @@ export const VERSIUNI_ANTERIOARE = ["2026-07"];
 
 /** Ce s-a schimbat la ultima revizuire — se arată celor rugați să reconfirme. */
 export const MODIFICARE = "Art. 14 alin. (2) lit. c): interdicția favorizării unui cursant se extinde la criterii de orice natură.";
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 /** A asumat o versiune ANTERIOARĂ a Codului? Întoarce cea mai recentă. */
 async function asumareAnterioara(store, id) {

@@ -16,16 +16,11 @@ import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
+import { json } from "./_comun/raspuns.mjs";
 // Alfabet fără caractere ambigue (0/O, 1/I/L) — codurile se dictează ușor la telefon.
 const ALFABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
 const sha256 = (s) => createHash("sha256").update(String(s)).digest("hex");
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 // „COL-" = Colegiul de Arbitri; prefix diferit de al candidaților („ARB-"), ca să se
 // vadă dintr-o privire ce fel de cod ține cineva în mână.

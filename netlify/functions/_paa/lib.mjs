@@ -11,8 +11,9 @@ export const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 export const acum = () => new Date().toISOString();
 export const idNou = (p) => (p || "s-") + randomUUID().slice(0, 12);
 
-export const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
+// Răspunsul JSON vine din locul comun; re-exportat aici ca handler-ele PAA să-l ia
+// împreună cu restul uneltelor, dintr-un singur import.
+export { json } from "../_comun/raspuns.mjs";
 
 export const store = () => getStore("paa");
 export const storeCursuri = () => getStore("cursuri");

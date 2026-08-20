@@ -29,7 +29,6 @@
 // POST { cod, actiune:"certificat", serie }                    (registratură/admin/crescător)
 // POST { actiune:"verifica", serie }                           PUBLIC — date minime
 import { getStore } from "@netlify/blobs";
-import QRCode from "qrcode";
 import { actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
@@ -40,6 +39,7 @@ import {
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
 import { poateCereExtras, numarDinText, intervalulCerut, inInterval, inValuri } from "./_comun/extrase.mjs";
 import { mascheazaCip } from "./_comun/microcip.mjs";
+import { json } from "./_comun/raspuns.mjs";
 
 // CITIRE TARE, ca la poarta de acces.
 //
@@ -48,12 +48,6 @@ import { mascheazaCip } from "./_comun/microcip.mjs";
 // îi trebuie cuiva căruia tocmai i-ai luat dreptul ca să mai emită un certificat.
 // O revocare care nu revocă imediat nu e o revocare.
 const store = () => getStore({ name: "registru", consistency: "strong" });
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 
@@ -753,10 +747,12 @@ export default cuLimitareCod(async (req) => {
       if (!dosarAlMeu(d, eu)) return json({ eroare: "Nepermis." }, 403);
     }
     // Codul QR se face pe server: pagina de tipărire rămâne fără dependențe, iar
-    // imaginea e gata înainte ca omul să apese Ctrl+P.
+    // imaginea e gata înainte ca omul să apese Ctrl+P. Modulul `qrcode` se încarcă
+    // LENEȘ, doar pe această acțiune — restul multiplexorului nu-l plătește la cold-start.
     const adresaVerificare = "https://cfc-royal.ro/verifica-pedigree/?s=" + encodeURIComponent(serie);
     let qr = null;
     try {
+      const { default: QRCode } = await import("qrcode");
       qr = await QRCode.toDataURL(adresaVerificare, { margin: 0, width: 320, errorCorrectionLevel: "M" });
     } catch (err) { console.error("Generarea codului QR a eșuat:", err); }
 

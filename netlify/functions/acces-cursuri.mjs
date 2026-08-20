@@ -16,6 +16,7 @@ import {
 } from "./_comun/al-doilea-factor.mjs";
 import { trimite, pagina, escapeHtml, ADRESA_ASOCIATIEI, postaConfigurata } from "./_comun/posta.mjs";
 import { consemneaza } from "./_comun/paznic.mjs";
+import { json } from "./_comun/raspuns.mjs";
 
 /** Adresa, arătată pe jumătate — cine intră trebuie să știe unde să caute codul. */
 function mascheaza(email) {
@@ -51,9 +52,6 @@ async function ceruIntrarea(store, rol, cine, email) {
   if (!trimis) return { eroare: "Nu am putut trimite codul pe e-mail. Reîncearcă peste un minut." };
   return { intrareId: id, catre: mascheaza(email) };
 }
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
 
 export default async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);
@@ -119,7 +117,6 @@ export default async (req) => {
     if (fix.rol === "lector") return json({ rol: "lector", slug: fix.slug, nume: fix.nume, dest: "/cursuri/lector/" + fix.slug + "/" });
     return json({ rol: "acces", dest: "/cursuri/module/" });
   }
-
 
   // —— 2) Cod individual de candidat (registrul din store-ul „cursuri") ——
   const id = sha256(cod);

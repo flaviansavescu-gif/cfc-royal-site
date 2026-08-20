@@ -17,6 +17,7 @@ import crypto from "node:crypto";
 import { secretEgal } from "./_comun/secret.mjs";
 import { getStore } from "@netlify/blobs";
 import { felActului, etichetaCod, textStare, notaValid, motivAnulare } from "./_comun/verificare-text.mjs";
+import { json } from "./_comun/raspuns.mjs";
 
 // FĂRĂ valoare de rezervă, deliberat.
 //
@@ -36,12 +37,6 @@ import { felActului, etichetaCod, textStare, notaValid, motivAnulare } from "./_
 const SECRET = process.env.EXPO_SYNC_SECRET || "";                       // puntea
 const SECRET_ACTE = process.env.VERIFICARE_SECRET || SECRET || "";       // semnătura actelor
 const CHEIE = "lista";
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 /**
  * Lista actelor anulate, publicată de manager.

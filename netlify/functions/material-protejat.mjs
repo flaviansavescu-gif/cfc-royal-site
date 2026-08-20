@@ -24,6 +24,7 @@ import opentype from "opentype.js";
 import { rolLaIntrare, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { cititorCursuri } from "./_comun/cititor-cursuri.mjs";
+import { json } from "./_comun/raspuns.mjs";
 
 const PAGINI = 128;
 const TITLU = "Noțiuni de bază în arbitrajul chinologic — manual pentru studiu individual";
@@ -39,12 +40,6 @@ const MODULE = [
   { nr: 7, titlu: "Etică și deontologie", start: 116, sfarsit: 121 },
   { nr: 8, titlu: "Sinteze și autoevaluare", start: 122, sfarsit: 128 },
 ];
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 // —— Fișierele incluse în pachet: rădăcina diferă între `netlify dev` și Lambda,
 //    așa că încercăm pe rând variantele și o ținem minte pe prima care merge.

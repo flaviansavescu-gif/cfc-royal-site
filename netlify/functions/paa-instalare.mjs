@@ -7,6 +7,7 @@ import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
+import { json } from "./_comun/raspuns.mjs";
 const ALFABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 /**
  * Lungimea partii aleatoare a codului de instalare.
@@ -22,7 +23,7 @@ const ALFABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const LUNGIME_COD = 8;
 const sha256 = (s) => createHash("sha256").update(String(s)).digest("hex");
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
-const json = (b, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
+
 function codNou() { let c = "PAA-"; for (let i = 0; i < LUNGIME_COD; i++) c += ALFABET[randomInt(0, ALFABET.length)]; return c; }
 
 export default cuLimitareCod(async (req) => {

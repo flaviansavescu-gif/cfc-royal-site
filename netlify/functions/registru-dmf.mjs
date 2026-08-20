@@ -41,7 +41,9 @@ import {
 } from "./_comun/registru-jurnal.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
 import { cheileCitirii } from "./_comun/citire-documente.mjs";
+import { trimite } from "./_comun/posta.mjs";
 import { START_PORTI, PRAG, luniIntre, portiCrestere, mesajOpriri } from "./_comun/porti-crestere.mjs";
+import { json } from "./_comun/raspuns.mjs";
 
 // CITIRE TARE, ca la poarta de acces.
 //
@@ -50,12 +52,6 @@ import { START_PORTI, PRAG, luniIntre, portiCrestere, mesajOpriri } from "./_com
 // îi trebuie cuiva căruia tocmai i-ai luat dreptul ca să mai emită un certificat.
 // O revocare care nu revocă imediat nu e o revocare.
 const store = () => getStore({ name: "registru", consistency: "strong" });
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 const EMAIL_RE = /^[^@\s]+@[^@\s.]+\.[^@\s]+$/;
@@ -271,20 +267,11 @@ async function trimiteCerereaCatreMascul(d, token) {
     `<hr style="margin:20px 0;border:none;border-top:1px solid #ddd">` +
     `<p style="color:#888;font-size:12px">Dacă nu cunoașteți această montă, apăsați linkul și alegeți „Nu confirm" — ` +
     `sesizarea ajunge la registratură.<br>If you do not recognise this mating, open the link and choose “I do not confirm”.</p>`;
-  try {
-    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        sender: { name: "Registrul genealogic CFC-Royal", email: "newsletter@cfc-royal.ro" },
-        to: [{ email: d.mascul.email }],
-        subject: `[CFC-Royal] Confirmarea montei · Confirmation of mating — ${d.serie}`,
-        htmlContent: html,
-      }),
-    });
-    if (!res.ok) { console.error("Brevo (mascul):", res.status, await res.text()); return false; }
-    return true;
-  } catch (err) { console.error("Cererea de confirmare a eșuat:", err); return false; }
+  return trimite({
+    catre: d.mascul.email,
+    subiect: `[CFC-Royal] Confirmarea montei · Confirmation of mating — ${d.serie}`,
+    html,
+  });
 }
 
 /** Confirmarea către crescător. Eșecul ei nu anulează depunerea deja înregistrată. */
@@ -311,20 +298,11 @@ async function trimiteConfirmarea(membru, d) {
     `Stadiul îl vezi oricând în <a href="https://cfc-royal.ro/crescatori/">spațiul tău</a>.</p>` +
     `<hr style="margin:20px 0;border:none;border-top:1px solid #ddd">` +
     `<p style="color:#888;font-size:12px">Registrul genealogic — Asociația Club Federal Chinologic Royal · membru World Dog Federation</p>`;
-  try {
-    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        sender: { name: "Registrul genealogic CFC-Royal", email: "newsletter@cfc-royal.ro" },
-        to: [{ email: membru.email }],
-        subject: `[Registru] ${d.serie} — declarație înregistrată`,
-        htmlContent: html,
-      }),
-    });
-    if (!res.ok) { console.error("Brevo:", res.status, await res.text()); return false; }
-    return true;
-  } catch (err) { console.error("Confirmarea DMF a eșuat:", err); return false; }
+  return trimite({
+    catre: membru.email,
+    subiect: `[Registru] ${d.serie} — declarație înregistrată`,
+    html,
+  });
 }
 
 /**

@@ -24,13 +24,9 @@ import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.
 import { jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, actorExtern, ipCerere } from "./_comun/registru-jurnal.mjs";
 import { eRobot, limiteazaTrimiterile } from "./_comun/formular-public.mjs";
 import { trimite, pagina, escapeHtml, ADRESA_ASOCIATIEI } from "./_comun/posta.mjs";
+import { json } from "./_comun/raspuns.mjs";
 
 const store = () => getStore({ name: "registru", consistency: "strong" });
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 // Interzice și semnele care ar putea sparge un atribut HTML la afișare (' " < > &),

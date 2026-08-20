@@ -15,12 +15,7 @@ import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { construiesteArhiva } from "./_comun/registru-arhiva.mjs";
 import { jurnalizeaza, ipCerere } from "./_comun/registru-jurnal.mjs";
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
+import { json } from "./_comun/raspuns.mjs";
 
 export default cuLimitareCod(async (req) => {
   if (req.method !== "POST") return json({ eroare: "Metodă nepermisă." }, 405);

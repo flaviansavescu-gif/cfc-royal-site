@@ -14,16 +14,11 @@ import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
+import { json } from "./_comun/raspuns.mjs";
 const GRUPE_VALIDE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 const sha256 = (s) => createHash("sha256").update(String(s)).digest("hex");
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 // Curăță lista de grupe: doar numere 1–10, unice, sortate.
 function grupeCurate(arr) {

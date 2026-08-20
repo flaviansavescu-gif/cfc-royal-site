@@ -10,6 +10,24 @@
 //  GET  /rezultate-live                                       -> index cu edițiile publicate
 import { getStore } from "@netlify/blobs";
 import { secretEgal } from "./_comun/secret.mjs";
+import { obtineIndexCachedat } from "./_comun/index-cachedat.mjs";
+
+// Indexul edițiilor publicate, cachedat (PERF: fără list()+get() per ediție la fiecare
+// vizitator). TTL generos, fiindcă publicarea/retragerea ȘTERG cache-ul pe loc — în ziua
+// expoziției, o ediție nou-publicată apare în listă imediat, nu după expirarea TTL-ului.
+const CHEIE_INDEX = "index-rezultate";
+const TTL_INDEX_MS = 10 * 60e3;
+
+async function construiesteIndexRezultate(store) {
+  const randuri = [];
+  const { blobs } = await store.list({ prefix: "rezultate/" });
+  for (const b of blobs) {
+    const r = await store.get(b.key, { type: "json" }).catch(() => null);
+    if (r) randuri.push({ showId: b.key.slice("rezultate/".length), nume: r.nume, data: r.data });
+  }
+  randuri.sort((a, b) => (b.data || "").localeCompare(a.data || ""));
+  return { generat: new Date().toISOString(), randuri };
+}
 
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json; charset=utf-8" } });
@@ -55,6 +73,7 @@ export default async (req) => {
         html,
         publicatLa: new Date().toISOString(),
       });
+      await store.delete(CHEIE_INDEX).catch(() => {}); // ediția nouă să apară imediat în listă
       return json({ ok: true });
     }
     // Titlurile per câine, pentru fișa din cartea de origini (/caine/).
@@ -88,6 +107,7 @@ export default async (req) => {
 
     if (body.actiune === "retrage") {
       await store.delete("rezultate/" + String(body.showId || ""));
+      await store.delete(CHEIE_INDEX).catch(() => {}); // ediția retrasă să dispară imediat din listă
       return json({ ok: true });
     }
     return json({ eroare: "Acțiune necunoscută." }, 400);
@@ -110,16 +130,14 @@ export default async (req) => {
     return new Response(r.html, { headers: anteturiHtml("public, max-age=60") });
   }
 
-  // Index: edițiile publicate, cele mai noi primele.
-  const randuri = [];
+  // Index: edițiile publicate, cele mai noi primele (cachedat; vezi CHEIE_INDEX).
+  let randuri = [];
   try {
-    const { blobs } = await store.list({ prefix: "rezultate/" });
-    for (const b of blobs) {
-      const r = await store.get(b.key, { type: "json" }).catch(() => null);
-      if (r) randuri.push({ showId: b.key.slice("rezultate/".length), nume: r.nume, data: r.data });
-    }
+    const idx = await obtineIndexCachedat(store, {
+      cheie: CHEIE_INDEX, ttlMs: TTL_INDEX_MS, construieste: construiesteIndexRezultate,
+    });
+    randuri = idx?.randuri || [];
   } catch {}
-  randuri.sort((a, b) => (b.data || "").localeCompare(a.data || ""));
   const lista = randuri.length
     ? `<ul>${randuri.map((r) => `<li><a href="/rezultate-live/${esc(r.showId)}">${esc(r.nume || r.showId)}</a>${r.data ? ` <small>(${esc(r.data)})</small>` : ""}</li>`).join("")}</ul>`
     : "<p>Nicio ediție publicată încă.</p>";

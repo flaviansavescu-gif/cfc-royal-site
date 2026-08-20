@@ -21,6 +21,7 @@ import { secretEgal } from "./_comun/secret.mjs";
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { trimite, pagina, escapeHtml, ADRESA_ASOCIATIEI } from "./_comun/posta.mjs";
+import { json } from "./_comun/raspuns.mjs";
 const ALFABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // fără caractere ambigue
 /**
  * Lungimea partii aleatoare a codului de instalare.
@@ -48,8 +49,7 @@ const CERERI_FEREASTRA_MS = 30 * 60e3;    // …într-o jumătate de oră
 
 const sha256 = (s) => createHash("sha256").update(String(s)).digest("hex");
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
+
 const html = (corp, status = 200) =>
   new Response("<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>" +
     "<title>Aprobare instalare</title><body style='font-family:system-ui,Segoe UI,Arial;background:#f4f5f3;color:#1e2320;margin:0'>" +

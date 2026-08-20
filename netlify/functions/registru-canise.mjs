@@ -32,15 +32,10 @@ import {
 } from "./_comun/canise.mjs";
 import { poateCereExtras, numarDinText, intervalulCerut, inInterval, inValuri } from "./_comun/extrase.mjs";
 import { AFIXE_OFICIALE } from "./_comun/afixe-oficiale.mjs";
+import { json } from "./_comun/raspuns.mjs";
 
 // Citire tare, ca peste tot în registru: o cerere hotărâtă trebuie văzută hotărâtă imediat.
 const store = () => getStore({ name: "registru", consistency: "strong" });
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 const idNou = () => Date.now() + "-" + Math.random().toString(36).slice(2, 8);

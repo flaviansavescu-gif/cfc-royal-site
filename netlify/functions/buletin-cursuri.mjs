@@ -20,6 +20,8 @@ import { rolLaIntrare, actorDinCod, sha256 } from "./_comun/roluri.mjs";
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { magazie as magazieJetoane, cheieDezabonare, jetonNou } from "./_comun/buletin-acord.mjs";
+import { trimite } from "./_comun/posta.mjs";
+import { json } from "./_comun/raspuns.mjs";
 
 /**
  * Jetonul de dezabonare al unui abonat: îl face dacă nu-l are, îl întoarce dacă îl are.
@@ -40,12 +42,6 @@ async function jetonDezabonare(store, cheie, abonat) {
   }
   return jeton;
 }
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
 
 const esc = (s) =>
   String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -242,19 +238,13 @@ export default cuLimitareCod(async (req) => {
       // funcția expira pe la 30 de abonați și o parte din oameni nu primeau nimic.
       const LOT = 8;
       async function trimiteUnul({ email, jeton }) {
-        try {
-          const res = await fetch("https://api.brevo.com/v3/smtp/email", {
-            method: "POST",
-            headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
-            body: JSON.stringify({
-              sender: { name: "Școala de Arbitraj CFC-Royal", email: "newsletter@cfc-royal.ro" },
-              to: [{ email }],
-              subject: "[Școala de Arbitraj] " + titlu,
-              htmlContent: htmlPentru(jeton),
-            }),
-          });
-          if (res.ok) trimise++; else { esuate++; console.error("Brevo:", res.status, await res.text()); }
-        } catch (err) { esuate++; console.error("Trimitere eșuată:", err); }
+        const ok = await trimite({
+          catre: email,
+          subiect: "[Școala de Arbitraj] " + titlu,
+          html: htmlPentru(jeton),
+          expeditor: { name: "Școala de Arbitraj CFC-Royal", email: "newsletter@cfc-royal.ro" },
+        });
+        if (ok) trimise++; else esuate++;
       }
       for (let i = 0; i < abonati.length; i += LOT) {
         await Promise.all(abonati.slice(i, i + LOT).map(trimiteUnul));

@@ -24,6 +24,7 @@
 //   SITE_PUBLIC          — implicit https://cfc-royal.ro
 import { getStore } from "@netlify/blobs";
 import { decide, deCandText } from "./_comun/monitor.mjs";
+import { trimite } from "./_comun/posta.mjs";
 
 const SITE = process.env.SITE_PUBLIC || "https://cfc-royal.ro";
 const CATRE = process.env.ALERTE_EMAIL || "flavian.savescu@gmail.com";
@@ -178,20 +179,12 @@ async function trimiteAlerta(alerta, stare) {
       `<p style="font-size:12px;color:#888">Primești o singură alertă la începutul unei probleme și una la ` +
       `revenire. Dacă problema ține, revine o reamintire la fiecare 6 ore — nu la fiecare verificare.</p>`);
 
-  try {
-    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        sender: { name: "Monitorizare CFC-Royal", email: "newsletter@cfc-royal.ro" },
-        to: [{ email: CATRE }],
-        subject: `[CFC-Royal] ${revenire ? "Rezolvat" : "PROBLEMĂ"} — ${alerta.subiect}`,
-        htmlContent: html,
-      }),
-    });
-    if (!res.ok) { console.error("Brevo (alertă):", res.status, await res.text()); return false; }
-    return true;
-  } catch (err) { console.error("Trimiterea alertei a eșuat:", err); return false; }
+  return trimite({
+    catre: CATRE,
+    subiect: `[CFC-Royal] ${revenire ? "Rezolvat" : "PROBLEMĂ"} — ${alerta.subiect}`,
+    html,
+    expeditor: { name: "Monitorizare CFC-Royal", email: "newsletter@cfc-royal.ro" },
+  });
 }
 
 export default async () => {

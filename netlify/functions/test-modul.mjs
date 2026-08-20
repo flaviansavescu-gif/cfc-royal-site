@@ -12,6 +12,7 @@
 import { getStore } from "@netlify/blobs";
 import { rolLaIntrare, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { trimite } from "./_comun/posta.mjs";
 import { stareTermen, aplicaPenalizarea, formateazaTermen } from "./_comun/termen-test.mjs";
 
 const PRAG = 70; // procent minim de promovare
@@ -181,34 +182,20 @@ export default cuLimitareCod(async (req) => {
     }
   }
 
-  // 2) Notificare către secretariat prin Brevo
-  const apiKey = process.env.BREVO_API_KEY;
-  if (apiKey) {
-    const html = `
+  // 2) Notificare către secretariat — prin drumul comun al poștei (_comun/posta.mjs).
+  await trimite({
+    catre: "contact@cfc-royal.ro",
+    subiect: `[Test ${promovat ? "PROMOVAT" : "nepromovat"}] ${cand} — ${titlu} (${procent}%)`,
+    expeditor: { name: "Școala de Arbitraj CFC-Royal", email: "newsletter@cfc-royal.ro" },
+    html: `
       <h2 style="margin:0 0 8px">Rezultat test — Școala de Arbitraj</h2>
       <p><b>Candidat:</b> ${esc(cand)}</p>
       <p><b>Test:</b> ${titlu}</p>
       <p><b>Scor:</b> ${corecte} / ${total} (${procent}%) — <b>${promovat ? "PROMOVAT ✅" : "NEPROMOVAT ❌"}</b></p>
       ${penalizare ? `<p><b>Fereastră de reactivare:</b> scor brut ${procentBrut}%, penalizare ${penalizare}% pentru depășirea termenului inițial.</p>` : ""}
       ${gresite.length ? `<p><b>Întrebări greșite:</b> ${gresite.join(", ")}</p>` : "<p>Fără greșeli. 🎉</p>"}
-      <p style="color:#888;font-size:12px">Trimis automat de platforma de cursuri — cfc-royal.ro/cursuri/</p>`;
-    try {
-      await fetch("https://api.brevo.com/v3/smtp/email", {
-        method: "POST",
-        headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          sender: { name: "Școala de Arbitraj CFC-Royal", email: "newsletter@cfc-royal.ro" },
-          to: [{ email: "contact@cfc-royal.ro" }],
-          subject: `[Test ${promovat ? "PROMOVAT" : "nepromovat"}] ${cand} — ${titlu} (${procent}%)`,
-          htmlContent: html,
-        }),
-      });
-    } catch (err) {
-      console.error("E-mail rezultat eșuat:", err);
-    }
-  } else {
-    console.error("BREVO_API_KEY lipsește — rezultatul nu a fost trimis pe e-mail.");
-  }
+      <p style="color:#888;font-size:12px">Trimis automat de platforma de cursuri — cfc-royal.ro/cursuri/</p>`,
+  });
 
   // Lista întrebărilor greșite se întoarce DOAR la promovare (recapitulare legitimă).
   // La eșec dăm doar scorul: altfel, două-trei încercări picate reconstruiau cheia.

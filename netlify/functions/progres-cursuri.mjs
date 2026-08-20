@@ -6,12 +6,7 @@
 import { getStore } from "@netlify/blobs";
 import { sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
-
-const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-  });
+import { json } from "./_comun/raspuns.mjs";
 
 // Codul candidatului (câmpul `id`) se poate ghici — limităm, ca „{}" vs progres real să
 // nu fie un oracol de validare a codurilor.
