@@ -9,6 +9,16 @@
 //     (fișa de arbitraj sau imaginea din carnetul de performanță); după aceea, verificarea
 //     se va putea face automat din rezultatele înregistrate.
 import RegistruLayout from "../../layouts/RegistruLayout.astro";
+import { GRUPE } from "../../data/tarife";
+
+// Serviciile care se pot comanda de aici — sumele vin din tarife.ts (sursa unică),
+// id-urile trebuie să existe acolo (proba de build veghează).
+const ID_SERVICII = ["carnet-palmares", "carnet-starter-pack", "prioripost", "pedigree-urgenta", "corectare-pedigree"];
+const toateTarifele = GRUPE.flatMap((g) => g.tarife);
+const SERVICII = ID_SERVICII.map((id) => {
+  const t = toateTarifele.find((x) => x.id === id);
+  return { id, eticheta: t?.eticheta.ro || id, pret: t?.valoare != null ? `${t.valoare} ${t.moneda || "RON"}` : "" };
+});
 ---
 
 <RegistruLayout title="Spațiul membrului" allow={["membru"]}>
@@ -17,6 +27,21 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   <p class="c-sub" id="c-detalii"></p>
 
   <p class="c-cotizatie" id="c-cotizatie" hidden></p>
+
+  {/* Plata declarată a cotizației: transferul îl faci la bancă, aici declari plata cu
+      dovada atașată; registratura confirmă și termenul se prelungește automat. */}
+  <details class="c-plata" id="cp-plata">
+    <summary>💳 Am plătit cotizația — declar plata</summary>
+    <p class="c-mic" id="cp-stare" hidden></p>
+    <form class="c-kform" id="cp-form">
+      <label><span>Dovada plății (JPG, PNG, WebP sau PDF, max. 4 MB)</span>
+        <input id="cp-dovada" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" /></label>
+      <label><span>Notă (opțional — ex. data transferului, banca)</span>
+        <input id="cp-nota" maxlength="300" /></label>
+      <button class="btn btn--primary" type="submit" id="cp-trimite">Declară plata</button>
+      <p class="c-kmesaj" id="cp-mesaj" hidden></p>
+    </form>
+  </details>
 
   <div class="c-card">
     <div>
@@ -67,6 +92,11 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   <h2 class="c-h2">Declarațiile mele</h2>
   <ul class="c-declaratii" id="c-declaratii"><li class="c-gol">Se încarcă…</li></ul>
 
+  <h2 class="c-h2">Câinii mei</h2>
+  <p class="c-mic">Toate exemplarele din cuiburile tale, cu actele lor: seria, proprietarul de pe
+    certificat și starea. Fiecare are fișa lui publică în Cartea de origini.</p>
+  <ul class="c-declaratii" id="cm-lista"><li class="c-gol">Se încarcă…</li></ul>
+
   <h2 class="c-h2">Transfer de proprietate</h2>
   <p class="c-mic">Ai vândut un câine dintr-un cuib al tău? Inițiază transferul: noul proprietar
     primește un link de confirmare pe e-mail (confirmarea lui ține locul semnăturii), apoi
@@ -90,6 +120,23 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     <p class="c-kmesaj" id="t-mesaj" hidden></p>
   </form>
   <ul class="c-declaratii" id="t-lista"></ul>
+
+  <h2 class="c-h2">Comenzi de servicii</h2>
+  <p class="c-mic">Serviciile din <a href="/ro/tarife/">lista de tarife</a> se comandă de aici:
+    faci transferul, atașezi dovada, iar registratura onorează comanda și îți scrie când e gata.</p>
+  <form id="s-form" class="c-kform">
+    <label><span>Serviciul <b style="color:#8c1d2f">*</b></span>
+      <select id="s-serviciu" required>
+        {SERVICII.map((s) => (<option value={s.id}>{s.eticheta}{s.pret ? ` — ${s.pret}` : ""}</option>))}
+      </select></label>
+    <label><span>Detalii (seria certificatului / cuibul / adresa de expediere…)</span>
+      <input id="s-detalii" maxlength="500" placeholder="ex. CFCR-P-2026-0001, expediere la adresa din dosar" /></label>
+    <label><span>Dovada plății (JPG, PNG, WebP sau PDF, max. 4 MB)</span>
+      <input id="s-dovada" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" /></label>
+    <button class="btn btn--primary" type="submit" id="s-trimite">Trimite comanda</button>
+    <p class="c-kmesaj" id="s-mesaj" hidden></p>
+  </form>
+  <ul class="c-declaratii" id="s-lista"></ul>
 
   <div class="c-ajutor">
     <p><strong>Dreptul de montă al femelei.</strong> Femela trebuie să fi obținut minimum un
@@ -124,7 +171,7 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
       } else {
         cot.className = "c-cotizatie is-expirat";
         cot.textContent = "⚠ Cotizația a expirat la " + dataRo(r.cotizatiePana) +
-          ". Până la reînnoire nu poți depune declarații noi. Scrie secretariatului la contact@cfc-royal.ro.";
+          ". Până la reînnoire nu poți depune declarații noi. Fă transferul (vezi tarifele), apoi declară plata mai jos.";
         // Butonul rămâne vizibil, dar nu mai duce nicăieri: mai bine află aici de ce,
         // decât să completeze tot formularul și să fie oprit la trimitere.
         const b = document.getElementById("c-depune");
@@ -367,6 +414,141 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
 
     incarcaTransferurile();
   })();
+
+  // ——— Lot D: cotizația declarată, Câinii mei, comenzile de servicii ———
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    const codMeu = () => localStorage.getItem("cfcrRegistruCod") || "";
+    const postF = (fn, b) => fetch("/.netlify/functions/" + fn, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ cod: codMeu() }, b)),
+    });
+    const dataRo = (s) => { const x = new Date(s); return isNaN(x) ? String(s || "") : x.toLocaleDateString("ro-RO"); };
+    const citesteFisier = (fisier) => new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(String(r.result).split(",")[1] || "");
+      r.onerror = rej;
+      r.readAsDataURL(fisier);
+    });
+
+    // ——— Cotizația: starea ultimei declarații + declararea plății ———
+    async function incarcaPlata() {
+      try {
+        const r = await postF("registru-cotizatie", { actiune: "a-mea" });
+        const d = await r.json();
+        if (!r.ok || !d.ultima) return;
+        const st = $("cp-stare");
+        st.hidden = false;
+        if (d.ultima.stare === "declarata") {
+          st.textContent = "⏳ Ai o plată declarată la " + dataRo(d.ultima.la) + " — registratura o confirmă în cel mai scurt timp.";
+          $("cp-form").hidden = true;
+        } else if (d.ultima.stare === "confirmata") {
+          st.textContent = "✅ Ultima plată a fost confirmată" + (d.ultima.panaLaNoua ? " — cotizația e valabilă până la " + dataRo(d.ultima.panaLaNoua) + "." : ".");
+        } else if (d.ultima.stare === "respinsa") {
+          st.textContent = "✕ Ultima declarație a fost respinsă" + (d.ultima.motiv ? ": " + d.ultima.motiv : ".") + " Poți declara din nou.";
+        }
+      } catch (e) {}
+    }
+    $("cp-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = $("cp-trimite"); const mesaj = $("cp-mesaj");
+      btn.disabled = true; mesaj.hidden = true;
+      try {
+        const corp = { actiune: "declara", nota: $("cp-nota").value.trim() };
+        const fisier = $("cp-dovada").files[0];
+        if (fisier) {
+          if (fisier.size > 4 * 1024 * 1024) throw new Error("Dovada depășește 4 MB.");
+          corp.dovada = await citesteFisier(fisier);
+          corp.dovadaTip = fisier.type;
+        }
+        const r = await postF("registru-cotizatie", corp);
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.eroare || "Eroare.");
+        mesaj.textContent = "✅ Plata a fost declarată. Registratura o confirmă, iar noul termen îți vine pe e-mail.";
+        mesaj.hidden = false;
+        e.target.reset();
+        incarcaPlata();
+      } catch (err) { mesaj.textContent = err.message; mesaj.hidden = false; }
+      finally { btn.disabled = false; }
+    });
+    incarcaPlata();
+
+    // ——— Câinii mei ———
+    (async function () {
+      const ul = $("cm-lista");
+      try {
+        const r = await postF("registru-pedigree", { actiune: "ai-mei" });
+        const d = await r.json();
+        if (!r.ok) { ul.innerHTML = ""; return; }
+        ul.textContent = "";
+        if (!(d.caini || []).length) {
+          const li = document.createElement("li"); li.className = "c-gol";
+          li.textContent = "Încă niciun câine cu certificat emis în cuiburile tale.";
+          ul.appendChild(li); return;
+        }
+        for (const c of d.caini) {
+          const li = document.createElement("li");
+          const a = document.createElement("a");
+          a.className = "c-decl__serie";
+          a.textContent = c.serie;
+          a.href = "/caine/?r=" + encodeURIComponent(c.serie);
+          a.target = "_blank"; a.rel = "noopener";
+          const det = document.createElement("span"); det.className = "c-decl__det";
+          det.textContent = (c.nume || "—") + (c.rasa ? " · " + c.rasa : "") +
+            (c.proprietar ? " · proprietar: " + c.proprietar : "");
+          const st = document.createElement("span"); st.className = "c-decl__stare";
+          st.textContent = c.anulat ? "ANULAT" : c.transferat ? "vândut ✓" : "al tău";
+          li.append(a, det, st);
+          ul.append(li);
+        }
+      } catch (e) { ul.innerHTML = ""; }
+    })();
+
+    // ——— Comenzile de servicii ———
+    async function incarcaComenzile() {
+      const ul = $("s-lista");
+      try {
+        const r = await postF("comenzi", { actiune: "ale-mele" });
+        const d = await r.json();
+        if (!r.ok) return;
+        const ET = { depusa: "Depusă", finalizata: "Gata ✓", respinsa: "Respinsă" };
+        ul.textContent = "";
+        for (const c of d.comenzi || []) {
+          const li = document.createElement("li");
+          const nume = document.createElement("span"); nume.className = "c-decl__serie"; nume.textContent = c.eticheta;
+          const det = document.createElement("span"); det.className = "c-decl__det";
+          det.textContent = dataRo(c.la) + (c.detalii ? " · " + c.detalii : "") +
+            (c.motiv ? " · motiv: " + c.motiv : "") + (c.nota ? " · " + c.nota : "");
+          const st = document.createElement("span"); st.className = "c-decl__stare"; st.textContent = ET[c.stare] || c.stare;
+          li.append(nume, det, st);
+          ul.append(li);
+        }
+      } catch (e) {}
+    }
+    $("s-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = $("s-trimite"); const mesaj = $("s-mesaj");
+      btn.disabled = true; mesaj.hidden = true;
+      try {
+        const corp = { actiune: "comanda", serviciu: $("s-serviciu").value, detalii: $("s-detalii").value.trim() };
+        const fisier = $("s-dovada").files[0];
+        if (fisier) {
+          if (fisier.size > 4 * 1024 * 1024) throw new Error("Dovada depășește 4 MB.");
+          corp.dovada = await citesteFisier(fisier);
+          corp.dovadaTip = fisier.type;
+        }
+        const r = await postF("comenzi", corp);
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.eroare || "Eroare.");
+        mesaj.textContent = "✅ Comanda a plecat la registratură. Primești vestea pe e-mail când e gata.";
+        mesaj.hidden = false;
+        e.target.reset();
+        incarcaComenzile();
+      } catch (err) { mesaj.textContent = err.message; mesaj.hidden = false; }
+      finally { btn.disabled = false; }
+    });
+    incarcaComenzile();
+  })();
 </script>
 
 <style>
@@ -410,6 +592,12 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   .c-mic { font-size: 0.88rem; color: var(--color-text-muted); margin: 0.3rem 0; }
   .t-rand { display: grid; gap: 0.8rem; grid-template-columns: 1fr 1fr; }
   @media (max-width: 560px) { .t-rand { grid-template-columns: 1fr; } }
+  .c-plata { max-width: 42rem; margin: 0.6rem 0 1rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); background: var(--color-surface); padding: 0.55rem 0.9rem; }
+  .c-plata summary { cursor: pointer; font-weight: 600; color: var(--color-primary); }
+  .c-plata form { margin-top: 0.7rem; }
+  #s-form select { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; background: var(--color-bg, #fff); }
   .c-canisa,
   .c-cerere,
   .c-respinsa,

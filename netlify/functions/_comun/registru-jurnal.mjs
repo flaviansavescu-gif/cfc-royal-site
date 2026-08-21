@@ -66,6 +66,18 @@ export const FAPTE = {
   "transfer-anulat": "Transfer de proprietate anulat de vânzător",
   // Adeziunea de membru depusă online
   "adeziune-depusa": "Cerere de adeziune depusă",
+  // Cotizația: plata declarată de membru, hotărârea registraturii (Lot D)
+  "cotizatie-declarata": "Plată de cotizație declarată",
+  "cotizatie-confirmata": "Plată de cotizație confirmată — termen prelungit",
+  "cotizatie-plata-respinsa": "Plată de cotizație respinsă",
+  // Omologarea titlurilor de campion (Hot. 167) — cererea de pe site, operarea în Manager
+  "omologare-ceruta": "Omologare de titlu cerută",
+  "omologare-operata": "Omologare de titlu operată (în Manager)",
+  "omologare-respinsa": "Cerere de omologare respinsă",
+  // Comenzile de servicii tarifate (Palmares, Starter Pack, urgențe…)
+  "comanda-depusa": "Comandă de servicii depusă",
+  "comanda-finalizata": "Comandă de servicii finalizată",
+  "comanda-respinsa": "Comandă de servicii respinsă",
   // Îndreptarea textului ascendenței la actele aduse din arhiva de hârtie. Cititorul de
   // formulare lipea codul WDF în numele părintelui și lua „- N/A" drept număr de pedigree.
   // Fapta se consemnează separat de emitere: cine se uită peste un act trebuie să vadă
@@ -129,6 +141,9 @@ export const FAPTE_DE_ANUNTAT = new Set([
   "dsar-primita",          // o cerere GDPR pornește un termen legal de 30 de zile
   "transfer-raspuns",      // noul proprietar a răspuns — registratura are de operat (sau de judecat un refuz)
   "adeziune-depusa",       // un om vrea să devină membru — cererea pornește procedura statutară
+  "cotizatie-declarata",   // o plată așteaptă confirmarea — altfel omul rămâne „expirat" degeaba
+  "omologare-ceruta",      // un titlu așteaptă operarea în Manager
+  "comanda-depusa",        // o comandă plătită așteaptă onorarea
   "arhiva-descarcata",     // tot registrul, cu scanuri de acte, pe un calculator din afară
   "dmf-sters",             // un dosar dispare
   "certificat-anulat",     // un act eliberat își pierde valabilitatea

@@ -68,6 +68,13 @@ const RO = {
   dinRegistru: "Progresul de mai sus, la fiecare titlu, vine din registrul oficial de campionate al clubului.",
   negasit: "Nu am găsit exemplarul.",
   verifica: "Verifică seria sau microcipul și încearcă din nou.",
+  // cererea de omologare
+  omTitlu: "Cere omologarea unui titlu",
+  omIntro: "Omologarea e gratuită și se face la cererea proprietarului: registratura verifică certificatele în registrul oficial și îți scrie hotărârea pe e-mail. Calea externă a Campionului Internațional și titlul de Reproducător se dovedesc cu acte — cererea se primește și pentru ele.",
+  omAlege: "Titlul cerut", omNume: "Numele tău complet", omEmail: "E-mailul tău",
+  omTrimite: "Trimite cererea de omologare",
+  omGata: "✅ Cererea a plecat. Registratura verifică certificatele și îți scrie pe e-mail.",
+  omStGata: "condiții îndeplinite", omStOmologat: "deja omologat", omStDrum: "în lucru",
 };
 const EN = {
   acasa: "Home", acasaHref: "/en/", pagina: "Road to Champion",
@@ -93,6 +100,13 @@ const EN = {
   dinRegistru: "The progress above, for each title, comes from the club's official championship register.",
   negasit: "We could not find this dog.",
   verifica: "Check the series or microchip and try again.",
+  // homologation request
+  omTitlu: "Request the homologation of a title",
+  omIntro: "Homologation is free of charge and happens at the owner's request: the registry office verifies the certificates in the official register and e-mails you the decision. The external route of the International Champion and the Producer title are proven with documents — requests are accepted for them too.",
+  omAlege: "Title requested", omNume: "Your full name", omEmail: "Your e-mail",
+  omTrimite: "Send the homologation request",
+  omGata: "✅ The request is on its way. The registry office verifies the certificates and writes to you by e-mail.",
+  omStGata: "requirements met", omStOmologat: "already homologated", omStDrum: "in progress",
 };
 const T = lang === "en" ? EN : RO;
 const TREPTE = lang === "en" ? TREPTE_EN : TREPTE_RO;
@@ -154,6 +168,24 @@ const TITLURI = lang === "en" ? TITLURI_EN : TITLURI_RO;
   <div class="dc__caine" id="dc-caine" hidden>
     <h3 class="dc__caine-nume" id="dc-nume"></h3>
     <p class="dc__caine-nota" id="dc-nota"></p>
+  </div>
+
+  <div class="dc__omolog" id="dc-omolog" hidden>
+    <h3 class="dc__omolog-titlu">{T.omTitlu}</h3>
+    <p class="dc__nota">{T.omIntro}</p>
+    <form class="dc__omolog-form" id="dc-om-form">
+      <label class="dc__of"><span>{T.omAlege} <b class="dc__req">*</b></span>
+        <select id="dc-om-titlu" required>
+          {TITLURI.map((t) => (<option value={t.cod}>{t.nume}</option>))}
+        </select></label>
+      <div class="dc__omolog-rand">
+        <label class="dc__of"><span>{T.omNume} <b class="dc__req">*</b></span><input id="dc-om-nume" required maxlength="120" autocomplete="name" /></label>
+        <label class="dc__of"><span>{T.omEmail} <b class="dc__req">*</b></span><input id="dc-om-email" type="email" required maxlength="200" autocomplete="email" /></label>
+      </div>
+      <input class="dc__capcana" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <button class="btn btn--primary" type="submit">{T.omTrimite}</button>
+      <p class="dc__omolog-mesaj" id="dc-om-mesaj" role="status" hidden></p>
+    </form>
   </div>
 
   <p class="dc__final">{T.final1} <a href={T.caineHref}>{T.fisa}</a>{T.final2} <strong>contact@cfc-royal.ro</strong>.</p>
@@ -220,6 +252,18 @@ const TITLURI = lang === "en" ? TITLURI_EN : TITLURI_RO;
           pr.hidden = false;
           pr.textContent = c.detaliu || "";
         });
+        // Formularul de omologare se deschide odată cu drumul; opțiunile spun starea
+        // fiecărui titlu, iar cele deja omologate nu se mai pot cere.
+        const omolog = document.getElementById("dc-omolog");
+        omolog.hidden = false;
+        const sel = document.getElementById("dc-om-titlu");
+        [...sel.options].forEach((o) => {
+          const c = campionate.find((x) => x.cod === o.value);
+          o.disabled = !!(c && c.omologari && c.omologari.length);
+          const stare = !c ? "" : (c.omologari && c.omologari.length) ? T.omStOmologat : c.indeplinit ? T.omStGata : T.omStDrum;
+          o.textContent = o.textContent.replace(/ — .*$/, "") + (stare ? " — " + stare : "");
+          if (c && c.indeplinit && !(c.omologari && c.omologari.length) && sel.selectedIndex === 0) o.selected = true;
+        });
         document.getElementById("dc-titluri").scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (err) {
         eroare.hidden = false;
@@ -227,6 +271,37 @@ const TITLURI = lang === "en" ? TITLURI_EN : TITLURI_RO;
       } finally {
         btn.disabled = false;
       }
+    });
+
+    // ——— Cererea de omologare ———
+    document.getElementById("dc-om-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector("button[type=submit]");
+      const mesaj = document.getElementById("dc-om-mesaj");
+      btn.disabled = true; mesaj.hidden = true;
+      try {
+        const r = await fetch("/.netlify/functions/omologare", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            actiune: "cere",
+            cautat: input.value.trim(),
+            titlu: document.getElementById("dc-om-titlu").value,
+            nume: document.getElementById("dc-om-nume").value.trim(),
+            email: document.getElementById("dc-om-email").value.trim(),
+            website: e.target.querySelector(".dc__capcana").value,
+          }),
+        });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.eroare || "Eroare.");
+        mesaj.className = "dc__omolog-mesaj is-ok";
+        mesaj.textContent = T.omGata;
+        mesaj.hidden = false;
+        e.target.reset();
+      } catch (err) {
+        mesaj.className = "dc__omolog-mesaj is-rau";
+        mesaj.textContent = err.message;
+        mesaj.hidden = false;
+      } finally { btn.disabled = false; }
     });
   })();
 </script>
@@ -272,6 +347,22 @@ const TITLURI = lang === "en" ? TITLURI_EN : TITLURI_RO;
     border: 1px solid var(--color-accent); border-left-width: 4px; border-radius: var(--radius); max-width: 46rem; }
   .dc__caine-nume { margin: 0 0 0.3rem; font-family: var(--font-serif); color: var(--color-primary); }
   .dc__caine-nota { margin: 0; font-size: 0.9rem; color: var(--color-text-muted); }
+  .dc__omolog { margin-top: 1.5rem; padding: 1.2rem 1.4rem; background: var(--color-surface);
+    border: 1px solid var(--color-border); border-radius: var(--radius); max-width: 46rem; }
+  .dc__omolog-titlu { margin: 0 0 0.3rem; font-family: var(--font-serif); color: var(--color-primary); }
+  .dc__omolog-form { display: grid; gap: 0.9rem; margin-top: 0.8rem; }
+  .dc__omolog-rand { display: grid; gap: 0.9rem; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 560px) { .dc__omolog-rand { grid-template-columns: 1fr; } }
+  .dc__of span { display: block; font-weight: 600; margin-bottom: 0.25rem; font-size: 0.9rem; }
+  .dc__of input, .dc__of select { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius); font: inherit; background: var(--color-bg, #fff); }
+  .dc__req { color: #8c1d2f; }
+  .dc__capcana { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  :global(.dc__omolog-mesaj.is-ok) { color: var(--color-primary); background: #eef5f0; border: 1px solid var(--color-primary);
+    border-radius: var(--radius); padding: 0.6rem 0.9rem; margin: 0; }
+  :global(.dc__omolog-mesaj.is-rau) { color: #8c1d2f; background: #f9efef; border: 1px solid #8c1d2f;
+    border-radius: var(--radius); padding: 0.6rem 0.9rem; margin: 0; }
+
   .dc__final { margin-top: 2rem; color: var(--color-text-muted); max-width: 46rem; font-size: 0.95rem;
     border-top: 1px solid var(--color-border); padding-top: 1rem; }
   .dc__final a { color: var(--color-link); }

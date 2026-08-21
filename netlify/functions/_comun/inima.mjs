@@ -27,6 +27,7 @@ export const INIMI = {
   "magazii-backup": { cadenta: "săptămânal (duminică 03:30)", pragMin: 8 * 24 * 60 },
   "buletin-curatenie": { cadenta: "săptămânal (duminică 04:00)", pragMin: 8 * 24 * 60 },
   "raport-lunar": { cadenta: "lunar (ziua 1, 05:00)", pragMin: 33 * 24 * 60 },
+  "cotizatie-reamintiri": { cadenta: "zilnic (06:00)", pragMin: 2 * 24 * 60 + 120 },
 };
 
 /** Scrie bătaia. Se cheamă la ÎNCEPUTUL fiecărei rulări programate. */

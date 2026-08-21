@@ -153,6 +153,32 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   </p>
   <ul class="g-dosare" id="az-cereri"><li class="g-gol">Se încarcă…</li></ul>
 
+  <h2 class="g-h2">Cotizații — plăți declarate <span class="g-badge" id="cp-nr" hidden></span></h2>
+  <p class="g-explic">
+    Membrul declară plata din spațiul lui, cu dovada atașată. Deschide dovada, verifică
+    suma față de <a href="/ro/tarife/" target="_blank" rel="noopener">tarife</a>, apoi
+    <strong>confirmă</strong> — termenul se prelungește automat cu 12 luni de la scadență
+    (sau scrii tu o dată anume), iar membrul primește vestea pe e-mail. Respingerea cere motiv.
+  </p>
+  <ul class="g-dosare" id="cp-cereri"><li class="g-gol">Se încarcă…</li></ul>
+
+  <h2 class="g-h2">Omologări de titluri — cereri <span class="g-badge" id="om-nr" hidden></span></h2>
+  <p class="g-explic">
+    Cererile de pe „Drumul spre Campion". Verifici certificatele în <strong>Manager</strong>
+    (Art. 39 — acolo se calculează și se omologhează titlurile), apoi consemnezi aici operarea —
+    titlul apare pe fișa publică la următoarea publicare a palmaresului. Calea externă a
+    Campionului Internațional și Reproducătorul se judecă pe actele aduse de solicitant.
+  </p>
+  <ul class="g-dosare" id="om-cereri"><li class="g-gol">Se încarcă…</li></ul>
+
+  <h2 class="g-h2">Comenzi de servicii <span class="g-badge" id="sv-nr" hidden></span></h2>
+  <p class="g-explic">
+    Comenzile membrilor pentru serviciile tarifate (Carnet de Palmares, Starter Pack,
+    PrioriPost, urgențe, corectări). Verifică dovada plății, onorează comanda, apoi
+    marcheaz-o <strong>finalizată</strong> — omul primește vestea pe e-mail.
+  </p>
+  <ul class="g-dosare" id="sv-cereri"><li class="g-gol">Se încarcă…</li></ul>
+
   {/* Extrasele oficiale — ca extrasul de cont de la bancă: întregul registru sau doar
       pozițiile dintre două numere. Formularele se văd numai cu dreptul potrivit;
       poarta adevărată rămâne pe server. */}
@@ -1064,6 +1090,160 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       incarca();
     });
     incarca();
+  })();
+
+  // ——— Lot D: cotizații declarate, omologări, comenzi — trei cozi pe același calapod ———
+  (function () {
+    var cod = function () { try { return localStorage.getItem("cfcrRegistruCod") || ""; } catch (e) { return ""; } };
+    var disp = function () { try { return localStorage.getItem("cfcrRegistruDispozitiv") || ""; } catch (e) { return ""; } };
+    var post = function (fn, b) {
+      return fetch("/.netlify/functions/" + fn, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ cod: cod(), dispozitiv: disp() }, b)) });
+    };
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    function deschideDovada(fn, id) {
+      post(fn, { actiune: "dovada", id: id }).then(async function (r) {
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) { alert(d.eroare || "Nu există dovadă atașată."); return; }
+        var octeti = atob(d.dovada || "");
+        var buf = new Uint8Array(octeti.length);
+        for (var i = 0; i < octeti.length; i++) buf[i] = octeti.charCodeAt(i);
+        var url = URL.createObjectURL(new Blob([buf], { type: d.tip || "application/octet-stream" }));
+        window.open(url, "_blank");
+        setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+      }).catch(function () { alert("Eroare de rețea."); });
+    }
+
+    // ——— Cotizațiile ———
+    var cpLista = document.getElementById("cp-cereri");
+    var cpNr = document.getElementById("cp-nr");
+    function cpRand(p) {
+      return "<li class='g-dosar'><div><strong>" + esc(p.nume) + "</strong>"
+        + "<div class='g-mic'>" + esc(p.email || "—") + " · declarată " + esc(String(p.la || "").slice(0, 10))
+        + " · termenul curent: " + esc(p.cotizatiePana || "—")
+        + (p.areDovada ? "" : " · <span style='color:#8c1d2f'>FĂRĂ dovadă</span>") + "</div>"
+        + (p.nota ? "<div class='g-mic'>„" + esc(p.nota) + "”</div>" : "") + "</div>"
+        + "<div style='display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem'>"
+        + (p.areDovada ? "<button class='btn' data-dovada='" + esc(p.id) + "'>Vezi dovada</button>" : "")
+        + "<button class='btn btn--primary' data-ok='" + esc(p.id) + "'>Confirmă (+12 luni)</button>"
+        + "<button class='btn' data-data='" + esc(p.id) + "'>Confirmă cu dată anume</button>"
+        + "<button class='btn' data-nu='" + esc(p.id) + "'>Respinge</button></div></li>";
+    }
+    function cpIncarca() {
+      post("registru-cotizatie", { actiune: "de-confirmat" }).then(async function (r) {
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) { cpLista.innerHTML = "<li class='g-gol'>" + esc(d.eroare || "Nu s-au putut încărca.") + "</li>"; return; }
+        var c = d.plati || [];
+        if (!c.length) { cpLista.innerHTML = "<li class='g-gol'>Nicio plată de confirmat.</li>"; if (cpNr) cpNr.hidden = true; return; }
+        if (cpNr) { cpNr.hidden = false; cpNr.textContent = c.length; }
+        cpLista.innerHTML = c.map(cpRand).join("");
+      }).catch(function () { cpLista.innerHTML = "<li class='g-gol'>Eroare de rețea.</li>"; });
+    }
+    cpLista.addEventListener("click", async function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      if (b.dataset.dovada) return deschideDovada("registru-cotizatie", b.dataset.dovada);
+      var corp = null;
+      if (b.dataset.ok) {
+        if (!confirm("Confirmi plata? Termenul se prelungește cu 12 luni de la scadență, iar membrul primește vestea pe e-mail.")) return;
+        corp = { actiune: "confirma", id: b.dataset.ok };
+      } else if (b.dataset.data) {
+        var p = prompt("Noul termen (AAAA-LL-ZZ):"); if (!p) return;
+        corp = { actiune: "confirma", id: b.dataset.data, panaLa: p.trim() };
+      } else if (b.dataset.nu) {
+        var m = prompt("Motivul respingerii (omul îl primește pe e-mail):"); if (!m) return;
+        corp = { actiune: "respinge", id: b.dataset.nu, motiv: m };
+      } else return;
+      var r = await post("registru-cotizatie", corp);
+      var d = await r.json().catch(function () { return {}; }); if (!r.ok) alert(d.eroare || "Eroare.");
+      cpIncarca();
+    });
+    cpIncarca();
+
+    // ——— Omologările ———
+    var omLista = document.getElementById("om-cereri");
+    var omNr = document.getElementById("om-nr");
+    function omRand(o) {
+      var registru = o.indeplinitInRegistru === true
+        ? "<span style='color:#1F4D3A'>✓ condiții ÎNDEPLINITE în registrul de campionate</span>"
+        : o.indeplinitInRegistru === false
+          ? "<span style='color:#8c1d2f'>condițiile NU apar îndeplinite — posibil cale externă / pe acte</span>"
+          : "fără date în registrul de campionate";
+      return "<li class='g-dosar'><div><strong>" + esc(o.caine && o.caine.nume || o.serie) + " — " + esc(o.etichetaTitlu) + "</strong>"
+        + "<div class='g-mic'>certificat " + esc(o.serie) + (o.caine && o.caine.rasa ? " · " + esc(o.caine.rasa) : "")
+        + " · cerută " + esc(String(o.la || "").slice(0, 10)) + "</div>"
+        + "<div class='g-mic'>" + registru + "</div>"
+        + (o.detaliuRegistru ? "<div class='g-mic'>" + esc(o.detaliuRegistru) + "</div>" : "")
+        + "<div class='g-mic'>solicitant: " + esc(o.solicitant && o.solicitant.nume || "—") + " · " + esc(o.solicitant && o.solicitant.email || "") + "</div></div>"
+        + "<div style='display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem'>"
+        + "<button class='btn btn--primary' data-ok='" + esc(o.id) + "'>Omologat în Manager</button>"
+        + "<button class='btn' data-nu='" + esc(o.id) + "'>Respinge</button></div></li>";
+    }
+    function omIncarca() {
+      post("omologare", { actiune: "de-lucru" }).then(async function (r) {
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) { omLista.innerHTML = "<li class='g-gol'>" + esc(d.eroare || "Nu s-au putut încărca.") + "</li>"; return; }
+        var c = d.cereri || [];
+        if (!c.length) { omLista.innerHTML = "<li class='g-gol'>Nicio cerere de omologare.</li>"; if (omNr) omNr.hidden = true; return; }
+        if (omNr) { omNr.hidden = false; omNr.textContent = c.length; }
+        omLista.innerHTML = c.map(omRand).join("");
+      }).catch(function () { omLista.innerHTML = "<li class='g-gol'>Eroare de rețea.</li>"; });
+    }
+    omLista.addEventListener("click", async function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      var corp = null;
+      if (b.dataset.ok) {
+        if (!confirm("Confirmi că titlul a fost OMOLOGAT în Manager? Solicitantul primește felicitarea pe e-mail; pe fișă apare la următoarea publicare a palmaresului.")) return;
+        corp = { actiune: "opereaza", id: b.dataset.ok };
+      } else if (b.dataset.nu) {
+        var m = prompt("Motivul respingerii (omul îl primește pe e-mail):"); if (!m) return;
+        corp = { actiune: "respinge", id: b.dataset.nu, motiv: m };
+      } else return;
+      var r = await post("omologare", corp);
+      var d = await r.json().catch(function () { return {}; }); if (!r.ok) alert(d.eroare || "Eroare.");
+      omIncarca();
+    });
+    omIncarca();
+
+    // ——— Comenzile ———
+    var svLista = document.getElementById("sv-cereri");
+    var svNr = document.getElementById("sv-nr");
+    function svRand(c) {
+      return "<li class='g-dosar'><div><strong>" + esc(c.eticheta) + "</strong> <span class='g-mic'>· " + esc(c.nume) + "</span>"
+        + "<div class='g-mic'>" + esc(c.email || "—") + " · depusă " + esc(String(c.la || "").slice(0, 10))
+        + (c.areDovada ? "" : " · <span style='color:#8c1d2f'>FĂRĂ dovadă</span>") + "</div>"
+        + (c.detalii ? "<div class='g-mic'>„" + esc(c.detalii) + "”</div>" : "") + "</div>"
+        + "<div style='display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem'>"
+        + (c.areDovada ? "<button class='btn' data-dovada='" + esc(c.id) + "'>Vezi dovada</button>" : "")
+        + "<button class='btn btn--primary' data-ok='" + esc(c.id) + "'>Finalizată</button>"
+        + "<button class='btn' data-nu='" + esc(c.id) + "'>Respinge</button></div></li>";
+    }
+    function svIncarca() {
+      post("comenzi", { actiune: "de-lucru" }).then(async function (r) {
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) { svLista.innerHTML = "<li class='g-gol'>" + esc(d.eroare || "Nu s-au putut încărca.") + "</li>"; return; }
+        var c = d.comenzi || [];
+        if (!c.length) { svLista.innerHTML = "<li class='g-gol'>Nicio comandă în lucru.</li>"; if (svNr) svNr.hidden = true; return; }
+        if (svNr) { svNr.hidden = false; svNr.textContent = c.length; }
+        svLista.innerHTML = c.map(svRand).join("");
+      }).catch(function () { svLista.innerHTML = "<li class='g-gol'>Eroare de rețea.</li>"; });
+    }
+    svLista.addEventListener("click", async function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      if (b.dataset.dovada) return deschideDovada("comenzi", b.dataset.dovada);
+      var corp = null;
+      if (b.dataset.ok) {
+        var nota = prompt("Notă pentru membru (opțional — ex. actele au plecat prin PrioriPost azi):") || "";
+        if (!confirm("Marchezi comanda ca FINALIZATĂ? Membrul primește vestea pe e-mail.")) return;
+        corp = { actiune: "finalizeaza", id: b.dataset.ok, nota: nota.trim() };
+      } else if (b.dataset.nu) {
+        var m = prompt("Motivul respingerii (omul îl primește pe e-mail):"); if (!m) return;
+        corp = { actiune: "respinge", id: b.dataset.nu, motiv: m };
+      } else return;
+      var r = await post("comenzi", corp);
+      var d = await r.json().catch(function () { return {}; }); if (!r.ok) alert(d.eroare || "Eroare.");
+      svIncarca();
+    });
+    svIncarca();
   })();
 </script>
 

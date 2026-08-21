@@ -89,7 +89,7 @@ export default cuLimitareCod(async (req) => {
   // Cozile care așteaptă un OM. Numărătorile citesc fiecare dosar — la mărimea de azi
   // a registrului e ieftin; dacă va crește mult, se mută pe contoare scrise la depunere.
   const expozitii = getStore("expozitii");
-  const [dmfDeLucru, cereriCanise, dsarDeschise, neimportate, sanatateNeverif, transferuriDeOperat, adeziuniDeLucru] = await Promise.all([
+  const [dmfDeLucru, cereriCanise, dsarDeschise, neimportate, sanatateNeverif, transferuriDeOperat, adeziuniDeLucru, cotizatiiDeConfirmat, omologariDeLucru, comenziDeLucru] = await Promise.all([
     numara(registru, "dmf/", (d) => d.stare !== "emis" && d.stare !== "respins"),
     numara(registru, PREFIX_CERERI, (c) => c.stare !== "aprobata" && c.stare !== "respinsa"),
     numara(registru, "dsar/", (c) => c.stare !== "rezolvata" && c.stare !== "refuzata"),
@@ -98,6 +98,9 @@ export default cuLimitareCod(async (req) => {
     numara(registru, "sanatate-neverif/", () => true),
     numara(registru, "transfer-dosar/", (t) => t.stare === "confirmat"),
     numara(registru, "adeziune/", (a) => a.stare !== "admisa" && a.stare !== "respinsa"),
+    numara(registru, "cotizatie-plata/", (p) => p.stare === "declarata"),
+    numara(registru, "omologare/", (o) => o.stare === "noua"),
+    numara(registru, "comanda/", (c) => c.stare === "depusa"),
   ]);
 
   return json({
@@ -114,6 +117,9 @@ export default cuLimitareCod(async (req) => {
       inscrieriNeimportate: neimportate, // în coada expozițiilor, neaduse încă în Manager
       transferuriDeOperat,  // transferuri confirmate de noul proprietar, așteaptă registratura
       adeziuniDeLucru,      // cereri de membru nehotărâte (drumul Art. 15)
+      cotizatiiDeConfirmat, // plăți de cotizație declarate, neconfirmate
+      omologariDeLucru,     // cereri de omologare de titluri, nejudecate
+      comenziDeLucru,       // comenzi de servicii depuse, neonorate
     },
     poarta,
   });

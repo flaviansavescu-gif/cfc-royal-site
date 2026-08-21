@@ -419,6 +419,36 @@ export default cuLimitareCod(async (req) => {
     return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
   }
 
+  // —— „Câinii mei": toate exemplarele din cuiburile crescătorului, cu starea actelor ——
+  // Serverul avea totul (dmf-urile membrului + pedigree-cuib + certificatele); lipsea doar
+  // ușa. Panoul arată fiecare câine cu seria, proprietarul de pe act și starea lui.
+  if (actiune === "ai-mei") {
+    if (eu.rol !== "membru") return json({ eroare: "Doar membrii au câini în cuiburi." }, 403);
+    const caini = [];
+    try {
+      const { blobs } = await s.list({ prefix: "dmf/" });
+      for (const b of blobs) {
+        const d = await s.get(b.key, { type: "json" }).catch(() => null);
+        if (!d || d.membruId !== eu.membru.id) continue;
+        const { blobs: pui } = await s.list({ prefix: "pedigree-cuib/" + d.id + "/" });
+        for (const p of pui) {
+          const x = await s.get(p.key, { type: "json" }).catch(() => null);
+          if (!x?.serie) continue;
+          const cert = await s.get("pedigree/" + x.serie, { type: "json" }).catch(() => null);
+          caini.push({
+            serie: x.serie, nume: cert?.caine?.nume || x.nume || "", rasa: d.rasa || cert?.caine?.rasa || "",
+            tip: x.tip || cert?.tip || "", dmfSerie: d.serie || "",
+            proprietar: cert?.proprietar?.nume || "", anulat: !!cert?.anulat,
+            // vândut = pe act e alt proprietar decât crescătorul
+            transferat: !!(cert?.proprietar?.nume && cert.proprietar.nume !== eu.membru.nume),
+          });
+        }
+      }
+    } catch (err) { console.error("Listarea câinilor mei a eșuat:", err); }
+    caini.sort((a, b) => a.serie.localeCompare(b.serie));
+    return json({ caini });
+  }
+
   // —— Reconstrucția indexului de descendenți (PERF-001) ——
   //
   // Indexul microcip->declarație se scrie INCREMENTAL la fiecare depunere de DMF și la
