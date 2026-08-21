@@ -233,6 +233,11 @@ const CLASE = [
       <br /><small>{T.termenNota}</small>
     </p>
 
+    {/* Arbitrii invitați — derivați de Manager din ringuri; apar după republicare. */}
+    <p class="ie__termen" id="ie-arbitri" hidden>
+      <b>{lang === "en" ? "Invited judges" : "Arbitri invitați"}:</b> <span id="ie-arbitri-lista"></span>
+    </p>
+
     {/* Capcană: omul nu vede câmpul, deci nu-l completează. Roboții completează tot ce
         găsesc, iar serverul răspunde cu un succes prefăcut — dacă ar da eroare, robotul
         ar afla că a fost prins și ar încerca altfel. Merge singură prin FormData. */}
@@ -461,6 +466,20 @@ const CLASE = [
       candTermen.textContent = cand + " (" + txtTermenFus + ") — " + cate;
       randTermen.hidden = false;
     }
+    // Arbitrii invitați ai expoziției alese (textContent — numele vin din Manager,
+    // dar pagina nu are de ce să aibă încredere în nimeni).
+    const randArbitri = document.getElementById("ie-arbitri");
+    const listaArbitri = document.getElementById("ie-arbitri-lista");
+    function aratArbitrii() {
+      const e = expozitii.find((x) => x.showId === showSel.value);
+      const arbitri = (e && e.arbitri) || [];
+      if (!arbitri.length) { randArbitri.hidden = true; return; }
+      listaArbitri.textContent = arbitri.join(" · ");
+      randArbitri.hidden = false;
+    }
+    showSel.addEventListener("change", aratArbitrii);
+    aratArbitrii();
+
     showSel.addEventListener("change", aratTermenul);
     aratTermenul();
 

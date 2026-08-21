@@ -173,7 +173,7 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
 
     // —— Declarațiile depuse ——
     const lista = document.getElementById("c-declaratii");
-    const ETICHETE = { depus: "Depusă", "in-verificare": "În verificare", aprobat: "Aprobată", respins: "Respinsă" };
+    const ETICHETE = { depus: "Depusă", "in-verificare": "În verificare", aprobat: "Aprobată", respins: "Respinsă", emis: "Certificate emise ✓" };
     const cod = () => localStorage.getItem("cfcrRegistruCod") || "";
     const post = (b) => fetch("/.netlify/functions/registru-dmf", {
       method: "POST", headers: { "Content-Type": "application/json" },

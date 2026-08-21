@@ -41,6 +41,7 @@ import { poateCereExtras, numarDinText, intervalulCerut, inInterval, inValuri } 
 import { mascheazaCip } from "./_comun/microcip.mjs";
 import { json } from "./_comun/raspuns.mjs";
 import { invalideazaIndexPublic } from "./_comun/index-public.mjs";
+import { trimite, escapeHtml } from "./_comun/posta.mjs";
 
 // CITIRE TARE, ca la poarta de acces.
 //
@@ -737,6 +738,34 @@ export default cuLimitareCod(async (req) => {
           noi.map((x) => x.serie).join(", "),
         ip: ipCerere(req),
       });
+
+      // VESTEA emiterii pleacă la crescător. Era singura piatră de hotar a registrului
+      // fără e-mail: declarația, confirmarea montei și canisele anunțau toate, dar
+      // exact actul final — certificatele — se emitea în tăcere. Adresa e cea din
+      // dosar (scrisă la depunere); la dosarele vechi, fără ea, se caută în fișa
+      // membrului. Un e-mail căzut nu strică emiterea (trimite() nu aruncă).
+      let adresa = d.membruEmail || "";
+      if (!adresa && d.membruId) {
+        const m = await s.get("membru/" + d.membruId, { type: "json" }).catch(() => null);
+        adresa = m?.email || "";
+      }
+      if (adresa) {
+        await trimite({
+          catre: adresa,
+          subiect: `[Registru] ${d.serie} — certificate emise (${noi.length})`,
+          html:
+            `<h2 style="margin:0 0 12px;color:#1F4D3A">Certificatele de origine au fost emise</h2>` +
+            `<p>Pentru cuibul <strong>${escapeHtml(d.serie)}</strong> (${escapeHtml(d.rasa || "")}), registratura a emis ` +
+            `<strong>${noi.length}</strong> certificat(e) Tip ${escapeHtml(t.tip)}:</p>` +
+            `<ul>${noi.map((x) => `<li style="font-family:monospace">${escapeHtml(x.serie)}</li>`).join("")}</ul>` +
+            `<p>Le poți vedea și tipări din <a href="https://cfc-royal.ro/crescatori/">spațiul tău de crescător</a>; ` +
+            `fiecare exemplar are de-acum fișa lui publică în <a href="https://cfc-royal.ro/registru-public/">Cartea de origini</a>.</p>` +
+            `<hr style="margin:20px 0;border:none;border-top:1px solid #ddd">` +
+            `<p style="color:#888;font-size:12px">Registrul genealogic — Asociația Club Federal Chinologic Royal · membru World Dog Federation</p>`,
+        });
+      } else {
+        console.error(`Emitere ${d.serie}: crescătorul nu are adresă de e-mail — vestea nu a plecat.`);
+      }
     }
     return json({ ok: true, tip: t.tip, lipsa: t.lipsa, emise });
   }

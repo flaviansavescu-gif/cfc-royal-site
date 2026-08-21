@@ -203,6 +203,7 @@ export default async (req) => {
         if (c && (!inchisPentruInscrieri(c) || (inchisa && seMaiArataInchisa(c)))) {
           expozitii.push({
             showId: c.showId, nume: c.nume, data: c.data, termen: c.termen, locatie: c.locatie,
+            arbitri: c.arbitri || [],
             inchis: inchisa || undefined,
             repetitie: eRepetitie(c) || undefined,
             rase: c.rase || [],
@@ -243,7 +244,12 @@ export default async (req) => {
     if (body.actiune === "config") {
       const c = body.config || {};
       if (!c.showId) return json({ eroare: "showId lipsă." }, 400);
-      await store.setJSON("config/" + c.showId, { ...c, deschis: true });
+      // Arbitrii invitați (derivați de Manager din ringurile expoziției; la republicare
+      // se împrospătează). Igienizați aici, fiindcă ajung pe pagina publică.
+      const arbitri = Array.isArray(c.arbitri)
+        ? c.arbitri.slice(0, 20).map((a) => String(a || "").trim().slice(0, 120)).filter(Boolean)
+        : [];
+      await store.setJSON("config/" + c.showId, { ...c, arbitri, deschis: true });
       return json({ ok: true });
     }
     if (body.actiune === "inchide") {
