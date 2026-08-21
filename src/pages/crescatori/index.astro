@@ -67,6 +67,30 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
   <h2 class="c-h2">Declarațiile mele</h2>
   <ul class="c-declaratii" id="c-declaratii"><li class="c-gol">Se încarcă…</li></ul>
 
+  <h2 class="c-h2">Transfer de proprietate</h2>
+  <p class="c-mic">Ai vândut un câine dintr-un cuib al tău? Inițiază transferul: noul proprietar
+    primește un link de confirmare pe e-mail (confirmarea lui ține locul semnăturii), apoi
+    registratura operează schimbarea pe certificat.</p>
+  <form id="t-form" class="c-kform">
+    <label><span>Seria certificatului <b style="color:#8c1d2f">*</b></span>
+      <input id="t-serie" required maxlength="40" placeholder="CFCR-P-2026-0001" style="font-family:var(--font-mono)" /></label>
+    <div class="t-rand">
+      <label><span>Numele noului proprietar <b style="color:#8c1d2f">*</b></span><input id="t-nume" required maxlength="120" /></label>
+      <label><span>E-mailul lui <b style="color:#8c1d2f">*</b></span><input id="t-email" type="email" required maxlength="200" /></label>
+    </div>
+    <div class="t-rand">
+      <label><span>Localitatea <b style="color:#8c1d2f">*</b></span><input id="t-localitate" required maxlength="120" /></label>
+      <label><span>Județul</span><input id="t-judet" maxlength="60" /></label>
+    </div>
+    <div class="t-rand">
+      <label><span>Adresa (opțional)</span><input id="t-adresa" maxlength="200" /></label>
+      <label><span>Țara</span><input id="t-tara" maxlength="60" value="România" /></label>
+    </div>
+    <button class="btn btn--primary" type="submit" id="t-trimite">Trimite invitația de confirmare</button>
+    <p class="c-kmesaj" id="t-mesaj" hidden></p>
+  </form>
+  <ul class="c-declaratii" id="t-lista"></ul>
+
   <div class="c-ajutor">
     <p><strong>Dreptul de montă al femelei.</strong> Femela trebuie să fi obținut minimum un
     calificativ <strong>„Bun"</strong> într-o expoziție. Până când expozițiile trec prin registrul
@@ -275,6 +299,74 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
         lista.appendChild(li);
       });
   })();
+
+  // ——— Transferul de proprietate ———
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    const postT = (b) => fetch("/.netlify/functions/registru-transfer", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ cod: localStorage.getItem("cfcrRegistruCod") || "" }, b)),
+    });
+    const ET = { "asteapta-confirmare": "Așteaptă confirmarea", confirmat: "Confirmat — la registratură",
+                 refuzat: "REFUZAT de noul proprietar", operat: "Operat ✓", anulat: "Anulat" };
+
+    async function incarcaTransferurile() {
+      try {
+        const r = await postT({ actiune: "ale-mele" });
+        const d = await r.json();
+        if (!r.ok) return;
+        const ul = $("t-lista");
+        ul.textContent = "";
+        for (const t of d.transferuri || []) {
+          const li = document.createElement("li");
+          const serie = document.createElement("span"); serie.className = "c-decl__serie"; serie.textContent = t.serie;
+          const det = document.createElement("span"); det.className = "c-decl__det";
+          det.textContent = (t.caine ? t.caine + " → " : "→ ") + (t.nou || "") + (t.motivRefuz ? " — " + t.motivRefuz : "");
+          const st = document.createElement("span"); st.className = "c-decl__stare"; st.textContent = ET[t.stare] || t.stare;
+          li.append(serie, det, st);
+          if (t.stare === "asteapta-confirmare") {
+            const btn = document.createElement("button");
+            btn.type = "button"; btn.className = "btn"; btn.textContent = "Anulează";
+            btn.style.marginLeft = ".5rem";
+            btn.addEventListener("click", async () => {
+              if (!confirm("Anulezi transferul pentru " + t.serie + "? Linkul trimis noului proprietar nu va mai funcționa.")) return;
+              const rr = await postT({ actiune: "anuleaza", id: t.id });
+              if (rr.ok) incarcaTransferurile(); else alert((await rr.json()).eroare || "Eroare.");
+            });
+            li.append(btn);
+          }
+          ul.append(li);
+        }
+      } catch (e) {}
+    }
+
+    $("t-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = $("t-trimite"); const msg = $("t-mesaj");
+      btn.disabled = true; msg.hidden = true;
+      try {
+        const r = await postT({
+          actiune: "initiaza",
+          serie: $("t-serie").value.trim().toUpperCase(),
+          nou: {
+            nume: $("t-nume").value.trim(), email: $("t-email").value.trim(),
+            adresa: $("t-adresa").value.trim(), localitate: $("t-localitate").value.trim(),
+            judet: $("t-judet").value.trim(), tara: $("t-tara").value.trim(),
+          },
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.eroare || "Eroare.");
+        msg.textContent = "✅ Invitația a plecat pe e-mail către noul proprietar. După confirmarea lui, registratura operează transferul.";
+        msg.hidden = false;
+        e.target.reset(); $("t-tara").value = "România";
+        incarcaTransferurile();
+      } catch (err) {
+        msg.textContent = err.message; msg.hidden = false;
+      } finally { btn.disabled = false; }
+    });
+
+    incarcaTransferurile();
+  })();
 </script>
 
 <style>
@@ -316,6 +408,8 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
     border-radius: 999px; padding: 0.2rem 0.7rem; }
   :global(.btn.is-oprit) { opacity: 0.5; cursor: not-allowed; }
   .c-mic { font-size: 0.88rem; color: var(--color-text-muted); margin: 0.3rem 0; }
+  .t-rand { display: grid; gap: 0.8rem; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 560px) { .t-rand { grid-template-columns: 1fr; } }
   .c-canisa,
   .c-cerere,
   .c-respinsa,

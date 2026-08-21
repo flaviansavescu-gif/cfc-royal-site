@@ -59,6 +59,13 @@ export const FAPTE = {
   // Comutatorul de urgență al scrierilor publice (tabloul de stare al administratorului)
   "poarta-inchisa": "Scrierile publice ÎNCHISE (mentenanță pornită de administrator)",
   "poarta-deschisa": "Scrierile publice redeschise",
+  // Transferul de proprietate al unui câine (vânzător → nou proprietar, cu confirmare pe e-mail)
+  "transfer-initiat": "Transfer de proprietate inițiat",
+  "transfer-raspuns": "Răspunsul noului proprietar la transfer",
+  "transfer-operat": "Transfer de proprietate OPERAT pe certificat",
+  "transfer-anulat": "Transfer de proprietate anulat de vânzător",
+  // Adeziunea de membru depusă online
+  "adeziune-depusa": "Cerere de adeziune depusă",
   // Îndreptarea textului ascendenței la actele aduse din arhiva de hârtie. Cititorul de
   // formulare lipea codul WDF în numele părintelui și lua „- N/A" drept număr de pedigree.
   // Fapta se consemnează separat de emitere: cine se uită peste un act trebuie să vadă
@@ -120,6 +127,8 @@ export const FAPTE = {
 export const FAPTE_DE_ANUNTAT = new Set([
   "cerere-acces",          // un om așteaptă un răspuns — dacă nu-l vezi, nu-l primește
   "dsar-primita",          // o cerere GDPR pornește un termen legal de 30 de zile
+  "transfer-raspuns",      // noul proprietar a răspuns — registratura are de operat (sau de judecat un refuz)
+  "adeziune-depusa",       // un om vrea să devină membru — cererea pornește procedura statutară
   "arhiva-descarcata",     // tot registrul, cu scanuri de acte, pe un calculator din afară
   "dmf-sters",             // un dosar dispare
   "certificat-anulat",     // un act eliberat își pierde valabilitatea

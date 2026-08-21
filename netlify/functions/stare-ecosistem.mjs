@@ -89,13 +89,15 @@ export default cuLimitareCod(async (req) => {
   // Cozile care așteaptă un OM. Numărătorile citesc fiecare dosar — la mărimea de azi
   // a registrului e ieftin; dacă va crește mult, se mută pe contoare scrise la depunere.
   const expozitii = getStore("expozitii");
-  const [dmfDeLucru, cereriCanise, dsarDeschise, neimportate, sanatateNeverif] = await Promise.all([
+  const [dmfDeLucru, cereriCanise, dsarDeschise, neimportate, sanatateNeverif, transferuriDeOperat, adeziuniDeLucru] = await Promise.all([
     numara(registru, "dmf/", (d) => d.stare !== "emis" && d.stare !== "respins"),
     numara(registru, PREFIX_CERERI, (c) => c.stare !== "aprobata" && c.stare !== "respinsa"),
     numara(registru, "dsar/", (c) => c.stare !== "rezolvata" && c.stare !== "refuzata"),
     numara(expozitii, "coada/", (i) => !i.importat),
     // Indexul cozii de sănătate e chiar o coadă: fiecare intrare = un test de verificat.
     numara(registru, "sanatate-neverif/", () => true),
+    numara(registru, "transfer-dosar/", (t) => t.stare === "confirmat"),
+    numara(registru, "adeziune/", (a) => a.stare !== "admisa" && a.stare !== "respinsa"),
   ]);
 
   return json({
@@ -110,6 +112,8 @@ export default cuLimitareCod(async (req) => {
       cereriCanise,         // cereri de afix nehotărâte
       dsarDeschise,         // cereri GDPR deschise (termen legal de 30 de zile!)
       inscrieriNeimportate: neimportate, // în coada expozițiilor, neaduse încă în Manager
+      transferuriDeOperat,  // transferuri confirmate de noul proprietar, așteaptă registratura
+      adeziuniDeLucru,      // cereri de membru nehotărâte (drumul Art. 15)
     },
     poarta,
   });

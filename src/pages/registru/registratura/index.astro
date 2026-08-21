@@ -134,6 +134,25 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
   </p>
   <ul class="g-dosare" id="qc-cereri"><li class="g-gol">Se încarcă…</li></ul>
 
+  <h2 class="g-h2">Transferuri de proprietate <span class="g-badge" id="tr-nr" hidden></span></h2>
+  <p class="g-explic">
+    Vânzătorul inițiază transferul din spațiul lui, iar noul proprietar <strong>confirmă pe
+    e-mail</strong> — confirmarea ține locul semnăturii. Aici ajung doar transferurile cu
+    răspuns: pe cele <strong>confirmate</strong> le operezi pe certificat (vechiul proprietar
+    rămâne în istoricul actului), iar refuzurile se văd cu motivul lor.
+  </p>
+  <ul class="g-dosare" id="tr-cereri"><li class="g-gol">Se încarcă…</li></ul>
+
+  <h2 class="g-h2">Cereri de adeziune <span class="g-badge" id="az-nr" hidden></span></h2>
+  <p class="g-explic">
+    Cererile de membru depuse pe site. Drumul lor urmează Regulamentul intern (Art. 15):
+    le <strong>verifici</strong> (secretariat, 15 zile), Consiliul Director dă
+    <strong>avizul</strong>, Adunarea Generală hotărăște — <strong>admisă</strong> sau
+    <strong>respinsă</strong> (cu motiv, trimis pe e-mail). La admitere omul primește vestea;
+    codul de membru i-l generezi separat, din secțiunea de mai sus.
+  </p>
+  <ul class="g-dosare" id="az-cereri"><li class="g-gol">Se încarcă…</li></ul>
+
   {/* Extrasele oficiale — ca extrasul de cont de la bancă: întregul registru sau doar
       pozițiile dintre două numere. Formularele se văd numai cu dreptul potrivit;
       poarta adevărată rămâne pe server. */}
@@ -913,6 +932,136 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
         var r2 = await post({ actiune: "respinge", id: b.dataset.nu, motiv: m });
         var d2 = await r2.json().catch(function () { return {}; }); if (!r2.ok) alert(d2.eroare || "Eroare."); incarca(); return;
       }
+    });
+    incarca();
+  })();
+
+  // ——— Transferuri de proprietate: operarea celor confirmate de noul proprietar ———
+  (function () {
+    var F = "/.netlify/functions/registru-transfer";
+    var cod = function () { try { return localStorage.getItem("cfcrRegistruCod") || ""; } catch (e) { return ""; } };
+    var disp = function () { try { return localStorage.getItem("cfcrRegistruDispozitiv") || ""; } catch (e) { return ""; } };
+    var post = function (b) {
+      return fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ cod: cod(), dispozitiv: disp() }, b)) });
+    };
+    var lista = document.getElementById("tr-cereri");
+    var nr = document.getElementById("tr-nr");
+    if (!lista) return;
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    function rand(t) {
+      var noul = t.nou || {};
+      var unde = [noul.localitate, noul.judet, noul.tara].filter(Boolean).join(", ");
+      var cap = t.stare === "confirmat"
+        ? "<div class='g-mic' style='color:#1F4D3A'>✓ confirmat de " + esc(t.raspuns && t.raspuns.nume || noul.nume) + " la " + esc(String(t.raspuns && t.raspuns.la || "").slice(0, 10)) + "</div>"
+        : "<div class='g-mic' style='color:#8c1d2f'>✗ REFUZAT" + (t.raspuns && t.raspuns.motiv ? ": " + esc(t.raspuns.motiv) : "") + "</div>";
+      var butoane = t.stare === "confirmat"
+        ? "<div style='margin-top:.4rem'><button class='btn btn--primary' data-op='" + esc(t.id) + "'>Operează transferul</button></div>"
+        : "";
+      return "<li class='g-dosar'><div><strong>" + esc(t.caine && t.caine.nume || t.serie) + "</strong>"
+        + "<div class='g-mic'>certificat " + esc(t.serie) + (t.caine && t.caine.rasa ? " · " + esc(t.caine.rasa) : "") + "</div>"
+        + "<div class='g-mic'>de la " + esc(t.vanzator || "—") + " → " + esc(noul.nume || "—") + (unde ? " (" + esc(unde) + ")" : "") + "</div>"
+        + cap + "</div>" + butoane + "</li>";
+    }
+    async function incarca() {
+      try {
+        var r = await post({ actiune: "de-operat" });
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) { lista.innerHTML = "<li class='g-gol'>" + esc(d.eroare || "Nu s-au putut încărca.") + "</li>"; return; }
+        var c = d.transferuri || [];
+        if (!c.length) { lista.innerHTML = "<li class='g-gol'>Niciun transfer de operat.</li>"; if (nr) nr.hidden = true; return; }
+        var deOperat = c.filter(function (t) { return t.stare === "confirmat"; }).length;
+        if (nr) { nr.hidden = !deOperat; nr.textContent = deOperat; }
+        lista.innerHTML = c.map(rand).join("");
+      } catch (e) { lista.innerHTML = "<li class='g-gol'>Eroare de rețea.</li>"; }
+    }
+    lista.addEventListener("click", async function (e) {
+      var b = e.target.closest("button"); if (!b || !b.dataset.op) return;
+      if (!confirm("Operezi transferul pe certificat? Vechiul proprietar rămâne în istoricul actului, iar ambele părți primesc vestea pe e-mail.")) return;
+      var r = await post({ actiune: "opereaza", id: b.dataset.op });
+      var d = await r.json().catch(function () { return {}; }); if (!r.ok) alert(d.eroare || "Eroare.");
+      incarca();
+    });
+    incarca();
+  })();
+
+  // ——— Cererile de adeziune: drumul statutar (verificată → avizată → admisă/respinsă) ———
+  (function () {
+    var F = "/.netlify/functions/adeziune";
+    var cod = function () { try { return localStorage.getItem("cfcrRegistruCod") || ""; } catch (e) { return ""; } };
+    var disp = function () { try { return localStorage.getItem("cfcrRegistruDispozitiv") || ""; } catch (e) { return ""; } };
+    var post = function (b) {
+      return fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ cod: cod(), dispozitiv: disp() }, b)) });
+    };
+    var lista = document.getElementById("az-cereri");
+    var nr = document.getElementById("az-nr");
+    if (!lista) return;
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    var ET = { noua: "nouă", verificata: "verificată", avizata: "avizată (CD)", admisa: "ADMISĂ ✓", respinsa: "respinsă" };
+    // Pasul următor pe drumul statutar; admisă/respinsă se pot alege oricând după verificare.
+    function butoane(c) {
+      var b = [];
+      if (c.areDovada) b.push("<button class='btn' data-dovada='" + esc(c.id) + "'>Vezi dovada plății</button>");
+      if (c.stare === "noua") b.push("<button class='btn btn--primary' data-stare='verificata' data-id='" + esc(c.id) + "'>Marchează verificată</button>");
+      if (c.stare === "verificata") b.push("<button class='btn btn--primary' data-stare='avizata' data-id='" + esc(c.id) + "'>Aviz CD dat</button>");
+      if (c.stare === "verificata" || c.stare === "avizata") {
+        b.push("<button class='btn' data-stare='admisa' data-id='" + esc(c.id) + "'>Admisă (AG)</button>");
+        b.push("<button class='btn' data-stare='respinsa' data-id='" + esc(c.id) + "'>Respinsă</button>");
+      }
+      return b.length ? "<div style='display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem'>" + b.join("") + "</div>" : "";
+    }
+    function rand(c) {
+      var unde = [c.localitate, c.judet].filter(Boolean).join(", ");
+      var extra = (c.student ? "<div class='g-mic'>🎓 student — cere reducerea taxei</div>" : "")
+        + (c.mesaj ? "<div class='g-mic'>„" + esc(c.mesaj) + "”</div>" : "")
+        + (c.stare === "respinsa" && c.motiv ? "<div class='g-mic' style='color:#8c1d2f'>motiv: " + esc(c.motiv) + "</div>" : "");
+      return "<li class='g-dosar'><div><strong>" + esc(c.nume) + "</strong> <span class='g-mic'>· " + (ET[c.stare] || esc(c.stare)) + "</span>"
+        + "<div class='g-mic'>" + esc(c.email) + " · " + esc(c.telefon) + (unde ? " · " + esc(unde) : "") + " · depusă " + esc(String(c.creat || "").slice(0, 10)) + "</div>"
+        + extra + "</div>" + butoane(c) + "</li>";
+    }
+    async function incarca() {
+      try {
+        var r = await post({ actiune: "lista" });
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) { lista.innerHTML = "<li class='g-gol'>" + esc(d.eroare || "Nu s-au putut încărca.") + "</li>"; return; }
+        var c = d.cereri || [];
+        if (!c.length) { lista.innerHTML = "<li class='g-gol'>Nicio cerere de adeziune.</li>"; if (nr) nr.hidden = true; return; }
+        var deLucru = c.filter(function (x) { return x.stare !== "admisa" && x.stare !== "respinsa"; }).length;
+        if (nr) { nr.hidden = !deLucru; nr.textContent = deLucru; }
+        lista.innerHTML = c.map(rand).join("");
+      } catch (e) { lista.innerHTML = "<li class='g-gol'>Eroare de rețea.</li>"; }
+    }
+    async function veziDovada(id) {
+      try {
+        var r = await post({ actiune: "dovada", id: id });
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) { alert(d.eroare || "Nu există dovadă atașată."); return; }
+        var octeti = atob(d.dovada || "");
+        var buf = new Uint8Array(octeti.length);
+        for (var i = 0; i < octeti.length; i++) buf[i] = octeti.charCodeAt(i);
+        var url = URL.createObjectURL(new Blob([buf], { type: d.tip || "application/octet-stream" }));
+        window.open(url, "_blank");
+        setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+      } catch (e) { alert("Eroare de rețea."); }
+    }
+    var INTREBARI = {
+      verificata: "Marchezi cererea ca VERIFICATĂ de secretariat? Pasul rămâne în istoricul cererii.",
+      avizata: "Consemnezi AVIZUL Consiliului Director? Pasul rămâne în istoricul cererii.",
+      admisa: "Consemnezi hotărârea de ADMITERE a Adunării Generale? Omul primește e-mailul de bun venit; codul de membru i-l generezi apoi separat.",
+    };
+    lista.addEventListener("click", async function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      if (b.dataset.dovada) return veziDovada(b.dataset.dovada);
+      if (!b.dataset.stare) return;
+      var corp = { actiune: "stare", id: b.dataset.id, stare: b.dataset.stare };
+      if (b.dataset.stare === "respinsa") {
+        var m = prompt("Motivul respingerii (omul îl primește pe e-mail și rămâne în jurnal):"); if (!m) return;
+        corp.motiv = m;
+      } else if (!confirm(INTREBARI[b.dataset.stare] || "Confirmi?")) return;
+      var r = await post(corp);
+      var d = await r.json().catch(function () { return {}; }); if (!r.ok) alert(d.eroare || "Eroare.");
+      incarca();
     });
     incarca();
   })();

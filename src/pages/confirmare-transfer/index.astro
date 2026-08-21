@@ -1,0 +1,170 @@
+---
+// /confirmare-transfer/ — pagina NOULUI PROPRIETAR al unui câine.
+//
+// Fără cod de acces, ca la confirmarea montei: noul proprietar poate să nu fie membru
+// și poate fi din orice țară. Cheia lui e jetonul din link — unică folosință, 30 de
+// zile; în stocare stă doar amprenta.
+//
+// Bilingvă fără comutator, din același motiv ca la montă.
+import RegistruLayout from "../../layouts/RegistruLayout.astro";
+---
+
+<RegistruLayout title="Confirmarea transferului">
+  <p class="k-eyebrow">Asociația Club Federal Chinologic Royal</p>
+  <h1 class="k-title">Confirmarea transferului <span>· Ownership transfer</span></h1>
+
+  <p class="k-stare" id="k-incarcare">Se încarcă… · Loading…</p>
+  <p class="k-eroare" id="k-eroare" role="alert" hidden></p>
+
+  <div id="k-continut" hidden>
+    <p class="k-intro">
+      Sunteți indicat ca <strong>noul proprietar</strong> al câinelui de mai jos, în Registrul
+      genealogic CFC-Royal. Vă rugăm să confirmați că ați dobândit acest câine — confirmarea
+      dumneavoastră ține locul semnăturii, iar registratura va opera apoi transferul pe certificat.
+      <span class="k-en" lang="en">You are named as the <strong>new owner</strong> of the dog below in the CFC-Royal
+      stud book. Please confirm that you have acquired this dog — your confirmation stands in for a
+      signature, and the registry office will then record the transfer on the certificate.</span>
+    </p>
+
+    <table class="k-date" id="k-date"></table>
+
+    <form class="k-form" id="k-form">
+      <fieldset class="k-alegere">
+        <legend>Răspunsul dumneavoastră · Your answer</legend>
+        <label class="k-radio">
+          <input type="radio" name="raspuns" value="confirm" required />
+          <span><strong>Confirm — am dobândit acest câine.</strong> <span class="k-en" lang="en">I confirm — I have acquired this dog.</span></span>
+        </label>
+        <label class="k-radio">
+          <input type="radio" name="raspuns" value="refuz" />
+          <span><strong>Nu confirm.</strong> <span class="k-en" lang="en">I do not confirm.</span></span>
+        </label>
+      </fieldset>
+
+      <label class="k-f">
+        <span>Numele dumneavoastră complet · Your full name</span>
+        <input id="k-nume" required maxlength="120" autocomplete="name" />
+      </label>
+
+      <label class="k-f" id="k-motiv-camp" hidden>
+        <span>De ce nu confirmați? · Why not?</span>
+        <textarea id="k-motiv" maxlength="600" rows="3"></textarea>
+      </label>
+
+      <p class="k-gdpr">Confirmând, sunteți de acord ca numele și datele dumneavoastră de contact să fie
+        înscrise în Registrul genealogic, potrivit <a href="/ro/juridic/confidentialitate/">politicii de confidențialitate</a>.
+        <span class="k-en" lang="en">By confirming, you agree that your name and contact details are recorded in the stud book,
+        as described in the privacy policy.</span></p>
+
+      <button class="btn btn--primary" type="submit">Trimite răspunsul · Send answer</button>
+    </form>
+  </div>
+
+  <div id="k-gata" hidden>
+    <h2 class="k-h2" id="k-gata-titlu"></h2>
+    <p id="k-gata-text"></p>
+    <p><a class="k-link" href="/ro/">cfc-royal.ro</a></p>
+  </div>
+</RegistruLayout>
+
+<script is:inline>
+  (function () {
+    const F = "/.netlify/functions/registru-transfer";
+    const jeton = new URLSearchParams(location.search).get("t") || "";
+    const incarcare = document.getElementById("k-incarcare");
+    const eroare = document.getElementById("k-eroare");
+    const continut = document.getElementById("k-continut");
+
+    function arataEroare(mesaj) {
+      incarcare.hidden = true;
+      eroare.hidden = false;
+      eroare.textContent = mesaj;
+    }
+
+    const post = (b) => fetch(F, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ jeton }, b)) });
+
+    // Datele vin din dosare scrise de oameni: doar textContent, niciodată innerHTML.
+    function rand(tabel, eticheta, valoare) {
+      if (!valoare) return;
+      const tr = document.createElement("tr");
+      const td1 = document.createElement("td"); td1.className = "k-et"; td1.textContent = eticheta;
+      const td2 = document.createElement("td"); td2.textContent = valoare;
+      tr.append(td1, td2); tabel.appendChild(tr);
+    }
+
+    if (!jeton) { arataEroare("Link incomplet. Folosiți linkul primit pe e-mail. · Incomplete link — please use the link from your e-mail."); return; }
+
+    post({ actiune: "vezi" })
+      .then((r) => r.json().then((d) => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (!ok) { arataEroare(d.eroare || "Eroare."); return; }
+        const t = d.transfer;
+        const tabel = document.getElementById("k-date");
+        rand(tabel, "Câinele · Dog", t.caine && t.caine.nume);
+        rand(tabel, "Rasa · Breed", t.caine && t.caine.rasa);
+        rand(tabel, "Certificat · Certificate", t.serie);
+        rand(tabel, "De la · From", t.vanzator);
+        rand(tabel, "Către · To", t.nou && (t.nou.nume + (t.nou.localitate ? " — " + t.nou.localitate + (t.nou.judet ? ", " + t.nou.judet : "") : "")));
+        incarcare.hidden = true;
+        continut.hidden = false;
+      })
+      .catch(() => arataEroare("Nu am putut încărca transferul. Reîncercați. · Could not load the transfer. Please retry."));
+
+    // Motivul apare doar la refuz.
+    document.querySelectorAll('input[name="raspuns"]').forEach((r) =>
+      r.addEventListener("change", () => {
+        document.getElementById("k-motiv-camp").hidden =
+          document.querySelector('input[name="raspuns"]:checked').value !== "refuz";
+      }));
+
+    document.getElementById("k-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector("button[type=submit]");
+      btn.disabled = true;
+      try {
+        const r = await post({
+          actiune: "raspuns",
+          raspuns: (document.querySelector('input[name="raspuns"]:checked') || {}).value,
+          nume: document.getElementById("k-nume").value.trim(),
+          motiv: document.getElementById("k-motiv").value.trim(),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.eroare || "Eroare.");
+        continut.hidden = true;
+        const gata = document.getElementById("k-gata");
+        document.getElementById("k-gata-titlu").textContent =
+          d.stare === "confirmat" ? "Mulțumim — transferul e confirmat · Thank you" : "Răspunsul a fost înregistrat · Recorded";
+        document.getElementById("k-gata-text").textContent =
+          d.stare === "confirmat"
+            ? "Registratura va opera transferul pe certificat; veți primi vestea pe e-mail. · The registry office will record the transfer; you will be notified by e-mail."
+            : "Sesizarea a ajuns la registratură. · Your answer has been forwarded to the registry office.";
+        gata.hidden = false;
+      } catch (err) {
+        alert(err.message);
+        btn.disabled = false;
+      }
+    });
+  })();
+</script>
+
+<style>
+  .k-eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; color: var(--color-accent-dark); margin: 0; }
+  .k-title { font-family: var(--font-serif); color: var(--color-primary); margin: .3rem 0 1rem; }
+  .k-title span { font-size: .7em; color: var(--color-text-muted); font-weight: 400; }
+  .k-en { color: var(--color-text-muted); font-style: italic; }
+  .k-intro { max-width: 46rem; }
+  .k-stare { color: var(--color-text-muted); }
+  :global(.k-eroare) { color: #8c1d2f; background: #f9efef; border: 1px solid #8c1d2f; border-radius: var(--radius); padding: .7rem 1rem; max-width: 46rem; }
+  :global(.k-date) { border-collapse: collapse; margin: 1rem 0; }
+  :global(.k-date td) { padding: .35rem .9rem .35rem 0; }
+  :global(.k-date .k-et) { color: var(--color-text-muted); }
+  .k-form { max-width: 46rem; display: grid; gap: 1rem; margin-top: 1rem; }
+  .k-alegere { border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem 1.25rem; display: grid; gap: .6rem; }
+  .k-radio { display: flex; gap: .6rem; align-items: baseline; cursor: pointer; }
+  .k-f span { display: block; font-weight: 600; margin-bottom: .3rem; }
+  .k-f input, .k-f textarea { width: 100%; padding: .6rem .8rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; }
+  .k-gdpr { font-size: .85rem; color: var(--color-text-muted); max-width: 46rem; }
+  .k-h2 { font-family: var(--font-serif); color: var(--color-primary); }
+  .k-link { color: var(--color-link); }
+</style>

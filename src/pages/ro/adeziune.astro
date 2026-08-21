@@ -1,0 +1,136 @@
+---
+// /ro/adeziune/ — cererea de adeziune ca membru, pe site-ul propriu.
+// Înlocuiește formularul Google + dovada pe WhatsApp: datele candidaților la calitatea
+// de membru rămân în casă, cu acord GDPR consemnat (text + versiune, ca la buletin).
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  lang="ro"
+  title="Cerere de adeziune"
+  description="Devino membru al Clubului Federal Chinologic Royal: cererea de adeziune se depune online, iar drumul ei urmează Statutul — verificarea secretariatului, avizul Consiliului Director, hotărârea Adunării Generale."
+>
+  <section class="ad">
+    <p class="ad__cale"><a href="/ro/">Acasă</a> · <a href="/ro/membri/devino-membru/">Devino membru</a> · Cererea</p>
+    <h1 class="ad__title">Cerere de adeziune</h1>
+    <p class="ad__intro">
+      Completează cererea de mai jos. Drumul ei urmează <a href="/ro/documente/regulamentul-intern/">Regulamentul intern</a> (Art. 15):
+      secretariatul o verifică în cel mult 15 zile, Consiliul Director dă avizul, iar Adunarea Generală hotărăște primirea.
+      Îți scriem la fiecare pas. Taxa de înscriere (care e și cotizația primului an — vezi <a href="/ro/tarife/">tarifele</a>)
+      se achită prin transfer bancar; poți atașa dovada acum sau o trimiți după.
+    </p>
+
+    <form class="ad__form" id="ad-form">
+      <label class="ad__f"><span>Numele complet <b class="req">*</b></span><input id="ad-nume" required maxlength="120" autocomplete="name" /></label>
+      <div class="ad__row">
+        <label class="ad__f"><span>E-mail <b class="req">*</b></span><input id="ad-email" type="email" required maxlength="200" autocomplete="email" /></label>
+        <label class="ad__f"><span>Telefon <b class="req">*</b></span><input id="ad-telefon" required maxlength="40" autocomplete="tel" /></label>
+      </div>
+      <div class="ad__row">
+        <label class="ad__f"><span>Localitatea <b class="req">*</b></span><input id="ad-localitate" required maxlength="120" /></label>
+        <label class="ad__f"><span>Județul</span><input id="ad-judet" maxlength="60" /></label>
+      </div>
+      <label class="ad__f"><span>Câteva cuvinte despre tine și câinii tăi (opțional)</span>
+        <textarea id="ad-mesaj" maxlength="600" rows="3" placeholder="Rasa/rasele care te interesează, canisa (dacă ai), de unde ai aflat de club…"></textarea></label>
+
+      <label class="ad__f"><span>Dovada plății taxei de înscriere (opțional — JPG, PNG, WebP sau PDF, max. 4 MB)</span>
+        <input id="ad-dovada" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" /></label>
+
+      <label class="ad__bifa"><input id="ad-student" type="checkbox" />
+        <span>Sunt student — solicit reducerea la taxa de înscriere (o dovedesc cu carnetul sau o adeverință).</span></label>
+      <label class="ad__bifa"><input id="ad-acte" type="checkbox" required />
+        <span>Am citit <a href="/ro/documente/statut/" target="_blank" rel="noopener">Statutul</a> și
+        <a href="/ro/documente/cod-etic/" target="_blank" rel="noopener">Codul Etic</a> ale Asociației. <b class="req">*</b></span></label>
+      <label class="ad__bifa"><input id="ad-gdpr" type="checkbox" required />
+        <span>Sunt de acord ca datele din această cerere să fie prelucrate de Asociație în scopul soluționării
+        cererii de adeziune și, în caz de admitere, al ținerii Registrului membrilor, potrivit
+        <a href="/ro/juridic/confidentialitate/" target="_blank" rel="noopener">politicii de confidențialitate</a>. <b class="req">*</b></span></label>
+
+      {/* Capcana pentru roboți — omul n-o vede, robotul o completează. */}
+      <input class="ad-capcana" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+      <button class="btn btn--primary" id="ad-trimite" type="submit">Depune cererea</button>
+      <p class="ad__eroare" id="ad-eroare" role="alert" hidden></p>
+    </form>
+
+    <div class="ad__succes" id="ad-succes" hidden>
+      <p><b>✅ Cererea a fost depusă.</b></p>
+      <p>Ți-am trimis confirmarea pe e-mail, cu pașii care urmează. Secretariatul o verifică în cel mult 15 zile.</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .ad { max-width: 46rem; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  .ad__cale { font-size: .85rem; color: var(--color-text-muted); margin: 0 0 .3rem; }
+  .ad__cale a { color: var(--color-link); }
+  .ad__title { color: var(--color-primary); }
+  .ad__intro { color: var(--color-text-muted); }
+  .ad__intro a { color: var(--color-link); }
+  .ad__form { display: grid; gap: 1rem; margin-top: 1.5rem; }
+  .ad__row { display: grid; gap: 1rem; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 560px) { .ad__row { grid-template-columns: 1fr; } }
+  .ad__f span { display: block; font-weight: 600; margin-bottom: .3rem; }
+  .ad__f input, .ad__f textarea { width: 100%; padding: .6rem .8rem; border: 1px solid var(--color-border); border-radius: var(--radius); font: inherit; background: var(--color-surface); }
+  .ad__bifa { display: flex; gap: .6rem; align-items: baseline; font-size: .95rem; }
+  .ad__bifa a { color: var(--color-link); }
+  .req { color: #8c1d2f; }
+  .ad-capcana { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  :global(.ad__eroare) { color: #8c1d2f; background: #f9efef; border: 1px solid #8c1d2f; border-radius: var(--radius); padding: .7rem 1rem; }
+  .ad__succes { margin-top: 1.5rem; background: #eef5f0; border: 1px solid var(--color-primary); border-radius: var(--radius); padding: 1rem 1.25rem; }
+</style>
+
+<script is:inline>
+  (function () {
+    const form = document.getElementById("ad-form");
+    const err = document.getElementById("ad-eroare");
+    const succes = document.getElementById("ad-succes");
+    const $ = (id) => document.getElementById(id);
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      err.hidden = true;
+      const btn = $("ad-trimite");
+      btn.disabled = true; btn.textContent = "Se trimite…";
+      try {
+        const payload = {
+          actiune: "depune",
+          nume: $("ad-nume").value.trim(),
+          email: $("ad-email").value.trim(),
+          telefon: $("ad-telefon").value.trim(),
+          localitate: $("ad-localitate").value.trim(),
+          judet: $("ad-judet").value.trim(),
+          mesaj: $("ad-mesaj").value.trim(),
+          student: $("ad-student").checked,
+          amCititActele: $("ad-acte").checked,
+          acordGdpr: $("ad-gdpr").checked,
+          website: form.querySelector(".ad-capcana").value,
+        };
+        const fisier = $("ad-dovada").files[0];
+        if (fisier) {
+          if (fisier.size > 4 * 1024 * 1024) throw new Error("Dovada depășește 4 MB.");
+          payload.dovada = await new Promise((res, rej) => {
+            const r = new FileReader();
+            r.onload = () => res(String(r.result).split(",")[1] || "");
+            r.onerror = rej;
+            r.readAsDataURL(fisier);
+          });
+          payload.dovadaTip = fisier.type;
+        }
+        const res = await fetch("/.netlify/functions/adeziune", {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.eroare || "Eroare de server.");
+        form.hidden = true;
+        succes.hidden = false;
+        succes.scrollIntoView({ behavior: "smooth", block: "center" });
+      } catch (e2) {
+        err.textContent = e2.message;
+        err.hidden = false;
+      } finally {
+        btn.disabled = false; btn.textContent = "Depune cererea";
+      }
+    });
+  })();
+</script>

@@ -15,24 +15,19 @@ Vezi [beneficiile complete](/ro/membri/beneficii/).
 
 ## Formular de înscriere online
 
-Completează formularul de mai jos pentru a-ți depune cererea de înscriere ca membru.
+Cererea de adeziune se depune direct pe site — datele tale rămân la asociație,
+potrivit politicii de confidențialitate, iar dovada plății se poate atașa din formular.
 
-<p><a href="https://docs.google.com/forms/d/e/1FAIpQLSfJgo9FdGo8cHO3lVLsuUjO7nx2k0bRfUj6UJvtsHckqFeZCg/viewform" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.5rem;background:var(--color-accent);color:var(--color-primary-dark);font-weight:700;padding:.7rem 1.4rem;border-radius:var(--radius);text-decoration:none">Deschide formularul ↗</a></p>
-
-<div style="border:1px solid var(--color-border);border-radius:var(--radius);padding:1.5rem;margin-top:1rem;background:var(--color-surface-alt);text-align:center">
-  <p style="margin:0 0 1rem">Formularul este găzduit de <strong>Google Forms</strong> și se încarcă <strong>doar dacă apeși butonul de mai jos</strong>. La încărcare, Google poate plasa cookie-uri proprii. Preferi să nu? Folosește butonul <em>„Deschide formularul ↗"</em> de mai sus — se deschide într-o filă nouă.</p>
-  <button type="button" data-src="https://docs.google.com/forms/d/e/1FAIpQLSfJgo9FdGo8cHO3lVLsuUjO7nx2k0bRfUj6UJvtsHckqFeZCg/viewform?embedded=true" onclick="var f=document.createElement('iframe');f.src=this.getAttribute('data-src');f.width='100%';f.height='1500';f.title='Formular de înscriere membru';f.setAttribute('style','border:1px solid var(--color-border);border-radius:var(--radius);margin-top:1rem');this.parentElement.replaceWith(f)" style="background:var(--color-accent);color:var(--color-primary-dark);font-weight:700;padding:.7rem 1.4rem;border-radius:var(--radius);border:0;cursor:pointer;font:inherit">Încarcă formularul aici</button>
-</div>
+<p><a href="/ro/adeziune/" style="display:inline-flex;align-items:center;gap:.5rem;background:var(--color-accent);color:var(--color-primary-dark);font-weight:700;padding:.7rem 1.4rem;border-radius:var(--radius);text-decoration:none">Depune cererea de adeziune →</a></p>
 
 ## Pașii înscrierii
 
-1. **Completezi formularul** de mai sus.
+1. **Completezi [cererea de adeziune](/ro/adeziune/)** — direct pe site.
 2. Achiți **taxa de înscriere**, care reprezintă și cotizația anuală (12 luni) — **100 lei**, în contul:
    - Titular: Club Federal Chinologic – Royal
    - IBAN: `RO07 RNCB 0263 1767 9657 0001`
    - Banca: Banca Comercială Română (BCR)
-3. Transmiți **dovada plății** pe WhatsApp la **0741 387 026** sau pe e-mail la
-   **contact@cfc-royal.ro**.
+3. Atașezi **dovada plății** direct în formular — sau o trimiți după, pe e-mail la **contact@cfc-royal.ro**.
 4. Cererea este analizată conform Statutului și regulamentelor Clubului.
 5. După aprobare, dobândești calitatea de membru CFC–Royal.
 
