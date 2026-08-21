@@ -56,7 +56,7 @@ const manual = { slug: MANUAL.slug, titlu: "Manual de studiu individual — " + 
       const res = await fetch("/.netlify/functions/candidati-cursuri", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cod: codAdmin(), actiune: "progres" }),
+        body: JSON.stringify({ cod: codAdmin(), dispozitiv: (function () { try { return localStorage.getItem("cfcrScoalaDispozitiv") || ""; } catch (e) { return ""; } })(), actiune: "progres" }),
       });
       if (!res.ok) throw new Error((await res.json()).eroare || "Eroare");
       candidati = await res.json();

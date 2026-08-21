@@ -12,20 +12,46 @@
 // =========================================================================
 
 /** Felul actului, dedus din pachetul semnat. Lipsa câmpului = certificat, ca înainte. */
-export const felActului = (p) => (p?.k === "rezultat" ? "rezultat" : "certificat");
+export const felActului = (p) =>
+  (["rezultat", "diploma", "legitimatie"].includes(p?.k) ? p.k : "certificat");
+
+/** Numele felului, cu articulare corectă pentru rândul de stare. */
+const NUMELE = {
+  rezultat: { valid: "Rezultat confirmat", anulat: "Rezultat ANULAT", nu: "Rezultat neconfirmat" },
+  diploma: { valid: "Diplomă autentică", anulat: "Diplomă ANULATĂ", nu: "Diplomă neconfirmată" },
+  legitimatie: { valid: "Legitimație autentică", anulat: "Legitimație ANULATĂ", nu: "Legitimație neconfirmată" },
+  certificat: { valid: "Certificat autentic", anulat: "Certificat ANULAT", nu: "Certificat neconfirmat" },
+};
 
 /** Cum se numește identificatorul, pe înțelesul cititorului. */
 export const etichetaCod = (fel) => (fel === "rezultat" ? "Cod rezultat" : "Serie");
 
 /** Rândul de stare, cel scris mare pe cartonaș. */
 export function textStare(fel, stare) {
-  if (stare === "anulat") return fel === "rezultat" ? "⚠ Rezultat ANULAT" : "⚠ Certificat ANULAT";
-  if (stare === "valid") return fel === "rezultat" ? "✓ Rezultat confirmat" : "✓ Certificat autentic";
-  return fel === "rezultat" ? "✕ Rezultat neconfirmat" : "✕ Certificat neconfirmat";
+  const n = NUMELE[fel] || NUMELE.certificat;
+  if (stare === "anulat") return "⚠ " + n.anulat;
+  if (stare === "valid") return "✓ " + n.valid;
+  return "✕ " + n.nu;
 }
 
 /** Explicația de sub cartonaș, când actul e valabil. */
 export function notaValid(fel) {
+  if (fel === "diploma") {
+    return (
+      "Această diplomă a fost emisă de Școala de Arbitraj a Asociației Club Federal " +
+      "Chinologic – Royal, la absolvirea programului de formare, și confirmată prin " +
+      "semnătură digitală. Arbitrii certificați se regăsesc în registrul public de pe " +
+      "cfc-royal.ro/arbitri/."
+    );
+  }
+  if (fel === "legitimatie") {
+    return (
+      "Această legitimație atestă calitatea de arbitru al Asociației Club Federal " +
+      "Chinologic – Royal, cu grupele WDF înscrise pe act, și e confirmată prin " +
+      "semnătură digitală. Dacă i s-ar fi retras dreptul de arbitraj, aici ar scrie " +
+      "ANULATĂ. Registrul public al arbitrilor: cfc-royal.ro/arbitri/."
+    );
+  }
   if (fel === "rezultat") {
     return (
       "Acest rezultat a fost înregistrat de Asociația Club Federal Chinologic – Royal la " +
@@ -42,6 +68,12 @@ export function notaValid(fel) {
 
 /** Explicația când actul a fost invalidat de delegat. */
 export function motivAnulare(fel, cod) {
+  if (fel === "diploma" || fel === "legitimatie") {
+    return (
+      `Actul ${cod} a fost ANULAT de Colegiul de Arbitri și nu mai este valabil. ` +
+      "Scrie la contact@cfc-royal.ro pentru lămuriri."
+    );
+  }
   if (fel === "rezultat") {
     return (
       `Rezultatul ${cod} a fost INVALIDAT. Titlul de pe imaginea împărtășită nu mai este ` +

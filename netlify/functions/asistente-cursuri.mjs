@@ -137,6 +137,46 @@ export default cuLimitareCod(async (req) => {
     return json({ expozitii, numiri, evaluari });
   }
 
+  // ——— Parcursul candidatului: tot dosarul lui, dintr-o singură cerere ———
+  // Aceeași agregare ca `manager-dosar` (PDF-ul comisiei), dar pe CODUL candidatului:
+  // module + examen + asistențe + autorizare + mentorul (Art. 14) + actele emise.
+  // Doar dosarul LUI — codul e cheia, insigna se calculează pe server, ca la „eu".
+  if (actiune === "parcursul-meu") {
+    const cod = taie(body.id, 128);
+    const id = cod ? sha256(cod) : "";
+    const cand = id ? await store.get("candidat/" + id, { type: "json" }).catch(() => null) : null;
+    if (!cand) return json({ eroare: "Cod necunoscut." }, 401);
+
+    const progres = {};
+    try {
+      const prefix = "progres/" + id + "/";
+      const { blobs } = await store.list({ prefix });
+      for (const b of blobs) {
+        const m = await store.get(b.key, { type: "json" }).catch(() => null);
+        if (m) progres[b.key.slice(prefix.length)] = { procent: Number(m.procent) || 0, promovat: !!m.promovat, data: taie(m.data, 40) };
+      }
+    } catch (err) { console.error("Citire progres eșuată:", err); }
+    const ex = await store.get("examen/" + id, { type: "json" }).catch(() => null);
+    const aut = await store.get("autorizare/" + id, { type: "json" }).catch(() => null);
+    const mentor = await store.get("mentor/" + id, { type: "json" }).catch(() => null);
+    const acte = {};
+    for (const fel of ["diploma", "legitimatie"]) {
+      const a = await store.get("act-scoala/" + id + "/" + fel, { type: "json" }).catch(() => null);
+      if (a) acte[fel] = { serie: a.serie, la: a.la };
+    }
+    return json({
+      candidat: { nume: taie(cand.nume, 140), creat: taie(cand.creat, 40) },
+      progres,
+      examen: ex ? { promovat: !!ex.promovat, incercari: (Array.isArray(ex.incercari) ? ex.incercari : []).length } : null,
+      autorizare: aut ? { grupe: Array.isArray(aut.grupe) ? aut.grupe.filter((g) => g >= 1 && g <= 10) : [], localitate: taie(aut.localitate, 120) } : null,
+      mentor: mentor ? { nume: taie(mentor.nume, 140), din: taie(mentor.din, 10) } : null,
+      acte,
+      expozitii: await citesteExpozitii(store),
+      numiri: numiriCurate((await store.get("asistente/numire/" + id, { type: "json" }).catch(() => null)) || {}),
+      evaluari: await citesteEvaluari(store, id),
+    });
+  }
+
   // ——— Puntea cu Expo Manager (secretul comun al expozițiilor) ———
   // Ziua expoziției trăiește în manager: acolo se confirmă prezența reală și acolo
   // arbitrul de bază evaluează prestația. Dosarul candidatului rămâne aici.
@@ -190,8 +230,10 @@ export default cuLimitareCod(async (req) => {
       const ex = await store.get("examen/" + cid, { type: "json" }).catch(() => null);
       const aut = await store.get("autorizare/" + cid, { type: "json" }).catch(() => null);
       const numiri = numiriCurate((await store.get("asistente/numire/" + cid, { type: "json" }).catch(() => null)) || {});
+      const mentor = await store.get("mentor/" + cid, { type: "json" }).catch(() => null);
       return json({
         candidat: { nume: taie(exista.nume, 140), creat: taie(exista.creat, 40) },
+        mentor: mentor ? { nume: taie(mentor.nume, 140), din: taie(mentor.din, 10) } : null,
         progres,
         examen: ex
           ? {

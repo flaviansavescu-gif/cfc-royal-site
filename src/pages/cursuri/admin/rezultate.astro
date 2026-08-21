@@ -33,7 +33,7 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
       const res = await fetch("/.netlify/functions/rezultate-cursuri", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cod }),
+        body: JSON.stringify({ cod, dispozitiv: (function () { try { return localStorage.getItem("cfcrScoalaDispozitiv") || ""; } catch (e) { return ""; } })() }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.eroare || "Eroare");

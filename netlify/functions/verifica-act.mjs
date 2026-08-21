@@ -122,6 +122,9 @@ export default async (req) => {
     serie: p.s || "",
     catalog: p.c || "",
     titlu: p.t || "", caine: p.n || "", rasa: p.r || "", expozitie: p.e || "", data: p.d || "",
+    // Actele Școlii de Arbitraj (diplomă, legitimație) poartă un OM, nu un câine.
+    titular: p.h || "",
+    grupe: p.g || "",
   };
 
   // Semnătura e bună, dar actul poate fi între timp invalidat de delegatul WDF.

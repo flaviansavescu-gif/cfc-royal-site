@@ -163,6 +163,38 @@ export default cuLimitareCod(async (req) => {
     return json({ ok: true, candidat: { ...candidat, cod, id } });
   }
 
+  // ——— Mentorul stagiarului (Reg. Colegiului de Arbitri, Art. 14) ———
+  // Fiecare stagiar are un mentor — un arbitru format care îl îndrumă pe parcursul
+  // stagiului. Evidența stă aici, la registrul candidaților; candidatul își vede
+  // mentorul pe parcursul lui, iar dosarul de certificare îl arată negru pe alb.
+  if (actiune === "mentori") {
+    const mentori = {};
+    try {
+      const { blobs } = await store.list({ prefix: "mentor/" });
+      for (const b of blobs) {
+        const m = await store.get(b.key, { type: "json" }).catch(() => null);
+        if (m) mentori[b.key.slice("mentor/".length)] = { nume: String(m.nume || ""), din: String(m.din || "") };
+      }
+    } catch (err) { console.error("Listare mentori eșuată:", err); }
+    return json({ mentori });
+  }
+
+  if (actiune === "mentor-salveaza") {
+    const id = String(body.candidatId || "");
+    if (!id) return json({ eroare: "Lipsește candidatul." }, 400);
+    const exista = await store.get("candidat/" + id, { type: "json" }).catch(() => null);
+    if (!exista) return json({ eroare: "Candidat inexistent." }, 404);
+    const nume = String(body.nume || "").slice(0, 140).trim();
+    if (!nume) {
+      // Nume gol = scoaterea mentorului (de ex. la schimbarea îndrumătorului).
+      try { await store.delete("mentor/" + id); } catch (err) { console.error(err); }
+      return json({ ok: true, mentor: null });
+    }
+    const din = String(body.din || "").slice(0, 10).trim() || new Date().toISOString().slice(0, 10);
+    await store.setJSON("mentor/" + id, { nume, din });
+    return json({ ok: true, mentor: { nume, din } });
+  }
+
   if (actiune === "sterge") {
     const id = String(body.id || "");
     if (!id) return json({ eroare: "Lipsește candidatul." }, 400);
@@ -172,6 +204,11 @@ export default cuLimitareCod(async (req) => {
       const { blobs } = await store.list({ prefix: "progres/" + id + "/" });
       for (const b of blobs) { try { await store.delete(b.key); } catch (e) {} }
     } catch (err) { console.error(err); }
+    // Dosarul lui din store-ul Școlii: examen, autorizare, asistențe, mentor, acte.
+    for (const cheie of ["examen/" + id, "autorizare/" + id, "asistente/numire/" + id,
+      "asistente/evaluare/" + id, "mentor/" + id, "act-scoala/" + id + "/diploma", "act-scoala/" + id + "/legitimatie"]) {
+      try { await store.delete(cheie); } catch (err) { console.error(err); }
+    }
     // …și urmele din CELELALTE module (analiză, anatomie, sesiuni, imagini, interese).
     // Fără asta, un candidat șters continua să apară în exerciții și în spațiile lectorilor.
     const raport = await stergeUrmeleCandidatului(id);

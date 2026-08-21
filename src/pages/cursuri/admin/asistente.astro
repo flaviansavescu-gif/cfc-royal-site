@@ -58,6 +58,14 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
       </tbody>
     </table>
   </div>
+
+  <h2 class="a-h2">Mentorii stagiarilor (Reg. Colegiului, Art. 14)</h2>
+  <p class="a-note">
+    Fiecare stagiar are un <strong>mentor</strong> — un arbitru format care îl îndrumă pe
+    parcursul stagiului. Numele se scrie aici; candidatul îl vede pe parcursul lui, iar
+    dosarul de certificare îl arată comisiei. Câmpul gol + Salvează = scoaterea mentorului.
+  </p>
+  <ul class="a-mentori" id="a-mentori"><li class="a-mx-empty">Se încarcă…</li></ul>
 </CursuriLayout>
 
 <script is:inline>
@@ -71,10 +79,12 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
       return c || prompt("Confirmă codul de administrator:");
     }
 
+    // A doua cheie (jetonul dispozitivului) — fără ea, funcțiile de administrare refuză.
+    function dispozitivScoala() { try { return localStorage.getItem("cfcrScoalaDispozitiv") || ""; } catch (e) { return ""; } }
     async function cere(payload) {
       const res = await fetch("/.netlify/functions/asistente-cursuri", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+        body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), ...payload }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.eroare || "Eroare");
@@ -125,7 +135,7 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
       try {
         candidati = await (await fetch("/.netlify/functions/candidati-cursuri", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cod: codAdmin(), actiune: "lista" }),
+          body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), actiune: "lista" }),
         })).json();
         if (!Array.isArray(candidati)) candidati = [];
       } catch (e) { candidati = []; }
@@ -138,6 +148,58 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
       } catch (e) { numiri = {}; evaluari = {}; }
 
       randMatrice();
+      randMentori();
+    }
+
+    // ——— Mentorii stagiarilor (Art. 14) ———
+    async function randMentori() {
+      const ul = document.getElementById("a-mentori");
+      let mentori = {};
+      try {
+        const r = await fetch("/.netlify/functions/candidati-cursuri", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), actiune: "mentori" }),
+        });
+        mentori = ((await r.json()) || {}).mentori || {};
+      } catch (e) {}
+      ul.textContent = "";
+      if (!candidati.length) {
+        const li = document.createElement("li");
+        li.className = "a-mx-empty";
+        li.textContent = "Niciun candidat înscris.";
+        ul.appendChild(li);
+        return;
+      }
+      candidati.forEach((c) => {
+        const m = mentori[c.id] || {};
+        const li = document.createElement("li");
+        const nume = document.createElement("strong");
+        nume.textContent = c.nume;
+        const camp = document.createElement("input");
+        camp.type = "text"; camp.placeholder = "Numele mentorului (arbitru format)"; camp.value = m.nume || "";
+        const din = document.createElement("input");
+        din.type = "date"; din.value = m.din || ""; din.title = "De când îndrumă (implicit: azi)";
+        const btn = document.createElement("button");
+        btn.className = "btn btn--small btn--outline";
+        btn.textContent = "Salvează";
+        btn.addEventListener("click", async () => {
+          btn.disabled = true; btn.textContent = "…";
+          try {
+            const r = await fetch("/.netlify/functions/candidati-cursuri", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), actiune: "mentor-salveaza",
+                candidatId: c.id, nume: camp.value.trim(), din: din.value }),
+            });
+            const d = await r.json().catch(() => ({}));
+            if (!r.ok) throw new Error(d.eroare || "Eroare");
+            btn.textContent = "Salvat ✓";
+            setTimeout(() => (btn.textContent = "Salvează"), 2000);
+          } catch (err) { alert("Nu am putut salva: " + err.message); btn.textContent = "Salvează"; }
+          finally { btn.disabled = false; }
+        });
+        li.append(nume, camp, din, btn);
+        ul.appendChild(li);
+      });
     }
 
     function randMatrice() {
@@ -238,6 +300,12 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
   .a-lg--numit { background: #f7f1df; border-color: var(--color-accent); color: var(--color-accent-dark); }
   .a-lg--prezent { background: var(--color-primary); border-color: var(--color-primary); color: #fbfaf7; }
   .a-lg--absent { background: #f9efef; border-color: #8c1d2f; color: #8c1d2f; }
+
+  .a-mentori { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 0.5rem; max-width: 48rem; }
+  :global(.a-mentori li) { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.55rem 0.9rem; }
+  :global(.a-mentori li strong) { min-width: 12rem; }
+  :global(.a-mentori input[type=text]) { flex: 1 1 14rem; padding: 0.4rem 0.6rem; border: 1px solid var(--color-border); border-radius: 6px; font: inherit; font-size: 0.9rem; }
+  :global(.a-mentori input[type=date]) { padding: 0.35rem 0.5rem; border: 1px solid var(--color-border); border-radius: 6px; font: inherit; font-size: 0.85rem; }
 
   .a-matrice-wrap { overflow-x: auto; }
   .a-matrice { border-collapse: collapse; width: 100%; min-width: 46rem; }

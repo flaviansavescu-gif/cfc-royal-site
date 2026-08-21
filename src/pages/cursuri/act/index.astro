@@ -1,0 +1,189 @@
+---
+// /cursuri/act/?fel=diploma|legitimatie[&cid=<candidat>] — actele Școlii, gata de tipărit.
+//
+// Candidatul își tipărește PROPRIILE acte (cu codul lui); administratorul poate tipări
+// actul oricărui candidat, cu ?cid=. Actul poartă codul QR semnat — cine îl scanează
+// ajunge pe cfc-royal.ro/verifica/ și vede verdictul, ca la certificatele de origine.
+//
+// La tipărire (Ctrl+P) rămâne doar actul: diploma pe A4 în picioare, legitimația ca un
+// carnet centrat pe pagină.
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+---
+
+<CursuriLayout title="Actul Școlii de Arbitraj" candidat allow={["admin"]}>
+  <p class="x-eroare" id="x-eroare" role="alert" hidden></p>
+  <p class="x-incarcare" id="x-incarcare">Se încarcă actul…</p>
+
+  <p class="x-bara" id="x-bara" hidden>
+    <button class="btn btn--primary" type="button" id="x-tipar">🖨 Tipărește</button>
+    <a class="btn btn--outline" href="/cursuri/parcurs/" id="x-inapoi">← Parcursul meu</a>
+    <span class="x-hint">În fereastra de tipărire lasă bifată opțiunea de imagini de fundal.</span>
+  </p>
+
+  {/* ——— Diploma: A4 în picioare, act ceremonial ——— */}
+  <article class="dip" id="x-diploma" hidden>
+    <div class="dip__rama">
+      <header class="dip__cap">
+        <img class="dip__stema" src="/images/logo-royal.webp" alt="" width="96" height="96" />
+        <p class="dip__asociatie">Asociația Club Federal Chinologic — Royal</p>
+        <p class="dip__forum">membru World Dog Federation · Școala de Arbitraj</p>
+      </header>
+      <h1 class="dip__titlu">Diplomă de absolvire</h1>
+      <p class="dip__serie" id="d-serie"></p>
+      <p class="dip__text">Se atestă că</p>
+      <p class="dip__nume" id="d-nume"></p>
+      <p class="dip__text dip__text--larg">a absolvit programul de formare al Școlii de Arbitraj —
+        modulele de studiu, stagiul practic de ring și examenul final susținut în fața
+        comisiei de examinare — dobândind pregătirea cerută pentru arbitrajul expozițiilor
+        chinologice potrivit regulamentelor World Dog Federation.</p>
+      <div class="dip__jos">
+        <div class="dip__semnaturi">
+          <div class="dip__semn"><span class="dip__linie"></span>Președintele Colegiului de Arbitri</div>
+          <div class="dip__semn"><span class="dip__linie"></span>Directorul Academic</div>
+        </div>
+        <div class="dip__verif">
+          <img id="d-qr" alt="Cod QR de verificare" width="88" height="88" />
+          <p class="dip__data" id="d-data"></p>
+          <p class="dip__nota">Autenticitatea se verifică scanând codul — cfc-royal.ro/verifica</p>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  {/* ——— Legitimația: carnet centrat pe pagină ——— */}
+  <article class="leg" id="x-legitimatie" hidden>
+    <div class="leg__card">
+      <header class="leg__cap">
+        <img class="leg__stema" src="/images/logo-royal.webp" alt="" width="52" height="52" />
+        <div>
+          <p class="leg__asociatie">Club Federal Chinologic — Royal</p>
+          <p class="leg__forum">membru World Dog Federation</p>
+        </div>
+      </header>
+      <p class="leg__fel">Legitimație de arbitru</p>
+      <p class="leg__nume" id="l-nume"></p>
+      <p class="leg__grupe" id="l-grupe"></p>
+      <div class="leg__jos">
+        <div>
+          <p class="leg__serie" id="l-serie"></p>
+          <p class="leg__data" id="l-data"></p>
+        </div>
+        <img id="l-qr" alt="Cod QR de verificare" width="74" height="74" />
+      </div>
+    </div>
+    <p class="leg__nota">Legitimația atestă grupele WDF pentru care titularul este autorizat să arbitreze.
+      Autenticitatea se verifică scanând codul QR — cfc-royal.ro/verifica. Registrul public al
+      arbitrilor: cfc-royal.ro/arbitri/.</p>
+  </article>
+</CursuriLayout>
+
+<script is:inline>
+  (function () {
+    const F = "/.netlify/functions/acte-scoala";
+    const parametri = new URLSearchParams(location.search);
+    const fel = parametri.get("fel") === "legitimatie" ? "legitimatie" : "diploma";
+    const cid = parametri.get("cid") || "";
+    const eroare = document.getElementById("x-eroare");
+    const incarcare = document.getElementById("x-incarcare");
+
+    function arataEroare(m) { incarcare.hidden = true; eroare.hidden = false; eroare.textContent = m; }
+
+    const dataRo = (s) => {
+      const d = new Date(s);
+      return isNaN(d) ? s : d.toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" });
+    };
+
+    // Adminul tipărește pentru un candidat (?cid=...); altfel, candidatul — propriul act.
+    let corp = null;
+    if (cid) {
+      let cod = null, disp = "";
+      try { cod = localStorage.getItem("cfcrAccesCod"); disp = localStorage.getItem("cfcrScoalaDispozitiv") || ""; } catch (e) {}
+      corp = { cod: cod || "", dispozitiv: disp, actiune: "act", candidatId: cid, fel };
+    } else {
+      let cand = null;
+      try { cand = JSON.parse(localStorage.getItem("cfcrCandidat") || "null"); } catch (e) {}
+      if (!(cand && cand.cod)) { arataEroare("Intră cu codul tău personal din pagina de acces a Școlii, apoi revino aici."); return; }
+      corp = { id: cand.cod, actiune: "act", fel };
+    }
+
+    fetch(F, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corp) })
+      .then((r) => r.json().then((d) => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (!ok) { arataEroare(d.eroare || "Actul nu a putut fi încărcat."); return; }
+        const a = d.act;
+        incarcare.hidden = true;
+        document.getElementById("x-bara").hidden = false;
+        if (cid) document.getElementById("x-inapoi").setAttribute("href", "/cursuri/admin/certificare/");
+        if (a.fel === "diploma") {
+          document.getElementById("d-serie").textContent = "Seria " + a.serie;
+          document.getElementById("d-nume").textContent = a.nume;
+          document.getElementById("d-data").textContent = "Emisă la " + dataRo(a.data);
+          if (d.qr) document.getElementById("d-qr").src = d.qr;
+          document.getElementById("x-diploma").hidden = false;
+          document.title = "Diplomă — " + a.nume;
+        } else {
+          document.getElementById("l-nume").textContent = a.nume;
+          document.getElementById("l-grupe").textContent = "Grupele WDF: " + (a.grupe || []).join(", ");
+          document.getElementById("l-serie").textContent = "Seria " + a.serie;
+          document.getElementById("l-data").textContent = "Emisă " + dataRo(a.data);
+          if (d.qr) document.getElementById("l-qr").src = d.qr;
+          document.getElementById("x-legitimatie").hidden = false;
+          document.title = "Legitimație — " + a.nume;
+        }
+      })
+      .catch(() => arataEroare("Nu am putut încărca actul. Reîncearcă."));
+
+    document.getElementById("x-tipar").addEventListener("click", () => window.print());
+  })();
+</script>
+
+<style>
+  .x-incarcare { color: var(--color-text-muted); }
+  :global(.x-eroare) { color: #8c1d2f; background: #f9efef; border: 1px solid #8c1d2f; border-radius: var(--radius); padding: 0.7rem 1rem; max-width: 46rem; }
+  .x-bara { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .x-hint { color: var(--color-text-muted); font-size: 0.85rem; }
+
+  /* ——— Diploma ——— */
+  .dip { max-width: 52rem; margin: 0 auto; }
+  .dip__rama { border: 3px double var(--color-accent-dark); padding: 2.6rem 3rem; background: #fffdf8; }
+  .dip__cap { text-align: center; }
+  .dip__stema { display: block; margin: 0 auto 0.6rem; }
+  .dip__asociatie { font-family: var(--font-serif); font-size: 1.05rem; margin: 0; color: var(--color-primary); }
+  .dip__forum { margin: 0.1rem 0 0; font-size: 0.85rem; color: var(--color-text-muted); }
+  .dip__titlu { font-family: var(--font-serif); text-align: center; color: var(--color-primary); font-size: 2.1rem; margin: 1.6rem 0 0.2rem; letter-spacing: 0.02em; }
+  .dip__serie { text-align: center; font-family: var(--font-mono, monospace); color: var(--color-accent-dark); margin: 0 0 1.6rem; }
+  .dip__text { text-align: center; margin: 0.4rem 0; color: var(--color-text); }
+  .dip__text--larg { max-width: 38rem; margin: 0.8rem auto 0; line-height: 1.55; }
+  .dip__nume { text-align: center; font-family: var(--font-serif); font-size: 1.7rem; color: var(--color-primary); margin: 0.5rem 0; border-bottom: 1px solid var(--color-accent); display: table; padding: 0 1.5rem 0.3rem; margin-inline: auto; }
+  .dip__jos { display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; margin-top: 2.6rem; }
+  .dip__semnaturi { display: grid; gap: 1.8rem; }
+  .dip__semn { font-size: 0.85rem; color: var(--color-text-muted); }
+  .dip__linie { display: block; width: 14rem; border-bottom: 1px solid var(--color-text-muted); margin-bottom: 0.3rem; height: 1.6rem; }
+  .dip__verif { text-align: center; }
+  .dip__verif img { display: block; margin: 0 auto 0.3rem; }
+  .dip__data { margin: 0; font-size: 0.85rem; }
+  .dip__nota { margin: 0.15rem 0 0; font-size: 0.7rem; color: var(--color-text-muted); max-width: 12rem; }
+
+  /* ——— Legitimația ——— */
+  .leg { max-width: 30rem; margin: 0 auto; }
+  .leg__card { border: 2px solid var(--color-primary); border-radius: 12px; padding: 1.1rem 1.3rem; background: linear-gradient(150deg, #fffdf8 70%, #f3ede0); }
+  .leg__cap { display: flex; gap: 0.7rem; align-items: center; }
+  .leg__asociatie { margin: 0; font-family: var(--font-serif); font-size: 0.95rem; color: var(--color-primary); }
+  .leg__forum { margin: 0; font-size: 0.75rem; color: var(--color-text-muted); }
+  .leg__fel { text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.72rem; color: var(--color-accent-dark); margin: 0.9rem 0 0.15rem; }
+  .leg__nume { font-family: var(--font-serif); font-size: 1.35rem; color: var(--color-primary); margin: 0 0 0.3rem; }
+  .leg__grupe { margin: 0 0 0.8rem; font-size: 0.9rem; }
+  .leg__jos { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; }
+  .leg__serie { font-family: var(--font-mono, monospace); font-size: 0.85rem; margin: 0; color: var(--color-accent-dark); }
+  .leg__data { margin: 0.15rem 0 0; font-size: 0.78rem; color: var(--color-text-muted); }
+  .leg__nota { margin-top: 1rem; font-size: 0.78rem; color: var(--color-text-muted); }
+
+  @media print {
+    .x-bara, .x-incarcare { display: none !important; }
+    /* Rămâne doar actul: antetul și subsolul platformei nu au ce căuta pe un act. */
+    :global(.c-header), :global(.c-footer) { display: none !important; }
+    :global(.c-main) { padding: 0 !important; }
+    .dip__rama { border-color: #8a6d1f; }
+    .leg__nota { page-break-inside: avoid; }
+  }
+</style>

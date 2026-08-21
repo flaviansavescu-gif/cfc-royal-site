@@ -1,0 +1,214 @@
+---
+// /cursuri/parcurs/ — parcursul candidatului, de la primul modul la legitimația de arbitru.
+//
+// O singură pagină care răspunde la întrebarea „unde sunt și ce urmează?": modulele de
+// studiu, stagiul practic (cele 5 asistențe), examenul final, autorizarea pe grupe și
+// actele emise — cu mentorul (Reg. Colegiului, Art. 14) alături, pe tot drumul.
+// Datele vin dintr-o singură cerere: acțiunea „parcursul-meu" din asistente-cursuri.
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import { MODULE } from "../../../data/cursuri";
+const PASI_MODULE = MODULE.map((m) => ({ nr: m.nr, slug: m.slug, titlu: m.titlu }));
+---
+
+<CursuriLayout title="Parcursul meu" candidat>
+  <p class="p-crumb"><a href="/cursuri/">← Platforma</a></p>
+  <p class="p-eyebrow">Școala de Arbitraj</p>
+  <h1 class="p-title">Parcursul meu</h1>
+  <p class="p-sub" id="p-cine">Se încarcă…</p>
+  <p class="p-mentor" id="p-mentor" hidden></p>
+
+  <ol class="p-drum" id="p-drum" hidden>
+    <li class="p-pas" id="pas-module">
+      <span class="p-pas__punct"></span>
+      <div class="p-pas__corp">
+        <h2 class="p-pas__titlu">Modulele de studiu <span class="p-pas__stare" id="p-module-stare"></span></h2>
+        <div class="p-bara"><span class="p-bara__plin" id="p-module-bara"></span></div>
+        <details class="p-detalii">
+          <summary>Vezi fiecare modul</summary>
+          <ul class="p-module" id="p-module-lista"></ul>
+        </details>
+      </div>
+    </li>
+    <li class="p-pas" id="pas-stagiu">
+      <span class="p-pas__punct"></span>
+      <div class="p-pas__corp">
+        <h2 class="p-pas__titlu">Stagiul practic — 5 asistențe de ring <span class="p-pas__stare" id="p-stagiu-stare"></span></h2>
+        <ul class="p-asistente" id="p-asistente"></ul>
+      </div>
+    </li>
+    <li class="p-pas" id="pas-examen">
+      <span class="p-pas__punct"></span>
+      <div class="p-pas__corp">
+        <h2 class="p-pas__titlu">Examenul final <span class="p-pas__stare" id="p-examen-stare"></span></h2>
+        <p class="p-pas__text" id="p-examen-text"></p>
+      </div>
+    </li>
+    <li class="p-pas" id="pas-autorizare">
+      <span class="p-pas__punct"></span>
+      <div class="p-pas__corp">
+        <h2 class="p-pas__titlu">Autorizarea pe grupe WDF <span class="p-pas__stare" id="p-aut-stare"></span></h2>
+        <p class="p-pas__text" id="p-aut-text"></p>
+      </div>
+    </li>
+    <li class="p-pas" id="pas-acte">
+      <span class="p-pas__punct"></span>
+      <div class="p-pas__corp">
+        <h2 class="p-pas__titlu">Actele tale <span class="p-pas__stare" id="p-acte-stare"></span></h2>
+        <p class="p-pas__text" id="p-acte-text"></p>
+        <p class="p-acte-btn">
+          <a class="btn btn--outline" id="p-btn-diploma" href="/cursuri/act/?fel=diploma" hidden>🖨 Diploma de absolvire</a>
+          <a class="btn btn--outline" id="p-btn-legitimatie" href="/cursuri/act/?fel=legitimatie" hidden>🖨 Legitimația de arbitru</a>
+        </p>
+      </div>
+    </li>
+  </ol>
+  <p class="p-eroare" id="p-eroare" role="alert" hidden></p>
+</CursuriLayout>
+
+<script is:inline define:vars={{ PASI_MODULE }}>
+  (function () {
+    let cand = null;
+    try { cand = JSON.parse(localStorage.getItem("cfcrCandidat") || "null"); } catch (e) {}
+    const eroare = document.getElementById("p-eroare");
+    if (!(cand && cand.cod)) {
+      document.getElementById("p-cine").textContent = "";
+      eroare.hidden = false;
+      eroare.innerHTML = 'Intră cu <strong>codul tău personal</strong> din <a href="/cursuri/">pagina de acces</a>, apoi revino aici.';
+      return;
+    }
+
+    const dataRo = (s) => {
+      const d = new Date(s);
+      return isNaN(d) ? (s || "") : d.toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" });
+    };
+    const gata = (idPas) => document.getElementById(idPas).classList.add("is-gata");
+    const acum = (idPas) => document.getElementById(idPas).classList.add("is-acum");
+
+    fetch("/.netlify/functions/asistente-cursuri", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ actiune: "parcursul-meu", id: cand.cod }),
+    })
+      .then((r) => r.json().then((d) => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (!ok) throw new Error(d.eroare || "Eroare.");
+        document.getElementById("p-cine").textContent = d.candidat.nume +
+          (d.candidat.creat ? " · candidat din " + dataRo(d.candidat.creat) : "");
+
+        // Mentorul (Art. 14) — însoțește tot drumul, nu e un pas.
+        const m = document.getElementById("p-mentor");
+        m.hidden = false;
+        m.textContent = d.mentor
+          ? "🤝 Mentorul tău: " + d.mentor.nume + (d.mentor.din ? " (din " + dataRo(d.mentor.din) + ")" : "")
+          : "Mentorul tău (Reg. Colegiului, Art. 14) urmează să fie desemnat de Colegiu.";
+
+        document.getElementById("p-drum").hidden = false;
+
+        // 1) Modulele.
+        const promovate = PASI_MODULE.filter((x) => d.progres[x.slug] && d.progres[x.slug].promovat).length;
+        document.getElementById("p-module-stare").textContent = promovate + " / " + PASI_MODULE.length + " promovate";
+        document.getElementById("p-module-bara").style.width = Math.round((promovate / PASI_MODULE.length) * 100) + "%";
+        const ul = document.getElementById("p-module-lista");
+        PASI_MODULE.forEach((x) => {
+          const p = d.progres[x.slug];
+          const li = document.createElement("li");
+          li.className = p && p.promovat ? "is-ok" : "";
+          li.textContent = (p && p.promovat ? "✓ " : "· ") + x.nr + ". " + x.titlu +
+            (p && p.promovat ? " (" + p.procent + "%)" : "");
+          ul.appendChild(li);
+        });
+        const moduleGata = promovate === PASI_MODULE.length;
+        if (moduleGata) gata("pas-module"); else acum("pas-module");
+
+        // 2) Stagiul practic.
+        const ua = document.getElementById("p-asistente");
+        let prezente = 0;
+        for (let nr = 1; nr <= 5; nr++) {
+          const stare = (d.numiri || {})[nr] || "";
+          const ev = (d.evaluari || {})[nr];
+          const expo = (d.expozitii || []).find((e) => e.nr === nr) || {};
+          if (stare === "prezent") prezente++;
+          const li = document.createElement("li");
+          li.className = stare === "prezent" ? "is-ok" : stare === "absent" ? "is-rau" : "";
+          let text = "Asistența " + nr + (expo.nume ? " — " + expo.nume : "") +
+            (stare === "prezent" ? " · prezent ✓" : stare === "absent" ? " · absent" : stare === "numit" ? " · ești numit" : " · nenumită încă");
+          if (ev && ev.calificativ) text += " · calificativ: " + ev.calificativ.replace("_", " ");
+          li.textContent = text;
+          ua.appendChild(li);
+        }
+        document.getElementById("p-stagiu-stare").textContent = prezente + " / 5 efectuate";
+        if (prezente === 5) gata("pas-stagiu"); else if (moduleGata) acum("pas-stagiu");
+
+        // 3) Examenul final.
+        const exText = document.getElementById("p-examen-text");
+        if (d.examen && d.examen.promovat) {
+          document.getElementById("p-examen-stare").textContent = "promovat ✓";
+          exText.textContent = "Ai promovat examenul final. Felicitări!";
+          gata("pas-examen");
+        } else if (d.examen) {
+          document.getElementById("p-examen-stare").textContent = "nepromovat încă";
+          exText.innerHTML = 'Ai susținut examenul de ' + d.examen.incercari + ' ori. Îl poți relua în sesiune, de pe <a href="/cursuri/examen/">pagina examenului</a>.';
+          acum("pas-examen");
+        } else {
+          exText.innerHTML = 'Se susține în sesiunile anunțate, după module și stagiu — vezi <a href="/cursuri/examen/">pagina examenului</a>.';
+        }
+
+        // 4) Autorizarea.
+        const autText = document.getElementById("p-aut-text");
+        const grupe = d.autorizare ? d.autorizare.grupe : [];
+        if (grupe.length) {
+          document.getElementById("p-aut-stare").textContent = "grupele " + grupe.join(", ");
+          autText.textContent = "Ești autorizat să arbitrezi grupele WDF: " + grupe.join(", ") + ". Apari în registrul public al arbitrilor (dacă ai ales să fii vizibil).";
+          gata("pas-autorizare");
+        } else {
+          autText.textContent = "Autorizarea pe grupe se acordă de Colegiu după promovarea examenului final.";
+          if (d.examen && d.examen.promovat) acum("pas-autorizare");
+        }
+
+        // 5) Actele.
+        const acteText = document.getElementById("p-acte-text");
+        const are = [];
+        if (d.acte.diploma) { are.push("diploma " + d.acte.diploma.serie); document.getElementById("p-btn-diploma").hidden = false; }
+        if (d.acte.legitimatie) { are.push("legitimația " + d.acte.legitimatie.serie); document.getElementById("p-btn-legitimatie").hidden = false; }
+        if (are.length) {
+          document.getElementById("p-acte-stare").textContent = "emise ✓";
+          acteText.textContent = "Ți s-au emis: " + are.join(" și ") + ". Le poți tipări oricând — codul QR de pe act se verifică public.";
+          gata("pas-acte");
+        } else {
+          acteText.textContent = "Diploma se emite la absolvire (examen promovat), iar legitimația odată cu autorizarea pe grupe.";
+        }
+      })
+      .catch((e) => { eroare.hidden = false; eroare.textContent = e.message || "Nu am putut încărca parcursul."; });
+  })();
+</script>
+
+<style>
+  .p-crumb { margin: 0 0 1.25rem; }
+  .p-crumb a { text-decoration: none; color: var(--color-text-muted); }
+  .p-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .p-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.2rem; }
+  .p-sub { color: var(--color-text-muted); margin-top: 0; }
+  .p-mentor { background: var(--color-surface); border: 1px solid var(--color-accent); border-radius: var(--radius); padding: 0.6rem 1rem; max-width: 42rem; }
+  :global(.p-eroare) { color: #8c1d2f; background: #f9efef; border: 1px solid #8c1d2f; border-radius: var(--radius); padding: 0.7rem 1rem; max-width: 42rem; }
+  :global(.p-eroare a) { color: inherit; }
+
+  .p-drum { list-style: none; margin: 1.5rem 0 0; padding: 0; position: relative; }
+  .p-drum::before { content: ""; position: absolute; left: 0.55rem; top: 0.9rem; bottom: 0.9rem; width: 2px; background: var(--color-border); }
+  .p-pas { position: relative; padding: 0 0 1.8rem 2.2rem; }
+  .p-pas__punct { position: absolute; left: 0; top: 0.25rem; width: 1.2rem; height: 1.2rem; border-radius: 50%; background: var(--color-surface); border: 2px solid var(--color-border); }
+  :global(.p-pas.is-gata .p-pas__punct) { background: var(--color-primary); border-color: var(--color-primary); }
+  :global(.p-pas.is-acum .p-pas__punct) { border-color: var(--color-accent-dark); background: #f7f1df; }
+  .p-pas__titlu { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.15rem; margin: 0 0 0.4rem; }
+  .p-pas__stare { font-family: var(--font-sans, inherit); font-size: 0.8rem; border: 1px solid var(--color-accent); color: var(--color-accent-dark); border-radius: 999px; padding: 0.15rem 0.65rem; margin-left: 0.4rem; vertical-align: middle; }
+  .p-pas__text { margin: 0.2rem 0; max-width: 44rem; }
+  :global(.p-pas__text a) { color: var(--color-link); }
+  .p-bara { height: 0.55rem; background: var(--color-surface-alt, #eee); border: 1px solid var(--color-border); border-radius: 999px; max-width: 26rem; overflow: hidden; }
+  .p-bara__plin { display: block; height: 100%; background: var(--color-primary); border-radius: 999px; width: 0; transition: width 0.6s ease; }
+  .p-detalii { margin-top: 0.5rem; max-width: 44rem; }
+  .p-detalii summary { cursor: pointer; color: var(--color-text-muted); font-size: 0.9rem; }
+  .p-module { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.2rem; font-size: 0.9rem; }
+  :global(.p-module li.is-ok) { color: var(--color-primary); }
+  .p-asistente { list-style: none; margin: 0.2rem 0; padding: 0; display: grid; gap: 0.25rem; font-size: 0.92rem; max-width: 44rem; }
+  :global(.p-asistente li.is-ok) { color: var(--color-primary); }
+  :global(.p-asistente li.is-rau) { color: #8c1d2f; }
+  .p-acte-btn { display: flex; gap: 0.6rem; flex-wrap: wrap; margin: 0.6rem 0 0; }
+</style>

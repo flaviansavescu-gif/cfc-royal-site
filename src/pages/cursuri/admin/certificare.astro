@@ -76,6 +76,17 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
   <ul class="c-examen-list" id="c-contest-list">
     <li class="c-ex-empty">Se încarcă…</li>
   </ul>
+
+  <h2 class="c-h2">E. Diplome și legitimații</h2>
+  <p class="c-note">
+    Actele Școlii, cu cod QR verificabil public (ca certificatele de origine): <strong>diploma
+    de absolvire</strong> se emite doar cu examenul final promovat, iar <strong>legitimația de
+    arbitru</strong> doar cu cel puțin o grupă autorizată. Seria rămâne aceeași la fiecare
+    tipărire; reemiterea legitimației (după extinderea grupelor) primește o serie nouă.
+  </p>
+  <ul class="c-examen-list" id="c-acte-list">
+    <li class="c-ex-empty">Se încarcă…</li>
+  </ul>
 </CursuriLayout>
 
 <script is:inline define:vars={{ GRUPE: GRUPE_WDF }}>
@@ -85,10 +96,12 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
       try { c = localStorage.getItem("cfcrAccesCod"); } catch (e) {}
       return c || prompt("Confirmă codul de administrator:");
     }
+    // A doua cheie (jetonul dispozitivului) — fără ea, funcțiile de administrare refuză.
+    function dispozitivScoala() { try { return localStorage.getItem("cfcrScoalaDispozitiv") || ""; } catch (e) { return ""; } }
     async function cere(fn, payload) {
       const res = await fetch("/.netlify/functions/" + fn, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cod: codAdmin(), ...payload }),
+        body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), ...payload }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.eroare || "Eroare");
@@ -103,7 +116,7 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
       try {
         candidati = await (await fetch("/.netlify/functions/candidati-cursuri", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cod: codAdmin(), actiune: "lista" }),
+          body: JSON.stringify({ cod: codAdmin(), dispozitiv: dispozitivScoala(), actiune: "lista" }),
         })).json();
         if (!Array.isArray(candidati)) candidati = [];
       } catch (e) { candidati = []; }
@@ -113,6 +126,78 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
 
       randMatrice();
       randExamene();
+      randActe();
+    }
+
+    // ——— E. Diplome și legitimații ———
+    async function randActe() {
+      const list = document.getElementById("c-acte-list");
+      let acte = {};
+      try { acte = (await cere("acte-scoala", { actiune: "situatie" })).acte || {}; } catch (e) {}
+      list.textContent = "";
+      if (!candidati.length) {
+        const li = document.createElement("li");
+        li.className = "c-ex-empty";
+        li.textContent = "Niciun candidat înscris.";
+        list.appendChild(li);
+        return;
+      }
+      candidati.forEach((c) => {
+        const promovat = !!(examene[c.id] && examene[c.id].promovat);
+        const grupe = (autorizari[c.id] && autorizari[c.id].grupe) || [];
+        const ale = acte[c.id] || {};
+        const li = document.createElement("li");
+        const info = document.createElement("div");
+        const nm = document.createElement("strong");
+        nm.textContent = c.nume;
+        info.appendChild(nm);
+        const detalii = [];
+        detalii.push(promovat ? "examen promovat ✓" : "examen nepromovat");
+        detalii.push(grupe.length ? "grupele " + grupe.join(", ") : "fără grupe autorizate");
+        if (ale.diploma) detalii.push("diploma " + ale.diploma.serie);
+        if (ale.legitimatie) detalii.push("legitimația " + ale.legitimatie.serie);
+        info.appendChild(document.createTextNode(" — " + detalii.join(" · ")));
+        li.appendChild(info);
+
+        const zona = document.createElement("div");
+        zona.style.cssText = "display:flex;gap:.4rem;flex-wrap:wrap";
+        function butonEmite(fel, eticheta, reemite) {
+          const b = document.createElement("button");
+          b.className = "btn btn--small " + (reemite ? "btn--outline" : "btn--primary");
+          b.textContent = eticheta;
+          b.addEventListener("click", async () => {
+            const intrebare = reemite
+              ? "Reemiti legitimația cu grupele de ACUM? Primește o serie nouă; exemplarul vechi rămâne tipărit cu seria lui."
+              : "Emiti " + (fel === "diploma" ? "diploma de absolvire" : "legitimația de arbitru") + " pentru " + c.nume + "?";
+            if (!confirm(intrebare)) return;
+            b.disabled = true;
+            try {
+              const d = await cere("acte-scoala", { actiune: "emite", candidatId: c.id, fel, reemite: !!reemite });
+              alert((fel === "diploma" ? "Diploma " : "Legitimația ") + d.serie + (d.dejaEmis ? " era deja emisă." : " a fost emisă."));
+              randActe();
+            } catch (err) { alert("Nu s-a putut emite: " + err.message); b.disabled = false; }
+          });
+          return b;
+        }
+        function linkTipar(fel, eticheta) {
+          const a = document.createElement("a");
+          a.className = "btn btn--small btn--outline";
+          a.textContent = eticheta;
+          a.href = "/cursuri/act/?fel=" + fel + "&cid=" + encodeURIComponent(c.id);
+          a.target = "_blank"; a.rel = "noopener";
+          return a;
+        }
+        if (ale.diploma) zona.appendChild(linkTipar("diploma", "🖨 Diploma"));
+        else if (promovat) zona.appendChild(butonEmite("diploma", "Emite diploma"));
+        if (ale.legitimatie) {
+          zona.appendChild(linkTipar("legitimatie", "🖨 Legitimația"));
+          if (grupe.length) zona.appendChild(butonEmite("legitimatie", "Reemite (serie nouă)", true));
+        } else if (grupe.length) {
+          zona.appendChild(butonEmite("legitimatie", "Emite legitimația"));
+        }
+        if (zona.childNodes.length) li.appendChild(zona);
+        list.appendChild(li);
+      });
     }
 
     // ——— A. Matricea de autorizare ———
