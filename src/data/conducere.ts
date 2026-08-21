@@ -27,17 +27,22 @@ export const leaders: Leader[] = [
     name: "Iuliana Ramona Ciolac",
     role: { ro: "Vicepreședinte Executiv", en: "Executive Vice-President" },
     responsibilities: {
-      ro: ["Coordonarea activității executive curente", "Implementarea hotărârilor Consiliului Director", "Supravegherea Secretariatului General", "Coordonarea Comisiei de Validare a Cererilor de Admitere"],
-      en: ["Coordination of day-to-day executive activity", "Implementation of the Board's decisions", "Oversight of the General Secretariat", "Coordination of the Admission Applications Validation Committee"],
+      ro: ["Coordonarea activității executive curente și implementarea hotărârilor Consiliului Director", "Planificarea și coordonarea activităților organizatorice", "Logistică, premii și coordonarea rețelei de voluntari", "Supravegherea Secretariatului General și a procedurii de admitere a membrilor"],
+      en: ["Coordination of day-to-day executive activity and implementation of the Board's decisions", "Planning and coordination of organisational activities", "Logistics, prizes and coordination of the volunteer network", "Oversight of the General Secretariat and of the member admission procedure"],
     },
   },
   {
-    photo: "/images/arbitri/razvan-martin.webp",
-    name: "Florin Răzvan Martin",
-    role: { ro: "Vicepreședinte Organizatoric", en: "Organisational Vice-President" },
+    photo: "/images/arbitri/flavian-savescu.webp",
+    name: "Flavian-Sergiu Savescu",
+    role: {
+      ro: "Vicepreședinte Tehnic și de Arbitraj · Președinte al Colegiului de Arbitri",
+      en: "Technical and Judging Vice-President · President of the Panel of Judges",
+    },
+    // Atribuțiile urmează Regulamentul intern Art. 10 (VP-ul PROPUNE/AVIZEAZĂ; Consiliul
+    // Director hotărăște) + Reg. Centru Art. 7 (sistemul digital, în subordinea VP Tehnic).
     responsibilities: {
-      ro: ["Planificarea și coordonarea activităților organizatorice", "Organizarea expozițiilor, competițiilor și evenimentelor", "Logistică, premii și suport operațional", "Coordonarea rețelei teritoriale de voluntari"],
-      en: ["Planning and coordination of organisational activities", "Organising shows, competitions and events", "Logistics, prizes and operational support", "Coordination of the territorial network of volunteers"],
+      ro: ["Coordonarea Colegiului de Arbitri, în calitate de Președinte ex officio", "Propunerea către Consiliul Director a autorizării, menținerii și retragerii calității de arbitru", "Aplicarea regulamentelor tehnice WDF și a standardelor de rasă; avizarea repartizării arbitrilor", "Coordonarea sistemului digital și a organizării tehnice a expozițiilor — site, registru genealogic, platformele de arbitraj și de expoziție"],
+      en: ["Coordination of the Panel of Judges, as ex officio President", "Proposing to the Board the authorisation, maintenance and withdrawal of judge status", "Application of WDF technical regulations and breed standards; endorsement of judge assignments", "Coordination of the digital system and the technical organisation of shows — website, genealogical registry, judging and show platforms"],
     },
   },
   {
