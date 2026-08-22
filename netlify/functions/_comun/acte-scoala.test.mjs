@@ -36,6 +36,7 @@ if (!bootstrapMockModule(import.meta.url)) {
   });
   const acte = (await import("../acte-scoala.mjs")).default;
   const verifica = (await import("../verifica-act.mjs")).default;
+  const { VERSIUNE: VERSIUNE_ETICA } = await import("../cod-etic.mjs");
 
   const COD_CANDIDAT = "ARB-PROBA123";
   const CID = sha256(COD_CANDIDAT);
@@ -43,6 +44,8 @@ if (!bootstrapMockModule(import.meta.url)) {
   function magazieCuScoala() {
     return magazieFalsa({
       ["candidat/" + CID]: { nume: "Elena Stagiar", creat: "2026-02-01" },
+      // Poarta etică (23.08): parcursul e formare — candidatul de probă are Codul asumat.
+      [`cod-etic/${VERSIUNE_ETICA}/${CID}`]: { nume: "Elena Stagiar", rol: "candidat", data: "2026-02-01" },
       ["examen/" + CID]: { promovat: true, incercari: [{ data: "2026-08-01", procent: 88, promovat: true }] },
       ["autorizare/" + CID]: { grupe: [1, 3], public: true, localitate: "Resita" },
     });

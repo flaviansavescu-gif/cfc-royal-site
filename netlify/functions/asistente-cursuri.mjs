@@ -19,6 +19,7 @@ import { getStore } from "@netlify/blobs";
 import { secretEgal } from "./_comun/secret.mjs";
 import { createHash } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { refuzaFaraCodEtic } from "./_comun/poarta-etica.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
@@ -126,6 +127,7 @@ export default cuLimitareCod(async (req) => {
     // Cod necunoscut => 401 (nu 200 cu liste goale): altfel ghicitul nu se numără.
     const cand = id ? await store.get("candidat/" + id, { type: "json" }).catch(() => null) : null;
     if (!cand) return json({ eroare: "Cod necunoscut." }, 401);
+    { const oprit = await refuzaFaraCodEtic(store, id, json); if (oprit) return oprit; }
     const expozitii = await citesteExpozitii(store);
     let numiri = numiriCurate({});
     let evaluari = evaluariCurate({});
@@ -146,6 +148,7 @@ export default cuLimitareCod(async (req) => {
     const id = cod ? sha256(cod) : "";
     const cand = id ? await store.get("candidat/" + id, { type: "json" }).catch(() => null) : null;
     if (!cand) return json({ eroare: "Cod necunoscut." }, 401);
+    { const oprit = await refuzaFaraCodEtic(store, id, json); if (oprit) return oprit; }
 
     const progres = {};
     try {

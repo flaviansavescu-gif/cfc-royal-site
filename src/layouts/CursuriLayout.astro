@@ -90,6 +90,39 @@ const protejat = allowList.length > 0 || candidatOk;
             }
           }
           if (!ok && !plecatLaReintra) location.replace("/cursuri/");
+
+          // ——— Poarta Codului Etic (23.08.2026) ———
+          // Candidații, arbitrii și lectorii intră în formare DOAR cu versiunea curentă
+          // a Codului asumată. Rămân libere: pagina de asumare însăși, examenul (pentru
+          // dreptul de contestație — acțiunile de formare sunt oricum refuzate de server),
+          // buletinul și actele deja emise. Adminul și codul comun nu au dosar personal.
+          // FAIL-OPEN: dacă starea nu se poate citi, nu blocăm din browser — poarta
+          // adevărată e pe server, la fiecare acțiune de formare.
+          if (ok) {
+            const LIBERE = ["/cursuri/cod-etic/", "/cursuri/examen/", "/cursuri/buletin/", "/cursuri/act/"];
+            const aici = location.pathname.endsWith("/") ? location.pathname : location.pathname + "/";
+            const eAdmin = r && r.rol === "admin";
+            let dejaOk = null;
+            try { dejaOk = sessionStorage.getItem("cfcrEticOk"); } catch (e) {}
+            if (!eAdmin && !dejaOk && !LIBERE.some((p) => aici.startsWith(p))) {
+              const acr = {};
+              try { const cj = JSON.parse(localStorage.getItem("cfcrCandidat") || "null"); if (cj && cj.cod) acr.cid = cj.cod; } catch (e) {}
+              try { const c = localStorage.getItem("cfcrAccesCod"); if (c) acr.cod = c; } catch (e) {}
+              fetch("/.netlify/functions/cod-etic", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...acr, actiune: "stare" }),
+              })
+                .then((rr) => rr.json())
+                .then((d) => {
+                  if (d.anonim || d.asumat) {
+                    try { sessionStorage.setItem("cfcrEticOk", d.versiune || "da"); } catch (e) {}
+                    return;
+                  }
+                  location.replace("/cursuri/cod-etic/?de=" + encodeURIComponent(location.pathname));
+                })
+                .catch(() => {});
+            }
+          }
         } catch (e) {
           location.replace("/cursuri/");
         }
@@ -256,6 +289,7 @@ const protejat = allowList.length > 0 || candidatOk;
       <script is:inline>
         document.getElementById("c-logout")?.addEventListener("click", () => {
           try {
+            try { sessionStorage.removeItem("cfcrEticOk"); } catch (e) {}
             localStorage.removeItem("cfcrRol");
             localStorage.removeItem("cfcrRolLa");
             localStorage.removeItem("cfcrAcces"); // cheie veche (curățare)

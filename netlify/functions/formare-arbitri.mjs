@@ -13,6 +13,7 @@ import { getStore } from "@netlify/blobs";
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { rolLaIntrare, actorDinCod, sha256, LECTORI } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { refuzaFaraCodEtic } from "./_comun/poarta-etica.mjs";
 import { json } from "./_comun/raspuns.mjs";
 
 const AN = 2026;
@@ -91,6 +92,8 @@ export default cuLimitareCod(async (req) => {
   const store = getStore("cursuri");
   const cine = await arbitrul(codBrut, store);
   if (!cine) return json({ eroare: "Formarea continuă este pentru arbitrii autorizați (cod de arbitru sau de lector)." }, 403);
+  // Poarta etică: formarea continuă e tot formare — arbitrii și lectorii intră cu Codul asumat.
+  { const oprit = await refuzaFaraCodEtic(store, cine.id, json); if (oprit) return oprit; }
   const cheie = `formare/${AN}/${cine.id}`;
 
   if (actiune === "stare") {

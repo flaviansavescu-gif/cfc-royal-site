@@ -24,6 +24,7 @@ import opentype from "opentype.js";
 import { rolLaIntrare, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { cititorCursuri } from "./_comun/cititor-cursuri.mjs";
+import { refuzaFaraCodEtic } from "./_comun/poarta-etica.mjs";
 import { json } from "./_comun/raspuns.mjs";
 
 const PAGINI = 128;
@@ -121,6 +122,8 @@ export default cuLimitareCod(async (req) => {
 
   const cine = await cititor(body);
   if (!cine) return json({ eroare: "Material disponibil doar cu cod de acces valid." }, 403);
+  // Poarta etică: formarea cere Codul Etic asumat (identitățile personale; codul comun trece).
+  { const oprit = await refuzaFaraCodEtic(getStore("cursuri"), cine.id, json); if (oprit) return oprit; }
 
   if (body.actiune === "info") return json({ pagini: PAGINI, titlu: TITLU, module: MODULE });
 

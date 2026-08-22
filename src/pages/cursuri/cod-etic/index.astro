@@ -1,0 +1,51 @@
+---
+// /cursuri/cod-etic/ — poarta de asumare a Codului Etic.
+//
+// Aici ajunge oricine (candidat, arbitru, lector) încearcă să intre în formare fără
+// asumarea versiunii curente a Codului Etic (hotărârea din 23.08.2026). Un singur clic
+// și platforma se deschide întreagă; cine a asumat deja nu ajunge niciodată aici.
+import CursuriLayout from "../../../layouts/CursuriLayout.astro";
+import AsumareCodEtic from "../../../components/AsumareCodEtic.astro";
+---
+
+<CursuriLayout title="Codul Etic — asumare" candidat allow={["arbitru", "lector", "acces"]}>
+  <p class="e-eyebrow">Școala de Arbitraj</p>
+  <h1 class="e-title">Codul Etic — poarta de intrare</h1>
+  <p class="e-sub">
+    Accesul la formare — module, teste, examen, stagiu, materiale — cere asumarea
+    <strong>versiunii curente</strong> a Codului Etic. E actul pe care se sprijină întreaga
+    disciplină a Colegiului: nimeni nu poate fi ținut la un text pe care nu l-a văzut,
+    și nimeni nu arbitrează fără să și-l fi asumat. Confirmarea se înregistrează cu
+    numele, rolul și data ta, o singură dată per versiune.
+  </p>
+
+  <AsumareCodEtic />
+
+  <p class="e-nota">Rămân oricând deschise, și fără asumare: arhiva Buletinului,
+    contestațiile examenului și tipărirea actelor deja emise.</p>
+</CursuriLayout>
+
+<script is:inline>
+  (function () {
+    // După asumare, omul se întoarce EXACT unde voia să ajungă (?de=...).
+    var confirmat = document.getElementById("ce-confirmat");
+    if (!confirmat) return;
+    var tinta = new URLSearchParams(location.search).get("de") || "/cursuri/module/";
+    // Doar căi interne ale platformei — nu redirecționăm către adrese străine.
+    if (!/^\/cursuri\//.test(tinta)) tinta = "/cursuri/module/";
+    new MutationObserver(function () {
+      if (!confirmat.hidden && /asumat/.test(confirmat.textContent || "")) {
+        try { sessionStorage.removeItem("cfcrEticOk"); } catch (e) {}
+        setTimeout(function () { location.replace(tinta); }, 1200);
+      }
+    }).observe(confirmat, { attributes: true, attributeFilter: ["hidden"] });
+  })();
+</script>
+
+<style>
+  .e-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--color-accent-dark); margin: 0; }
+  .e-title { font-family: var(--font-serif); color: var(--color-primary); margin: 0.35rem 0 0.5rem; }
+  .e-sub { max-width: 46rem; }
+  .e-nota { color: var(--color-text-muted); font-size: 0.88rem; max-width: 46rem; margin-top: 1.5rem;
+    border-top: 1px solid var(--color-border); padding-top: 0.8rem; }
+</style>

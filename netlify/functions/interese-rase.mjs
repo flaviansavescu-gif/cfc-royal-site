@@ -17,6 +17,7 @@ import { json, taie, acum, candidatDinId, audit, candidatDinCod} from "./_paa/li
 import { actorDinCod, LECTORI, lectoriCuGrupe } from "./_comun/roluri.mjs";
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { refuzaFaraCodEtic } from "./_comun/poarta-etica.mjs";
 // Logica pură (sanitizare, lărgime, sugestii, agregare) — testată separat.
 import {
   MIN_GRUPE, curataGrupe, curataRase, grupeEfective, poateTrimite,
@@ -100,6 +101,7 @@ export default cuLimitareCod(async (req) => {
   if (body.cid) {
     const cand = await candidatDinCod(body.cid);
     if (!cand) return json({ eroare: "Sesiune de candidat invalidă." }, 401);
+    { const oprit = await refuzaFaraCodEtic(storeCursuri(), cand.id, json); if (oprit) return oprit; }
 
     if (actiune === "meniu") {
       const p = await citeste("profil/" + cand.id);

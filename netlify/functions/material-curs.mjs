@@ -20,6 +20,8 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { cititorCursuri } from "./_comun/cititor-cursuri.mjs";
+import { refuzaFaraCodEtic } from "./_comun/poarta-etica.mjs";
+import { getStore } from "@netlify/blobs";
 import { json } from "./_comun/raspuns.mjs";
 
 const RADACINA_MATERIALE = "cursuri-materiale";
@@ -74,6 +76,8 @@ export default cuLimitareCod(async (req) => {
 
   const cine = await cititorCursuri(body);
   if (!cine) return json({ eroare: "Materialele de curs sunt disponibile doar cu cod de acces valid." }, 403);
+  // Poarta etică: formarea cere Codul Etic asumat (identitățile personale; codul comun trece).
+  { const oprit = await refuzaFaraCodEtic(getStore("cursuri"), cine.id, json); if (oprit) return oprit; }
 
   const relativ = caleSigura(body.fisier);
   if (!relativ) return json({ eroare: "Material inexistent." }, 400);

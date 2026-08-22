@@ -24,6 +24,7 @@
 import { getStore } from "@netlify/blobs";
 import { createHash, randomInt } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { refuzaFaraCodEtic } from "./_comun/poarta-etica.mjs";
 import { trimite } from "./_comun/posta.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
@@ -276,6 +277,13 @@ export default cuLimitareCod(async (req) => {
   const store = getStore("cursuri");
   const nume = await candidatNume(store, id);
   if (!nume) return json({ eroare: "Cod de candidat invalid." }, 401);
+  // Poarta etică — cu două uși lăsate LIBERE dinadins (hotărârea din 23.08):
+  // „stare" (fără ea pagina n-ar putea nici măcar arăta contestația) și „contesta"
+  // (dreptul procedural nu se condiționează de un beneficiu de formare).
+  if (actiune !== "stare" && actiune !== "contesta") {
+    const oprit = await refuzaFaraCodEtic(store, id, json);
+    if (oprit) return oprit;
+  }
 
   let dosar = null;
   try { dosar = await store.get("examen/" + id, { type: "json" }); } catch {}

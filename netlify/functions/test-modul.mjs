@@ -12,6 +12,7 @@
 import { getStore } from "@netlify/blobs";
 import { rolLaIntrare, sha256 } from "./_comun/roluri.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { refuzaFaraCodEtic } from "./_comun/poarta-etica.mjs";
 import { trimite } from "./_comun/posta.mjs";
 import { stareTermen, aplicaPenalizarea, formateazaTermen } from "./_comun/termen-test.mjs";
 
@@ -33,13 +34,14 @@ async function cine({ cod, store }) {
   const r = rolLaIntrare(cod0);
   if (r) {
     // Codul comun de candidați și rolurile de administrare NU au insignă personală.
+    // `idEtic` = identitatea din evidența asumărilor (slug la lector) — pentru poarta etică.
     if (r.rol === "acces" || r.rol === "admin" || r.rol === "lector")
-      return { rol: r.rol === "acces" ? "candidat-comun" : r.rol, candidatId: null };
+      return { rol: r.rol === "acces" ? "candidat-comun" : r.rol, candidatId: null, idEtic: r.rol === "lector" ? r.slug : null };
   }
   const arb = await store.get("arbitru/" + sha256(cod0), { type: "json" }).catch(() => null);
-  if (arb) return { rol: "arbitru", candidatId: null };
+  if (arb) return { rol: "arbitru", candidatId: null, idEtic: sha256(cod0) };
   const cand = await store.get("candidat/" + sha256(cod0), { type: "json" }).catch(() => null);
-  if (cand) return { rol: "candidat", candidatId: sha256(cod0), nume: cand.nume || "" };
+  if (cand) return { rol: "candidat", candidatId: sha256(cod0), nume: cand.nume || "", idEtic: sha256(cod0) };
   return null;
 }
 
@@ -98,6 +100,8 @@ export default cuLimitareCod(async (req) => {
   // sau se trimite. Închide corectarea anonimă (falsificarea de rezultate / spam).
   const eu = await cine({ cod, store });
   if (!eu) return json({ eroare: "Intră în Școala de Arbitraj cu codul tău pentru a susține testul." }, 401);
+  // Poarta etică: testele sunt formare — fără Codul Etic asumat, nu se corectează nimic.
+  { const oprit = await refuzaFaraCodEtic(store, eu.idEtic, json); if (oprit) return oprit; }
 
   // ——— TERMENUL DE SUSȚINERE ———
   // Bariera stă AICI, la corectare — singurul loc prin care trece orice test — deci nu

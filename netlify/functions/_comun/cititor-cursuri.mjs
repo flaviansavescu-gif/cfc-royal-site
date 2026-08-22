@@ -11,7 +11,10 @@ import { getStore } from "@netlify/blobs";
 import { rolLaIntrare, sha256 } from "./roluri.mjs";
 
 /**
- * @returns {Promise<{rol:string, nume:string}|null>} cine citește, sau `null` dacă nimeni
+ * `id` = identitatea PERSONALĂ în evidența asumărilor Codului Etic (insigna candidatului/
+ * arbitrului, slug-ul lectorului) — `null` pentru admin și codul comun, care n-au dosar
+ * personal. Pe el se sprijină poarta etică.
+ * @returns {Promise<{rol:string, nume:string, id:string|null}|null>} cine citește, sau `null` dacă nimeni
  */
 export async function cititorCursuri(body) {
   // Cod individual de candidat. M1: câmpul `cid` poartă CODUL, nu insigna (care ajungea
@@ -20,7 +23,7 @@ export async function cititorCursuri(body) {
   if (cid) {
     try {
       const c = await getStore("cursuri").get("candidat/" + sha256(cid), { type: "json" });
-      if (c) return { rol: "candidat", nume: String(c.nume || "").trim() || "Candidat" };
+      if (c) return { rol: "candidat", nume: String(c.nume || "").trim() || "Candidat", id: sha256(cid) };
     } catch (err) {
       console.error("Căutare candidat eșuată:", err);
     }
@@ -30,13 +33,13 @@ export async function cititorCursuri(body) {
   const cod = String(body?.cod || "").trim();
   if (cod) {
     const r = rolLaIntrare(cod);
-    if (r?.rol === "admin") return { rol: "admin", nume: "Administrator CFC-Royal" };
-    if (r?.rol === "lector") return { rol: "lector", nume: r.nume };
-    if (r?.rol === "acces") return { rol: "acces", nume: "Acces cu cod comun" };
+    if (r?.rol === "admin") return { rol: "admin", nume: "Administrator CFC-Royal", id: null };
+    if (r?.rol === "lector") return { rol: "lector", nume: r.nume, id: r.slug };
+    if (r?.rol === "acces") return { rol: "acces", nume: "Acces cu cod comun", id: null };
     // Arbitru (membru al Colegiului care nu e lector) — cod individual din registru.
     try {
       const a = await getStore("cursuri").get("arbitru/" + sha256(cod), { type: "json" });
-      if (a) return { rol: "arbitru", nume: String(a.nume || "").trim() || "Arbitru" };
+      if (a) return { rol: "arbitru", nume: String(a.nume || "").trim() || "Arbitru", id: sha256(cod) };
     } catch (err) {
       console.error("Căutare arbitru eșuată:", err);
     }
