@@ -16,7 +16,7 @@
 // POST { actiune:"sterge",      cod, key }         -> { ok }                    (doar admin)
 // POST { actiune:"abonati",     cod }              -> { abonati:[...] }         (doar admin)
 import { getStore } from "@netlify/blobs";
-import { rolLaIntrare, actorDinCod, sha256 } from "./_comun/roluri.mjs";
+import { rolLaIntrare, actorDinCod, sha256, LECTORI } from "./_comun/roluri.mjs";
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import {
@@ -107,8 +107,21 @@ export default cuLimitareCod(async (req) => {
       if (!membru)
         return json({ eroare: "Abonarea se face cu codul tău personal (de candidat, arbitru sau lector), nu cu codul comun." }, 403);
       // O adresă aparține unui singur membru: nu se poate prelua adresa altcuiva.
-      if (existent && existent.membruId && existent.membruId !== membru.id)
-        return json({ eroare: "Adresa este deja abonată de alt membru al platformei." }, 409);
+      // DAR stăpânul înregistrat poate fi o insignă MOARTĂ (cod regenerat, abonare
+      // dinaintea refactorului identității): atunci înregistrarea e orfană și refuzul
+      // bloca pe nedrept chiar omul adresei (cazul din 23.08 — „deja abonată de alt
+      // membru", deși atenționarea îl arăta neabonat). Orfanele se preiau; adresa
+      // unui stăpân ÎN VIAȚĂ rămâne de neatins.
+      if (existent && existent.membruId && existent.membruId !== membru.id) {
+        const [candidatViu, arbitruViu] = await Promise.all([
+          store.get("candidat/" + existent.membruId, { type: "json" }).catch(() => null),
+          store.get("arbitru/" + existent.membruId, { type: "json" }).catch(() => null),
+        ]);
+        const lectorViu = LECTORI.some((l) => l.hash === existent.membruId);
+        if (candidatViu || arbitruViu || lectorViu)
+          return json({ eroare: "Adresa este deja abonată de alt membru al platformei. Dacă adresa e chiar a ta, scrie-ne — administratorul o poate elibera din panou." }, 409);
+        console.log(`Abonare orfană preluată: ${email} (stăpânul vechi ${existent.membruId.slice(0, 8)}… nu mai există).`);
+      }
       const inregistrare = {
         email,
         membruId: membru.id,
@@ -128,8 +141,16 @@ export default cuLimitareCod(async (req) => {
     if (!esteAdmin) {
       if (!membru)
         return json({ eroare: "Dezabonarea se face cu codul tău personal, nu cu codul comun." }, 403);
-      if (existent && existent.membruId && existent.membruId !== membru.id)
-        return json({ eroare: "Poți dezabona doar adresa pe care ai abonat-o tu." }, 403);
+      if (existent && existent.membruId && existent.membruId !== membru.id) {
+        // Aceeași judecată ca la abonare: stăpânul mort nu mai apără nimic — a-i refuza
+        // omului dezabonarea propriei adrese ar fi și absurd, și contra GDPR.
+        const [candidatViu, arbitruViu] = await Promise.all([
+          store.get("candidat/" + existent.membruId, { type: "json" }).catch(() => null),
+          store.get("arbitru/" + existent.membruId, { type: "json" }).catch(() => null),
+        ]);
+        if (candidatViu || arbitruViu || LECTORI.some((l) => l.hash === existent.membruId))
+          return json({ eroare: "Poți dezabona doar adresa pe care ai abonat-o tu." }, 403);
+      }
     }
     try { await store.delete(cheie); } catch (err) { console.error(err); }
     // …și jetonul din linkurile deja trimise: după ce omul a ieșit, un link rămas valabil
