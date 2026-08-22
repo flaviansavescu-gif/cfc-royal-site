@@ -1,6 +1,6 @@
 // jcr-raspuns.mjs — răspunsul individual al cursantului (schiță / trimitere).
 // Cursant: schita | trimite | a-mea.  Răspunsul NU e vizibil altor cursanți.
-import { json, taie, acum, candidatDinId, store, citesteParticipanti, esteParticipant, audit, candidatDinCod} from "./_jcr/lib.mjs";
+import { json, taie, acum, candidatDinId, store, citesteParticipanti, esteParticipant, audit, candidatDinCod, MESAJ_ETICA} from "./_jcr/lib.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 const FORM_VERSION = 1;
@@ -39,6 +39,7 @@ export default cuLimitareCod(async (req) => {
 
   const cand = await candidatDinCod(body.cid);
   if (!cand) return json({ eroare: "Sesiune de candidat invalidă." }, 401);
+  if (cand.faraCodEtic) return json({ eroare: MESAJ_ETICA, trebuieAsumat: true }, 403);
   if (!id) return json({ eroare: "Lipsește sesiunea." }, 400);
 
   const st = store();

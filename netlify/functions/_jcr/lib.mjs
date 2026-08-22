@@ -28,9 +28,24 @@ export async function candidatDinCod(cod) {
   const id = sha256(c);
   try {
     const cand = await storeCursuri().get("candidat/" + id, { type: "json" });
-    if (cand) return { id, nume: cand.nume };
+    if (cand) return { id, nume: cand.nume, faraCodEtic: await faraCodEtic(id) };
   } catch (err) { console.error("Verificare candidat eșuată:", err); }
   return null;
+}
+
+// ——— Poarta etică (pasul doi, 23.08.2026): și Sala de analiză e formare ———
+import { VERSIUNE as VERSIUNE_ETICA } from "../cod-etic.mjs";
+export const MESAJ_ETICA = `Accesul cere asumarea Codului Etic (versiunea ${VERSIUNE_ETICA}). ` +
+  "Intră în platformă la /cursuri/cod-etic/ și confirmă — durează un minut.";
+/** Fail-open pe avarie: un sughiț de magazie nu închide sala, doar „NU citit asumat" o închide. */
+async function faraCodEtic(id) {
+  try {
+    const a = await storeCursuri().get(`cod-etic/${VERSIUNE_ETICA}/${id}`, { type: "json" });
+    return !a;
+  } catch (err) {
+    console.error("Poarta etică (JCR) nu a putut citi asumarea — trece:", err?.message || err);
+    return false;
+  }
 }
 
 /** Verifică un candidat prin ID-ul lui (bearer stocat în browser la login, ca la

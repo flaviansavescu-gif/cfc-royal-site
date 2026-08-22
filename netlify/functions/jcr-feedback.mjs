@@ -1,6 +1,6 @@
 // jcr-feedback.mjs — feedback individual și colectiv, publicabil de lector.
 // Lector: salveaza | citeste.  Cursant: citeste-cursant (doar ce e publicat).
-import { json, taie, acum, cereLector, candidatDinId, poateAdministraSesiunea, store, citesteParticipanti, esteParticipant, audit, candidatDinCod} from "./_jcr/lib.mjs";
+import { json, taie, acum, cereLector, candidatDinId, poateAdministraSesiunea, store, citesteParticipanti, esteParticipant, audit, candidatDinCod, MESAJ_ETICA} from "./_jcr/lib.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
@@ -17,6 +17,7 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "citeste-cursant") {
     const cand = await candidatDinCod(body.cid);
     if (!cand) return json({ eroare: "Sesiune de candidat invalidă." }, 401);
+    if (cand.faraCodEtic) return json({ eroare: MESAJ_ETICA, trebuieAsumat: true }, 403);
     const part = await citesteParticipanti(id);
     if (!esteParticipant(part, cand.id)) return json({ eroare: "Nu ești alocat acestei sesiuni." }, 403);
     const ind = await st.get("feedback/" + id + "/" + cand.id, { type: "json" }).catch(() => null);

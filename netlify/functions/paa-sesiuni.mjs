@@ -1,7 +1,7 @@
 // paa-sesiuni.mjs — sesiuni de adnotare (Photo Anatomy Annotator).
 // Candidat, lector SAU admin (cid): lista | creaza | salveaza | detalii | sterge — fiecare
 // pe sesiunile LUI. (Review lector — a vedea sesiunile altui candidat — rămâne Faza 2.)
-import { json, taie, acum, idNou, store, cineDinCod } from "./_paa/lib.mjs";
+import { json, taie, acum, idNou, store, cineDinCod, MESAJ_ETICA} from "./_paa/lib.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 
 async function citesteIndex(userId) { try { return (await store().get("session-index/" + userId, { type: "json" })) || []; } catch { return []; } }
@@ -48,6 +48,7 @@ export default cuLimitareCod(async (req) => {
   const actiune = taie(body.actiune, 20) || "lista";
   const cine = await cineDinCod(body.cid);
   if (!cine) return json({ eroare: "Cod invalid sau neautentificat în platformă." }, 401);
+  if (cine.faraCodEtic) return json({ eroare: MESAJ_ETICA, trebuieAsumat: true }, 403);
   const st = store();
 
   if (actiune === "lista") {

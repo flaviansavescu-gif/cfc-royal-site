@@ -43,9 +43,24 @@ export async function candidatDinCod(cod) {
   const id = sha256(c);
   try {
     const cand = await storeCursuri().get("candidat/" + id, { type: "json" });
-    if (cand) return { id, nume: cand.nume };
+    if (cand) return { id, nume: cand.nume, faraCodEtic: await faraCodEtic(id) };
   } catch (err) { console.error("Verificare candidat (cod) eșuată:", err); }
   return null;
+}
+
+// ——— Poarta etică (pasul doi, 23.08.2026): și exercițiile de anatomie sunt formare ———
+import { VERSIUNE as VERSIUNE_ETICA } from "../cod-etic.mjs";
+export const MESAJ_ETICA = `Accesul cere asumarea Codului Etic (versiunea ${VERSIUNE_ETICA}). ` +
+  "Intră în platformă la /cursuri/cod-etic/ și confirmă — durează un minut.";
+/** Fail-open pe avarie: un sughiț de magazie nu închide adnotatorul. */
+async function faraCodEtic(id) {
+  try {
+    const a = await storeCursuri().get(`cod-etic/${VERSIUNE_ETICA}/${id}`, { type: "json" });
+    return !a;
+  } catch (err) {
+    console.error("Poarta etică (PAA) nu a putut citi asumarea — trece:", err?.message || err);
+    return false;
+  }
 }
 
 /**
@@ -59,10 +74,13 @@ export async function candidatDinCod(cod) {
  */
 export async function cineDinCod(cod) {
   const cand = await candidatDinCod(cod);
-  if (cand) return { id: cand.id, rol: "candidat", nume: cand.nume };
+  if (cand) return { id: cand.id, rol: "candidat", nume: cand.nume, faraCodEtic: cand.faraCodEtic };
   const a = actorDinCod(cod);
   if (a?.rol === "admin") return { id: "admin", rol: "admin", nume: "Administrator" };
-  if (a?.rol === "lector") return { id: "lector:" + (a.slug || sha256(cod).slice(0, 16)), rol: "lector", nume: a.nume || a.slug || "lector" };
+  if (a?.rol === "lector")
+    return { id: "lector:" + (a.slug || sha256(cod).slice(0, 16)), rol: "lector", nume: a.nume || a.slug || "lector",
+      // Lectorii intră sub aceeași poartă (hotărârea 2a); evidența lor e pe slug.
+      faraCodEtic: a.slug ? await faraCodEtic(a.slug) : false };
   return null;
 }
 

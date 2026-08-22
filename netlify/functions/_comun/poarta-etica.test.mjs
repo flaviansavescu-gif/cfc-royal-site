@@ -97,6 +97,25 @@ if (!bootstrapMockModule(import.meta.url)) {
     assert.equal(formareArb.status, 200);
   });
 
+  test("pasul doi: Sala de analiză și adnotatorul stau sub aceeași poartă", async () => {
+    suport.magazie = magazieCuScoala();
+    const jcr = (await import("../jcr-sesiuni.mjs")).default;
+    const paa = (await import("../paa-sesiuni.mjs")).default;
+
+    const jcrInchis = await post(jcr, { actiune: "alocate", cid: COD_CANDIDAT });
+    assert.equal(jcrInchis.status, 403, JSON.stringify(jcrInchis.corp));
+    assert.equal(jcrInchis.corp.trebuieAsumat, true);
+    const paaInchis = await post(paa, { actiune: "lista", cid: COD_CANDIDAT });
+    assert.equal(paaInchis.status, 403);
+    assert.equal(paaInchis.corp.trebuieAsumat, true);
+
+    await post(codEtic, { cid: COD_CANDIDAT, actiune: "asuma" });
+    const jcrDeschis = await post(jcr, { actiune: "alocate", cid: COD_CANDIDAT });
+    assert.equal(jcrDeschis.status, 200, "după asumare, sala de analiză se deschide");
+    const paaDeschis = await post(paa, { actiune: "lista", cid: COD_CANDIDAT });
+    assert.equal(paaDeschis.status, 200, "după asumare, adnotatorul se deschide");
+  });
+
   test("fail-open pe avarie + fără identitate personală poarta nu se aplică", async () => {
     const json = (b, s = 200) => new Response(JSON.stringify(b), { status: s });
     const magazieMoarta = { get: async () => { throw new Error("magazia nu răspunde"); } };

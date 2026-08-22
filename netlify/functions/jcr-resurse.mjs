@@ -32,7 +32,7 @@ export default cuLimitareCod(async (req) => {
     if (body.cid) {
       const cand = await candidatDinCod(body.cid);
       const part = await citesteParticipanti(id);
-      permis = !!cand && esteParticipant(part, cand.id) && ["published", "closed"].includes(s.status);
+      permis = !!cand && !cand.faraCodEtic && esteParticipant(part, cand.id) && ["published", "closed"].includes(s.status);
     } else if (body.cod) {
       permis = poateAdministraSesiunea(actorDinCod(body.cod), s);
     }
