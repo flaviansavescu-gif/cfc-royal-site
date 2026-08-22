@@ -115,12 +115,15 @@ export default cuLimitareCod(async (req) => {
     if (dejaOmologat)
       return json({ eroare: `Titlul „${TITLURI[titlu]}" e deja omologat pentru acest câine.` }, 409);
 
-    // O singură cerere în așteptare per câine + titlu.
+    // O singură cerere în așteptare per câine + titlu. Câinele se recunoaște pe cip;
+    // la actele vechi fără cip, pe serie — altfel „" === „" bloca un câine DIFERIT.
+    const serieCerta = cert.serie || cautat;
     try {
       const { blobs } = await s.list({ prefix: "omologare/" });
       for (const b of blobs) {
         const o = await s.get(b.key, { type: "json" }).catch(() => null);
-        if (o && o.microcip === microcip && o.titlu === titlu && o.stare === "noua")
+        const acelasiCaine = o && (microcip ? o.microcip === microcip : o.serie === serieCerta);
+        if (acelasiCaine && o.titlu === titlu && o.stare === "noua")
           return json({ eroare: "Există deja o cerere în lucru pentru acest titlu — registratura o judecă în cel mai scurt timp." }, 409);
       }
     } catch (err) { console.error(err); }

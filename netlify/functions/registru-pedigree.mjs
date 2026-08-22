@@ -439,8 +439,11 @@ export default cuLimitareCod(async (req) => {
             serie: x.serie, nume: cert?.caine?.nume || x.nume || "", rasa: d.rasa || cert?.caine?.rasa || "",
             tip: x.tip || cert?.tip || "", dmfSerie: d.serie || "",
             proprietar: cert?.proprietar?.nume || "", anulat: !!cert?.anulat,
-            // vândut = pe act e alt proprietar decât crescătorul
-            transferat: !!(cert?.proprietar?.nume && cert.proprietar.nume !== eu.membru.nume),
+            // vândut = pe act e alt proprietar decât crescătorul (comparare îngăduitoare:
+            // „Ion Popescu" scris cu spații sau majuscule diferite e tot el)
+            transferat: !!(cert?.proprietar?.nume &&
+              cert.proprietar.nume.trim().toLowerCase().replace(/\s+/g, " ") !==
+              String(eu.membru.nume || "").trim().toLowerCase().replace(/\s+/g, " ")),
           });
         }
       }

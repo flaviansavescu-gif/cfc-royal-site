@@ -981,13 +981,18 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       var cap = t.stare === "confirmat"
         ? "<div class='g-mic' style='color:#1F4D3A'>✓ confirmat de " + esc(t.raspuns && t.raspuns.nume || noul.nume) + " la " + esc(String(t.raspuns && t.raspuns.la || "").slice(0, 10)) + "</div>"
         : "<div class='g-mic' style='color:#8c1d2f'>✗ REFUZAT" + (t.raspuns && t.raspuns.motiv ? ": " + esc(t.raspuns.motiv) : "") + "</div>";
-      var butoane = t.stare === "confirmat"
-        ? "<div style='margin-top:.4rem'><button class='btn btn--primary' data-op='" + esc(t.id) + "'>Operează transferul</button></div>"
+      // Crescătorul poate iniția și pentru un câine vândut deja — pe act e altcineva.
+      var avert = t.initiatDeCrescator
+        ? "<div class='g-mic' style='margin-top:.3rem;background:#f9efef;border:1px solid #8c1d2f;color:#8c1d2f;border-radius:6px;padding:.35rem .6rem'>⚠ Inițiat de crescător, dar pe certificat figurează " + esc(t.proprietarVechi || "alt proprietar") + ". Verifică cu atenție înainte de operare.</div>"
         : "";
+      var butoane = t.stare === "confirmat"
+        ? "<div style='display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem'><button class='btn btn--primary' data-op='" + esc(t.id) + "'>Operează transferul</button>"
+          + "<button class='btn' data-claseaza-conf='" + esc(t.id) + "'>Clasează (nu se operează)</button></div>"
+        : "<div style='margin-top:.4rem'><button class='btn' data-claseaza='" + esc(t.id) + "'>Am luat la cunoștință — închide</button></div>";
       return "<li class='g-dosar'><div><strong>" + esc(t.caine && t.caine.nume || t.serie) + "</strong>"
         + "<div class='g-mic'>certificat " + esc(t.serie) + (t.caine && t.caine.rasa ? " · " + esc(t.caine.rasa) : "") + "</div>"
         + "<div class='g-mic'>de la " + esc(t.vanzator || "—") + " → " + esc(noul.nume || "—") + (unde ? " (" + esc(unde) + ")" : "") + "</div>"
-        + cap + "</div>" + butoane + "</li>";
+        + cap + avert + "</div>" + butoane + "</li>";
     }
     async function incarca() {
       try {
@@ -1002,9 +1007,19 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       } catch (e) { lista.innerHTML = "<li class='g-gol'>Eroare de rețea.</li>"; }
     }
     lista.addEventListener("click", async function (e) {
-      var b = e.target.closest("button"); if (!b || !b.dataset.op) return;
-      if (!confirm("Operezi transferul pe certificat? Vechiul proprietar rămâne în istoricul actului, iar ambele părți primesc vestea pe e-mail.")) return;
-      var r = await post({ actiune: "opereaza", id: b.dataset.op });
+      var b = e.target.closest("button"); if (!b) return;
+      var corp = null;
+      if (b.dataset.op) {
+        if (!confirm("Operezi transferul pe certificat? Vechiul proprietar rămâne în istoricul actului, iar ambele părți primesc vestea pe e-mail.")) return;
+        corp = { actiune: "opereaza", id: b.dataset.op };
+      } else if (b.dataset.claseazaConf) {
+        var m = prompt("Motivul clasării (rămâne în jurnal și pleacă ambelor părți pe e-mail):"); if (!m) return;
+        corp = { actiune: "claseaza", id: b.dataset.claseazaConf, motiv: m };
+      } else if (b.dataset.claseaza) {
+        if (!confirm("Închizi dosarul refuzat? Rămâne în evidență, dar iese din coadă, iar câinele se poate transfera din nou.")) return;
+        corp = { actiune: "claseaza", id: b.dataset.claseaza };
+      } else return;
+      var r = await post(corp);
       var d = await r.json().catch(function () { return {}; }); if (!r.ok) alert(d.eroare || "Eroare.");
       incarca();
     });
@@ -1232,7 +1247,8 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
       if (b.dataset.dovada) return deschideDovada("comenzi", b.dataset.dovada);
       var corp = null;
       if (b.dataset.ok) {
-        var nota = prompt("Notă pentru membru (opțional — ex. actele au plecat prin PrioriPost azi):") || "";
+        var nota = prompt("Notă pentru membru (opțional — ex. actele au plecat prin PrioriPost azi):");
+        if (nota === null) return;   // Cancel = renunț, nu „notă goală"
         if (!confirm("Marchezi comanda ca FINALIZATĂ? Membrul primește vestea pe e-mail.")) return;
         corp = { actiune: "finalizeaza", id: b.dataset.ok, nota: nota.trim() };
       } else if (b.dataset.nu) {

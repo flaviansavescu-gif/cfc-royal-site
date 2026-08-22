@@ -214,7 +214,9 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
         const tr = document.createElement("tr");
         const nume = document.createElement("td");
         nume.className = "c-mx-cand";
-        nume.innerHTML = "<strong>" + c.nume + "</strong>";
+        const tare = document.createElement("strong");
+        tare.textContent = c.nume;   // numele e text, niciodată HTML (regula casei)
+        nume.appendChild(tare);
         tr.appendChild(nume);
 
         const a = autorizari[c.id] || {};
@@ -289,7 +291,13 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
         const stare = e.promovat
           ? "<span class='c-badge c-badge--pass'>Promovat ✓</span>"
           : "<span class='c-badge c-badge--fail'>Nepromovat</span> — reîncercare de la " + dataRo(new Date(new Date(e.ultimaData).getTime() + 7 * 864e5).toISOString());
-        info.innerHTML = "<strong>" + c.nume + "</strong> · " + stare + " <span class='c-ex-meta'>(" + e.incercari + " încercări)</span>";
+        // Numele intră ca TEXT; doar insignele (scrise de noi) sunt HTML.
+        const tareEx = document.createElement("strong");
+        tareEx.textContent = c.nume;
+        info.appendChild(tareEx);
+        const restEx = document.createElement("span");
+        restEx.innerHTML = " · " + stare + " <span class='c-ex-meta'>(" + e.incercari + " încercări)</span>";
+        info.appendChild(restEx);
         li.appendChild(info);
 
         const btn = document.createElement("button");
@@ -312,10 +320,9 @@ import { GRUPE_WDF } from "../../../data/grupe-wdf";
     incarca();
 
     // ——— C. Sesiunile de examen + comisia ———
-    const dataRo = (s) => {
-      const d = new Date(s);
-      return isNaN(d) ? s : d.toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" });
-    };
+    // ATENȚIE: `dataRo` e declarată O SINGURĂ dată, mai sus (secțiunea B). O a doua
+    // declarație cu `const` în același domeniu a ținut TOATĂ pagina moartă din 26.07
+    // (SyntaxError la parsare — niciun rând de script nu se mai executa).
 
     async function incarcaSesiuni() {
       const list = document.getElementById("c-ses-list");

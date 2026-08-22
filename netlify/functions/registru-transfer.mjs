@@ -91,9 +91,11 @@ export default cuLimitareCod(async (req) => {
 
     if (actiune === "vezi") {
       // Doar ce trebuie ca omul să recunoască transferul: câinele și propriile lui date.
+      // Microcipul întreg NU pleacă pe jeton: pagina nu-l afișează, iar un cip întreg
+      // permite revendicarea câinelui în bazele veterinare (regula fișei publice).
       return json({
         transfer: {
-          caine: dosar.caine, serie: dosar.serie,
+          caine: { nume: dosar.caine?.nume || "", rasa: dosar.caine?.rasa || "" }, serie: dosar.serie,
           vanzator: dosar.vanzator.nume,
           nou: { nume: dosar.nou.nume, localitate: dosar.nou.localitate, judet: dosar.nou.judet, tara: dosar.nou.tara },
         },
@@ -162,9 +164,18 @@ export default cuLimitareCod(async (req) => {
 
     // Un singur transfer în curs per câine — lacăt atomic, ca la serii.
     const id = idNou();
-    const lacat = await s.setJSON("transfer-serie/" + serie, { id, creat: new Date().toISOString() }, { onlyIfNew: true });
-    if (lacat?.modified === false)
-      return json({ eroare: "Există deja un transfer în curs pentru acest câine. Anulează-l întâi din lista ta." }, 409);
+    let lacat = await s.setJSON("transfer-serie/" + serie, { id, creat: new Date().toISOString() }, { onlyIfNew: true });
+    if (lacat?.modified === false) {
+      // Lacătul poate fi ORFAN (o cădere între lacăt și dosar) sau al unui dosar deja
+      // închis. Un lacăt fără transfer viu nu apără nimic — se preia, nu blochează seria.
+      const vechi = await s.get("transfer-serie/" + serie, { type: "json" }).catch(() => null);
+      const dosarVechi = vechi?.id ? await s.get("transfer-dosar/" + vechi.id, { type: "json" }).catch(() => null) : null;
+      const viu = dosarVechi && ["asteapta-confirmare", "confirmat"].includes(dosarVechi.stare);
+      if (viu)
+        return json({ eroare: "Există deja un transfer în curs pentru acest câine. Anulează-l întâi din lista ta." }, 409);
+      await s.setJSON("transfer-serie/" + serie, { id, creat: new Date().toISOString() });
+      lacat = { modified: true };
+    }
 
     const jeton = jetonNou();
     const expira = new Date(Date.now() + VALABILITATE_ZILE * 86400e3).toISOString();
@@ -173,6 +184,10 @@ export default cuLimitareCod(async (req) => {
       caine: { nume: cert.caine?.nume || "", rasa: cert.caine?.rasa || "", microcip: cert.caine?.microcip || "" },
       vanzator: { membruId: eu.membru.id, nume: eu.membru.nume },
       proprietarVechi: cert.proprietar || null,
+      // Crescătorul poate iniția și pentru un câine VÂNDUT deja (dosarul cuibului e al
+      // lui) — dar atunci registratura trebuie să VADĂ că pe act figurează altcineva.
+      initiatDeCrescator: !!(cert.proprietar?.nume &&
+        cert.proprietar.nume.trim().toLowerCase() !== String(eu.membru.nume || "").trim().toLowerCase()),
       nou,
       stare: "asteapta-confirmare",
       creat: new Date().toISOString(),
@@ -265,7 +280,9 @@ export default cuLimitareCod(async (req) => {
       for (const b of blobs) {
         const t = await s.get(b.key, { type: "json" }).catch(() => null);
         if (t && (t.stare === "confirmat" || t.stare === "refuzat"))
-          lista.push({ id: t.id, serie: t.serie, caine: t.caine, vanzator: t.vanzator?.nume, nou: t.nou, stare: t.stare, raspuns: t.raspuns, creat: t.creat });
+          lista.push({ id: t.id, serie: t.serie, caine: t.caine, vanzator: t.vanzator?.nume, nou: t.nou,
+            stare: t.stare, raspuns: t.raspuns, creat: t.creat,
+            initiatDeCrescator: !!t.initiatDeCrescator, proprietarVechi: t.proprietarVechi?.nume || null });
       }
     } catch (err) { console.error(err); }
     lista.sort((a, b) => String(a.creat).localeCompare(String(b.creat)));
@@ -281,6 +298,8 @@ export default cuLimitareCod(async (req) => {
       return json({ eroare: "Se operează doar transferurile CONFIRMATE de noul proprietar." }, 409);
     const cert = await s.get("pedigree/" + t.serie, { type: "json" }).catch(() => null);
     if (!cert) return json({ eroare: "Certificatul nu mai există." }, 404);
+    // Certificatul poate fi anulat ÎNTRE confirmare și operare — pe un act anulat nu se scrie.
+    if (cert.anulat) return json({ eroare: "Certificatul a fost între timp ANULAT — transferul nu se poate opera." }, 409);
 
     // URMA ÎNTÂI, ca peste tot: o schimbare de proprietar fără urmă nu se poate apăra.
     try {
@@ -298,8 +317,12 @@ export default cuLimitareCod(async (req) => {
     }
 
     // Vechiul proprietar rămâne în istoricul certificatului; e-mailul NU intră pe act.
+    // IDEMPOTENT: dacă o operare căzută la mijloc se reia, certificatul poartă DEJA noul
+    // proprietar — a-l împinge atunci în istoric ar minți („fost" = actualul). Se împinge
+    // doar proprietarul care chiar se schimbă.
     const istoric = Array.isArray(cert.istoricProprietari) ? cert.istoricProprietari : [];
-    istoric.push({ ...(cert.proprietar || {}), panaLa: new Date().toISOString() });
+    const dejaScris = String(cert.proprietar?.nume || "").trim().toLowerCase() === t.nou.nume.trim().toLowerCase();
+    if (!dejaScris && cert.proprietar) istoric.push({ ...cert.proprietar, panaLa: new Date().toISOString() });
     const { email: _f, ...proprietarNou } = t.nou;
     await s.setJSON("pedigree/" + t.serie, { ...cert, proprietar: proprietarNou, istoricProprietari: istoric });
     await s.setJSON("transfer-dosar/" + id, { ...t, stare: "operat", operat: { la: new Date().toISOString(), deCatre: eu.rol === "admin" ? "administrator" : eu.registrator?.nume || "registratură" } });
@@ -322,6 +345,48 @@ export default cuLimitareCod(async (req) => {
         subiect: `[CFC-Royal] ${t.serie} — transferul a fost operat`,
         html: `<p>Transferul câinelui <strong>${escapeHtml(numeCaine)}</strong> către ${escapeHtml(t.nou.nume)} a fost operat de registratură. Evidența e la zi.</p>`,
       });
+    }
+    return json({ ok: true });
+  }
+
+  // ——— REGISTRATURA / ADMIN: clasează un dosar cu răspuns care NU se mai operează ———
+  // Cele două fundături de până acum: refuzul rămânea veșnic în coadă (fără buton de
+  // închidere), iar un transfer CONFIRMAT căruia i-a picat vânzarea nu avea nicio ieșire
+  // în afară de operare — cu lacătul pe serie blocat pe vecie. Clasarea e ieșirea:
+  // dosarul rămâne (e probă), coada scapă de el, seria se eliberează.
+  if (actiune === "claseaza") {
+    const id = taie(body.id, 40);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
+    const t = await s.get("transfer-dosar/" + id, { type: "json" }).catch(() => null);
+    if (!t) return json({ eroare: "Transfer inexistent." }, 404);
+    if (!["confirmat", "refuzat"].includes(t.stare))
+      return json({ eroare: "Se clasează doar dosarele cu răspuns (confirmate sau refuzate)." }, 409);
+    const motiv = taie(body.motiv, 400);
+    // Clasarea unui transfer CONFIRMAT contrazice o confirmare dată — cere motiv scris.
+    if (t.stare === "confirmat" && motiv.length < 5)
+      return json({ eroare: "Clasarea unui transfer confirmat cere motivul (rămâne în jurnal și pleacă părților)." }, 400);
+
+    await jurnalizeaza(s, {
+      fapta: "transfer-clasat", actor: actorJurnal(eu), obiect: t.serie,
+      detalii: `${t.caine?.nume || ""} (${t.stare})` + (motiv ? ` — ${motiv}` : " — luat la cunoștință"),
+      ip: ipCerere(req),
+    });
+    await s.setJSON("transfer-dosar/" + id, { ...t, stare: "clasat", stareaVeche: t.stare, motivClasare: motiv || null, clasat: new Date().toISOString() });
+    await s.delete("transfer-serie/" + t.serie).catch(() => {});
+
+    // La clasarea unei CONFIRMĂRI, ambele părți află — altfel cumpărătorul așteaptă un act.
+    if (t.stare === "confirmat") {
+      const vanzatorEmail = (await s.get("membru/" + t.vanzator?.membruId, { type: "json" }).catch(() => null))?.email;
+      for (const adresa of [t.nou?.email, vanzatorEmail].filter(Boolean)) {
+        await trimite({
+          catre: adresa,
+          subiect: `[CFC-Royal] ${t.serie} — transferul a fost clasat`,
+          html: `<p>Transferul câinelui <strong>${escapeHtml(t.caine?.nume || t.serie)}</strong> a fost clasat de registratură ` +
+            `și nu se va opera. Motivul:</p>` +
+            `<p style="padding:10px 14px;background:#f9efef;border-left:4px solid #8c1d2f">${escapeHtml(motiv)}</p>` +
+            `<p>Dacă situația se schimbă, transferul se poate iniția din nou oricând.</p>`,
+        });
+      }
     }
     return json({ ok: true });
   }

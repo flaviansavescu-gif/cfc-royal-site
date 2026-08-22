@@ -3,7 +3,7 @@ title: "Privacy Policy"
 lang: en
 section: "Legal information"
 summary: "What personal data we process, why, how long we keep it and who receives it."
-updatedAt: 2026-08-06
+updatedAt: 2026-08-22
 adoptat: 2026-08-01
 hotarare: "168/01-08-2026"
 ---
@@ -38,6 +38,19 @@ cryptographic fingerprint; the code itself is stored nowhere.
 **Basis:** performance of the membership relationship and the association's legal
 obligations (Art. 6(1)(b) and (c)).
 
+**The membership application** (the online "Become a member" form): name, e-mail,
+telephone, town/county, anything you write in the form and, optionally, the proof of
+payment of the joining fee. Your consent is recorded together with the exact text and
+version you ticked. The application follows the road set by the Internal Regulations
+(secretariat check, Board opinion, General Assembly decision), and each step stays in
+its history. **Basis:** steps taken at your request prior to entering the membership
+relationship (Art. 6(1)(b)).
+
+**Membership fee payments declared online:** your declaration, the attached proof of
+payment and the resulting new term. The proof is seen only by the registry office and
+the administrator. Renewal reminders are sent automatically to the address in your
+membership record. **Basis:** performance of the membership relationship (Art. 6(1)(b)).
+
 ### 3. Show entries
 
 The owner's name and contact details, address, the dog's details, the documents uploaded
@@ -57,6 +70,23 @@ On the public dog record and when a certificate is checked through its QR code, 
 dog's record or to compare it with the document in your hand, not enough for anyone else
 to use it. The full number is seen only by the registry office, the administrator and the
 breeder the file belongs to.
+
+**Ownership transfer of a dog:** the new owner's name, e-mail, town and (optionally)
+address, written by the seller; the new owner's confirmation, given through the link
+received by e-mail, stands in for a signature. When the transfer is recorded, the new
+owner's name and town go onto the certificate and into the stud book, and the previous
+owner remains in the document's history; **the e-mail address never goes onto the
+document**. **Basis:** performance of the parties' request and keeping the record of
+origins (Art. 6(1)(b) and (f)).
+
+**Homologation of champion titles:** the applicant's name and e-mail (the applicant may
+not be a member), the dog's reference and the title requested. **Basis:** performance of
+your request (Art. 6(1)(b)).
+
+**Service orders** (Performance Record Book, Starter Pack, priority dispatch, urgent
+processing, corrections): the service requested, the details you write and the proof of
+payment — seen only by the registry office and the administrator. **Basis:** performance
+of the contract (Art. 6(1)(b)).
 
 ### 5. The dogs' health file
 
@@ -127,6 +157,10 @@ See the section below.
 |---|---|---|
 | Contact messages | 2 years | as long as correspondence and its consequences may last |
 | Member data | for the duration of membership + 5 years | the general limitation period |
+| Membership application, rejected or not completed | 3 years | as long as the decision can be contested; an admitted application becomes part of the member's file |
+| Ownership transfer file | **permanent** | the evidence behind the change of owner on the certificate |
+| Title homologation request | 5 years | as long as a homologated title can be contested |
+| Service orders | 3 years | the consequences of an order; proofs of payment follow their own row (10 years) |
 | Show entries | 3 years after the show | appeals, checks, statistics |
 | Proof of payment | 10 years | the statutory retention period for financial records |
 | Stud book (declarations, pedigrees, ancestry) | **permanent** | a certificate of origin must remain verifiable at any time |

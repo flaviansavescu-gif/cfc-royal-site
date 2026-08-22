@@ -3,15 +3,16 @@ title: "Politica de confidențialitate"
 lang: ro
 section: "Informații juridice"
 summary: "Ce date personale prelucrăm, de ce, cât timp le păstrăm și cui ajung."
-updatedAt: 2026-08-06
+updatedAt: 2026-08-22
 adoptat: 2026-08-01
 hotarare: "168/01-08-2026"
 ---
 
 > **De revizuit de un consilier juridic înainte de a fi considerată definitivă.**
 > Textul de mai jos descrie exact ce face sistemul asociației astăzi; forma juridică
-> rămâne de confirmat. Actualizat la 6 august 2026 cu dosarul de sănătate și anunțurile
-> de cuiburi — completare care rămâne de aprobat printr-o hotărâre proprie.
+> rămâne de confirmat. Actualizat la 22 august 2026 cu cererea de adeziune online, plata
+> declarată a cotizației, transferul de proprietate, omologarea titlurilor și comenzile
+> de servicii — completări care rămân de aprobat printr-o hotărâre proprie.
 
 ## Cine prelucrează datele
 
@@ -37,6 +38,19 @@ amprentă criptografică; codul propriu-zis nu se păstrează nicăieri.
 **Temei:** executarea raportului asociativ și obligațiile legale ale asociației
 (art. 6 alin. 1 lit. b și c).
 
+**Cererea de adeziune** (formularul online „Devino membru"): nume, e-mail, telefon,
+localitate/județ, mențiunile scrise de tine și, opțional, dovada plății taxei de
+înscriere. Acordul tău de prelucrare se consemnează cu textul și versiunea bifate.
+Cererea urmează drumul din Regulamentul intern (verificarea secretariatului, avizul
+Consiliului Director, hotărârea Adunării Generale), iar fiecare pas rămâne în istoricul
+ei. **Temei:** demersuri la cererea ta înainte de intrarea în raportul asociativ
+(art. 6 alin. 1 lit. b).
+
+**Plata cotizației declarată online:** declarația ta, dovada de plată atașată și noul
+termen rezultat. Dovada e văzută doar de registratură și administrator. Reamintirile de
+scadență pleacă automat pe adresa din fișa de membru.
+**Temei:** executarea raportului asociativ (art. 6 alin. 1 lit. b).
+
 ### 3. Înscrierea la expoziții
 
 Numele și datele de contact ale proprietarului, adresa, datele câinelui, actele încărcate
@@ -55,6 +69,22 @@ Pe fișa publică a câinelui și la verificarea unui certificat prin cod QR, **
 arată mascat** — doar ultimele patru cifre. Atât cât să recunoști fișa câinelui tău sau să
 compari cu actul pe care îl ții în mână, nu cât să poată fi folosit de altcineva. Întreg
 îl văd doar registratura, administratorul și crescătorul căruia îi aparține dosarul.
+
+**Transferul de proprietate al unui câine:** numele, e-mailul, localitatea și (opțional)
+adresa noului proprietar, scrise de vânzător; confirmarea noului proprietar, dată prin
+linkul primit pe e-mail, ține locul semnăturii. La operare, numele și localitatea noului
+proprietar intră pe certificat și în cartea de origini, iar vechiul proprietar rămâne în
+istoricul actului; **e-mailul nu intră niciodată pe act**. **Temei:** executarea cererii
+părților și ținerea evidenței de origine (art. 6 alin. 1 lit. b și f).
+
+**Omologarea titlurilor de campion:** numele și e-mailul solicitantului (care poate să nu
+fie membru), referința câinelui și titlul cerut. **Temei:** executarea cererii tale
+(art. 6 alin. 1 lit. b).
+
+**Comenzile de servicii** (Carnet de Palmares, Starter Pack, expediere prioritară,
+urgențe, corectări): serviciul cerut, detaliile scrise de tine și dovada plății — văzută
+doar de registratură și administrator. **Temei:** executarea contractului
+(art. 6 alin. 1 lit. b).
 
 ### 5. Dosarul de sănătate al câinilor
 
@@ -123,6 +153,10 @@ Vezi secțiunea de mai jos.
 |---|---|---|
 | Mesaje de contact | 2 ani | cât poate dura o corespondență și urmările ei |
 | Date de membru | pe durata calității de membru + 5 ani | termenul general de prescripție |
+| Cerere de adeziune respinsă sau nefinalizată | 3 ani | cât poate fi contestată hotărârea; cea admisă devine parte din dosarul de membru |
+| Dosar de transfer de proprietate | **permanent** | proba din spatele schimbării de proprietar de pe certificat |
+| Cerere de omologare a unui titlu | 5 ani | cât poate fi contestat un titlu omologat |
+| Comenzi de servicii | 3 ani | urmările unei comenzi; dovezile de plată urmează rândul lor (10 ani) |
 | Înscrieri la expoziții | 3 ani de la expoziție | contestații, verificări, statistici |
 | Dovezi de plată | 10 ani | termenul legal de păstrare a documentelor financiare |
 | Registru genealogic (DMF, pedigree, ascendență) | **permanent** | un certificat de origine trebuie să poată fi verificat oricând |

@@ -34,8 +34,10 @@ import { json } from "./_comun/raspuns.mjs";
 // certificate „autentice"; despărțite, o scurgere n-o mai atinge pe cealaltă.
 // Trecere lină: cât timp VERIFICARE_SECRET nu e pusă, se folosește vechea cheie, deci
 // codurile deja tipărite se verifică mai departe. Managerul face exact la fel.
-const SECRET = process.env.EXPO_SYNC_SECRET || "";                       // puntea
-const SECRET_ACTE = process.env.VERIFICARE_SECRET || SECRET || "";       // semnătura actelor
+// .trim(), ca în Manager: o variabilă lipită cu un spațiu la coadă ar despărți în
+// tăcere semnarea de verificare.
+const SECRET = String(process.env.EXPO_SYNC_SECRET || "").trim();                 // puntea
+const SECRET_ACTE = String(process.env.VERIFICARE_SECRET || "").trim() || SECRET; // semnătura actelor
 const CHEIE = "lista";
 
 /**
@@ -55,9 +57,17 @@ const CHEIE = "lista";
  */
 async function citesteRevocari(store) {
   try {
-    const v = await store.get(CHEIE, { type: "json" });
-    if (v == null) return [];                       // nepublicată încă — nimic anulat
-    return Array.isArray(v.serii) ? v.serii : [];
+    // Două liste, două stăpâniri: „lista" e a Managerului (o ÎNLOCUIEȘTE integral la
+    // fiecare publicare), „lista-scoala" e a actelor Școlii (scrisă de acte-scoala.mjs).
+    // Ținute pe aceeași cheie, prima publicare din Manager ștergea revocările Școlii.
+    const [v, scoala] = await Promise.all([
+      store.get(CHEIE, { type: "json" }),
+      store.get("lista-scoala", { type: "json" }),
+    ]);
+    return [
+      ...(Array.isArray(v?.serii) ? v.serii : []),
+      ...(Array.isArray(scoala?.serii) ? scoala.serii : []),
+    ];
   } catch (err) {
     console.error("Lista actelor anulate NU s-a putut citi:", err);
     return null;

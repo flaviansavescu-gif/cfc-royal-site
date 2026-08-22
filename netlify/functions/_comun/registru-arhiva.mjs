@@ -55,10 +55,14 @@ export async function construiesteArhiva({ maxFisiere = 40 * 1024 * 1024 } = {})
     fisiereOmise: [], erori: [],
   };
 
+  // Cheile trecătoare NU intră în copie: amprentele de IP ale formularelor „expiră
+  // singure și nu se restaurează din copii" (promisiunea din politica de confidențialitate)
+  // — o arhivă care le cară săptămânal le-ar face veșnice.
+  const TRECATOARE = ["cerere-ip/", "adeziune-ip/", "omologare-ip/", "dsar-ip/"];
   let chei = [];
   try {
     const { blobs } = await store.list();
-    chei = blobs.map((b) => b.key);
+    chei = blobs.map((b) => b.key).filter((k) => !TRECATOARE.some((p) => k.startsWith(p)));
   } catch (err) {
     rezumat.erori.push("Listarea magaziei a eșuat: " + err.message);
     return { zip: zipSync({ "CUPRINS.md": codificator.encode(cuprins(rezumat)) }), rezumat };

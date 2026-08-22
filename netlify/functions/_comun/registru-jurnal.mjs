@@ -64,8 +64,10 @@ export const FAPTE = {
   "transfer-raspuns": "Răspunsul noului proprietar la transfer",
   "transfer-operat": "Transfer de proprietate OPERAT pe certificat",
   "transfer-anulat": "Transfer de proprietate anulat de vânzător",
-  // Adeziunea de membru depusă online
+  "transfer-clasat": "Transfer clasat de registratură (nu se operează)",
+  // Adeziunea de membru depusă online + drumul ei statutar (Art. 15)
   "adeziune-depusa": "Cerere de adeziune depusă",
+  "adeziune-hotarare": "Hotărâre asupra cererii de adeziune",
   // Cotizația: plata declarată de membru, hotărârea registraturii (Lot D)
   "cotizatie-declarata": "Plată de cotizație declarată",
   "cotizatie-confirmata": "Plată de cotizație confirmată — termen prelungit",

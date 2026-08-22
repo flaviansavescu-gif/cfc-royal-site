@@ -70,9 +70,10 @@ if (!bootstrapMockModule(import.meta.url)) {
     assert.equal(dec.status, 200, JSON.stringify(dec.corp));
     assert.ok(trimise.some((e) => e.to[0].email === "ion@example.ro"), "membrul primește confirmarea declarării");
 
-    // A doua declarație în așteptare e refuzată.
+    // A doua declarație în așteptare e refuzată — de LACĂTUL atomic, nu de listare.
     const dubla = await post({ cod: COD_MEMBRU, actiune: "declara" });
     assert.equal(dubla.status, 409);
+    assert.ok(suport.magazie._map.has("cotizatie-in-curs/" + MID), "lacătul per membru e pus");
 
     const coada = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "de-confirmat" });
     assert.equal(coada.corp.plati.length, 1);
@@ -95,6 +96,11 @@ if (!bootstrapMockModule(import.meta.url)) {
     const aMea = await post({ cod: COD_MEMBRU, actiune: "a-mea" });
     assert.equal(aMea.corp.ultima.stare, "confirmata");
     assert.equal(aMea.corp.ultima.panaLaNoua, "2027-10-01");
+
+    // După judecată, lacătul e ridicat: anul viitor se poate declara din nou.
+    assert.ok(!suport.magazie._map.has("cotizatie-in-curs/" + MID), "lacătul se ridică la judecată");
+    const dinNou = await post({ cod: COD_MEMBRU, actiune: "declara" });
+    assert.equal(dinNou.status, 200, JSON.stringify(dinNou.corp));
   });
 
   test("respingerea cere motiv; data anume scrisă de registratură trece", async () => {
@@ -107,6 +113,8 @@ if (!bootstrapMockModule(import.meta.url)) {
     assert.equal(faraMotiv.status, 400);
     const gresita = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "confirma", id, panaLa: "mâine" });
     assert.equal(gresita.status, 400, "data strâmbă nu trece");
+    const trecuta = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "confirma", id, panaLa: "2020-01-01" });
+    assert.equal(trecuta.status, 400, "o dată din trecut ar „expira” membrul pe loc — refuzată");
     const cuData = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "confirma", id, panaLa: "2027-01-15" });
     assert.equal(cuData.corp.panaLaNoua, "2027-01-15");
     assert.equal(suport.magazie._map.get("membru/" + MID).cotizatiePana, "2027-01-15");
@@ -121,9 +129,12 @@ if (!bootstrapMockModule(import.meta.url)) {
       { id: "c", nume: "C", email: "c@x.ro", cotizatiePana: zi(-3) },   // expirat
       { id: "d", nume: "D", email: "d@x.ro", cotizatiePana: zi(200) },  // departe — nimic
       { id: "e", nume: "E", email: "", cotizatiePana: zi(5) },          // fără e-mail — nimic
+      { id: "f", nume: "F", email: "f@x.ro", cotizatiePana: zi(0) },    // CHIAR AZI: încă valabilă
+      { id: "g", nume: "G", email: "g@x.ro", cotizatiePana: zi(-100) }, // expirat demult — tăcere
     ];
     const runda1 = cineDeAmintit(membri, {}, acum);
-    assert.deepEqual(runda1.map((x) => x.membru.id + ":" + x.treapta.cheia).sort(), ["a:p30", "b:p7", "c:p0"]);
+    assert.deepEqual(runda1.map((x) => x.membru.id + ":" + x.treapta.cheia).sort(), ["a:p30", "b:p7", "c:p0", "f:p7"],
+      "ziua scadenței = „expiră azi” (p7), nu „a expirat”; fișele expirate cu ani în urmă tac");
 
     // A doua rulare, cu marcajele scrise: tăcere — nicio dublură.
     const marcaje = {};

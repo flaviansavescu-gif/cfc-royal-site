@@ -18,6 +18,7 @@ if (!bootstrapMockModule(import.meta.url)) {
   // Mediul, ÎNAINTE de a importa handlerele (cheile se citesc la încărcarea modulului):
   // cheia de semnătură a actelor + amprenta adminului (scrypt sărat, ca în roluri.mjs).
   process.env.VERIFICARE_SECRET = "cheie-de-semnatura-de-proba";
+  process.env.EXPO_SYNC_SECRET = "puntea-de-proba";   // puntea Managerului (POST revocari)
   const COD_ADMIN = "cod-admin-de-proba";
   process.env.ADMIN_HASH = scryptSync(sha256(COD_ADMIN), "5bc690c359954798d5149721d0f7cada", 32).toString("hex");
   // BREVO_API_KEY rămâne NEpusă: al doilea factor e neoperațional, deci nu cere dispozitiv
@@ -119,6 +120,33 @@ if (!bootstrapMockModule(import.meta.url)) {
     // Actul neemis se spune cinstit.
     const fara = await post({ id: COD_CANDIDAT, actiune: "act", fel: "diploma" });
     assert.equal(fara.status, 404);
+  });
+
+  test("revocarea: actul Școlii pică la verificare, pe cheia LUI (Managerul nu i-o șterge)", async () => {
+    suport.magazie = magazieCuScoala();
+    await post({ cod: COD_ADMIN, actiune: "emite", candidatId: CID, fel: "diploma" });
+    const al = await post({ id: COD_CANDIDAT, actiune: "act", fel: "diploma" });
+    const c = new URL(al.corp.adresaVerificare).searchParams.get("c");
+
+    const rev = await post({ cod: COD_ADMIN, actiune: "revoca", candidatId: CID, fel: "diploma" });
+    assert.equal(rev.status, 200, JSON.stringify(rev.corp));
+
+    // Semnătura rămâne validă, dar lista revocărilor spune ANULATĂ.
+    const rv = await verifica(new Request("https://cfc-royal.ro/.netlify/functions/verifica-act?c=" + encodeURIComponent(c)));
+    const v = await rv.json();
+    assert.equal(v.valid, false);
+    assert.equal(v.anulat, true);
+    assert.match(v.stareText, /ANULATĂ/);
+
+    // Managerul își publică lista LUI (înlocuire integrală) — revocarea Școlii supraviețuiește.
+    const pub = await verifica(new Request("https://cfc-royal.ro/.netlify/functions/verifica-act", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ secret: "puntea-de-proba", actiune: "revocari", serii: ["003/01.11.2026"] }),
+    }));
+    assert.equal(pub.status, 200, JSON.stringify(await pub.json()));
+    const rv2 = await verifica(new Request("https://cfc-royal.ro/.netlify/functions/verifica-act?c=" + encodeURIComponent(c)));
+    const v2 = await rv2.json();
+    assert.equal(v2.anulat, true, "publicarea Managerului NU șterge revocările Școlii");
   });
 
   test("mentorul (Art. 14): salvare, citire în parcurs, scoatere", async () => {

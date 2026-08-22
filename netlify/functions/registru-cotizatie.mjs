@@ -83,16 +83,6 @@ export default cuLimitareCod(async (req) => {
     { const oprit = await refuzaDacaInchis(json); if (oprit) return oprit; }
     if (eu.rol !== "membru") return json({ eroare: "Plata cotizației se declară din spațiul de crescător." }, 403);
 
-    // O singură declarație în așteptare per membru — a doua ar încurca registratura.
-    try {
-      const { blobs } = await s.list({ prefix: "cotizatie-plata/" });
-      for (const b of blobs) {
-        const p = await s.get(b.key, { type: "json" }).catch(() => null);
-        if (p && p.membruId === eu.membru.id && p.stare === "declarata")
-          return json({ eroare: "Ai deja o plată declarată în așteptare — registratura o confirmă în cel mai scurt timp." }, 409);
-      }
-    } catch (err) { console.error(err); }
-
     let areDovada = false;
     if (body.dovada) {
       const tip = taie(body.dovadaTip, 60);
@@ -102,7 +92,14 @@ export default cuLimitareCod(async (req) => {
       areDovada = true;
     }
 
+    // O singură declarație în așteptare per membru — LACĂT atomic (onlyIfNew), nu doar
+    // listare: două taburi apăsate deodată treceau amândouă de listare, iar registratura
+    // confirma amândouă = +24 de luni pentru o singură plată. Lacătul se ridică la judecată.
     const id = idNou();
+    const lacat = await s.setJSON("cotizatie-in-curs/" + eu.membru.id, { id, la: new Date().toISOString() }, { onlyIfNew: true });
+    if (lacat?.modified === false)
+      return json({ eroare: "Ai deja o plată declarată în așteptare — registratura o confirmă în cel mai scurt timp." }, 409);
+
     const inreg = {
       id, membruId: eu.membru.id,
       nume: eu.membru.nume, email: eu.membru.email || "",
@@ -110,8 +107,9 @@ export default cuLimitareCod(async (req) => {
       nota: taie(body.nota, 300),
       areDovada, stare: "declarata", la: new Date().toISOString(),
     };
-    await s.setJSON("cotizatie-plata/" + id, inreg);
+    // Dovada se scrie ÎNTÂI: altfel o scriere căzută lăsa cererea „cu dovadă" și dovada 404.
     if (areDovada) await s.setJSON("cotizatie-dovada/" + id, { continut: String(body.dovada), tip: taie(body.dovadaTip, 60) });
+    await s.setJSON("cotizatie-plata/" + id, inreg);
 
     await jurnalizeaza(s, {
       anuntaLa: await adreseleRegistraturii(s),
@@ -181,7 +179,8 @@ export default cuLimitareCod(async (req) => {
     return json({ dovada: d.continut, tip: d.tip });
   }
 
-  const p = await s.get("cotizatie-plata/" + id, { type: "json" }).catch(() => null);
+  const cuEtag = await s.getWithMetadata("cotizatie-plata/" + id, { type: "json" }).catch(() => null);
+  const p = cuEtag?.data || null;
   if (!p) return json({ eroare: "Declarație inexistentă." }, 404);
   if (p.stare !== "declarata") return json({ eroare: "Declarația a fost deja judecată." }, 409);
 
@@ -190,6 +189,9 @@ export default cuLimitareCod(async (req) => {
     if (!membru) return json({ eroare: "Membrul nu mai există în registru." }, 404);
     const ceruta = taie(body.panaLa, 10);
     if (ceruta && !eData(ceruta)) return json({ eroare: "Data are forma AAAA-LL-ZZ." }, 400);
+    // O dată din trecut „expiră" membrul pe loc — aproape sigur o greșeală de tastare.
+    if (ceruta && Date.parse(ceruta) <= Date.now())
+      return json({ eroare: "Data scrisă e în trecut — noul termen trebuie să fie o zi viitoare." }, 400);
     const panaLaNoua = ceruta || termenNou(membru.cotizatiePana);
 
     // URMA ÎNTÂI: o prelungire de termen fără urmă nu se poate apăra.
@@ -205,8 +207,16 @@ export default cuLimitareCod(async (req) => {
       console.error("Jurnalul cotizației a eșuat — fișa rămâne neschimbată:", err);
       return json({ eroare: "Nu am putut consemna fapta în jurnal, deci nu am schimbat nimic. Reîncearcă." }, 503);
     }
+    // ÎNTÂI declarația, CONDIȚIONAT (etag): două confirmări simultane citeau amândouă
+    // „declarata" și prelungeau de două ori. Cine pierde cursa se oprește aici, fără
+    // să atingă fișa membrului.
+    const scris = await s.setJSON("cotizatie-plata/" + id,
+      { ...p, stare: "confirmata", panaLaNoua, judecataLa: new Date().toISOString() },
+      { onlyIfMatch: cuEtag.etag });
+    if (scris?.modified === false)
+      return json({ eroare: "Declarația a fost judecată între timp de altcineva." }, 409);
     await s.setJSON("membru/" + p.membruId, { ...membru, cotizatiePana: panaLaNoua });
-    await s.setJSON("cotizatie-plata/" + id, { ...p, stare: "confirmata", panaLaNoua, judecataLa: new Date().toISOString() });
+    await s.delete("cotizatie-in-curs/" + p.membruId).catch(() => {});
     if (p.email) {
       await trimite({
         catre: p.email,
@@ -229,7 +239,12 @@ export default cuLimitareCod(async (req) => {
       detalii: motiv,
       ip: ipCerere(req),
     });
-    await s.setJSON("cotizatie-plata/" + id, { ...p, stare: "respinsa", motiv, judecataLa: new Date().toISOString() });
+    const scris = await s.setJSON("cotizatie-plata/" + id,
+      { ...p, stare: "respinsa", motiv, judecataLa: new Date().toISOString() },
+      { onlyIfMatch: cuEtag.etag });
+    if (scris?.modified === false)
+      return json({ eroare: "Declarația a fost judecată între timp de altcineva." }, 409);
+    await s.delete("cotizatie-in-curs/" + p.membruId).catch(() => {});
     if (p.email) {
       await trimite({
         catre: p.email,

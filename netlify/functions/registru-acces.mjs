@@ -941,6 +941,23 @@ export default cuLimitareCod(async (req) => {
       return json({ eroare: "Nu am putut consemna revocarea în jurnal, deci nu am șters nimic." }, 503);
     }
     try { await store().delete(prefix + id); } catch (err) { console.error(err); }
+    if (actiune === "membru-sterge") {
+      const s = store();
+      // Marcajul reamintirilor de cotizație și lacătul de declarare nu supraviețuiesc fișei.
+      try { await s.delete("cotizatie-amintit/" + id); } catch (err) { console.error(err); }
+      try { await s.delete("cotizatie-in-curs/" + id); } catch (err) { console.error(err); }
+      // Transferurile lui încă în așteptare se închid: lacătul pe serie nu rămâne al nimănui.
+      try {
+        const { blobs } = await s.list({ prefix: "transfer-dosar/" });
+        for (const b of blobs) {
+          const t = await s.get(b.key, { type: "json" }).catch(() => null);
+          if (t && t.vanzator?.membruId === id && t.stare === "asteapta-confirmare") {
+            await s.setJSON(b.key, { ...t, stare: "anulat", anulat: new Date().toISOString(), motivAnulare: "vânzătorul șters din registru" });
+            await s.delete("transfer-serie/" + t.serie).catch(() => {});
+          }
+        }
+      } catch (err) { console.error("Închiderea transferurilor membrului șters a eșuat:", err); }
+    }
     return json({ ok: true });
   }
 

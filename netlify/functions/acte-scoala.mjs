@@ -33,7 +33,9 @@ import { json } from "./_comun/raspuns.mjs";
 // Aceeași pereche de chei ca în verifica-act.mjs, cu aceeași trecere lină și FĂRĂ valoare
 // de rezervă: fără cheie nu se emite nimic (o diplomă semnată cu o cheie din cod ar fi
 // falsificabilă de oricine citește depozitul).
-const SECRET_ACTE = process.env.VERIFICARE_SECRET || process.env.EXPO_SYNC_SECRET || "";
+// .trim(), ca în Manager: o variabilă lipită în Netlify cu un rând nou la coadă ar
+// despărți în tăcere semnarea de verificare.
+const SECRET_ACTE = String(process.env.VERIFICARE_SECRET || process.env.EXPO_SYNC_SECRET || "").trim();
 
 const FELURI = ["diploma", "legitimatie"];
 const PREFIX_SERIE = { diploma: "DIP", legitimatie: "LEG" };
@@ -133,7 +135,8 @@ export default cuLimitareCod(async (req) => {
     }
 
     // Ce s-a emis rămâne emis: aceeași serie la fiecare apăsare, fără dubluri.
-    const existent = await store.get("act-scoala/" + cid + "/" + fel, { type: "json" }).catch(() => null);
+    const cuEtag = await store.getWithMetadata("act-scoala/" + cid + "/" + fel, { type: "json" }).catch(() => null);
+    const existent = cuEtag?.data || null;
     if (existent && !body.reemite) return json({ ok: true, serie: existent.serie, dejaEmis: true });
 
     // Porțile de fond — actul afirmă un fapt, deci faptul trebuie să existe.
@@ -164,8 +167,37 @@ export default cuLimitareCod(async (req) => {
       la: new Date().toISOString(),
       ...(existent ? { inlocuieste: existent.serie } : {}),
     };
-    await store.setJSON("act-scoala/" + cid + "/" + fel, inreg);
+    // ATOMIC: emiterea nouă doar dacă locul e gol, reemiterea doar peste actul citit.
+    // Două apăsări simultane treceau amândouă de verificare; ultima suprascria — și
+    // rămânea în lume un pachet semnat pentru o serie absentă din evidență.
+    const scris = await store.setJSON("act-scoala/" + cid + "/" + fel, inreg,
+      existent ? { onlyIfMatch: cuEtag.etag } : { onlyIfNew: true });
+    if (scris?.modified === false) {
+      const castigator = await store.get("act-scoala/" + cid + "/" + fel, { type: "json" }).catch(() => null);
+      if (castigator) return json({ ok: true, serie: castigator.serie, dejaEmis: true });
+      return json({ eroare: "Emiterea e disputată — reîncearcă." }, 409);
+    }
     return json({ ok: true, serie });
+  }
+
+  // ——— Revocarea unui act al Școlii (rar, dar trebuie să existe o ușă) ———
+  // Lista trăiește pe cheia EI („lista-scoala" în store-ul acte-revocate), separată de
+  // „lista" pe care Managerul o ÎNLOCUIEȘTE integral la fiecare publicare — altfel prima
+  // publicare din Manager ștergea revocarea diplomei în tăcere. verifica-act le citește
+  // pe amândouă.
+  if (actiune === "revoca") {
+    const inreg = await store.get("act-scoala/" + cid + "/" + fel, { type: "json" }).catch(() => null);
+    if (!inreg) return json({ eroare: "Actul nu a fost emis." }, 404);
+    const scoate = body.scoate === true;
+    const revocate = getStore("acte-revocate");
+    const lista = (await revocate.get("lista-scoala", { type: "json" }).catch(() => null)) || { serii: [] };
+    const serii = new Set(Array.isArray(lista.serii) ? lista.serii : []);
+    // Se revocă TOATE seriile actului, inclusiv cele înlocuite la reemitere.
+    const aleActului = [inreg.serie, inreg.inlocuieste].filter(Boolean);
+    for (const serie of aleActului) scoate ? serii.delete(serie) : serii.add(serie);
+    await revocate.setJSON("lista-scoala", { serii: [...serii], actualizatLa: new Date().toISOString() });
+    await store.setJSON("act-scoala/" + cid + "/" + fel, { ...inreg, anulat: !scoate });
+    return json({ ok: true, anulat: !scoate, serii: aleActului });
   }
 
   return json({ eroare: "Acțiune necunoscută." }, 400);

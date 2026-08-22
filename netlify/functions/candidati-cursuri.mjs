@@ -209,6 +209,11 @@ export default cuLimitareCod(async (req) => {
       "asistente/evaluare/" + id, "mentor/" + id, "act-scoala/" + id + "/diploma", "act-scoala/" + id + "/legitimatie"]) {
       try { await store.delete(cheie); } catch (err) { console.error(err); }
     }
+    // …și marcajele reamintirilor de termene (chei per modul, sub prefixul candidatului).
+    try {
+      const { blobs } = await store.list({ prefix: "termen-amintit/" + id + "/" });
+      for (const b of blobs) { try { await store.delete(b.key); } catch (e) {} }
+    } catch (err) { console.error(err); }
     // …și urmele din CELELALTE module (analiză, anatomie, sesiuni, imagini, interese).
     // Fără asta, un candidat șters continua să apară în exerciții și în spațiile lectorilor.
     const raport = await stergeUrmeleCandidatului(id);

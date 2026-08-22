@@ -183,9 +183,79 @@ if (!bootstrapMockModule(import.meta.url)) {
     assert.ok(mort.status === 404 || mort.status === 410, "linkul unui transfer anulat e mort");
   });
 
+  test("clasarea: refuzul se închide, confirmatul se clasează DOAR cu motiv și eliberează seria", async () => {
+    suport.magazie = magazieCuLumea();
+    trimise.length = 0;
+    await post({
+      cod: COD_MEMBRU, actiune: "initiaza", serie: SERIE,
+      nou: { nume: "Vasile Cumparator", email: "vasile@example.com", localitate: "Timisoara" },
+    });
+    const jeton = (trimise[0].htmlContent.match(/\?t=([0-9a-f]{64})/) || [])[1];
+    await post({ actiune: "raspuns", jeton, raspuns: "confirm", nume: "Vasile Cumparator" });
+
+    // Clasarea unei CONFIRMĂRI fără motiv nu trece; cu motiv, seria se eliberează.
+    const coada = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "de-operat" });
+    const id = coada.corp.transferuri[0].id;
+    const faraMotiv = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "claseaza", id });
+    assert.equal(faraMotiv.status, 400);
+    trimise.length = 0;
+    const cls = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "claseaza", id, motiv: "Vanzarea nu s-a incheiat." });
+    assert.equal(cls.status, 200, JSON.stringify(cls.corp));
+    assert.equal(suport.magazie._map.get("transfer-dosar/" + id).stare, "clasat");
+    assert.ok(!suport.magazie._map.has("transfer-serie/" + SERIE), "clasarea eliberează seria");
+    assert.ok(trimise.some((e) => e.to[0].email === "vasile@example.com"), "noul proprietar află de clasare");
+    const cert = suport.magazie._map.get("pedigree/" + SERIE);
+    assert.equal(cert.proprietar.nume, "Ion Crescator", "certificatul rămâne neschimbat");
+
+    // După clasare, un transfer NOU pentru aceeași serie pornește (lacătul nu blochează).
+    trimise.length = 0;
+    const iar = await post({
+      cod: COD_MEMBRU, actiune: "initiaza", serie: SERIE,
+      nou: { nume: "Alt Cumparator", email: "alt@example.com", localitate: "Arad" },
+    });
+    assert.equal(iar.status, 200, JSON.stringify(iar.corp));
+  });
+
+  test("operarea e idempotentă și refuză certificatul anulat între timp", async () => {
+    suport.magazie = magazieCuLumea();
+    trimise.length = 0;
+    await post({
+      cod: COD_MEMBRU, actiune: "initiaza", serie: SERIE,
+      nou: { nume: "Vasile Cumparator", email: "vasile@example.com", localitate: "Timisoara" },
+    });
+    const jeton = (trimise[0].htmlContent.match(/\?t=([0-9a-f]{64})/) || [])[1];
+    await post({ actiune: "raspuns", jeton, raspuns: "confirm", nume: "Vasile Cumparator" });
+    const coada = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "de-operat" });
+    const id = coada.corp.transferuri[0].id;
+
+    // Simulăm o operare căzută la mijloc: certificatul poartă DEJA noul proprietar,
+    // dar dosarul a rămas „confirmat". Reluarea NU are voie să mintă istoricul.
+    const cert = suport.magazie._map.get("pedigree/" + SERIE);
+    suport.magazie._map.set("pedigree/" + SERIE, { ...cert, proprietar: { nume: "Vasile Cumparator", localitate: "Timisoara" } });
+    const op = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "opereaza", id });
+    assert.equal(op.status, 200, JSON.stringify(op.corp));
+    const dupa = suport.magazie._map.get("pedigree/" + SERIE);
+    assert.equal((dupa.istoricProprietari || []).length, 0,
+      "noul proprietar NU intră în istoric ca „fost” la reluarea operării");
+
+    // Un certificat anulat între confirmare și operare nu se mai rescrie.
+    suport.magazie = magazieCuLumea();
+    trimise.length = 0;
+    await post({
+      cod: COD_MEMBRU, actiune: "initiaza", serie: SERIE,
+      nou: { nume: "Vasile Cumparator", email: "vasile@example.com", localitate: "Timisoara" },
+    });
+    const j2 = (trimise[0].htmlContent.match(/\?t=([0-9a-f]{64})/) || [])[1];
+    await post({ actiune: "raspuns", jeton: j2, raspuns: "confirm", nume: "Vasile Cumparator" });
+    const c2 = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "de-operat" });
+    suport.magazie._map.set("pedigree/" + SERIE, { ...suport.magazie._map.get("pedigree/" + SERIE), anulat: true });
+    const opAnulat = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "opereaza", id: c2.corp.transferuri[0].id });
+    assert.equal(opAnulat.status, 409);
+  });
+
   test("faptele transferului și adeziunii sunt în registrul FAPTE (altfel jurnalul le-ar arunca)", async () => {
     const { FAPTE, FAPTE_DE_ANUNTAT } = await import("./registru-jurnal.mjs");
-    for (const f of ["transfer-initiat", "transfer-raspuns", "transfer-operat", "transfer-anulat", "adeziune-depusa"])
+    for (const f of ["transfer-initiat", "transfer-raspuns", "transfer-operat", "transfer-anulat", "transfer-clasat", "adeziune-depusa", "adeziune-hotarare"])
       assert.ok(FAPTE[f], "fapta " + f + " lipsește din FAPTE");
     for (const f of ["transfer-raspuns", "adeziune-depusa"])
       assert.ok(FAPTE_DE_ANUNTAT.has ? FAPTE_DE_ANUNTAT.has(f) : FAPTE_DE_ANUNTAT.includes(f),

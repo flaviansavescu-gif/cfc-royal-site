@@ -95,6 +95,8 @@ if (!bootstrapMockModule(import.meta.url)) {
     await post(CERERE);
     const lista = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "lista" });
     const id = lista.corp.cereri[0].id;
+    // Respingerea vine DUPĂ verificarea secretariatului (harta tranzițiilor).
+    await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "stare", id, stare: "verificata" });
     const faraMotiv = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "stare", id, stare: "respinsa" });
     assert.equal(faraMotiv.status, 400, "respingerea fără motiv nu trece");
     const cu = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "stare", id, stare: "respinsa", motiv: "Lipsesc actele cerute." });
@@ -105,5 +107,33 @@ if (!bootstrapMockModule(import.meta.url)) {
     assert.equal(faraCod.status, 401);
     const faraDisp = await post({ cod: COD_REG, actiune: "lista" });
     assert.equal(faraDisp.status, 403);
+  });
+
+  test("drumul stării nu curge înapoi și nu se repetă: harta tranzițiilor + jurnalul hotărârii", async () => {
+    suport.magazie = magazieCuRegistrator();
+    await post(CERERE);
+    const lista = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "lista" });
+    const id = lista.corp.cereri[0].id;
+
+    // Nu se sare peste secretariat: din „nouă" direct în „avizată" nu se poate.
+    const saritura = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "stare", id, stare: "avizata" });
+    assert.equal(saritura.status, 409);
+
+    await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "stare", id, stare: "verificata" });
+    trimise.length = 0;
+    await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "stare", id, stare: "admisa" });
+    // Dublu-clic pe „Admisă": a doua tranziție e refuzată, deci UN SINGUR bun venit.
+    const dublura = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "stare", id, stare: "admisa" });
+    assert.equal(dublura.status, 409);
+    assert.equal(trimise.filter((e) => /admisă/.test(e.subject)).length, 1, "un singur e-mail de bun venit");
+    // Din „admisă" nu se mai pleacă nicăieri.
+    const inapoi = await post({ cod: COD_REG, dispozitiv: JETON_DISP, actiune: "stare", id, stare: "verificata" });
+    assert.equal(inapoi.status, 409);
+
+    // Hotărârea lasă urmă: fapta există și jurnalul are intrări pentru tranziții.
+    const { FAPTE } = await import("./registru-jurnal.mjs");
+    assert.ok(FAPTE["adeziune-hotarare"], "fapta adeziune-hotarare lipsește din FAPTE");
+    const intrari = [...suport.magazie._map.keys()].filter((k) => k.startsWith("jurnal/"));
+    assert.ok(intrari.length >= 2, "tranzițiile trebuie să lase urme în jurnal");
   });
 }

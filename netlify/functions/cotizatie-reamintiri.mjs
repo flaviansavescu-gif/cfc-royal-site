@@ -18,9 +18,13 @@ import { json } from "./_comun/raspuns.mjs";
 const TREPTE = [
   { cheia: "p30", deLaZile: 8, panaLaZile: 30, subiect: "Cotizația expiră în curând",
     text: (data) => `Cotizația ta de membru CFC-Royal expiră la <strong>${data}</strong> — în circa o lună.` },
-  { cheia: "p7", deLaZile: 1, panaLaZile: 7, subiect: "Cotizația expiră săptămâna aceasta",
-    text: (data) => `Cotizația ta de membru CFC-Royal expiră la <strong>${data}</strong> — mai sunt câteva zile.` },
-  { cheia: "p0", deLaZile: -36500, panaLaZile: 0, subiect: "Cotizația a expirat",
+  // Ziua scadenței (zile=0) intră AICI, nu la „a expirat": cotizația e valabilă
+  // INCLUSIV în ziua scadenței (așa o judecă și cotizatieLaZi din registru).
+  { cheia: "p7", deLaZile: 0, panaLaZile: 7, subiect: "Cotizația expiră săptămâna aceasta",
+    text: (data) => `Cotizația ta de membru CFC-Royal expiră la <strong>${data}</strong> — mai sunt cel mult câteva zile.` },
+  // Fereastra din urmă e mărginită la 60 de zile: recuperăm uitucii recenți, dar prima
+  // rulare nu scrie fișelor vechi/onorifice expirate cu ani în urmă.
+  { cheia: "p0", deLaZile: -60, panaLaZile: -1, subiect: "Cotizația a expirat",
     text: (data) => `Cotizația ta de membru CFC-Royal a expirat la <strong>${data}</strong>. Până la reînnoire, depunerile din spațiul de crescător rămân închise.` },
 ];
 
@@ -35,7 +39,10 @@ export function cineDeAmintit(membri, marcaje, acum = Date.now()) {
   for (const m of membri) {
     const scadenta = Date.parse(String(m.cotizatiePana || ""));
     if (!Number.isFinite(scadenta) || !m.email) continue;
-    const zile = Math.floor((scadenta - acum) / 86400e3);
+    // Scadența ține TOATĂ ziua (cotizatieLaZi include ziua scadenței), deci zilele se
+    // numără până la SFÂRȘITUL ei: în ziua scadenței zile=0 (p7, „expiră azi"), abia a
+    // doua zi zile=-1 („a expirat").
+    const zile = Math.floor((scadenta + 86400e3 - 1 - acum) / 86400e3);
     const ale = marcaje[m.id] || {};
     for (const t of TREPTE) {
       if (zile < t.deLaZile || zile > t.panaLaZile) continue;

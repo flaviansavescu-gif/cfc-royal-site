@@ -215,7 +215,9 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
         const tr = document.createElement("tr");
         const nume = document.createElement("td");
         nume.className = "a-mx-cand";
-        nume.innerHTML = "<strong>" + c.nume + "</strong>";
+        const tare = document.createElement("strong");
+        tare.textContent = c.nume;   // numele e text, niciodată HTML (regula casei)
+        nume.appendChild(tare);
         tr.appendChild(nume);
 
         const curent = numiri[c.id] || {};

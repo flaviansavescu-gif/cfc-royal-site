@@ -100,8 +100,9 @@ export default cuLimitareCod(async (req) => {
       serviciu, eticheta: SERVICII[serviciu], detalii, areDovada,
       stare: "depusa", la: new Date().toISOString(),
     };
-    await s.setJSON("comanda/" + id, inreg);
+    // Dovada se scrie ÎNTÂI: altfel o scriere căzută lăsa comanda „cu dovadă" și dovada 404.
     if (areDovada) await s.setJSON("comanda-dovada/" + id, { continut: String(body.dovada), tip: taie(body.dovadaTip, 60) });
+    await s.setJSON("comanda/" + id, inreg);
 
     await jurnalizeaza(s, {
       anuntaLa: await adreseleRegistraturii(s),

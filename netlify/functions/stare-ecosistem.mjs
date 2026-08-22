@@ -61,7 +61,7 @@ export default cuLimitareCod(async (req) => {
     try {
       await jurnalizeazaObligatoriu(registru, {
         fapta: inchide ? "poarta-inchisa" : "poarta-deschisa",
-        actor: "administrator",
+        actor: { rol: "admin", nume: "Administrator" },
         obiect: "scrierile publice",
         detalii: inchide ? (motiv || "fără motiv scris") : "redeschise",
         ip: ipCerere(req),
@@ -96,7 +96,7 @@ export default cuLimitareCod(async (req) => {
     numara(expozitii, "coada/", (i) => !i.importat),
     // Indexul cozii de sănătate e chiar o coadă: fiecare intrare = un test de verificat.
     numara(registru, "sanatate-neverif/", () => true),
-    numara(registru, "transfer-dosar/", (t) => t.stare === "confirmat"),
+    numara(registru, "transfer-dosar/", (t) => t.stare === "confirmat" || t.stare === "refuzat"),
     numara(registru, "adeziune/", (a) => a.stare !== "admisa" && a.stare !== "respinsa"),
     numara(registru, "cotizatie-plata/", (p) => p.stare === "declarata"),
     numara(registru, "omologare/", (o) => o.stare === "noua"),
@@ -115,7 +115,7 @@ export default cuLimitareCod(async (req) => {
       cereriCanise,         // cereri de afix nehotărâte
       dsarDeschise,         // cereri GDPR deschise (termen legal de 30 de zile!)
       inscrieriNeimportate: neimportate, // în coada expozițiilor, neaduse încă în Manager
-      transferuriDeOperat,  // transferuri confirmate de noul proprietar, așteaptă registratura
+      transferuriDeOperat,  // transferuri cu răspuns (confirmate SAU refuzate), așteaptă registratura
       adeziuniDeLucru,      // cereri de membru nehotărâte (drumul Art. 15)
       cotizatiiDeConfirmat, // plăți de cotizație declarate, neconfirmate
       omologariDeLucru,     // cereri de omologare de titluri, nejudecate

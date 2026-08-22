@@ -198,6 +198,9 @@ const TITLURI = lang === "en" ? TITLURI_EN : TITLURI_RO;
     const input = document.getElementById("dc-input");
     const eroare = document.getElementById("dc-eroare");
     const cutie = document.getElementById("dc-caine");
+    // Cererea de omologare pleacă pentru câinele CĂUTAT (afișat), nu pentru ce a mai
+    // tastat omul în câmp între timp fără să recaute.
+    let cautatAfisat = "";
 
     function curata() {
       document.querySelectorAll("[data-stare]").forEach((e) => { e.hidden = true; e.className = "dc__stare"; });
@@ -252,6 +255,7 @@ const TITLURI = lang === "en" ? TITLURI_EN : TITLURI_RO;
           pr.hidden = false;
           pr.textContent = c.detaliu || "";
         });
+        cautatAfisat = cautat;
         // Formularul de omologare se deschide odată cu drumul; opțiunile spun starea
         // fiecărui titlu, iar cele deja omologate nu se mai pot cere.
         const omolog = document.getElementById("dc-omolog");
@@ -284,7 +288,7 @@ const TITLURI = lang === "en" ? TITLURI_EN : TITLURI_RO;
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             actiune: "cere",
-            cautat: input.value.trim(),
+            cautat: cautatAfisat || input.value.trim(),
             titlu: document.getElementById("dc-om-titlu").value,
             nume: document.getElementById("dc-om-nume").value.trim(),
             email: document.getElementById("dc-om-email").value.trim(),

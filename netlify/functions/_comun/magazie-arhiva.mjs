@@ -51,6 +51,10 @@ export const PREFIXE_SARITE = [
   "dispozitiv/",     // al doilea factor: jetoane de dispozitiv
   "limita/",         // numărătorile limitatorului de încercări
   "cerere-ip/",      // urma de IP a cererilor, ținută scurt
+  "inscriere-ip/",   // idem, la înscrierile în expoziții (store expozitii)
+  "adeziune-ip/",    // idem, la cererile de adeziune
+  "omologare-ip/",   // idem, la cererile de omologare
+  "dsar-ip/",        // idem, la cererile GDPR
   "monitor/",        // starea supravegherii, se reface singură
 ];
 

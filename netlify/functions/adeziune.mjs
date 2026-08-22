@@ -114,8 +114,9 @@ export default cuLimitareCod(async (req) => {
       acord: { text: TEXT_ACORD_ADEZIUNE, versiune: VERSIUNE_ACORD_ADEZIUNE, la: new Date().toISOString(), ipAmprenta: amprentaIp(req) },
       istoric: [{ stare: "noua", la: new Date().toISOString() }],
     };
-    await s.setJSON("adeziune/" + id, cerere);
+    // Dovada se scrie ÎNTÂI: altfel o scriere căzută lăsa cererea „cu dovadă" și dovada 404.
     if (areDovada) await s.setJSON("adeziune-dovada/" + id, { continut: String(body.dovada), tip: taie(body.dovadaTip, 60) });
+    await s.setJSON("adeziune/" + id, cerere);
 
     // Vestea pleacă la registratori (fapta e în FAPTE_DE_ANUNTAT).
     await jurnalizeaza(s, {
@@ -180,12 +181,33 @@ export default cuLimitareCod(async (req) => {
     if (!STARI.includes(stare) || stare === "noua") return json({ eroare: "Stare necunoscută." }, 400);
     const c = await s.get("adeziune/" + id, { type: "json" }).catch(() => null);
     if (!c) return json({ eroare: "Cerere inexistentă." }, 404);
+    // Drumul statutar nu curge înapoi și nu sare peste secretariat (Art. 15). Fără hartă,
+    // un dublu-clic trimitea două e-mailuri de bun venit, iar un apel direct putea împinge
+    // o cerere ADMISĂ înapoi în „verificată".
+    const TRANZITII = {
+      noua: ["verificata"],
+      verificata: ["avizata", "admisa", "respinsa"],
+      avizata: ["admisa", "respinsa"],
+      admisa: [], respinsa: [],
+    };
+    if (!(TRANZITII[c.stare] || []).includes(stare))
+      return json({ eroare: `Din starea „${c.stare}" nu se poate trece în „${stare}".` }, 409);
     const motiv = taie(body.motiv, 400);
     if (stare === "respinsa" && motiv.length < 5)
       return json({ eroare: "Scrie motivul respingerii — omul îl va primi pe e-mail." }, 400);
     const istoric = Array.isArray(c.istoric) ? c.istoric : [];
     istoric.push({ stare, la: new Date().toISOString(), motiv: motiv || undefined });
-    await s.setJSON("adeziune/" + id, { ...c, stare, motiv: stare === "respinsa" ? motiv : c.motiv, istoric });
+    // Motivul unei respingeri vechi nu rămâne lipit de o cerere re-judecată.
+    await s.setJSON("adeziune/" + id, { ...c, stare, motiv: stare === "respinsa" ? motiv : null, istoric });
+
+    // Primirea unui membru e act statutar — hotărârea lasă urmă, ca la toate suratele ei.
+    await jurnalizeaza(s, {
+      fapta: "adeziune-hotarare",
+      actor: { rol: eAdmin ? "admin" : "registratura", nume: eAdmin ? "Administrator" : registrator?.nume || "registratură" },
+      obiect: c.nume,
+      detalii: `${c.stare} → ${stare}` + (motiv ? ` — ${motiv}` : ""),
+      ip: ipCerere(req),
+    });
 
     if (stare === "respinsa") {
       await trimite({
