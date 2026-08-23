@@ -154,6 +154,13 @@ console.log("— poarta chinotehnistului (asociatii afiliate) —");
   t("dosarul poarta provenienta depunerii", sursa.includes('fel: "chinotehnist"'));
   t("cotizatia nu se cere chinotehnistului la depunere",
     /eu\.rol === "membru" && !eu\.membru\.cotizatieLaZi/.test(sursa));
+  // Dovada consimtamantului GDPR (art. 7 alin. 1) trebuie sa ramana pe dosar: CE text,
+  // in CE versiune, cu amprenta IP — la fel ca la adeziune si buletin. O regresie care
+  // scoate stampila ar pierde tacut dovada, exact ce voiam sa evitam.
+  t("dosarul stampileaza versiunea acordului GDPR",
+    /acordGdpr:\s*{/.test(sursa) && sursa.includes("VERSIUNE_ACORD_DMF") && sursa.includes("amprentaIp(req)"));
+  t("textul acordului DMF coincide cu bifa din pagina",
+    sursa.includes("furnizate cu acordul acestora"));
 }
 
 console.log(`\n${ok} trecute, ${rau} căzute`);

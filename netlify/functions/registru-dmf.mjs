@@ -45,6 +45,16 @@ import { trimite } from "./_comun/posta.mjs";
 import { START_PORTI, PRAG, luniIntre, portiCrestere, mesajOpriri } from "./_comun/porti-crestere.mjs";
 import { json } from "./_comun/raspuns.mjs";
 import { refuzaDacaInchis } from "./_comun/poarta-scrieri.mjs";
+import { amprentaIp } from "./_comun/formular-public.mjs";
+
+// Textul declarației GDPR de pe formularul DMF — o singură sursă, cu versiune, la fel ca
+// la adeziune și la buletin. La o reclamație trebuie să putem arăta nu doar CĂ s-a bifat,
+// ci CE s-a bifat; acordurile vechi rămân legate de textul lor, nu de cel nou. Trebuie să
+// coincidă cuvânt cu cuvânt cu bifa `c.gdpr` din src/pages/crescatori/dmf/index.astro.
+export const TEXT_ACORD_DMF =
+  "Datele cumpărătorilor pe care le completez au fost furnizate cu acordul acestora, pentru " +
+  "eliberarea documentelor de origine, și declar că informațiile sunt complete, reale și actualizate.";
+export const VERSIUNE_ACORD_DMF = "2026-08-23";
 
 // CITIRE TARE, ca la poarta de acces.
 //
@@ -779,6 +789,14 @@ export default cuLimitareCod(async (req) => {
         nume: v.d.semnatura,
         la: new Date().toISOString(),
         ip: req.headers.get("x-nf-client-connection-ip") || req.headers.get("x-forwarded-for") || "",
+      },
+      // Dovada declarației GDPR: CE text a bifat crescătorul, în CE versiune, CÂND și de
+      // unde (amprentă IP, nu IP în clar). Aceeași formă ca la adeziune și buletin.
+      acordGdpr: {
+        text: TEXT_ACORD_DMF,
+        versiune: VERSIUNE_ACORD_DMF,
+        la: new Date().toISOString(),
+        ipAmprenta: amprentaIp(req),
       },
       confirmare: {
         stare: "asteptare",
