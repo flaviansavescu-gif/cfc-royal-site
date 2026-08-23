@@ -4,6 +4,7 @@
 import { json, taie, acum, cereLector, candidatDinId, actorDinCod, poateAdministraSesiunea, store, citesteParticipanti, esteParticipant, audit, scrieInIndex, candidatDinCod} from "./_jcr/lib.mjs";
 import { randomUUID } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 const TIPURI = { "image/jpeg": 1, "image/png": 1, "image/webp": 1 };
 const MAX_B64 = 2_800_000; // ~2 MB imagine
@@ -20,7 +21,7 @@ export default cuLimitareCod(async (req) => {
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
   const actiune = taie(body.actiune, 20);
   const id = taie(body.id, 40);
-  if (!id) return json({ eroare: "Lipsește sesiunea." }, 400);
+  if (!id || !segmentCheieValid(id)) return json({ eroare: "Lipsește sesiunea." }, 400);
   const st = store();
   const s = await st.get("session/" + id, { type: "json" }).catch(() => null);
   if (!s) return json({ eroare: "Sesiune inexistentă." }, 404);
@@ -28,6 +29,7 @@ export default cuLimitareCod(async (req) => {
   // ——— Servirea imaginii: participant (cid) SAU lector/admin (cod) ———
   if (actiune === "imagine") {
     const mediaId = taie(body.mediaId, 60);
+    if (!segmentCheieValid(mediaId)) return json({ eroare: "Referință invalidă." }, 400);
     let permis = false;
     if (body.cid) {
       const cand = await candidatDinCod(body.cid);
@@ -64,6 +66,7 @@ export default cuLimitareCod(async (req) => {
 
   if (actiune === "sterge") {
     const mediaId = taie(body.mediaId, 60);
+    if (!segmentCheieValid(mediaId)) return json({ eroare: "Referință invalidă." }, 400);
     try { await st.delete("media/" + id + "/" + mediaId); } catch (err) { console.error(err); }
     s.imagini = (s.imagini || []).filter((x) => x.mediaId !== mediaId);
     s.actualizat = acum();

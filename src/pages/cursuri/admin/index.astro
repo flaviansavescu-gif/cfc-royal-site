@@ -724,7 +724,9 @@ const TESTE = [
       fb.hidden = false;
       fb.innerHTML = "";
       const t = document.createElement("span");
-      t.innerHTML = "✓ <strong>" + candidat.nume + "</strong> a fost înregistrat. Cod personal: ";
+      t.appendChild(document.createTextNode("✓ "));
+      const tare = document.createElement("strong"); tare.textContent = candidat.nume; t.appendChild(tare);
+      t.appendChild(document.createTextNode(" a fost înregistrat. Cod personal: "));
       const code = document.createElement("code");
       code.className = "a-cand-cod";
       code.textContent = candidat.cod;
@@ -865,7 +867,9 @@ const TESTE = [
           fb.hidden = false;
           fb.innerHTML = "";
           const t = document.createElement("span");
-          t.innerHTML = "✓ <strong>" + data.arbitru.nume + "</strong> a fost înregistrat. Cod de acces: ";
+          t.appendChild(document.createTextNode("✓ "));
+          const tare = document.createElement("strong"); tare.textContent = data.arbitru.nume; t.appendChild(tare);
+          t.appendChild(document.createTextNode(" a fost înregistrat. Cod de acces: "));
           const code = document.createElement("code");
           code.className = "a-cand-cod";
           code.textContent = data.arbitru.cod;

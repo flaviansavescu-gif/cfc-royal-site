@@ -4,6 +4,7 @@
 // Cursant: incarca | serveste (proprietar).  Lector: serveste (review).
 import { json, taie, acum, idNou, candidatDinId, actorDinCod, store, candidatDinCod, MESAJ_ETICA} from "./_paa/lib.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 const TIPURI = { "image/jpeg": 1, "image/png": 1, "image/webp": 1 };
 const MAX_BYTES = 6 * 1024 * 1024; // 6 MB
@@ -41,6 +42,7 @@ export default cuLimitareCod(async (req) => {
 
   if (actiune === "serveste") {
     const imageId = taie(body.imageId, 60);
+    if (!segmentCheieValid(imageId)) return json({ eroare: "Referință invalidă." }, 400);
     const meta = await st.get("image-meta/" + imageId, { type: "json" }).catch(() => null);
     if (!meta) return json({ eroare: "Imagine inexistentă." }, 404);
     // acces: proprietarul (cid) SAU un lector/admin (cod)

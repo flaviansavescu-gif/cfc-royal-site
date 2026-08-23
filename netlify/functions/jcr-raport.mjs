@@ -3,6 +3,7 @@
 import { json, taie, cereLector, candidatDinId, poateAdministraSesiunea, store, storeCursuri, citesteIndex, citesteParticipanti, esteParticipant, baremDeblocat, candidatDinCod, MESAJ_ETICA} from "./_jcr/lib.mjs";
 import { comparaRaspuns } from "./_jcr/compare.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 const csvCelula = (v) => { const s = String(v == null ? "" : v); return /[",\n;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
 
@@ -47,7 +48,7 @@ export default cuLimitareCod(async (req) => {
   // ——— Lector: export CSV al rezultatelor sesiunii ———
   if (actiune === "csv") {
     const id = taie(body.id, 40);
-    if (!id) return json({ eroare: "Lipsește sesiunea." }, 400);
+    if (!id || !segmentCheieValid(id)) return json({ eroare: "Lipsește sesiunea." }, 400);
     let actor;
     try { actor = cereLector(body.cod); } catch (e) { return json({ eroare: e.eroare }, e.status); }
     const s = await st.get("session/" + id, { type: "json" }).catch(() => null);

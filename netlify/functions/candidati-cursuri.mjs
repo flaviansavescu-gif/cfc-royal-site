@@ -10,6 +10,7 @@ import { getStore } from "@netlify/blobs";
 import { createHash, randomInt } from "node:crypto";
 import { stergeUrmeleCandidatului, curataOrfanii } from "./_comun/curatare.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
@@ -181,7 +182,7 @@ export default cuLimitareCod(async (req) => {
 
   if (actiune === "mentor-salveaza") {
     const id = String(body.candidatId || "");
-    if (!id) return json({ eroare: "Lipsește candidatul." }, 400);
+    if (!id || !segmentCheieValid(id)) return json({ eroare: "Lipsește candidatul." }, 400);
     const exista = await store.get("candidat/" + id, { type: "json" }).catch(() => null);
     if (!exista) return json({ eroare: "Candidat inexistent." }, 404);
     const nume = String(body.nume || "").slice(0, 140).trim();
@@ -197,7 +198,7 @@ export default cuLimitareCod(async (req) => {
 
   if (actiune === "sterge") {
     const id = String(body.id || "");
-    if (!id) return json({ eroare: "Lipsește candidatul." }, 400);
+    if (!id || !segmentCheieValid(id)) return json({ eroare: "Lipsește candidatul." }, 400);
     try { await store.delete("candidat/" + id); } catch (err) { console.error(err); }
     try { await store.delete("progres/" + id); } catch (err) { console.error(err); } // format vechi (obiect unic)
     try {

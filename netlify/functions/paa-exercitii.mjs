@@ -6,6 +6,7 @@
 import { json, taie, acum, idNou, cereLector, candidatDinId, actorDinCod, poateAdministra, store, storeCursuri, audit, candidatDinCod, MESAJ_ETICA} from "./_paa/lib.mjs";
 import { marcheazaUrma, numeActor } from "./_comun/urma.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 const CALIFICATIVE = ["Excelent", "Foarte bine", "Bine", "Suficient", "Insuficient"];
 const STATUS = ["draft", "published", "closed", "archived"];
@@ -63,6 +64,7 @@ export default cuLimitareCod(async (req) => {
     }
 
     const id = taie(body.id, 40);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const e = await st.get("exercitiu/" + id, { type: "json" }).catch(() => null);
     if (!e) return json({ eroare: "Exercițiu inexistent." }, 404);
     const p = await participanti(id);
@@ -111,7 +113,7 @@ export default cuLimitareCod(async (req) => {
     return json({ ok: true, exercitiu: e });
   }
 
-  const id = taie(body.id, 40); if (!id) return json({ eroare: "Lipsește exercițiul." }, 400);
+  const id = taie(body.id, 40); if (!id || !segmentCheieValid(id)) return json({ eroare: "Lipsește exercițiul." }, 400);
   const e = await st.get("exercitiu/" + id, { type: "json" }).catch(() => null);
   if (!e) return json({ eroare: "Exercițiu inexistent." }, 404);
   if (!poateAdministra(actor)) return json({ eroare: "Fără drept." }, 403);
@@ -162,7 +164,9 @@ export default cuLimitareCod(async (req) => {
     return json({ raspunsuri: out });
   }
   if (actiune === "verifica") {
-    const cidr = taie(body.candidatId, 80); const key = "ex-raspuns/" + id + "/" + cidr;
+    const cidr = taie(body.candidatId, 80);
+    if (!segmentCheieValid(cidr)) return json({ eroare: "Referință invalidă." }, 400);
+    const key = "ex-raspuns/" + id + "/" + cidr;
     const r = await st.get(key, { type: "json" }).catch(() => null); if (!r) return json({ eroare: "Răspuns inexistent." }, 404);
     const cal = CALIFICATIVE.indexOf(taie(body.calificativ, 20)) >= 0 ? taie(body.calificativ, 20) : "";
     r.calificativ = cal; r.feedback = taie(body.feedback, 4000); r.verificatLa = acum(); r.verificatDe = numeActor(actor);

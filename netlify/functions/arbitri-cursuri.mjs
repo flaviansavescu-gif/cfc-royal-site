@@ -13,6 +13,7 @@
 import { getStore } from "@netlify/blobs";
 import { createHash, randomInt } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
@@ -92,7 +93,7 @@ export default cuLimitareCod(async (req) => {
 
   if (actiune === "sterge") {
     const id = String(body.id || "");
-    if (!id) return json({ eroare: "Lipsește arbitrul." }, 400);
+    if (!id || !segmentCheieValid(id)) return json({ eroare: "Lipsește arbitrul." }, 400);
     try { await store.delete("arbitru/" + id); } catch (err) { console.error(err); }
     return json({ ok: true });
   }

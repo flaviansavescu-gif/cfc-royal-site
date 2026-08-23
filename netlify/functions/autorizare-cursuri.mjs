@@ -11,6 +11,7 @@ import { getStore } from "@netlify/blobs";
 import { secretEgal } from "./_comun/secret.mjs";
 import { createHash } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import { refuzaFaraCodEtic } from "./_comun/poarta-etica.mjs";
 
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
@@ -135,7 +136,7 @@ export default cuLimitareCod(async (req) => {
 
   if (actiune === "salveaza") {
     const cid = taie(body.candidatId, 128);
-    if (!cid) return json({ eroare: "Lipsește candidatul." }, 400);
+    if (!cid || !segmentCheieValid(cid)) return json({ eroare: "Lipsește candidatul." }, 400);
     const exista = await store.get("candidat/" + cid, { type: "json" }).catch(() => null);
     if (!exista) return json({ eroare: "Candidat inexistent." }, 404);
     const grupe = grupeCurate(body.grupe);

@@ -26,6 +26,7 @@
 import { getStore } from "@netlify/blobs";
 import { createHash, createHmac } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import { esteAdmin } from "./_comun/roluri.mjs";   // sursă UNICĂ; nu copia amprenta aici
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { json } from "./_comun/raspuns.mjs";
@@ -118,7 +119,7 @@ export default cuLimitareCod(async (req) => {
   }
 
   const cid = taie(body.candidatId, 128);
-  if (!cid || !FELURI.includes(fel)) return json({ eroare: "Candidat sau fel de act invalid." }, 400);
+  if (!cid || !segmentCheieValid(cid) || !FELURI.includes(fel)) return json({ eroare: "Candidat sau fel de act invalid." }, 400);
   const cand = await store.get("candidat/" + cid, { type: "json" }).catch(() => null);
   if (!cand) return json({ eroare: "Candidat inexistent." }, 404);
 

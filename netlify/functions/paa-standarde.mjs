@@ -4,8 +4,13 @@
 // NU inventăm limite WDF: datele demo sunt marcate explicit `demo:true`.
 import { json, taie, acum, cereAdmin, store, audit } from "./_paa/lib.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 const SEVERITATI = ["informativ", "minor", "major"];
+
+/** Rasa + versiunea sunt segmente de cheie de blob venite din client (chiar public la
+ *  `detalii`): fără gardian, un `..` ar traversa în magazia PAA la alte chei. */
+const cheieStandardValida = (rasa, versiune) => segmentCheieValid(rasa) && segmentCheieValid(versiune);
 
 function curataMetric(m, i) {
   const numOrNull = (v) => (v === "" || v == null || isNaN(+v) ? null : +v);
@@ -38,6 +43,7 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "lista") return json({ standarde: await citesteIndex() });
   if (actiune === "detalii") {
     const rasa = taie(body.rasa, 120), versiune = taie(body.versiune, 40);
+    if (!cheieStandardValida(rasa, versiune)) return json({ eroare: "Referință invalidă." }, 400);
     const s = await st.get("std/" + rasa + "/" + versiune, { type: "json" }).catch(() => null);
     if (!s) return json({ eroare: "Standard inexistent." }, 404);
     return json({ standard: s });
@@ -50,6 +56,7 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "salveaza") {
     const rasa = taie(body.rasa, 120), versiune = taie(body.versiune, 40);
     if (!rasa || !versiune) return json({ eroare: "Rasa și versiunea sunt obligatorii." }, 400);
+    if (!cheieStandardValida(rasa, versiune)) return json({ eroare: "Referință invalidă." }, 400);
     const std = {
       rasa, versiune, sursa: taie(body.sursa, 300), dataVigoare: taie(body.dataVigoare, 40),
       status: taie(body.status, 20) || "draft", demo: !!body.demo,
@@ -64,6 +71,7 @@ export default cuLimitareCod(async (req) => {
 
   if (actiune === "sterge") {
     const rasa = taie(body.rasa, 120), versiune = taie(body.versiune, 40);
+    if (!cheieStandardValida(rasa, versiune)) return json({ eroare: "Referință invalidă." }, 400);
     try { await st.delete("std/" + rasa + "/" + versiune); } catch (err) { console.error(err); }
     const idx = (await citesteIndex()).filter((x) => !(x.rasa === rasa && x.versiune === versiune));
     await st.setJSON("std-index", idx);

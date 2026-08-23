@@ -24,6 +24,7 @@
 import { getStore } from "@netlify/blobs";
 import { createHash, randomInt } from "node:crypto";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import { refuzaFaraCodEtic } from "./_comun/poarta-etica.mjs";
 import { trimite } from "./_comun/posta.mjs";
 
@@ -166,7 +167,7 @@ export default cuLimitareCod(async (req) => {
 
     if (actiune === "reset") {
       const cid = taie(body.candidatId, 128);
-      if (!cid) return json({ eroare: "Lipsește candidatul." }, 400);
+      if (!cid || !segmentCheieValid(cid)) return json({ eroare: "Lipsește candidatul." }, 400);
       try { await store.delete("examen/" + cid); } catch (err) { console.error(err); }
       return json({ ok: true });
     }
@@ -189,6 +190,7 @@ export default cuLimitareCod(async (req) => {
         return json({ eroare: "Perioada sesiunii e invalidă (start ≤ sfârșit, format AAAA-LL-ZZ)." }, 400);
       if (presedinte.length < 3) return json({ eroare: "Numește președintele comisiei de examinare." }, 400);
       const id = taie(body.id, 60) || Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+      if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
       await store.setJSON("sesiune-examen/" + id, {
         nume, start, sfarsit, presedinte, membri,
         creat: new Date().toISOString(),
@@ -198,7 +200,7 @@ export default cuLimitareCod(async (req) => {
 
     if (actiune === "sesiune-sterge") {
       const id = taie(body.id, 60);
-      if (!id) return json({ eroare: "Lipsește sesiunea." }, 400);
+      if (!id || !segmentCheieValid(id)) return json({ eroare: "Lipsește sesiunea." }, 400);
       try { await store.delete("sesiune-examen/" + id); } catch (err) { console.error(err); }
       return json({ ok: true });
     }
@@ -218,6 +220,7 @@ export default cuLimitareCod(async (req) => {
 
     if (actiune === "solutioneaza") {
       const cid = taie(body.candidatId, 128);
+      if (!segmentCheieValid(cid)) return json({ eroare: "Referință invalidă." }, 400);
       const decizie = taie(body.decizie, 10);
       const motivare = taie(body.motivare, 2000);
       if (!cid) return json({ eroare: "Lipsește candidatul." }, 400);

@@ -2,6 +2,7 @@
 // Cursant: schita | trimite | a-mea.  Răspunsul NU e vizibil altor cursanți.
 import { json, taie, acum, candidatDinId, store, citesteParticipanti, esteParticipant, audit, candidatDinCod, MESAJ_ETICA} from "./_jcr/lib.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 const FORM_VERSION = 1;
 
@@ -36,6 +37,7 @@ export default cuLimitareCod(async (req) => {
   try { body = await req.json(); } catch { return json({ eroare: "Cerere invalidă." }, 400); }
   const actiune = taie(body.actiune, 20);
   const id = taie(body.id, 40);
+  if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
 
   const cand = await candidatDinCod(body.cid);
   if (!cand) return json({ eroare: "Sesiune de candidat invalidă." }, 401);

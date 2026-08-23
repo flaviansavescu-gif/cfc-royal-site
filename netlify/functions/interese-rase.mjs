@@ -17,6 +17,7 @@ import { json, taie, acum, candidatDinId, audit, candidatDinCod} from "./_paa/li
 import { actorDinCod, LECTORI, lectoriCuGrupe } from "./_comun/roluri.mjs";
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import { refuzaFaraCodEtic } from "./_comun/poarta-etica.mjs";
 // Logica pură (sanitizare, lărgime, sugestii, agregare) — testată separat.
 import {
@@ -163,7 +164,7 @@ export default cuLimitareCod(async (req) => {
   }
   if (actiune === "aloca") {
     const cid = taie(body.cid2 || body.tinta, 80);
-    if (!cid) return json({ eroare: "Candidat lipsă." }, 400);
+    if (!cid || !segmentCheieValid(cid)) return json({ eroare: "Candidat lipsă." }, 400);
     const slug = taie(body.lectorSlug, 60);
     async function actualizeazaAlocareaInIndex(al) {
       const index = await citesteIndexProfiluri();

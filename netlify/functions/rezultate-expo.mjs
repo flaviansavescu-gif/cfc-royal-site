@@ -124,6 +124,8 @@ export default async (req) => {
   const u = new URL(req.url);
   let showId = u.searchParams.get("showId") || "";
   if (!showId && /^\/rezultate-live\//.test(u.pathname)) showId = u.pathname.replace(/^\/rezultate-live\//, "").replace(/\/+$/, "");
+  // SEC-001: showId vine din URL (query sau cale) — la fel ca pe POST, trece prin gardian.
+  if (showId && !segmentCheieValid(showId)) showId = "";
 
   if (showId) {
     const r = await store.get("rezultate/" + showId, { type: "json" }).catch(() => null);

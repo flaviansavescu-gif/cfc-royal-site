@@ -3,6 +3,7 @@
 // pe sesiunile LUI. (Review lector — a vedea sesiunile altui candidat — rămâne Faza 2.)
 import { json, taie, acum, idNou, store, cineDinCod, MESAJ_ETICA} from "./_paa/lib.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 async function citesteIndex(userId) { try { return (await store().get("session-index/" + userId, { type: "json" })) || []; } catch { return []; } }
 async function scrieIndex(userId, s) {
@@ -66,7 +67,7 @@ export default cuLimitareCod(async (req) => {
   }
 
   const id = taie(body.id, 40);
-  if (!id) return json({ eroare: "Lipsește sesiunea." }, 400);
+  if (!id || !segmentCheieValid(id)) return json({ eroare: "Lipsește sesiunea." }, 400);
   const existent = await st.get("session/" + id, { type: "json" }).catch(() => null);
   if (!existent) return json({ eroare: "Sesiune inexistentă." }, 404);
   if (existent.userId !== cine.id) return json({ eroare: "Nu îți aparține această sesiune." }, 403);

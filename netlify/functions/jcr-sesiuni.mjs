@@ -6,6 +6,7 @@ import {
   store, storeCursuri, citesteIndex, scrieInIndex, audit, citesteParticipanti, esteParticipant, baremDeblocat, candidatDinCod, MESAJ_ETICA } from "./_jcr/lib.mjs";
 import { marcheazaUrma } from "./_comun/urma.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 function curataSesiune(inp, baza) {
   const s = baza || {};
@@ -81,6 +82,7 @@ export default cuLimitareCod(async (req) => {
 
     // detalii-cursant
     const id = taie(body.id, 40);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const s = await st.get("session/" + id, { type: "json" }).catch(() => null);
     if (!s) return json({ eroare: "Sesiune inexistentă." }, 404);
     const part = await citesteParticipanti(id);
@@ -133,7 +135,7 @@ export default cuLimitareCod(async (req) => {
 
   // acțiuni care necesită o sesiune existentă + drept de administrare
   const id = taie(body.id, 40);
-  if (!id) return json({ eroare: "Lipsește id-ul sesiunii." }, 400);
+  if (!id || !segmentCheieValid(id)) return json({ eroare: "Lipsește id-ul sesiunii." }, 400);
   const s = await st.get("session/" + id, { type: "json" }).catch(() => null);
   if (!s) return json({ eroare: "Sesiune inexistentă." }, 404);
   if (!poateAdministraSesiunea(actor, s)) return json({ eroare: "Nu ai drept asupra acestei sesiuni." }, 403);

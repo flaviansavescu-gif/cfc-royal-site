@@ -19,6 +19,7 @@ import { getStore } from "@netlify/blobs";
 import { rolLaIntrare, actorDinCod, sha256, LECTORI } from "./_comun/roluri.mjs";
 import { dispozitivCunoscut } from "./_comun/al-doilea-factor.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import {
   magazie as magazieJetoane, cheieDezabonare, jetonNou, jetonDezabonare,
 } from "./_comun/buletin-acord.mjs";
@@ -187,7 +188,7 @@ export default cuLimitareCod(async (req) => {
 
   if (actiune === "sterge") {
     const key = String(body.key || "");
-    if (!key.startsWith("buletin/")) return json({ eroare: "Cheie invalidă." }, 400);
+    if (!key.startsWith("buletin/") || !segmentCheieValid(key.slice("buletin/".length))) return json({ eroare: "Cheie invalidă." }, 400);
     try { await store.delete(key); } catch (err) { console.error(err); }
     return json({ ok: true });
   }
@@ -241,7 +242,7 @@ export default cuLimitareCod(async (req) => {
   // Rezultatul trimiterii din fundal, pentru panoul de administrare.
   if (actiune === "stare-trimitere") {
     const key = String(body.key || "");
-    if (!key.startsWith("buletin/")) return json({ eroare: "Cheie invalidă." }, 400);
+    if (!key.startsWith("buletin/") || !segmentCheieValid(key.slice("buletin/".length))) return json({ eroare: "Cheie invalidă." }, 400);
     const stare = await store.get("buletin-trimitere/" + key.replace(/^buletin\//, ""), { type: "json" }).catch(() => null);
     return json({ stare: stare || null });
   }
