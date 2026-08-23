@@ -73,6 +73,8 @@ jobs:
           raspuns=$(curl --silent --show-error --fail --retry 3 --retry-delay 15 --retry-all-errors \
             --max-time 20 "https://cfc-royal.ro/.netlify/functions/stare-inimi") \
             || { echo "::error::Fereastra stare-inimi nu raspunde."; exit 1; }
-          echo "$raspuns"
-          echo "$raspuns" | grep -q '"ok":true' \
-            || { echo "::error::O functie programata a tacut peste prag sau posta (Brevo) nu mai poate trimite — vezi raspunsul de mai sus."; exit 1; }
+          # `.ok` de NIVEL SUPERIOR, citit cu jq — NU grep pe substring. Raspunsul are si
+          # `posta.ok`, iar un grep neancorat gasea `"ok":true` din posta si trecea verde
+          # chiar cand o inima murise (top-level ok:false). jq e preinstalat pe ubuntu-latest.
+          echo "$raspuns" | jq -e '.ok == true' >/dev/null \
+            || { echo "::error::O functie programata a tacut peste prag sau posta (Brevo) nu mai poate trimite:"; echo "$raspuns"; exit 1; }

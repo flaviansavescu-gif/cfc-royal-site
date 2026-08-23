@@ -60,12 +60,26 @@ export function judecaInimile(batai, acum = Date.now()) {
   return { ok: intarziate.length === 0, intarziate, nebatute };
 }
 
-/** Citește toate bătăile din magazie (pentru endpointul public stare-inimi). */
+/**
+ * Citește toate bătăile din magazie (pentru endpointul public stare-inimi).
+ * Întoarce `{ batai, eroareMagazie }`. `eroareMagazie` e TRUE doar când magazia „acces"
+ * nu s-a putut citi DELOC (toate cererile au aruncat) — o cheie absentă întoarce null
+ * fără eroare, deci o inimă nebătută NU e confundată cu o magazie moartă, iar un sughiț
+ * izolat printre citiri reușite nu ridică alarma. Așa, fereastra publică poate cădea
+ * fail-CLOSED (nu „sănătos") când e cu adevărat oarbă.
+ */
 export async function citesteInimile() {
   const s = magazie();
   const batai = {};
+  let citite = 0, cuEroare = 0;
   for (const nume of Object.keys(INIMI)) {
-    batai[nume] = await s.get("inima/" + nume, { type: "json" }).catch(() => null);
+    try {
+      batai[nume] = await s.get("inima/" + nume, { type: "json" });
+      citite++;
+    } catch {
+      batai[nume] = null;
+      cuEroare++;
+    }
   }
-  return batai;
+  return { batai, eroareMagazie: citite === 0 && cuEroare > 0 };
 }

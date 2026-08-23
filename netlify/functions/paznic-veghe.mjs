@@ -157,17 +157,19 @@ function scrisoareRaport(f, acum) {
 
 // ——————————————————————— Curățenia ———————————————————————
 
-/** Șterge memoria mai veche de termen. O zi pe rulare — atât încape în răbdare. */
+/** Șterge memoria mai veche de termen. Listează TOATE însemnările și șterge după data din
+ *  cheie (`paznic/AAAA-LL-ZZ-HH/…`) — așa o rulare de 04:00 RATATĂ nu lasă orfani permanenți.
+ *  (Varianta veche ștergea o SINGURĂ zi pe rulare, deci o zi sărită rămânea pe veci.) */
 async function curata(s, acum) {
-  const zi = new Date(acum.getTime() - RETENTIE_ZILE * 24 * 3600e3).toISOString().slice(0, 10);
+  const limita = new Date(acum.getTime() - RETENTIE_ZILE * 24 * 3600e3).toISOString().slice(0, 10);
   let sterse = 0;
-  for (let h = 0; h < 24; h++) {
-    const ora = `${zi}-${String(h).padStart(2, "0")}`;
-    try {
-      const { blobs } = await s.list({ prefix: `paznic/${ora}/` });
-      for (const b of blobs) { await s.delete(b.key); sterse++; }
-    } catch (err) { console.error("Curățenia paznicului, ora " + ora + ":", err); }
-  }
+  try {
+    const { blobs } = await s.list({ prefix: "paznic/" });
+    for (const b of blobs) {
+      const zi = b.key.slice("paznic/".length, "paznic/".length + 10); // AAAA-LL-ZZ
+      if (/^\d{4}-\d{2}-\d{2}$/.test(zi) && zi <= limita) { await s.delete(b.key); sterse++; }
+    }
+  } catch (err) { console.error("Curățenia paznicului:", err); }
   return sterse;
 }
 

@@ -79,7 +79,7 @@ export default cuLimitareCod(async (req) => {
   }
 
   // ——— Starea întreagă ———
-  const [batai, posta, monitor, poarta] = await Promise.all([
+  const [{ batai }, posta, monitor, poarta] = await Promise.all([
     citesteInimile(),
     acces.get("posta-sanatate", { type: "json" }).catch(() => null),
     registru.get("monitor/stare", { type: "json" }).catch(() => null),
