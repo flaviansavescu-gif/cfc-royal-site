@@ -108,7 +108,11 @@ import CursuriLayout from "../../../layouts/CursuriLayout.astro";
       var email = document.getElementById("b-email").value.trim();
       if (!email) return;
       cere({ actiune: "aboneaza", email: email })
-        .then(function () { arata("✓ Te-ai abonat. Următorul buletin ajunge și pe " + email + ".", true); })
+        .then(function (d) {
+          if (d && d.dejaAbonat) arata("✓ Adresa " + email + " e deja abonată.", true);
+          else if (d && d.confirmare) arata("📬 Ți-am trimis un e-mail de confirmare la " + email + ". Apasă linkul din el ca să încheiem abonarea (verifică și în Spam).", true);
+          else arata("✓ Cerere trimisă. Verifică-ți e-mailul pentru confirmare.", true);
+        })
         .catch(function (err) { arata(err.message, false); });
     });
     document.getElementById("b-dezab").addEventListener("click", function () {

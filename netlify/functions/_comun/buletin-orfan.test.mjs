@@ -44,11 +44,34 @@ if (!bootstrapMockModule(import.meta.url)) {
       // Abonarea veche, orfană: aceeași adresă, dar insigna unui candidat care nu mai există.
       ["abonat/" + sha256(EMAIL)]: { email: EMAIL, membruId: INSIGNA_MOARTA, nume: "Nicula Maria Alina", creat: "2026-07-01" },
     });
+    // Double opt-in: abonarea creează o cerere în așteptare + trimite confirmarea; adresa
+    // NU se rescrie încă (stăpânul MORT rămâne pe abonare până la confirmare).
     const r = await post({ actiune: "aboneaza", cid: COD_EA, email: EMAIL });
     assert.equal(r.status, 200, JSON.stringify(r.corp));
+    assert.equal(r.corp.confirmare, true, "abonarea cere confirmare pe e-mail");
+    assert.equal(suport.magazie._map.get("abonat/" + sha256(EMAIL)).membruId, INSIGNA_MOARTA,
+      "până la confirmare, abonarea rămâne cum era");
+    // Omul apasă linkul din e-mail (jetonul din cererea în așteptare).
+    const jeton = [...suport.magazie._map.keys()].find((k) => k.startsWith("buletin-scoala-asteptare/"))
+      ?.slice("buletin-scoala-asteptare/".length);
+    assert.ok(jeton, "s-a creat o cerere în așteptare cu jeton");
+    const conf = await post({ actiune: "confirma-abonare", jeton });
+    assert.equal(conf.status, 200, JSON.stringify(conf.corp));
     const inreg = suport.magazie._map.get("abonat/" + sha256(EMAIL));
-    assert.equal(inreg.membruId, INSIGNA_EA, "adresa e acum legată de insigna ei ACTUALĂ");
+    assert.equal(inreg.membruId, INSIGNA_EA, "după confirmare, adresa e legată de insigna ei ACTUALĂ");
     assert.equal(inreg.creat, "2026-07-01", "vechimea abonării se păstrează");
+    assert.ok(!suport.magazie._map.has("buletin-scoala-asteptare/" + jeton), "cererea în așteptare se stinge");
+  });
+
+  test("double opt-in: adresa unui terț NU intră pe listă fără confirmare", async () => {
+    suport.magazie = magazieFalsa({ ["candidat/" + INSIGNA_EA]: { nume: "Candidat" } });
+    const TERT = "sef@firma.ro";
+    const r = await post({ actiune: "aboneaza", cid: COD_EA, email: TERT });
+    assert.equal(r.status, 200);
+    assert.equal(r.corp.confirmare, true);
+    assert.ok(!suport.magazie._map.has("abonat/" + sha256(TERT)), "terțul NU e pe listă fără să fi confirmat");
+    assert.ok([...suport.magazie._map.keys()].some((k) => k.startsWith("buletin-scoala-asteptare/")),
+      "există doar o cerere în așteptare");
   });
 
   test("protecția rămâne: adresa unui stăpân ÎN VIAȚĂ nu se poate prelua și nici dezabona de altcineva", async () => {

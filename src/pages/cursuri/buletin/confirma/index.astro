@@ -1,0 +1,41 @@
+---
+// /cursuri/buletin/confirma/?j=<jeton> — pasul doi al double opt-in la Buletinul Școlii.
+// Adresa intră pe listă abia când PROPRIETARUL ei apasă linkul primit pe e-mail.
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout lang="ro" title="Confirmarea abonării" description="Confirmă abonarea la Buletinul Școlii de Arbitraj CFC-Royal.">
+  <div class="container" style="padding-block: 3rem;">
+    <section class="bc">
+      <p class="bc__eyebrow">Școala de Arbitraj · Club Federal Chinologic Royal</p>
+      <h1 class="bc__title">Confirmarea abonării la Buletin</h1>
+      <p class="bc__stare" id="bc-stare">Se confirmă…</p>
+    </section>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  (async function () {
+    var stare = document.getElementById("bc-stare");
+    var jeton = new URLSearchParams(location.search).get("j") || "";
+    if (!jeton) { stare.textContent = "Link incomplet. Folosește linkul primit pe e-mail."; return; }
+    try {
+      var r = await fetch("/.netlify/functions/buletin-cursuri", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ actiune: "confirma-abonare", jeton: jeton }),
+      });
+      var d = await r.json().catch(function () { return {}; });
+      if (!r.ok) { stare.textContent = d.eroare || "Nu am putut confirma abonarea."; return; }
+      stare.textContent = "✅ Gata! Adresa " + (d.email || "ta") + " este acum abonată la Buletinul Școlii. Îți mulțumim.";
+    } catch (e) {
+      stare.textContent = "Nu am putut confirma acum. Reîncearcă mai târziu.";
+    }
+  })();
+</script>
+
+<style>
+  .bc { max-width: 42rem; margin: 0 auto; }
+  .bc__eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; color: var(--color-accent-dark); margin: 0; }
+  .bc__title { font-family: var(--font-serif); color: var(--color-primary); margin: .3rem 0 1rem; }
+  .bc__stare { font-size: 1.05rem; }
+</style>

@@ -23,7 +23,12 @@ import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import {
   magazie as magazieJetoane, cheieDezabonare, jetonNou, jetonDezabonare,
 } from "./_comun/buletin-acord.mjs";
+import { trimite, escapeHtml } from "./_comun/posta.mjs";
 import { json } from "./_comun/raspuns.mjs";
+
+/** Cererea de abonare în așteptare (double opt-in): ține 48 de ore, apoi expiră. */
+const cheieAsteptareScoala = (jeton) => "buletin-scoala-asteptare/" + jeton;
+const ASTEPTARE_MS = 48 * 3600e3;
 
 /** E membru al platformei? (candidat cu cod individual, arbitru, lector, admin sau cod comun) */
 async function esteMembru(body, store) {
@@ -72,6 +77,32 @@ export default cuLimitareCod(async (req) => {
   const actiune = String(body.actiune || "");
   // Cine nu trece de o poartă nu atinge stocarea — de aceea store-ul se creează abia după.
   const esteAdmin = actorDinCod(String(body.cod || ""))?.rol === "admin";
+
+  // ——— Confirmarea abonării (public, pe jeton — pasul doi al double opt-in) ———
+  // Stă ÎNAINTEA acțiunilor de membru: nu are e-mail/cod, doar jetonul din link.
+  if (actiune === "confirma-abonare") {
+    const store = getStore("cursuri");
+    const jeton = String(body.jeton || "").trim();
+    if (!/^[0-9a-f]{16,64}$/.test(jeton)) return json({ eroare: "Link incomplet." }, 400);
+    const cererea = await store.get(cheieAsteptareScoala(jeton), { type: "json" }).catch(() => null);
+    if (!cererea) return json({ eroare: "Link invalid sau deja folosit." }, 404);
+    if (cererea.expira && cererea.expira < new Date().toISOString()) {
+      await store.delete(cheieAsteptareScoala(jeton)).catch(() => {});
+      return json({ eroare: "Linkul a expirat. Cere din nou abonarea din platformă." }, 410);
+    }
+    const cheieAb = "abonat/" + sha256(cererea.email);
+    const existentAb = await store.get(cheieAb, { type: "json" }).catch(() => null);
+    const inregistrare = {
+      email: cererea.email, membruId: cererea.membruId, nume: cererea.nume, rol: cererea.rol,
+      creat: existentAb?.creat || new Date().toISOString(),
+      confirmatLa: new Date().toISOString(),
+      jetonDezabonare: existentAb?.jetonDezabonare || null,
+    };
+    await store.setJSON(cheieAb, inregistrare);
+    await jetonDezabonare(store, cheieAb, inregistrare);
+    await store.delete(cheieAsteptareScoala(jeton)).catch(() => {});   // unică folosință
+    return json({ ok: true, email: cererea.email });
+  }
 
   // —— Acțiunile membrilor ——
   if (actiune === "lista" || actiune === "aboneaza" || actiune === "dezaboneaza") {
@@ -123,19 +154,31 @@ export default cuLimitareCod(async (req) => {
           return json({ eroare: "Adresa este deja abonată de alt membru al platformei. Dacă adresa e chiar a ta, scrie-ne — administratorul o poate elibera din panou." }, 409);
         console.log(`Abonare orfană preluată: ${email} (stăpânul vechi ${existent.membruId.slice(0, 8)}… nu mai există).`);
       }
-      const inregistrare = {
-        email,
-        membruId: membru.id,
-        nume: membru.nume,
-        rol: membru.rol,
-        creat: existent?.creat || new Date().toISOString(),
-        jetonDezabonare: existent?.jetonDezabonare || null,
-      };
-      await store.setJSON(cheie, inregistrare);
-      // Jetonul se face acum, nu la prima trimitere: linkul de dezabonare trebuie să
-      // existe din clipa în care există abonarea.
-      await jetonDezabonare(store, cheie, inregistrare);
-      return json({ ok: true });
+      // Deja abonat de ACELAȘI om, pe aceeași adresă: nimic de făcut (idempotent, fără e-mail).
+      if (existent && existent.membruId === membru.id) return json({ ok: true, dejaAbonat: true });
+
+      // DOUBLE OPT-IN (GDPR art. 7): adresa NU intră direct pe listă. Un candidat putea
+      // abona adresa unui terț care n-a consimțit niciodată. De acum, abonarea creează o
+      // cerere în așteptare (48h) și trimite un link de confirmare la ACEA adresă; abia
+      // când proprietarul ei apasă linkul, adresa intră pe listă — cu dovada consimțământului.
+      const jeton = jetonNou();
+      await store.setJSON(cheieAsteptareScoala(jeton), {
+        email, membruId: membru.id, nume: membru.nume, rol: membru.rol,
+        cerutLa: new Date().toISOString(), expira: new Date(Date.now() + ASTEPTARE_MS).toISOString(),
+      });
+      const origine = process.env.URL || new URL(req.url).origin;
+      const link = origine + "/cursuri/buletin/confirma/?j=" + jeton;
+      await trimite({
+        catre: email,
+        subiect: "[Școala de Arbitraj] Confirmă abonarea la Buletin",
+        html: `<p>Bună${membru.nume ? ", " + escapeHtml(membru.nume) : ""},</p>` +
+          `<p>Cineva a cerut abonarea acestei adrese la Buletinul Școlii de Arbitraj CFC-Royal. ` +
+          `Dacă tu ai cerut asta, confirmă apăsând:</p>` +
+          `<p><a href="${link}" style="display:inline-block;background:#1F4D3A;color:#fff;padding:10px 22px;border-radius:6px;text-decoration:none">Confirm abonarea</a></p>` +
+          `<p style="font-size:12px;color:#888;word-break:break-all">${link}</p>` +
+          `<p><b>Dacă nu tu ai cerut asta, nu apăsa nimic</b> — fără confirmare, adresa nu intră pe listă, iar cererea se șterge singură în 48 de ore.</p>`,
+      });
+      return json({ ok: true, confirmare: true });
     }
 
     // dezaboneaza — doar propria adresă; administratorul poate scoate pe oricine (din panou).
