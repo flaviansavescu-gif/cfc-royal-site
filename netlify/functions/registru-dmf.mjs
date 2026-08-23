@@ -1133,6 +1133,12 @@ export default cuLimitareCod(async (req) => {
     // veșnic — și, fiindcă arhiva ia TOT ce e în magazie, ar fi călătorit în fiecare
     // copie de siguranță, la nesfârșit, pentru un dosar care nu mai există.
     for (const cheie of cheileCitirii(id)) await s.delete(cheie).catch(() => {});
+    // Indexul de descendenți scris la depunere (pe cipul părinților) — altfel rămâneau
+    // intrări orfane spre un dosar șters (inofensive, dar gunoi care ajunge în copii).
+    for (const pc of [d.mascul?.microcip, d.femela?.microcip]) {
+      const c = String(pc || "").replace(/[\s-]/g, "");
+      if (c) await s.delete("descendent-cip/" + c + "/" + id).catch(() => {});
+    }
     await s.delete("dmf/" + id).catch(() => {});
 
     let numarEliberat = false;

@@ -31,6 +31,7 @@ import { secretEgal } from "./_comun/secret.mjs";
 import { tipCertificat } from "./registru-pedigree.mjs";
 import { jurnalizeazaObligatoriu } from "./_comun/registru-jurnal.mjs";
 import { invalideazaIndexPublic } from "./_comun/index-public.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 import { json as raspunsJson } from "./_comun/raspuns.mjs";
 // Lizibil: răspunsurile acestei unelte se citesc de OM (panou de administrare,
@@ -142,6 +143,9 @@ export default async (req) => {
   for (let i = 0; i < c.pui.length; i++) {
     const p = c.pui[i];
     const serie = taie(p.wdf, 40).toUpperCase();
+    // Regula SEC-001 a casei: un segment de cheie venit din afară trece prin gardian
+    // înainte de orice get/set — chiar și în spatele secretului de import.
+    if (!segmentCheieValid(serie)) { erori.push({ serie, nume: p?.nume, eroare: "serie invalidă" }); continue; }
     try {
       // Nu suprascriem niciodată un act existent. Reluarea importului e inofensivă.
       const existent = await s.get("pedigree/" + serie, { type: "json" }).catch(() => null);
@@ -184,7 +188,11 @@ export default async (req) => {
 
       await s.setJSON("pedigree/" + serie, cert);
       await s.setJSON("pedigree-cuib/" + id + "/" + i, { serie, nume: cert.caine.nume, tip: t.tip });
-      if (microcip) await s.setJSON("pedigree-caine/" + microcip, { serie });
+      // Cip valid și neocupat de alt certificat — nu suprascriem indexul altui câine.
+      if (microcip && segmentCheieValid(microcip)) {
+        const ocupat = await s.get("pedigree-caine/" + microcip, { type: "json" }).catch(() => null);
+        if (!ocupat?.serie || ocupat.serie === serie) await s.setJSON("pedigree-caine/" + microcip, { serie });
+      }
       await s.setJSON("pedigree-wdf/" + serie, { serie });
       scrise.push({ serie, nume: cert.caine.nume, tip: t.tip });
     } catch (err) {

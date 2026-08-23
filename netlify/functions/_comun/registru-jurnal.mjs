@@ -46,6 +46,7 @@ export const FAPTE = {
   "canisa-respinsa": "Cerere de canisă respinsă",
   // Certificate și ascendență
   "certificat-emis": "Certificat de origine emis",
+  "microcip-coliziune": "Microcip deja legat de alt certificat — introducere de verificat",
   "certificat-anulat": "Certificat ANULAT",
   "certificat-restabilit": "Anulare revocată (certificat repus în vigoare)",
   "ascendenta-modificata": "Ascendență modificată",

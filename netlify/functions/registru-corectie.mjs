@@ -34,6 +34,7 @@ import { secretEgal } from "./_comun/secret.mjs";
 import { tipCertificat } from "./registru-pedigree.mjs";
 import { idDosar, verificaCuib } from "./registru-import.mjs";
 import { jurnalizeazaObligatoriu } from "./_comun/registru-jurnal.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 import { json as raspunsJson } from "./_comun/raspuns.mjs";
 // Lizibil: răspunsurile acestei unelte se citesc de OM (panou de administrare,
@@ -91,6 +92,7 @@ export default async (req) => {
 
   for (let i = 0; i < c.pui.length; i++) {
     const serie = taie(c.pui[i].wdf, 40).toUpperCase();
+    if (!segmentCheieValid(serie)) { refuzate.push({ serie, de_ce: "serie invalidă" }); continue; }
     const cert = await s.get("pedigree/" + serie, { type: "json" }).catch(() => null);
     if (!cert) { refuzate.push({ serie, de_ce: "nu există în registru" }); continue; }
     if (!cert.istoric) { refuzate.push({ serie, de_ce: "nu e act din arhiva de hârtie" }); continue; }

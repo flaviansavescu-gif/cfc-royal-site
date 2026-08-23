@@ -560,10 +560,15 @@ export default cuLimitareCod(async (req) => {
     const c = await s.get("pedigree/" + serie, { type: "json" }).catch(() => null);
     if (!c) return json({ eroare: "Certificat inexistent." }, 404);
     if (numar) {
-      const ocupat = await s.get("pedigree-wdf/" + numar, { type: "json" }).catch(() => null);
-      if (ocupat && ocupat.serie !== serie)
-        return json({ eroare: "Numărul e deja folosit la certificatul " + ocupat.serie + "." }, 409);
-      await s.setJSON("pedigree-wdf/" + numar, { serie });
+      // ATOMIC (onlyIfNew), nu verifică-apoi-scrie: două atribuiri simultane ale aceluiași
+      // număr câștigau amândouă. Cine pierde lacătul re-verifică: dacă e altă serie, refuz.
+      const pus = await s.setJSON("pedigree-wdf/" + numar, { serie }, { onlyIfNew: true });
+      if (pus?.modified === false) {
+        const ocupat = await s.get("pedigree-wdf/" + numar, { type: "json" }).catch(() => null);
+        if (ocupat?.serie && ocupat.serie !== serie)
+          return json({ eroare: "Numărul e deja folosit la certificatul " + ocupat.serie + "." }, 409);
+        // Ocupat de aceeași serie (re-atribuire idempotentă) — nimic de scris.
+      }
     }
     if (c.numarWDFCaine && c.numarWDFCaine !== numar)
       await s.delete("pedigree-wdf/" + c.numarWDFCaine).catch(() => {});
@@ -714,6 +719,7 @@ export default cuLimitareCod(async (req) => {
     if (!cerute.length) return json({ eroare: "Alege cel puțin un pui." }, 400);
 
     const emise = [];
+    const coliziuniCip = [];   // cipuri deja legate de alt certificat — semnalate registraturii
     for (const cerere of cerute) {
       const i = Number(cerere?.index);
       const pui = d.pui?.[i];
@@ -767,10 +773,30 @@ export default cuLimitareCod(async (req) => {
       };
       // Slotul e deja al nostru (lacăt de mai sus); scriem certificatul și indexul de cip.
       await s.setJSON("pedigree/" + serie, cert);
-      if (microcip && segmentCheieValid(microcip)) await s.setJSON("pedigree-caine/" + microcip, { serie });
+      // UNICITATEA CIPULUI: un microcip e unic pe un câine fizic, deci nu poate lega două
+      // certificate. Fără garda asta, un cip introdus greșit la doi pui suprascria tăcut
+      // indexul primului, iar fișa publică îl ascundea. Nu suprascriem un cip ocupat de
+      // ALT certificat: îl lăsăm legat de primul și consemnăm coliziunea în jurnal.
+      if (microcip && segmentCheieValid(microcip)) {
+        const ocupat = await s.get("pedigree-caine/" + microcip, { type: "json" }).catch(() => null);
+        if (ocupat?.serie && ocupat.serie !== serie) {
+          await jurnalizeaza(s, {
+            fapta: "microcip-coliziune", actor: actorJurnal(eu), obiect: microcip,
+            detalii: `Microcipul e deja legat de ${ocupat.serie}; noul certificat ${serie} NU a preluat indexul de căutare. Verifică introducerea cipului.`,
+            ip: ipCerere(req),
+          });
+          coliziuniCip.push({ microcip, serieVeche: ocupat.serie, serieNoua: serie });
+        } else {
+          await s.setJSON("pedigree-caine/" + microcip, { serie });
+        }
+      }
       emise.push({ index: i, serie, tip: t.tip });
     }
-    await s.setJSON("dmf/" + id, { ...(await s.get("dmf/" + id, { type: "json" })), stare: "emis" });
+    // Folosim dosarul DEJA în memorie (`d`), NU o recitire: dacă un admin a șters dosarul
+    // exact în fereastra emiterii, recitirea ar întoarce null, iar `{...null}` = `{}` ar
+    // scrie un dosar GOL — pierzând tot și lăsând certificatele deja emise orfane. Din `d`,
+    // dosarul se reface întreg (certificatele au emis un act, deci dosarul trebuie să existe).
+    await s.setJSON("dmf/" + id, { ...d, stare: "emis" });
     const noi = emise.filter((x) => !x.deja);
     if (noi.length) await invalideazaIndexPublic(s); // câinii noi să apară imediat în cartea răsfoibilă
     if (noi.length) {
@@ -811,7 +837,7 @@ export default cuLimitareCod(async (req) => {
         console.error(`Emitere ${d.serie}: crescătorul nu are adresă de e-mail — vestea nu a plecat.`);
       }
     }
-    return json({ ok: true, tip: t.tip, lipsa: t.lipsa, emise });
+    return json({ ok: true, tip: t.tip, lipsa: t.lipsa, emise, coliziuniCip });
   }
 
   // —— Certificatul complet (pentru tipărire) ——
