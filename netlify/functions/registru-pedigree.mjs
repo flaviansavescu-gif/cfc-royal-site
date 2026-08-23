@@ -556,6 +556,7 @@ export default cuLimitareCod(async (req) => {
     const serie = taie(body.serie, 40).toUpperCase();
     if (!segmentCheieValid(serie)) return json({ eroare: "Referință invalidă." }, 400);
     const numar = taie(body.numarWDFCaine, 40).toUpperCase();
+    if (numar && !segmentCheieValid(numar)) return json({ eroare: "Referință invalidă." }, 400);
     const c = await s.get("pedigree/" + serie, { type: "json" }).catch(() => null);
     if (!c) return json({ eroare: "Certificat inexistent." }, 404);
     if (numar) {

@@ -24,6 +24,7 @@ import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.
 import { jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, actorExtern, ipCerere } from "./_comun/registru-jurnal.mjs";
 import { eRobot, limiteazaTrimiterile } from "./_comun/formular-public.mjs";
 import { trimite, pagina, escapeHtml, ADRESA_ASOCIATIEI } from "./_comun/posta.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import { json } from "./_comun/raspuns.mjs";
 
 const store = () => getStore({ name: "registru", consistency: "strong" });
@@ -230,6 +231,7 @@ export default cuLimitareCod(async (req) => {
   // —— Schimbarea stării unei cereri (în lucru / rezolvată / refuzată-cu-motiv). ——
   if (actiune === "stare") {
     const id = taie(body.id, 60);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const stare = taie(body.stare, 20);
     if (!STARI[stare]) return json({ eroare: "Stare necunoscută." }, 400);
     const c = await s.get(cheia(id), { type: "json" }).catch(() => null);

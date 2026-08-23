@@ -39,7 +39,7 @@ import { actorDinCod } from "./_comun/roluri.mjs";
 import { registratorDinCod } from "./registru-acces.mjs";
 import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
-import { jurnalizeaza, ipCerere } from "./_comun/registru-jurnal.mjs";
+import { jurnalizeaza, jurnalizeazaObligatoriu, ipCerere } from "./_comun/registru-jurnal.mjs";
 import { json } from "./_comun/raspuns.mjs";
 
 // Înscrierile stau în magazia expozițiilor; cheile de dispozitiv, în cea a registrului.
@@ -299,14 +299,9 @@ export default cuLimitareCod(async (req) => {
         }
       : null;
 
-    // Marcajul are blobul lui: scrierea asta nu atinge fișa înscrierii, deci nu se poate
-    // ciocni cu managerul, care pune pe ea semnul „importat".
-    if (verificare) await s.setJSON(cheieV, verificare);
-    else await s.delete(cheieV).catch(() => {});
-
-    // Urma faptei: o dată în auditul expoziției (de unde se citește repede, fără să
-    // răscolim tot jurnalul) și o dată în jurnalul registrului, unde stau la un loc toate
-    // faptele asociației.
+    // Urma faptei se scrie ÎNAINTE de a atinge marcajul. Ștergerea marcajului e
+    // DISTRUCTIVĂ (poate șterge un „plată confirmată"): la ea, dacă jurnalul nu se poate
+    // scrie, nu ștergem nimic (503). La scrierea unui marcaj (aditivă) rămâne nefatal.
     const la = new Date().toISOString();
     const ce = [
       verificare
@@ -322,19 +317,36 @@ export default cuLimitareCod(async (req) => {
     const obiect = (i.numeCaine || "exemplar") + (i.rasaNumeRo ? " · " + i.rasaNumeRo : "");
     const showId = cheie.split("/")[1] || "";
 
+    const intrareJurnal = {
+      fapta: "inscriere-verificata",
+      actor: { rol: eu.rol, nume: eu.nume },
+      obiect,
+      detalii: showId + " · " + ce,
+      ip: ipCerere(req),
+    };
+    if (!verificare) {
+      // Ștergere: urma întâi, altfel un „plată confirmată" ar dispărea fără martor.
+      try {
+        await jurnalizeazaObligatoriu(registru(), intrareJurnal);
+      } catch (err) {
+        console.error("Jurnalul ștergerii marcajului a eșuat — nu am șters nimic:", err);
+        return json({ eroare: "Nu am putut consemna fapta în jurnal, deci nu am șters marcajul. Reîncearcă." }, 503);
+      }
+    }
+
+    // Marcajul are blobul lui: scrierea asta nu atinge fișa înscrierii, deci nu se poate
+    // ciocni cu managerul, care pune pe ea semnul „importat".
+    if (verificare) await s.setJSON(cheieV, verificare);
+    else await s.delete(cheieV).catch(() => {});
+
+    // Auditul expoziției (citire rapidă) + jurnalul pentru marcajul aditiv (nefatal).
     try {
       await s.setJSON("audit/" + showId + "/" + la + "-" + Math.random().toString(36).slice(2, 8),
         { la, cine: eu.nume, obiect, ce });
     } catch (err) {
       console.error("Fapta nu s-a putut scrie în auditul expoziției:", err);
     }
-    await jurnalizeaza(registru(), {
-      fapta: "inscriere-verificata",
-      actor: { rol: eu.rol, nume: eu.nume },
-      obiect,
-      detalii: showId + " · " + ce,
-      ip: ipCerere(req),
-    });
+    if (verificare) await jurnalizeaza(registru(), intrareJurnal);
 
     return json({ ok: true, verificare });
   }

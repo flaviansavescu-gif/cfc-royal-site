@@ -25,7 +25,7 @@ import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { actorDinCod } from "./_comun/roluri.mjs";
 import { membruDinCod, registratorDinCod } from "./registru-acces.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
-import { jurnalizeaza, actorJurnal, ipCerere } from "./_comun/registru-jurnal.mjs";
+import { jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, ipCerere } from "./_comun/registru-jurnal.mjs";
 import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import { trimite, escapeHtml } from "./_comun/posta.mjs";
 import { refuzaDacaInchis } from "./_comun/poarta-scrieri.mjs";
@@ -176,13 +176,19 @@ export default cuLimitareCod(async (req) => {
 
   if (actiune === "finalizeaza") {
     const nota = taie(body.nota, 300);
-    await jurnalizeaza(s, {
-      fapta: "comanda-finalizata",
-      actor: actorJurnal(eu),
-      obiect: c.eticheta,
-      detalii: `pentru ${c.nume}` + (nota ? ` — ${nota}` : ""),
-      ip: ipCerere(req),
-    });
+    // URMA ÎNTÂI: finalizarea unei comenzi plătite lasă urmă înainte de a se scrie.
+    try {
+      await jurnalizeazaObligatoriu(s, {
+        fapta: "comanda-finalizata",
+        actor: actorJurnal(eu),
+        obiect: c.eticheta,
+        detalii: `pentru ${c.nume}` + (nota ? ` — ${nota}` : ""),
+        ip: ipCerere(req),
+      });
+    } catch (err) {
+      console.error("Jurnalul finalizării a eșuat — comanda rămâne neschimbată:", err);
+      return json({ eroare: "Nu am putut consemna fapta în jurnal, deci nu am schimbat nimic. Reîncearcă." }, 503);
+    }
     await s.setJSON("comanda/" + id, { ...c, stare: "finalizata", nota, judecataLa: new Date().toISOString() });
     if (c.email) {
       await trimite({

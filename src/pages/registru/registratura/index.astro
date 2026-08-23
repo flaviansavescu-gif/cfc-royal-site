@@ -855,7 +855,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     var lista = document.getElementById("sn-cereri");
     var nr = document.getElementById("sn-nr");
     if (!lista) return;
-    function esc(s) { return String(s == null ? "" : s).replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); }
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
     function rand(x) {
       var key = esc(x.microcip) + "|" + esc(x.testId);
       var avert = x.depunereDeNeproprietar
@@ -920,7 +920,7 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     var lista = document.getElementById("qc-cereri");
     var nr = document.getElementById("qc-nr");
     if (!lista) return;
-    function esc(s) { return String(s == null ? "" : s).replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); }
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
     function rand(a) {
       var contact = [a.contactNume, a.contactTelefon, a.contactEmail].filter(Boolean).join(" · ");
       var parinti = "tată: " + esc(a.tata && a.tata.nume || "—") + " · mamă: " + esc(a.mama && a.mama.nume || "—");

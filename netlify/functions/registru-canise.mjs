@@ -34,6 +34,8 @@ import { poateCereExtras, numarDinText, intervalulCerut, inInterval, inValuri } 
 import { AFIXE_OFICIALE } from "./_comun/afixe-oficiale.mjs";
 import { json } from "./_comun/raspuns.mjs";
 import { refuzaDacaInchis } from "./_comun/poarta-scrieri.mjs";
+import { invalideazaIndexPublic } from "./_comun/index-public.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 
 // Citire tare, ca peste tot în registru: o cerere hotărâtă trebuie văzută hotărâtă imediat.
 const store = () => getStore({ name: "registru", consistency: "strong" });
@@ -228,6 +230,7 @@ export default cuLimitareCod(async (req) => {
   // ——— Aprobarea ———
   if (actiune === "aproba") {
     const id = taie(body.id, 40);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const afixAles = taie(body.afixAles, 80);
     // Numărul de afix e un NUMĂR OFICIAL: îl scrie omul, din evidența asociației.
     // Sistemul nu născocește numere de acte — regulă de casă, plătită o dată scump.
@@ -305,6 +308,7 @@ export default cuLimitareCod(async (req) => {
   // ——— Respingerea ———
   if (actiune === "respinge") {
     const id = taie(body.id, 40);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const motiv = taie(body.motiv, 500);
     if (motiv.length < 5) return json({ eroare: "Scrie motivul respingerii — el pleacă pe e-mail către membru." }, 400);
 

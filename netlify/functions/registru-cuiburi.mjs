@@ -27,6 +27,8 @@ import { jurnalizeazaObligatoriu, actorJurnal, ipCerere } from "./_comun/registr
 import { recomandareDin, insignaTest, numeTest } from "./_comun/teste-sanatate.mjs";
 import { normalizeazaAfix } from "./_comun/canise.mjs";
 import { obtineIndexCachedat } from "./_comun/index-cachedat.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
+import { refuzaDacaInchis } from "./_comun/poarta-scrieri.mjs";
 import { json } from "./_comun/raspuns.mjs";
 
 const store = () => getStore({ name: "registru", consistency: "strong" });
@@ -194,6 +196,7 @@ export default cuLimitareCod(async (req) => {
 
   // —— Crescătorul depune un anunț, legat de un DMF real al lui. ——
   if (actiune === "depune") {
+    { const oprit = await refuzaDacaInchis(json); if (oprit) return oprit; }
     if (eu.rol !== "membru" && eu.rol !== "chinotehnist")
       return json({ eroare: "Doar crescătorii și chinotehniștii publică anunțuri de cuiburi." }, 403);
     // Cotizația e a membrilor direcți; crescătorul afiliat plătește taxa DMF pe dosar.
@@ -202,7 +205,7 @@ export default cuLimitareCod(async (req) => {
     const eAfil = eu.rol === "chinotehnist";
 
     const dmfId = taie(body.dmfId, 60);
-    if (!dmfId) return json({ eroare: "Alege cuibul (declarația de montă și fătare)." }, 400);
+    if (!dmfId || !segmentCheieValid(dmfId)) return json({ eroare: "Alege cuibul (declarația de montă și fătare)." }, 400);
     const d = await s.get("dmf/" + dmfId, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Declarația nu există." }, 404);
     const alMeuCuib = eAfil
@@ -287,8 +290,10 @@ export default cuLimitareCod(async (req) => {
 
   // —— Crescătorul retrage un anunț al lui. ——
   if (actiune === "retrage") {
+    { const oprit = await refuzaDacaInchis(json); if (oprit) return oprit; }
     if (eu.rol !== "membru" && eu.rol !== "chinotehnist") return json({ eroare: "Nepermis." }, 403);
     const id = taie(body.id, 60);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const a = await s.get(cheiaAnunt(id), { type: "json" }).catch(() => null);
     if (!a) return json({ eroare: "Anunț inexistent." }, 404);
     const alMeuAnunt = eu.rol === "membru"
@@ -328,6 +333,7 @@ export default cuLimitareCod(async (req) => {
     if (eu.rol !== "registratura" && eu.rol !== "admin")
       return json({ eroare: "Doar registratura hotărăște." }, 403);
     const id = taie(body.id, 60);
+    if (!segmentCheieValid(id)) return json({ eroare: "Referință invalidă." }, 400);
     const a = await s.get(cheiaAnunt(id), { type: "json" }).catch(() => null);
     if (!a) return json({ eroare: "Anunț inexistent." }, 404);
     if (a.stare !== "depus") return json({ eroare: "Anunțul a fost deja hotărât." }, 409);

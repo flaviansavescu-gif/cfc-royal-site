@@ -39,6 +39,7 @@ import {
   opritDinMediu, OTP_MINUTE, DISPOZITIV_ZILE,
 } from "./_comun/al-doilea-factor.mjs";
 import { trimite, pagina, escapeHtml, ADRESA_ASOCIATIEI, postaConfigurata } from "./_comun/posta.mjs";
+import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import { json } from "./_comun/raspuns.mjs";
 
 /**
@@ -683,7 +684,7 @@ export default cuLimitareCod(async (req) => {
   if (actiune === "membru-cotizatie") {
     const id = taie(body.id, 128);
     const cotizatiePana = taie(body.cotizatiePana, 10);
-    if (!id) return json({ eroare: "Lipsește membrul." }, 400);
+    if (!id || !segmentCheieValid(id)) return json({ eroare: "Lipsește membrul." }, 400);
     if (!eData(cotizatiePana)) return json({ eroare: "Data trebuie scrisă ca AAAA-LL-ZZ." }, 400);
     const x = await store().get("membru/" + id, { type: "json" }).catch(() => null);
     if (!x) return json({ eroare: "Membru inexistent." }, 404);
@@ -853,7 +854,7 @@ export default cuLimitareCod(async (req) => {
 
   if (actiune === "cerere-sterge") {
     const id = taie(body.id, 40);
-    if (!id) return json({ eroare: "Lipsește solicitarea." }, 400);
+    if (!id || !segmentCheieValid(id)) return json({ eroare: "Lipsește solicitarea." }, 400);
     const x = await store().get("cerere/" + id, { type: "json" }).catch(() => null);
     try {
       await jurnalizeazaObligatoriu(store(), {

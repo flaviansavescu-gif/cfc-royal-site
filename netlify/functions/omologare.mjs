@@ -22,7 +22,7 @@ import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { actorDinCod } from "./_comun/roluri.mjs";
 import { registratorDinCod } from "./registru-acces.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
-import { jurnalizeaza, actorJurnal, actorExtern, ipCerere } from "./_comun/registru-jurnal.mjs";
+import { jurnalizeaza, jurnalizeazaObligatoriu, actorJurnal, actorExtern, ipCerere } from "./_comun/registru-jurnal.mjs";
 import { eRobot, limiteazaTrimiterile, minuteText } from "./_comun/formular-public.mjs";
 import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import { trimite, escapeHtml } from "./_comun/posta.mjs";
@@ -193,13 +193,19 @@ export default cuLimitareCod(async (req) => {
   if (o.stare !== "noua") return json({ eroare: "Cererea a fost deja judecată." }, 409);
 
   if (actiune === "opereaza") {
-    await jurnalizeaza(s, {
+    // URMA ÎNTÂI: titlul omologat sprijină palmaresul public — fără urmă, nu-l operăm.
+    try {
+      await jurnalizeazaObligatoriu(s, {
       fapta: "omologare-operata",
       actor: actorJurnal(eu),
       obiect: o.serie,
       detalii: `${o.caine?.nume || ""}: ${o.etichetaTitlu} — omologat în Manager; apare pe fișă la următoarea publicare a palmaresului`,
       ip: ipCerere(req),
-    });
+      });
+    } catch (err) {
+      console.error("Jurnalul omologării a eșuat — cererea rămâne neschimbată:", err);
+      return json({ eroare: "Nu am putut consemna fapta în jurnal, deci nu am schimbat nimic. Reîncearcă." }, 503);
+    }
     await s.setJSON("omologare/" + id, { ...o, stare: "operata", judecataLa: new Date().toISOString() });
     await trimite({
       catre: o.solicitant?.email,
