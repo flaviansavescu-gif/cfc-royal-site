@@ -32,6 +32,10 @@ concurrency:
   group: verificare-${{ github.ref }}
   cancel-in-progress: true
 
+# Least privilege: doar ruleaza probe si build, nu scrie in depozit (nici pe cod de fork).
+permissions:
+  contents: read
+
 jobs:
   verifica:
     name: Probe și build

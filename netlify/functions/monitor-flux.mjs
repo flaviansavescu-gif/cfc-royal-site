@@ -25,7 +25,8 @@
 import { getStore } from "@netlify/blobs";
 import { decide, deCandText } from "./_comun/monitor.mjs";
 import { operational, opritDinMediu } from "./_comun/al-doilea-factor.mjs";
-import { trimite } from "./_comun/posta.mjs";
+import { trimite, escapeHtml } from "./_comun/posta.mjs";
+import { CHEIE_PAZNIC_EXTERN } from "./paznic-extern.mjs";
 
 const SITE = process.env.SITE_PUBLIC || "https://cfc-royal.ro";
 const CATRE = process.env.ALERTE_EMAIL || "flavian.savescu@gmail.com";
@@ -39,8 +40,29 @@ const RABDARE_MS = 8000;
 
 import { json } from "./_comun/raspuns.mjs";
 
-const esc = (s) =>
-  String(s == null ? "" : s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+// Escapare completă (toate cele 5 caractere), din helperul-standard `posta.mjs` — nu un
+// esc local parțial, ca să nu devină o capcană dacă vreo valoare ajunge într-un atribut.
+const esc = escapeHtml;
+
+/**
+ * Prospețimea check-in-ului paznicului din GitHub Actions (reciprocitatea paznicilor).
+ * Funcție PURĂ, ca să poată fi probată. Nebătut niciodată (null) = OK: nu alarmăm la
+ * bootstrap, până când paznicul din GitHub atinge urma prima dată (aceeași regulă ca la
+ * inimi). Paznicul rulează la 10 min; pragul e generos, ca un joc de programare să nu sune.
+ */
+export const PRAG_PAZNIC_EXTERN_MIN = 60;
+export function paznicExternViu(inreg, acum = Date.now(), pragMin = PRAG_PAZNIC_EXTERN_MIN) {
+  const la = Date.parse(inreg?.la || "");
+  if (!Number.isFinite(la))
+    return { ok: true, detaliu: "încă niciun check-in de la paznicul din GitHub Actions (se confirmă la prima lui rulare)" };
+  const min = Math.floor((acum - la) / 60000);
+  return {
+    ok: min <= pragMin,
+    detaliu: min <= pragMin
+      ? `paznicul din GitHub Actions a raportat acum ${min} min`
+      : `paznicul din GitHub Actions n-a mai raportat de ${min} min (prag ${pragMin}) — workflow-ul poate fi dezactivat sau șters. Verifică fila Actions din depozit.`,
+  };
+}
 
 /** O cerere cu răbdare mărginită; orice eșec devine un rezultat, nu o excepție. */
 async function cere(url, optiuni = {}) {
@@ -190,6 +212,17 @@ async function ruleaza() {
       } catch (err) { detaliu = "răspuns GitHub neinteligibil: " + err.message; }
     }
     v.push({ nume: "Copia de siguranță", ok, detaliu });
+  }
+
+  // 7. Paznicul paznicilor, invers: monitorul de pe Netlify veghează paznicul din GitHub
+  //    Actions. Reciprocitate — GitHub veghează Netlify+inimile, iar aici Netlify veghează
+  //    GitHub. Dacă `paznic.yml` tace (dezactivat/șters), urma `paznic-extern` se învechește
+  //    și ACEST canal (Netlify + Brevo, independent de GitHub) sună. Așa, niciun paznic nu
+  //    mai poate muri în tăcere.
+  {
+    const inreg = await getStore("acces").get(CHEIE_PAZNIC_EXTERN, { type: "json" }).catch(() => null);
+    const r = paznicExternViu(inreg);
+    v.push({ nume: "Paznicul extern (GitHub Actions)", ok: r.ok, detaliu: r.detaliu });
   }
 
   return v;

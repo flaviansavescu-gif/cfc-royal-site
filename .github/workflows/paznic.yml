@@ -22,6 +22,10 @@ on:
     - cron: "*/10 * * * *"
   workflow_dispatch: {}
 
+# Least privilege: paznicul doar face curl; nu are ce scrie in depozit.
+permissions:
+  contents: read
+
 jobs:
   paznic:
     name: "PAZNIC — cfc-royal.ro raspunde?"
@@ -78,3 +82,12 @@ jobs:
           # chiar cand o inima murise (top-level ok:false). jq e preinstalat pe ubuntu-latest.
           echo "$raspuns" | jq -e '.ok == true' >/dev/null \
             || { echo "::error::O functie programata a tacut peste prag sau posta (Brevo) nu mai poate trimite:"; echo "$raspuns"; exit 1; }
+
+      # CHECK-IN RECIPROC. GitHub vegheaza Netlify+inimile; ca sa fie vegheat SI el, isi bate
+      # o urma pe Netlify la fiecare rulare. Daca acest workflow e dezactivat/sters, urma se
+      # invecheste si monitor-flux (Netlify+Brevo, independent de GitHub) suna. Best-effort:
+      # daca Netlify e jos, verificarile de mai sus au sunat deja, deci nu dublam alarma.
+      - name: Check-in reciproc (paznicul din Actions e viu)
+        if: always()
+        run: |
+          curl --silent --max-time 15 "https://cfc-royal.ro/.netlify/functions/paznic-extern" >/dev/null || true
