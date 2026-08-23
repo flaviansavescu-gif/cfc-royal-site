@@ -52,7 +52,7 @@ export default cuLimitareCod(async (req) => {
       return json({ eroare: "Doar administratorul vede situația." }, 401);
     const store = getStore("cursuri");
     if (!(await dispozitivCunoscut(store, String(body.dispozitiv || "").trim(), "admin")))
-      return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
+      return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
     // Toți cei care AR TREBUI să facă formarea: lectorii (din roluri) + arbitrii din registru.
     const dosare = {};
     try {

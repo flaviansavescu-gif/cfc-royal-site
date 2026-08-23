@@ -156,7 +156,7 @@ export default cuLimitareCod(async (req) => {
     // conține stări, motive de respingere, cine a depus: date de administrare, nu publice).
     if (eu && (eu.rol === "registratura" || eu.rol === "admin")) {
       if (!(await dispozitivCunoscut(s, taie(body.dispozitiv, 80), eu.rol)))
-        return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+        return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
       return json({ microcip: cip, teste: (dosar?.teste || []).map(complet), insigne, recomandare });
     }
     // Un membru vede testele VERIFICATE (publice oricum) + PROPRIILE depuneri, orice stare.
@@ -179,7 +179,7 @@ export default cuLimitareCod(async (req) => {
   // A doua cheie pentru rolurile grele (registratură/admin), ca la dosare și canise.
   if (ROLURI_PROTEJATE.includes(eu.rol) &&
       !(await dispozitivCunoscut(s, taie(body.dispozitiv, 80), eu.rol))) {
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
   }
 
   // —— Membrul depune un rezultat (cu scanul certificatului, opțional). ——

@@ -53,7 +53,7 @@ export default cuLimitareCod(async (req) => {
     return json({ eroare: "Doar administratorul poate vedea ce a văzut paznicul." }, 401);
   // A doua cheie, ca la toate acțiunile grele de administrare.
   if (!(await dispozitivCunoscut(getStore("registru"), String(body.dispozitiv || "").trim(), "admin")))
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
 
   const s = getStore("acces");
   const zile = Math.max(1, Math.min(RETENTIE_ZILE, Number(body.zile) || 7));

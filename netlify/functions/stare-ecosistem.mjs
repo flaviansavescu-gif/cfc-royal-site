@@ -47,7 +47,7 @@ export default cuLimitareCod(async (req) => {
   if (!esteAdmin(taie(body.cod, 60))) return json({ eroare: "Cod de administrator incorect." }, 401);
   const registru = getStore({ name: "registru", consistency: "strong" });
   if (!(await dispozitivCunoscut(registru, taie(body.dispozitiv, 80), "admin")))
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
 
   const acces = getStore("acces");
   const actiune = taie(body.actiune, 24);

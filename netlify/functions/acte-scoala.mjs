@@ -100,7 +100,7 @@ export default cuLimitareCod(async (req) => {
   if (!esteAdmin(body.cod))
     return json({ eroare: "Cod de administrator incorect." }, 401);
   if (!(await dispozitivCunoscut(store, taie(body.dispozitiv, 80), "admin")))
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
 
   if (actiune === "situatie") {
     const acte = {};

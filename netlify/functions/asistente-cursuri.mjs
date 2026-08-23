@@ -289,7 +289,7 @@ export default cuLimitareCod(async (req) => {
     return json({ eroare: "Cod de administrator incorect." }, 401);
   // A doua cheie: codul singur nu mai deschide administrarea Școlii.
   if (!(await dispozitivCunoscut(getStore("cursuri"), String(body.dispozitiv || "").trim(), "admin")))
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
 
   if (actiune === "admin") {
     const expozitii = await citesteExpozitii(store);

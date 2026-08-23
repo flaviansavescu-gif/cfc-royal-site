@@ -480,6 +480,16 @@ export default cuLimitareCod(async (req) => {
     const d = await s0.get("dmf/" + inv.dmfId, { type: "json" }).catch(() => null);
     if (!d) return json({ eroare: "Dosarul nu mai există." }, 404);
 
+    // Confirmarea s-a hotărât deja pe altă cale? Jetonul original rămâne valabil 60 de
+    // zile, iar registratura poate accepta între timp pe dovadă semnată („alternativ").
+    // Fără garda asta, proprietarul masculului putea deschide târziu linkul rămas viu și
+    // răsturna în tăcere acceptarea registraturii. O stare terminală = link consumat.
+    const stareCurenta = d.confirmare?.stare || "asteptare";
+    if (actiune === "confirmare-raspuns" && ["confirmat", "refuzat", "alternativ"].includes(stareCurenta)) {
+      await s0.delete(cheie).catch(() => {});   // stingem și jetonul rămas
+      return json({ eroare: "Confirmarea acestei monte a fost deja înregistrată. Linkul nu mai este activ." }, 409);
+    }
+
     if (actiune === "confirmare-vezi") {
       // Doar ce trebuie ca omul să recunoască monta. Datele cumpărătorilor, dovada plății
       // și pedigree-urile încărcate nu-l privesc.
@@ -533,7 +543,7 @@ export default cuLimitareCod(async (req) => {
   // propriile dosare, iar un pas în plus la fiecare depunere l-ar alunga de la formular.
   if (ROLURI_PROTEJATE.includes(eu.rol) &&
       !(await dispozitivCunoscut(s, taie(body.dispozitiv, 80), eu.rol))) {
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
   }
 
   // —— Ciornă: deschide dosarul, ca fișierele să se încarce unul câte unul ——

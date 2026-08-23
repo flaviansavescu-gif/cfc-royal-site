@@ -31,7 +31,7 @@ export default cuLimitareCod(async (req) => {
   // personale, pleacă pe un calculator din afara serverului. Dacă e o singură cerere
   // care merită două chei, ea e.
   if (!(await dispozitivCunoscut(getStore("registru"), String(body.dispozitiv || "").trim(), "admin")))
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
 
   const maxMB = Math.min(Math.max(Number(body.maxMB) || 40, 1), 80);
 

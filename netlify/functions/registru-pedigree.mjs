@@ -416,7 +416,7 @@ export default cuLimitareCod(async (req) => {
   // A doua cheie pentru registratură și administrator: aici se emit și se anulează acte.
   if (ROLURI_PROTEJATE.includes(eu.rol) &&
       !(await dispozitivCunoscut(s, taie(body.dispozitiv, 80), eu.rol))) {
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
   }
 
   // —— „Câinii mei": toate exemplarele din cuiburile crescătorului, cu starea actelor ——
@@ -724,6 +724,16 @@ export default cuLimitareCod(async (req) => {
 
       const serie = await serieNoua(an);
       if (!serie) return json({ eroare: "Nu am putut aloca o serie. Reîncearcă." }, 500);
+      // LACĂT pe pui ÎNAINTE de a scrie certificatul: două emiteri concurente pentru
+      // același pui luau serii diferite și scriau două `pedigree/<serie>` (unul orfan,
+      // dar valid public — un act dublu). Cine pierde lacătul nu creează niciun act;
+      // seria alocată rămâne o gaură (contorul e monoton — inofensiv).
+      const lacatPui = await s.setJSON("pedigree-cuib/" + id + "/" + i, { serie, nume: pui.nume, tip: t.tip }, { onlyIfNew: true });
+      if (lacatPui?.modified === false) {
+        const castigator = await s.get("pedigree-cuib/" + id + "/" + i, { type: "json" }).catch(() => null);
+        if (castigator?.serie) { emise.push({ index: i, serie: castigator.serie, deja: true }); continue; }
+        return json({ eroare: "Emiterea puiului e disputată — reîncearcă." }, 409);
+      }
       // Cipul se NORMALIZEAZĂ (fără spații/cratime), ca la importul istoric și ca la
       // căutare — altfel un cip scris „941 000..." făcea câinele negăsibil după microcip
       // și rupea legătura părinte→fișă din /cuiburi/ și steaua din registrul public.
@@ -755,8 +765,8 @@ export default cuLimitareCod(async (req) => {
         emisDe: eu.rol === "admin" ? "administrator" : (eu.registrator?.nume || "registratură"),
         anulat: false,
       };
+      // Slotul e deja al nostru (lacăt de mai sus); scriem certificatul și indexul de cip.
       await s.setJSON("pedigree/" + serie, cert);
-      await s.setJSON("pedigree-cuib/" + id + "/" + i, { serie, nume: pui.nume, tip: t.tip });
       if (microcip && segmentCheieValid(microcip)) await s.setJSON("pedigree-caine/" + microcip, { serie });
       emise.push({ index: i, serie, tip: t.tip });
     }

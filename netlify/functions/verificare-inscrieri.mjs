@@ -214,7 +214,7 @@ export default cuLimitareCod(async (req) => {
   // A doua cheie, ca peste tot unde rolul e greu.
   if (ROLURI_PROTEJATE.includes(eu.rol) &&
       !(await dispozitivCunoscut(registru(), taie(body.dispozitiv, 80), eu.rol))) {
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
   }
 
   const actiune = taie(body.actiune, 40);

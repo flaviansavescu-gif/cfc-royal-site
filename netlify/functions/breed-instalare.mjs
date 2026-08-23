@@ -214,7 +214,7 @@ export default cuLimitareCod(async (req) => {
   // găsește niciodată: funcția ar răspunde 403 la fiecare cerere, iar panoul l-ar da
   // pe administrator afară. Exact asta s-a întâmplat.
   if (!(await dispozitivCunoscut(getStore("cursuri"), String(body.dispozitiv || "").trim(), "admin")))
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
 
   if (actiune === "lista") {
     const lista = [];

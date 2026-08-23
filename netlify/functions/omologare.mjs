@@ -170,7 +170,7 @@ export default cuLimitareCod(async (req) => {
   if (!eu) return json({ eroare: "Cod incorect." }, 401);
   if (ROLURI_PROTEJATE.includes(eu.rol) &&
       !(await dispozitivCunoscut(s, taie(body.dispozitiv, 80), eu.rol))) {
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
   }
 
   if (actiune === "de-lucru") {

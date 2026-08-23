@@ -60,9 +60,16 @@ const store = () => getStore({ name: "registru", consistency: "strong" });
 
 // Alfabet fără caractere confundabile (O/0, I/1) — codurile se dictează la telefon.
 const ALFABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+// 12 caractere, nu 8 (auditul registraturii, 23.08). Cheia de blob e `sha256(cod)`, iar
+// amprenta ajunge în listarea registratorului. Cu 8 caractere (~2³⁹) o amprentă scursă se
+// sparge offline în minute, iar membrii/chinotehniștii n-au al doilea factor — deci codul
+// spart = impersonare. Cu 12 (~2⁶⁰), spargerea devine impracticabilă. Codurile de 8 deja
+// emise rămân valabile (căutarea e pe amprentă, indiferent de lungime); se întăresc pe
+// măsură ce se reînnoiesc. Migrarea amprentei la HMAC (ca amprenta scursă să NU se mai
+// poată sparge deloc) rămâne o decizie separată — atinge cheile de date.
 function codNou(prefix) {
   let c = prefix;
-  for (let i = 0; i < 8; i++) c += ALFABET[randomInt(0, ALFABET.length)];
+  for (let i = 0; i < 12; i++) c += ALFABET[randomInt(0, ALFABET.length)];
   return c;
 }
 
@@ -499,7 +506,7 @@ export default cuLimitareCod(async (req) => {
   }
   if (!eu) return json({ eroare: "Nu ai drept de administrare a accesului la registru." }, 401);
   if (!(await dispozitivCunoscut(store(), dispozitiv, eu.rol)))
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
   if (!poateFace(actiune, eu)) {
     return new Response(JSON.stringify({ eroare: motivRefuz(actiune, eu) }), {
       status: 403,

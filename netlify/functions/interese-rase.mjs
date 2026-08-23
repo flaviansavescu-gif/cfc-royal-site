@@ -147,7 +147,7 @@ export default cuLimitareCod(async (req) => {
   if (!esteAdmin) return json({ eroare: "Necesită cod de administrator." }, 403);
   // A doua cheie: codul de admin singur nu poate realoca toți candidații.
   if (!(await dispozitivCunoscut(storeCursuri(), String(body.dispozitiv || "").trim(), "admin")))
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
 
   if (actiune === "toate") {
     let toate = await toateProfilurile();

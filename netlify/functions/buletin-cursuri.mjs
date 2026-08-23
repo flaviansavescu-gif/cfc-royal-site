@@ -169,7 +169,7 @@ export default cuLimitareCod(async (req) => {
   // A doua cheie: codul de admin singur nu ajunge (trimitere în masă, ștergere, listă de
   // abonați). Cere jetonul dispozitivului, ca restul funcțiilor de administrare.
   if (!(await dispozitivCunoscut(store, String(body.dispozitiv || "").trim(), "admin")))
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
 
   if (actiune === "abonati") {
     const abonati = [];

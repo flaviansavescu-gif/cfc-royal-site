@@ -24,6 +24,7 @@
 //   SITE_PUBLIC          — implicit https://cfc-royal.ro
 import { getStore } from "@netlify/blobs";
 import { decide, deCandText } from "./_comun/monitor.mjs";
+import { operational, opritDinMediu } from "./_comun/al-doilea-factor.mjs";
 import { trimite } from "./_comun/posta.mjs";
 
 const SITE = process.env.SITE_PUBLIC || "https://cfc-royal.ro";
@@ -142,6 +143,23 @@ async function ruleaza() {
     try {
       await getStore("acces").setJSON("posta-sanatate", { ok, detaliu, verificatLa: new Date().toISOString() });
     } catch (err) { console.error("Starea poștei nu s-a putut scrie:", err); }
+  }
+
+  // 5b. Al doilea factor. E legat de poștă (OTP-ul pleacă pe e-mail): dacă poșta cade,
+  //     `operational()` devine fals și dispozitivul NU mai e cerut — codul singur redevine
+  //     suficient pentru registratură/admin, TĂCUT. Dezactivarea DELIBERATĂ
+  //     (`FARA_AL_DOILEA_FACTOR=1`) e o decizie umană cu acces Netlify, deci OK; ocolirea
+  //     din cauza poștei căzute e o AVARIE care nu trebuie să treacă neobservată.
+  {
+    const activ = operational();
+    const deliberat = opritDinMediu();
+    v.push({
+      nume: "Al doilea factor",
+      ok: activ || deliberat,
+      detaliu: activ ? "activ (dispozitivul e cerut la registratură și admin)"
+        : deliberat ? "dezactivat deliberat din mediu (FARA_AL_DOILEA_FACTOR=1)"
+        : "OCOLIT — poșta e neoperațională, deci codul singur deschide registratura/adminul. Repară poșta sau pune un dispozitiv de rezervă.",
+    });
   }
 
   // 6. Prospețimea copiei de siguranță. Fără jeton, sărim — nu raportăm fals.

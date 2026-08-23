@@ -155,7 +155,7 @@ export default cuLimitareCod(async (req) => {
   if (!eAdmin && !registrator) return json({ eroare: "Cod incorect." }, 401);
   const s = store();
   if (!(await dispozitivCunoscut(s, taie(body.dispozitiv, 80), eAdmin ? "admin" : "registratura")))
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
 
   if (actiune === "lista") {
     const cereri = [];

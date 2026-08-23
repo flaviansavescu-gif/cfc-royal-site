@@ -101,7 +101,7 @@ export default cuLimitareCod(async (req) => {
   // în fișele membrilor. Membrul nu trece pe aici — el doar depune și își vede starea.
   if (ROLURI_PROTEJATE.includes(eu.rol) &&
       !(await dispozitivCunoscut(s, taie(body.dispozitiv, 80), eu.rol))) {
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în registru, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
   }
 
   // ——— MEMBRUL: starea mea (canisă + cerere în lucru) ———

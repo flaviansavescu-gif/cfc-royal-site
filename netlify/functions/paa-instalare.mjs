@@ -46,7 +46,7 @@ export default cuLimitareCod(async (req) => {
   // Jetoanele de dispozitiv stau în magazia PLATFORMEI („cursuri"), nu în cea a acestei
   // funcții — vezi explicația din breed-instalare.mjs.
   if (!(await dispozitivCunoscut(getStore("cursuri"), String(body.dispozitiv || "").trim(), "admin")))
-    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403);
+    return json({ eroare: "Dispozitiv nerecunoscut. Intră din nou în platformă, cu codul primit pe e-mail." }, 403, { antete: { "x-refuz-drept": "1" } });
 
   if (actiune === "lista") {
     const lista = [];
