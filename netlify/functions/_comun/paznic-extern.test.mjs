@@ -8,6 +8,13 @@ import { paznicExternViu, PRAG_PAZNIC_EXTERN_MIN } from "../monitor-flux.mjs";
 const ACUM = Date.parse("2026-08-23T12:00:00.000Z");
 const cuMinute = (m) => ({ la: new Date(ACUM - m * 60000).toISOString() });
 
+test("pragul acoperă întârzierile REALE ale cronului GitHub (măsurate 27.08: până la 306 min)", () => {
+  // GitHub rulează workflow-urile programate când poate, nu la cadența cerută. Un prag sub
+  // întârzierile observate transformă fiecare pauză în alarmă falsă + „funcționează din nou"
+  // (pățit: ploaie de e-mailuri, 25-27.08). Pragul trebuie să rămână peste dublul vârfului.
+  assert.ok(PRAG_PAZNIC_EXTERN_MIN >= 2 * 306, `prag ${PRAG_PAZNIC_EXTERN_MIN} min — sub dublul întârzierii măsurate (306)`);
+});
+
 test("bootstrap: fără check-in încă → OK (nu alarmăm până bate GitHub prima dată)", () => {
   assert.equal(paznicExternViu(null, ACUM).ok, true);
 });

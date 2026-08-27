@@ -90,4 +90,5 @@ jobs:
       - name: Check-in reciproc (paznicul din Actions e viu)
         if: always()
         run: |
-          curl --silent --max-time 15 "https://cfc-royal.ro/.netlify/functions/paznic-extern" >/dev/null || true
+          curl --silent --retry 3 --retry-delay 10 --retry-all-errors --max-time 15 \
+            "https://cfc-royal.ro/.netlify/functions/paznic-extern" >/dev/null || true

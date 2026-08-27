@@ -48,9 +48,17 @@ const esc = escapeHtml;
  * Prospețimea check-in-ului paznicului din GitHub Actions (reciprocitatea paznicilor).
  * Funcție PURĂ, ca să poată fi probată. Nebătut niciodată (null) = OK: nu alarmăm la
  * bootstrap, până când paznicul din GitHub atinge urma prima dată (aceeași regulă ca la
- * inimi). Paznicul rulează la 10 min; pragul e generos, ca un joc de programare să nu sune.
+ * inimi).
+ *
+ * PRAGUL, calibrat pe REALITATE (27.08.2026): cron-ul e programat la 10 minute, dar GitHub
+ * rulează workflow-urile programate când poate — pauzele MĂSURATE în istoricul rulărilor:
+ * de regulă 30–60 min, cu vârfuri de 112, 121, 175 și 306 minute, toate cu rulări reușite.
+ * Pragul vechi (60) transforma fiecare astfel de pauză în alarmă + „funcționează din nou"
+ * — oboseală de alarmă, lecția din 17.08. Scopul acestui paznic e să prindă un workflow
+ * MORT (dezactivat/șters = tăcere pentru totdeauna), nu să cronometreze GitHub: 12 ore
+ * prind orice moarte reală în aceeași zi și nu sună niciodată la întârzieri.
  */
-export const PRAG_PAZNIC_EXTERN_MIN = 60;
+export const PRAG_PAZNIC_EXTERN_MIN = 12 * 60;
 export function paznicExternViu(inreg, acum = Date.now(), pragMin = PRAG_PAZNIC_EXTERN_MIN) {
   const la = Date.parse(inreg?.la || "");
   if (!Number.isFinite(la))
