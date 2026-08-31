@@ -457,7 +457,11 @@ const CLASE = [
       const d = e && e.termen ? new Date(e.termen) : null;
       if (!d || isNaN(d.getTime())) { randTermen.hidden = true; return; }
       const cand = d.toLocaleString(txtLimba, { timeZone: "Europe/Bucharest", weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
-      const zile = Math.ceil((d.getTime() - Date.now()) / 86400000);
+      // Azi/maine se judeca pe ZILE CALENDARISTICE in ora Romaniei, nu pe felii de 24h:
+      // cu termenul azi la 21:00 si ceasul la 14:00, diferenta e 7 ore - dar ziua e AZI.
+      // (Math.ceil pe milisecunde spunea "maine" pentru orice termen din restul zilei.)
+      const ziCal = (x) => Math.round(Date.parse(new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Bucharest", year: "numeric", month: "2-digit", day: "2-digit" }).format(x) + "T00:00:00Z") / 86400000);
+      const zile = ziCal(d) - ziCal(new Date());
       // Românește: „19 zile", dar „20 DE zile". Hotărăsc ultimele două cifre — 101 zile,
       // 120 de zile. Regula stă în cod, nu în text, ca traducătorul să nu aibă de ales.
       const r = zile % 100;
