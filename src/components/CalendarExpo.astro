@@ -18,6 +18,10 @@ const T = {
     inscrie: "Înscrie-te →",
     rezultate: "Vezi rezultatele →",
     live: "În ziua expoziției, programul ringurilor este transmis în direct la",
+    cacTitlu: "C.A.C. Iași — WDF — Moldova Dog Show — Ediția I",
+    cacCand: "5 septembrie 2026 · USV Arena Iași — campus Agronomie",
+    cacNota:
+      "Fără înscriere separată: cine se înscrie la expoziția C.A.C.I.B. de la Iași este înscris automat și gratuit și la această expoziție. Se desfășoară imediat după încheierea celei internaționale, în aceeași locație; ora exactă se anunță la fața locului.",
   },
   en: {
     titlu: "Show calendar",
@@ -30,6 +34,10 @@ const T = {
     inscrie: "Enter now →",
     rezultate: "See the results →",
     live: "On show day, the live ring schedule is broadcast at",
+    cacTitlu: "C.A.C. Iași — WDF — Moldova Dog Show — 1st Edition",
+    cacCand: "5 September 2026 · USV Arena Iași — Agronomy campus",
+    cacNota:
+      "No separate entry: whoever enters the C.A.C.I.B. show in Iași is automatically and free of charge entered in this show as well. It is held immediately after the international show closes, at the same venue; the exact time is announced on site.",
   },
 }[lang];
 const linkInscriere = lang === "en" ? "/en/inscriere-expozitie" : "/ro/inscriere-expozitie";
@@ -42,6 +50,19 @@ const linkInscriere = lang === "en" ? "/en/inscriere-expozitie" : "/ro/inscriere
   <h2 class="cal__sect">{T.viitoare}</h2>
   <p class="cal__gol" id="cal-gol-v" hidden>{T.faraViitoare}</p>
   <ul class="cal__lista" id="cal-viitoare"></ul>
+
+  {/* Naționala din ziua CACIB-ului de la Iași: NU primește înscrieri proprii — de aceea
+      stă aici, ca intrare de sine stătătoare, fără buton. Cine se înscrie la CACIB e
+      înscris automat și gratuit și la ea. */}
+  <ul class="cal__lista">
+    <li class="cal__card cal__card--fara">
+      <div class="cal__info">
+        <strong>{T.cacTitlu}</strong>
+        <span>{T.cacCand}</span>
+      </div>
+    </li>
+  </ul>
+  <p class="cal__nota">{T.cacNota}</p>
 
   <h2 class="cal__sect">{T.trecute}</h2>
   <p class="cal__gol" id="cal-gol-t" hidden>{T.faraTrecute}</p>
@@ -110,4 +131,13 @@ const linkInscriere = lang === "en" ? "/en/inscriere-expozitie" : "/ro/inscriere
   :global(.cal__btn--sec) { background: transparent; color: var(--color-primary); border: 1px solid var(--color-primary); }
   .cal__live { margin-top: 2.25rem; color: var(--color-text-muted); font-size: 0.92rem; }
 @media (max-width: 480px) { .cal__card { flex-direction: column; align-items: flex-start; } }
+
+  /* Ediția fără înscriere proprie: aceeași carte, dar fără buton — și fără să pară
+     că butonul lipsește din greșeală, fiindcă nota de dedesubt o explică. */
+  .cal__card--fara { border-style: dashed; }
+  .cal__nota {
+    max-width: 44rem; margin: 0.6rem 0 0; padding: 0.75rem 1rem;
+    background: var(--color-surface-alt); border-left: 3px solid var(--color-accent-dark);
+    border-radius: var(--radius); font-size: 0.9rem; color: var(--color-text-muted);
+  }
 </style>

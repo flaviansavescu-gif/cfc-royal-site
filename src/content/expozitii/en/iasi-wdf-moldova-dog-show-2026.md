@@ -1,7 +1,7 @@
 ---
 title: "Iași — WDF Moldova Dog Show, 1st Edition"
 lang: en
-summary: "CACIB dog show in Iași, USV Arena — Agronomy campus. Entries are open online until 31 August 2026, 21:00 (Romanian time). Organiser: A.Ch.P. „Carpați”."
+summary: "CACIB dog show in Iași, USV Arena — Agronomy campus. Entries are open online until 2 September 2026, 22:00 (Romanian time). Organiser: A.Ch.P. „Carpați”."
 startDate: 2026-09-05
 venue: "USV Arena Iași — Agronomy campus"
 city: "Iași"
@@ -22,7 +22,7 @@ dog, the organiser’s bank account and the time remaining, and confirmation arr
 
 **[Enter now →](/en/inscriere-expozitie/)**
 
-Entries close on **Monday, 31 August 2026, at 21:00** (Romanian time). After that hour the form
+Entries close on **Wednesday, 2 September 2026, at 22:00** (Romanian time). After that hour the form
 closes itself; the catalogue is printed and the competition numbers are sent by e-mail.
 
 On show day, the ring schedule can be followed live at [cfc-royal.ro/live](/live).
