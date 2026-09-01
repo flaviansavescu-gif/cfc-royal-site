@@ -22,8 +22,12 @@ venue, and marks the **inauguration of the Carpathians Professional Cynological 
 
 This show **takes no separate entries** and has no entry form of its own.
 
-**Everyone entered in the C.A.C.I.B. show in Iași is automatically and free of charge entered
-in this show as well**, with no additional fee and nothing further to do.
+**Everyone entered in the [C.A.C.I.B. show in Iași](/en/expozitii/iasi-wdf-moldova-dog-show-2026/)
+is automatically and free of charge entered in this show as well**, with no additional fee and
+nothing further to do.
+
+If you have not entered yet, **[enter the C.A.C.I.B. →](/en/inscriere-expozitie/)** — taking part
+in the national show follows on its own.
 
 What this means in practice:
 

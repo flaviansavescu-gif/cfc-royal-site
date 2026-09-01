@@ -8,12 +8,22 @@ city: "Iași"
 county: "Iași"
 showType: "CACIB"
 organizer: "A.Ch.P. „Carpați”"
+managerShowId: "cms9cemmu0001ksh09fuvrosh"
 status: "înscrieri deschise"
 draft: false
 ---
 A CACIB dog show organised under the aegis of the World Dog Federation, on Saturday, **5 September 2026**,
 at **USV Arena Iași — Agronomy campus**, in partnership with the University of Life Sciences.
 Organiser: Carpați Professional Cynological Association, a Collective Member of CFC-Royal.
+
+## Your entry brings the national show as well, free of charge
+
+To mark the inauguration of the Carpathians Professional Cynological Association, the
+**[National C.A.C. Iași show](/en/expozitii/cac-iasi-wdf-moldova-dog-show-2026/)** is held
+**immediately after this one closes, at the same venue**.
+
+Whoever enters here is **automatically and free of charge entered** in it as well: your dog will be
+judged twice on the same day — one trip, two chances at certificates. No separate entry, no extra fee.
 
 ## Entries are open
 

@@ -116,6 +116,11 @@ const expozitii = defineCollection({
     status: z
       .enum(["anunțată", "înscrieri deschise", "în desfășurare", "încheiată"])
       .default("anunțată"),
+    // Identificatorul expoziției din managerul de expoziții. Leagă EXACT pagina de
+    // prezentare de rândul din calendarul public (care se construiește din manager) —
+    // potrivirea după dată n-ar merge: pot fi două expoziții în aceeași zi. Nu e un
+    // secret: apare oricum în calendarul public și în adresele de rezultate live.
+    managerShowId: z.string().optional(),
     regulationPdf: z.string().optional(),
     catalogPdf: z.string().optional(),
     resultsPdf: z.string().optional(),

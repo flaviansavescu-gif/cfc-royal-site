@@ -3,8 +3,20 @@
 // Viitoare: edițiile publicate cu înscrieri deschise (link spre formular).
 // Trecute: DOAR edițiile cu rezultate publicate (link spre pagina de rezultate) —
 // astfel edițiile de test sau retrase nu apar niciodată public.
+import { getCollection } from "astro:content";
 interface Props { lang: "ro" | "en"; }
 const { lang } = Astro.props;
+
+// Paginile de prezentare ale expozițiilor, ca rândurile din calendar (care vin din
+// MANAGER) să poată duce la ele. Legătura se face pe identificatorul din manager, nu pe
+// dată: pe 5 septembrie 2026 sunt două expoziții, iar potrivirea după zi ar fi greșit.
+// O expoziție fără `managerShowId` completat nu primește buton — mai bine niciun buton
+// decât unul care duce aiurea.
+const paginiExpo = Object.fromEntries(
+  (await getCollection("expozitii", (e: any) => e.id.startsWith(`${lang}/`) && !e.data.draft))
+    .filter((e: any) => e.data.managerShowId)
+    .map((e: any) => [e.data.managerShowId, `/${lang}/expozitii/${e.id.split("/").pop()}/`]),
+);
 
 const T = {
   ro: {
@@ -77,7 +89,7 @@ const linkCac = `/${lang}/expozitii/cac-iasi-wdf-moldova-dog-show-2026/`;
   <p class="cal__live">{T.live} <a href="/live"><b>cfc-royal.ro/live</b></a>.</p>
 </section>
 
-<script is:inline define:vars={{ txtTermen: T.termen, txtInscrie: T.inscrie, txtRezultate: T.rezultate, linkInscriere, limba: lang }}>
+<script is:inline define:vars={{ txtTermen: T.termen, txtInscrie: T.inscrie, txtRezultate: T.rezultate, txtDetalii: T.cacDetalii, pagini: paginiExpo, linkInscriere, limba: lang }}>
   (async function () {
     let calendar = [];
     try {
@@ -103,6 +115,7 @@ const linkCac = `/${lang}/expozitii/cac-iasi-wdf-moldova-dog-show-2026/`;
             <div class="cal__info"><strong>${esc(c.nume)}</strong>
             <span>${dataRo(c.data)}${c.locatie ? " · " + esc(c.locatie) : ""}</span>
             ${c.termen ? `<small>${txtTermen}: ${dataRo(c.termen)}</small>` : ""}</div>
+            ${pagini[c.showId] ? `<a class="cal__btn cal__btn--sec" href="${pagini[c.showId]}">${txtDetalii}</a>` : ""}
             <a class="cal__btn" href="${linkInscriere}">${txtInscrie}</a>
           </li>`,
         )

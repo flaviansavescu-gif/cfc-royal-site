@@ -24,8 +24,12 @@ aceeași locație, și marchează **deschiderea activității Asociației Chinol
 
 Această expoziție **nu primește înscrieri separate** și nu are formular propriu.
 
-**Toți cei înscriși la expoziția C.A.C.I.B. de la Iași sunt înscriși automat și gratuit și la
-această expoziție**, fără nicio taxă suplimentară și fără vreun demers din partea lor.
+**Toți cei înscriși la [expoziția C.A.C.I.B. de la Iași](/ro/expozitii/iasi-wdf-moldova-dog-show-2026/)
+sunt înscriși automat și gratuit și la această expoziție**, fără nicio taxă suplimentară și fără
+vreun demers din partea lor.
+
+Dacă nu v-ați înscris încă, **[înscrieți-vă la C.A.C.I.B. →](/ro/inscriere-expozitie/)** — participarea
+la expoziția națională vine de la sine, odată cu ea.
 
 Ce înseamnă concret:
 
