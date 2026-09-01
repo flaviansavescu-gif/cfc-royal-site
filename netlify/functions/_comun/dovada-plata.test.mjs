@@ -63,3 +63,28 @@ test("gărzile declanșatorilor sunt în cod (static): importul și marcarea che
   assert.ok(expo.includes("stergeDovezileIncheiate(store, showIdLot, dovezi)"), "importul curăță prin regula comună");
   assert.ok(/stare === "verificat" && i\.importat === true && i\.dovadaKey/.test(verif), "marcarea curăță doar la «verificat» pe fișă importată");
 });
+
+test("dovada ALTEI expoziții nu se șterge (marcare în lot peste expoziții)", async () => {
+  const ALTA = "dovada/expo2/plata-9.jpg";
+  const s = magazieFalsa(Object.fromEntries([
+    fisa("lisa", { importat: true }), marcaj("lisa", "verificat"),
+    [DOVADA, "poza"], [ALTA, "poza-alta"],
+  ]));
+  // Chemăm cu AMBELE chei, dar showId-ul e al primei expoziții.
+  const sterse = await stergeDovezileIncheiate(s, SHOW, [DOVADA, ALTA]);
+  assert.equal(sterse, 1, "doar dovada expoziției cerute");
+  assert.ok(!s._map.has(DOVADA), "a ei a plecat");
+  assert.ok(s._map.has(ALTA), "dovada altei expoziții rămâne neatinsă");
+});
+
+test("fișă listată dar necitibilă (null) → se ȚINE dovada, nu se sare peste", async () => {
+  const s = magazieFalsa(Object.fromEntries([fisa("lisa", { importat: true }), marcaj("lisa", "verificat"), [DOVADA, "poza"]]));
+  const rupt = {
+    ...s,
+    list: s.list.bind(s),
+    // Fișa se listează, dar citirea ei întoarce null (decalaj de consistență).
+    get: async (k) => (k.startsWith("coada/") ? null : s.get(k)),
+  };
+  assert.equal(await stergeDovezileIncheiate(rupt, SHOW, [DOVADA]), 0);
+  assert.ok(s._map.has(DOVADA), "necunoscutul se tratează ca motiv de reținere");
+});

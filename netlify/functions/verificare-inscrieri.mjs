@@ -41,7 +41,7 @@ import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
 import { jurnalizeaza, jurnalizeazaObligatoriu, ipCerere } from "./_comun/registru-jurnal.mjs";
 import { json } from "./_comun/raspuns.mjs";
-import { stergeDovezileIncheiate } from "./_comun/dovada-plata.mjs";
+import { stergeDovezileIncheiate, cheiaMarcajului } from "./_comun/dovada-plata.mjs";
 
 // Înscrierile stau în magazia expozițiilor; cheile de dispozitiv, în cea a registrului.
 // Nu le amesteca: o căutare de jeton în magazia greșită a ținut deja pe cineva afară.
@@ -57,11 +57,13 @@ export const LIMITA_NOTA = 300;
  *  metadatele unei magazii nu sunt o sursă de încredere pentru browser. */
 export const TIPURI_DOVADA = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf"]);
 
-/** `coada/<show>/<sufix>` -> `verificare/<show>/<sufix>`. Cheia marcajului oglindește
- *  exact înscrierea, deci nu e nevoie de niciun index ca să le împerechem. */
-export function cheiaMarcajului(cheieCoada) {
-  return "verificare/" + String(cheieCoada || "").slice("coada/".length);
-}
+// `coada/<show>/<sufix>` -> `verificare/<show>/<sufix>`. Cheia marcajului oglindește exact
+// înscrierea, deci nu e nevoie de niciun index ca să le împerechem. O SINGURĂ definiție, în
+// `_comun/dovada-plata.mjs` (importată sus): aveam două identice, iar dacă divergeau,
+// curățenia dovezilor n-ar mai fi găsit marcajele și le-ar fi ținut la nesfârșit — tăcut.
+// Se re-exportă din legătura IMPORTATĂ (`export { x } from …` n-ar lega numele local, iar
+// folosirile din acest fișier ar arunca la rulare).
+export { cheiaMarcajului };
 
 /**
  * Ce pleacă spre browserul registratorului. Lista albă, nu neagră: dacă mâine apare un
@@ -98,6 +100,13 @@ export function pentruRegistratura(i, cheie, verificare) {
     // fiecare listare.
     plata: {
       taxa: Number(i.taxa) || 0,
+      // LOTUL: un formular poate înscrie mai mulți câini, cu O SINGURĂ dovadă pe suma
+      // TOTALĂ. Fără cifrele astea, registratorul vedea „Taxa: 75 lei" lângă o dovadă de
+      // 225 și avea toate motivele să apese „plata NU se regăsește" (la Iași sunt 4 loturi
+      // de câte 2 câini). Acum suma de confruntat cu extrasul e scrisă pe fișă.
+      lotDin: Number(i.lotDin) || null,
+      lotPozitie: Number(i.lotPozitie) || null,
+      lotTaxaTotala: Number(i.lotTaxaTotala) || null,
       aDeclaratPlata: i.amPlatit === true,
       areDovada: !!i.dovadaKey,
       dovadaNume: i.dovadaNume || null,

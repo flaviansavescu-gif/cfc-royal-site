@@ -144,6 +144,20 @@ console.log("— regulile sunt chemate acolo unde contează —");
     (script.match(/@example\.com/g) || []).length >= 5);
   e("scenariul are cazuri care TREBUIE respinse",
     (script.match(/cade: true/g) || []).length >= 4);
+
+  // ——— Seed-ul trimite TOT ce cere serverul la nivelul formularului ———
+  // Repetiția a fost MOARTĂ (03.09.2026): s-a adăugat bifa normelor de participare în
+  // `inscriere-expo`, scriptul n-a urmat-o, toate fișele primeau 400 — iar cele patru
+  // cazuri care trebuie respinse ieșeau „ok" din motivul greșit (verde fals). Proba
+  // citește refuzurile REALE ale serverului pe câmpuri de nivel superior și cere ca
+  // fiecare să existe în corpul seed-ului; o cerință nouă va cădea aici, nu în ziua
+  // dinaintea expoziției.
+  const serverul = readFileSync(new URL("../inscriere-expo.mjs", import.meta.url), "utf8");
+  const corp = script.slice(script.indexOf("const corp = {"), script.indexOf("const { stare, d } = await cere(corp)"));
+  const ceruteDeServer = [...serverul.matchAll(/String\(body\.(\w+)\s*\|\|\s*""\)\s*!==\s*"1"/g)].map((m) => m[1]);
+  e("serverul chiar cere asumări la nivel de formular", ceruteDeServer.length >= 2);
+  for (const camp of new Set(ceruteDeServer))
+    e(`seed-ul trimite «${camp}» (altfel repetiția moare tăcut)`, new RegExp(camp + ':\\s*"1"').test(corp));
 }
 
 console.log(rau ? rau + " căzute" : "toate trecute");

@@ -23,7 +23,12 @@ export const cheiaMarcajului = (cheieCoada) =>
  * @returns numărul de dovezi șterse
  */
 export async function stergeDovezileIncheiate(store, showId, dovadaKeys) {
-  const candidate = new Set([...(dovadaKeys || [])].filter(Boolean));
+  // Doar dovezile expoziției CERUTE: chemarea poate veni cu chei din mai multe expoziții
+  // (marcarea în lot), iar noi listăm coada unei singure expoziții — o dovadă din alta
+  // n-ar fi găsită de nicio fișă și s-ar șterge nemeritat. Cheia poartă showId în ea.
+  const candidate = new Set(
+    [...(dovadaKeys || [])].filter((k) => typeof k === "string" && k.startsWith("dovada/" + showId + "/")),
+  );
   if (!candidate.size || !showId) return 0;
 
   const deTinut = new Set();
@@ -31,7 +36,10 @@ export async function stergeDovezileIncheiate(store, showId, dovadaKeys) {
     const { blobs } = await store.list({ prefix: "coada/" + showId + "/" });
     for (const b of blobs) {
       const i = await store.get(b.key, { type: "json" });
-      if (!i || !i.dovadaKey || !candidate.has(i.dovadaKey)) continue;
+      // O fișă listată dar necitibilă (decalaj de consistență) NU e o fișă absentă:
+      // nu știm ce dovadă ține, deci ținem TOT ce e în joc. Direcția sigură.
+      if (!i) { for (const dk of candidate) deTinut.add(dk); continue; }
+      if (!i.dovadaKey || !candidate.has(i.dovadaKey)) continue;
       if (i.importat !== true) { deTinut.add(i.dovadaKey); continue; }
       const v = await store.get(cheiaMarcajului(b.key), { type: "json" });
       if (!v || v.stare !== "verificat") deTinut.add(i.dovadaKey);

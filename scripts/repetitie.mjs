@@ -244,6 +244,12 @@ if (comanda === "seamana") {
       amPlatit: "1",
       ...(dovada ? { dovadaBase64: dovada.base64, dovadaTip: dovada.tip, dovadaNume: dovada.nume } : {}),
       gdpr: "1",
+      // Asumările cerute de server la nivelul formularului. Când s-a adăugat norma de
+      // participare, scriptul n-a urmat-o: TOATE fișele seed primeau 400, iar cazurile
+      // care trebuie respinse ieșeau „ok" din motivul greșit — verde fals, exact la
+      // unealta care există ca să prindă probleme. Proba din `repetitie.test.mjs` ține
+      // de-acum lista asta lipită de validările serverului.
+      normeParticipare: "1",
     };
     const { stare, d } = await cere(corp);
     const aTrecut = stare === 200 && !d.eroare;

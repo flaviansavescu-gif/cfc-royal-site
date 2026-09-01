@@ -221,6 +221,16 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
         sus.appendChild(el("span", i.plata.aDeclaratPlata ? "i-eticheta is-ok" : "i-eticheta is-rau",
           i.plata.aDeclaratPlata ? "a declarat că a plătit" : "nu a declarat plata"));
         pl.appendChild(sus);
+        // LOTUL: un formular cu mai mulți câini are O SINGURĂ dovadă, pe suma TOTALĂ.
+        // Fără rândul ăsta, suma de pe fișă (75) nu semăna cu suma din dovadă (225) și
+        // părea o plată lipsă. Spunem pe față ce trebuie căutat în extras.
+        if (i.plata.lotDin && i.plata.lotDin > 1) {
+          pl.appendChild(el("p", "i-et",
+            "Înscriere în lot: câinele " + (i.plata.lotPozitie || "?") + " din " + i.plata.lotDin +
+            (i.plata.lotTaxaTotala
+              ? " · dovada acoperă TOT lotul: " + i.plata.lotTaxaTotala + " lei (nu doar " + i.plata.taxa + " lei)"
+              : " · dovada acoperă tot lotul")));
+        }
         if (i.plata.observatie) pl.appendChild(el("p", "i-et", i.plata.observatie));
 
         const jos = el("div", "i-actiuni");
