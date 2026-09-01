@@ -498,6 +498,13 @@ export default async (req) => {
     if (String(d.microcip || "").trim().length < 6) return json({ eroare: et + "microcipul este obligatoriu (minimum 6 caractere)." }, 400);
     if (String(d.pedigreeTipicitate || "") !== "1" && String(d.pedigree || "").trim().length < 2)
       return json({ eroare: et + "numărul de pedigree este obligatoriu. Dacă exemplarul nu are acte, bifează pedigree de tipicitate." }, 400);
+    // Culoarea robei e OBLIGATORIE (decizia din 02.09.2026, după 7 fișe „date de catalog
+    // incomplete" la Iași): se tipărește în catalogul oficial (Art. 21 lit. f) și orice
+    // proprietar o știe. PĂRINȚII rămân opționali cu bună știință — pedigree-ul obținut
+    // prin examen de tipicitate NU are părinți trecuți pe act, deci o obligație i-ar
+    // încurca exact pe cei corecți.
+    if (String(d.culoareRoba || "").trim().length < 2)
+      return json({ eroare: et + "culoarea robei este obligatorie — se tipărește în catalogul oficial al expoziției." }, 400);
     if (!clasaValida(clasa, dataNasterii, config.data))
       return json({ eroare: et + "vârsta la data expoziției nu se încadrează în clasa aleasă." }, 400);
 

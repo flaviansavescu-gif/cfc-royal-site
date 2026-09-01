@@ -35,7 +35,7 @@ const T = {
     cum3t: "Câine de rasă fără pedigree?",
     cum3: "bifează „Doresc pedigree de tipicitate”. Atunci numărul de pedigree nu se mai cere. Exemplarul este evaluat în ring și poate concura pentru BOB și Best in Show, dar nu poate primi certificate (CAJC, CAC, CACIB).",
     cum4t: "Culoarea robei și părinții",
-    cum4: "se tipăresc în catalogul oficial al expoziției. Dacă nu le cunoști la înscriere, secretariatul le poate completa până la închiderea catalogului.",
+    cum4: "se tipăresc în catalogul oficial al expoziției. Culoarea robei este obligatorie la înscriere. Părinții sunt opționali (pedigree-ul de tipicitate nu îi are trecuți) — dacă nu-i știi, secretariatul îi poate completa până la închiderea catalogului.",
     cum5t: "După trimitere",
     cum5: "primești un e-mail de confirmare. După verificarea înscrierii de către secretariat primești numărul de catalog. Înscrierile se închid înainte de expoziție, odată cu tipărirea catalogului.",
     succes: "Înscrierea a fost trimisă!", succesDetaliu: "a intrat în coada secretariatului. După verificare vei primi pe e-mail confirmarea validării, iar la închiderea catalogului — numărul de concurs și ecusonul de tipărit.", inca: "Trimite o nouă înscriere",
@@ -106,7 +106,7 @@ const T = {
     cum3t: "Purebred dog without a pedigree?",
     cum3: "tick “I want a typicity pedigree”. The pedigree number is then not required. The dog is assessed in the ring and may compete for BOB and Best in Show, but cannot receive certificates (CAJC, CAC, CACIB).",
     cum4t: "Coat colour and parents",
-    cum4: "are printed in the official show catalogue. If you do not know them at entry, the secretariat can complete them until the catalogue closes.",
+    cum4: "are printed in the official show catalogue. Coat colour is required at entry. Parents are optional (a typicity pedigree does not list them) — if you do not know them, the secretariat can complete them until the catalogue closes.",
     cum5t: "After you submit",
     cum5: "you receive a confirmation email. Once the secretariat checks your entry you receive the catalogue number. Entries close before the show, when the catalogue is printed.",
     succes: "Your entry has been sent!", succesDetaliu: "is now in the secretariat queue. After it is checked you will receive the validation email, and when the catalogue closes — your competition number and printable armband.", inca: "Submit another entry",
@@ -291,7 +291,7 @@ const CLASE = [
         </div>
         <label class="ie__f"><span>{T.crescator} ({T.optional})</span><input data-f="crescator" /></label>
         <div class="ie__row">
-          <label class="ie__f"><span>{T.culoareRoba}</span><input data-f="culoareRoba" /></label>
+          <label class="ie__f"><span>{T.culoareRoba} *</span><input data-f="culoareRoba" required minlength="2" /></label>
           <label class="ie__f"><span>{T.tata}</span><input data-f="tata" /></label>
         </div>
         <label class="ie__f"><span>{T.mama}</span><input data-f="mama" /></label>
@@ -394,7 +394,7 @@ const CLASE = [
   </form>
 </section>
 
-<script is:inline define:vars={{ AFISE, txtInchisOptiune: T.inchisOptiune, txtInchisButon: T.inchisButon, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit, txtCaine: (lang === "en" ? "Dog" : "Câinele"), txtCampuriCaine: (lang === "en" ? "Dog {n}: fill in the required fields — name, breed (from the list), sex, date of birth, class and microchip (min. 6). Pedigree is required unless you tick typicity." : "Câinele {n}: completează câmpurile obligatorii — nume, rasă (din listă), sex, data nașterii, clasă și microcip (min. 6). Pedigree obligatoriu dacă nu bifezi tipicitatea."), txtTaxaTotal: (lang === "en" ? "Total entry fee:" : "Taxa totală de înscriere:"), txtTaxaInregistrata: (lang === "en" ? "Registered entry fee:" : "Taxă înregistrată:"), txtNuTrimis: (lang === "en" ? "NOT sent yet — please complete:" : "NU s-a trimis încă — mai completează:") }}>
+<script is:inline define:vars={{ AFISE, txtInchisOptiune: T.inchisOptiune, txtInchisButon: T.inchisButon, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit, txtCaine: (lang === "en" ? "Dog" : "Câinele"), txtCampuriCaine: (lang === "en" ? "Dog {n}: fill in the required fields — name, breed (from the list), sex, date of birth, class, microchip (min. 6) and coat colour (it is printed in the official catalogue). Pedigree is required unless you tick typicity." : "Câinele {n}: completează câmpurile obligatorii — nume, rasă (din listă), sex, data nașterii, clasă, microcip (min. 6) și culoarea robei (se tipărește în catalogul oficial). Pedigree obligatoriu dacă nu bifezi tipicitatea."), txtTaxaTotal: (lang === "en" ? "Total entry fee:" : "Taxa totală de înscriere:"), txtTaxaInregistrata: (lang === "en" ? "Registered entry fee:" : "Taxă înregistrată:"), txtNuTrimis: (lang === "en" ? "NOT sent yet — please complete:" : "NU s-a trimis încă — mai completează:") }}>
   (async function () {
     const form = document.getElementById("ie-form");
     const loading = document.getElementById("ie-loading");
@@ -777,7 +777,8 @@ const CLASE = [
         const pedigree = val("pedigree");
         const microcip = val("microcip");
         const clasa = val("clasa");
-        const bun = numeCaine.length >= 2 && rasaId && sexEl && iso && clasa && microcip.length >= 6 && (tip || pedigree.length >= 2);
+        const culoareRoba = val("culoareRoba");
+        const bun = numeCaine.length >= 2 && rasaId && sexEl && iso && clasa && microcip.length >= 6 && culoareRoba.length >= 2 && (tip || pedigree.length >= 2);
         if (!bun) {
           err.textContent = (iso ? "" : txtDataInvalida + " ") + txtCampuriCaine.replace("{n}", i + 1);
           err.hidden = false;
