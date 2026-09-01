@@ -15,6 +15,7 @@ import { refuzaDacaInchis } from "./_comun/poarta-scrieri.mjs";
 import { calculeazaTaxa, taxaVeche } from "./_comun/taxa-expo.mjs";
 import { egal } from "./_comun/citire-documente.mjs";
 import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
+import { stergeDovezileIncheiate } from "./_comun/dovada-plata.mjs";
 import { versiuneaNormelor } from "./_comun/norme-participare.mjs";
 // MODUL REPETIȚIE. Lanțul înscriere → verificare → import → catalog → ring → rezultate
 // n-a trecut niciodată printr-o expoziție adevărată. Repetiția generală îl trece, cu date
@@ -309,24 +310,11 @@ export default async (req) => {
           console.error("Marcare eșuată:", err);
         }
       }
-      // Dovada plății e o dată personală: odată importată, copia din cloud nu mai are rost.
-      // DAR o dovadă poate fi comună mai multor câini dintr-un lot — o ștergem abia când
-      // toți câinii care o folosesc au fost importați, altfel registratura ar rămâne fără
-      // ea pentru restul lotului.
-      if (dovezi.size && showIdLot) {
-        let inca = new Set();
-        try {
-          const { blobs } = await store.list({ prefix: "coada/" + showIdLot + "/" });
-          for (const b of blobs) {
-            const i = await store.get(b.key, { type: "json" }).catch(() => null);
-            if (i && i.importat !== true && i.dovadaKey) inca.add(i.dovadaKey);
-          }
-        } catch (err) {
-          console.error("Verificarea dovezilor de lot a eșuat:", err);
-          inca = dovezi; // la eroare, nu ștergem nimic (mai bine o dovadă rămasă decât una pierdută)
-        }
-        for (const dk of dovezi) if (!inca.has(dk)) await store.delete(dk).catch(() => {});
-      }
+      // Dovada plății e o dată personală și nu stă în cloud mai mult decât trebuie — dar
+      // „trebuie" înseamnă importată ÎN MANAGER *și* VERIFICATĂ de registratură (regula
+      // întreagă, cu lotul și fail-safe-ul, stă în _comun/dovada-plata.mjs). Înainte se
+      // ștergea la import; un import rapid lăsa registratura cu un buton mort.
+      if (dovezi.size && showIdLot) await stergeDovezileIncheiate(store, showIdLot, dovezi);
       return json({ ok: true });
     }
 

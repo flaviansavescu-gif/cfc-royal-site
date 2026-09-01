@@ -41,6 +41,7 @@ import { cuLimitareCod } from "./_comun/limitare.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
 import { jurnalizeaza, jurnalizeazaObligatoriu, ipCerere } from "./_comun/registru-jurnal.mjs";
 import { json } from "./_comun/raspuns.mjs";
+import { stergeDovezileIncheiate } from "./_comun/dovada-plata.mjs";
 
 // Înscrierile stau în magazia expozițiilor; cheile de dispozitiv, în cea a registrului.
 // Nu le amesteca: o căutare de jeton în magazia greșită a ținut deja pe cineva afară.
@@ -338,6 +339,17 @@ export default cuLimitareCod(async (req) => {
     // ciocni cu managerul, care pune pe ea semnul „importat".
     if (verificare) await s.setJSON(cheieV, verificare);
     else await s.delete(cheieV).catch(() => {});
+
+    // Al doilea declanșator al curățeniei de dovezi (primul e importul): registratura
+    // tocmai a încheiat verificarea unei fișe DEJA importate — dacă toți câinii care
+    // împart dovada au încheiat-o și ei, dovada nu mai are ce căuta în cloud. Nefatal.
+    if (verificare && verificare.stare === "verificat" && i.importat === true && i.dovadaKey) {
+      try {
+        await stergeDovezileIncheiate(s, showId, [i.dovadaKey]);
+      } catch (err) {
+        console.error("Curățenia dovezii după verificare a eșuat:", err);
+      }
+    }
 
     // Auditul expoziției (citire rapidă) + jurnalul pentru marcajul aditiv (nefatal).
     try {
