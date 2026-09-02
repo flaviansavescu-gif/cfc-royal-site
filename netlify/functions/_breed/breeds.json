@@ -131,7 +131,7 @@
       "functional_type": "herding",
       "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G01-013",
       "source_standard_title": "Standard oficial WDF G01-013",
-      "last_updated": "2026-08-08",
+      "last_updated": "2026-09-02",
       "identity": {
         "official_name": "Apuan Shepherd Dog (Cane delle Alpi Apuane)",
         "owner_country": "Italy",
@@ -191,9 +191,9 @@
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "Conical head",
-          "Merle coats permitted",
-          "Rustic medium build"
+          "Cap conic",
+          "Robele merle sunt admise",
+          "Construcție rustică, de talie medie"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -226,8 +226,14 @@
         "Group 1 Shepherd Dogs and Cattle Dogs (excl. Swiss Cattle Dogs)"
       ],
       "recurring_judge_observations": [],
-      "version": 1,
-      "revision_history": [],
+      "version": 2,
+      "revision_history": [
+        {
+          "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        }
+      ],
       "wdf_code": "G01-013"
     },
     {
@@ -287,38 +293,38 @@
       },
       "faults": {
         "minor": [
-          "Slightly soft coat",
-          "Uneven speckling",
-          "Minor deviation in ear size"
+          "Blană ușor moale",
+          "Stropire neuniformă",
+          "Abatere ușoară a mărimii urechilor"
         ],
         "serious": [
-          "Snipey or weak muzzle",
-          "Cow hocks or restricted movement",
-          "Excessive shyness"
+          "Bot ascuțit ori slab",
+          "Jarete de vacă ori mișcare strânsă",
+          "Sfială excesivă"
         ],
         "disqualifying": [
-          "Undershot or overshot bite",
-          "Aggression toward the judge",
-          "Coat markedly incorrect in type or colour"
+          "Prognatism inferior ori superior",
+          "Agresivitate față de arbitru",
+          "Blană vădit greșită ca tip ori culoare"
         ]
       },
       "pedagogy": {
         "frequent_confusions": [
-          "Confused with the Australian Stumpy Tail Cattle Dog (tailless variety)",
-          "Blue colour confused with merle patterning by beginners"
+          "Se confundă cu Australian Stumpy Tail Cattle Dog (varietatea fără coadă)",
+          "Începătorii confundă culoarea albastră cu tiparul merle"
         ],
         "key_markers": [
-          "Speckled blue or red coat",
-          "Compact powerful build",
-          "Pricked wide-set ears"
+          "Blană stropită albastru ori roșu",
+          "Construcție compactă și puternică",
+          "Urechi drepte, depărtat inserate"
         ],
         "judge_notes": [
-          "Assess for working soundness and agility",
-          "Check even colour distribution and symmetrical head markings"
+          "Apreciază sănătatea de lucru și agilitatea",
+          "Verifică împărțirea uniformă a culorii și marcajele simetrice ale capului"
         ],
         "teaching_notes": [
-          "Explain speckle vs merle to prevent confusion",
-          "Relate build to the heeling function"
+          "Explică stropirea față de merle, ca să nu se confunde",
+          "Leagă construcția de funcția de mușcat la jarete"
         ],
         "similar_breeds": [
           "Australian Stumpy Tail Cattle Dog",
@@ -331,19 +337,19 @@
           "Alert, ready bearing"
         ],
         "static_exam": [
-          "Head and muzzle strength",
-          "Bite",
-          "Coat and colour pattern"
+          "Forța capului și a botului",
+          "Mușcătura",
+          "Blana și tiparul de culoare"
         ],
         "movement_exam": [
-          "Free tireless trot",
-          "Reach and drive",
-          "Agility and suppleness"
+          "Trap liber și neobosit",
+          "Amplitudine și împingere",
+          "Agilitate și suplețe"
         ],
         "final_attention_points": [
-          "Temperament under examination",
-          "Correct colour and markings",
-          "Sound feet and hocks"
+          "Temperamentul la examinare",
+          "Culoare și marcaje corecte",
+          "Labe și jarete sănătoase"
         ]
       },
       "references": [
@@ -369,13 +375,18 @@
         "herding"
       ],
       "recurring_judge_observations": [
-        "Verify even speckling and symmetrical head markings"
+        "Verifică stropirea uniformă și marcajele simetrice ale capului"
       ],
       "wdf_code": "G01-002",
-      "version": 2,
+      "version": 3,
       "revision_history": [
         {
           "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        },
+        {
+          "version": 3,
           "date": "2026-09-02",
           "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
@@ -710,7 +721,7 @@
       "functional_type": "herding",
       "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G01-014",
       "source_standard_title": "Standard oficial WDF G01-014",
-      "last_updated": "2026-08-08",
+      "last_updated": "2026-09-02",
       "identity": {
         "official_name": "Belgian Shepherd Dog (Groenendael, Tervueren, Malinois, Laekenois)",
         "owner_country": "Belgium",
@@ -783,12 +794,12 @@
       },
       "pedagogy": {
         "frequent_confusions": [
-          "The four varieties are judged separately"
+          "Cele patru varietăți se arbitrează separat"
         ],
         "key_markers": [
-          "Square outline",
-          "Variety-defining coat and colour",
-          "Black mask in Tervueren/Malinois"
+          "Siluetă pătrată",
+          "Blana și culoarea definesc varietatea",
+          "Mască neagră la Tervueren și Malinois"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -821,8 +832,14 @@
         "Group 1 Shepherd Dogs and Cattle Dogs (excl. Swiss Cattle Dogs)"
       ],
       "recurring_judge_observations": [],
-      "version": 1,
-      "revision_history": [],
+      "version": 2,
+      "revision_history": [
+        {
+          "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        }
+      ],
       "wdf_code": "G01-014"
     },
     {
@@ -1691,9 +1708,9 @@
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "Merle patterns and varied eye colour",
-          "Natural bob or docked tail",
-          "Moderation throughout"
+          "Tipare merle și culori variate ale ochilor",
+          "Coadă scurtă din naștere ori cupată",
+          "Moderație în toate"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -1726,7 +1743,7 @@
         "Group 1 Shepherd Dogs and Cattle Dogs (excl. Swiss Cattle Dogs)"
       ],
       "recurring_judge_observations": [],
-      "version": 3,
+      "version": 4,
       "revision_history": [
         {
           "version": 2,
@@ -1737,6 +1754,11 @@
           "version": 3,
           "date": "2026-09-02",
           "note": "Rasa poartă amândouă denumirile: „Australian Shepherd (Ciobănesc Australian)”."
+        },
+        {
+          "version": 4,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
       ],
       "wdf_code": "G01-004",
@@ -1914,38 +1936,38 @@
       },
       "faults": {
         "minor": [
-          "Slightly soft topline",
-          "Lightly pigmented eyes",
-          "Minor deviation in ear carriage in young dogs"
+          "Linie superioară ușor moale",
+          "Ochi slab pigmentați",
+          "Abatere ușoară a portului urechilor la câinii tineri"
         ],
         "serious": [
-          "Faulty temperament, weak nerves",
-          "Overangulated hindquarters affecting stability",
-          "Missing premolars"
+          "Temperament defectuos, nervi slabi",
+          "Posterior supraunghiulat, care afectează stabilitatea",
+          "Premolari lipsă"
         ],
         "disqualifying": [
-          "Biting or fear-biting temperament",
-          "Overshot or undershot bite, missing multiple teeth",
-          "Hanging or non-erect ears in an adult"
+          "Temperament mușcător ori care mușcă de frică",
+          "Prognatism superior ori inferior, mai mulți dinți lipsă",
+          "Urechi căzute ori nedrepte la adult"
         ]
       },
       "pedagogy": {
         "frequent_confusions": [
-          "Working-line vs show-line type variation confuses students",
-          "Long-stock-coat variety mistaken for a separate breed"
+          "Diferența de tip dintre liniile de lucru și cele de expoziție îi încurcă pe cursanți",
+          "Varietatea cu păr lung e luată drept rasă separată"
         ],
         "key_markers": [
-          "Distinct sloping topline into croup",
-          "Far-reaching effortless trot",
-          "Wedge-shaped clean head"
+          "Linie superioară distinct înclinată spre crupă",
+          "Trap amplu, fără efort",
+          "Cap curat, în formă de pană"
         ],
         "judge_notes": [
-          "Assess movement as the defining functional test",
-          "Do not reward exaggerated rear angulation that compromises soundness"
+          "Apreciază mișcarea ca probă funcțională hotărâtoare",
+          "Nu răsplăti unghiulația posterioară exagerată care compromite sănătatea"
         ],
         "teaching_notes": [
-          "Use gait analysis to teach reach and drive",
-          "Discuss type divergence between lines objectively"
+          "Folosește analiza mersului ca să predai amplitudinea și împingerea",
+          "Discută obiectiv divergența de tip dintre linii"
         ],
         "similar_breeds": [
           "Belgian Shepherd (Malinois)",
@@ -1955,23 +1977,23 @@
       },
       "judge_checklist": {
         "first_impression": [
-          "Overall balance and outline",
-          "Confident bearing"
+          "Echilibrul de ansamblu și silueta",
+          "Ținută încrezătoare"
         ],
         "static_exam": [
-          "Head and expression",
-          "Dentition and bite",
-          "Angulation front and rear"
+          "Capul și expresia",
+          "Dentiția și mușcătura",
+          "Unghiulația în față și în spate"
         ],
         "movement_exam": [
-          "Reach and drive at the trot",
-          "Firmness of topline in motion",
-          "Coordination and endurance"
+          "Amplitudine și împingere la trap",
+          "Fermitatea liniei superioare în mișcare",
+          "Coordonare și rezistență"
         ],
         "final_attention_points": [
-          "Nerve stability",
-          "Soundness over exaggeration",
-          "Correct coat type"
+          "Stabilitatea nervoasă",
+          "Sănătatea structurii înaintea exagerării",
+          "Tip corect de blană"
         ]
       },
       "references": [
@@ -1997,10 +2019,10 @@
         "herding"
       ],
       "recurring_judge_observations": [
-        "Watch for over-angulated rear masking unsoundness"
+        "Atenție la posteriorul supraunghiulat care maschează o structură nesănătoasă"
       ],
       "wdf_code": "G01-030",
-      "version": 4,
+      "version": 5,
       "revision_history": [
         {
           "version": 2,
@@ -2016,6 +2038,11 @@
           "version": 4,
           "date": "2026-09-02",
           "note": "Rasa poartă amândouă denumirile: „German Shepherd Dog (Ciobănesc German)”."
+        },
+        {
+          "version": 5,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
       ],
       "nume_ro": "Ciobănesc German"
@@ -2431,38 +2458,38 @@
       },
       "faults": {
         "minor": [
-          "Slightly light bone for size",
-          "Coat lacking density",
-          "Insufficiently defined markings"
+          "Osatură ușor prea fină pentru talie",
+          "Blană lipsită de desime",
+          "Marcaje insuficient definite"
         ],
         "serious": [
-          "Weak or snipey muzzle",
-          "Nervous or overly shy behaviour",
-          "Poor, restricted movement"
+          "Bot slab ori ascuțit",
+          "Comportament nervos ori prea sfios",
+          "Mișcare slabă, strânsă"
         ],
         "disqualifying": [
-          "Aggressive or excessively fearful temperament",
-          "Overshot or undershot bite",
-          "Tail curled tightly over the back"
+          "Temperament agresiv ori excesiv de fricos",
+          "Prognatism superior ori inferior",
+          "Coadă răsucită strâns peste spinare"
         ]
       },
       "pedagogy": {
         "frequent_confusions": [
-          "May be confused with the Ciobănesc Românesc Mioritic, which is longer-coated and lighter in colour",
-          "Confused with other large mountain guardians by novice students"
+          "Poate fi confundat cu Ciobănescul Românesc Mioritic, care are păr mai lung și culoare mai deschisă",
+          "Cursanții începători îl confundă cu alți paznici mari de munte"
         ],
         "key_markers": [
-          "Wolf-like sober head",
-          "Weather-resistant double coat with darker overlay",
-          "Substantial but not heavy build"
+          "Cap sobru, lupoid",
+          "Blană dublă rezistentă la intemperii, cu mantie mai închisă",
+          "Construcție substanțială, dar nu greoaie"
         ],
         "judge_notes": [
-          "Reward functional working type over size alone",
-          "Check for stable temperament during static examination"
+          "Răsplătește tipul funcțional de lucru, nu talia singură",
+          "Verifică stabilitatea temperamentului la examinarea statică"
         ],
         "teaching_notes": [
-          "Use alongside the Mioritic to teach coat and colour distinctions",
-          "Emphasise the working-guardian purpose behind the standard"
+          "Predă-l alături de Mioritic, ca să fixezi deosebirile de blană și culoare",
+          "Subliniază rostul de paznic de lucru din spatele standardului"
         ],
         "similar_breeds": [
           "Ciobănesc Românesc Mioritic",
@@ -2472,23 +2499,23 @@
       },
       "judge_checklist": {
         "first_impression": [
-          "Overall balance and working substance",
-          "Sober, confident bearing"
+          "Echilibrul de ansamblu și substanța de lucru",
+          "Ținută sobră, încrezătoare"
         ],
         "static_exam": [
-          "Head proportions and expression",
-          "Bite and dentition",
-          "Coat texture and density"
+          "Proporțiile capului și expresia",
+          "Mușcătura și dentiția",
+          "Textura și desimea blănii"
         ],
         "movement_exam": [
-          "Efficiency and endurance of the trot",
-          "Correct reach and drive",
-          "Level topline in motion"
+          "Eficiența și rezistența trapului",
+          "Amplitudine și împingere corecte",
+          "Linie superioară dreaptă în mișcare"
         ],
         "final_attention_points": [
-          "Temperament stability",
-          "Tail carriage in action",
-          "Absence of exaggeration"
+          "Stabilitatea temperamentului",
+          "Portul cozii în acțiune",
+          "Lipsa exagerărilor"
         ]
       },
       "references": [
@@ -2515,10 +2542,10 @@
         "guard"
       ],
       "recurring_judge_observations": [
-        "Confused with the Mioritic — check coat length and colour first"
+        "Se confundă cu Mioriticul — verifică întâi lungimea și culoarea blănii"
       ],
       "wdf_code": "G01-042",
-      "version": 3,
+      "version": 4,
       "revision_history": [
         {
           "version": 2,
@@ -2529,6 +2556,11 @@
           "version": 3,
           "date": "2026-09-02",
           "note": "Rasa poartă amândouă denumirile: „Ciobănesc Românesc Carpatin (Romanian Carpathian Shepherd Dog)”."
+        },
+        {
+          "version": 4,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
       ],
       "nume_ro": "Romanian Carpathian Shepherd Dog"
@@ -2727,38 +2759,38 @@
       },
       "faults": {
         "minor": [
-          "Coat insufficiently abundant",
-          "Markings poorly defined",
-          "Slightly light bone for size"
+          "Blană insuficient de abundentă",
+          "Marcaje slab definite",
+          "Osatură ușor prea fină pentru talie"
         ],
         "serious": [
-          "Snipey or weak muzzle",
-          "Shy or unstable behaviour",
-          "Restricted or unbalanced movement"
+          "Bot ascuțit ori slab",
+          "Comportament sfios ori instabil",
+          "Mișcare strânsă ori dezechilibrată"
         ],
         "disqualifying": [
-          "Aggressive or excessively fearful temperament",
-          "Overshot or undershot bite",
-          "Short coat, or tail tightly curled over the back"
+          "Temperament agresiv ori excesiv de fricos",
+          "Prognatism superior ori inferior",
+          "Blană scurtă, ori coadă răsucită strâns peste spinare"
         ]
       },
       "pedagogy": {
         "frequent_confusions": [
-          "Most often confused with the Ciobănesc Românesc Carpatin, which is shorter-coated and grey-fawn rather than white",
-          "Confused with other large white or shaggy guardians"
+          "Cel mai des confundat cu Ciobănescul Românesc Carpatin, care are păr mai scurt și e cenușiu-fulvin, nu alb",
+          "Confundat cu alți paznici mari, albi ori zbârliți"
         ],
         "key_markers": [
-          "Abundant long shaggy double coat",
-          "White or white-with-patches colour",
-          "Massive guardian build"
+          "Blană dublă abundentă, lungă și zbârlită",
+          "Culoare albă ori albă cu pete",
+          "Construcție masivă de paznic"
         ],
         "judge_notes": [
-          "Distinguish clearly from the Carpatin by coat length and colour",
-          "Reward functional working substance over sheer size"
+          "Deosebește-l limpede de Carpatin după lungimea și culoarea blănii",
+          "Răsplătește substanța funcțională de lucru, nu talia pură"
         ],
         "teaching_notes": [
-          "Teach side-by-side with the Carpatin to fix coat and colour distinctions",
-          "Emphasise the guardian function and independent character"
+          "Predă-l alături de Carpatin, ca să fixezi deosebirile de blană și culoare",
+          "Subliniază funcția de pază și caracterul independent"
         ],
         "similar_breeds": [
           "Ciobănesc Românesc Carpatin",
@@ -2772,19 +2804,19 @@
           "Calm, confident bearing"
         ],
         "static_exam": [
-          "Coat abundance and texture",
-          "Head proportions and bite",
-          "Colour and markings"
+          "Abundența și textura blănii",
+          "Proporțiile capului și mușcătura",
+          "Culoarea și marcajele"
         ],
         "movement_exam": [
-          "Enduring balanced trot",
-          "Reach and drive",
-          "Level topline in motion"
+          "Trap rezistent și echilibrat",
+          "Amplitudine și împingere",
+          "Linie superioară dreaptă în mișcare"
         ],
         "final_attention_points": [
-          "Distinction from the Carpatin",
-          "Temperament stability",
-          "Tail carriage in action"
+          "Deosebirea de Carpatin",
+          "Stabilitatea temperamentului",
+          "Portul cozii în acțiune"
         ]
       },
       "references": [
@@ -2811,10 +2843,10 @@
         "guard"
       ],
       "recurring_judge_observations": [
-        "Distinguish from the Carpatin by coat length and white colour"
+        "Deosebește-l de Carpatin după lungimea blănii și culoarea albă"
       ],
       "wdf_code": "G01-043",
-      "version": 3,
+      "version": 4,
       "revision_history": [
         {
           "version": 2,
@@ -2825,6 +2857,11 @@
           "version": 3,
           "date": "2026-09-02",
           "note": "Rasa poartă amândouă denumirile: „Ciobănesc Românesc Mioritic (Romanian Mioritic Shepherd Dog)”."
+        },
+        {
+          "version": 4,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
       ],
       "nume_ro": "Romanian Mioritic Shepherd Dog"
@@ -2842,7 +2879,7 @@
       "functional_type": "herding",
       "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G01-017",
       "source_standard_title": "Standard oficial WDF G01-017",
-      "last_updated": "2026-08-08",
+      "last_updated": "2026-09-02",
       "identity": {
         "official_name": "Croatian Shepherd Dog (Hrvatski Ovčar)",
         "owner_country": "Croatia",
@@ -2903,9 +2940,9 @@
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "Black coat",
-          "Oval skull",
-          "Short hair on head and legs, longer on body"
+          "Blană neagră",
+          "Craniu oval",
+          "Păr scurt pe cap și pe membre, mai lung pe corp"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -2938,8 +2975,14 @@
         "Group 1 Shepherd Dogs and Cattle Dogs (excl. Swiss Cattle Dogs)"
       ],
       "recurring_judge_observations": [],
-      "version": 1,
-      "revision_history": [],
+      "version": 2,
+      "revision_history": [
+        {
+          "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        }
+      ],
       "wdf_code": "G01-017"
     },
     {
@@ -3229,9 +3272,9 @@
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "Rich protective coat",
-          "Hair covering the eyes",
-          "Moderate angulation"
+          "Blană bogată, protectoare",
+          "Părul acoperă ochii",
+          "Unghiulație moderată"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -3260,10 +3303,15 @@
       "thematic_tags": [],
       "study_track_tags": [],
       "recurring_judge_observations": [],
-      "version": 2,
+      "version": 3,
       "revision_history": [
         {
           "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        },
+        {
+          "version": 3,
           "date": "2026-09-02",
           "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
@@ -3388,7 +3436,7 @@
       "functional_type": "herding",
       "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G01-035",
       "source_standard_title": "Standard oficial WDF G01-035",
-      "last_updated": "2026-08-08",
+      "last_updated": "2026-09-02",
       "identity": {
         "official_name": "Kuvasz",
         "owner_country": "Hungary",
@@ -3447,9 +3495,9 @@
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "Large white livestock guardian",
-          "Wavy harsh coat",
-          "Noble wedge head"
+          "Paznic de turme mare și alb",
+          "Blană ondulată și aspră",
+          "Cap nobil, în formă de pană"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -3482,8 +3530,14 @@
         "Group 1 Shepherd Dogs and Cattle Dogs (excl. Swiss Cattle Dogs)"
       ],
       "recurring_judge_observations": [],
-      "version": 1,
-      "revision_history": [],
+      "version": 2,
+      "revision_history": [
+        {
+          "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        }
+      ],
       "wdf_code": "G01-035"
     },
     {
@@ -4368,7 +4422,7 @@
       "functional_type": "herding",
       "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G01-033",
       "source_standard_title": "Standard oficial WDF G01-033",
-      "last_updated": "2026-08-08",
+      "last_updated": "2026-09-02",
       "identity": {
         "official_name": "Portuguese Sheepdog (Cão da Serra de Aires)",
         "owner_country": "Portugal",
@@ -4432,9 +4486,9 @@
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "Goat-like coat, beard and eyebrows",
-          "No undercoat",
-          "Simian 'monkey dog' expression"
+          "Blană de capră, cu barbă și sprâncene",
+          "Fără subpăr",
+          "Expresie simiescă, de „câine-maimuță”"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -4467,8 +4521,14 @@
         "Group 1 Shepherd Dogs and Cattle Dogs (excl. Swiss Cattle Dogs)"
       ],
       "recurring_judge_observations": [],
-      "version": 1,
-      "revision_history": [],
+      "version": 2,
+      "revision_history": [
+        {
+          "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        }
+      ],
       "wdf_code": "G01-033"
     },
     {
@@ -5325,7 +5385,7 @@
       "functional_type": "herding",
       "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G01-047",
       "source_standard_title": "Standard oficial WDF G01-047",
-      "last_updated": "2026-08-08",
+      "last_updated": "2026-09-02",
       "identity": {
         "official_name": "Slovenský Čuvač",
         "owner_country": "Slovak Republic",
@@ -5384,9 +5444,9 @@
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "Pure white mountain guardian",
-          "Mane in males",
-          "Cigar-shaped tail"
+          "Paznic de munte alb curat",
+          "Coamă la masculi",
+          "Coadă în formă de trabuc"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -5419,8 +5479,14 @@
         "Group 1 Shepherd Dogs and Cattle Dogs (excl. Swiss Cattle Dogs)"
       ],
       "recurring_judge_observations": [],
-      "version": 1,
-      "revision_history": [],
+      "version": 2,
+      "revision_history": [
+        {
+          "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        }
+      ],
       "wdf_code": "G01-047"
     },
     {
@@ -6155,7 +6221,7 @@
       "functional_type": "guard",
       "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G02-062",
       "source_standard_title": "Standard oficial WDF G02-062",
-      "last_updated": "2026-08-08",
+      "last_updated": "2026-09-02",
       "identity": {
         "official_name": "American Wolfdog (Cane da Lupo Americano)",
         "owner_country": "Canada",
@@ -6225,9 +6291,9 @@
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "Wolf-like appearance and mask",
-          "Large size (>70 cm)",
-          "Pricked short ears"
+          "Înfățișare de lup, cu mască",
+          "Talie mare (peste 70 cm)",
+          "Urechi scurte, drepte"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -6260,8 +6326,14 @@
         "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs"
       ],
       "recurring_judge_observations": [],
-      "version": 1,
-      "revision_history": [],
+      "version": 2,
+      "revision_history": [
+        {
+          "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        }
+      ],
       "wdf_code": "G02-062"
     },
     {
@@ -6277,7 +6349,7 @@
       "functional_type": "guard",
       "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G02-056",
       "source_standard_title": "Standard oficial WDF G02-056",
-      "last_updated": "2026-08-08",
+      "last_updated": "2026-09-02",
       "identity": {
         "official_name": "Appenzeller Sennenhund (Bovaro di Appenzell)",
         "owner_country": "Switzerland",
@@ -6353,9 +6425,9 @@
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "Curled tail over the back",
-          "Tricolour Stockhaar coat",
-          "Almost square outline"
+          "Coadă răsucită peste spinare",
+          "Blană tricoloră, cu păr scurt și des (Stockhaar)",
+          "Siluetă aproape pătrată"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -6388,8 +6460,14 @@
         "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs"
       ],
       "recurring_judge_observations": [],
-      "version": 1,
-      "revision_history": [],
+      "version": 2,
+      "revision_history": [
+        {
+          "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        }
+      ],
       "wdf_code": "G02-056"
     },
     {
@@ -6519,7 +6597,7 @@
       "functional_type": "guard",
       "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G02-053",
       "source_standard_title": "Standard oficial WDF G02-053",
-      "last_updated": "2026-08-08",
+      "last_updated": "2026-09-02",
       "identity": {
         "official_name": "Austrian Pinscher (Österreichischer Pinscher)",
         "owner_country": "Austria",
@@ -6573,9 +6651,9 @@
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "Barrel-shaped chest",
-          "Button ears",
-          "White markings on a coloured coat"
+          "Piept în formă de butoi",
+          "Urechi în formă de nasture",
+          "Marcaje albe pe blană colorată"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -6608,8 +6686,14 @@
         "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs"
       ],
       "recurring_judge_observations": [],
-      "version": 1,
-      "revision_history": [],
+      "version": 2,
+      "revision_history": [
+        {
+          "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        }
+      ],
       "wdf_code": "G02-053"
     },
     {
@@ -6625,7 +6709,7 @@
       "functional_type": "guard",
       "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G02-055",
       "source_standard_title": "Standard oficial WDF G02-055",
-      "last_updated": "2026-08-08",
+      "last_updated": "2026-09-02",
       "identity": {
         "official_name": "Bernese Mountain Dog (Bovaro del Bernese)",
         "owner_country": "Switzerland",
@@ -6701,9 +6785,9 @@
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "Tricolour long coat with symmetrical white",
-          "Sturdy above-medium build",
-          "White blaze and chest cross"
+          "Blană lungă tricoloră, cu alb simetric",
+          "Construcție robustă, de talie peste medie",
+          "Listă albă și cruce albă pe piept"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -6736,8 +6820,14 @@
         "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs"
       ],
       "recurring_judge_observations": [],
-      "version": 1,
-      "revision_history": [],
+      "version": 2,
+      "revision_history": [
+        {
+          "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        }
+      ],
       "wdf_code": "G02-055"
     },
     {
@@ -7336,9 +7426,9 @@
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "Broad square head and deep muzzle",
-          "Powerful athletic build",
-          "Slightly undershot bite"
+          "Cap lat și pătrat, cu bot adânc",
+          "Construcție puternică, atletică",
+          "Ușor prognatism inferior"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -7371,7 +7461,7 @@
         "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs"
       ],
       "recurring_judge_observations": [],
-      "version": 3,
+      "version": 4,
       "revision_history": [
         {
           "version": 2,
@@ -7382,6 +7472,11 @@
           "version": 3,
           "date": "2026-09-02",
           "note": "Rasa poartă amândouă denumirile: „Cane Corso Italiano (Cane Corso)”."
+        },
+        {
+          "version": 4,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
       ],
       "wdf_code": "G02-061",
@@ -7938,27 +8033,27 @@
       },
       "faults": {
         "minor": [
-          "Lips excessively pendulous at corners",
-          "Excessive dewlap",
-          "Cheeks too prominent"
+          "Buze prea lăsate la comisuri",
+          "Salbă excesivă",
+          "Obraji prea proeminenți"
         ],
         "serious": [
-          "White markings with the exception of those mentioned above",
-          "Clear departure from the important proportions",
-          "Absence of sexual dimorphism",
-          "Size under or over the stipulated height (including the tolerance)",
-          "Sloping topline"
+          "Marcaje albe în afara celor menționate mai sus",
+          "Abatere clară de la proporțiile importante",
+          "Lipsa dimorfismului sexual",
+          "Talie sub ori peste înălțimea prevăzută (inclusiv toleranța)",
+          "Linie superioară înclinată"
         ],
         "disqualifying": [
-          "Aggressive or overly shy dogs",
-          "Any dog clearly showing physical or behavioral abnormalities",
-          "Clear lack of type",
-          "Undershot",
-          "Overshot",
-          "Unpigmented nose",
-          "Long hair",
-          "Genetic brown (chocolate) coat colour, in fawns or brindles with nose and gums brown and light eyes",
-          "Any colour not mentioned"
+          "Câini agresivi ori prea sfioși",
+          "Orice câine care prezintă clar anomalii fizice ori comportamentale",
+          "Lipsă clară de tip",
+          "Prognatism inferior",
+          "Prognatism superior",
+          "Trufă nepigmentată",
+          "Păr lung",
+          "Culoare maro (ciocolatie) genetică — la fulvini ori brindle cu trufa și gingiile maro și ochi deschiși",
+          "Orice culoare nemenționată"
         ]
       },
       "pedagogy": {
@@ -7995,10 +8090,15 @@
         "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs"
       ],
       "recurring_judge_observations": [],
-      "version": 2,
+      "version": 3,
       "revision_history": [
         {
           "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        },
+        {
+          "version": 3,
           "date": "2026-09-02",
           "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
@@ -8460,38 +8560,38 @@
       },
       "faults": {
         "minor": [
-          "Slightly light bone",
-          "Markings a little diffuse",
-          "Minor deviation from square outline"
+          "Osatură ușor prea fină",
+          "Marcaje puțin difuze",
+          "Abatere ușoară de la silueta pătrată"
         ],
         "serious": [
-          "Timid or overly nervous behaviour",
-          "Insufficient forechest",
-          "Weak, incorrect movement"
+          "Comportament timid ori prea nervos",
+          "Piept anterior insuficient",
+          "Mișcare slabă, incorectă"
         ],
         "disqualifying": [
-          "Overshot, undershot or wry mouth",
-          "White markings or incorrect ground colour",
-          "Marked temperament faults (fearfulness or aggression)"
+          "Prognatism superior, inferior ori gură strâmbă",
+          "Marcaje albe ori culoare de fond greșită",
+          "Defecte de temperament marcate (frică ori agresivitate)"
         ]
       },
       "pedagogy": {
         "frequent_confusions": [
-          "Confused with the Rottweiler by colour pattern despite very different type",
-          "Manchester Terrier confused as a smaller similar type"
+          "Confundat cu Rottweilerul după tiparul de culoare, în ciuda tipului foarte diferit",
+          "Manchester Terrierul e luat drept un tip asemănător, mai mic"
         ],
         "key_markers": [
-          "Near-square elegant outline",
-          "Blunt-wedge clean head",
-          "Short close coat with sharp rust markings"
+          "Siluetă elegantă, aproape pătrată",
+          "Cap curat, ca pană tocită",
+          "Blană scurtă, lipită, cu focuri ruginii nete"
         ],
         "judge_notes": [
-          "Assess elegance combined with substance and dry muscle",
-          "Verify square proportions and marking definition"
+          "Apreciază eleganța îmbinată cu substanța și musculatura uscată",
+          "Verifică proporțiile pătrate și conturul marcajelor"
         ],
         "teaching_notes": [
-          "Contrast with Rottweiler to teach type vs colour",
-          "Use outline to teach 'square' proportion"
+          "Pune-l față în față cu Rottweilerul, ca să predai tipul față de culoare",
+          "Folosește silueta ca să predai proporția „pătrată”"
         ],
         "similar_breeds": [
           "Rottweiler",
@@ -8505,19 +8605,19 @@
           "Alert noble bearing"
         ],
         "static_exam": [
-          "Head as a blunt wedge",
-          "Bite and dentition",
-          "Marking definition and colour"
+          "Capul ca pană tocită",
+          "Mușcătura și dentiția",
+          "Conturul marcajelor și culoarea"
         ],
         "movement_exam": [
-          "Elastic ground-covering trot",
-          "Reach and drive",
-          "Firm topline in motion"
+          "Trap elastic, care acoperă teren",
+          "Amplitudine și împingere",
+          "Linie superioară fermă în mișcare"
         ],
         "final_attention_points": [
-          "Temperament balance",
-          "Square proportions",
-          "Dry muscle and clean lines"
+          "Echilibrul temperamentului",
+          "Proporții pătrate",
+          "Musculatură uscată și linii curate"
         ]
       },
       "references": [
@@ -8544,13 +8644,18 @@
         "guard"
       ],
       "recurring_judge_observations": [
-        "Confirm square proportions and clean marking boundaries"
+        "Confirmă proporțiile pătrate și hotarele curate ale marcajelor"
       ],
       "wdf_code": "G02-076",
-      "version": 2,
+      "version": 3,
       "revision_history": [
         {
           "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        },
+        {
+          "version": 3,
           "date": "2026-09-02",
           "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
@@ -11385,39 +11490,39 @@
       },
       "faults": {
         "minor": [
-          "Tan markings slightly too extensive or diffuse",
-          "Light bone for the size",
-          "Somewhat long coat"
+          "Focuri puțin prea întinse ori difuze",
+          "Osatură prea fină pentru talie",
+          "Blană cam lungă"
         ],
         "serious": [
-          "Weak or narrow muzzle",
-          "Insufficient substance",
-          "Nervous or unstable behaviour"
+          "Bot slab ori îngust",
+          "Substanță insuficientă",
+          "Comportament nervos ori instabil"
         ],
         "disqualifying": [
-          "Overshot or undershot bite",
-          "Long or wavy coat",
-          "Ground colour other than black; absence of the tan pattern",
-          "Vicious or unmanageable temperament"
+          "Prognatism superior ori inferior",
+          "Blană lungă ori ondulată",
+          "Culoare de fond alta decât negru; lipsa tiparului de focuri",
+          "Temperament rău ori de nestăpânit"
         ]
       },
       "pedagogy": {
         "frequent_confusions": [
-          "Confused with other black-and-tan molossoid or working types by beginners",
-          "Overweight specimens mistaken for correct substance"
+          "Începătorii îl confundă cu alți molosoizi ori câini de lucru negri cu focuri",
+          "Exemplarele supraponderale sunt luate drept substanță corectă"
         ],
         "key_markers": [
-          "Broad powerful head with defined stop",
-          "Black coat with clean mahogany markings",
-          "Compact powerful body"
+          "Cap lat și puternic, cu stop bine conturat",
+          "Blană neagră, cu focuri mahon curate",
+          "Corp compact și puternic"
         ],
         "judge_notes": [
-          "Reward correct substance, not exaggerated mass",
-          "Verify the tan-marking pattern and clean boundaries"
+          "Răsplătește substanța corectă, nu masa exagerată",
+          "Verifică tiparul focurilor și hotarele curate"
         ],
         "teaching_notes": [
-          "Distinguish substance from overweight",
-          "Use the marking pattern as a teaching landmark"
+          "Deosebește substanța de supraponderal",
+          "Folosește tiparul focurilor ca reper de predare"
         ],
         "similar_breeds": [
           "Dobermann",
@@ -11431,19 +11536,19 @@
           "Calm, confident bearing"
         ],
         "static_exam": [
-          "Head breadth and stop",
-          "Bite and dentition",
-          "Marking pattern and boundaries"
+          "Lățimea capului și stopul",
+          "Mușcătura și dentiția",
+          "Tiparul și hotarele marcajelor"
         ],
         "movement_exam": [
-          "Reach and drive at the trot",
-          "Firm topline in motion",
-          "Energy and endurance"
+          "Amplitudine și împingere la trap",
+          "Linie superioară fermă în mișcare",
+          "Energie și rezistență"
         ],
         "final_attention_points": [
-          "Temperament steadiness",
-          "Correct substance vs excess weight",
-          "Coat type and colour"
+          "Statornicia temperamentului",
+          "Substanță corectă față de greutate în plus",
+          "Tipul și culoarea blănii"
         ]
       },
       "references": [
@@ -11470,13 +11575,18 @@
         "guard"
       ],
       "recurring_judge_observations": [
-        "Distinguish correct substance from overweight condition"
+        "Deosebește substanța corectă de starea de supraponderal"
       ],
       "wdf_code": "G02-093",
-      "version": 2,
+      "version": 3,
       "revision_history": [
         {
           "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        },
+        {
+          "version": 3,
           "date": "2026-09-02",
           "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
@@ -13614,23 +13724,23 @@
       "faults": {
         "minor": [],
         "serious": [
-          "Long body or short limbs",
-          "Fully erect ears",
-          "Light, round or too wide-set eyes",
-          "High-set tail",
-          "Rear dewclaws"
+          "Corp lung ori membre scurte",
+          "Urechi complet drepte",
+          "Ochi deschiși, rotunzi ori prea depărtați",
+          "Coadă inserată sus",
+          "Pinteni la posterioare"
         ],
         "disqualifying": [
-          "Shy or aggressive",
-          "Undershot or overshot or any jaw deformity"
+          "Sfios ori agresiv",
+          "Prognatism inferior ori superior ori orice deformare a maxilarelor"
         ]
       },
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "White body with coloured head",
-          "Semi-erect ears",
-          "Natural short tail common"
+          "Corp alb, cu capul colorat",
+          "Urechi pe jumătate drepte",
+          "Coadă scurtă din naștere, obișnuită"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -13659,10 +13769,15 @@
       "thematic_tags": [],
       "study_track_tags": [],
       "recurring_judge_observations": [],
-      "version": 2,
+      "version": 3,
       "revision_history": [
         {
           "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        },
+        {
+          "version": 3,
           "date": "2026-09-02",
           "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
@@ -14210,7 +14325,7 @@
       "functional_type": "hunting",
       "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G03-118",
       "source_standard_title": "Standard oficial WDF G03-118",
-      "last_updated": "2026-08-08",
+      "last_updated": "2026-09-02",
       "identity": {
         "official_name": "Jack Russell Terrier",
         "owner_country": "Great Britain",
@@ -14266,21 +14381,21 @@
       },
       "pedagogy": {
         "frequent_confusions": [
-          "Confused with the Parson Russell Terrier, which is taller and squarer",
-          "Confused with smooth Fox Terrier lines"
+          "Confundat cu Parson Russell Terrierul, care e mai înalt și mai pătrat",
+          "Confundat cu liniile de Fox Terrier cu păr neted"
         ],
         "key_markers": [
-          "Spannable chest as a working test",
-          "Predominantly white coat with restricted markings",
-          "Rectangular, agile, medium-length body"
+          "Piept care se cuprinde cu mâinile, ca probă de lucru",
+          "Blană precumpănitor albă, cu marcaje restrânse",
+          "Corp dreptunghiular, agil, de lungime medie"
         ],
         "judge_notes": [
-          "Physically span the chest as a functional check",
-          "Value working balance over showiness"
+          "Cuprinde efectiv pieptul cu mâinile, ca verificare funcțională",
+          "Prețuiește echilibrul de lucru înaintea spectaculozității"
         ],
         "teaching_notes": [
-          "Demonstrate the chest-span test",
-          "Contrast proportions with the Parson Russell"
+          "Arată proba cuprinderii pieptului",
+          "Pune proporțiile față în față cu Parson Russell"
         ],
         "similar_breeds": [
           "Parson Russell Terrier",
@@ -14293,19 +14408,19 @@
           "Lively, confident bearing"
         ],
         "static_exam": [
-          "Head proportions and bite",
-          "Chest span behind shoulders",
-          "Coat texture and markings"
+          "Proporțiile capului și mușcătura",
+          "Cuprinderea pieptului înapoia umerilor",
+          "Textura blănii și marcajele"
         ],
         "movement_exam": [
-          "Free springy trot",
-          "Straight coming and going",
-          "Reach and drive"
+          "Trap liber și elastic",
+          "Drept la venire și la ducere",
+          "Amplitudine și împingere"
         ],
         "final_attention_points": [
-          "Spannability of chest",
-          "Correct proportions vs Parson type",
-          "Bold stable temperament"
+          "Pieptul se cuprinde cu mâinile",
+          "Proporții corecte față de tipul Parson",
+          "Temperament îndrăzneț și stabil"
         ]
       },
       "references": [
@@ -14329,9 +14444,17 @@
         "Great Britain"
       ],
       "recurring_judge_observations": [
-        "Physically span the chest as a working check"
+        "Cuprinde efectiv pieptul cu mâinile, ca probă de lucru"
       ],
-      "wdf_code": "G03-118"
+      "wdf_code": "G03-118",
+      "version": 2,
+      "revision_history": [
+        {
+          "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        }
+      ]
     },
     {
       "id": "breed-467",
@@ -16439,38 +16562,38 @@
       },
       "faults": {
         "minor": [
-          "Coat slightly soft",
-          "Markings less favoured (very extensive white)",
-          "Minor deviation in ear carriage"
+          "Blană ușor moale",
+          "Marcaje mai puțin prețuite (alb foarte întins)",
+          "Abatere ușoară a portului urechilor"
         ],
         "serious": [
-          "Light bone or lack of substance",
-          "Splay feet or weak pasterns",
-          "Unstable temperament"
+          "Osatură fină ori lipsă de substanță",
+          "Labe deschise ori metacarpe slabe",
+          "Temperament instabil"
         ],
         "disqualifying": [
-          "Overshot or undershot bite",
-          "Extreme viciousness or excessive shyness",
-          "Pink (Dudley) nose"
+          "Prognatism superior ori inferior",
+          "Răutate extremă ori sfială excesivă",
+          "Trufă roz (Dudley)"
         ]
       },
       "pedagogy": {
         "frequent_confusions": [
-          "Confused with the Staffordshire Bull Terrier, which is smaller",
-          "Confused with the American Pit Bull Terrier type"
+          "Confundat cu Staffordshire Bull Terrierul, care e mai mic",
+          "Confundat cu tipul American Pit Bull Terrier"
         ],
         "key_markers": [
-          "Broad head with pronounced cheek muscles",
-          "Powerful agile muscular body",
-          "Low-set short tapering tail"
+          "Cap lat, cu mușchii obrajilor pronunțați",
+          "Corp puternic, agil, musculos",
+          "Coadă scurtă, conică, inserată jos"
         ],
         "judge_notes": [
-          "Assess balance of power and agility, not bulk alone",
-          "Reward confident stable temperament"
+          "Apreciază echilibrul dintre forță și agilitate, nu masa singură",
+          "Răsplătește temperamentul încrezător și stabil"
         ],
         "teaching_notes": [
-          "Compare size and proportion with the Staffordshire Bull Terrier",
-          "Discuss bull-type origins objectively"
+          "Compară talia și proporțiile cu Staffordshire Bull Terrierul",
+          "Discută obiectiv obârșia de tip bull"
         ],
         "similar_breeds": [
           "Staffordshire Bull Terrier",
@@ -16483,19 +16606,19 @@
           "Confident stable bearing"
         ],
         "static_exam": [
-          "Head breadth and cheek muscle",
-          "Bite and jaw strength",
-          "Coat and colour"
+          "Lățimea capului și mușchii obrajilor",
+          "Mușcătura și forța maxilarelor",
+          "Blana și culoarea"
         ],
         "movement_exam": [
-          "Springy agile trot",
-          "Absence of rolling or pacing",
-          "Reach and drive"
+          "Trap elastic și agil",
+          "Fără legănare și fără buiestru",
+          "Amplitudine și împingere"
         ],
         "final_attention_points": [
-          "Power balanced with agility",
-          "Temperament stability",
-          "Correct tail set and carriage"
+          "Forță în echilibru cu agilitatea",
+          "Stabilitatea temperamentului",
+          "Inserția și portul corect al cozii"
         ]
       },
       "references": [
@@ -16521,13 +16644,18 @@
         "bull type"
       ],
       "recurring_judge_observations": [
-        "Assess balance of power and agility, not bulk alone"
+        "Apreciază echilibrul dintre forță și agilitate, nu masa singură"
       ],
       "wdf_code": "G04-138",
-      "version": 2,
+      "version": 3,
       "revision_history": [
         {
           "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        },
+        {
+          "version": 3,
           "date": "2026-09-02",
           "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
@@ -17128,7 +17256,7 @@
       "functional_type": "guard",
       "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-143",
       "source_standard_title": "Standard oficial WDF G04-143",
-      "last_updated": "2026-08-08",
+      "last_updated": "2026-09-02",
       "identity": {
         "official_name": "English Bulldog (Bulldog)",
         "owner_country": "Great Britain",
@@ -17183,9 +17311,9 @@
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "Broad undershot jaw and short upturned muzzle",
-          "Roach back",
-          "Rolling gait; rose ears"
+          "Maxilar inferior lat, prognat, și bot scurt, întors în sus",
+          "Spinare de crap",
+          "Mers legănat; urechi în trandafir"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -17218,8 +17346,14 @@
         "Group 4 Bull Type Dogs"
       ],
       "recurring_judge_observations": [],
-      "version": 1,
-      "revision_history": [],
+      "version": 2,
+      "revision_history": [
+        {
+          "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        }
+      ],
       "wdf_code": "G04-143"
     },
     {
@@ -17233,7 +17367,7 @@
       "functional_type": "guard",
       "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G04-146",
       "source_standard_title": "Standard oficial WDF G04-146",
-      "last_updated": "2026-08-08",
+      "last_updated": "2026-09-02",
       "identity": {
         "official_name": "Exotic Bully",
         "owner_country": "USA",
@@ -17288,9 +17422,9 @@
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "Very compact heavy build",
-          "Short muscular frame",
-          "Bull-type head"
+          "Construcție foarte compactă și grea",
+          "Schelet scurt și musculos",
+          "Cap de tip bull"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -17323,8 +17457,14 @@
         "Group 4 Bull Type Dogs"
       ],
       "recurring_judge_observations": [],
-      "version": 1,
-      "revision_history": [],
+      "version": 2,
+      "revision_history": [
+        {
+          "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        }
+      ],
       "wdf_code": "G04-146"
     },
     {
@@ -18149,38 +18289,38 @@
       },
       "faults": {
         "minor": [
-          "Wrinkles less profuse",
-          "Slightly coarse muzzle",
-          "Tail carriage a little loose"
+          "Cute mai puțin bogate",
+          "Bot ușor grosolan",
+          "Port al cozii puțin slăbit"
         ],
         "serious": [
-          "Coarse or heavy bone",
-          "Coat not fine or close",
-          "Restricted, hackneyed movement"
+          "Osatură grosolană ori grea",
+          "Blană care nu e fină și lipită",
+          "Mișcare strânsă, ridicată (hackney)"
         ],
         "disqualifying": [
-          "Overshot or undershot bite",
-          "Ears not erect in an adult",
-          "Nervous or aggressive temperament"
+          "Prognatism superior ori inferior",
+          "Urechi nedrepte la adult",
+          "Temperament nervos ori agresiv"
         ]
       },
       "pedagogy": {
         "frequent_confusions": [
-          "Confused with other primitive spitz-like types by beginners",
-          "Wrinkle and tail curl overlooked as key markers"
+          "Începătorii îl confundă cu alte tipuri primitive, de spitz",
+          "Cutele și răsucirea cozii sunt trecute cu vederea ca repere-cheie"
         ],
         "key_markers": [
-          "Wrinkled forehead when ears erect",
-          "Tightly curled tail lying close",
-          "Square, high-on-leg elegant outline"
+          "Frunte încrețită când urechile sunt drepte",
+          "Coadă răsucită strâns, lipită",
+          "Siluetă pătrată, elegantă, înaltă pe picioare"
         ],
         "judge_notes": [
-          "Look for the characteristic racehorse-like trot",
-          "Value elegance and correct primitive type"
+          "Caută trapul caracteristic, de cal de curse",
+          "Prețuiește eleganța și tipul primitiv corect"
         ],
         "teaching_notes": [
-          "Use as an example of primitive type and function",
-          "Point out barkless vocalisation as a breed trait (informational)"
+          "Folosește-l ca exemplu de tip și funcție primitivă",
+          "Arată vocalizarea fără lătrat ca trăsătură a rasei (informativ)"
         ],
         "similar_breeds": [
           "Pharaoh Hound",
@@ -18190,23 +18330,23 @@
       },
       "judge_checklist": {
         "first_impression": [
-          "Square, elegant, high-on-leg outline",
-          "Poised alert bearing"
+          "Siluetă pătrată, elegantă, înaltă pe picioare",
+          "Ținută cumpănită și trează"
         ],
         "static_exam": [
-          "Wrinkle pattern and head chiselling",
-          "Tail curl and set",
-          "Coat fineness and colour"
+          "Tiparul cutelor și cizelarea capului",
+          "Răsucirea și inserția cozii",
+          "Finețea și culoarea blănii"
         ],
         "movement_exam": [
-          "Long effortless stride",
-          "Parallel leg planes",
-          "Tireless racehorse-like trot"
+          "Pas lung, fără efort",
+          "Membre în planuri paralele",
+          "Trap neobosit, de cal de curse"
         ],
         "final_attention_points": [
-          "Correct primitive type",
-          "Erect hooded ears",
-          "Reserved but stable temperament"
+          "Tip primitiv corect",
+          "Urechi drepte, ușor înclinate înainte",
+          "Temperament rezervat, dar stabil"
         ]
       },
       "references": [
@@ -18232,13 +18372,18 @@
         "primitive"
       ],
       "recurring_judge_observations": [
-        "Look for wrinkle when ears erect and tight tail curl"
+        "Caută cutele când urechile sunt drepte și coada răsucită strâns"
       ],
       "wdf_code": "G05-153",
-      "version": 2,
+      "version": 3,
       "revision_history": [
         {
           "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        },
+        {
+          "version": 3,
           "date": "2026-09-02",
           "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
@@ -22832,32 +22977,32 @@
       },
       "faults": {
         "minor": [
-          "Muzzle too broad",
-          "Light coloured nose",
-          "Large round eyes",
-          "Light eyes",
-          "Large ears",
-          "Roach back",
-          "Swayback",
-          "Tail carried close on back",
-          "Tail that falls to either side",
-          "Lack of ruff and feathering on back of forelegs",
-          "Movement paddling or waving",
-          "Oversized or undersized"
+          "Bot prea lat",
+          "Trufă deschisă la culoare",
+          "Ochi mari și rotunzi",
+          "Ochi deschiși la culoare",
+          "Urechi mari",
+          "Spinare de crap",
+          "Spinare înșeuată",
+          "Coadă purtată lipită de spinare",
+          "Coadă care cade pe o parte",
+          "Lipsa gulerului și a franjurilor de pe spatele anterioarelor",
+          "Mișcare cu vâslit ori fluturat",
+          "Talie prea mare ori prea mică"
         ],
         "serious": [
-          "Missing more than 3 teeth",
-          "All white coat colour or with just some ticking"
+          "Mai mult de 3 dinți lipsă",
+          "Blană în întregime albă ori doar cu puțină stropire"
         ],
         "disqualifying": [
-          "Aggressive or overly shy dogs",
-          "Any dog clearly showing physical or behavioural abnormalities",
-          "Overshot or undershot bite",
-          "Drop ears",
-          "Natural stubbed tail",
-          "Curled or kinked tail",
-          "Short or smooth coat",
-          "Solid coat colour with only slight white markings"
+          "Câini agresivi ori prea sfioși",
+          "Orice câine care prezintă clar anomalii fizice ori comportamentale",
+          "Prognatism superior ori inferior",
+          "Urechi căzute",
+          "Coadă scurtă din naștere",
+          "Coadă răsucită ori cu noduri",
+          "Blană scurtă ori netedă",
+          "Culoare uniformă, cu marcaje albe doar ușoare"
         ]
       },
       "pedagogy": {
@@ -22894,10 +23039,15 @@
         "Group 5 Dogs of the Primitive Type"
       ],
       "recurring_judge_observations": [],
-      "version": 2,
+      "version": 3,
       "revision_history": [
         {
           "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        },
+        {
+          "version": 3,
           "date": "2026-09-02",
           "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
@@ -24588,38 +24738,38 @@
       },
       "faults": {
         "minor": [
-          "Slightly light bone",
-          "Ear set a little high",
-          "Tail carried slightly over the line of the back"
+          "Osatură ușor prea fină",
+          "Urechi inserate puțin cam sus",
+          "Coadă purtată puțin peste linia spinării"
         ],
         "serious": [
-          "Snipey muzzle",
-          "Weak or restricted movement",
-          "Timid temperament"
+          "Bot ascuțit",
+          "Mișcare slabă ori strânsă",
+          "Temperament timid"
         ],
         "disqualifying": [
-          "Overshot or undershot bite",
-          "Liver colour",
-          "Marked aggression or extreme shyness"
+          "Prognatism superior ori inferior",
+          "Culoare maro-ficat",
+          "Agresivitate marcată ori sfială extremă"
         ]
       },
       "pedagogy": {
         "frequent_confusions": [
-          "Confused with the smaller Beagle Harrier or larger Harrier by size",
-          "Confused with small tricolour hound types generally"
+          "Confundat după talie cu Beagle Harrierul, mai mic, ori cu Harrierul, mai mare",
+          "Confundat în general cu tipurile mici de copoi tricolori"
         ],
         "key_markers": [
-          "Compact pack-hound build",
-          "Long low-set rounded-tip ears",
-          "Gaily carried white-tipped tail"
+          "Construcție compactă, de copoi de haită",
+          "Urechi lungi, inserate jos, cu vârf rotunjit",
+          "Coadă purtată voios, cu vârf alb"
         ],
         "judge_notes": [
-          "Assess soundness and stamina for pack work",
-          "Check level, true movement and correct tail carriage"
+          "Apreciază sănătatea structurii și anduranța pentru lucrul în haită",
+          "Verifică mișcarea orizontală, corectă, și portul cozii"
         ],
         "teaching_notes": [
-          "Use to introduce scenthound type and function",
-          "Contrast size with related hounds"
+          "Folosește-l ca introducere în tipul și funcția copoiului",
+          "Pune talia față în față cu copoii înrudiți"
         ],
         "similar_breeds": [
           "Harrier",
@@ -24632,19 +24782,19 @@
           "Sound, active bearing"
         ],
         "static_exam": [
-          "Head and ear set",
-          "Bite",
-          "Bone and body proportions"
+          "Capul și inserția urechilor",
+          "Mușcătura",
+          "Osatura și proporțiile corpului"
         ],
         "movement_exam": [
-          "Level, true trot",
-          "Reach and drive",
-          "Straight coming and going"
+          "Trap orizontal, corect",
+          "Amplitudine și împingere",
+          "Drept la venire și la ducere"
         ],
         "final_attention_points": [
-          "Tail carriage",
-          "Hound colour (not liver)",
-          "Sociable stable temperament"
+          "Portul cozii",
+          "Culoare de copoi (nu maro-ficat)",
+          "Temperament sociabil și stabil"
         ]
       },
       "references": [
@@ -24670,13 +24820,18 @@
         "hunting"
       ],
       "recurring_judge_observations": [
-        "Confirm level movement and correct tail carriage"
+        "Confirmă mișcarea orizontală și portul corect al cozii"
       ],
       "wdf_code": "G06-218",
-      "version": 2,
+      "version": 3,
       "revision_history": [
         {
           "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        },
+        {
+          "version": 3,
           "date": "2026-09-02",
           "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
@@ -37872,38 +38027,38 @@
       },
       "faults": {
         "minor": [
-          "Coat a little soft",
-          "White mark slightly larger than a small chest spot",
-          "Ears set marginally low"
+          "Blană puțin moale",
+          "Semn alb puțin mai mare decât o pată mică pe piept",
+          "Urechi inserate puțin cam jos"
         ],
         "serious": [
-          "Weak or overly light build",
-          "Poor, restricted movement",
-          "Timid behaviour"
+          "Construcție slabă ori prea ușoară",
+          "Mișcare slabă, strânsă",
+          "Comportament timid"
         ],
         "disqualifying": [
-          "Overshot or undershot bite",
-          "Coat colour clearly outside the grey range",
-          "Marked temperament faults"
+          "Prognatism superior ori inferior",
+          "Culoare a blănii vădit în afara gamei de cenușiu",
+          "Defecte de temperament marcate"
         ]
       },
       "pedagogy": {
         "frequent_confusions": [
-          "The blue variant confused with the standard grey",
-          "Long-haired variety mistaken for a different breed"
+          "Varianta albastră e confundată cu cenușiul standard",
+          "Varietatea cu păr lung e luată drept altă rasă"
         ],
         "key_markers": [
-          "Distinctive silver-grey coat",
-          "Amber or light eyes",
-          "Athletic, high-on-leg pointing-dog outline"
+          "Blană cenușiu-argintie, aparte",
+          "Ochi chihlimbarii ori deschiși",
+          "Siluetă atletică, înaltă pe picioare, de câine de aret"
         ],
         "judge_notes": [
-          "Assess functional gundog structure and free movement",
-          "Verify eye and coat colour within breed limits"
+          "Apreciază structura funcțională de câine de vânătoare și mișcarea liberă",
+          "Verifică culoarea ochilor și a blănii în limitele rasei"
         ],
         "teaching_notes": [
-          "Use to introduce pointing-dog (Group 7) type",
-          "Point out the two coat varieties"
+          "Folosește-l ca introducere în tipul câinilor de aret (grupa 7)",
+          "Arată cele două varietăți de blană"
         ],
         "similar_breeds": [
           "German Shorthaired Pointer",
@@ -37916,19 +38071,19 @@
           "Alert composed bearing"
         ],
         "static_exam": [
-          "Head and muzzle strength",
-          "Bite and dentition",
-          "Coat and eye colour"
+          "Forța capului și a botului",
+          "Mușcătura și dentiția",
+          "Culoarea blănii și a ochilor"
         ],
         "movement_exam": [
-          "Effortless ground-covering trot",
-          "Reach and drive",
-          "Firm topline"
+          "Trap fără efort, care acoperă teren",
+          "Amplitudine și împingere",
+          "Linie superioară fermă"
         ],
         "final_attention_points": [
-          "Colour within grey range",
-          "Structure for versatile field work",
-          "Stable temperament"
+          "Culoare în gama de cenușiu",
+          "Structură pentru lucru polivalent în teren",
+          "Temperament stabil"
         ]
       },
       "references": [
@@ -37955,13 +38110,18 @@
         "hunting"
       ],
       "recurring_judge_observations": [
-        "Verify coat and eye colour within the grey range"
+        "Verifică culoarea blănii și a ochilor în gama de cenușiu"
       ],
       "wdf_code": "G07-328",
-      "version": 2,
+      "version": 3,
       "revision_history": [
         {
           "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        },
+        {
+          "version": 3,
           "date": "2026-09-02",
           "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
@@ -39408,38 +39568,38 @@
       },
       "faults": {
         "minor": [
-          "Slightly soft or wavy coat",
-          "White spot larger than a small chest mark",
-          "Tail with slight feathering"
+          "Blană ușor moale ori ondulată",
+          "Pată albă mai mare decât un semn mic pe piept",
+          "Coadă cu franjuri ușoare"
         ],
         "serious": [
-          "Snipey muzzle",
-          "Lack of substance or spring of rib",
-          "Weak, unsound movement"
+          "Bot ascuțit",
+          "Lipsă de substanță ori de arcuire a coastelor",
+          "Mișcare slabă, nesănătoasă"
         ],
         "disqualifying": [
-          "Overshot or undershot bite",
-          "Coat colour outside the recognised colours",
-          "Marked aggression or extreme shyness"
+          "Prognatism superior ori inferior",
+          "Culoare a blănii în afara celor recunoscute",
+          "Agresivitate marcată ori sfială extremă"
         ]
       },
       "pedagogy": {
         "frequent_confusions": [
-          "Confused with the Golden Retriever, which is longer-coated",
-          "Chocolate Labrador confused with other liver-coloured retrievers"
+          "Confundat cu Golden Retrieverul, care are păr mai lung",
+          "Labradorul ciocolatiu e confundat cu alți retrieveri maro-ficat"
         ],
         "key_markers": [
-          "Thick tapering 'otter' tail",
-          "Short dense weather-resistant double coat",
-          "Broad skull and kindly expression"
+          "Coadă groasă, conică, „de vidră”",
+          "Blană dublă scurtă, deasă, rezistentă la intemperii",
+          "Craniu lat și expresie blândă"
         ],
         "judge_notes": [
-          "Check the otter tail and coat texture as key type features",
-          "Value soundness and working structure"
+          "Verifică coada de vidră și textura blănii ca trăsături-cheie de tip",
+          "Prețuiește sănătatea structurii și construcția de lucru"
         ],
         "teaching_notes": [
-          "Use the otter tail as a teaching landmark",
-          "Contrast coat with the Golden Retriever"
+          "Folosește coada de vidră ca reper de predare",
+          "Pune blana față în față cu Golden Retrieverul"
         ],
         "similar_breeds": [
           "Golden Retriever",
@@ -39448,23 +39608,23 @@
       },
       "judge_checklist": {
         "first_impression": [
-          "Strong, short-coupled athletic outline",
-          "Kindly, active bearing"
+          "Siluetă puternică, scurt legată, atletică",
+          "Ținută blândă și activă"
         ],
         "static_exam": [
-          "Head and expression",
-          "Otter tail and coat texture",
-          "Bite"
+          "Capul și expresia",
+          "Coada de vidră și textura blănii",
+          "Mușcătura"
         ],
         "movement_exam": [
-          "Free powerful trot",
-          "Reach and drive",
-          "True coming and going"
+          "Trap liber și puternic",
+          "Amplitudine și împingere",
+          "Corect la venire și la ducere"
         ],
         "final_attention_points": [
-          "Otter tail correctness",
-          "Coat texture (not soft/wavy)",
-          "Biddable temperament"
+          "Corectitudinea cozii de vidră",
+          "Textura blănii (nu moale, nu ondulată)",
+          "Temperament docil"
         ]
       },
       "references": [
@@ -39491,13 +39651,18 @@
         "hunting"
       ],
       "recurring_judge_observations": [
-        "Check the otter tail and coat texture as key type features"
+        "Verifică coada de vidră și textura blănii ca trăsături-cheie de tip"
       ],
       "wdf_code": "G08-342",
-      "version": 2,
+      "version": 3,
       "revision_history": [
         {
           "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        },
+        {
+          "version": 3,
           "date": "2026-09-02",
           "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
@@ -40282,7 +40447,7 @@
       "functional_type": "companion",
       "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G09-350",
       "source_standard_title": "Standard oficial WDF G09-350",
-      "last_updated": "2026-08-08",
+      "last_updated": "2026-09-02",
       "identity": {
         "official_name": "Affenpinscher",
         "owner_country": "Germany",
@@ -40361,9 +40526,9 @@
       "pedagogy": {
         "frequent_confusions": [],
         "key_markers": [
-          "Monkey-like face",
-          "Harsh black coat",
-          "Slightly undershot jaw"
+          "Față de maimuță",
+          "Blană neagră și aspră",
+          "Maxilar inferior ușor prognat"
         ],
         "judge_notes": [],
         "teaching_notes": [],
@@ -40396,8 +40561,14 @@
         "Group 9 Companion and Toy Dogs"
       ],
       "recurring_judge_observations": [],
-      "version": 1,
-      "revision_history": [],
+      "version": 2,
+      "revision_history": [
+        {
+          "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        }
+      ],
       "wdf_code": "G09-350"
     },
     {
@@ -41163,38 +41334,38 @@
       },
       "faults": {
         "minor": [
-          "Coat slightly wavy",
-          "Feathering less profuse",
-          "Tail carried a little high"
+          "Blană ușor ondulată",
+          "Franjuri mai puțin bogate",
+          "Coadă purtată puțin cam sus"
         ],
         "serious": [
-          "Domed skull",
-          "Small or light eyes losing the gentle expression",
-          "Unsound or restricted movement"
+          "Craniu bombat",
+          "Ochi mici ori deschiși, care pierd expresia blândă",
+          "Mișcare nesănătoasă ori strânsă"
         ],
         "disqualifying": [
-          "Overshot or undershot bite",
-          "Marked nervousness or aggression",
-          "Colour clearly outside the recognised patterns"
+          "Prognatism superior ori inferior",
+          "Nervozitate ori agresivitate marcată",
+          "Culoare vădit în afara tiparelor recunoscute"
         ]
       },
       "pedagogy": {
         "frequent_confusions": [
-          "Confused with the King Charles Spaniel (English Toy Spaniel), which has a domed head and shorter muzzle",
-          "Blenheim pattern confused with other chestnut-and-white toys"
+          "Confundat cu King Charles Spanielul (English Toy Spaniel), care are capul bombat și botul mai scurt",
+          "Tiparul Blenheim e confundat cu alți câini pitici castanii cu alb"
         ],
         "key_markers": [
-          "Gentle, large-eyed expression",
-          "Flat skull and moderate muzzle",
-          "Silky long coat with feathering"
+          "Expresie blândă, cu ochi mari",
+          "Craniu plat și bot moderat",
+          "Blană lungă și mătăsoasă, cu franjuri"
         ],
         "judge_notes": [
-          "Distinguish from the King Charles Spaniel by head shape",
-          "Value gentle expression and free movement"
+          "Deosebește-l de King Charles Spaniel după forma capului",
+          "Prețuiește expresia blândă și mișcarea liberă"
         ],
         "teaching_notes": [
-          "Introduce companion/toy (Group 9) type",
-          "Contrast head with the King Charles Spaniel"
+          "Introdu tipul de companie și de agrement (grupa 9)",
+          "Pune capul față în față cu King Charles Spanielul"
         ],
         "similar_breeds": [
           "King Charles Spaniel (English Toy Spaniel)",
@@ -41207,19 +41378,19 @@
           "Cheerful bearing"
         ],
         "static_exam": [
-          "Head shape and expression",
-          "Bite",
-          "Coat and colour pattern"
+          "Forma capului și expresia",
+          "Mușcătura",
+          "Blana și tiparul de culoare"
         ],
         "movement_exam": [
-          "Free elegant trot",
-          "Drive from behind",
-          "True front and rear action"
+          "Trap liber și elegant",
+          "Împingere din spate",
+          "Acțiune corectă în față și în spate"
         ],
         "final_attention_points": [
-          "Flat (not domed) skull",
-          "Gentle expression",
-          "Friendly stable temperament"
+          "Craniu plat (nu bombat)",
+          "Expresie blândă",
+          "Temperament prietenos și stabil"
         ]
       },
       "references": [
@@ -41245,13 +41416,18 @@
         "companion"
       ],
       "recurring_judge_observations": [
-        "Distinguish flat skull from the domed King Charles Spaniel"
+        "Deosebește craniul plat de cel bombat al King Charles Spanielului"
       ],
       "wdf_code": "G09-359",
-      "version": 2,
+      "version": 3,
       "revision_history": [
         {
           "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        },
+        {
+          "version": 3,
           "date": "2026-09-02",
           "note": "Traducere în limba română a rubricilor rămase în engleză."
         }
@@ -44940,38 +45116,38 @@
       },
       "faults": {
         "minor": [
-          "Topline arch slightly excessive or insufficient",
-          "Ears not neatly rose-shaped",
-          "Slightly heavy bone"
+          "Arcuirea liniei superioare ușor exagerată ori insuficientă",
+          "Urechi care nu sunt curat în trandafir",
+          "Osatură ușor grea"
         ],
         "serious": [
-          "Flat or roached back",
-          "Restricted, hackneyed movement",
-          "Lack of chest depth"
+          "Spinare plată ori de crap",
+          "Mișcare strânsă, ridicată (hackney)",
+          "Lipsă de adâncime a pieptului"
         ],
         "disqualifying": [
-          "Overshot or undershot bite",
-          "Marked aggression or extreme nervousness",
-          "Coarseness incompatible with sighthound type"
+          "Prognatism superior ori inferior",
+          "Agresivitate marcată ori nervozitate extremă",
+          "Grosolănie nepotrivită cu tipul de ogar"
         ]
       },
       "pedagogy": {
         "frequent_confusions": [
-          "Frequently confused with a small Greyhound or a large Italian Greyhound; size is the key differentiator",
-          "Topline arch confused with a faulty roach by beginners"
+          "Adesea confundat cu un Greyhound mic ori cu un Ogar Italian mare; talia e deosebirea-cheie",
+          "Începătorii confundă arcuirea liniei superioare cu o spinare de crap defectuoasă"
         ],
         "key_markers": [
-          "Graceful defined arch over the loin",
-          "Deep chest with pronounced tuck-up",
-          "Rose ears and streamlined outline"
+          "Arcuire grațioasă, bine desenată, peste șale",
+          "Piept adânc, cu abdomen vădit supt",
+          "Urechi în trandafir și siluetă aerodinamică"
         ],
         "judge_notes": [
-          "Assess balance, symmetry and fitness for the gallop",
-          "Distinguish the correct loin arch from a roached back"
+          "Apreciază echilibrul, simetria și condiția pentru galop",
+          "Deosebește arcuirea corectă a șalelor de spinarea de crap"
         ],
         "teaching_notes": [
-          "Use the size ladder Italian Greyhound < Whippet < Greyhound to teach sighthound type",
-          "Explain arch vs roach"
+          "Folosește scara de talie Ogar Italian < Whippet < Greyhound ca să predai tipul de ogar",
+          "Explică arcuirea față de spinarea de crap"
         ],
         "similar_breeds": [
           "Greyhound",
@@ -44984,19 +45160,19 @@
           "Fit, muscular condition"
         ],
         "static_exam": [
-          "Head and ear shape",
-          "Topline arch and tuck-up",
-          "Chest depth and bite"
+          "Forma capului și a urechilor",
+          "Arcuirea liniei superioare și abdomenul supt",
+          "Adâncimea pieptului și mușcătura"
         ],
         "movement_exam": [
-          "Free low-reaching trot",
-          "Straight true action",
-          "Impression of galloping power"
+          "Trap liber și razant",
+          "Acțiune dreaptă și corectă",
+          "Impresie de putere la galop"
         ],
         "final_attention_points": [
-          "Correct loin arch (not roach)",
-          "Balance and symmetry",
-          "Gentle stable temperament"
+          "Arcuire corectă a șalelor (nu spinare de crap)",
+          "Echilibru și simetrie",
+          "Temperament blând și stabil"
         ]
       },
       "references": [
@@ -45022,13 +45198,18 @@
         "hunting"
       ],
       "recurring_judge_observations": [
-        "Distinguish the correct loin arch from a roached back"
+        "Deosebește arcuirea corectă a șalelor de spinarea de crap"
       ],
       "wdf_code": "G10-391",
-      "version": 2,
+      "version": 3,
       "revision_history": [
         {
           "version": 2,
+          "date": "2026-09-02",
+          "note": "Traducere în limba română a rubricilor rămase în engleză."
+        },
+        {
+          "version": 3,
           "date": "2026-09-02",
           "note": "Traducere în limba română a rubricilor rămase în engleză."
         }

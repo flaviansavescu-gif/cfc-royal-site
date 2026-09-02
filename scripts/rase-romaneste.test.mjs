@@ -164,3 +164,56 @@ test("rasele românești noi au fișă cu carne, nu pagină goală", () => {
     assert.ok((b.judge_checklist || []).length >= 5, `${b.breed_name} n-are fișă de arbitraj`);
   }
 });
+
+// —— Listele: defecte, fișa de arbitraj, pedagogie, observații ——
+// Găsit 02.09.2026: proza standardului era tradusă, dar DEFECTELE Labradorului
+// intrau în Manager în engleză — listele nu erau acoperite de nicio probă. Fișa
+// de defecte din ring se generează exact din aceste liste.
+const LISTE = (b) => [
+  ["faults.minor", (b.faults || {}).minor],
+  ["faults.serious", (b.faults || {}).serious],
+  ["faults.disqualifying", (b.faults || {}).disqualifying],
+  ["judge_checklist", Array.isArray(b.judge_checklist) ? b.judge_checklist : Object.values(b.judge_checklist || {}).flat()],
+  ["recurring_judge_observations", b.recurring_judge_observations],
+  ["pedagogy", Object.values(b.pedagogy || {}).filter((v) => Array.isArray(v)).flat()],
+];
+// Aceleași două semne ca la proză: nicio diacritică ȘI cuvinte englezești de legătură —
+// lista e mai lată aici, fiindcă rândurile sunt scurte („Snipey muzzle", „Light eyes").
+const EN_LISTA = /(?<!\p{L})(the|and|with|or|of|too|very|not|any|than|should|must|slightly|lack|absence|missing|eyes|ears|tail|coat|head|teeth|bite|colour|nose|light|dark|short|long|over|under)(?!\p{L})/iu;
+
+test("niciun defect, reper de arbitraj ori notă pedagogică nu mai e în engleză", () => {
+  const rele = [];
+  for (const b of rase)
+    for (const [nume, arr] of LISTE(b))
+      for (const t of arr || []) {
+        if (typeof t !== "string" || t.trim().length < 4) continue;
+        // Numele de rasă rămân așa cum sunt („Australian Stumpy Tail Cattle Dog").
+        if (/^[A-Z][\w'’-]*( [A-Z][\w'’-]*)+$/.test(t.trim())) continue;
+        if (!/[ăâîșț]/i.test(t) && EN_LISTA.test(t)) rele.push(`${b.wdf_code || b.id} ${b.breed_name} → ${nume}: „${t.slice(0, 60)}"`);
+      }
+  assert.deepEqual(rele, [], `rânduri rămase în engleză:\n  ${rele.join("\n  ")}`);
+});
+
+test("Labradorul — cazul care a pornit proba — are defectele în românește", () => {
+  const b = rase.find((x) => x.wdf_code === "G08-342");
+  // Nu după diacritice — „Prognatism superior ori inferior" e românește curat fără ele —
+  // ci după lipsa cuvintelor englezești.
+  for (const k of ["minor", "serious", "disqualifying"])
+    for (const t of b.faults[k]) assert.doesNotMatch(t, EN_LISTA, `faults.${k}: „${t}"`);
+});
+
+test("fișierul de defecte al Managerului e oglinda fidelă a Exploratorului", () => {
+  // Managerul nu citește breeds.json direct: are o copie subțire (defecte-rase.json),
+  // generată cu genereaza-defecte-rase.mjs. Dacă se traduce aici și nu se regenerează
+  // acolo, ringul tot în engleză arată. Se compară pe Labrador și pe Rottweiler.
+  const M = "C:/FLAVIAN/Asociația Chinologică CARAȘ-SEVERIN/cfcr-expo-manager/prisma/seed-data/defecte-rase.json";
+  let manager;
+  try { manager = JSON.parse(readFileSync(M, "utf8")); } catch { return; } // pe alt calculator, fără Manager, proba nu cade
+  const lista = Array.isArray(manager) ? manager : manager.rase || [];
+  for (const cod of ["G08-342", "G02-093"]) {
+    const s = rase.find((x) => x.wdf_code === cod);
+    const m = lista.find((x) => x.wdfCode === cod);
+    assert.ok(m, `Managerul n-are ${cod}`);
+    assert.deepEqual(m.defecte.disqualifying, s.faults.disqualifying, `${s.breed_name}: Managerul are alte defecte descalificante decât Exploratorul — regenerează defecte-rase.json`);
+  }
+});

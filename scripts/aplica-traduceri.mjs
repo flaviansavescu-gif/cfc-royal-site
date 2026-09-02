@@ -45,7 +45,24 @@ for (const [cheie, rubrici] of Object.entries(petic)) {
     // („Distinct."). Se scrie doar cu acest semn, niciodată din întâmplare.
     const asumat = caleBruta.endsWith("!");
     const cale = asumat ? caleBruta.slice(0, -1) : caleBruta;
+    if (cale === "_nume") continue;                       // etichetă de citit, nu rubrică
     const [sectiune, camp] = cale.split(".");
+
+    // —— LISTE (defecte, fișa de arbitraj, pedagogie, observații) ——
+    // Peticul aduce lista ÎNTREAGĂ tradusă, de aceeași lungime; se înlocuiește element cu
+    // element, ca ordinea (și numărătoarea din ring) să rămână exact cea veche.
+    const listaVeche = camp ? (rasa[sectiune] || {})[camp] : rasa[sectiune];
+    if (Array.isArray(listaVeche)) {
+      if (!Array.isArray(textRo) || textRo.length !== listaVeche.length) {
+        opriri.push(`${cheie} → ${cale}: lista tradusă are ${Array.isArray(textRo) ? textRo.length : "?"} elemente, cea veche ${listaVeche.length}`);
+        continue;
+      }
+      const rele = textRo.filter((t) => typeof t !== "string" || !t.trim() || (EN.test(t) && !asumat));
+      if (rele.length) { opriri.push(`${cheie} → ${cale}: ${rele.length} elemente par tot englezești: „${String(rele[0]).slice(0, 50)}"`); continue; }
+      deScris.push({ rasa, sectiune, camp, textRo, cheie, cale, lista: true });
+      continue;
+    }
+
     if (!camp) { opriri.push(`${cheie} → cale greșită: „${cale}"`); continue; }
     const vechi = (rasa[sectiune] || {})[camp];
     if (typeof vechi !== "string" || !vechi.trim()) {
@@ -76,7 +93,11 @@ if (opriri.length) {
   process.exit(1);
 }
 
-for (const s of deScris) s.rasa[s.sectiune][s.camp] = s.textRo;
+for (const s of deScris) {
+  // Listele de la rădăcina fișei (judge_checklist, recurring_judge_observations) n-au „camp".
+  if (s.camp) s.rasa[s.sectiune][s.camp] = s.textRo;
+  else s.rasa[s.sectiune] = s.textRo;
+}
 
 // Urcăm versiunea fișelor atinse și consemnăm de ce — istoricul rasei trebuie să
 // arate că textul s-a schimbat, ca la orice revizuire de standard.
