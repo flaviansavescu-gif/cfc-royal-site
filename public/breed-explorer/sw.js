@@ -32,7 +32,7 @@
 // v5.3.0 = panoul „Despre acest instrument" în română; defecte completate din sursa WDF
 // la 6 rase care aveau fișa goală (Hovawart, Kerry Blue, Canadian Eskimo, Carolina,
 // Westphalian Dachsbracke, Biewer).
-const CACHE_VERSION = "cfcr-v5.4.1";
+const CACHE_VERSION = "cfcr-v5.4.2";
 const CACHE_NAME = "cfcr-cache-" + CACHE_VERSION;
 
 // Paths are relative to the service worker scope (the app folder).

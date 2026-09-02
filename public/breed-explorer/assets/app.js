@@ -956,7 +956,7 @@
     };
     const salveaza = () => store.set(RING_KEY, prefs);
 
-    wrap.appendChild(el("h1", { class: "view-title", text: "Ascultă în ring" }));
+    wrap.appendChild(el("h1", { class: "view-title", text: "Ascultă" }));
     wrap.appendChild(el("p", { class: "muted", text: "Alege rasele pe care le judeci și reperele pe care vrei să le auzi. Se citește doar ce bifezi." }));
 
     // —— Vocea telefonului ——
