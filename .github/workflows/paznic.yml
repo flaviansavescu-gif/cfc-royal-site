@@ -97,3 +97,15 @@ jobs:
         run: |
           curl --silent --retry 3 --retry-delay 10 --retry-all-errors --max-time 15 \
             "https://cfc-royal.ro/.netlify/functions/paznic-extern" >/dev/null || true
+
+      # PORNIRE DE REZERVA. 02.09.2026: programatorul Netlify a incetat sa mai porneasca
+      # monitor-flux si paznic-veghe ore in sir (cod bun, magazie buna, „Run now" mergea).
+      # De atunci paznicul le porneste EL, la fiecare rulare, printr-o functie de fundal
+      # (202 pe loc, lucrul dupa). Fara cheie (regula casei: paznicul nu tine secrete);
+      # functia are prag global de o pornire la 5 minute, deci nu se poate abuza mai mult
+      # decat facem noi. Best-effort: daca Netlify e jos, verificarile de mai sus au sunat.
+      - name: Pornire de rezerva a functiilor programate
+        if: always()
+        run: |
+          curl --silent --retry 2 --retry-delay 10 --retry-all-errors --max-time 15 -X POST \
+            "https://cfc-royal.ro/.netlify/functions/pornire-programata-background" >/dev/null || true
