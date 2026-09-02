@@ -1,14 +1,21 @@
-// alinieaza-nume-rase.mjs — Exploratorul să numească rasele la fel ca site-ul și Managerul.
+// alinieaza-nume-rase.mjs — fiecare rasă poartă AMÂNDOUĂ denumirile.
 //
-// De ce: expozantul se înscrie la „Ciobănesc German", iar arbitrul deschide fișa și
-// citește „German Shepherd Dog". Același câine, două nume. Nomenclatorul site-ului
-// (src/data/nomenclator-wdf.ts, generat din Manager) e sursa: el hotărăște numele
-// românesc, iar Exploratorul se aliniază la el. NU inventăm traduceri aici.
+// Cerut de VP Tehnic și de Arbitraj (02.09.2026): „ambele denumiri, cea în engleză
+// iar în paranteză cea în română, astfel să fie cunoscute ambele”. Pe ecran se
+// citește „German Shepherd Dog (Ciobănesc German)”.
 //
-// Numele englezesc NU se pierde: intră între `alternate_names`. E obligatoriu —
-// atât importul de standarde WDF, cât și sincronizarea nomenclatorului din Manager
-// caută rasa după breed_name ȘI după alternate_names. Fără el, un import viitor ar
-// crede că e o rasă nouă și ar face duplicate.
+// CUM: numele NU se lipesc într-un singur șir. `breed_name` rămâne denumirea de
+// căpetenie, iar `nume_ro` poartă cealaltă formă; îmbinarea se face DOAR la afișare
+// (numeIntreg din app.js). Altfel s-ar strica sortarea, căutarea, potrivirea cu
+// nomenclatorul Managerului și citirea în cască din ring, care ar rosti paranteza.
+//
+// CARE E DENUMIREA DE CĂPETENIE: cea internațională (engleză), cum s-a cerut — CU O
+// EXCEPȚIE: la rasele ROMÂNEȘTI numele românesc e cel original și rămâne el în față,
+// iar cel englezesc trece în paranteză. Un ciobănesc carpatin nu se trece sub nume
+// englezesc pe site-ul unei federații românești.
+//
+// Sursa denumirilor: nomenclatorul site-ului (src/data/nomenclator-wdf.ts, generat din
+// Manager). NU se inventează traduceri aici.
 //
 //   node scripts/alinieaza-nume-rase.mjs           (arată ce ar schimba)
 //   node scripts/alinieaza-nume-rase.mjs --scrie   (scrie)
@@ -35,30 +42,43 @@ for (const b of date.breeds) {
   const alt = Array.isArray(b.alternate_names) ? b.alternate_names : [];
   let n = null;
   for (const c of [b.breed_name, ...alt].map(cheie)) { n = index.get(c); if (n) break; }
-  if (!n) continue;                          // rasă necunoscută nomenclatorului — se lasă
-  if (n.ro === n.en) continue;               // nomenclatorul n-are nume românesc pentru ea
-  if (cheie(n.ro) === cheie(b.breed_name)) continue; // deja aliniată
-  schimbari.push({ b, vechi: b.breed_name, nou: n.ro });
+  if (!n) continue;                            // rasă necunoscută nomenclatorului
+  // Fără a doua formă — ori aceeași formă scrisă doar cu alte diacritice. „Dalmatian
+  // (Dalmațian)" ori „Coton de Tuléar (Coton de Tulear)" n-ar spune nimănui nimic.
+  if (n.ro === n.en || cheie(n.ro) === cheie(n.en)) continue;
+
+  // Rasele românești își păstrează numele românesc în față.
+  const romaneasca = /^Roman/i.test(b.country_of_origin || "");
+  const capat = romaneasca ? n.ro : n.en;
+  const paranteza = romaneasca ? n.en : n.ro;
+  if (b.breed_name === capat && b.nume_ro === paranteza) continue;   // deja așezată
+  schimbari.push({ b, capat, paranteza, vechi: b.breed_name });
 }
 
-console.log(`Rase de aliniat: ${schimbari.length} din ${date.breeds.length}\n`);
-for (const s of schimbari)
-  console.log(`  ${(s.b.wdf_code || s.b.id).padEnd(11)} ${s.vechi}\n${" ".repeat(14)}→ ${s.nou}`);
+console.log(`Rase de așezat pe două denumiri: ${schimbari.length} din ${date.breeds.length}\n`);
+for (const s of schimbari) console.log(`  ${(s.b.wdf_code || s.b.id).padEnd(11)} ${s.capat} (${s.paranteza})`);
 
 if (!scrie) { console.log("\n(Nimic scris. Rulează cu --scrie ca să aplic.)"); process.exit(0); }
 
 const azi = new Date().toISOString().slice(0, 10);
 for (const s of schimbari) {
   const b = s.b;
+  b.breed_name = s.capat;
+  b.nume_ro = s.paranteza;
+  if (b.identity) b.identity.official_name = s.capat;
+  // Amândouă formele trebuie să rămână găsibile: importul de standarde WDF și
+  // sincronizarea nomenclatorului caută rasa după breed_name ȘI după alternate_names.
   b.alternate_names = Array.isArray(b.alternate_names) ? b.alternate_names : [];
-  // Numele englezesc trece între denumirile alternative — pe el se fac potrivirile.
-  if (!b.alternate_names.some((a) => cheie(a) === cheie(s.vechi))) b.alternate_names.unshift(s.vechi);
-  b.breed_name = s.nou;
-  if (b.identity) b.identity.official_name = s.nou;
+  for (const n of [s.capat, s.paranteza, s.vechi])
+    if (cheie(n) !== cheie(b.breed_name) && !b.alternate_names.some((a) => cheie(a) === cheie(n)))
+      b.alternate_names.push(n);
+  // Denumirea de căpetenie n-are ce căuta și între cele alternative: ar apărea de
+  // două ori sub numele rasei, în listă și în exportul Word.
+  b.alternate_names = b.alternate_names.filter((a) => cheie(a) !== cheie(b.breed_name));
   b.version = (Number(b.version) || 1) + 1;
   b.revision_history = b.revision_history || [];
-  b.revision_history.push({ version: b.version, date: azi, note: `Nume aliniat la nomenclatorul CFC-Royal („${s.vechi}" păstrat ca denumire alternativă).` });
+  b.revision_history.push({ version: b.version, date: azi, note: "Rasa poartă amândouă denumirile: „" + s.capat + " (" + s.paranteza + ")”." });
   b.last_updated = azi;
 }
 fs.writeFileSync(TINTA, JSON.stringify(date, null, 2) + "\n", "utf8");
-console.log(`\nScris: ${schimbari.length} rase redenumite, cu numele vechi păstrat ca denumire alternativă.`);
+console.log(`\nScris: ${schimbari.length} rase poartă acum amândouă denumirile.`);

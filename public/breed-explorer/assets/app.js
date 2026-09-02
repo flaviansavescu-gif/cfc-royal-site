@@ -487,6 +487,15 @@
     const m = /^Group\s+(\d+)/.exec(g || "");
     return m ? "Grupa " + m[1] : (g || "—");
   }
+  /** Numele întreg al rasei, cu amândouă denumirile: „German Shepherd Dog (Ciobănesc
+   *  German)". Cerut de VP Tehnic și de Arbitraj (02.09.2026), ca amândouă să fie
+   *  cunoscute. Numele NU sunt lipite în date — îmbinarea se face doar aici, altfel
+   *  s-ar strica sortarea, căutarea, potrivirea cu nomenclatorul Managerului și
+   *  citirea în cască din ring, care ar rosti paranteza. */
+  function numeIntreg(b) {
+    if (!b || !b.breed_name) return "—";
+    return b.nume_ro ? b.breed_name + " (" + b.nume_ro + ")" : b.breed_name;
+  }
   function fmtList(arr) { return Array.isArray(arr) ? arr.filter(Boolean).join(", ") : (arr || ""); }
   function isNonEmptyText(v) { return typeof v === "string" && v.trim().length > 0; }
 
@@ -693,7 +702,7 @@
      --------------------------------------------------------- */
   function breedSearchBlob(b) {
     const parts = [
-      b.breed_name, fmtList(b.alternate_names), b.group, b.country_of_origin,
+      b.breed_name, b.nume_ro || "", fmtList(b.alternate_names), b.group, b.country_of_origin,
       b.functional_type, b.coat_type,
       Object.values(b.anatomy || {}).join(" "),
       Object.values(b.temperament || {}).join(" "),
@@ -1030,7 +1039,7 @@
       lista.innerHTML = "";
       const q = cauta.value.trim().toLowerCase();
       state.breeds
-        .filter((b) => !q || (b.breed_name || "").toLowerCase().includes(q))
+        .filter((b) => !q || ((b.breed_name || "") + " " + (b.nume_ro || "")).toLowerCase().includes(q))
         .slice(0, 60)
         .forEach((b) => {
           const cb = el("input", { type: "checkbox" });
@@ -1042,7 +1051,7 @@
             salveaza();
             arataAlese();
           });
-          lista.appendChild(el("label", { style: "display:flex;align-items:center;gap:.5rem" }, [cb, el("span", { text: b.breed_name })]));
+          lista.appendChild(el("label", { style: "display:flex;align-items:center;gap:.5rem" }, [cb, el("span", { text: numeIntreg(b) })]));
         });
     };
     cauta.addEventListener("input", deseneazaLista);
@@ -1223,7 +1232,7 @@
 
   function miniListItem(b) {
     return el("li", {}, el("button", { onclick: () => navigate("profile", { id: b.id }) }, [
-      el("span", { class: "mini-name", text: b.breed_name }),
+      el("span", { class: "mini-name", text: numeIntreg(b) }),
       el("span", { class: "mini-meta", text: groupShort(b.group) + " · " + (b.country_of_origin ? tr(b.country_of_origin) : "—") }),
     ]));
   }
@@ -1386,7 +1395,7 @@
         onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate("profile", { id: b.id }); } },
       }, [
         td(star, ""),
-        td([el("span", { class: "breed-name-cell", text: b.breed_name }), b.alternate_names.length ? el("div", { class: "alt-names", text: fmtList(b.alternate_names) }) : null], "Breed", "breed-name-cell"),
+        td([el("span", { class: "breed-name-cell", text: numeIntreg(b) }), b.alternate_names.length ? el("div", { class: "alt-names", text: fmtList(b.alternate_names) }) : null], "Breed", "breed-name-cell"),
         td(el("span", { class: "badge badge-group", text: groupShort(b.group) }), "Group"),
         td(b.country_of_origin ? tr(b.country_of_origin) : "—", "Country"),
         td(el("span", { class: "badge badge-status " + b.wdf_status, text: statusLabel(b.wdf_status) }), "Status"),
@@ -1452,12 +1461,12 @@
     // Print header (visible only in print)
     wrap.appendChild(el("div", { class: "print-header" }, [
       el("strong", { text: "Explorator de standarde CFC-Royal — " }),
-      el("span", { text: b.breed_name + " · " + tr(b.group) }),
+      el("span", { text: numeIntreg(b) + " · " + tr(b.group) }),
     ]));
 
     const head = el("div", { class: "profile-head" }, [
       el("div", { class: "profile-title" }, [
-        el("h1", { text: b.breed_name }),
+        el("h1", { text: numeIntreg(b) }),
         b.alternate_names.length ? el("div", { class: "profile-alt", text: "Cunoscută și ca: " + fmtList(b.alternate_names) }) : null,
         el("div", { class: "profile-badges" }, [
           el("span", { class: "badge badge-group", text: tr(b.group) }),
@@ -1550,7 +1559,7 @@
       : (b.source_standard_title || "—");
     const wrap = el("div");
     wrap.appendChild(officialSection("Identity", dl([
-      ["Official name", b.identity.official_name || b.breed_name],
+      ["Official name", numeIntreg(b)],
       ["Alternate names", fmtList(b.alternate_names) || "—"],
       ["Internal ID", b.id],
       ["WDF group", b.group],
@@ -1738,7 +1747,7 @@
   // Flatten a breed into a label→string map for auditing / diffing.
   function flattenBreed(b) {
     const o = {};
-    o["Breed name"] = b.breed_name;
+    o["Breed name"] = numeIntreg(b);
     o["Alternate names"] = fmtList(b.alternate_names);
     o["Group"] = b.group;
     o["Country of origin"] = tr(b.country_of_origin);
@@ -1939,7 +1948,7 @@
       el("div", {}, [el("h1", { text: "Compare Breeds" }), el("p", { class: "lede", text: "Compare 2 or 3 breeds in a section-based matrix. Differing rows are highlighted. Teaching mode surfaces likely confusions and what to observe first." })]),
     ]));
 
-    const options = state.breeds.slice().sort((a, b) => a.breed_name.localeCompare(b.breed_name)).map((b) => [b.id, b.breed_name]);
+    const options = state.breeds.slice().sort((a, b) => a.breed_name.localeCompare(b.breed_name)).map((b) => [b.id, numeIntreg(b)]);
     const picker = el("div", { class: "compare-picker compare-picker-3" }, [
       el("div", { class: "field" }, [el("label", { for: "cmpA", text: "Breed A" }),
         selectControl("cmpA", [["", "— Select —"]].concat(options), state.compare.a, (v) => { state.compare.a = v; render(); })]),
@@ -1980,7 +1989,7 @@
 
     const colspan = String(breeds.length + 1);
     const table = el("table", { class: "compare-table" });
-    table.appendChild(el("thead", {}, el("tr", {}, [el("th", { text: "Field" })].concat(breeds.map((b) => el("th", { text: b.breed_name }))))));
+    table.appendChild(el("thead", {}, el("tr", {}, [el("th", { text: "Field" })].concat(breeds.map((b) => el("th", { text: numeIntreg(b) }))))));
     const tbody = el("tbody");
     COMPARE_SECTIONS.forEach((sec) => {
       tbody.appendChild(el("tr", { class: "section-row" }, el("td", { colspan: colspan, text: sec.title })));
@@ -2046,7 +2055,7 @@
     breeds.forEach((b) => {
       const markers = b.pedagogy.key_markers.length ? b.pedagogy.key_markers : ["(no key markers recorded)"];
       grid.appendChild(el("div", { class: "card", style: "padding:10px 12px" }, [
-        el("strong", { text: b.breed_name }),
+        el("strong", { text: numeIntreg(b) }),
         el("ul", { style: "margin:6px 0 0;padding-left:18px" }, markers.map((m) => el("li", { text: m }))),
       ]));
     });
@@ -2947,7 +2956,7 @@
     const tbody = el("tbody");
     state.breeds.slice().sort((a, b) => a.breed_name.localeCompare(b.breed_name)).forEach((b) => {
       tbody.appendChild(el("tr", {}, [
-        el("td", {}, [el("strong", { text: b.breed_name }), b.alternate_names.length ? el("div", { class: "alt-names", text: fmtList(b.alternate_names) }) : null]),
+        el("td", {}, [el("strong", { text: numeIntreg(b) }), b.alternate_names.length ? el("div", { class: "alt-names", text: fmtList(b.alternate_names) }) : null]),
         el("td", {}, el("span", { class: "badge badge-group", text: groupShort(b.group) })),
         el("td", {}, el("span", { class: "badge badge-status " + b.wdf_status, text: statusLabel(b.wdf_status) })),
         el("td", { text: "v" + (b.version || 1) }),
@@ -3432,7 +3441,7 @@
     if (b.alternate_names.length) s += '<p class="sub">Cunoscută și ca: ' + esc(fmtList(b.alternate_names)) + "</p>";
 
     s += "<h2>Identitate</h2>" + wKV([
-      ["Official name", b.identity.official_name || b.breed_name],
+      ["Official name", numeIntreg(b)],
       ["Internal ID", b.id], ["WDF group", b.group],
       ["Country of origin / owner", tr(b.country_of_origin) + (b.identity.owner_country && b.identity.owner_country !== b.country_of_origin ? " · " + tr(b.identity.owner_country) : "")],
       ["WDF recognition status", statusLabel(b.wdf_status)],

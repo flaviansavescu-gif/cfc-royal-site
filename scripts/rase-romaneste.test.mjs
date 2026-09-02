@@ -104,3 +104,63 @@ test("întrebarea de test despre țară se corectează pe valoarea din date, nu 
   assert.ok(app.includes("({ text: tr(c), val: c })"), "opțiunile păstrează valoarea brută");
   assert.ok(app.includes("opts.findIndex((o) => o.val === b.country_of_origin)"), "răspunsul se caută pe valoare");
 });
+
+// —— Amândouă denumirile ——
+// Cerut de VP Tehnic și de Arbitraj (02.09.2026): pe ecran se citește
+// „German Shepherd Dog (Ciobănesc German)", ca amândouă să fie cunoscute.
+
+test("numele NU sunt lipite în date — doar la afișare", () => {
+  const lipite = rase.filter((b) => /\(.*\)/.test(b.breed_name) && b.nume_ro);
+  assert.deepEqual(lipite.map((b) => b.breed_name), [],
+    "denumirea de căpetenie nu are voie să poarte deja paranteza — s-ar dubla la afișare");
+  assert.match(app, /function numeIntreg\(b\)/);
+  assert.ok(app.includes('b.breed_name + " (" + b.nume_ro + ")"'), "îmbinarea se face în numeIntreg");
+});
+
+test("rasele ROMÂNEȘTI poartă numele românesc în față", () => {
+  for (const b of rase.filter((x) => x.country_of_origin === "Romania" && x.nume_ro)) {
+    assert.match(b.breed_name, /[ăâîșț]/i,
+      `${b.breed_name}: o rasă românească nu se trece sub nume englezesc`);
+    assert.doesNotMatch(b.nume_ro, /^Ciobănesc/,
+      `${b.breed_name}: în paranteză trebuie să fie forma englezească`);
+  }
+});
+
+test("amândouă denumirile rămân găsibile la căutare și la potriviri", () => {
+  // Importul WDF și sincronizarea cu Managerul caută după breed_name ȘI alternate_names.
+  // Dacă forma românească n-ar fi acolo, un import viitor ar socoti rasa nouă.
+  const cheie = (n) => String(n || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+  const lipsa = rase.filter((b) => b.nume_ro && !(b.alternate_names || []).some((a) => cheie(a) === cheie(b.nume_ro)));
+  assert.deepEqual(lipsa.map((b) => b.breed_name), [], "a doua denumire lipsește dintre cele alternative");
+  assert.ok(app.includes('b.breed_name, b.nume_ro || "", fmtList(b.alternate_names)'), "căutarea generală cuprinde numele românesc");
+});
+
+test("denumirea de căpetenie nu se repetă între cele alternative", () => {
+  const cheie = (n) => String(n || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+  const rele = rase.filter((b) => (b.alternate_names || []).some((a) => cheie(a) === cheie(b.breed_name)));
+  assert.deepEqual(rele.map((b) => b.breed_name), [], "numele ar apărea de două ori sub rasă");
+});
+
+test("citirea în cască rostește numele CURAT, nu paranteza", () => {
+  // În ring, sinteza vocală ar citi „paranteză Ciobănesc German paranteză".
+  const bloc = app.slice(app.indexOf("function bucatiRing"), app.indexOf("function pastreazaOffline"));
+  assert.ok(bloc.includes("rasa: b.breed_name"), "reperele citite poartă numele curat");
+  assert.ok(!bloc.includes("numeIntreg"), "citirea în cască nu trece prin îmbinare");
+});
+
+test("toate cele CINCI rase românești au fișă", () => {
+  const nume = rase.filter((b) => b.country_of_origin === "Romania").map((b) => b.breed_name);
+  for (const r of ["Carpatin", "Mioritic", "Bucovina", "Corb", "Bălan"])
+    assert.ok(nume.some((n) => n.includes(r)), `lipsește Ciobănescul Românesc ${r}`);
+});
+
+test("rasele românești noi au fișă cu carne, nu pagină goală", () => {
+  for (const cod of ["breed-528", "breed-529", "breed-530"]) {
+    const b = rase.find((x) => x.id === cod);
+    assert.ok(b, `lipsește ${cod}`);
+    for (const k of ["head", "skull", "muzzle", "eyes", "ears", "neck", "tail", "coat", "color", "movement"])
+      assert.ok((b.anatomy[k] || "").trim().length > 10, `${b.breed_name} → anatomy.${k} e gol`);
+    assert.ok(b.faults.disqualifying.length >= 3, `${b.breed_name} n-are defecte descalificante`);
+    assert.ok((b.judge_checklist || []).length >= 5, `${b.breed_name} n-are fișă de arbitraj`);
+  }
+});
