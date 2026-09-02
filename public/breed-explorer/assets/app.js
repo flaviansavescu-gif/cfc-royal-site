@@ -824,6 +824,7 @@
     let node;
     switch (state.view) {
       case "dashboard": node = renderDashboard(); break;
+      case "ring": node = renderRing(); break;
       case "list": node = renderList(); break;
       case "profile": node = renderProfile(); break;
       case "compare": node = renderCompare(); break;
@@ -847,6 +848,8 @@
       { id: "dashboard", icon: "◧", label: "Dashboard" },
       { id: "list", icon: "☰", label: "Breed List", count: state.breeds.length },
       { id: "compare", icon: "⇄", label: "Compare Breeds" },
+      // Ascultarea în ring apare NUMAI în aplicația instalată pe telefon.
+      ...(eInstalata() ? [{ id: "ring", icon: "🎧", label: "Ascultă în ring" }] : []),
       { group: "Learn" },
       { id: "quiz", icon: "◎", label: "Quiz & Exam" },
       { id: "curriculum", icon: "▤", label: "Curriculum", count: state.lessons.length },
@@ -866,6 +869,223 @@
       ]);
       nav.appendChild(btn);
     });
+  }
+
+  /* ---------------------------------------------------------
+     ASCULTARE ÎN RING — standardul citit în cască, pe secțiuni.
+     Cerut de VP Tehnic și de Arbitraj (02.09.2026): arbitrul își alege rasele pe care
+     le judecă și ascultă DOAR reperele pe care le verifică pe câine — proporții, cap,
+     ochi, urechi, gât, coadă, talie și greutate. Restul standardului nu se citește.
+
+     UNDE apare: NUMAI în aplicația instalată pe telefon (display-mode: standalone), a
+     cărei instalare cere cod generat de administrator + aprobarea lui pe e-mail. În
+     browser butonul nici nu există. (Ascunderea nu e o pază — paza reală rămâne codul
+     de acces la conținut; e o poartă de folosire, ca funcția să nu ajungă din greșeală
+     pe ecranul cuiva din afara ringului.)
+
+     FĂRĂ SEMNAL: reperele raselor alese se păstrează pe telefon, ca ascultarea să meargă
+     în hală, unde semnalul e prost tocmai când ai nevoie de el.
+
+     VOCEA e a telefonului (Web Speech API): nu costă nimic, nu trece prin niciun server,
+     deci nicio informație despre ce ascultă arbitrul nu pleacă nicăieri.
+     --------------------------------------------------------- */
+
+  // Reperele, exact cele cerute. Fiecare adună una sau mai multe rubrici ale fișei.
+  const SECTIUNI_RING = [
+    { id: "proportii", eticheta: "Proporții", campuri: [["identity", "important_proportions"]] },
+    { id: "cap", eticheta: "Cap", campuri: [["anatomy", "head"], ["anatomy", "skull"], ["anatomy", "stop"], ["anatomy", "muzzle"], ["anatomy", "jaws_teeth"]] },
+    { id: "ochi", eticheta: "Ochi", campuri: [["anatomy", "eyes"]] },
+    { id: "urechi", eticheta: "Urechi", campuri: [["anatomy", "ears"]] },
+    { id: "gat", eticheta: "Gât", campuri: [["anatomy", "neck"]] },
+    { id: "coada", eticheta: "Coadă", campuri: [["anatomy", "tail"]] },
+    { id: "talie", eticheta: "Talie și greutate", campuri: [["anatomy", "size"]] },
+  ];
+
+  const RING_KEY = "cfcr.ring";
+  const RING_OFFLINE = "cfcr.ringOffline";
+
+  /** Aplicația rulează instalată pe telefon (nu în browser)? */
+  function eInstalata() {
+    try {
+      return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+        window.navigator.standalone === true;
+    } catch (e) { return false; }
+  }
+
+  /** Vocea românească a telefonului, dacă există. Fără ea nu citim: mai bine spunem
+   *  cinstit „lipsește vocea" decât să pronunțe românește cu accent străin. */
+  function voceRo() {
+    try {
+      const voci = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+      return voci.find((v) => /^ro(-|_|$)/i.test(v.lang)) || null;
+    } catch (e) { return null; }
+  }
+
+  /** Bucățile de citit pentru o rasă, în ordinea reperelor alese. */
+  function bucatiRing(b, alese) {
+    const out = [];
+    SECTIUNI_RING.forEach((s) => {
+      if (!alese[s.id]) return;
+      const parti = s.campuri
+        .map(([grup, camp]) => (b[grup] && b[grup][camp] ? String(b[grup][camp]).trim() : ""))
+        .filter(Boolean);
+      if (parti.length) out.push({ rasa: b.breed_name, sectiune: s.eticheta, text: parti.join(" ") });
+    });
+    return out;
+  }
+
+  /** Reperele raselor alese, păstrate pe telefon pentru hala fără semnal. */
+  function pastreazaOffline(rase) {
+    const mic = rase.map((b) => ({
+      id: b.id,
+      breed_name: b.breed_name,
+      identity: { important_proportions: (b.identity || {}).important_proportions || "" },
+      anatomy: ["head", "skull", "stop", "muzzle", "jaws_teeth", "eyes", "ears", "neck", "tail", "size"]
+        .reduce((o, k) => ((o[k] = (b.anatomy || {})[k] || ""), o), {}),
+    }));
+    store.set(RING_OFFLINE, mic);
+    return mic.length;
+  }
+
+  function renderRing() {
+    const wrap = el("div", { class: "view" });
+    const prefs = store.get(RING_KEY, null) || {
+      rase: [],
+      sectiuni: SECTIUNI_RING.reduce((o, s) => ((o[s.id] = true), o), {}),
+      viteza: 1,
+    };
+    const salveaza = () => store.set(RING_KEY, prefs);
+
+    wrap.appendChild(el("h1", { class: "view-title", text: "Ascultă în ring" }));
+    wrap.appendChild(el("p", { class: "muted", text: "Alege rasele pe care le judeci și reperele pe care vrei să le auzi. Se citește doar ce bifezi." }));
+
+    // —— Vocea telefonului ——
+    const stareVoce = el("p", { class: "muted", style: "margin:.5rem 0" });
+    const arataVocea = () => {
+      const v = voceRo();
+      stareVoce.textContent = v
+        ? "Voce românească: " + v.name
+        : "⚠ Telefonul nu are voce românească instalată. Pune-o din setările telefonului (Sinteză vocală → Română), altfel citirea nu pornește.";
+      stareVoce.style.color = v ? "" : "#b45309";
+    };
+    arataVocea();
+    if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = arataVocea;
+    wrap.appendChild(stareVoce);
+
+    // —— Reperele ——
+    const boxSect = el("div", { class: "card", style: "margin:.75rem 0" }, [
+      el("h3", { text: "Ce se citește" }),
+    ]);
+    const randSect = el("div", { style: "display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.5rem" });
+    SECTIUNI_RING.forEach((s) => {
+      const cb = el("input", { type: "checkbox" });
+      cb.checked = !!prefs.sectiuni[s.id];
+      cb.addEventListener("change", () => { prefs.sectiuni[s.id] = cb.checked; salveaza(); });
+      randSect.appendChild(el("label", { style: "display:flex;align-items:center;gap:.35rem" }, [cb, el("span", { text: s.eticheta })]));
+    });
+    boxSect.appendChild(randSect);
+    wrap.appendChild(boxSect);
+
+    // —— Rasele ——
+    const boxRase = el("div", { class: "card", style: "margin:.75rem 0" }, [
+      el("h3", { text: "Rasele din ringul tău" }),
+    ]);
+    const cauta = el("input", { type: "search", placeholder: "Caută rasa…", style: "width:100%;margin:.5rem 0;padding:.5rem" });
+    const lista = el("div", { style: "max-height:14rem;overflow:auto;display:flex;flex-direction:column;gap:.25rem" });
+    const deseneazaLista = () => {
+      lista.innerHTML = "";
+      const q = cauta.value.trim().toLowerCase();
+      state.breeds
+        .filter((b) => !q || (b.breed_name || "").toLowerCase().includes(q))
+        .slice(0, 60)
+        .forEach((b) => {
+          const cb = el("input", { type: "checkbox" });
+          cb.checked = prefs.rase.indexOf(b.id) >= 0;
+          cb.addEventListener("change", () => {
+            const i = prefs.rase.indexOf(b.id);
+            if (cb.checked && i < 0) prefs.rase.push(b.id);
+            if (!cb.checked && i >= 0) prefs.rase.splice(i, 1);
+            salveaza();
+            arataAlese();
+          });
+          lista.appendChild(el("label", { style: "display:flex;align-items:center;gap:.5rem" }, [cb, el("span", { text: b.breed_name })]));
+        });
+    };
+    cauta.addEventListener("input", deseneazaLista);
+    deseneazaLista();
+    boxRase.appendChild(cauta);
+    boxRase.appendChild(lista);
+    const nrAlese = el("p", { class: "muted", style: "margin:.5rem 0 0" });
+    const arataAlese = () => { nrAlese.textContent = prefs.rase.length + " rase alese"; };
+    arataAlese();
+    boxRase.appendChild(nrAlese);
+    wrap.appendChild(boxRase);
+
+    // —— Cârma ——
+    const stare = el("p", { style: "font-weight:600;margin:.5rem 0" });
+    const coada = { bucati: [], i: 0 };
+
+    const opreste = () => { try { window.speechSynthesis.cancel(); } catch (e) {} stare.textContent = "Oprit."; };
+
+    const citesteDeLa = (i) => {
+      const v = voceRo();
+      if (!v) { toast("Telefonul nu are voce românească instalată.", "err"); return; }
+      if (i >= coada.bucati.length) { stare.textContent = "Gata — s-au citit toate reperele."; return; }
+      coada.i = i;
+      const b = coada.bucati[i];
+      stare.textContent = `${b.rasa} · ${b.sectiune}  (${i + 1}/${coada.bucati.length})`;
+      const u = new SpeechSynthesisUtterance(`${b.sectiune}. ${b.text}`);
+      u.voice = v; u.lang = v.lang; u.rate = prefs.viteza;
+      u.onend = () => { if (coada.i === i) citesteDeLa(i + 1); };
+      try { window.speechSynthesis.speak(u); } catch (e) { toast("Citirea nu a putut porni.", "err"); }
+    };
+
+    const porneste = () => {
+      const alese = state.breeds.filter((b) => prefs.rase.indexOf(b.id) >= 0);
+      const offline = store.get(RING_OFFLINE, []);
+      const sursa = alese.length ? alese : offline.filter((b) => prefs.rase.indexOf(b.id) >= 0);
+      if (!sursa.length) { toast("Alege întâi cel puțin o rasă.", "err"); return; }
+      coada.bucati = sursa.reduce((acc, b) => acc.concat(bucatiRing(b, prefs.sectiuni)), []);
+      if (!coada.bucati.length) { toast("Niciun reper bifat are text la rasele alese.", "err"); return; }
+      try { window.speechSynthesis.cancel(); } catch (e) {}
+      citesteDeLa(0);
+    };
+
+    const btn = (text, fn, primar) =>
+      el("button", { class: primar ? "btn btn-primary" : "btn", onclick: fn, text });
+
+    const carma = el("div", { style: "display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0" }, [
+      btn("▶ Ascultă", porneste, true),
+      btn("⏸ Pauză", () => { try { window.speechSynthesis.pause(); stare.textContent += " · pauză"; } catch (e) {} }),
+      btn("▶ Reia", () => { try { window.speechSynthesis.resume(); } catch (e) {} }),
+      btn("⏭ Reperul următor", () => { try { window.speechSynthesis.cancel(); } catch (e) {} citesteDeLa(coada.i + 1); }),
+      btn("⏮ Înapoi", () => { try { window.speechSynthesis.cancel(); } catch (e) {} citesteDeLa(Math.max(0, coada.i - 1)); }),
+      btn("■ Oprește", opreste),
+    ]);
+    wrap.appendChild(carma);
+    wrap.appendChild(stare);
+
+    // Viteza
+    const vit = el("input", { type: "range", min: "0.6", max: "1.6", step: "0.1", value: String(prefs.viteza), style: "width:12rem" });
+    const vitEt = el("span", { text: "viteza " + prefs.viteza + "×" });
+    vit.addEventListener("input", () => { prefs.viteza = Number(vit.value); vitEt.textContent = "viteza " + prefs.viteza + "×"; salveaza(); });
+    wrap.appendChild(el("div", { style: "display:flex;align-items:center;gap:.5rem;margin:.5rem 0" }, [vit, vitEt]));
+
+    // —— Fără semnal ——
+    const nrOffline = (store.get(RING_OFFLINE, []) || []).length;
+    wrap.appendChild(el("div", { class: "card", style: "margin-top:.75rem" }, [
+      el("h3", { text: "Pentru hala fără semnal" }),
+      el("p", { class: "muted", text: "Păstrează pe telefon reperele raselor alese, ca ascultarea să meargă și fără internet. Refă-le dacă schimbi rasele." }),
+      el("p", { class: "muted", text: nrOffline ? nrOffline + " rase păstrate pe telefon." : "Nicio rasă păstrată încă." }),
+      btn("⤓ Păstrează pe telefon", () => {
+        const alese = state.breeds.filter((b) => prefs.rase.indexOf(b.id) >= 0);
+        if (!alese.length) { toast("Alege întâi rasele.", "err"); return; }
+        toast(pastreazaOffline(alese) + " rase păstrate pe telefon.", "ok");
+        navigate("ring");
+      }),
+    ]));
+
+    return wrap;
   }
 
   /* ---------------------------------------------------------
