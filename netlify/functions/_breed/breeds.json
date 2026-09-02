@@ -6,7 +6,7 @@
   "dataset_type": "standarde oficiale de rasă (importate) + note didactice CFC-Royal",
   "disclaimer": "Descrierile raselor sunt importate din documentele de standard deținute de Asociația Club Federal Chinologic – Royal. Fișele marcate „importat” reproduc textul acelor documente și nu au fost încă revizuite de un lector; notele didactice și fișele de arbitraj sunt scrise separat de lectorii CFC-Royal. Verifică întotdeauna față de standardul oficial-sursă înainte de a le folosi la examen ori la arbitraj.",
   "generated_on": "2026-08-08",
-  "breed_count": 390
+  "breed_count": 392
  },
  "breeds": [
   {
@@ -37496,140 +37496,6 @@
    "revision_history": []
   },
   {
-   "id": "breed-468",
-   "wdf_code": "G02-051",
-   "breed_name": "Central Asian Shepherd Dog — Alabai",
-   "alternate_names": [
-    "Central Asian Shepherd Dog Alabai"
-   ],
-   "group": "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs",
-   "country_of_origin": "Turkmenistan",
-   "wdf_status": "recognized",
-   "coat_type": "wire",
-   "functional_type": "guard",
-   "source_standard_title": "Standard oficial WDF G02-051",
-   "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G02-051",
-   "last_updated": "2026-08-08",
-   "identity": {
-    "official_name": "Central Asian Shepherd Dog — Alabai",
-    "owner_country": "Turkmenistan",
-    "historical_function": "Câine de pază a turmelor.",
-    "general_impression": "Câine mare și puternic, adesea în versiuni închise (de la gri la negru), cu variante maro, dar mereu pestriț. Adesea prezintă heterocromie oculară. Varietatea recunoscută oficial e cea cu păr scurt, deși există și cu păr lung. Corp armonios, de mare statură, moderat de lung, robust și musculos, voluminos, dar fără mușchi vizibili. Dimorfism sexual clar (masculii mai masivi). Maturitatea deplină la 3 ani.",
-    "important_proportions": "Lungimea corpului depășește puțin înălțimea la greabăn. Lungimea anteriorului până la cot = 50–52% din înălțimea la greabăn. Botul = jumătate din lungimea capului, dar peste 1/3.",
-    "sexual_dimorphism": "",
-    "ideal_type_summary": "Câine mare și puternic, adesea în versiuni închise (de la gri la negru), cu variante maro, dar mereu pestriț.",
-    "historical_summary": "Alabai (Alabai turkmen) e un molos de tip câine de munte, de origine foarte veche, originar din Turkmenistan. Câine de mari dimensiuni, cu funcția principală de a proteja turmele de prădători; rușii îl includ printre „Volkodav” („distrugători de lupi”). Sovieticii au creat Ciobănescul de Asia Centrală fuzionând liniile ancestrale ale molosilor asiatici (Tobet din Kazahstan, Alabai din Turkmenistan). Tobet și Alabai reprezintă trunchiul original al molosului asiatic.",
-    "classification": "",
-    "standard_published": "",
-    "country_of_development": ""
-   },
-   "anatomy": {
-    "head": "Masivă, în echilibru cu ansamblul, aproape dreptunghiulară văzută de sus și din profil. Craniu adânc, cu frunte plată și lungă. Occiput bine definit, dar puțin vizibil din cauza mușchilor. Arcade supraorbitale moderat definite.",
-    "skull": "",
-    "stop": "Moderat definit.",
-    "muzzle": "Teșit și de lungime moderată, aproape dreptunghiular de sus și lateral, se îngustează ușor spre nas. Voluminos, adânc și bine plin sub ochi. Bărbie bine dezvoltată. Trufă largă, bine dezvoltată, neagră (la câinii albi și fulvo poate fi mai deschisă). Buze groase, cea superioară acoperind strâns pe cea inferioară; de preferat pigment complet negru.",
-    "jaws_teeth": "Fălci puternice și largi. Dinți mari, albi și apropiați, 42 în total. Se acceptă mușcătura în foarfece, în clește și în foarfece inversă. Canini bine distanțați.",
-    "eyes": "De mărime medie, ovali, bine distanțați, cu privire înainte și moderat înfundați. De la maro-închis la alun; se preferă cel mai închis. Pleoape groase; a treia pleoapă nevizibilă. De preferat margini palpebrale complet negre. Expresie sigură și demnă.",
-    "ears": "De mărime medie, triunghiulare, groase, inserate jos și căzute. Baza urechii la nivelul ochilor ori ceva sub. Tăierea tradițională se practică încă în țara de origine și acolo unde nu e interzisă.",
-    "neck": "De lungime medie, foarte puternic, de secțiune ovală, bine musculat și inserat jos. Salba e o caracteristică specifică a rasei.",
-    "topline": "Bine proporționată și susținută, trebuie să-și mențină tipicitatea.",
-    "body": "Greabăn bine definit, mai ales la masculi, musculos, lung și înalt. Spate drept, larg, bine musculat. Șale scurte, largi, musculoase, ușor arcuite. Crupă moderat de lungă, largă, musculoasă, ușor înclinată. Înălțimea la greabăn depășește cu 1–2 cm înălțimea la crupă. Torace adânc, lung, larg, cutia toracică se lărgește spre spate; coaste false lungi. Ventre moderat retras.",
-    "chest": "Adânc, lung, larg, distinct dezvoltat. Partea inferioară la nivelul cotului ori ceva sub.",
-    "tail": "Groasă la bază și inserată destul de sus. Naturală, purtată în seceră ori răsucită într-un inel lax din ultima treime. În alertă urcă la linia spatelui ori ceva peste; pendinte în repaus. Tăierea tradițională se practică încă; coada naturală are aceeași valoare ca una tăiată.",
-    "forequarters": "",
-    "hindquarters": "",
-    "feet": "",
-    "movement": "Bine echilibrat și elastic. Trap cu anterior liber și impuls puternic din posteriori. Linia superioară stabilă în mișcare. Unghiularea posteriorului mai marcată în mișcare decât în stațiune.",
-    "coat": "Abundent, drept, aspru, cu subpăr bine dezvoltat. Pe cap și fața anterioară a picioarelor scurt și des; la greabăn adesea mai lung. Există varianta cu păr scurt (3–5 cm) și cea cu păr mai lung (7–10 cm) care formează coamă pe gât, franjuri după urechi și pe posteriorul picioarelor.",
-    "color": "Orice, în afară de albastru genetic și maro genetic (în orice combinație) și negru pe maro deschis.",
-    "size": "Masculi 60–110 kg; femele 60–80 kg.",
-    "skin": "Groasă, suficient de elastică și lasă pentru a preveni leziunile în lupta cu prădătorii."
-   },
-   "temperament": {
-    "behavior": "Sigur de sine, echilibrat, calm, mândru și independent. Foarte curajos, cu mare capacitate de lucru, rezistență și instinct teritorial. Neînfricarea față de prădătorii mari e caracteristică. E o rasă de monitorizat, nepotrivită celor fără experiență cu câini de pază de talie mare.",
-    "ring_attitude": "",
-    "expression": "",
-    "temperament_notes": ""
-   },
-   "faults": {
-    "minor": [
-     "Ușoare abateri de la tip",
-     "Tip feminin tinzând spre masculin",
-     "Craniu rotunjit, bot îngust, nas mic",
-     "Ochi oblici ori apropiați, pleoape căzute",
-     "Urechi inserate sus",
-     "Buze subțiri ori căzute",
-     "Mai înalt la crupă; crupă ceva scurtă",
-     "Unghiulări exagerate ale posteriorului",
-     "Picioare deschise cu degete lungi",
-     "Mers hackney, mișcare ușor dezechilibrată",
-     "Păr foarte scurt"
-    ],
-    "serious": [
-     "Foarte nervos",
-     "Abatere semnificativă de la tip și constituție",
-     "Aspect cu picioare lungi; oase ușoare, mușchi moi",
-     "Ochi prea deschiși ori ieșiți",
-     "Linie superioară care cade",
-     "Crupă mult mai înaltă decât greabănul",
-     "Crupă îngustă, scurtă și abruptă",
-     "Coadă natural teșită ori răsucită",
-     "Metacarpi prea înalți ori coborâți",
-     "Posteriori prea plasați sub corp",
-     "Talie cu 2 cm sub minim"
-    ],
-    "disqualifying": [
-     "Câini agresivi ori excesiv de timizi",
-     "Orice câine cu anomalii fizice ori de comportament evidente",
-     "Timid, supraexcitat",
-     "Mascul de tip feminin",
-     "Enognatism ori prognatism evident",
-     "Ochi de culori diferite, albaștri ori verzi",
-     "Articulații lasate",
-     "Manta genetic maro ori genetic albastră (orice combinație)",
-     "Maro deschis cu manta neagră caracteristică",
-     "Manta cârlionțată ori moale",
-     "Mișcare dezechilibrată"
-    ]
-   },
-   "pedagogy": {
-    "frequent_confusions": [],
-    "key_markers": [],
-    "judge_notes": [],
-    "teaching_notes": [],
-    "similar_breeds": []
-   },
-   "judge_checklist": {
-    "first_impression": [],
-    "static_exam": [],
-    "movement_exam": [],
-    "final_attention_points": []
-   },
-   "references": [
-    {
-     "type": "official_standard",
-     "title": "Standard oficial WDF G02-051",
-     "url": "https://wdf-international.org/?wdf_standard_view=G02-051",
-     "accessed_on": "2026-08-08"
-    }
-   ],
-   "internal_notes": "",
-   "difficulty_level": "",
-   "exam_relevance": "",
-   "teaching_priority": "",
-   "revision_status": "imported",
-   "source_verification_status": "imported",
-   "thematic_tags": [
-    "Turkmenistan"
-   ],
-   "study_track_tags": [
-    "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs"
-   ],
-   "recurring_judge_observations": [],
-   "version": 1,
-   "revision_history": []
-  },
-  {
    "id": "breed-469",
    "wdf_code": "G02-052",
    "breed_name": "Great Dane (Deutsche Dogge / Alano Tedesco)",
@@ -38426,97 +38292,110 @@
   {
    "id": "breed-476",
    "wdf_code": "G02-066",
-   "breed_name": "Central Asian Shepherd Dog (Cane da Pastore dell’Asia Centrale)",
+   "breed_name": "CAO — Câine Ciobănesc de Asia Centrală",
    "alternate_names": [
-    "Central Asian Shepherd Dog"
+    "Central Asian Shepherd Dog",
+    "Sredneaziatskaia Ovciarka",
+    "Ciobănesc de Asia Centrală",
+    "CAO"
    ],
    "group": "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs",
-   "country_of_origin": "Russia",
+   "country_of_origin": "Rusia",
    "wdf_status": "recognized",
    "coat_type": "wire",
    "functional_type": "guard",
-   "source_standard_title": "Standard oficial WDF G02-066",
+   "source_standard_title": "Standard oficial WDF G02-066 (text în limba română)",
    "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G02-066",
-   "last_updated": "2026-08-08",
+   "last_updated": "2026-09-02",
    "identity": {
-    "official_name": "Central Asian Shepherd Dog (Cane da Pastore dell’Asia Centrale)",
-    "owner_country": "Russia",
-    "historical_function": "Câine de pază și supraveghere.",
-    "general_impression": "De construcție armonioasă și mare talie, de lungime moderată. Robust, viguros, voluminos, dar fără mușchi vizibili. Dimorfism sexual bine definit (masculii mai masivi, cu greabăn pronunțat și cap mai mare). Maturitatea deplină la 3 ani.",
-    "important_proportions": "Lungimea corpului doar ceva peste înălțimea la greabăn. Anteriorul până la cot = 50–52% din înălțimea la greabăn. Botul sub jumătatea lungimii capului, dar peste ⅓.",
-    "sexual_dimorphism": "",
-    "ideal_type_summary": "De construcție armonioasă și mare talie, de lungime moderată.",
-    "historical_summary": "Una dintre cele mai vechi rase, formată prin selecție naturală de-a lungul a peste patru mii de ani, pe vastul teritoriu ce se întinde azi de la Marea Caspică la China și de la Uralii de sud la Afganistan. A moștenit caracterele celor mai vechi câini din Tibet, ai triburilor nomade, strâns legați de ciobăneștii mongoli și de Mastiful Tibetan. Folosiți la protejarea vitelor, caravanelor și locuințelor, expuși mereu unei selecții naturale dure. Lucrul cu rasa a început în URSS în 1930.",
-    "classification": "",
-    "standard_published": "",
-    "country_of_development": ""
+    "official_name": "Câine Ciobănesc de Asia Centrală (Central Asian Shepherd Dog · Sredneaziatskaia Ovciarka)",
+    "owner_country": "Rusia",
+    "historical_function": "Câine de pază, de protecție și de supraveghere a turmelor.",
+    "general_impression": "Câine armonios construit, de talie mare, moderat alungit — nici lung, nici scurt în corp. Corp robust, musculos, voluminos, însă fără musculatură reliefată. Maturitatea completă este atinsă la vârsta de 3 ani.",
+    "important_proportions": "Lungimea corpului depășește doar ușor înălțimea la greabăn. Talia mai mare este de dorit, însă trebuie păstrată construcția proporționată. Lungimea membrelor anterioare până la cot reprezintă 50–52 % din înălțimea la greabăn. Lungimea botului este mai mică decât jumătate din lungimea capului, dar mai mare decât o treime.",
+    "sexual_dimorphism": "Clar definit: masculii sunt mai masivi și mai curajoși decât femelele, cu greabăn mai pronunțat și cap mai mare.",
+    "ideal_type_summary": "Molosoid de munte și de stepă, masiv fără greutate moartă, cu osatură puternică, piele groasă și elastică, tipic pentru câinele de protecție a turmelor din Asia Centrală.",
+    "historical_summary": "Una dintre cele mai vechi rase canine. S-a format prin selecție naturală de-a lungul a peste patru mii de ani, pe un teritoriu vast care se întinde de la Marea Caspică până în China și de la Uralul de Sud până în Afganistan. Moștenirea sa provine de la cei mai vechi câini din Tibet, de la câinii de cireadă ai triburilor nomade și de la câini înrudiți îndeaproape cu Ciobănescul Mongol și cu Mastifful Tibetan. A fost folosită pentru protejarea vitelor, a caravanelor și a locuințelor, sub o selecție naturală riguroasă: condițiile aspre și lupta cu prădătorii i-au format conformația și caracterul. Munca de selecție organizată a început în anii 1930.",
+    "classification": "Grupa 2 — Câini de tip Pinscher și Schnauzer, Molosoizi și Câini de cireadă elvețieni.",
+    "standard_published": "25 septembrie 2017",
+    "country_of_development": "Rusia"
    },
    "anatomy": {
-    "head": "Masivă, în armonie cu ansamblul. De sus și lateral se apropie de dreptunghi. Craniu adânc, cu frunte plată și lungă. Occiput bine definit, dar puțin vizibil din cauza mușchilor. Bose frontale moderat definite.",
-    "skull": "",
+    "head": "Masiv, în echilibru cu aspectul general. Forma capului este apropiată de dreptunghi, văzut de sus și din profil.",
+    "skull": "Adânc. Fruntea este plată, iar regiunea craniană este plată și lungă. Protuberanța occipitală este bine definită, însă abia vizibilă din cauza musculaturii bine dezvoltate. Arcadele supraorbitale sunt moderat definite.",
     "stop": "Moderat definit.",
-    "muzzle": "Trunchiat și de lungime moderată, aproape dreptunghiular, se îngustează ușor spre trufă. Voluminos, adânc și bine plin sub ochi. Nasul larg și drept. Bărbie bine dezvoltată. Trufă mare, neagră (la câinii albi și fulvo poate fi mai deschisă). Buze groase, cea superioară aderentă la cea inferioară; de preferat pigment complet negru.",
-    "jaws_teeth": "Fălci puternice și largi. Dinți mari, albi și apropiați (42). Incisivi aliniați. Mușcătură în foarfece; se acceptă cleștele și foarfecele inversă. Canini distanțați.",
-    "eyes": "De mărime medie, ovali, distanțați, cu privire înainte, moderat înfundați. De la maro-închis la alun; se preferă cel mai închis. Pleoape groase; a treia pleoapă nevizibilă. Margini palpebrale mereu negre. Expresie încrezătoare și demnă.",
-    "ears": "De mărime medie, triunghiulare, groase, inserate jos și căzute. Baza la nivelul ochiului ori ceva sub. Tăierea tradițională se practică încă acolo unde nu e interzisă.",
-    "neck": "De lungime medie, foarte puternic, de secțiune ovală, foarte musculos, inserat jos. Salba e o caracteristică a rasei.",
-    "topline": "Bine proporționată și susținută, trebuie să-și mențină tipicitatea în stațiune.",
-    "body": "Greabăn bine definit, mai ales la masculi. Spate drept, amplu, bine musculat. Șale scurte, ample, musculoase, ușor arcuite. Crupă moderat de lungă, amplă, ușor descendentă. Înălțimea la greabăn depășește cu 1–2 cm înălțimea la crupă. Torace coborât, lung, amplu, cutia se lărgește spre spate; coaste false lungi. Ventre moderat retras.",
-    "chest": "Coborât, lung, amplu. Partea inferioară la nivelul coților ori ceva sub.",
-    "tail": "Groasă la rădăcină și inserată destul de sus. Naturală, purtată în seceră ori răsucită într-un inel lax din ultima treime. În atenție la linia dorsală ori ceva peste; pendinte în repaus. Tăierea tradițională se practică încă; coada naturală are aceeași valoare.",
-    "forequarters": "",
-    "hindquarters": "",
-    "feet": "",
-    "movement": "Bine echilibrat și elastic. Trap cu alungit liber anterior și impuls posterior puternic. Linia superioară stabilă. Unghiularea posteriorului mai evidentă în mișcare.",
-    "coat": "Abundent, drept și aspru, cu subpăr bine dezvoltat. Pe cap și fața anterioară a picioarelor scurt și des; la greabăn adesea mai lung. Variantă cu păr scurt (3–5 cm) și variantă cu păr mai lung (7–10 cm) formând coamă pe gât, franjuri după urechi și pe posteriori.",
-    "color": "Orice culoare, în afară de albastru genetic și maro genetic (orice combinație) și șa neagră pe culoarea focului.",
-    "size": "Masculi minim 70 cm; femele minim 65 cm. De dorit talie mare, dar proporțională. Masculi minim 50 kg; femele minim 40 kg.",
-    "skin": "Groasă, suficient de elastică și lasă pentru a preveni leziunile în lupta cu prădătorii."
+    "muzzle": "Tocit și de lungime moderată; aproape dreptunghiular, văzut de sus și din lateral, îngustându-se foarte ușor spre trufă. Este voluminos, adânc și bine plin sub ochi. Puntea nazală este lată, dreaptă și uneori ușor descendentă. Bărbia este bine dezvoltată. Trufă: mare, bine dezvoltată, fără a depăși conturul general al botului; culoarea trufei este neagră, iar la câinii albi și cafeniu-deschis poate fi mai deschisă. Buze: groase, cele superioare acoperă strâns buzele inferioare când gura este închisă; pigmentarea neagră completă este de preferat.",
+    "jaws_teeth": "Fălci puternice și late. Dinții sunt mari, albi și apropiați, 42 în total. Incisivii sunt așezați în linie. Se acceptă mușcătura în foarfecă, în clește și foarfecă inversă. Caninii sunt bine depărtați. O leziune dentară care nu afectează funcționalitatea mușcăturii nu are importanță. Obraji: pomeți lungi și bine dezvoltați, fără a modifica forma dreptunghiulară a capului.",
+    "eyes": "De mărime medie, ovali, depărtați, privind drept înainte și moderat adânciți. Culoarea variază de la brun-închis la alună; culoarea mai închisă este preferată. Pleoapele sunt groase, iar pleoapa inferioară nu trebuie să fie prea laxă. Fără a treia pleoapă vizibilă. Marginile pleoapelor complet pigmentate sunt preferate; indiferent de culoarea robei, marginile pleoapelor trebuie să fie negre.",
+    "ears": "De mărime medie, triunghiulare, groase, prinse jos și purtate atârnând. Partea inferioară a bazei urechii este la nivelul ochilor sau puțin mai jos. Cuparea tradițională este încă practicată în țara de origine și în statele în care nu este interzisă prin lege; urechea naturală, netăiată, este de valoare egală cu cea cupată.",
+    "neck": "De lungime medie, foarte puternic, oval în secțiune transversală, bine musculos și prins jos. Salba este o caracteristică specifică rasei.",
+    "topline": "Bine proporționată și bine susținută; trebuie să păstreze linia superioară tipică în stațiune. Greabăn bine definit, în special la masculi, musculos, lung și înalt, cu tranziție bine definită către spate.",
+    "body": "Spate drept, lat, bine musculos; lungimea efectivă este aproximativ jumătate din distanța de la greabăn la baza cozii. Șale scurte, late, musculoase, ușor arcuite. Crupă moderat de lungă, lată, bine musculoasă, ușor înclinată către baza cozii; înălțimea la greabăn depășește cu 1–2 cm înălțimea la crupă. Abdomen moderat ridicat.",
+    "chest": "Adânc, lung, lat, bine dezvoltat; cutia toracică se lărgește spre posterior. Coastele false sunt lungi. Partea inferioară a pieptului este la nivelul cotului sau puțin sub acesta. Antepieptul se prelungește ușor înaintea articulației scapulo-humerale.",
+    "tail": "Groasă la bază și prinsă destul de sus. Coada naturală este purtată în seceră sau în inel larg, format în ultima treime a cozii. În stare de alertă se ridică până la linia spatelui sau puțin deasupra acesteia; în repaus atârnă. Cuparea tradițională este încă practicată în țara de origine și în statele în care nu este interzisă prin lege; coada naturală este de valoare egală cu cea cupată.",
+    "forequarters": "Membre anterioare drepte, cu osatură puternică; văzute din față sunt paralele și nu sunt apropiate, iar din lateral antebrațele sunt drepte. Omoplat lung, bine oblic, formând cu brațul un unghi de aproximativ 100°, bine musculos. Braț oblic, lung și puternic. Cot corect aplicat, fără deviere spre interior sau exterior. Antebraț drept, lung, cu osatură foarte puternică și secțiune ovală. Metacarp de lungime moderată, lat, puternic, vertical.",
+    "hindquarters": "Văzute din spate, drepte și paralele, așezate ceva mai larg decât membrele anterioare. Coapsă lată, moderat de lungă și puternic musculoasă. Genunchi fără deviere spre interior sau exterior, cu angulație moderată. Gambă aproape de aceeași lungime ca și coapsa. Jaret cu angulație moderată. Metatars foarte puternic, de lungime moderată, perpendicular; fără pinteni.",
+    "feet": "Mari, rotunjite, cu degete arcuite; pernițe voluminoase și groase; unghiile pot avea orice culoare. La fel la membrele anterioare și la cele posterioare.",
+    "movement": "Bine echilibrată și elastică. Trap cu alonjă liberă a membrelor anterioare și impuls puternic din partea membrelor posterioare. Linia superioară rămâne stabilă în mișcare. Toate articulațiile se flexează fără efort. Angulațiile membrelor posterioare sunt mai evidente în mișcare decât în poziția statică.",
+    "coat": "Păr abundent, drept, aspru, cu subpăr bine dezvoltat. Părul de pe cap și de pe partea anterioară a membrelor este scurt și des; părul de pe greabăn este adesea mai lung. Părul de acoperire poate fi scurt (3–5 cm), acoperind întreg corpul, sau mai lung (7–10 cm), formând coamă pe gât, franjuri în spatele urechilor, pe părțile posterioare ale membrelor și pe coadă.",
+    "color": "Orice culoare și orice combinație de culori, cu excepția albastrului genetic, a brunului genetic și a culorii cafeniu cu mantie neagră.",
+    "size": "Înălțime la greabăn: masculi minimum 70 cm, femele minimum 65 cm. Talia mare este de dorit, dar trebuie păstrată construcția proporționată. Greutate: masculi minimum 50 kg, femele minimum 40 kg.",
+    "skin": "Groasă, suficient de elastică și laxă pentru a preveni leziunile în lupta cu prădătorii."
    },
    "temperament": {
-    "behavior": "Sigur de sine, echilibrat, liniștit, mândru și independent. Foarte curajoși, cu mare capacitate de lucru, rezistență și instinct teritorial. Caracteristică e lipsa fricii față de prădătorii mari.",
-    "ring_attitude": "",
-    "expression": "",
-    "temperament_notes": "Masculii trebuie să aibă doi testiculi de aspect normal, complet coborâți în scrot."
+    "behavior": "Sigur pe sine, echilibrat, calm, mândru și independent. Câinii sunt foarte curajoși, au capacitate mare de muncă, rezistență și un instinct teritorial natural. Neînfricarea față de prădătorii mari este o caracteristică a rasei.",
+    "ring_attitude": "Demn și stăpân pe sine, fără agresivitate provocată și fără timiditate; independența nu trebuie confundată cu lipsa de cooperare.",
+    "expression": "Sigură și demnă.",
+    "temperament_notes": "Câinii agresivi ori excesiv de timizi se descalifică; timiditatea și hiperexcitabilitatea sunt defecte descalificante."
    },
    "faults": {
     "minor": [
-     "Ușoară abatere de la tip",
-     "Femelă tinzând spre masculin",
-     "Craniu rotunjit, bot îngust, trufă mică",
-     "Ochi oblici ori apropiați, pleoape lăsate",
-     "Urechi inserate sus; buze subțiri ori pendinte",
-     "Mai înalt la crupă; crupă ceva scurtă",
-     "Anterior îngust; unghiulări exagerate ale posteriorului",
-     "Picioare aplatizate cu degete lungi",
-     "Trap hackney, mișcare ușor necoordonată",
-     "Păr foarte scurt"
+     "Abateri ușoare de la tipul de rasă.",
+     "Femelă cu tendință către tip masculin.",
+     "Craniu rotunjit, bot îngust și mandibulă îngustă, trufă mică.",
+     "Ochi oblici sau apropiați, pleoape laxe.",
+     "Urechi prinse sus.",
+     "Buze subțiri sau laxe, atârnânde.",
+     "Mai înalt la crupă; crupă ușor scurtă.",
+     "Front îngust.",
+     "Angulații exagerate ale membrelor posterioare.",
+     "Picioare răsfirate și degete lungi.",
+     "Mișcare de tip hackney; mișcare ușor dezechilibrată.",
+     "Păr foarte scurt."
     ],
     "serious": [
-     "Puternic nervos; abatere semnificativă de la tip și constituție",
-     "Aspect cu picioare lungi; osatură ușoară, mușchi moi",
-     "Ochi prea deschiși ori ieșiți",
-     "Linie superioară descendentă; crupă mult mai înaltă decât greabănul; crupă îngustă, scurtă și căzută",
-     "Coadă natural scurtă, cu noduri",
-     "Metacarpi prea înalți ori flexați; posteriori sub corp",
-     "Talie cu 2 cm sub minim"
+     "Temperament foarte nervos.",
+     "Abatere semnificativă de la tipul și constituția cerute.",
+     "Aspect înalt pe picioare; osatură ușoară, musculatură moale.",
+     "Ochi prea deschiși la culoare sau proeminenți.",
+     "Linie superioară în cădere.",
+     "Crupă mult mai înaltă decât greabănul.",
+     "Crupă îngustă, scurtă și abruptă.",
+     "Coadă natural bobtail; coadă frântă.",
+     "Metacarpuri prea înalte; călcând pe metacarp.",
+     "Membre posterioare așezate prea mult sub corp.",
+     "Înălțime la greabăn cu 2 cm sub minimul prevăzut."
     ],
     "disqualifying": [
-     "Câine agresiv ori excesiv de timid",
-     "Orice câine cu anomalii fizice ori de comportament evidente",
-     "Timid, prea excitat; mascul feminin",
-     "Enognatism ori prognatism distinct",
-     "Ochi de culori diferite, albaștri ori verzi; strabism",
-     "Articulații lasate",
-     "Manta cu combinații de maro genetic ori albastru genetic",
-     "Culoarea focului cu șa neagră distinctă",
-     "Păr cârlionțat ori moale; mișcare necoordonată"
+     "Câini agresivi sau excesiv de timizi.",
+     "Orice câine care prezintă în mod evident anomalii fizice sau comportamentale.",
+     "Timiditate, hiperexcitabilitate.",
+     "Mascul de tip feminin.",
+     "Prognatism superior sau prognatism inferior evident.",
+     "Ochi de culori diferite; ochi albaștri sau verzi; strabism.",
+     "Articulații laxe.",
+     "Robă cu orice combinație de brun genetic sau albastru genetic.",
+     "Culoare cafeniu cu mantie neagră distinctă.",
+     "Robă creață sau moale.",
+     "Mișcare dezechilibrată."
     ]
    },
    "pedagogy": {
     "frequent_confusions": [],
     "key_markers": [],
-    "judge_notes": [],
+    "judge_notes": [
+     "N.B. Masculii trebuie să prezinte două testicule cu aspect normal, complet coborâte în scrot. Numai câinii sănătoși funcțional și clinic, cu conformație tipică rasei, trebuie utilizați pentru reproducere."
+    ],
     "teaching_notes": [],
     "similar_breeds": []
    },
@@ -38538,8 +38417,8 @@
    "difficulty_level": "",
    "exam_relevance": "",
    "teaching_priority": "",
-   "revision_status": "imported",
-   "source_verification_status": "imported",
+   "revision_status": "verified",
+   "source_verification_status": "verified",
    "thematic_tags": [
     "Russia"
    ],
@@ -38547,8 +38426,13 @@
     "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs"
    ],
    "recurring_judge_observations": [],
-   "version": 1,
-   "revision_history": []
+   "version": 2,
+   "revision_history": [
+    {
+     "la": "2026-09-02",
+     "ce": "Standard WDF în limba română, pus la dispoziție de asociație; înlocuiește textul extras automat."
+    }
+   ]
   },
   {
    "id": "breed-477",
@@ -40457,248 +40341,6 @@
    "source_verification_status": "imported",
    "thematic_tags": [
     "Russia"
-   ],
-   "study_track_tags": [
-    "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs"
-   ],
-   "recurring_judge_observations": [],
-   "version": 1,
-   "revision_history": []
-  },
-  {
-   "id": "breed-494",
-   "wdf_code": "G02-099",
-   "breed_name": "Tobet (Central Asian Shepherd Dog — Tobet)",
-   "alternate_names": [
-    "Central Asian Shepherd Dog Tobet"
-   ],
-   "group": "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs",
-   "country_of_origin": "Kazakistan",
-   "wdf_status": "recognized",
-   "coat_type": "wire",
-   "functional_type": "guard",
-   "source_standard_title": "Standard oficial WDF G02-099",
-   "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G02-099",
-   "last_updated": "2026-08-08",
-   "identity": {
-    "official_name": "Tobet (Central Asian Shepherd Dog — Tobet)",
-    "owner_country": "Kazakistan",
-    "historical_function": "Câine de pază a turmelor.",
-    "general_impression": "Câine mare și puternic, considerat subtip al Ciobănescului de Asia Centrală. Corp robust, voluminos, dar fără mușchi vizibili. Dimorfism sexual bine definit.",
-    "important_proportions": "Lungimea corpului depășește puțin înălțimea la greabăn. Anteriorul până la cot = 50–52% din înălțimea la greabăn. Botul = jumătate din lungimea capului, dar peste 1/3.",
-    "sexual_dimorphism": "",
-    "ideal_type_summary": "Câine mare și puternic, considerat subtip al Ciobănescului de Asia Centrală.",
-    "historical_summary": "Molos asiatic originar din Kazahstan. Câine mare, cu funcția de a proteja turmele de prădători. Un singur Tobet poate înfrunta un lup, de unde porecla rusească „Volkodav” („distrugător de lupi”). Folosit și la mânatul turmelor și cirezilor, chiar de cai, și la vânatul de mistreț (în haite mixte de Tazy și Tobet). În perioada sovietică, mulți câini din Asia Centrală au fost duși în Rusia, dând naștere Ciobănescului de Asia Centrală (CAO) — rasă „inventată” prin fuziunea liniilor ancestrale (Tobet din Kazahstan, Alabai din Turkmenistan ș.a.). Considerat un subtip al Ciobănescului de Asia Centrală; recent în declin din cauza încrucișărilor.",
-    "classification": "",
-    "standard_published": "",
-    "country_of_development": ""
-   },
-   "anatomy": {
-    "head": "Masivă, în armonie cu ansamblul, aproape dreptunghiulară de sus și lateral. Craniu adânc, cu frunte plată și lungă. Occiput puțin vizibil din cauza mușchilor. Arcade supraorbitale moderat definite.",
-    "skull": "",
-    "stop": "Moderat definit.",
-    "muzzle": "Teșit și de lungime moderată, aproape dreptunghiular, se îngustează ușor spre nas. Voluminos, adânc și bine plin sub ochi. Bărbie bine dezvoltată. Trufă largă, neagră (la câinii albi și fulvo poate fi mai deschisă). Buze groase, de preferat pigment complet negru.",
-    "jaws_teeth": "Fălci puternice și largi. Dinți mari, albi și apropiați (42). Mușcătură în foarfece, clește ori foarfece inversă. Canini distanțați.",
-    "eyes": "De mărime medie, ovali, distanțați, cu privire înainte, moderat înfundați. De la maro-închis la alun (se preferă mai închis). Pleoape groase; margini palpebrale negre. Expresie sigură și demnă.",
-    "ears": "De mărime medie, triunghiulare, groase, inserate jos și căzute. Tăierea tradițională se practică încă acolo unde nu e interzisă.",
-    "neck": "De lungime medie, foarte puternic, de secțiune ovală, bine musculat, inserat jos. Salba e o caracteristică a rasei.",
-    "topline": "Bine proporționată și susținută, își menține tipicitatea în stațiune.",
-    "body": "Greabăn bine definit, mai ales la masculi. Spate drept, larg, bine musculat. Șale scurte, largi, ușor arcuite. Crupă moderat de lungă, amplă, ușor înclinată. Torace adânc, lung, larg; coaste false lungi. Ventre moderat retras.",
-    "chest": "Adânc, lung, larg. Partea inferioară la nivelul coților ori ceva sub.",
-    "tail": "Groasă la bază și inserată destul de sus. Naturală, în seceră ori răsucită într-un inel lax. În alertă la linia spatelui ori ceva peste; pendinte în repaus. Tăierea tradițională se practică încă; coada naturală are aceeași valoare.",
-    "forequarters": "",
-    "hindquarters": "",
-    "feet": "",
-    "movement": "Bine echilibrat și elastic. Trap cu anterior liber și impuls posterior puternic. Linia superioară stabilă.",
-    "coat": "Abundent, drept, aspru, cu subpăr bine dezvoltat. Variantă cu păr scurt (3–5 cm) și cu păr mai lung (7–10 cm) formând coamă pe gât.",
-    "color": "Orice culoare, în afară de albastru genetic și maro genetic (orice combinație) și negru pe maro deschis.",
-    "size": "Masculi ideal 55 kg; femele ideal 50 kg.",
-    "skin": "Groasă, suficient de elastică și lasă pentru a preveni leziunile în lupta cu prădătorii."
-   },
-   "temperament": {
-    "behavior": "Are paza în gene: selecționat să apere de lupi, urși, leoparzi și prădători. Paznic natural, care nu cere dresaj pentru această funcție. Foarte afectuos cu stăpânul și familia, cu simț de protecție față de pui. Temperament unic, sobru și neînfricat, echilibrat. Dominant cu alți câini; necesită socializare timpurie. Pare leneș ziua, dar are reacții fulgerătoare și e foarte activ noaptea.",
-    "ring_attitude": "",
-    "expression": "",
-    "temperament_notes": ""
-   },
-   "faults": {
-    "minor": [
-     "Ușoare abateri de la tip; femelă tinzând spre masculin",
-     "Craniu rotunjit, bot îngust, trufă mică",
-     "Ochi oblici ori apropiați, pleoape căzute; urechi inserate sus",
-     "Buze subțiri ori căzute; mai înalt la crupă",
-     "Unghiulări exagerate ale posteriorului; picioare deschise",
-     "Mers hackney; păr foarte scurt"
-    ],
-    "serious": [
-     "Foarte nervos; abatere de la tip și constituție",
-     "Aspect cu picioare lungi; osatură ușoară",
-     "Ochi prea deschiși ori ieșiți; linie superioară care cade",
-     "Crupă mult mai înaltă decât greabănul, îngustă ori abruptă",
-     "Coadă natural teșită ori răsucită; metacarpi prea înalți",
-     "Talie cu 2 cm sub minim"
-    ],
-    "disqualifying": [
-     "Câine agresiv ori excesiv de timid",
-     "Orice câine cu anomalii fizice ori de comportament evidente",
-     "Timid, supraexcitat; mascul de tip feminin",
-     "Enognatism ori prognatism evident",
-     "Ochi de culori diferite, albaștri ori verzi",
-     "Articulații lasate",
-     "Manta genetic maro ori albastră; maro deschis cu manta neagră",
-     "Manta cârlionțată ori moale; mișcare dezechilibrată"
-    ]
-   },
-   "pedagogy": {
-    "frequent_confusions": [],
-    "key_markers": [],
-    "judge_notes": [],
-    "teaching_notes": [],
-    "similar_breeds": []
-   },
-   "judge_checklist": {
-    "first_impression": [],
-    "static_exam": [],
-    "movement_exam": [],
-    "final_attention_points": []
-   },
-   "references": [
-    {
-     "type": "official_standard",
-     "title": "Standard oficial WDF G02-099",
-     "url": "https://wdf-international.org/?wdf_standard_view=G02-099",
-     "accessed_on": "2026-08-08"
-    }
-   ],
-   "internal_notes": "",
-   "difficulty_level": "",
-   "exam_relevance": "",
-   "teaching_priority": "",
-   "revision_status": "imported",
-   "source_verification_status": "imported",
-   "thematic_tags": [
-    "Kazakistan"
-   ],
-   "study_track_tags": [
-    "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs"
-   ],
-   "recurring_judge_observations": [],
-   "version": 1,
-   "revision_history": []
-  },
-  {
-   "id": "breed-495",
-   "wdf_code": "G02-100",
-   "breed_name": "Torkuz (Central Asian Shepherd Dog — Torkuz)",
-   "alternate_names": [
-    "Central Asian Shepherd Dog Torkuz"
-   ],
-   "group": "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs",
-   "country_of_origin": "Uzbekistan",
-   "wdf_status": "recognized",
-   "coat_type": "wire",
-   "functional_type": "guard",
-   "source_standard_title": "Standard oficial WDF G02-100",
-   "source_standard_url": "https://wdf-international.org/?wdf_standard_view=G02-100",
-   "last_updated": "2026-08-08",
-   "identity": {
-    "official_name": "Torkuz (Central Asian Shepherd Dog — Torkuz)",
-    "owner_country": "Uzbekistan",
-    "historical_function": "Câine de pază a turmelor.",
-    "general_impression": "Câine mare, considerat subtip al Ciobănescului de Asia Centrală. Majoritatea albi cu pete negre ori maro. Păr scurt și des, mai lung iarna. Gât cu salbă abundentă. Talie cu variații mari, uneori până la 80 cm.",
-    "important_proportions": "Lungimea corpului depășește puțin înălțimea la greabăn. Anteriorul până la cot = 50–52% din înălțimea la greabăn. Botul = jumătate din lungimea capului, dar peste 1/3.",
-    "sexual_dimorphism": "",
-    "ideal_type_summary": "Câine mare, considerat subtip al Ciobănescului de Asia Centrală.",
-    "historical_summary": "Rasă molosoidă de munte foarte veche, originară din Uzbekistan (numită și Ovcearka uzbec, Sarkangik, mastif uzbec, „Volkodav” uzbec). Torkuz („patru ochi”) e una dintre rasele care au participat la crearea Ciobănescului de Asia Centrală în secolul trecut. Alături de Alabai turkmen și Sarkangik uzbec, e câinele cel mai apropiat de vechiul mastif asiatic. Funcția principală: protecția vitelor de lupi și urși. Există două variante: una foarte grea și imponentă (lupte, vânat mare, pază) și una mai ușoară (Sarkangik, pază și mânat).",
-    "classification": "",
-    "standard_published": "",
-    "country_of_development": ""
-   },
-   "anatomy": {
-    "head": "Masivă, în armonie cu ansamblul, aproape dreptunghiulară de sus și lateral. Craniu adânc, cu frunte plată și lungă. Occiput puțin vizibil din cauza mușchilor. Arcade supraorbitale moderat definite.",
-    "skull": "",
-    "stop": "Moderat definit.",
-    "muzzle": "Teșit și de lungime moderată, aproape dreptunghiular, se îngustează ușor spre nas. Voluminos, adânc și bine plin sub ochi. Bărbie bine dezvoltată. Trufă largă, neagră (la câinii albi și fulvo poate fi mai deschisă). Buze groase, de preferat pigment complet negru.",
-    "jaws_teeth": "Fălci puternice și largi. Dinți mari, albi și apropiați (42). Mușcătură în foarfece, clește ori foarfece inversă. Canini distanțați.",
-    "eyes": "De mărime medie, ovali, distanțați, cu privire înainte, moderat înfundați. De la maro-închis la alun (se preferă mai închis). Pleoape groase; margini palpebrale negre. Expresie sigură și demnă.",
-    "ears": "De mărime medie, triunghiulare, groase, inserate jos și căzute. Tăierea tradițională se practică încă acolo unde nu e interzisă.",
-    "neck": "De lungime medie, foarte puternic, de secțiune ovală, bine musculat, inserat jos. Salba e o caracteristică a rasei.",
-    "topline": "Bine proporționată și susținută, își menține tipicitatea în stațiune.",
-    "body": "Greabăn bine definit, mai ales la masculi. Spate drept, larg, bine musculat. Șale scurte, largi, ușor arcuite. Crupă moderat de lungă, amplă, ușor înclinată. Torace adânc, lung, larg; coaste false lungi. Ventre moderat retras.",
-    "chest": "Adânc, lung, larg. Partea inferioară la nivelul coților ori ceva sub.",
-    "tail": "Groasă la bază și inserată destul de sus. Naturală, în seceră ori răsucită într-un inel lax. În alertă la linia spatelui ori ceva peste; pendinte în repaus. Coada naturală are aceeași valoare ca una tăiată.",
-    "forequarters": "",
-    "hindquarters": "",
-    "feet": "",
-    "movement": "Bine echilibrat și elastic. Trap cu anterior liber și impuls posterior puternic. Linia superioară stabilă.",
-    "coat": "Abundent, drept, aspru, cu subpăr bine dezvoltat. Variantă cu păr scurt (3–5 cm) și cu păr mai lung (7–10 cm) formând coamă pe gât.",
-    "color": "Orice culoare, în afară de albastru genetic și maro genetic (orice combinație) și negru pe maro deschis.",
-    "size": "Masculi peste 80 kg; femele peste 70 kg.",
-    "skin": "Groasă, suficient de elastică și lasă pentru a preveni leziunile în lupta cu prădătorii."
-   },
-   "temperament": {
-    "behavior": "Are paza în gene: selecționat să apere de lupi, urși, leoparzi și prădători. Paznic natural, fără nevoie de dresaj. Foarte afectuos cu stăpânul și familia, cu simț de protecție față de pui. Temperament unic, sobru și neînfricat, echilibrat. Dominant cu alți câini; necesită socializare timpurie. Pare leneș ziua, dar cu reacții fulgerătoare, foarte activ noaptea.",
-    "ring_attitude": "",
-    "expression": "",
-    "temperament_notes": ""
-   },
-   "faults": {
-    "minor": [
-     "Ușoare abateri de la tip; femelă tinzând spre masculin",
-     "Craniu rotunjit, bot îngust, trufă mică",
-     "Ochi oblici ori apropiați, pleoape căzute; urechi inserate sus",
-     "Buze subțiri ori căzute; mai înalt la crupă",
-     "Unghiulări exagerate ale posteriorului; picioare deschise",
-     "Mers hackney; păr foarte scurt"
-    ],
-    "serious": [
-     "Foarte nervos; abatere de la tip și constituție",
-     "Aspect cu picioare lungi; osatură ușoară",
-     "Ochi prea deschiși ori ieșiți; linie superioară care cade",
-     "Crupă mult mai înaltă decât greabănul, îngustă ori abruptă",
-     "Coadă natural teșită ori răsucită; metacarpi prea înalți",
-     "Talie cu 2 cm sub minim"
-    ],
-    "disqualifying": [
-     "Câine agresiv ori excesiv de timid",
-     "Orice câine cu anomalii fizice ori de comportament evidente",
-     "Timid, supraexcitat; mascul de tip feminin",
-     "Enognatism ori prognatism evident",
-     "Ochi de culori diferite, albaștri ori verzi",
-     "Articulații lasate",
-     "Manta genetic maro ori albastră; maro deschis cu manta neagră",
-     "Manta cârlionțată ori moale; mișcare dezechilibrată"
-    ]
-   },
-   "pedagogy": {
-    "frequent_confusions": [],
-    "key_markers": [],
-    "judge_notes": [],
-    "teaching_notes": [],
-    "similar_breeds": []
-   },
-   "judge_checklist": {
-    "first_impression": [],
-    "static_exam": [],
-    "movement_exam": [],
-    "final_attention_points": []
-   },
-   "references": [
-    {
-     "type": "official_standard",
-     "title": "Standard oficial WDF G02-100",
-     "url": "https://wdf-international.org/?wdf_standard_view=G02-100",
-     "accessed_on": "2026-08-08"
-    }
-   ],
-   "internal_notes": "",
-   "difficulty_level": "",
-   "exam_relevance": "",
-   "teaching_priority": "",
-   "revision_status": "imported",
-   "source_verification_status": "imported",
-   "thematic_tags": [
-    "Uzbekistan"
    ],
    "study_track_tags": [
     "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs"
@@ -44001,7 +43643,7 @@
     "final_attention_points": []
    },
    "references": [],
-   "internal_notes": "Adăugată la cererea asociației (14.08.2026) pentru înscrieri. ATENȚIE la încadrare: exemplarele cu acte de Central Asian Shepherd Dog / Alabai (G02-051, G02-066) se înscriu la rasa lor WDF; fișa aceasta e pentru câinii înregistrați ca Volkodav. De completat de un lector.",
+   "internal_notes": "Adăugată la cererea asociației (14.08.2026) pentru înscrieri. ATENȚIE la încadrare: exemplarele cu acte de Ciobănesc de Asia Centrală (CAO, G02-066) se înscriu la rasa lor WDF; fișa aceasta e pentru câinii înregistrați ca Volkodav. De completat de un lector.",
    "difficulty_level": "",
    "exam_relevance": "",
    "teaching_priority": "",
