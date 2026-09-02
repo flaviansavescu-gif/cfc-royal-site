@@ -849,7 +849,7 @@
       { id: "list", icon: "☰", label: "Breed List", count: state.breeds.length },
       { id: "compare", icon: "⇄", label: "Compare Breeds" },
       // Ascultarea în ring apare NUMAI în aplicația instalată pe telefon.
-      ...(eInstalata() ? [{ id: "ring", icon: "🎧", label: "Ascultă în ring" }] : []),
+      ...(eInstalata() ? [{ id: "ring", icon: "🎧", label: "Ascultă" }] : []),
       { group: "Learn" },
       { id: "quiz", icon: "◎", label: "Quiz & Exam" },
       { id: "curriculum", icon: "▤", label: "Curriculum", count: state.lessons.length },
