@@ -113,6 +113,40 @@
     "Group 2 Pinscher and Schnauzer Type Dogs – Molossoids and Swiss Cattle Dogs": "Grupa 2 Pinscher și Schnauzer – Molosoizi și câini de vite elvețieni",
     "Group 6 Scenthounds and Related Breeds": "Grupa 6 Copoi și rase înrudite",
     "Group 8 Retrievers, Flushing and Water Dogs": "Grupa 8 Retrieveri, câini de scos vânatul și de apă",
+    // Țările de origine și de patronaj. Sursele WDF le scriu neunitar (Czech Rep. /
+    // Czech Republic, Slovak Rep. / Slovak Republic, USA / United States, Serbia and
+    // Montenegro / Serbia-Montenegro, Russia / Russian, England / Great Britain /
+    // United Kingdom, iar „Grand Bretain" e o greșeală din sursă). Traducerea le
+    // așază pe toate pe același nume românesc, deci filtrul nu mai are dubluri.
+    "Afghanistan and GB": "Afganistan și Marea Britanie", "Africa": "Africa",
+    "Algeria": "Algeria", "Argentina": "Argentina", "Australia": "Australia", "Austria": "Austria",
+    "Belgium": "Belgia", "Bosnia and Herzegovina": "Bosnia și Herțegovina",
+    "Bosnia-Herzegovina and Croatia": "Bosnia și Herțegovina și Croația",
+    "Brazil": "Brazilia", "Canada": "Canada", "Central Africa": "Africa Centrală",
+    "Central Asia": "Asia Centrală", "Chile": "Chile", "China": "China",
+    "China and Great Britain": "China și Marea Britanie", "Croatia": "Croația",
+    "Croatia – ex-Yugoslavia": "Croația (fosta Iugoslavie)", "Cuba": "Cuba",
+    "Czech Rep.": "Cehia", "Czech Republic": "Cehia", "Denmark": "Danemarca",
+    "Egypt": "Egipt", "England": "Anglia", "Finland": "Finlanda", "France": "Franța",
+    "France / Belgium": "Franța și Belgia", "France – Belgium": "Franța și Belgia",
+    "Georgia": "Georgia", "Germany": "Germania", "Grand Bretain": "Marea Britanie",
+    "Great Britain": "Marea Britanie", "Great Britain – Wales": "Marea Britanie (Țara Galilor)",
+    "Greece": "Grecia", "Greenland": "Groenlanda", "Hungary": "Ungaria",
+    "Iceland": "Islanda", "Iran": "Iran", "Ireland": "Irlanda", "Israel": "Israel",
+    "Italy": "Italia", "Japan": "Japonia", "Japan – USA": "Japonia și Statele Unite",
+    "Madagascar": "Madagascar", "Mali – Patronage of France": "Mali (patronaj Franța)",
+    "Mexico": "Mexic", "Morocco": "Maroc", "Netherlands": "Țările de Jos",
+    "Norway": "Norvegia", "Perù": "Peru", "Peru": "Peru", "Poland": "Polonia",
+    "Portugal": "Portugalia", "Romania": "România", "Russia": "Rusia", "Russian": "Rusia",
+    "S.Africa-Zimbabwe": "Africa de Sud și Zimbabwe", "Serbia": "Serbia",
+    "Serbia and Montenegro": "Serbia și Muntenegru", "Serbia-Montenegro": "Serbia și Muntenegru",
+    "Slovak Rep.": "Slovacia", "Slovak Republic": "Slovacia", "Slovenia": "Slovenia",
+    "South Korea": "Coreea de Sud", "Spain": "Spania", "Sweden": "Suedia",
+    "Switzerland": "Elveția", "Taiwan": "Taiwan", "Thailand": "Thailanda",
+    "Tibet": "Tibet", "Tibet – China": "Tibet (China)", "Turkey": "Turcia",
+    "USA": "Statele Unite", "United States": "Statele Unite",
+    "USA – Great Britain": "Statele Unite și Marea Britanie",
+    "United Kingdom": "Regatul Unit", "Uruguay": "Uruguay",
     // Dashboard
     "A structured WDF-oriented breed-standards workspace for judging preparation, teaching, and quick professional consultation.":
       "Un spațiu de lucru cu standarde de rasă orientat pe WDF, pentru pregătirea arbitrajului, predare și consultare profesională rapidă.",
@@ -1190,7 +1224,7 @@
   function miniListItem(b) {
     return el("li", {}, el("button", { onclick: () => navigate("profile", { id: b.id }) }, [
       el("span", { class: "mini-name", text: b.breed_name }),
-      el("span", { class: "mini-meta", text: groupShort(b.group) + " · " + (b.country_of_origin || "—") }),
+      el("span", { class: "mini-meta", text: groupShort(b.group) + " · " + (b.country_of_origin ? tr(b.country_of_origin) : "—") }),
     ]));
   }
 
@@ -1300,7 +1334,11 @@
     const f = state.list.filters;
     const filters = el("div", { class: "filters" }, [
       filterSelect("Group", uniqueValues("group").map((g) => [g, tr(g)]), f.group, (v) => { f.group = v; render(); }),
-      filterSelect("Country", uniqueValues("country_of_origin").map((c) => [c, c]), f.country, (v) => { f.country = v; render(); }),
+      // Eticheta e în românește, dar valoarea rămâne cea din date — altfel filtrul
+      // nu s-ar mai potrivi cu fișele. Sortăm după cum se citește pe ecran.
+      filterSelect("Country", uniqueValues("country_of_origin")
+        .map((c) => [c, tr(c)])
+        .sort((a, b) => a[1].localeCompare(b[1], "ro")), f.country, (v) => { f.country = v; render(); }),
       // Filtrele se construiesc din valorile CHIAR PREZENTE în date, nu dintr-o listă fixă
       // scrisă în cod. Cu lista fixă, 71 de rase cu blană medie/creață/fără păr și 13 de
       // lucru/ogar rămâneau invizibile: filtrul nu le pomenea, deci nu puteau fi găsite.
@@ -1350,7 +1388,7 @@
         td(star, ""),
         td([el("span", { class: "breed-name-cell", text: b.breed_name }), b.alternate_names.length ? el("div", { class: "alt-names", text: fmtList(b.alternate_names) }) : null], "Breed", "breed-name-cell"),
         td(el("span", { class: "badge badge-group", text: groupShort(b.group) }), "Group"),
-        td(b.country_of_origin || "—", "Country"),
+        td(b.country_of_origin ? tr(b.country_of_origin) : "—", "Country"),
         td(el("span", { class: "badge badge-status " + b.wdf_status, text: statusLabel(b.wdf_status) }), "Status"),
         td(valLabel(b.coat_type) + " · " + valLabel(b.functional_type), "Coat / Type"),
         td(b.last_updated || "—", "Updated"),
@@ -1375,8 +1413,10 @@
   // Etichete RO pentru valorile enumerate (cheile rămân în engleză în date).
   const VAL_LABELS = {
     short: "Scurtă", long: "Lungă", wire: "Sârmă", other: "Altul",
+    curly: "Creață", hairless: "Fără păr",
     herding: "Ciobănesc", guard: "Pază", hunting: "Vânătoare", companion: "Companie",
-    "bull type": "Tip bull", primitive: "Primitiv",
+    "bull type": "Tip bull", primitive: "Primitiv", sighthound: "Ogar", working: "Utilitar",
+    recognized: "Recunoscută WDF", not_recognized: "Nerecunoscută WDF",
     beginner: "Începător", intermediate: "Intermediar", advanced: "Avansat",
     low: "Scăzut(ă)", medium: "Mediu(e)", high: "Ridicat(ă)", normal: "Normal(ă)",
     draft: "Ciornă", "in review": "În revizuire", verified: "Verificat", "needs update": "Necesită actualizare",
@@ -1514,7 +1554,7 @@
       ["Alternate names", fmtList(b.alternate_names) || "—"],
       ["Internal ID", b.id],
       ["WDF group", b.group],
-      ["Country of origin / owner", b.country_of_origin + (b.identity.owner_country && b.identity.owner_country !== b.country_of_origin ? " · " + b.identity.owner_country : "")],
+      ["Country of origin / owner", tr(b.country_of_origin) + (b.identity.owner_country && b.identity.owner_country !== b.country_of_origin ? " · " + tr(b.identity.owner_country) : "")],
       ["WDF recognition status", statusLabel(b.wdf_status)],
       ["Source standard title", b.source_standard_title || "—"],
       ["Source standard URL", link],
@@ -1701,7 +1741,7 @@
     o["Breed name"] = b.breed_name;
     o["Alternate names"] = fmtList(b.alternate_names);
     o["Group"] = b.group;
-    o["Country of origin"] = b.country_of_origin;
+    o["Country of origin"] = tr(b.country_of_origin);
     o["WDF status"] = statusLabel(b.wdf_status);
     o["Coat type"] = b.coat_type;
     o["Functional type"] = b.functional_type;
@@ -1848,7 +1888,7 @@
   const COMPARE_SECTIONS = [
     { title: "Identity", rows: [
       ["Group", (b) => b.group],
-      ["Country of origin", (b) => b.country_of_origin],
+      ["Country of origin", (b) => tr(b.country_of_origin)],
       ["WDF status", (b) => statusLabel(b.wdf_status)],
       ["Alternate names", (b) => fmtList(b.alternate_names)],
     ]},
@@ -2071,7 +2111,7 @@
         prompt: "Which breed does this description best match?",
         context: "“" + desc + "”",
         options: opts, answer: opts.findIndex((o) => o.id === b.id),
-        explanation: b.breed_name + " — " + groupShort(b.group) + ", " + (b.country_of_origin || "—") + ".",
+        explanation: b.breed_name + " — " + groupShort(b.group) + ", " + (b.country_of_origin ? tr(b.country_of_origin) : "—") + ".",
       };
     },
     group_of_breed(pool) {
@@ -2097,12 +2137,14 @@
       // corecte, iar candidatul care alege bine ar fi informat că a greșit.
       const canonTara = (c) => canonicalCountry(c);
       const distract = pickDistinct(countries, 3, (c) => canonTara(c) === canonTara(b.country_of_origin));
-      const opts = shuffle([b.country_of_origin].concat(distract).map((c) => ({ text: c })));
+      // Pe ecran scrie numele românesc, dar răspunsul se caută pe valoarea din date
+      // (`val`) — două scrieri englezești diferite pot da același nume românesc.
+      const opts = shuffle([b.country_of_origin].concat(distract).map((c) => ({ text: tr(c), val: c })));
       return {
         type: "single", tag: "Origin",
         prompt: "Care este țara de origine a rasei " + b.breed_name + "?",
-        options: opts, answer: opts.findIndex((o) => o.text === b.country_of_origin),
-        explanation: b.breed_name + " provine din " + b.country_of_origin + ".",
+        options: opts, answer: opts.findIndex((o) => o.val === b.country_of_origin),
+        explanation: b.breed_name + " provine din " + tr(b.country_of_origin) + ".",
       };
     },
     fault_category(pool) {
@@ -2518,7 +2560,7 @@
         el("div", { class: "flash-hint", text: b.breed_name }),
         el("div", { class: "tag-list", style: "justify-content:center;margin:8px 0" }, [
           el("span", { class: "badge badge-group", text: groupShort(b.group) }),
-          el("span", { class: "badge badge-coat", text: b.country_of_origin || "—" }),
+          el("span", { class: "badge badge-coat", text: b.country_of_origin ? tr(b.country_of_origin) : "—" }),
         ]),
         el("ul", { style: "text-align:left;max-width:440px;margin:10px auto" }, markers.map((m) => el("li", { text: m }))),
         b.identity.ideal_type_summary ? el("p", { class: "muted", style: "max-width:460px;margin:6px auto", text: b.identity.ideal_type_summary }) : null,
@@ -2852,7 +2894,7 @@
     if (isNonEmptyText(l.body)) { s += "<h2>Notele lecției</h2>"; String(l.body).split(/\n{2,}/).forEach((p) => { if (p.trim()) s += "<p>" + esc(p.trim()) + "</p>"; }); }
     s += "<h2>Rase în această lecție</h2>";
     if (!breeds.length) s += "<p>—</p>";
-    else { s += "<ul>"; breeds.forEach((b) => { s += "<li><strong>" + esc(b.breed_name) + "</strong> — " + esc(groupShort(b.group)) + ", " + esc(b.country_of_origin || "—") + (b.identity.ideal_type_summary ? ": " + esc(b.identity.ideal_type_summary) : "") + "</li>"; }); s += "</ul>"; }
+    else { s += "<ul>"; breeds.forEach((b) => { s += "<li><strong>" + esc(b.breed_name) + "</strong> — " + esc(groupShort(b.group)) + ", " + esc(b.country_of_origin ? tr(b.country_of_origin) : "—") + (b.identity.ideal_type_summary ? ": " + esc(b.identity.ideal_type_summary) : "") + "</li>"; }); s += "</ul>"; }
     if (l.recommended_reading.length) s += wList("Recommended reading", l.recommended_reading);
     s += '<p class="disc">Generat de Exploratorul de standarde CFC-Royal (cadrul WDF) la ' + todayISO() + ".</p>";
     return s;
@@ -3386,13 +3428,13 @@
 
   function wordDocProfile(b, includePrivate) {
     let s = "<h1>" + esc(b.breed_name) + "</h1>";
-    s += '<p class="sub">' + esc(b.group) + " · " + esc(b.country_of_origin) + " · " + esc(statusLabel(b.wdf_status)) + " · v" + (b.version || 1) + "</p>";
+    s += '<p class="sub">' + esc(tr(b.group)) + " · " + esc(tr(b.country_of_origin)) + " · " + esc(statusLabel(b.wdf_status)) + " · v" + (b.version || 1) + "</p>";
     if (b.alternate_names.length) s += '<p class="sub">Cunoscută și ca: ' + esc(fmtList(b.alternate_names)) + "</p>";
 
     s += "<h2>Identitate</h2>" + wKV([
       ["Official name", b.identity.official_name || b.breed_name],
       ["Internal ID", b.id], ["WDF group", b.group],
-      ["Country of origin / owner", b.country_of_origin + (b.identity.owner_country && b.identity.owner_country !== b.country_of_origin ? " · " + b.identity.owner_country : "")],
+      ["Country of origin / owner", tr(b.country_of_origin) + (b.identity.owner_country && b.identity.owner_country !== b.country_of_origin ? " · " + tr(b.identity.owner_country) : "")],
       ["WDF recognition status", statusLabel(b.wdf_status)],
       ["Coat / functional type", cap(b.coat_type) + " · " + cap(b.functional_type)],
       ["Source standard", b.source_standard_title || "—"],
@@ -3471,7 +3513,7 @@
 
   function wordDocRevisionSheet(b) {
     let s = "<h1>Fișă de recapitulare — " + esc(b.breed_name) + "</h1>";
-    s += '<p class="sub">' + esc(b.group) + " · " + esc(b.country_of_origin) + " · " + esc(statusLabel(b.wdf_status)) + "</p>";
+    s += '<p class="sub">' + esc(tr(b.group)) + " · " + esc(tr(b.country_of_origin)) + " · " + esc(statusLabel(b.wdf_status)) + "</p>";
     if (isNonEmptyText(b.identity.ideal_type_summary)) s += "<h2>Tip ideal</h2><p>" + esc(b.identity.ideal_type_summary) + "</p>";
     s += "<h2>Recunoaștere-cheie</h2>" + wList("Key markers", b.pedagogy.key_markers) + wList("Frequent confusions", b.pedagogy.frequent_confusions) + wList("Similar breeds", b.pedagogy.similar_breeds);
     s += "<h2>Defecte pe scurt</h2>" + wList("Serious", b.faults.serious) + wList("Disqualifying", b.faults.disqualifying, "dq");
