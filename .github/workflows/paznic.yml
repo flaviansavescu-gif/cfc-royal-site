@@ -34,8 +34,13 @@ jobs:
     steps:
       - name: Pagina principala
         run: |
+          # NU `curl | grep -q`: grep -q iese la prima potrivire si inchide teava, iar curl
+          # moare cu „(23) Failure writing output to destination"; sub `pipefail` pasul cade
+          # desi pagina era buna (alarma falsa din 02.09.2026, 17:24). Descarcam intreg,
+          # apoi cautam in fisier.
           curl --silent --show-error --fail --retry 3 --retry-delay 15 --retry-all-errors \
-            --max-time 20 "https://cfc-royal.ro/ro/" | grep -q "Chinologic" \
+            --max-time 20 --output /tmp/pagina.html "https://cfc-royal.ro/ro/" \
+            && grep -q "Chinologic" /tmp/pagina.html \
             || { echo "::error::Pagina principala nu raspunde sau nu are continutul asteptat."; exit 1; }
 
       - name: Formularul de inscriere la expozitii
