@@ -38292,15 +38292,19 @@
   {
    "id": "breed-476",
    "wdf_code": "G02-066",
-   "breed_name": "CAO — Câine Ciobănesc de Asia Centrală",
+   "breed_name": "CAO — Ciobănesc de Asia Centrală",
    "alternate_names": [
     "Central Asian Shepherd Dog",
+    "SREDNEASIATSKAYA OVTCHARKA",
     "Sredneaziatskaia Ovciarka",
     "Ciobănesc de Asia Centrală",
-    "CAO"
+    "CAO",
+    "Alabai",
+    "Tobet",
+    "Torkuz"
    ],
    "group": "Group 2 Pinscher and Schnauzer Type – Molossoids and Swiss Cattle Dogs",
-   "country_of_origin": "Rusia",
+   "country_of_origin": "Russia",
    "wdf_status": "recognized",
    "coat_type": "wire",
    "functional_type": "guard",
@@ -38411,6 +38415,11 @@
      "title": "Standard oficial WDF G02-066",
      "url": "https://wdf-international.org/?wdf_standard_view=G02-066",
      "accessed_on": "2026-08-08"
+    },
+    {
+     "type": "official_standard",
+     "title": "Standard WDF G02-066 — Câine Ciobănesc de Asia Centrală (text în limba română, Club Federal Chinologic Royal)",
+     "accessed_on": "2026-09-02"
     }
    ],
    "internal_notes": "",
@@ -38429,8 +38438,9 @@
    "version": 2,
    "revision_history": [
     {
-     "la": "2026-09-02",
-     "ce": "Standard WDF în limba română, pus la dispoziție de asociație; înlocuiește textul extras automat."
+     "version": 1,
+     "date": "2026-09-02",
+     "note": "Standard WDF în limba română, pus la dispoziție de asociație; înlocuiește textul extras automat."
     }
    ]
   },
