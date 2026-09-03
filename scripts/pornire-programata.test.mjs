@@ -54,3 +54,23 @@ test("funcțiile programate rămân programate și în Netlify (dublura e voită
   // Și amândouă bat inima ÎNAINTE de orice altceva — așa se vede că au rulat.
   assert.ok(mf.includes('await bateInima("monitor-flux")') && pv.includes('await bateInima("paznic-veghe")'));
 });
+
+// —— 03.09.2026: cinci alarme într-o noapte, toate pe „inimile" — rezerva venea DUPĂ verificare ——
+test("paznicul pornește rezerva ÎNAINTE să verifice inimile, și așteaptă să bată", () => {
+  const pornire = yml.indexOf("- name: Pornire de rezerva a functiilor programate");
+  const verificare = yml.indexOf("- name: Inimile functiilor programate + posta (stare-inimi)");
+  assert.ok(pornire > 0 && verificare > 0, "amândoi pașii există");
+  assert.ok(pornire < verificare, "pornirea de rezervă stă înaintea verificării inimilor");
+  const pas = yml.slice(pornire, verificare);
+  const m = /sleep\s+(\d+)/.exec(pas);
+  assert.ok(m && Number(m[1]) >= 60, "după pornire se așteaptă cel puțin 60 s, ca inimile să apuce să bată");
+});
+
+test("veghe reciprocă în Netlify: monitor-flux o învie pe paznic-veghe când tace", () => {
+  const mf = readFileSync(new URL("netlify/functions/monitor-flux.mjs", R), "utf8");
+  assert.ok(mf.includes("async function inviePaznicVeghe()"), "există funcția de înviere");
+  assert.ok(mf.includes("await inviePaznicVeghe();"), "e chemată la fiecare rulare");
+  assert.ok(mf.includes('await import("./_comun/inima.mjs")') && mf.includes("INIMI?.[\"paznic-veghe\"]?.pragMin"), "citește pragul real din inima.mjs");
+  assert.ok(mf.includes('"/.netlify/functions/pornire-programata-background"'), "cheamă funcția de fundal, nu handlerul (10 s)");
+  assert.ok(mf.includes("ctrl.abort()"), "apelul are limită de timp, ca să nu mănânce din cele 10 secunde");
+});

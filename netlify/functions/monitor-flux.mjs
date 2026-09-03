@@ -337,8 +337,35 @@ export default async () => {
     console.log(`MONITOR: toate cele ${verificari.length} verificări trec.`);
   }
 
+  // VEGHE RECIPROCĂ ÎN NETLIFY (03.09.2026). Programatorul Netlify o mai pornește pe
+  // monitor-flux (rar, cam o dată pe oră), dar pe paznic-veghe deloc; rezerva din GitHub
+  // Actions vine la 2–5 ore (cron întârziat). Deci, cât timp EU rulez, îl învii pe celălalt:
+  // dacă paznic-veghe a tăcut peste jumătate din pragul ei, chem funcția de fundal care
+  // le pornește (202 pe loc; are prag propriu de 5 min). Best-effort, în ~2 s, ca să nu
+  // mănânc din cele 10 secunde ale mele.
+  await inviePaznicVeghe();
+
   return json({ ok: !cazute.length, stare: stare.stare, verificari, alerta: alerta?.tip || null });
 };
+
+async function inviePaznicVeghe() {
+  try {
+    const { citesteInimile, INIMI } = await import("./_comun/inima.mjs");
+    const { batai } = await citesteInimile();
+    const la = batai?.["paznic-veghe"]?.la ? Date.parse(batai["paznic-veghe"].la) : 0;
+    const pragMin = INIMI?.["paznic-veghe"]?.pragMin ?? 120;
+    const varstaMin = la ? (Date.now() - la) / 60000 : Infinity;
+    if (varstaMin <= pragMin / 2) return;
+    const baza = (process.env.SITE_PUBLIC || "https://cfc-royal.ro").replace(/\/$/, "");
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2500);
+    const r = await fetch(baza + "/.netlify/functions/pornire-programata-background", { method: "POST", signal: ctrl.signal }).catch(() => null);
+    clearTimeout(t);
+    console.log(`monitor-flux: paznic-veghe tace de ${Math.round(varstaMin)} min — am chemat rezerva (${r ? r.status : "fără răspuns"}).`);
+  } catch (err) {
+    console.error("monitor-flux: învierea lui paznic-veghe a eșuat:", err?.message || err);
+  }
+}
 
 // La fiecare 15 minute. Mai des n-ar ajuta: o cădere se rezolvă oricum în minute-ore,
 // iar fiecare rulare e o invocare consumată degeaba când totul merge.
