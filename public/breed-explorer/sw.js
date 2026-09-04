@@ -38,8 +38,11 @@
 // v5.7.0 = LISTA RASELOR nu se mai afișa: „const tr = el('tr', …)" umbrea funcția de
 // traducere tr(țară) din același rând → „Cannot access 'tr' before initialization"
 // (regresie de la traducerea țărilor, 02.09). Reparat + paginare (60/tranșă) ca telefonul
-// să nu deseneze 395 de rânduri deodată. BUMP obligatoriu (învelișul e cache-first).
-const CACHE_VERSION = "cfcr-v5.7.0";
+// să nu deseneze 395 de rânduri deodată.
+// v5.8.0 = pe telefon, câmpul de căutare era strivit la o dungă de marcă+butoane (se vedea
+// doar lupa, nu aveai unde tasta). Acum căutarea are rând propriu, pe toată lățimea.
+// BUMP obligatoriu (styles.css/app.js sunt în învelișul cache-first).
+const CACHE_VERSION = "cfcr-v5.8.0";
 const CACHE_NAME = "cfcr-cache-" + CACHE_VERSION;
 
 // Paths are relative to the service worker scope (the app folder).

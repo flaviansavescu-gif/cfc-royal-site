@@ -491,6 +491,15 @@ select { padding-right: 26px; }
   .compare-picker { grid-template-columns: 1fr; }
   .brand-sub { display: none; }
   .header-actions .btn span.btn-label { display: none; }
+  /* Căutarea pe RÂND PROPRIU, pe toată lățimea. Altfel, pe telefon, marca și butoanele
+     (care nu se strâng) mâncau tot spațiul, iar câmpul se stivea la o dungă de câțiva
+     pixeli — rămânea vizibilă doar lupa și nu se vedea unde se scrie. */
+  .app-header { flex-wrap: wrap; height: auto; row-gap: 8px; padding-top: 8px; padding-bottom: 8px; }
+  .mobile-nav-toggle { order: 0; }
+  .brand { order: 1; }
+  .header-actions { order: 2; margin-left: auto; }
+  .global-search { order: 3; flex: 1 0 100%; max-width: none; }
+  .global-search input { height: 44px; font-size: 1rem; }
 }
 @media (max-width: 560px) {
   .grid-stats { grid-template-columns: 1fr 1fr; }
