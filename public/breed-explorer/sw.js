@@ -34,9 +34,12 @@
 // Westphalian Dachsbracke, Biewer).
 // v5.6.0 = căutarea normalizează diacriticele (ă/â/î/ș/ț) — pe telefon se tastează fără
 // ele, iar cele 32 de rase cu diacritice („Ciobănesc", „Épagneul" …) erau de negăsit;
-// selectorul „Rasele din ringul tău" caută acum și în numele alternative. BUMP obligatoriu
-// ca aplicația instalată să ia app.js cel nou (învelișul e cache-first).
-const CACHE_VERSION = "cfcr-v5.6.0";
+// selectorul „Rasele din ringul tău" caută acum și în numele alternative.
+// v5.7.0 = LISTA RASELOR nu se mai afișa: „const tr = el('tr', …)" umbrea funcția de
+// traducere tr(țară) din același rând → „Cannot access 'tr' before initialization"
+// (regresie de la traducerea țărilor, 02.09). Reparat + paginare (60/tranșă) ca telefonul
+// să nu deseneze 395 de rânduri deodată. BUMP obligatoriu (învelișul e cache-first).
+const CACHE_VERSION = "cfcr-v5.7.0";
 const CACHE_NAME = "cfcr-cache-" + CACHE_VERSION;
 
 // Paths are relative to the service worker scope (the app folder).

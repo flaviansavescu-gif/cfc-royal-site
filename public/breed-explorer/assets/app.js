@@ -1393,14 +1393,17 @@
       ])),
     ]);
     const tbody = el("tbody");
-    rows.forEach((b) => {
+    // Variabila rândului se numește „rand", NU „tr": «tr» e funcția de traducere (țara,
+    // mai jos). Un „const tr = el('tr', …)" o umbrea, iar apelul tr(țară) din același
+    // rând arunca „Cannot access 'tr' before initialization" → LISTA nu se mai afișa deloc.
+    function construiesteRand(b) {
       const star = el("button", {
         class: "fav-star" + (isFav(b.id) ? " is-fav" : ""),
         title: isFav(b.id) ? "Remove from favorites" : "Add to favorites",
         "aria-label": isFav(b.id) ? "Remove from favorites" : "Add to favorites",
         onclick: (e) => { e.stopPropagation(); toggleFav(b.id); render(); },
       }, isFav(b.id) ? "★" : "☆");
-      const tr = el("tr", { tabindex: "0", role: "button", "aria-label": "Open " + b.breed_name,
+      return el("tr", { tabindex: "0", role: "button", "aria-label": "Open " + b.breed_name,
         onclick: () => navigate("profile", { id: b.id }),
         onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate("profile", { id: b.id }); } },
       }, [
@@ -1412,10 +1415,22 @@
         td(valLabel(b.coat_type) + " · " + valLabel(b.functional_type), "Coat / Type"),
         td(b.last_updated || "—", "Updated"),
       ]);
-      tbody.appendChild(tr);
-    });
+    }
+    // Paginare: pe telefon, 395 de rânduri construite deodată blochează interfața câteva
+    // secunde („nu apare"). Desenăm în tranșe de 60, cu un buton „mai arată".
+    var LOT_LISTA = 60, afisate = 0;
+    var btnMai = el("button", { class: "btn btn-sm btn-ghost", style: "margin:.75rem auto;display:block", onclick: function () { maiArata(); } });
+    function maiArata() {
+      var pana = Math.min(afisate + LOT_LISTA, rows.length);
+      for (var i = afisate; i < pana; i++) tbody.appendChild(construiesteRand(rows[i]));
+      afisate = pana;
+      btnMai.hidden = afisate >= rows.length;
+      btnMai.textContent = "Mai arată rase (" + afisate + " / " + rows.length + ")";
+    }
+    maiArata();
     table.appendChild(tbody);
     wrap.appendChild(table);
+    wrap.appendChild(btnMai);
     return wrap;
   }
 
