@@ -700,6 +700,16 @@
   /* ---------------------------------------------------------
      SEARCH / FILTER / SORT helpers
      --------------------------------------------------------- */
+  // Normalizează diacriticele: „Ciobănesc" ↔ „ciobanesc", „Épagneul" ↔ „epagneul".
+  // Pe telefon (varianta instalabilă) se tastează fără ă/â/î/ș/ț, iar căutarea pe
+  // substring pica: 32 de rase cu diacritice în nume erau de negăsit. Pliem AMBELE
+  // părți (textul rasei ȘI termenul căutat) la ASCII înainte de comparație.
+  function foldDiacritice(s) {
+    return (s || "").toLowerCase()
+      .normalize("NFD").replace(new RegExp("[\\u0300-\\u036f]", "g"), "") // taie semnele combinante
+      .replace(/[șş]/g, "s").replace(/[țţ]/g, "t"); // ș/ş și ț/ţ
+  }
+
   function breedSearchBlob(b) {
     const parts = [
       b.breed_name, b.nume_ro || "", fmtList(b.alternate_names), b.group, b.country_of_origin,
@@ -750,11 +760,11 @@
   }
 
   function applySearchFilterSort() {
-    const q = state.search.trim().toLowerCase();
+    const q = foldDiacritice(state.search.trim());
     const f = state.list.filters;
     const preset = presetByKey(state.list.preset);
     let rows = state.breeds.filter((b) => {
-      if (q && !breedSearchBlob(b).includes(q)) return false;
+      if (q && !foldDiacritice(breedSearchBlob(b)).includes(q)) return false;
       if (preset && !preset.predicate(b)) return false;
       if (f.group && b.group !== f.group) return false;
       if (f.country && b.country_of_origin !== f.country) return false;
@@ -1037,9 +1047,9 @@
     const lista = el("div", { style: "max-height:14rem;overflow:auto;display:flex;flex-direction:column;gap:.25rem" });
     const deseneazaLista = () => {
       lista.innerHTML = "";
-      const q = cauta.value.trim().toLowerCase();
+      const q = foldDiacritice(cauta.value.trim());
       state.breeds
-        .filter((b) => !q || ((b.breed_name || "") + " " + (b.nume_ro || "")).toLowerCase().includes(q))
+        .filter((b) => !q || foldDiacritice((b.breed_name || "") + " " + (b.nume_ro || "") + " " + fmtList(b.alternate_names)).includes(q))
         .slice(0, 60)
         .forEach((b) => {
           const cb = el("input", { type: "checkbox" });

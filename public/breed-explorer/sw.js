@@ -32,7 +32,11 @@
 // v5.3.0 = panoul „Despre acest instrument" în română; defecte completate din sursa WDF
 // la 6 rase care aveau fișa goală (Hovawart, Kerry Blue, Canadian Eskimo, Carolina,
 // Westphalian Dachsbracke, Biewer).
-const CACHE_VERSION = "cfcr-v5.5.0";
+// v5.6.0 = căutarea normalizează diacriticele (ă/â/î/ș/ț) — pe telefon se tastează fără
+// ele, iar cele 32 de rase cu diacritice („Ciobănesc", „Épagneul" …) erau de negăsit;
+// selectorul „Rasele din ringul tău" caută acum și în numele alternative. BUMP obligatoriu
+// ca aplicația instalată să ia app.js cel nou (învelișul e cache-first).
+const CACHE_VERSION = "cfcr-v5.6.0";
 const CACHE_NAME = "cfcr-cache-" + CACHE_VERSION;
 
 // Paths are relative to the service worker scope (the app folder).
