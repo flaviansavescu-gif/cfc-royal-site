@@ -1,14 +1,15 @@
 ---
 title: "C.A.C. Iași — WDF Moldova Dog Show, Ediția I"
 lang: ro
-summary: "Expoziție Națională CAC la Iași, USV Arena — campus Agronomie, imediat după C.A.C.I.B. Fără înscriere separată: cine se înscrie la C.A.C.I.B. este înscris automat și gratuit. Organizator: A.Ch.P. „Carpați”."
+summary: "Expoziție Națională CAC desfășurată la Iași, USV Arena — campus Agronomie, pe 5 septembrie 2026, imediat după C.A.C.I.B. Rezultatele sunt publicate. Organizator: A.Ch.P. „Carpați”."
 startDate: 2026-09-05
 venue: "USV Arena Iași — campus Agronomie"
 city: "Iași"
 county: "Iași"
 showType: "CAC"
 organizer: "A.Ch.P. „Carpați”"
-status: "anunțată"
+managerShowId: "cmthlp55s0000kss4b3fu67tb"
+status: "încheiată"
 draft: false
 ---
 Expoziție **Națională CAC** organizată sub egida World Dog Federation, sâmbătă,
@@ -16,29 +17,16 @@ Expoziție **Națională CAC** organizată sub egida World Dog Federation, sâmb
 Universitatea pentru Științele Vieții. Organizator: Asociația Chinologică Profesională
 „Carpați”, Membru Colectiv al CFC-Royal.
 
-Expoziția se desfășoară **imediat după încheierea expoziției internaționale C.A.C.I.B.**, în
-aceeași locație, și marchează **deschiderea activității Asociației Chinologice Profesionale
-„Carpați”**.
+Expoziția s-a desfășurat **imediat după încheierea expoziției internaționale C.A.C.I.B.**, în
+aceeași locație, și a marcat **deschiderea activității Asociației Chinologice Profesionale
+„Carpați”**. Toate exemplarele înscrise la C.A.C.I.B. au participat din oficiu, fără taxă
+suplimentară, și au fost arbitrate de două ori în aceeași zi.
 
-## Înscrierile sunt închise — participarea se face din oficiu
+## Rezultatele sunt publicate
 
-Această expoziție **nu primește înscrieri separate** și nu are formular propriu.
+**[Vezi rezultatele expoziției C.A.C. Iași →](/rezultate-live/cmthlp55s0000kss4b3fu67tb)**
 
-**Toți cei înscriși la [expoziția C.A.C.I.B. de la Iași](/ro/expozitii/iasi-wdf-moldova-dog-show-2026/)
-sunt înscriși automat și gratuit și la această expoziție**, fără nicio taxă suplimentară și fără
-vreun demers din partea lor.
-
-Dacă nu v-ați înscris încă, **[înscrieți-vă la C.A.C.I.B. →](/ro/inscriere-expozitie/)** — participarea
-la expoziția națională vine de la sine, odată cu ea.
-
-Ce înseamnă concret:
-
-- exemplarele înscrise la C.A.C.I.B. vor fi **arbitrate de două ori** în aceeași zi — în
-  expoziția internațională (CAJC, CAC, CACIB) și în cea națională (CAJC, CAC);
-- **ora de începere și ordinea ringurilor se anunță la fața locului**, în ziua expoziției;
-- numerele de concurs pentru ambele expoziții se comunică pe e-mail la închiderea catalogului.
-
-Dacă doriți ca exemplarul dumneavoastră să participe **numai** la expoziția internațională,
-este suficient să ne scrieți la [contact@cfc-royal.ro](mailto:contact@cfc-royal.ro).
-
-În ziua expoziției, programul ringurilor se vede în timp real la [cfc-royal.ro/live](/live).
+Rezultatele expoziției internaționale din aceeași zi se găsesc pe pagina
+[C.A.C.I.B. Iași — WDF Moldova Dog Show](/ro/expozitii/iasi-wdf-moldova-dog-show-2026/).
+Fiecare titlu poate fi verificat cu codul QR de pe certificat, la
+[cfc-royal.ro/verifica](/verifica).
