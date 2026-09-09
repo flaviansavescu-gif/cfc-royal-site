@@ -1,4 +1,4 @@
-import { calculeazaTaxa, normalizeazaGrila, grilaAreTaxe, taxaVeche, areTaxeVechi } from "./taxa-expo.mjs";
+import { calculeazaTaxa, normalizeazaGrila, grilaAreTaxe, taxaVeche, areTaxeVechi, esteScutit } from "./taxa-expo.mjs";
 
 let rau = 0;
 const e = (nume, primit, asteptat) => {
@@ -41,6 +41,39 @@ e("fără breedId → taxa normală (nu se aplică facilitatea)",
   calculeazaTaxa(CU_BALAN, { membru: false, primul: true }), 120);
 e("normalizarea păstrează raseScutite",
   normalizeazaGrila({ membru: { primul: 1 }, raseScutite: ["x", 7] }).raseScutite, ["x", "7"]);
+
+console.log("— câinele scutit NU se numără la „primul / următorii” (09.09.2026) —");
+e("esteScutit: rasă cu gratuitate", esteScutit(CU_BALAN, { breedId: "breed-balan" }), true);
+e("esteScutit: clasă scutită", esteScutit({ ...CAC, scutite: ["baby"] }, { clasa: "baby" }), true);
+e("esteScutit: nimic", esteScutit(CU_BALAN, { clasa: "deschisa", breedId: "breed-altul" }), false);
+// Simularea buclei de pe server: Bălan (scutit) + Kangal → Kangal e „primul” plătit → 120, nu 60.
+{
+  const lot = [{ clasa: "deschisa", breedId: "breed-balan" }, { clasa: "deschisa", breedId: "breed-altul" }];
+  let platiti = 0, total = 0;
+  for (const c of lot) {
+    const scutit = esteScutit(CU_BALAN, c);
+    total += calculeazaTaxa(CU_BALAN, { membru: false, primul: !scutit && platiti === 0, ...c });
+    if (!scutit) platiti++;
+  }
+  e("Bălan + Kangal → 0 + 120 = 120 (nu 60)", total, 120);
+}
+{
+  const lot = [{ clasa: "deschisa", breedId: "breed-altul" }, { clasa: "deschisa", breedId: "breed-balan" }, { clasa: "deschisa", breedId: "breed-altul" }];
+  let platiti = 0, total = 0;
+  for (const c of lot) {
+    const scutit = esteScutit(CU_BALAN, c);
+    total += calculeazaTaxa(CU_BALAN, { membru: false, primul: !scutit && platiti === 0, ...c });
+    if (!scutit) platiti++;
+  }
+  e("Kangal + Bălan + Kangal → 120 + 0 + 60 = 180", total, 180);
+}
+{
+  const { readFileSync } = await import("node:fs");
+  const sursa = readFileSync(new URL("../inscriere-expo.mjs", import.meta.url), "utf8");
+  const bun = sursa.includes("const primul = !scutit && (inainte + platitiInLot) === 0;") && sursa.includes("fisa.cainiPlatiti ?? fisa.caini");
+  if (!bun) rau++;
+  console.log((bun ? "  ok  " : "  RAU ") + "serverul numără doar câinii plătiți la „primul”, și între trimiteri (cainiPlatiti)");
+}
 
 console.log("— reducerea de student se aplică sumei finale —");
 e("CAC, membru, primul, student", calculeazaTaxa(CAC, { membru: true, primul: true, student: true }), 90);

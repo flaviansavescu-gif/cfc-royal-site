@@ -50,6 +50,20 @@ export function grilaAreTaxe(grila) {
 }
 
 /**
+ * Înscrierea e scutită de taxă (clasă scutită sau rasă cu gratuitate)?
+ *
+ * Un câine scutit NU se numără la „primul / următorii" (decizia lui Flavian, 09.09.2026):
+ * „primul" înseamnă primul câine PLĂTIT. Altfel, cine punea Bălanul (gratuit) primul în
+ * formular plătea pentru Kangal 60 în loc de 120 — și invers, cine îl punea al doilea, nu.
+ */
+export function esteScutit(grila, { clasa = "", breedId = "" } = {}) {
+  const g = normalizeazaGrila(grila);
+  if (clasa && g.scutite.includes(String(clasa))) return true;
+  if (breedId && g.raseScutite.includes(String(breedId))) return true;
+  return false;
+}
+
+/**
  * Taxa pentru o înscriere.
  * @param grila      grila expoziției (publicată de manager)
  * @param declaratii { membru, primul, student, clasa, breedId }
@@ -59,9 +73,8 @@ export function calculeazaTaxa(grila, declaratii = {}) {
   const g = normalizeazaGrila(grila);
   const { membru = false, primul = true, student = false, clasa = "", breedId = "" } = declaratii;
 
-  if (clasa && g.scutite.includes(String(clasa))) return 0;
-  // Facilitate pe rasă: rasele cu gratuitate (ex. Ciobănesc Bălan) au taxă 0.
-  if (breedId && g.raseScutite.includes(String(breedId))) return 0;
+  // Clasă scutită sau facilitate pe rasă (ex. Ciobănesc Bălan): taxă 0.
+  if (esteScutit(g, { clasa, breedId })) return 0;
 
   const coloana = membru ? g.membru : g.nemembru;
   const baza = primul ? coloana.primul : coloana.urmatorii;

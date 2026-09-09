@@ -12,7 +12,7 @@ import { getStore } from "@netlify/blobs";
 import { eRobot, limiteazaTrimiterile, minuteText } from "./_comun/formular-public.mjs";
 import { escapeHtml, trimite } from "./_comun/posta.mjs";
 import { refuzaDacaInchis } from "./_comun/poarta-scrieri.mjs";
-import { calculeazaTaxa, taxaVeche } from "./_comun/taxa-expo.mjs";
+import { calculeazaTaxa, taxaVeche, esteScutit } from "./_comun/taxa-expo.mjs";
 import { egal } from "./_comun/citire-documente.mjs";
 import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import { stergeDovezileIncheiate } from "./_comun/dovada-plata.mjs";
@@ -471,8 +471,11 @@ export default async (req) => {
   let inainte = 0;
   if (grila) {
     const fisa = await store.get(cheieProprietar(showId, email), { type: "json" }).catch(() => null);
-    inainte = Number(fisa && fisa.caini) || 0;
+    // Se numără câinii PLĂTIȚI de până acum (09.09.2026: cei scutiți nu consumă „primul").
+    // Fișele vechi au doar `caini` (toți) — pentru ele rămâne numărătoarea veche.
+    inainte = Number(fisa && (fisa.cainiPlatiti ?? fisa.caini)) || 0;
   }
+  let platitiInLot = 0; // câinii cu taxă din lotul de față, în ordinea formularului
 
   // Validăm și pregătim TOȚI câinii înainte de a scrie ceva: dacă unul e invalid, se
   // respinge tot lotul, cu mesaj pe câinele cu pricina (nimic pe jumătate). Taxa se
@@ -508,10 +511,14 @@ export default async (req) => {
     if (!clasaValida(clasa, dataNasterii, config.data))
       return json({ eroare: et + "vârsta la data expoziției nu se încadrează în clasa aleasă." }, 400);
 
-    const primul = (inainte + j) === 0;
+    // „Primul" = primul câine PLĂTIT al proprietarului (cei scutiți — clasă sau rasă cu
+    // gratuitate — nu se numără), indiferent de ordinea în care i-a pus în formular.
+    const scutit = !!grila && esteScutit(grila, { clasa, breedId: rasaId });
+    const primul = !scutit && (inainte + platitiInLot) === 0;
     const taxa = grila
       ? calculeazaTaxa(grila, { membru: declaraMembru, primul, student: declaraStudent, clasa, breedId: rasaId })
       : taxaVeche(config.taxe, clasa);
+    if (grila && !scutit) platitiInLot++;
     total += taxa;
 
     const inscriere = {
@@ -545,7 +552,8 @@ export default async (req) => {
       taxa,
     };
     if (grila) {
-      inscriere.declaratii = { membru: declaraMembru, student: declaraStudent, primulDeclarat: primul, caineNr: inainte + j + 1 };
+      // `caineNr` = al câtelea câine PLĂTIT e (0 = scutit) — managerul recalculează taxa cu el.
+      inscriere.declaratii = { membru: declaraMembru, student: declaraStudent, primulDeclarat: primul, caineNr: scutit ? 0 : inainte + platitiInLot };
     }
     pregatite.push({ inscriere, taxa });
   }
@@ -594,8 +602,11 @@ export default async (req) => {
   }
   if (grila) {
     try {
+      const fisaVeche = await store.get(cheieProprietar(showId, email), { type: "json" }).catch(() => null);
       await store.setJSON(cheieProprietar(showId, email), {
-        caini: inainte + pregatite.length, nume: numeProp.slice(0, 120), actualizat: new Date().toISOString(),
+        caini: (Number(fisaVeche && fisaVeche.caini) || 0) + pregatite.length,
+        cainiPlatiti: inainte + platitiInLot,
+        nume: numeProp.slice(0, 120), actualizat: new Date().toISOString(),
       });
     } catch (err) {
       // Contorul e o comoditate, nu o poartă: dacă scrierea cade, înscrierile rămân valide.

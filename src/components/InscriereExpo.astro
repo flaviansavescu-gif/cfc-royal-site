@@ -638,12 +638,18 @@ const CLASE = [
 
     // Aceeași aritmetică ca pe server (netlify/functions/_comun/taxa-expo.mjs). Suma
     // afișată e orientativă: serverul o recalculează la trimitere și el are ultimul cuvânt.
-    // „primul" pentru preview = primul câine din acest lot; serverul ține cont și de câinii
-    // pe care proprietarul i-a înscris deja mai devreme.
+    // „primul" pentru preview = primul câine PLĂTIT din acest lot (cei scutiți — clasă sau
+    // rasă cu gratuitate — nu se numără, 09.09.2026); serverul ține cont și de câinii pe
+    // care proprietarul i-a înscris deja mai devreme.
+    function esteScutit(grila, clasa, breedId) {
+      if (!grila) return false;
+      if ((grila.scutite || []).indexOf(clasa) !== -1) return true;
+      if (breedId && (grila.raseScutite || []).indexOf(breedId) !== -1) return true; // gratuitate pe rasă
+      return false;
+    }
     function taxaGrilaClasa(grila, clasa, primul, breedId) {
       if (!grila) return 0;
-      if ((grila.scutite || []).indexOf(clasa) !== -1) return 0;
-      if (breedId && (grila.raseScutite || []).indexOf(breedId) !== -1) return 0; // gratuitate pe rasă
+      if (esteScutit(grila, clasa, breedId)) return 0;
       const col = ales("esteMembru") === "1" ? grila.membru : grila.nemembru;
       const baza = Number((col || {})[primul ? "primul" : "urmatorii"]) || 0;
       if (!baza) return 0;
@@ -655,11 +661,15 @@ const CLASE = [
       const e = expoCurenta();
       const grila = e && e.tarif && grilaAreTaxe(e.tarif) ? e.tarif : null;
       let total = 0;
-      blocuri().forEach((b, i) => {
+      let platiti = 0; // câinii cu taxă de până acum, în ordinea formularului
+      blocuri().forEach((b) => {
         const clasa = b.querySelector('[data-f="clasa"]').value;
         if (!clasa) return;
         const breedId = ((b.querySelector('[data-f="rasaId"]') || {}).value) || "";
-        total += grila ? taxaGrilaClasa(grila, clasa, i === 0, breedId) : Number(((e && e.taxe) || {})[clasa] || 0);
+        if (!grila) { total += Number(((e && e.taxe) || {})[clasa] || 0); return; }
+        const scutit = esteScutit(grila, clasa, breedId);
+        total += taxaGrilaClasa(grila, clasa, !scutit && platiti === 0, breedId);
+        if (!scutit) platiti++;
       });
       return total;
     }
