@@ -18,7 +18,7 @@ import { createHash } from "node:crypto";
 export const NORME_RO = [
   "prezint la intrare actul de origine al câinelui (sau dovada înscrierii pentru tipicitate) și carnetul de sănătate cu vaccinările valabile; microcipul corespunde întocmai actelor;",
   "datele declarate aici — identitatea câinelui, data nașterii, clasa — sunt adevărate;",
-  "judecata arbitrului este finală: nu o comentez, nu încerc să o influențez și nu tulbur desfășurarea arbitrajului;",
+  "decizia comunicată de arbitru în urma evaluării este finală. Nu o comentez, nu încerc să o influențez și nu tulbur desfășurarea arbitrajului;",
   "nu prezint un câine agresiv sau bolnav și nu folosesc substanțe ori tehnici de prezentare interzise;",
   "țin câinele în lesă în toată incinta, inclusiv în ring; rămâne în paza mea și răspund pentru pagubele produse de el;",
   "bunăstarea câinelui primează asupra oricărui rezultat;",
@@ -31,7 +31,7 @@ export const NORME_RO = [
 export const NORME_EN = [
   "at the entrance I will present the dog's pedigree (or proof of entry for a typicality pedigree) and the health booklet with valid vaccinations; the microchip matches the documents exactly;",
   "the details declared here — the dog's identity, date of birth, class — are true;",
-  "the judge's decision is final: I will not comment on it, will not try to influence it, and will not disrupt the judging;",
+  "the decision communicated by the judge following the evaluation is final. I will not comment on it, will not try to influence it, and will not disrupt the judging;",
   "I will not present an aggressive or sick dog, and will not use prohibited substances or presentation techniques;",
   "I will keep the dog on a lead throughout the venue, including in the ring; it stays in my care and I am liable for any damage it causes;",
   "the dog's welfare comes before any result;",

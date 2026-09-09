@@ -68,6 +68,7 @@ const T = {
     intrebariTitlu: "Trei întrebări care hotărăsc taxa",
     intrebariNota: "Taxele asociației sunt mai mici pentru membri și pentru al doilea câine al aceluiași proprietar. Secretariatul verifică declarațiile la validarea înscrierii.",
     membruIntrebare: "Ești membru al asociației?",
+    membruIntrebareOrg: "Ești membru al asociației {org}?",
     membruDa: "Sunt membru",
     membruNu: "Nu sunt membru",
     primulIntrebare: "Este primul câine pe care îl înscrii la această expoziție?",
@@ -139,6 +140,7 @@ const T = {
     intrebariTitlu: "Three questions that set your fee",
     intrebariNota: "The association charges less for members and for each further dog of the same owner. The secretariat checks these answers when validating the entry.",
     membruIntrebare: "Are you a member of the association?",
+    membruIntrebareOrg: "Are you a member of {org}?",
     membruDa: "I am a member",
     membruNu: "I am not a member",
     primulIntrebare: "Is this the first dog you are entering in this show?",
@@ -324,7 +326,10 @@ const CLASE = [
         <p class="ie__intrebari-t">{T.intrebariTitlu}</p>
 
         <fieldset class="ie__grup">
-          <legend>{T.membruIntrebare} <b class="req">*</b></legend>
+          {/* Textul se completează cu numele organizatorului expoziției alese (ex. „membru al
+              asociației Străjerii Munților?”) — la o expoziție a unui Membru Colectiv, tariful
+              de membru e al ACELEI asociații, nu al clubului. */}
+          <legend><span id="ie-membru-legenda">{T.membruIntrebare}</span> <b class="req">*</b></legend>
           <label class="ie__radio"><input type="radio" name="esteMembru" value="1" /> <span>{T.membruDa}</span></label>
           <label class="ie__radio"><input type="radio" name="esteMembru" value="0" checked /> <span>{T.membruNu}</span></label>
         </fieldset>
@@ -394,7 +399,7 @@ const CLASE = [
   </form>
 </section>
 
-<script is:inline define:vars={{ AFISE, txtInchisOptiune: T.inchisOptiune, txtInchisButon: T.inchisButon, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit, txtCaine: (lang === "en" ? "Dog" : "Câinele"), txtCampuriCaine: (lang === "en" ? "Dog {n}: fill in the required fields — name, breed (from the list), sex, date of birth, class, microchip (min. 6) and coat colour (it is printed in the official catalogue). Pedigree is required unless you tick typicity." : "Câinele {n}: completează câmpurile obligatorii — nume, rasă (din listă), sex, data nașterii, clasă, microcip (min. 6) și culoarea robei (se tipărește în catalogul oficial). Pedigree obligatoriu dacă nu bifezi tipicitatea."), txtTaxaTotal: (lang === "en" ? "Total entry fee:" : "Taxa totală de înscriere:"), txtTaxaInregistrata: (lang === "en" ? "Registered entry fee:" : "Taxă înregistrată:"), txtNuTrimis: (lang === "en" ? "NOT sent yet — please complete:" : "NU s-a trimis încă — mai completează:") }}>
+<script is:inline define:vars={{ AFISE, txtInchisOptiune: T.inchisOptiune, txtInchisButon: T.inchisButon, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtMembru: T.membruIntrebare, txtMembruOrg: T.membruIntrebareOrg, txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit, txtCaine: (lang === "en" ? "Dog" : "Câinele"), txtCampuriCaine: (lang === "en" ? "Dog {n}: fill in the required fields — name, breed (from the list), sex, date of birth, class, microchip (min. 6) and coat colour (it is printed in the official catalogue). Pedigree is required unless you tick typicity." : "Câinele {n}: completează câmpurile obligatorii — nume, rasă (din listă), sex, data nașterii, clasă, microcip (min. 6) și culoarea robei (se tipărește în catalogul oficial). Pedigree obligatoriu dacă nu bifezi tipicitatea."), txtTaxaTotal: (lang === "en" ? "Total entry fee:" : "Taxa totală de înscriere:"), txtTaxaInregistrata: (lang === "en" ? "Registered entry fee:" : "Taxă înregistrată:"), txtNuTrimis: (lang === "en" ? "NOT sent yet — please complete:" : "NU s-a trimis încă — mai completează:") }}>
   (async function () {
     const form = document.getElementById("ie-form");
     const loading = document.getElementById("ie-loading");
@@ -691,6 +696,9 @@ const CLASE = [
       if (contTitular) contTitular.textContent = areCont ? (cont.nume || "") : "";
       if (contBanca) contBanca.textContent = areCont ? (cont.banca || "") : "";
       if (contBancaSep) contBancaSep.hidden = !(areCont && cont.banca);
+      // Întrebarea „membru?” poartă numele asociației organizatoare (textContent, nu innerHTML).
+      const legendaMembru = document.getElementById("ie-membru-legenda");
+      if (legendaMembru) legendaMembru.textContent = cont && cont.nume ? txtMembruOrg.replace("{org}", cont.nume) : txtMembru;
 
       zonaIntrebari.hidden = !grilaNoua;
       zonaIntrebari.querySelectorAll("input").forEach((i) => { i.disabled = !grilaNoua; });
