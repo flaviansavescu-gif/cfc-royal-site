@@ -26,7 +26,7 @@ const T = {
     clasa: "Clasa de concurs", dateProp: "Datele proprietarului", numeProp: "Nume și prenume", email: "Email", telefon: "Telefon", adresa: "Adresă", tara: "Țara",
     tipicitate: "Doresc pedigree de tipicitate", tipicitateDesc: "Bifează dacă acest câine de rasă nu are pedigree și dorești obținerea unui pedigree de tipicitate (evaluare de tipicitate în ring).",
     optional: "opțional", trimite: "Trimite înscrierea", seTrimite: "Se trimite…",
-    culoareRoba: "Culoarea robei (culoarea blănii)", tipRoba: "Tipul robei (tip de blană)", tipRobaPh: "ex.: păr scurt, păr lung, păr sârmos",
+    culoareRoba: "Culoarea robei (Culoarea blănii)", tipRoba: "Tipul robei (Tip de blană)", tipRobaPh: "ex.: păr scurt, păr lung, păr sârmos",
     tata: "Tatăl (nume complet)", mama: "Mama (nume complet)",
     faraPedigree: "Bifează dacă exemplarul nu are pedigree — atunci numărul de pedigree nu se mai cere.",
     cumTitlu: "Cum funcționează înscrierea",
@@ -110,7 +110,7 @@ const T = {
     cum3t: "Purebred dog without a pedigree?",
     cum3: "tick “I want a typicity pedigree”. The pedigree number is then not required. The dog is assessed in the ring and may compete for BOB and Best in Show, but cannot receive certificates (CAJC, CAC, CACIB).",
     cum4t: "Coat colour and parents",
-    cum4: "are printed in the official show catalogue. Coat colour is required at entry. Parents are optional (a typicity pedigree does not list them) — if you do not know them, the secretariat can complete them until the catalogue closes.",
+    cum4: "are printed in the official show catalogue. Coat colour and coat type (short-, long-, wire-haired…) are required at entry. Parents are optional (a typicity pedigree does not list them) — if you do not know them, the secretariat can complete them until the catalogue closes.",
     cum5t: "After you submit",
     cum5: "you receive a confirmation email. Once the secretariat checks your entry you receive the catalogue number. Entries close before the show, when the catalogue is printed.",
     succes: "Your entry has been sent!", succesDetaliu: "is now in the secretariat queue. After it is checked you will receive the validation email, and when the catalogue closes — your competition number and printable armband.", inca: "Submit another entry",
@@ -317,10 +317,10 @@ const CLASE = [
         <label class="ie__f"><span>{T.email} <b class="req">*</b></span><input name="email" type="email" required /></label>
       </div>
       <div class="ie__row">
-        <label class="ie__f"><span>{T.telefon} ({T.optional})</span><input name="telefon" /></label>
+        <label class="ie__f"><span>{T.telefon} <b class="req">*</b></span><input name="telefon" required minlength="6" /></label>
         <label class="ie__f"><span>{T.tara} ({T.optional})</span><input name="tara" /></label>
       </div>
-      <label class="ie__f"><span>{T.adresa} ({T.optional})</span><input name="adresa" /></label>
+      <label class="ie__f"><span>{T.adresa} <b class="req">*</b></span><input name="adresa" required minlength="5" /></label>
     </fieldset>
 
     <!-- Plata taxei: apare doar când expoziția are taxe configurate. Dovada nu confirmă

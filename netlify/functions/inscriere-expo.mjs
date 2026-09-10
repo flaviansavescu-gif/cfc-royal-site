@@ -452,6 +452,12 @@ export default async (req) => {
   const email = String(body.email || "").trim().toLowerCase();
   if (numeProp.length < 3) return json({ eroare: "Numele proprietarului este obligatoriu." }, 400);
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ eroare: "Email invalid." }, 400);
+  // Telefonul și adresa sunt OBLIGATORII (10.09.2026): telefonul ajunge pe foaia de arbitraj
+  // (secretariatul sună expozantul din sală), adresa în catalogul de tipar (Art. 21 lit. f).
+  if (String(body.telefon || "").replace(/[^\d+]/g, "").length < 6)
+    return json({ eroare: "Numărul de telefon este obligatoriu (minimum 6 cifre) — secretariatul te poate suna în ziua expoziției." }, 400);
+  if (String(body.adresa || "").trim().length < 5)
+    return json({ eroare: "Adresa este obligatorie — se tipărește în catalogul oficial al expoziției." }, 400);
   if (String(body.gdpr || "") !== "1") return json({ eroare: "Trebuie să accepți prelucrarea datelor (GDPR)." }, 400);
   // Bifa normelor de participare. Verificată AICI, nu doar prin atributul required din
   // formular: „required" ține de browser, iar cererea poate veni și fără browser.

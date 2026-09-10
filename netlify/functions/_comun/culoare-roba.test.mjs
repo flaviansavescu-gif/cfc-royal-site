@@ -25,8 +25,8 @@ test("serverul NU cere părinții (tipicitatea nu-i are pe act)", () => {
 });
 
 test("formularul traduce termenul chinologic și cere amândouă câmpurile, cu exemple la tip", () => {
-  assert.ok(formular.includes('culoareRoba: "Culoarea robei (culoarea blănii)"'), "eticheta traduce „roba”, fără s-o înlocuiască");
-  assert.ok(formular.includes('tipRoba: "Tipul robei (tip de blană)"'), "câmp separat pentru tipul robei");
+  assert.ok(formular.includes('culoareRoba: "Culoarea robei (Culoarea blănii)"'), "eticheta traduce „roba”, fără s-o înlocuiască");
+  assert.ok(formular.includes('tipRoba: "Tipul robei (Tip de blană)"'), "câmp separat pentru tipul robei");
   assert.ok(formular.includes('tipRobaPh: "ex.: păr scurt, păr lung, păr sârmos"'), "exemplele stau în câmp");
   assert.match(formular, /T\.culoareRoba\} \*<\/span><input data-f="culoareRoba" required/);
   assert.match(formular, /T\.tipRoba\} \*<\/span><input data-f="tipRoba" required minlength="2" placeholder=\{T\.tipRobaPh\}/);
@@ -38,4 +38,22 @@ test("formularul traduce termenul chinologic și cere amândouă câmpurile, cu 
 test("părinții rămân fără steluță și fără required în formular", () => {
   assert.match(formular, /T\.tata\}<\/span><input data-f="tata" \/>/);
   assert.match(formular, /T\.mama\}<\/span><input data-f="mama" \/>/);
+});
+
+// 10.09.2026: e-mailul, telefonul și adresa proprietarului sunt OBLIGATORII — telefonul
+// ajunge pe foaia de arbitraj (secretariatul sună din sală), adresa în catalogul de tipar.
+test("proprietarul: e-mail, telefon și adresă obligatorii în formular", () => {
+  assert.match(formular, /<input name="email" type="email" required/);
+  assert.match(formular, /T\.telefon\} <b class="req">\*<\/b><\/span><input name="telefon" required minlength="6"/);
+  assert.match(formular, /T\.adresa\} <b class="req">\*<\/b><\/span><input name="adresa" required minlength="5"/);
+  assert.ok(!/name="telefon"[^>]*\)\s*\(\{T\.optional\}\)/.test(formular) && !formular.includes("{T.telefon} ({T.optional})"), "telefonul nu mai e „opțional”");
+  assert.ok(!formular.includes("{T.adresa} ({T.optional})"), "adresa nu mai e „opțională”");
+  assert.ok(formular.includes("form.checkValidity()"), "câmpurile lipsă se marchează înainte de trimitere");
+});
+
+test("serverul REFUZĂ înscrierea fără telefon sau fără adresă (are ultimul cuvânt)", () => {
+  assert.match(server, /body\.telefon[\s\S]{0,60}length < 6/);
+  assert.ok(server.includes("Numărul de telefon este obligatoriu"), "mesaj pe limba omului pentru telefon");
+  assert.match(server, /body\.adresa[\s\S]{0,40}trim\(\)\.length < 5/);
+  assert.ok(server.includes("Adresa este obligatorie"), "mesaj pe limba omului pentru adresă");
 });
