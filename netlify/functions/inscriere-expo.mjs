@@ -507,7 +507,10 @@ export default async (req) => {
     // prin examen de tipicitate NU are părinți trecuți pe act, deci o obligație i-ar
     // încurca exact pe cei corecți.
     if (String(d.culoareRoba || "").trim().length < 2)
-      return json({ eroare: et + "culoarea robei este obligatorie — se tipărește în catalogul oficial al expoziției." }, 400);
+      return json({ eroare: et + "culoarea robei (a blănii) este obligatorie — se tipărește în catalogul oficial al expoziției." }, 400);
+    // Tipul robei (păr scurt / lung / sârmos…) — obligatoriu din 10.09.2026, tot pentru catalog.
+    if (String(d.tipRoba || "").trim().length < 2)
+      return json({ eroare: et + "tipul robei (tipul de blană: păr scurt, păr lung, păr sârmos…) este obligatoriu." }, 400);
     if (!clasaValida(clasa, dataNasterii, config.data))
       return json({ eroare: et + "vârsta la data expoziției nu se încadrează în clasa aleasă." }, 400);
 
@@ -538,6 +541,7 @@ export default async (req) => {
       crescator: String(d.crescator || "").trim().slice(0, 120) || null,
       // Art. 21 lit. f — se tipăresc în catalog; managerul le preia la import.
       culoareRoba: String(d.culoareRoba || "").trim().slice(0, 120) || null,
+      tipRoba: String(d.tipRoba || "").trim().slice(0, 120) || null,
       tata: String(d.tata || "").trim().slice(0, 120) || null,
       mama: String(d.mama || "").trim().slice(0, 120) || null,
       clasa,

@@ -84,6 +84,7 @@ export function pentruRegistratura(i, cheie, verificare) {
       microcip: i.microcip || null,
       crescator: i.crescator || null,
       culoareRoba: i.culoareRoba || null,
+      tipRoba: i.tipRoba || null,
       tata: i.tata || null,
       mama: i.mama || null,
       clasa: i.clasa || "",
