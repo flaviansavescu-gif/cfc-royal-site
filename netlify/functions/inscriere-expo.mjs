@@ -647,6 +647,8 @@ export default async (req) => {
       subiect: `Înscriere primită — ${config.nume}`,
       html,
       expeditor: { name: "CFC-Royal Expoziții", email: "newsletter@cfc-royal.ro" },
+      // Răspunsul expozantului („am greșit clasa", „am plătit azi") merge la secretariat.
+      raspundeLa: "contact@cfc-royal.ro",
     });
 
     // ——— Înștiințarea secretariatului: aceeași înscriere, văzută dinspre asociație ———
