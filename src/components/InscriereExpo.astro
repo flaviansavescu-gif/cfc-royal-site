@@ -291,7 +291,7 @@ const CLASE = [
           </select>
         </label>
         <div class="ie__row">
-          <label class="ie__f"><span>{T.pedigree} *</span><input data-f="pedigree" /></label>
+          <label class="ie__f"><span>{T.pedigree} <b class="req ie-ped-star">*</b></span><input data-f="pedigree" /></label>
           <label class="ie__f"><span>{T.microcip} *</span><input data-f="microcip" minlength="6" /></label>
         </div>
         <label class="ie__f"><span>{T.crescator} ({T.optional})</span><input data-f="crescator" /></label>
@@ -408,7 +408,7 @@ const CLASE = [
   </form>
 </section>
 
-<script is:inline define:vars={{ AFISE, txtInchisOptiune: T.inchisOptiune, txtInchisButon: T.inchisButon, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtMembru: T.membruIntrebare, txtMembruOrg: T.membruIntrebareOrg, txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit, txtCaine: (lang === "en" ? "Dog" : "Câinele"), txtCampuriCaine: (lang === "en" ? "Dog {n}: fill in the required fields — name, breed (from the list), sex, date of birth, class, microchip (min. 6), coat colour and coat type (both are printed in the official catalogue). Pedigree is required unless you tick typicity." : "Câinele {n}: completează câmpurile obligatorii — nume, rasă (din listă), sex, data nașterii, clasă, microcip (min. 6), culoarea robei și tipul robei (se tipăresc în catalogul oficial). Pedigree obligatoriu dacă nu bifezi tipicitatea."), txtTaxaTotal: (lang === "en" ? "Total entry fee:" : "Taxa totală de înscriere:"), txtTaxaInregistrata: (lang === "en" ? "Registered entry fee:" : "Taxă înregistrată:"), txtNuTrimis: (lang === "en" ? "NOT sent yet — please complete:" : "NU s-a trimis încă — mai completează:") }}>
+<script is:inline define:vars={{ AFISE, txtInchisOptiune: T.inchisOptiune, txtInchisButon: T.inchisButon, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtMembru: T.membruIntrebare, txtMembruOrg: T.membruIntrebareOrg, txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit, txtCaine: (lang === "en" ? "Dog" : "Câinele"), txtCampuriCaine: (lang === "en" ? "Dog {n}: fill in the required fields — name, breed (from the list), sex, date of birth, class, microchip (min. 6), coat colour and coat type (both are printed in the official catalogue). Pedigree is required unless you tick typicity." : "Câinele {n}: completează câmpurile obligatorii — nume, rasă (din listă), sex, data nașterii, clasă, microcip (min. 6), culoarea robei și tipul robei (se tipăresc în catalogul oficial). Pedigree obligatoriu dacă nu bifezi tipicitatea."), txtTaxaTotal: (lang === "en" ? "Total entry fee:" : "Taxa totală de înscriere:"), txtTaxaInregistrata: (lang === "en" ? "Registered entry fee:" : "Taxă înregistrată:"), txtNuTrimis: (lang === "en" ? "NOT sent yet — please complete:" : "NU s-a trimis încă — mai completează:"), txtPedOptional: (lang === "en" ? "optional at this show — fill in if the dog has one" : "opțional la această expoziție — completează dacă are") }}>
   (async function () {
     const form = document.getElementById("ie-form");
     const loading = document.getElementById("ie-loading");
@@ -448,6 +448,9 @@ const CLASE = [
       if (bandaRepetitie) bandaRepetitie.hidden = !e?.repetitie;
     }
     showSel.addEventListener("change", aratBanda);
+    // Regula pedigree-ului depinde de expoziția aleasă: la schimbare, fiecare bloc de câine
+    // își reface steluța și textul din câmp.
+    showSel.addEventListener("change", () => blocuri().forEach((b) => b.__sinc && b.__sinc()));
     aratBanda();
 
     const caseta = document.getElementById("ie-afis");
@@ -574,11 +577,20 @@ const CLASE = [
         else if (cifre.length > 2) v = cifre.slice(0, 2) + "." + cifre.slice(2);
         cd.value = v;
       });
-      // Pedigree obligatoriu, mai puțin când e bifată tipicitatea (câine de rasă fără acte).
+      // Pedigree obligatoriu, mai puțin când e bifată tipicitatea (câine de rasă fără acte)
+      // — sau când expoziția aleasă îl declară opțional (`pedigreeOptional`, de pe server;
+      // 14.09.2026, Cupa Bucegi): atunci steluța dispare și câmpul spune că e opțional.
       const tip = b.querySelector('[data-f="pedigreeTipicitate"]');
       const ped = b.querySelector('[data-f="pedigree"]');
-      const sinc = () => { ped.closest(".ie__f").style.opacity = tip.checked ? "0.55" : ""; };
+      const stea = b.querySelector(".ie-ped-star");
+      const sinc = () => {
+        const optional = !!expoCurenta()?.pedigreeOptional;
+        ped.closest(".ie__f").style.opacity = tip.checked ? "0.55" : "";
+        if (stea) stea.hidden = tip.checked || optional;
+        ped.placeholder = optional && !tip.checked ? txtPedOptional : "";
+      };
       tip.addEventListener("change", sinc); sinc();
+      b.__sinc = sinc;
       // Rasa: rezolvă id-ul din text; taxa se recalculează la schimbarea clasei.
       b.querySelector('[data-f="rasaText"]').addEventListener("input", () => { rezolvaRasaBloc(b); actualizeazaPlata(); });
       b.querySelector('[data-f="clasa"]').addEventListener("change", actualizeazaPlata);
@@ -806,7 +818,7 @@ const CLASE = [
         const clasa = val("clasa");
         const culoareRoba = val("culoareRoba");
         const tipRoba = val("tipRoba");
-        const bun = numeCaine.length >= 2 && rasaId && sexEl && iso && clasa && microcip.length >= 6 && culoareRoba.length >= 2 && tipRoba.length >= 2 && (tip || pedigree.length >= 2);
+        const bun = numeCaine.length >= 2 && rasaId && sexEl && iso && clasa && microcip.length >= 6 && culoareRoba.length >= 2 && tipRoba.length >= 2 && (tip || pedigree.length >= 2 || !!expoCurenta()?.pedigreeOptional);
         if (!bun) {
           err.textContent = (iso ? "" : txtDataInvalida + " ") + txtCampuriCaine.replace("{n}", i + 1);
           err.hidden = false;

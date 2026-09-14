@@ -17,6 +17,7 @@ import { egal } from "./_comun/citire-documente.mjs";
 import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import { stergeDovezileIncheiate } from "./_comun/dovada-plata.mjs";
 import { versiuneaNormelor } from "./_comun/norme-participare.mjs";
+import { pedigreeOptional } from "./_comun/pedigree-optional.mjs";
 // MODUL REPETIȚIE. Lanțul înscriere → verificare → import → catalog → ring → rezultate
 // n-a trecut niciodată printr-o expoziție adevărată. Repetiția generală îl trece, cu date
 // născocite care nu au ce căuta sub ochii publicului. O expoziție marcată ca repetiție
@@ -217,6 +218,9 @@ export default async (req) => {
             // veche, pe clase; expozițiile publicate înainte de schimbare o păstrează.
             tarif: c.tarif || null,
             taxe: c.taxe || null,
+            // Excepție per expoziție (14.09.2026): numărul de pedigree opțional fără bifa
+            // de tipicitate — lista stă în _comun/pedigree-optional.mjs.
+            pedigreeOptional: pedigreeOptional(c.showId) || undefined,
           });
         }
       }
@@ -505,7 +509,9 @@ export default async (req) => {
     // Microcipul e obligatoriu (identificarea WDF); pedigree-ul e obligatoriu dacă nu e
     // pe calea tipicității. Aceleași reguli ca înainte, aplicate fiecărui câine.
     if (String(d.microcip || "").trim().length < 6) return json({ eroare: et + "microcipul este obligatoriu (minimum 6 caractere)." }, 400);
-    if (String(d.pedigreeTipicitate || "") !== "1" && String(d.pedigree || "").trim().length < 2)
+    // Excepție per expoziție (14.09.2026, Cupa Bucegi): numărul de pedigree e opțional și
+    // fără bifa de tipicitate — lista expozițiilor stă în _comun/pedigree-optional.mjs.
+    if (!pedigreeOptional(showId) && String(d.pedigreeTipicitate || "") !== "1" && String(d.pedigree || "").trim().length < 2)
       return json({ eroare: et + "numărul de pedigree este obligatoriu. Dacă exemplarul nu are acte, bifează pedigree de tipicitate." }, 400);
     // Culoarea robei e OBLIGATORIE (decizia din 02.09.2026, după 7 fișe „date de catalog
     // incomplete" la Iași): se tipărește în catalogul oficial (Art. 21 lit. f) și orice
