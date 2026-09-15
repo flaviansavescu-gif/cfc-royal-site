@@ -293,7 +293,7 @@ const CLASE = [
         </label>
         <div class="ie__row">
           <label class="ie__f"><span>{T.pedigree} <b class="req ie-ped-star">*</b></span><input data-f="pedigree" /></label>
-          <label class="ie__f"><span>{T.microcip} *</span><input data-f="microcip" minlength="6" /></label>
+          <label class="ie__f"><span>{T.microcip} *</span><input data-f="microcip" inputmode="numeric" minlength="10" maxlength="20" placeholder={lang === "en" ? "15 digits" : "15 cifre"} /></label>
         </div>
         <label class="ie__f"><span>{T.crescator} ({T.optional})</span><input data-f="crescator" /></label>
         {/* „Roba” e termenul chinologic, necunoscut amatorilor (la Iași, 3 oameni au întrebat ce
@@ -409,7 +409,7 @@ const CLASE = [
   </form>
 </section>
 
-<script is:inline define:vars={{ AFISE, txtInchisOptiune: T.inchisOptiune, txtInchisButon: T.inchisButon, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtMembru: T.membruIntrebare, txtMembruOrg: T.membruIntrebareOrg, txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit, txtCaine: (lang === "en" ? "Dog" : "Câinele"), txtCampuriCaine: (lang === "en" ? "Dog {n}: fill in the required fields — name, breed (from the list), sex, date of birth, class, microchip (min. 6), coat colour and coat type (both are printed in the official catalogue). Pedigree is required unless you tick typicity." : "Câinele {n}: completează câmpurile obligatorii — nume, rasă (din listă), sex, data nașterii, clasă, microcip (min. 6), culoarea robei și tipul robei (se tipăresc în catalogul oficial). Pedigree obligatoriu dacă nu bifezi tipicitatea."), txtTaxaTotal: (lang === "en" ? "Total entry fee:" : "Taxa totală de înscriere:"), txtTaxaInregistrata: (lang === "en" ? "Registered entry fee:" : "Taxă înregistrată:"), txtNuTrimis: (lang === "en" ? "NOT sent yet — please complete:" : "NU s-a trimis încă — mai completează:"), txtPedOptional: (lang === "en" ? "optional at this show — fill in if the dog has one" : "opțional la această expoziție — completează dacă are"), txtArbitriCurand: (lang === "en" ? "the judges will be announced shortly" : "arbitrii vor fi anunțați în curând") }}>
+<script is:inline define:vars={{ AFISE, txtInchisOptiune: T.inchisOptiune, txtInchisButon: T.inchisButon, txtLimba: lang === "en" ? "en-GB" : "ro-RO", txtMembru: T.membruIntrebare, txtMembruOrg: T.membruIntrebareOrg, txtTermenFus: T.termenFus, txtTermenAzi: T.termenAzi, txtTermenMaine: T.termenMaine, txtTermenZile: T.termenZile, txtTermenZileDe: T.termenZileDe, txtTrimite: T.trimite, txtSe: T.seTrimite, succesDetaliu: T.succesDetaliu, txtDataInvalida: T.dataInvalida, txtCipInvalid: (lang === "en" ? "The microchip must have 15 digits (or 10 for old chips) — check it on the dog's passport." : "Microcipul trebuie să aibă 15 cifre (sau 10, la cipurile vechi) — verifică-l pe pașaportul câinelui."), txtTaxaAlege: T.taxaAlege, txtTaxaEste: T.taxaEste, txtLei: T.lei, txtFaraTaxa: T.faraTaxa, txtTaxaTa: T.taxaTa, txtTaxaDetaliu: T.taxaDetaliu, txtDovadaMare: T.dovadaMare, txtDovadaTipGresit: T.dovadaTipGresit, txtCaine: (lang === "en" ? "Dog" : "Câinele"), txtCampuriCaine: (lang === "en" ? "Dog {n}: fill in the required fields — name, breed (from the list), sex, date of birth, class, microchip (15 digits), coat colour and coat type (both are printed in the official catalogue). Pedigree is required unless you tick typicity." : "Câinele {n}: completează câmpurile obligatorii — nume, rasă (din listă), sex, data nașterii, clasă, microcip (15 cifre), culoarea robei și tipul robei (se tipăresc în catalogul oficial). Pedigree obligatoriu dacă nu bifezi tipicitatea."), txtTaxaTotal: (lang === "en" ? "Total entry fee:" : "Taxa totală de înscriere:"), txtTaxaInregistrata: (lang === "en" ? "Registered entry fee:" : "Taxă înregistrată:"), txtNuTrimis: (lang === "en" ? "NOT sent yet — please complete:" : "NU s-a trimis încă — mai completează:"), txtPedOptional: (lang === "en" ? "optional at this show — fill in if the dog has one" : "opțional la această expoziție — completează dacă are"), txtArbitriCurand: (lang === "en" ? "the judges will be announced shortly" : "arbitrii vor fi anunțați în curând") }}>
   (async function () {
     const form = document.getElementById("ie-form");
     const loading = document.getElementById("ie-loading");
@@ -816,13 +816,16 @@ const CLASE = [
         const rasaId = val("rasaId");
         const tip = b.querySelector('[data-f="pedigreeTipicitate"]').checked;
         const pedigree = val("pedigree");
-        const microcip = val("microcip");
+        // Cipul: 15 cifre (sau 10), fără spații/cratime — aceeași regulă ca pe server; un cip
+        // de 16 cifre a trecut la Iași cu vechiul „min. 6" și a lăsat câinele fără palmares public.
+        const microcip = val("microcip").replace(/[\s-]/g, "");
+        const cipBun = /^\d{10}$|^\d{15}$/.test(microcip);
         const clasa = val("clasa");
         const culoareRoba = val("culoareRoba");
         const tipRoba = val("tipRoba");
-        const bun = numeCaine.length >= 2 && rasaId && sexEl && iso && clasa && microcip.length >= 6 && culoareRoba.length >= 2 && tipRoba.length >= 2 && (tip || pedigree.length >= 2 || !!expoCurenta()?.pedigreeOptional);
+        const bun = numeCaine.length >= 2 && rasaId && sexEl && iso && clasa && cipBun && culoareRoba.length >= 2 && tipRoba.length >= 2 && (tip || pedigree.length >= 2 || !!expoCurenta()?.pedigreeOptional);
         if (!bun) {
-          err.textContent = (iso ? "" : txtDataInvalida + " ") + txtCampuriCaine.replace("{n}", i + 1);
+          err.textContent = (iso ? "" : txtDataInvalida + " ") + (cipBun || !microcip ? "" : txtCipInvalid + " ") + txtCampuriCaine.replace("{n}", i + 1);
           err.hidden = false;
           b.scrollIntoView({ behavior: "smooth", block: "center" });
           return;

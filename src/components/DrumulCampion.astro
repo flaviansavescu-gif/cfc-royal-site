@@ -66,6 +66,9 @@ const RO = {
   faraCampionate: "Exemplarul nu are încă certificate consemnate în registrul de campionate. Drumul începe la prima expoziție — vezi calendarul competițional.",
   titluriDoarFisa: "Exemplarul are titluri pe fișă, dar progresul detaliat spre campionate apare după următoarea publicare a palmaresului de către club.",
   dinRegistru: "Progresul de mai sus, la fiecare titlu, vine din registrul oficial de campionate al clubului.",
+  faraPedigree: "Exemplarul nu are certificat de origine CFC-Royal (fișă publică), dar are palmares la expozițiile clubului — titlurile și progresul de mai jos vin din registrul oficial de campionate. Pentru omologarea unui titlu, scrie la contact@cfc-royal.ro.",
+  listaTitluri: "Certificate și titluri obținute la expozițiile clubului",
+  listaProgres: "Unde se află pe drum",
   negasit: "Nu am găsit exemplarul.",
   verifica: "Verifică seria sau microcipul și încearcă din nou.",
   // cererea de omologare
@@ -98,6 +101,9 @@ const EN = {
   faraCampionate: "This dog has no certificates recorded in the championship register yet. The road starts at the first show — see the show calendar.",
   titluriDoarFisa: "This dog has titles on its record, but the detailed championship progress appears after the club next publishes its results.",
   dinRegistru: "The progress above, for each title, comes from the club's official championship register.",
+  faraPedigree: "This dog has no CFC-Royal certificate of origin (public record), but it has results at the club's shows — the titles and progress below come from the official championship register. To homologate a title, write to contact@cfc-royal.ro.",
+  listaTitluri: "Certificates and titles won at the club's shows",
+  listaProgres: "Where it stands on the road",
   negasit: "We could not find this dog.",
   verifica: "Check the series or microchip and try again.",
   // homologation request
@@ -168,6 +174,11 @@ const TITLURI = lang === "en" ? TITLURI_EN : TITLURI_RO;
   <div class="dc__caine" id="dc-caine" hidden>
     <h3 class="dc__caine-nume" id="dc-nume"></h3>
     <p class="dc__caine-nota" id="dc-nota"></p>
+    <!-- Sub nume, nu doar sus la fiecare titlu: omul caută jos și se uită jos (15.09.2026). -->
+    <h4 class="dc__caine-h4" id="dc-lista-titluri-cap" hidden></h4>
+    <ul class="dc__lista" id="dc-lista-titluri" hidden></ul>
+    <h4 class="dc__caine-h4" id="dc-lista-progres-cap" hidden></h4>
+    <ul class="dc__lista" id="dc-lista-progres" hidden></ul>
   </div>
 
   <div class="dc__omolog" id="dc-omolog" hidden>
@@ -205,6 +216,43 @@ const TITLURI = lang === "en" ? TITLURI_EN : TITLURI_RO;
     function curata() {
       document.querySelectorAll("[data-stare]").forEach((e) => { e.hidden = true; e.className = "dc__stare"; });
       document.querySelectorAll("[data-progres]").forEach((e) => { e.hidden = true; });
+      ["dc-lista-titluri-cap", "dc-lista-titluri", "dc-lista-progres-cap", "dc-lista-progres"].forEach((id) => {
+        const e = document.getElementById(id); e.hidden = true; e.textContent = "";
+      });
+    }
+    // Numele titlului, din cartonașele de sus (aceeași sursă, aceeași limbă).
+    function numeTitlu(cod) {
+      const el = document.querySelector('[data-titlu="' + CSS.escape(cod) + '"] strong');
+      return el ? el.textContent.replace(/^🏆\s*/, "") : cod;
+    }
+    // Lista titlurilor obținute și lista progresului, sub numele câinelui.
+    function scrieListe(titluri, campionate) {
+      if (titluri.length) {
+        const cap = document.getElementById("dc-lista-titluri-cap"), ul = document.getElementById("dc-lista-titluri");
+        cap.textContent = T.listaTitluri; cap.hidden = false;
+        titluri.forEach((t) => {
+          const li = document.createElement("li");
+          const b = document.createElement("strong"); b.textContent = t.titlu || "";
+          li.appendChild(b);
+          const rest = [t.expozitie, t.data, t.arbitru, t.clasa].filter(Boolean).join(" · ");
+          if (rest) li.appendChild(document.createTextNode(" — " + rest));
+          ul.appendChild(li);
+        });
+        ul.hidden = false;
+      }
+      if (campionate.length) {
+        const cap = document.getElementById("dc-lista-progres-cap"), ul = document.getElementById("dc-lista-progres");
+        cap.textContent = T.listaProgres; cap.hidden = false;
+        campionate.forEach((c) => {
+          const li = document.createElement("li");
+          const b = document.createElement("strong"); b.textContent = numeTitlu(c.cod);
+          li.appendChild(b);
+          const stare = (c.omologari && c.omologari.length) ? T.omologat + " " + c.omologari.join(", ") : c.indeplinit ? T.gata : T.inLucru;
+          li.appendChild(document.createTextNode(" — " + stare + (c.detaliu ? " · " + c.detaliu : "")));
+          ul.appendChild(li);
+        });
+        ul.hidden = false;
+      }
     }
 
     form.addEventListener("submit", async (e) => {
@@ -230,13 +278,13 @@ const TITLURI = lang === "en" ? TITLURI_EN : TITLURI_RO;
         const nota = document.getElementById("dc-nota");
 
         const campionate = Array.isArray(d.campionate) ? d.campionate : [];
+        const titluri = Array.isArray(d.titluri) ? d.titluri : [];
+        scrieListe(titluri, campionate);
         if (!campionate.length) {
-          nota.textContent = (Array.isArray(d.titluri) && d.titluri.length)
-            ? T.titluriDoarFisa
-            : T.faraCampionate;
+          nota.textContent = titluri.length ? T.titluriDoarFisa : T.faraCampionate;
           return;
         }
-        nota.textContent = T.dinRegistru;
+        nota.textContent = d.faraPedigree ? T.faraPedigree : T.dinRegistru;
         campionate.forEach((c) => {
           const st = document.querySelector('[data-stare="' + CSS.escape(c.cod) + '"]');
           const pr = document.querySelector('[data-progres="' + CSS.escape(c.cod) + '"]');
@@ -257,9 +305,12 @@ const TITLURI = lang === "en" ? TITLURI_EN : TITLURI_RO;
         });
         cautatAfisat = cautat;
         // Formularul de omologare se deschide odată cu drumul; opțiunile spun starea
-        // fiecărui titlu, iar cele deja omologate nu se mai pot cere.
+        // fiecărui titlu, iar cele deja omologate nu se mai pot cere. Fără certificat
+        // CFC-Royal, cererea online n-are pe ce se sprijini (omologare.mjs caută
+        // certificatul) — nota de sub nume trimite la contact@.
         const omolog = document.getElementById("dc-omolog");
-        omolog.hidden = false;
+        omolog.hidden = !!d.faraPedigree;
+        if (d.faraPedigree) { document.getElementById("dc-caine").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
         const sel = document.getElementById("dc-om-titlu");
         [...sel.options].forEach((o) => {
           const c = campionate.find((x) => x.cod === o.value);
@@ -351,6 +402,9 @@ const TITLURI = lang === "en" ? TITLURI_EN : TITLURI_RO;
     border: 1px solid var(--color-accent); border-left-width: 4px; border-radius: var(--radius); max-width: 46rem; }
   .dc__caine-nume { margin: 0 0 0.3rem; font-family: var(--font-serif); color: var(--color-primary); }
   .dc__caine-nota { margin: 0; font-size: 0.9rem; color: var(--color-text-muted); }
+  .dc__caine-h4 { margin: 0.9rem 0 0.3rem; font-size: 0.95rem; color: var(--color-primary); }
+  .dc__lista { margin: 0; padding-left: 1.1rem; font-size: 0.92rem; display: grid; gap: 0.3rem; }
+  .dc__lista strong { color: var(--color-primary); }
   .dc__omolog { margin-top: 1.5rem; padding: 1.2rem 1.4rem; background: var(--color-surface);
     border: 1px solid var(--color-border); border-radius: var(--radius); max-width: 46rem; }
   .dc__omolog-titlu { margin: 0 0 0.3rem; font-family: var(--font-serif); color: var(--color-primary); }

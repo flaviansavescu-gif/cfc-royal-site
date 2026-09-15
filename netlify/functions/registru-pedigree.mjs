@@ -38,7 +38,7 @@ import {
 } from "./_comun/registru-jurnal.mjs";
 import { dispozitivCunoscut, ROLURI_PROTEJATE } from "./_comun/al-doilea-factor.mjs";
 import { poateCereExtras, numarDinText, intervalulCerut, inInterval, inValuri } from "./_comun/extrase.mjs";
-import { mascheazaCip } from "./_comun/microcip.mjs";
+import { mascheazaCip, normCip } from "./_comun/microcip.mjs";
 import { json } from "./_comun/raspuns.mjs";
 import { invalideazaIndexPublic } from "./_comun/index-public.mjs";
 import { trimite, escapeHtml } from "./_comun/posta.mjs";
@@ -307,12 +307,31 @@ export default cuLimitareCod(async (req) => {
       const dupaWdf = await s0.get("pedigree-wdf/" + cautat, { type: "json" }).catch(() => null);
       if (dupaWdf?.serie) cert = await s0.get("pedigree/" + dupaWdf.serie, { type: "json" }).catch(() => null);
     }
-    if (!cert)
+    if (!cert) {
+      // Fără certificat CFC-Royal, dar cu palmares la expozițiile clubului (15.09.2026).
+      // La Iași, 11 din 13 câini cu titluri aveau pedigree COR sau din alte registre: Managerul
+      // le împinsese palmaresul pe site (blob titluri/<microcip>), dar căutarea se oprea la
+      // lipsa certificatului și proprietarul primea „nu există". Titlurile obținute în
+      // ringurile noastre sunt ale câinelui indiferent cine i-a emis pedigree-ul — se arată,
+      // fără fișă de origine și cu cipul mascat, ca peste tot.
+      const cipCautat = normCip(cautat);
+      if (/^\d{10}$|^\d{15}$/.test(cipCautat)) {
+        const palmares = await getStore("expozitii").get("titluri/" + cipCautat, { type: "json" }).catch(() => null);
+        if (palmares && ((palmares.titluri || []).length || (palmares.campionate || []).length)) {
+          return json({
+            caine: { nume: palmares.nume || "", microcip: mascheazaCip(cipCautat), faraPedigree: true },
+            faraPedigree: true,
+            titluri: palmares.titluri || [],
+            campionate: palmares.campionate || [],
+          });
+        }
+      }
       return json({
         eroare: "Niciun câine cu această referință în registrul CFC-Royal. " +
           "Dacă numărul aparține altui registru (COR, ROI, LOE, RKF…), exemplarul poate apărea " +
           "în ascendența câinilor noștri, dar fișa lui se ține la registrul care l-a emis.",
       }, 404);
+    }
 
     // Frații de cuib: ceilalți pui din aceeași declarație.
     const frati = [];

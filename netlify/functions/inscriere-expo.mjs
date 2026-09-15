@@ -18,6 +18,7 @@ import { segmentCheieValid } from "./_comun/cheie-blob.mjs";
 import { stergeDovezileIncheiate } from "./_comun/dovada-plata.mjs";
 import { versiuneaNormelor } from "./_comun/norme-participare.mjs";
 import { pedigreeOptional } from "./_comun/pedigree-optional.mjs";
+import { normCip } from "./_comun/microcip.mjs";
 // MODUL REPETIȚIE. Lanțul înscriere → verificare → import → catalog → ring → rezultate
 // n-a trecut niciodată printr-o expoziție adevărată. Repetiția generală îl trece, cu date
 // născocite care nu au ce căuta sub ochii publicului. O expoziție marcată ca repetiție
@@ -537,7 +538,14 @@ export default async (req) => {
     if (!VARSTA[clasa]) return json({ eroare: et + "alege clasa de concurs." }, 400);
     // Microcipul e obligatoriu (identificarea WDF); pedigree-ul e obligatoriu dacă nu e
     // pe calea tipicității. Aceleași reguli ca înainte, aplicate fiecărui câine.
-    if (String(d.microcip || "").trim().length < 6) return json({ eroare: et + "microcipul este obligatoriu (minimum 6 caractere)." }, 400);
+    // 15 cifre (ISO) sau 10 (cipurile vechi); spațiile și cratimele se scot, nu se refuză.
+    // Până la 15.09.2026 se cereau „minimum 6 caractere" — așa a intrat un cip de 16 cifre
+    // (CRYSTAL, Iași), pe care Managerul l-a purtat până la publicarea palmaresului, unde
+    // site-ul l-a refuzat. Cipul e cheia fișei publice: se verifică la prima ușă.
+    const cipCurat = normCip(d.microcip);
+    if (!cipCurat) return json({ eroare: et + "microcipul este obligatoriu." }, 400);
+    if (!/^\d{10}$|^\d{15}$/.test(cipCurat))
+      return json({ eroare: et + `microcipul „${cipCurat}” are ${cipCurat.length} ${/\D/.test(cipCurat) ? "semne, dintre care unele nu sunt cifre" : "cifre"} — trebuie să aibă 15 cifre (sau 10, la cipurile vechi). Verifică-l pe pașaportul câinelui.` }, 400);
     // Excepție per expoziție (14.09.2026, Cupa Bucegi): numărul de pedigree e opțional și
     // fără bifa de tipicitate — lista expozițiilor stă în _comun/pedigree-optional.mjs.
     if (!pedigreeOptional(showId) && String(d.pedigreeTipicitate || "") !== "1" && String(d.pedigree || "").trim().length < 2)
@@ -578,7 +586,7 @@ export default async (req) => {
       dataNasterii,
       pedigree: String(d.pedigree || "").trim().slice(0, 60) || null,
       pedigreeTipicitate: String(d.pedigreeTipicitate || "") === "1",
-      microcip: String(d.microcip || "").trim().slice(0, 60) || null,
+      microcip: cipCurat,
       crescator: String(d.crescator || "").trim().slice(0, 120) || null,
       // Art. 21 lit. f — se tipăresc în catalog; managerul le preia la import.
       culoareRoba: String(d.culoareRoba || "").trim().slice(0, 120) || null,
