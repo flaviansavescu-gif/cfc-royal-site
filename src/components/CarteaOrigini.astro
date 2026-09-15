@@ -61,7 +61,7 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
 
   <p class="k-rasfoieste">
     <a href="/registru-public/">{T("… sau răsfoiește tot registrul (toți câinii și afixele)", "… or browse the whole register (all dogs and affixes)")} →</a>
-    {lang === "ro" && <a href="/drumul-spre-campion/">🏆 Drumul spre Campion — unde se află câinele tău →</a>}
+    <a href={lang === "en" ? "/en/drumul-spre-campion/" : "/drumul-spre-campion/"}>🏆 {T("Drumul spre Campion — unde se află câinele tău", "Road to Champion — where your dog stands")} →</a>
   </p>
 
   <p class="k-eroare" id="k-eroare" role="alert" hidden></p>
@@ -302,11 +302,20 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
       }
     }
 
-    function deseneazaTitluri(titluri) {
+    function deseneazaTitluri(titluri, serie) {
       const p = document.getElementById("panou-titluri");
       p.textContent = "";
+      // Legătura spre „Drumul spre Campion" cu câinele gata căutat (16.09.2026): titlurile
+      // sunt aici, progresul spre campionate e acolo — un singur clic între ele.
+      const drum = document.createElement("p");
+      drum.className = "panou__drum";
+      const a = document.createElement("a");
+      a.href = (limba === "en" ? "/en/drumul-spre-campion/" : "/drumul-spre-campion/") + (serie ? "?r=" + encodeURIComponent(serie) : "");
+      a.textContent = "🏆 " + (limba === "en" ? "Road to Champion — progress towards the titles" : "Drumul spre Campion — progresul spre titlurile de campion") + " →";
+      drum.appendChild(a);
       if (!titluri.length) {
         p.appendChild(el("p", "panou__gol", L[limba].faraTitluri));
+        p.appendChild(drum);
         return;
       }
       const t = el("table", "tabel");
@@ -323,6 +332,7 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
         t.appendChild(tr);
       }
       p.appendChild(t);
+      p.appendChild(drum);
     }
 
     // Insignele de sănătate (Faza 1): doar testele VERIFICATE, aduse de registru-sanatate
@@ -403,7 +413,7 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
       document.getElementById("k-tip-nota").textContent = lipsa ? T.notaB(lipsa) : T.notaA;
       deseneazaFrati(d.frati || []);
       deseneazaDescendenti(d.descendenti || []);
-      deseneazaTitluri(d.titluri || []);
+      deseneazaTitluri(d.titluri || [], d.caine && d.caine.serie);
       deseneazaSanatate(c.microcip);
       fisa.hidden = false;
     }
@@ -582,6 +592,8 @@ for (const r of RASE_WDF) raseEn[r.ro] = r.en;
   .arbore :global(a.nod__nume) { text-decoration: none; }
   .arbore :global(a.nod__nume:hover) { text-decoration: underline; }
   .arbore :global(.nod__titluri) { font-size: 0.66rem; color: var(--color-accent-dark); }
+  :global(.panou__drum) { margin: 0.9rem 0 0; font-size: 0.92rem; }
+  :global(.panou__drum a) { color: var(--color-link); font-weight: 600; }
   .arbore :global(.nod__nr) { font-size: 0.66rem; color: var(--color-text-muted); font-family: var(--font-mono, monospace); }
   .arbore :global(.nod.is-gol .nod__nr) { font-style: italic; }
 

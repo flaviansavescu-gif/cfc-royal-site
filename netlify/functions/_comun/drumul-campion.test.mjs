@@ -59,6 +59,15 @@ test("pagina arată titlurile și progresul SUB numele câinelui și ascunde cer
   assert.equal((c.match(/faraPedigree: "/g) || []).length, 2, "textul RO și EN");
 });
 
+test("fișa publică trimite la Drumul spre Campion cu câinele gata căutat (?r=), în RO și EN", () => {
+  const k = readFileSync(new URL("../../../src/components/CarteaOrigini.astro", import.meta.url), "utf8");
+  assert.ok(k.includes("deseneazaTitluri(d.titluri || [], d.caine && d.caine.serie)"));
+  assert.ok(k.includes('"/en/drumul-spre-campion/" : "/drumul-spre-campion/") + (serie ? "?r="'));
+  assert.ok(!k.includes('{lang === "ro" && <a href="/drumul-spre-campion/">'), "legătura de sus e în ambele limbi");
+  const d = readFileSync(new URL("../../../src/components/DrumulCampion.astro", import.meta.url), "utf8");
+  assert.ok(d.includes('new URLSearchParams(location.search).get("r")') && d.includes("form.requestSubmit()"));
+});
+
 test("înscrierea la expoziție cere 15 cifre (sau 10), pe server și în formular — nu „minimum 6”", () => {
   const f = readFileSync(new URL("../inscriere-expo.mjs", import.meta.url), "utf8");
   assert.ok(!f.includes("(minimum 6 caractere)."), "vechea regulă „min. 6” nu mai e în cod (doar în comentariul care spune de ce s-a schimbat)");

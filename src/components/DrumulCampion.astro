@@ -358,6 +358,10 @@ const TITLURI = lang === "en" ? TITLURI_EN : TITLURI_RO;
         mesaj.hidden = false;
       } finally { btn.disabled = false; }
     });
+
+    // Venit de pe fișa publică a câinelui (sau din Manager) cu ?r=<serie sau cip>: caută singur.
+    const dinAdresa = (new URLSearchParams(location.search).get("r") || "").trim();
+    if (dinAdresa) { input.value = dinAdresa; form.requestSubmit(); }
   })();
 </script>
 
