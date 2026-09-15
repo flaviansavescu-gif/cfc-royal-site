@@ -29,6 +29,7 @@ export const INIMI = {
   "raport-lunar": { cadenta: "lunar (ziua 1, 05:00)", pragMin: 33 * 24 * 60 },
   "cotizatie-reamintiri": { cadenta: "zilnic (06:00)", pragMin: 2 * 24 * 60 + 120 },
   "termene-reamintiri": { cadenta: "zilnic (06:30)", pragMin: 2 * 24 * 60 + 120 },
+  "inspector": { cadenta: "zilnic (07:00)", pragMin: 2 * 24 * 60 + 120 },
 };
 
 /** Scrie bătaia. Se cheamă la ÎNCEPUTUL fiecărei rulări programate. */
