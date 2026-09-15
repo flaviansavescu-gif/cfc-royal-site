@@ -25,6 +25,7 @@ export const mainNav: NavItem[] = [
     children: [
       { slug: "organizatia/despre", label: { ro: "Despre asociație", en: "About us" } },
       { slug: "organizatia/ce-suntem", label: { ro: "Ce suntem și ce nu suntem", en: "What we are" } },
+      { slug: "intrebari-frecvente", label: { ro: "Întrebări frecvente", en: "FAQ" } },
       { slug: "ecosistem-digital", label: { ro: "Ecosistemul digital", en: "Digital ecosystem" } },
       { slug: "registratura", label: { ro: "Registratura", en: "Registry Office" } },
       { slug: "organizatia/conducere", label: { ro: "Conducere", en: "Leadership" } },
@@ -66,6 +67,8 @@ export const mainNav: NavItem[] = [
     children: [
       { slug: "standarde-rasa", label: { ro: "Standardele raselor", en: "Breed standards" } },
       { slug: "regulamente", label: { ro: "Regulamente WDF", en: "WDF Regulations" } },
+      { slug: "certificatele-de-origine", label: { ro: "Certificatele de origine (A, B, C)", en: "Certificates of origin (A, B, C)" } },
+      { slug: "crestere-si-sanatate-pe-scurt", label: { ro: "Creștere și sănătate, pe scurt", en: "Breeding & health, in short" } },
       // Registrul genealogic stă la rădăcină, fără prefix de limbă: căile care încep
       // cu „/" trec neatinse prin localizePath.
       // „Cartea de origini" din meniu duce la registrul RĂSFOIBIL; căutarea directă

@@ -130,7 +130,7 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
         if (!r.ok) throw new Error(d.eroare || "Nu am putut încărca certificatul.");
         const c = d.certificat;
 
-        document.getElementById("c-tip").textContent = "Tip " + c.tip;
+        document.getElementById("c-tip").textContent = "Tip " + c.tip + (c.tip === "C" ? " · nu atestă originea" : "");
         document.getElementById("c-tip").className = "act__tip-litera is-" + c.tip.toLowerCase();
         document.getElementById("c-serie").textContent = "Seria " + c.serie + " · Cuib " + c.numarWDF +
           " · Declarația " + c.dmfSerie;
@@ -190,9 +190,12 @@ import RegistruLayout from "../../layouts/RegistruLayout.astro";
         } else if (c.tip === "C") {
           const p = document.getElementById("c-lipsa");
           p.hidden = false;
-          p.textContent = "Certificat de Tip C — ascendența nu este cunoscută. " +
-            "Este certificatul de tipicitate de rasă, prin care exemplarul intră în " +
-            "registrul de origini pe baza conformității cu standardul.";
+          // Mențiunea „NU ATESTĂ ORIGINEA" e cerută explicit (15.09.2026, strategia 2026–2027):
+          // un tip C arătat ca „pedigree" fără această frază poate legitima vânzarea unui pui
+          // fără niciun istoric. Fraza stă PE certificat, nu doar pe site.
+          p.textContent = "Certificat de Tip C — NU ATESTĂ ORIGINEA. Ascendența exemplarului nu este " +
+            "cunoscută: actul este certificatul de tipicitate de rasă și atestă doar conformitatea " +
+            "cu standardul rasei, apreciată în expoziție. Nu poartă istoric de sănătate al părinților.";
         }
 
         document.getElementById("c-cap2").textContent =

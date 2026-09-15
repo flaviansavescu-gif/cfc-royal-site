@@ -92,6 +92,7 @@ const bazaFisa = lang === "en" ? "/en/caine/" : "/caine/";
         anulat: (s) => "⚠ Certificatul " + s + " a fost ANULAT.",
         tip: "Tipul certificatului", tipA: " — ascendență completă pe patru generații",
         tipB: " — ascendență incompletă",
+        tipC: " — certificat de tipicitate: NU ATESTĂ ORIGINEA (ascendență necunoscută)",
         nume: "Numele câinelui", rasa: "Rasa", sex: "Sexul", mascul: "mascul", femela: "femelă",
         nastere: "Data nașterii", culoare: "Culoarea", microcip: "Microcip / tatuaj",
         cuib: "Nr. cuib WDF", afix: "Afixul crescătorului", emitere: "Data emiterii",
@@ -102,6 +103,7 @@ const bazaFisa = lang === "en" ? "/en/caine/" : "/caine/";
         anulat: (s) => "⚠ Certificate " + s + " has been CANCELLED.",
         tip: "Certificate type", tipA: " — complete four-generation pedigree",
         tipB: " — incomplete pedigree",
+        tipC: " — typicity certificate: DOES NOT ATTEST ORIGIN (ancestry unknown)",
         nume: "Dog's name", rasa: "Breed", sex: "Sex", mascul: "male", femela: "female",
         nastere: "Date of birth", culoare: "Colour", microcip: "Microchip / tattoo",
         cuib: "WDF litter no.", afix: "Breeder's affix", emitere: "Date of issue",
@@ -128,7 +130,9 @@ const bazaFisa = lang === "en" ? "/en/caine/" : "/caine/";
         tr.appendChild(el("td", null, b || "—"));
         t.appendChild(tr);
       };
-      rand(T.tip, "Tip " + c.tip + (c.tip === "A" ? T.tipA : T.tipB));
+      // Tipul C se spune pe nume și la verificarea publică (15.09.2026): cumpărătorul care
+      // scanează QR-ul trebuie să vadă că actul nu atestă originea, nu doar „Tip C".
+      rand(T.tip, "Tip " + c.tip + (c.tip === "A" ? T.tipA : c.tip === "C" ? T.tipC : T.tipB));
       rand(T.nume, c.caine.nume);
       rand(T.rasa, c.caine.rasa + (c.caine.varietate ? " · " + c.caine.varietate : ""));
       rand(T.sex, c.caine.sex === "M" ? T.mascul : T.femela);

@@ -18,6 +18,7 @@ Membrii pot solicita emiterea documentelor genealogice rezervate acestora:
 
 Certificatele de Origine (Pedigree) de tip C pot fi solicitate și de persoane care nu dețin calitatea
 de membru, în condițiile prevăzute de regulamentele World Dog Federation / Club Federal Chinologic – Royal.
+Ce înseamnă fiecare tip și ce poate dovedi: [Certificatele de origine: tip A, tip B, tip C](/ro/certificatele-de-origine/).
 
 ## Registrul genealogic: depunere online, fără drumuri și fără hârtii
 Membrii cu cotizația la zi depun **Declarația de Montă și Fătare** direct din contul lor, la
