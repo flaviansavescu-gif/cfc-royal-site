@@ -24,6 +24,7 @@ export const mainNav: NavItem[] = [
     label: { ro: "Organizația", en: "Organization" },
     children: [
       { slug: "organizatia/despre", label: { ro: "Despre asociație", en: "About us" } },
+      { slug: "organizatia/ce-suntem", label: { ro: "Ce suntem și ce nu suntem", en: "What we are" } },
       { slug: "ecosistem-digital", label: { ro: "Ecosistemul digital", en: "Digital ecosystem" } },
       { slug: "registratura", label: { ro: "Registratura", en: "Registry Office" } },
       { slug: "organizatia/conducere", label: { ro: "Conducere", en: "Leadership" } },
@@ -109,6 +110,7 @@ export const footerNav: FooterColumn[] = [
     titleKey: "footer.organization",
     links: [
       { slug: "organizatia/despre", label: { ro: "Despre noi", en: "About us" } },
+      { slug: "organizatia/ce-suntem", label: { ro: "Ce suntem și ce nu suntem", en: "What we are" } },
       { slug: "organizatia/conducere", label: { ro: "Organigramă", en: "Structure" } },
       { slug: "organizatia/transparenta", label: { ro: "Statut și documente", en: "Statute & documents" } },
     ],
