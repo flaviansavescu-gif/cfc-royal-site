@@ -8,7 +8,7 @@ city: "Buzău"
 county: "Buzău"
 showType: "CACIB"
 organizer: "A.Ch. Buzău"
-status: "anunțată"
+status: "încheiată"
 draft: false
 ---
 A CACIB dog show organised under the aegis of the World Dog Federation, in Buzău, at Parcul Tineretului, on 27 June 2026. Organiser: Buzău Cynological Association.

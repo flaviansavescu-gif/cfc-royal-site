@@ -48,9 +48,12 @@ export const SITE = {
       ro: "Str. Mihai Eminescu nr. 43, bloc C11, sc. A, et. 8, ap. 33, Râmnicu Vâlcea, jud. Vâlcea, 240076",
       en: "43 Mihai Eminescu St., bl. C11, st. A, fl. 8, apt. 33, Râmnicu Vâlcea, Vâlcea County, 240076",
     },
+    // Program REALIST (15.09.2026, strategia 2026–2027): secretariatul e format din două
+    // persoane; programul de weekend era o promisiune greu de ținut. În zilele de expoziție
+    // telefonul răspunde la ring. Termenul de răspuns e promisiunea măsurabilă.
     schedule: {
-      ro: ["Luni–Vineri: 08:00–18:00", "Sâmbătă–Duminică: 10:00–14:00"],
-      en: ["Monday–Friday: 8:00 AM–6:00 PM", "Saturday–Sunday: 10:00 AM–2:00 PM"],
+      ro: ["Luni–Vineri: 10:00–18:00", "În zilele de expoziție: la ring", "Răspundem în cel mult 2 zile lucrătoare"],
+      en: ["Monday–Friday: 10:00 AM–6:00 PM", "On show days: at the ring", "We reply within 2 working days"],
     },
   },
 

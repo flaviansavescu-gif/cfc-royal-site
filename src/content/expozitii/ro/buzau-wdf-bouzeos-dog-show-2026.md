@@ -8,7 +8,7 @@ city: "Buzău"
 county: "Buzău"
 showType: "CACIB"
 organizer: "A.Ch. Buzău"
-status: "anunțată"
+status: "încheiată"
 draft: false
 ---
 Expoziție canină CACIB organizată sub egida World Dog Federation, la Buzău, în Parcul Tineretului, pe 27 iunie 2026. Organizator: Asociația Chinologică Buzău.

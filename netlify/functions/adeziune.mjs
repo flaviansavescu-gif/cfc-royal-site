@@ -36,6 +36,18 @@ const taie = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
 const idNou = () => randomBytes(12).toString("hex");
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+/** „De unde ai aflat de noi?" — valori închise (15.09.2026), ca să se poată număra pe canal. */
+export const ETICHETA_SURSA = {
+  recomandare: "de la un membru sau un crescător",
+  expozitie: "la o expoziție",
+  facebook: "Facebook / Instagram",
+  cautare: "căutare pe internet",
+  presa: "presă",
+  veterinar: "cabinet veterinar",
+  altceva: "altceva",
+};
+const SURSE = new Set(Object.keys(ETICHETA_SURSA));
+
 /** Textul acordului — o singură sursă, cu versiune: la o reclamație trebuie să putem
  *  arăta nu doar CĂ omul a bifat, ci CE a bifat (ca la buletin). */
 export const TEXT_ACORD_ADEZIUNE =
@@ -85,6 +97,10 @@ export default cuLimitareCod(async (req) => {
       judet: taie(body.judet, 60),
       mesaj: taie(body.mesaj, 600),
       student: !!body.student,
+      // De unde vin oamenii (15.09.2026, strategia 2026–2027): fără câmpul ăsta nu se poate
+      // măsura niciun canal. Valori închise + numele celui care a recomandat, dacă e cazul.
+      sursa: SURSE.has(String(body.sursa || "")) ? String(body.sursa) : "",
+      recomandatDe: taie(body.recomandatDe, 120),
     };
     if (c.nume.length < 3) return json({ eroare: "Scrie numele complet." }, 400);
     if (!EMAIL_RE.test(c.email)) return json({ eroare: "Scrie o adresă de e-mail validă." }, 400);
@@ -125,7 +141,8 @@ export default cuLimitareCod(async (req) => {
       actor: actorExtern(c.nume),
       obiect: c.nume,
       detalii: [c.email, c.telefon, c.localitate + (c.judet ? ", " + c.judet : ""),
-        areDovada ? "cu dovada plății" : "fără dovadă încă", c.student ? "student" : ""].filter(Boolean).join(" · "),
+        areDovada ? "cu dovada plății" : "fără dovadă încă", c.student ? "student" : "",
+        c.sursa ? "aflat: " + (ETICHETA_SURSA[c.sursa] || c.sursa) : "", c.recomandatDe ? "recomandat de " + c.recomandatDe : ""].filter(Boolean).join(" · "),
       ip: ipCerere(req),
     });
 
@@ -165,6 +182,7 @@ export default cuLimitareCod(async (req) => {
         const c = await s.get(b.key, { type: "json" }).catch(() => null);
         if (c) cereri.push({ id: c.id, nume: c.nume, email: c.email, telefon: c.telefon,
           localitate: c.localitate, judet: c.judet, mesaj: c.mesaj, student: c.student,
+          sursa: c.sursa || "", recomandatDe: c.recomandatDe || "",
           stare: c.stare, creat: c.creat, areDovada: c.areDovada, motiv: c.motiv || null });
       }
     } catch (err) { console.error(err); }

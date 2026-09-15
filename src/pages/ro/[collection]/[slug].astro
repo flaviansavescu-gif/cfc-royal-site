@@ -1,6 +1,7 @@
 ---
 // Pagina individuală a oricărei colecții (RO) — generată din registru.
 import RecordLayout from "../../../layouts/RecordLayout.astro";
+import ContorInscrieri from "../../../components/ContorInscrieri.astro";
 import { getCollection, render } from "astro:content";
 import { collectionDefs, type CollectionDef } from "../../../data/collections";
 import { localizePath, useTranslations } from "../../../i18n/utils";
@@ -24,7 +25,17 @@ const t = useTranslations(lang);
 const { Content } = await render(entry);
 const d = entry.data;
 
-const meta = def.metaRows ? def.metaRows(d, lang) : [];
+let meta = def.metaRows ? def.metaRows(d, lang) : [];
+// Expoziții (15.09.2026, strategia 2026–2027): arbitrii anunțați apar pe fișă (referințe
+// către Colegiu), iar cât înscrierile sunt deschise, contorul public de înscrieri.
+if (def.slug === "expozitii" && Array.isArray(d.judges) && d.judges.length) {
+  const colegiu = await getCollection("arbitri" as any, (e: any) => e.id.startsWith(`${lang}/`));
+  const nume = d.judges
+    .map((ref: any) => colegiu.find((a: any) => a.id === ref.id || a.id.endsWith("/" + ref.id))?.data.title ?? "")
+    .filter(Boolean);
+  if (nume.length) meta = [...meta, { label: lang === "en" ? "Judges" : "Arbitri", value: nume.join(" · "), wide: true }];
+}
+const contorShowId = def.slug === "expozitii" && d.managerShowId && d.status !== "încheiată" ? String(d.managerShowId) : null;
 const jsonLd = def.jsonLd ? def.jsonLd(d, lang) : undefined;
 const breadcrumbs = [
   { label: t("nav.home"), href: localizePath("", lang) },
@@ -44,5 +55,6 @@ const breadcrumbs = [
   gallery={d.gallery}
   jsonLd={jsonLd}
 >
+  {contorShowId && <ContorInscrieri showId={contorShowId} lang={lang} />}
   <Content />
 </RecordLayout>

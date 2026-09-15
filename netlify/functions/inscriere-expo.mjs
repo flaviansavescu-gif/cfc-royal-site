@@ -31,6 +31,8 @@ import { createHash } from "node:crypto";
 import { json } from "./_comun/raspuns.mjs";
 
 const SECRET = process.env.EXPO_SYNC_SECRET || "";
+// Contorul public de înscrieri: { showId -> { la, valoare } }, ținut 60 s (vezi GET ?contor=).
+const CONTOR_CACHE = new Map();
 
 // Cât poate trimite o adresă IP într-o oră. Generos deliberat: o familie cu patru câini
 // trebuie să-i poată înscrie pe toți, iar o canisă mare poate veni cu opt. Peste
@@ -192,6 +194,33 @@ export default async (req) => {
   }
 
   // ——— Public: lista expozițiilor deschise ———
+  // Contorul public de înscrieri (15.09.2026): câți câini și câte rase are în coadă o
+  // expoziție cu înscrieri deschise. Doar cifre — nicio dată personală. Se ține 60 s în
+  // memorie, ca o pagină vizitată des să nu citească toată coada la fiecare deschidere.
+  if (req.method === "GET" && new URL(req.url).searchParams.get("contor")) {
+    const showId = new URL(req.url).searchParams.get("contor") || "";
+    if (!segmentCheieValid(showId)) return json({ eroare: "Referință invalidă." }, 400);
+    const acum = Date.now();
+    const vechi = CONTOR_CACHE.get(showId);
+    if (vechi && acum - vechi.la < 60_000) return json(vechi.valoare, 200, { antete: { "Cache-Control": "public, max-age=60" } });
+    let caini = 0;
+    const rase = new Set();
+    try {
+      const { blobs } = await store.list({ prefix: "coada/" + showId + "/" });
+      for (const b of blobs) {
+        const i = await store.get(b.key, { type: "json" }).catch(() => null);
+        if (!i) continue;
+        caini++;
+        if (i.rasaId) rase.add(String(i.rasaId));
+      }
+    } catch (err) {
+      console.error("Contorul de înscrieri a eșuat:", err);
+    }
+    const valoare = { caini, rase: rase.size };
+    CONTOR_CACHE.set(showId, { la: acum, valoare });
+    return json(valoare, 200, { antete: { "Cache-Control": "public, max-age=60" } });
+  }
+
   if (req.method === "GET") {
     const expozitii = [];
     const cuRepetitii = vedeRepetitiile(req);

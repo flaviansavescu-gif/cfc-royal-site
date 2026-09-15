@@ -1,0 +1,39 @@
+---
+// ContorInscrieri.astro — „N câini înscriși online · M rase" pe fișa unei expoziții cu
+// înscrieri deschise (15.09.2026, strategia 2026–2027, exemplul A.Ch.R. Satu Mare: numărul
+// de înscriși publicat ÎNAINTE de expoziție e dovadă socială). Cifra vine din coada de
+// înscrieri de pe site (GET ?contor=<showId>), la deschiderea paginii; sub prag nu se
+// afișează nimic — o cifră mică la prima ediție ar descuraja, nu ar încuraja.
+import type { Lang } from "../i18n/utils";
+interface Props { showId: string; lang: Lang; prag?: number }
+const { showId, lang, prag = 10 } = Astro.props;
+const T = lang === "en"
+  ? { caini: "dogs entered online", rase: "breeds", pana: "so far" }
+  : { caini: "câini înscriși online", rase: "rase", pana: "până acum" };
+---
+<p class="contor" id="contor-inscrieri" data-show={showId} data-prag={prag} hidden>
+  <strong id="contor-caini">0</strong> {T.caini} · <strong id="contor-rase">0</strong> {T.rase} <span class="contor__pana">({T.pana})</span>
+</p>
+<style>
+  .contor { margin: 0 0 1.25rem; padding: 0.6rem 0.9rem; border: 1px solid var(--color-border); border-left: 4px solid var(--color-primary); border-radius: var(--radius); background: var(--color-surface-alt); font-size: var(--fs-400); }
+  .contor strong { color: var(--color-primary); font-size: 1.15em; }
+  .contor__pana { color: var(--color-text-muted); font-size: var(--fs-300); }
+</style>
+<script>
+  (async () => {
+    const el = document.getElementById("contor-inscrieri");
+    if (!el) return;
+    try {
+      const r = await fetch("/.netlify/functions/inscriere-expo?contor=" + encodeURIComponent(el.dataset.show || ""));
+      if (!r.ok) return;
+      const d = await r.json();
+      const caini = Number(d.caini || 0);
+      if (caini < Number(el.dataset.prag || 10)) return;
+      const c = document.getElementById("contor-caini");
+      const ra = document.getElementById("contor-rase");
+      if (c) c.textContent = String(caini);
+      if (ra) ra.textContent = String(d.rase || 0);
+      el.hidden = false;
+    } catch { /* fără contor — pagina rămâne întreagă */ }
+  })();
+</script>

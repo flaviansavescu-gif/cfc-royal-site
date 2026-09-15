@@ -1054,7 +1054,9 @@ import RegistruLayout from "../../../layouts/RegistruLayout.astro";
     }
     function rand(c) {
       var unde = [c.localitate, c.judet].filter(Boolean).join(", ");
+      var SURSA = { recomandare: "de la un membru sau un crescător", expozitie: "la o expoziție", facebook: "Facebook / Instagram", cautare: "căutare pe internet", presa: "presă", veterinar: "cabinet veterinar", altceva: "altceva" };
       var extra = (c.student ? "<div class='g-mic'>🎓 student — cere reducerea taxei</div>" : "")
+        + (c.sursa || c.recomandatDe ? "<div class='g-mic'>📍 a aflat " + esc(SURSA[c.sursa] || c.sursa || "—") + (c.recomandatDe ? " · recomandat de " + esc(c.recomandatDe) : "") + "</div>" : "")
         + (c.mesaj ? "<div class='g-mic'>„" + esc(c.mesaj) + "”</div>" : "")
         + (c.stare === "respinsa" && c.motiv ? "<div class='g-mic' style='color:#8c1d2f'>motiv: " + esc(c.motiv) + "</div>" : "");
       return "<li class='g-dosar'><div><strong>" + esc(c.nume) + "</strong> <span class='g-mic'>· " + (ET[c.stare] || esc(c.stare)) + "</span>"

@@ -30,6 +30,20 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         <label class="ad__f"><span>Localitatea <b class="req">*</b></span><input id="ad-localitate" required maxlength="120" /></label>
         <label class="ad__f"><span>Județul</span><input id="ad-judet" maxlength="60" /></label>
       </div>
+      <div class="ad__row">
+        <label class="ad__f"><span>De unde ai aflat de noi?</span>
+          <select id="ad-sursa">
+            <option value="">— alege —</option>
+            <option value="recomandare">De la un membru sau un crescător</option>
+            <option value="expozitie">La o expoziție</option>
+            <option value="facebook">Facebook / Instagram</option>
+            <option value="cautare">Căutare pe internet</option>
+            <option value="presa">Presă</option>
+            <option value="veterinar">Cabinet veterinar</option>
+            <option value="altceva">Altceva</option>
+          </select></label>
+        <label class="ad__f"><span>Recomandat de (numele membrului)</span><input id="ad-recomandat" maxlength="120" placeholder="dacă te-a îndrumat cineva din club" /></label>
+      </div>
       <label class="ad__f"><span>Câteva cuvinte despre tine și câinii tăi (opțional)</span>
         <textarea id="ad-mesaj" maxlength="600" rows="3" placeholder="Rasa/rasele care te interesează, canisa (dacă ai), de unde ai aflat de club…"></textarea></label>
 
@@ -100,6 +114,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
           telefon: $("ad-telefon").value.trim(),
           localitate: $("ad-localitate").value.trim(),
           judet: $("ad-judet").value.trim(),
+          sursa: $("ad-sursa").value,
+          recomandatDe: $("ad-recomandat").value.trim(),
           mesaj: $("ad-mesaj").value.trim(),
           student: $("ad-student").checked,
           amCititActele: $("ad-acte").checked,

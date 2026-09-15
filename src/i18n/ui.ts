@@ -67,7 +67,7 @@ export const ui = {
 
     // Contact
     "contact.title": "Contact",
-    "contact.intro": "Scrie-ne folosind formularul de mai jos sau datele oficiale de contact.",
+    "contact.intro": "Scrie-ne folosind formularul de mai jos sau datele oficiale de contact. Răspundem în cel mult 2 zile lucrătoare; cererile de adeziune se verifică în cel mult 15 zile.",
     "contact.formTitle": "Trimite-ne un mesaj",
     "contact.name": "Nume",
     "contact.email": "E-mail",
@@ -162,7 +162,7 @@ export const ui = {
 
     // Contact
     "contact.title": "Contact",
-    "contact.intro": "Write to us using the form below or the official contact details.",
+    "contact.intro": "Write to us using the form below or the official contact details. We reply within 2 working days; membership applications are reviewed within 15 days.",
     "contact.formTitle": "Send us a message",
     "contact.name": "Name",
     "contact.email": "Email",
