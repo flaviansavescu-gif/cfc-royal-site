@@ -22,7 +22,7 @@ import { refuzaFaraCodEtic } from "./_comun/poarta-etica.mjs";
 // Logica pură (sanitizare, lărgime, sugestii, agregare) — testată separat.
 import {
   MIN_GRUPE, curataGrupe, curataRase, grupeEfective, poateTrimite,
-  sugestii, incarcareLectori, agregare, randIndex, pune,
+  sugestii, incarcareLectori, agregare, randIndex, pune, curataDecizie,
 } from "./_interese/logica.mjs";
 
 const store = () => getStore("interese");
@@ -85,7 +85,8 @@ async function reconstruiesteIndex() {
     const p = await st.get(b.key, { type: "json" }).catch(() => null);
     if (!p || !p.cid) continue;
     const al = await st.get("alocare/" + p.cid, { type: "json" }).catch(() => null);
-    out.push(randIndex(p, al));
+    const dec = await st.get("decizie/" + p.cid, { type: "json" }).catch(() => null);
+    out.push(randIndex(p, al, dec));
   }
   out.sort((a, b) => String(b.actualizat || "").localeCompare(String(a.actualizat || "")));
   await scrieIndexProfiluri(out);
@@ -122,7 +123,9 @@ export default cuLimitareCod(async (req) => {
       await st.setJSON("profil/" + cand.id, p);
       // Indexul ține listele Panoului și ale lectorilor — îl actualizăm odată cu profilul.
       const alocare = await citeste("alocare/" + cand.id);
-      await scrieIndexProfiluri(pune(await citesteIndexProfiluri(), randIndex(p, alocare)));
+      // Decizia conducerii (scoaterile) supraviețuiește re-salvării profilului de către candidat.
+      const decizie = await citeste("decizie/" + cand.id);
+      await scrieIndexProfiluri(pune(await citesteIndexProfiluri(), randIndex(p, alocare, decizie)));
       await audit("interese-salveaza", { rol: "candidat", id: cand.id }, cand.id);
       return json({ ok: true, profil: p });
     }
@@ -192,6 +195,31 @@ export default cuLimitareCod(async (req) => {
     await st.setJSON("deficit", grupe);
     await audit("interese-deficit", actor, grupe.join(","));
     return json({ ok: true, deficit: grupe });
+  }
+
+  // ——— Decizia asupra licențierii (15.09.2026) ———
+  // Alegerea candidatului rămâne neatinsă (profil/<cid>); ce SCOATE conducerea stă separat, în
+  // decizie/<cid>, ca listă de grupe și rase scoase — Consiliul Director hotărăște cu ce
+  // grupe și rase pornește fiecare la licențiere (un arbitru nu pornește cu toate cele 10).
+  if (actiune === "decizie-salveaza" || actiune === "decizie-sterge") {
+    const cid = taie(body.tinta, 80);
+    if (!cid || !segmentCheieValid(cid)) return json({ eroare: "Candidat lipsă." }, 400);
+    const index = await citesteIndexProfiluri();
+    const rand = index.find((x) => x && x.cid === cid);
+    if (!rand) return json({ eroare: "Candidatul nu are profil de interese." }, 404);
+    let decizie = null;
+    if (actiune === "decizie-salveaza") {
+      const d = curataDecizie(body);
+      decizie = { ...d, ts: acum(), de: actor.rol };
+      await st.setJSON("decizie/" + cid, decizie);
+      await audit("interese-decizie", actor, cid + " −G[" + d.grupeScoase.join(",") + "] −R[" + d.raseScoase.length + "]");
+    } else {
+      await st.delete("decizie/" + cid).catch(() => {});
+      await audit("interese-decizie-sterge", actor, cid);
+    }
+    rand.decizie = decizie;
+    await scrieIndexProfiluri(index);
+    return json({ ok: true, decizie });
   }
   return json({ eroare: "Acțiune necunoscută." }, 400);
 });

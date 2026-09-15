@@ -139,7 +139,8 @@ test("agregarea pe listă goală întoarce obiecte goale", () => {
 
 test("randIndex păstrează exact câmpurile necesare listelor", () => {
   const r = randIndex({ cid: "c1", nume: "Ion", grupe: [1], rase: [], nota: "n", actualizat: "2026-01-01", creat: "x", secret: "nu" }, { lectorSlug: "l" });
-  assert.deepEqual(Object.keys(r).sort(), ["actualizat", "alocare", "cid", "grupe", "nota", "nume", "rase"]);
+  assert.deepEqual(Object.keys(r).sort(), ["actualizat", "alocare", "cid", "decizie", "grupe", "nota", "nume", "rase"]);
+  assert.equal(r.decizie, null, "fără decizie, câmpul e null (nu lipsește)");
   assert.equal(r.secret, undefined, "nu duce mai departe câmpuri nedorite");
   assert.deepEqual(r.alocare, { lectorSlug: "l" });
 });
@@ -165,4 +166,46 @@ test("scoate elimină doar candidatul cerut", () => {
   assert.deepEqual(scoate(idx, "b").map((x) => x.cid), ["a", "c"]);
   assert.deepEqual(scoate(idx, "inexistent").map((x) => x.cid), ["a", "b", "c"]);
   assert.deepEqual(scoate(null, "a"), []);
+});
+
+// ————— Decizia asupra licențierii (15.09.2026) —————
+import { curataDecizie, aplicaDecizie, cheiaRasei } from "./logica.mjs";
+
+const PROFIL = {
+  cid: "c1", nume: "Test", grupe: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  rase: [{ ro: "Border Collie", g: 1 }, { ro: "Dobermann", g: 2 }, { ro: "Beagle", g: 6 }, { ro: "Whippet", g: 10 }],
+};
+
+test("fără decizie rămâne tot ce a ales candidatul", () => {
+  const r = aplicaDecizie(PROFIL, null);
+  assert.deepEqual(r.grupe, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  assert.equal(r.rase.length, 4);
+  assert.deepEqual(r.scoase, { grupe: [], rase: [] });
+});
+
+test("scoaterea unei grupe scoate și rasele ei; scoaterea unei rase o scoate doar pe ea", () => {
+  const r = aplicaDecizie(PROFIL, { grupeScoase: [6, 7, 8, 9, 10], raseScoase: ["2|Dobermann"] });
+  assert.deepEqual(r.grupe, [1, 2, 3, 4, 5]);
+  assert.deepEqual(r.rase.map(cheiaRasei), ["1|Border Collie"]);
+  assert.deepEqual(r.scoase.grupe, [6, 7, 8, 9, 10]);
+  assert.deepEqual(r.scoase.rase.map(cheiaRasei), ["2|Dobermann"], "Whippet (G10) e scos prin grupă, nu se numără de două ori");
+});
+
+test("decizia e o listă de SCOATERI: rămâne valabilă dacă profilul candidatului se schimbă", () => {
+  const decizie = { grupeScoase: [10], raseScoase: [] };
+  const profilNou = { ...PROFIL, rase: [...PROFIL.rase, { ro: "Greyhound", g: 10 }, { ro: "Akita", g: 5 }] };
+  const r = aplicaDecizie(profilNou, decizie);
+  assert.ok(!r.grupe.includes(10) && r.rase.every((x) => x.g !== 10), "grupa scoasă rămâne scoasă");
+  assert.ok(r.rase.some((x) => x.ro === "Akita"), "ce adaugă candidatul într-o grupă rămasă apare");
+});
+
+test("curataDecizie respinge gunoiul: grupe în afara 1–10, chei fără formă, duplicate", () => {
+  const d = curataDecizie({ grupeScoase: [0, 3, 3, 11, "7"], raseScoase: ["2|Dobermann", "2|Dobermann", "x", "12|Ceva", "", null] });
+  assert.deepEqual(d.grupeScoase, [3, 7]);
+  assert.deepEqual(d.raseScoase, ["2|Dobermann"]);
+});
+
+test("profil gol nu dărâmă nimic", () => {
+  const r = aplicaDecizie(null, { grupeScoase: [1] });
+  assert.deepEqual(r, { grupe: [], rase: [], scoase: { grupe: [], rase: [] } });
 });

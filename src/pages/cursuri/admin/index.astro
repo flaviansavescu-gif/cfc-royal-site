@@ -222,6 +222,12 @@ const TESTE = [
   </div>
 
   <div id="a-int-agg" class="a-int-agg" hidden></div>
+  <div class="a-int-toolbar" id="a-int-toolbar" hidden>
+    <span class="a-int-toolbar__t">Pentru Consiliul Director:</span>
+    <button id="a-int-copy-all" class="btn btn--small btn--outline" type="button">📋 Copiază toți candidații (alegerea + reținute)</button>
+    <button id="a-int-dl-all" class="btn btn--small btn--outline" type="button">⬇ Descarcă .txt</button>
+    <span class="a-int-toolbar__n">Pe fiecare candidat: alegerea lui rămâne neatinsă; din „Reținute pentru licențiere” scoți grupe sau rase cu ✕, iar Consiliul vede amândouă.</span>
+  </div>
   <div id="a-int-list" class="a-int-list">Se încarcă profilurile de interese…</div>
 
   </details>
@@ -1119,6 +1125,10 @@ const TESTE = [
       }
       if (c.nota) { const nt = document.createElement("div"); nt.className = "a-int-nota"; nt.textContent = "„" + c.nota + "”"; card.appendChild(nt); }
 
+      // Reținute pentru licențiere (15.09.2026): alegerea de mai sus rămâne neatinsă; aici
+      // conducerea SCOATE grupe sau rase, iar Consiliul Director vede amândouă listele.
+      card.appendChild(randDecizie(c));
+
       const asg = document.createElement("div"); asg.className = "a-int-assign";
       const sg = document.createElement("span"); sg.className = "a-int-sug"; sg.textContent = "Sugestie: ";
       (c.sugestii || []).forEach((s) => { const ch = chip(s.nume + " (" + s.overlap + ")" + (s.allBreed ? " ·AB" : ""), "is-sug"); sg.appendChild(ch); });
@@ -1167,6 +1177,126 @@ const TESTE = [
       }
     }
 
+    // ——— Decizia asupra licențierii (15.09.2026) ———
+    // Oglinda client a lui aplicaDecizie() din _interese/logica.mjs: ce rămâne după scoateri.
+    const cheiaRasei = (r) => r.g + "|" + r.ro;
+    function retinute(c) {
+      const gAlese = []; (c.grupe || []).forEach((g) => { if (gAlese.indexOf(g) < 0) gAlese.push(g); });
+      (c.rase || []).forEach((r) => { if (gAlese.indexOf(r.g) < 0) gAlese.push(r.g); });
+      gAlese.sort((a, b) => a - b);
+      const d = c.decizie || { grupeScoase: [], raseScoase: [] };
+      const gS = new Set(d.grupeScoase || []), rS = new Set(d.raseScoase || []);
+      return {
+        grupeAlese: gAlese,
+        grupe: gAlese.filter((g) => !gS.has(g)),
+        rase: (c.rase || []).filter((r) => !gS.has(r.g) && !rS.has(cheiaRasei(r))),
+        scoaseGrupe: gAlese.filter((g) => gS.has(g)),
+        scoaseRase: (c.rase || []).filter((r) => !gS.has(r.g) && rS.has(cheiaRasei(r))),
+      };
+    }
+    async function salveazaDecizie(c, grupeScoase, raseScoase, card) {
+      const d = await interCere({ actiune: "decizie-salveaza", tinta: c.cid, grupeScoase, raseScoase });
+      c.decizie = d.decizie;
+      const nou = randCandidatInteres(c, INT_DATE.deficit);
+      card.replaceWith(nou);
+    }
+    function randDecizie(c) {
+      const box = document.createElement("div"); box.className = "a-int-dec";
+      const r = retinute(c);
+      const h = document.createElement("div"); h.className = "a-int-dec__t";
+      h.textContent = "Reținute pentru licențiere: " + r.grupe.length + (r.grupe.length === 1 ? " grupă" : " grupe") + " · " + r.rase.length + " rase";
+      if (c.decizie) {
+        const s = document.createElement("span"); s.className = "a-int-dec__meta";
+        s.textContent = " — decizie din " + String(c.decizie.ts || "").slice(0, 10) + ": scoase " + r.scoaseGrupe.length + " grupe, " + r.scoaseRase.length + " rase";
+        h.appendChild(s);
+      }
+      box.appendChild(h);
+
+      const card = () => box.closest(".a-int-card");
+      const gr = document.createElement("div"); gr.className = "a-int-grupe";
+      r.grupe.forEach((g) => {
+        const ch = chip(grupaScurt(g) + " ✕", "is-del"); ch.title = "Scoate grupa (și rasele ei) din licențiere"; ch.setAttribute("role", "button"); ch.tabIndex = 0;
+        const act = async () => {
+          if (!confirm("Scoți „" + grupaScurt(g) + "” din licențierea lui " + (c.nume || "") + "? Rasele grupei ies odată cu ea.")) return;
+          try { await salveazaDecizie(c, r.scoaseGrupe.concat([g]), r.scoaseRase.map(cheiaRasei), card()); }
+          catch (err) { alert("Nu am putut salva decizia: " + err.message); }
+        };
+        ch.addEventListener("click", act); ch.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } });
+        gr.appendChild(ch);
+      });
+      if (!r.grupe.length) { const e = document.createElement("span"); e.className = "a-int-dec__gol"; e.textContent = "nicio grupă reținută"; gr.appendChild(e); }
+      box.appendChild(gr);
+
+      if (r.rase.length) {
+        const rz = document.createElement("div"); rz.className = "a-int-dec__rase";
+        r.rase.forEach((rasa) => {
+          const ch = chip(rasa.ro + " ✕", "is-rasa is-del"); ch.title = "Scoate rasa din licențiere"; ch.setAttribute("role", "button"); ch.tabIndex = 0;
+          const act = async () => {
+            try { await salveazaDecizie(c, r.scoaseGrupe, r.scoaseRase.map(cheiaRasei).concat([cheiaRasei(rasa)]), card()); }
+            catch (err) { alert("Nu am putut salva decizia: " + err.message); }
+          };
+          ch.addEventListener("click", act); ch.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } });
+          rz.appendChild(ch);
+        });
+        box.appendChild(rz);
+      }
+
+      const bar = document.createElement("div"); bar.className = "a-int-dec__bar";
+      if (c.decizie) {
+        const sc = document.createElement("div"); sc.className = "a-int-dec__scoase";
+        sc.textContent = "Scoase: " + r.scoaseGrupe.map(grupaScurt).concat(r.scoaseRase.map((x) => x.ro)).join(", ");
+        box.appendChild(sc);
+        const rb = document.createElement("button"); rb.type = "button"; rb.className = "btn btn--small btn--outline"; rb.textContent = "↺ Restabilește alegerea candidatului";
+        rb.addEventListener("click", async () => {
+          if (!confirm("Ștergi decizia și revii la alegerea completă a candidatului?")) return;
+          try { await interCere({ actiune: "decizie-sterge", tinta: c.cid }); c.decizie = null; card().replaceWith(randCandidatInteres(c, INT_DATE.deficit)); }
+          catch (err) { alert("Nu am putut șterge decizia: " + err.message); }
+        });
+        bar.appendChild(rb);
+      }
+      const cb = document.createElement("button"); cb.type = "button"; cb.className = "btn btn--small btn--outline"; cb.textContent = "📋 Copiază pentru Consiliu";
+      cb.addEventListener("click", () => copiazaText(textConsiliu(c), cb));
+      bar.appendChild(cb);
+      box.appendChild(bar);
+      return box;
+    }
+
+    // Textul pentru Consiliul Director: alegerea candidatului ȘI ce rămâne după decizie.
+    function textConsiliu(c) {
+      const r = retinute(c);
+      const eticheta = (g) => grupaScurt(g).replace(/^Grupa /, "");
+      const linii = [];
+      linii.push("CANDIDAT: " + (c.nume || "(fără nume)"));
+      linii.push("Ales de candidat: " + r.grupeAlese.length + " grupe · " + (c.rase || []).length + " rase");
+      linii.push("  Grupe: " + (r.grupeAlese.map(eticheta).join("; ") || "—"));
+      linii.push("  Rase: " + ((c.rase || []).map((x) => x.ro + " (G" + x.g + ")").join(", ") || "—"));
+      if (c.nota) linii.push("  Nota candidatului: „" + c.nota + "”");
+      linii.push("Reținute pentru licențiere" + (c.decizie ? " (decizie din " + String(c.decizie.ts || "").slice(0, 10) + ")" : " (fără decizie încă: tot ce a ales)") + ": " + r.grupe.length + " grupe · " + r.rase.length + " rase");
+      linii.push("  Grupe: " + (r.grupe.map(eticheta).join("; ") || "—"));
+      linii.push("  Rase: " + (r.rase.map((x) => x.ro + " (G" + x.g + ")").join(", ") || "—"));
+      if (c.decizie) linii.push("  Scoase: " + (r.scoaseGrupe.map(eticheta).concat(r.scoaseRase.map((x) => x.ro)).join("; ") || "—"));
+      linii.push("Lector principal: " + (c.alocare ? c.alocare.lectorNume : "nerepartizat"));
+      return linii.join("\n");
+    }
+    function textConsiliuToti(d) {
+      const cap = "ȘCOALA DE ARBITRAJ — GRUPELE ȘI RASELE CANDIDAȚILOR, PENTRU CONSILIUL DIRECTOR\nGenerat " + new Date().toLocaleString("ro-RO") + " · " + d.candidati.length + " candidați cu interese declarate\n";
+      return cap + "\n" + d.candidati.map(textConsiliu).join("\n\n" + "—".repeat(40) + "\n\n");
+    }
+    async function copiazaText(text, btn) {
+      const vechi = btn.textContent;
+      try { await navigator.clipboard.writeText(text); btn.textContent = "✔ Copiat"; }
+      catch (e) { btn.textContent = "Nu s-a putut copia"; }
+      setTimeout(() => { btn.textContent = vechi; }, 2000);
+    }
+    function descarcaText(text, nume) {
+      const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+      const a = document.createElement("a"); a.href = url; a.download = nume; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    let INT_DATE = { candidati: [], deficit: [] };
+    document.getElementById("a-int-copy-all").addEventListener("click", (e) => copiazaText(textConsiliuToti(INT_DATE), e.currentTarget));
+    document.getElementById("a-int-dl-all").addEventListener("click", () => descarcaText(textConsiliuToti(INT_DATE), "candidati-grupe-rase-consiliu.txt"));
+
     function randDeficitBoxes(deficit) {
       const box = document.getElementById("a-int-def-boxes"); box.textContent = "";
       const setDef = {}; (deficit || []).forEach((g) => (setDef[g] = 1));
@@ -1184,6 +1314,8 @@ const TESTE = [
       try { d = await interCere({ actiune: "toate" }); }
       catch (e) { list.textContent = "Nu am putut încărca profilurile: " + e.message; return; }
       INT_GRUPE = d.grupe || {}; INT_LECTORI = d.lectori || [];
+      INT_DATE = d;
+      document.getElementById("a-int-toolbar").hidden = !(d.candidati || []).length;
       randDeficitBoxes(d.deficit);
       randAgregare(d);
       list.textContent = "";
@@ -1423,6 +1555,18 @@ const TESTE = [
   :global(.a-int-chip.is-focal) { background: #fbf3d9; border-color: var(--color-accent); color: var(--color-accent-dark); }
   :global(.a-int-chip.is-sug) { background: #eef4ee; border-color: #b9d3b9; color: var(--color-primary); }
   :global(.a-int-chip.is-rasa) { background: var(--color-surface); }
+  :global(.a-int-chip.is-del) { cursor: pointer; }
+  :global(.a-int-chip.is-del:hover), :global(.a-int-chip.is-del:focus-visible) { background: #f7e2e2; border-color: #c0392b; color: #8c1d2f; }
+  .a-int-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0 0 1rem; padding: 0.6rem 0.9rem; border: 1px dashed var(--color-border); border-radius: var(--radius); }
+  .a-int-toolbar__t { font-weight: 600; }
+  .a-int-toolbar__n { flex-basis: 100%; font-size: 0.85rem; color: var(--color-text-muted); }
+  :global(.a-int-dec) { margin-top: 0.6rem; padding: 0.55rem 0.75rem; border: 1px solid var(--color-border); border-left: 3px solid var(--color-accent); border-radius: var(--radius); background: var(--color-surface-alt); }
+  :global(.a-int-dec__t) { font-weight: 600; font-size: 0.92rem; margin-bottom: 0.35rem; }
+  :global(.a-int-dec__meta) { font-weight: 400; color: var(--color-text-muted); }
+  :global(.a-int-dec__rase) { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.4rem; }
+  :global(.a-int-dec__scoase) { margin-top: 0.4rem; font-size: 0.85rem; color: #8c1d2f; }
+  :global(.a-int-dec__gol) { font-size: 0.85rem; color: var(--color-text-muted); }
+  :global(.a-int-dec__bar) { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
   :global(.a-int-rase) { font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 0.35rem; }
   :global(.a-int-nota) { font-size: 0.88rem; color: var(--color-text); font-style: italic; margin-bottom: 0.4rem; }
   :global(.a-int-assign) { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.75rem; margin-top: 0.5rem;

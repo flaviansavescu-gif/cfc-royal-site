@@ -96,7 +96,7 @@ export function agregare(profiluri) {
 }
 
 /** Rândul scurt din index (ce e nevoie pentru Panou și pentru spațiul lectorului). */
-export function randIndex(profil, alocare) {
+export function randIndex(profil, alocare, decizie) {
   return {
     cid: profil.cid,
     nume: profil.nume || "",
@@ -104,7 +104,59 @@ export function randIndex(profil, alocare) {
     rase: profil.rase || [],
     nota: profil.nota || "",
     alocare: alocare || null,
+    // Decizia asupra licențierii (15.09.2026): ce a SCOS conducerea din alegerea candidatului.
+    decizie: decizie || null,
     actualizat: profil.actualizat || "",
+  };
+}
+
+// ————— DECIZIA ASUPRA LICENȚIERII (15.09.2026) —————
+// Candidatul alege liber (uneori toate cele 10 grupe); Consiliul Director hotărăște cu ce
+// grupe și rase pornește la licențiere. Alegerea candidatului rămâne NEATINSĂ, ca dovadă;
+// decizia se ține separat, ca listă de SCOATERI — așa rămâne valabilă și dacă omul își
+// completează ulterior profilul: ce a scos Consiliul rămâne scos, ce adaugă el apare.
+
+/** Cheia unei rase în decizie: „g|nume". */
+export const cheiaRasei = (r) => (r ? r.g + "|" + r.ro : "");
+
+/** Sanitizează o decizie venită din panou: grupe 1–10 și chei „g|nume" valide, fără duplicate. */
+export function curataDecizie(v) {
+  const grupeScoase = curataGrupe(v && v.grupeScoase);
+  const raseScoase = [];
+  if (v && Array.isArray(v.raseScoase)) {
+    for (const x of v.raseScoase) {
+      const s = taie(x, 130);
+      const m = /^(\d{1,2})\|(.+)$/.exec(s);
+      if (!m) continue;
+      const g = parseInt(m[1], 10);
+      if (!(g >= 1 && g <= 10) || raseScoase.indexOf(s) >= 0) continue;
+      raseScoase.push(s);
+      if (raseScoase.length >= MAX_RASE) break;
+    }
+  }
+  return { grupeScoase, raseScoase };
+}
+
+/**
+ * Ce RĂMÂNE pentru licențiere după decizie: grupele efective ale candidatului minus cele
+ * scoase; rasele lui minus cele scoase și minus cele din grupele scoase. Fără decizie,
+ * rămâne tot ce a ales.
+ */
+export function aplicaDecizie(profil, decizie) {
+  const grupeAlese = grupeEfective(profil && profil.grupe, profil && profil.rase);
+  const raseAlese = (profil && profil.rase) || [];
+  if (!decizie) return { grupe: grupeAlese, rase: raseAlese.slice(), scoase: { grupe: [], rase: [] } };
+  const d = curataDecizie(decizie);
+  const gScoase = new Set(d.grupeScoase);
+  const rScoase = new Set(d.raseScoase);
+  const grupe = grupeAlese.filter((g) => !gScoase.has(g));
+  const rase = raseAlese.filter((r) => !gScoase.has(r.g) && !rScoase.has(cheiaRasei(r)));
+  return {
+    grupe, rase,
+    scoase: {
+      grupe: grupeAlese.filter((g) => gScoase.has(g)),
+      rase: raseAlese.filter((r) => !gScoase.has(r.g) && rScoase.has(cheiaRasei(r))),
+    },
   };
 }
 
