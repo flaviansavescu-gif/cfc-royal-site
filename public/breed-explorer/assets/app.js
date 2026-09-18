@@ -1193,6 +1193,16 @@
     cols.appendChild(favoritesPanel());
     wrap.appendChild(cols);
 
+    // Punte BreedCue
+    wrap.appendChild(el("div", { class: "panel card", style: "margin-top:16px" }, [
+      el("div", { class: "panel-title" }, [el("h2", { text: "📲 Punte către BreedCue" })]),
+      el("p", { class: "lede", text: "BreedCue este aplicația Android de citit standardele în ring. Trimite o rasă din pagina ei de profil (butonul „Trimite în BreedCue”) sau exportă întreaga bibliotecă aici." }),
+      el("div", { style: "display:flex;gap:10px;flex-wrap:wrap" }, [
+        el("button", { class: "btn", onclick: exportLibraryForBreedCue }, "⬇ Exportă toată biblioteca (JSON)"),
+        el("button", { class: "btn", onclick: openBreedCue }, "↗ Deschide BreedCue"),
+      ]),
+    ]));
+
     // Intro panel
     wrap.appendChild(el("div", { class: "panel card intro-panel", style: "margin-top:16px" }, [
       el("h2", { text: "About this tool" }),
@@ -1512,6 +1522,7 @@
         el("button", { class: "btn btn-sm", onclick: () => printProfile() }, "⎙ Print"),
         el("button", { class: "btn btn-sm", onclick: () => exportProfileWord(b) }, "⬇ Word"),
         el("button", { class: "btn btn-sm", onclick: () => exportWord(slugify(b.breed_name) + "-revision.doc", b.breed_name + " — revision sheet", wordDocRevisionSheet(b)) }, "⬇ Revision sheet"),
+        el("button", { class: "btn btn-sm", title: "Trimite standardul acestei rase către aplicația Android BreedCue", onclick: () => sendBreedToBreedCue(b) }, "📲 Trimite în BreedCue"),
       ]),
     ]);
     wrap.appendChild(head);
@@ -3441,6 +3452,60 @@
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1500);
     toast("Word document exported.", "ok");
+  }
+
+  /* ---------------------------------------------------------
+     Punte BreedCue — trimite standardul (o rasă sau toată
+     biblioteca) către aplicația Android BreedCue (citit în ring).
+     Static / offline: folosește Web Share API cu fișier când e
+     disponibil (Android), altfel descarcă fișierul JSON.
+     Fișierul păstrează structura din breeds.json neschimbată:
+     { schema_version, meta (incl. disclaimer), breeds:[…] }.
+     --------------------------------------------------------- */
+  function breedcueDoc(breeds) {
+    return {
+      schema_version: (state.meta && state.meta.schema_version) ? state.meta.schema_version : "1.0",
+      meta: state.meta || {},
+      breeds: breeds,
+    };
+  }
+  function safeFileName(name) {
+    return (String(name || "breed").replace(/[\/\\:*?"<>|]+/g, "-").replace(/\s+/g, " ").trim() || "breed");
+  }
+  function downloadJsonFile(json, filename) {
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = el("a", { href: url, download: filename });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    toast("Fișier descărcat: " + filename, "ok");
+  }
+  function shareOrDownloadJson(json, filename, title) {
+    try {
+      if (navigator.share && navigator.canShare && typeof File === "function") {
+        const file = new File([json], filename, { type: "application/json" });
+        if (navigator.canShare({ files: [file] })) {
+          navigator.share({ files: [file], title: title })
+            .then(function () { toast("Trimis către BreedCue.", "ok"); })
+            .catch(function (err) { if (!err || err.name !== "AbortError") downloadJsonFile(json, filename); });
+          return;
+        }
+      }
+    } catch (e) { /* fallback la descărcare */ }
+    downloadJsonFile(json, filename);
+  }
+  function sendBreedToBreedCue(b) {
+    const json = JSON.stringify(breedcueDoc([b]), null, 2);
+    shareOrDownloadJson(json, safeFileName(b.breed_name) + ".breedcue.json", b.breed_name);
+  }
+  function exportLibraryForBreedCue() {
+    const json = JSON.stringify(breedcueDoc(state.breeds), null, 2);
+    shareOrDownloadJson(json, "breedcue-library.json", "CFC-Royal Breed Standards — bibliotecă");
+  }
+  function openBreedCue() {
+    const a = el("a", { href: "breedcue://open" });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { toast("Dacă BreedCue este instalat, se deschide. Altfel, folosește „Trimite în BreedCue”.", "ok"); }, 500);
   }
 
   // -- small HTML builders for Word docs --
